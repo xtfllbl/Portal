@@ -92,10 +92,12 @@
         .reseller-hero h1 { margin: 4px 0; font-size: 18px; font-weight: 700; }
         .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; opacity: .9; }
         .hero-status { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-        .hero-status-pill { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.35); font-size: 11px; font-weight: 700; }
+        .hero-status-pill { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.35); font-size: 11px; font-weight: 700; transition: all .15s ease; }
+        .hero-status-pill.inactive { background: #ffe8e6; color: #b40000; border-color: #ffb5ae; }
         .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .chip-button { padding: 7px 12px; border-radius: 999px; border: 1px solid #d9d9d9; background: #fff; color: #111; font-size: 12px; font-weight: 600; cursor: pointer; }
         .primary-action { background: #111; color: #fff; border: 1px solid #111; }
+        .chip-button.danger { border-color: #ffb5ae; color: #b40000; background: #ffe8e6; }
 
         .tab-bar { display: flex; list-style: none; margin: 0; padding: 0 16px; border-bottom: 1px solid var(--card-border); gap: 20px; }
         .tab { position: relative; padding: 10px 0; font-size: 13px; font-weight: 600; color: var(--text-muted); }
@@ -112,6 +114,16 @@
         .detail-card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; row-gap: 6px; column-gap: 10px; font-size: 12px; }
         .detail-card dt { color: var(--text-muted); }
         .detail-card dd { margin: 0; color: var(--text-body); }
+        .token-card { display: flex; flex-direction: column; gap: 12px; }
+        .token-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .token-meta strong { color: var(--text-heading); }
+        .token-list { display: flex; flex-direction: column; gap: 10px; }
+        .token-item { border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; background: #fff; }
+        .token-item .token-title { font-weight: 700; color: var(--text-heading); margin-bottom: 6px; }
+        .token-row { display: grid; grid-template-columns: 80px 1fr; gap: 6px; align-items: center; font-size: 13px; }
+        .token-row .label { color: var(--text-muted); }
+        .token-value { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .token-mask { letter-spacing: .04em; }
 
         /* Provider form/display layout */
         .provider-section { display: flex; flex-direction: column; gap: 12px; }
@@ -171,6 +183,9 @@
         .action-buttons { display: flex; align-items: center; gap: 8px; }
         .action-button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--card-border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #666; font-size: 12px; font-weight: 700; }
         .action-button:hover { color: #111; border-color: #bfbfbf; }
+        .action-button.icon-only { width: 32px; height: 32px; padding: 0; }
+        .action-button svg { width: 14px; height: 14px; }
+        .action-button.danger { border-color: #ffc7c2; color: #b40000; }
 
         @media (max-width: 1200px) { .content-layout { grid-template-columns: 1fr; } }
         @media (max-width: 860px) {
@@ -192,6 +207,7 @@
         .dropdown-menu.show { display: block; }
         .dropdown-item { width: 100%; text-align: left; padding: 8px 10px; border: 1px solid transparent; background: #fff; border-radius: 6px; font-size: 13px; color: var(--text-heading); cursor: pointer; }
         .dropdown-item:hover { background: #f5f5f5; }
+        .dropdown-menu.wide { width: 220px; }
 
         /* Pre-Config modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 100; }
@@ -300,10 +316,17 @@
                             </div>
                         </div>
                             <div class="hero-status">
-                                <span class="hero-status-pill">Active</span>
+                                <span class="hero-status-pill" id="merchantStatusPill">Active</span>
                                 <div class="hero-actions">
                                     <button class="chip-button">Export</button>
-                                    <button class="chip-button">Settings</button>
+                                    <div style="position: relative;">
+                                        <button class="chip-button" id="merchantSettingsBtn" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+                                        <div class="dropdown-menu wide" id="merchantSettingsMenu" aria-hidden="true">
+                                            <button class="dropdown-item" data-action="payment">Payment Parameter Setting</button>
+                                            <button class="dropdown-item" data-action="toggle-status" id="toggleMerchantStatus">Disable Merchant</button>
+                                            <button class="dropdown-item" data-action="resend">Resend Email</button>
+                                        </div>
+                                    </div>
                                     <button id="preConfigBtn" class="chip-button">+ Pre-Configration</button>
                                     <button id="addTerminalBtn" class="chip-button">+ Add Terminal</button>
                                 </div>
@@ -313,7 +336,7 @@
                         <li class="tab" data-target="reseller-detail" id="detailTab">Reseller Detail</li>
                         <li class="tab active" data-target="terminal-list">Terminal List</li>
                         <li class="tab" data-target="profile">Profile</li>
-                        <li class="tab" data-target="organization">Organization</li>
+                        <li class="tab" data-target="token">Token</li>
                     </ul>
                     <div class="tab-panels">
                         <section class="tab-panel" data-panel="reseller-detail">
@@ -527,6 +550,41 @@
                                 </div>
                             </div>
                         </section>
+                        <section class="tab-panel" data-panel="token">
+                            <div class="detail-card token-card">
+                                <h4>Developer Token</h4>
+                                <div class="token-list">
+                                    <div class="token-item">
+                                        <div class="token-title">eCommerce</div>
+                                        <div class="token-row">
+                                            <div class="label">Type</div>
+                                            <div class="token-value">eCommerce</div>
+                                        </div>
+                                        <div class="token-row">
+                                            <div class="label">Token</div>
+                                            <div class="token-value">
+                                                <span class="token-mask">DVQP**********************ERT1</span>
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="token-item">
+                                        <div class="token-title">Terminal</div>
+                                        <div class="token-row">
+                                            <div class="label">Type</div>
+                                            <div class="token-value">Terminal</div>
+                                        </div>
+                                        <div class="token-row">
+                                            <div class="label">Token</div>
+                                            <div class="token-value">
+                                                <span class="token-mask">03F4**********************YHSY</span>
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                         <section class="tab-panel" data-panel="organization">
                             <div class="detail-card">
                                 <h4>Organization Structure</h4>
@@ -636,8 +694,270 @@
         </form>
       </div>
     </div>
+    <!-- Payment Parameter Setting Modal -->
+    <div id="paymentSettingModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 720px;">
+        <header>
+          <span>Payment Parameter Setting</span>
+          <button class="close-btn" id="paymentSettingClose" aria-label="Close">&times;</button>
+        </header>
+        <div class="modal-body" style="grid-template-columns: 1fr;">
+          <div class="card-toolbar" style="margin:0 0 12px;">
+            <button type="button" class="chip-button primary-action" id="paymentSettingAdd">Add</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Payment Channel</th>
+                  <th>Channel Cost</th>
+                  <th>Date &amp; Time</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-channel="payWizardDemo" data-fee-rate="0" data-fee-cap="100" data-mid="2025121500000001" data-capabilities="Card Present" data-cost="0%, Capping 100 Per Transaction">
+                  <td>payWizardDemo</td>
+                  <td>0%, Capping 100 Per Transaction</td>
+                  <td>2025-12-15 10:19:04</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-button icon-only" aria-label="Edit" data-action="edit-payment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
+                      </button>
+                      <button class="action-button icon-only danger" aria-label="Delete" data-action="delete-payment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="chip-button" id="paymentSettingCloseFooter">Close</button>
+        </div>
+      </div>
+    </div>
+    <!-- Payment Channel Edit Modal -->
+    <div id="paymentEditModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 640px;">
+        <header>
+          <span id="paymentEditTitle">Edit Payment Channel</span>
+          <button class="close-btn" id="paymentEditClose" aria-label="Close">&times;</button>
+        </header>
+        <form id="paymentEditForm">
+          <div class="modal-body" style="grid-template-columns: 1fr;">
+            <div class="form-grid" style="grid-template-columns: repeat(2, minmax(240px, 1fr));">
+              <div class="field full">
+                <label for="pe-channel">Payment Channels</label>
+                <input id="pe-channel" name="channel" type="text" readonly value="payWizardDemo">
+              </div>
+              <div class="field">
+                <label for="pe-fee-rate">Fee Rate (%)</label>
+                <input id="pe-fee-rate" name="feeRate" type="number" step="0.01" min="0" value="0">
+              </div>
+              <div class="field">
+                <label for="pe-fee-cap">Fee Rate Cap</label>
+                <input id="pe-fee-cap" name="feeCap" type="number" min="0" value="100">
+              </div>
+              <div class="field full">
+                <label for="pe-mid">Merchant ID (MID)</label>
+                <input id="pe-mid" name="mid" type="text" readonly value="2025121500000001">
+              </div>
+            </div>
+            <div class="field full" style="margin-top:12px;">
+              <label for="pe-capabilities">Channel Capabilities</label>
+              <select id="pe-capabilities" name="capabilities">
+                <option value="Card Present">Card Present</option>
+                <option value="eCommerce">eCommerce</option>
+                <option value="MOTO">MOTO</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="chip-button" id="paymentEditCancel">Cancel</button>
+            <button type="submit" class="chip-button primary-action">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Developer Token Modal -->
+    <div id="developerTokenModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 520px;">
+        <header>
+          <span>Developer Token</span>
+          <button class="close-btn" id="developerTokenClose" aria-label="Close">&times;</button>
+        </header>
+        <div class="modal-body" style="grid-template-columns: 1fr;">
+          <div class="detail-card" style="border:none; box-shadow:none; padding:0;">
+            <div class="display-field">
+              <div class="display-label">Current Token</div>
+              <div class="display-value" id="devTokenValue">sk_live_a1b2c3d4e5f6g7h8i9</div>
+            </div>
+            <div class="display-field">
+              <div class="display-label">Created At</div>
+              <div class="display-value">2025-12-12 22:03:16</div>
+            </div>
+            <div class="form-actions" style="justify-content:flex-start; margin-top:12px;">
+              <button type="button" class="chip-button primary-action" id="copyTokenBtn">Copy Token</button>
+              <button type="button" class="chip-button" id="regenTokenBtn">Regenerate</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="chip-button" id="developerTokenCloseFooter">Close</button>
+        </div>
+      </div>
+    </div>
       <script>
         (function(){
+        // Merchant status + settings controls
+        var statusPill = document.getElementById('merchantStatusPill');
+        var toggleStatusItem = document.getElementById('toggleMerchantStatus');
+        var merchantSettingsBtn = document.getElementById('merchantSettingsBtn');
+        var merchantSettingsMenu = document.getElementById('merchantSettingsMenu');
+        var paymentSettingModal = document.getElementById('paymentSettingModal');
+        var paymentSettingClose = document.getElementById('paymentSettingClose');
+        var paymentSettingCloseFooter = document.getElementById('paymentSettingCloseFooter');
+        var paymentSettingAdd = document.getElementById('paymentSettingAdd');
+        var paymentEditModal = document.getElementById('paymentEditModal');
+        var paymentEditClose = document.getElementById('paymentEditClose');
+        var paymentEditCancel = document.getElementById('paymentEditCancel');
+        var paymentEditForm = document.getElementById('paymentEditForm');
+        var paymentEditTitle = document.getElementById('paymentEditTitle');
+        var peChannel = document.getElementById('pe-channel');
+        var peFeeRate = document.getElementById('pe-fee-rate');
+        var peFeeCap = document.getElementById('pe-fee-cap');
+        var peMid = document.getElementById('pe-mid');
+        var peCapabilities = document.getElementById('pe-capabilities');
+        var developerTokenModal = document.getElementById('developerTokenModal');
+        var developerTokenClose = document.getElementById('developerTokenClose');
+        var developerTokenCloseFooter = document.getElementById('developerTokenCloseFooter');
+        var copyTokenBtn = document.getElementById('copyTokenBtn');
+        var regenTokenBtn = document.getElementById('regenTokenBtn');
+        var devTokenValue = document.getElementById('devTokenValue');
+
+        var merchantStatus = 'active';
+        function setMerchantStatus(state){
+          merchantStatus = state;
+          if(statusPill){
+            statusPill.textContent = state === 'inactive' ? 'Inactive' : 'Active';
+            statusPill.classList.toggle('inactive', state === 'inactive');
+          }
+          if(toggleStatusItem){
+            toggleStatusItem.textContent = state === 'inactive' ? 'Enable Merchant' : 'Disable Merchant';
+          }
+        }
+
+        function toggleSettingsMenu(show){
+          if(!merchantSettingsMenu || !merchantSettingsBtn) return;
+          var next = typeof show === 'boolean' ? show : !merchantSettingsMenu.classList.contains('show');
+          merchantSettingsMenu.classList.toggle('show', next);
+          merchantSettingsMenu.setAttribute('aria-hidden', next ? 'false' : 'true');
+          merchantSettingsBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
+        }
+
+        function openModal(modal){
+          if(!modal) return;
+          modal.classList.add('show');
+          modal.setAttribute('aria-hidden','false');
+        }
+
+        function openPaymentEdit(data){
+          if(!paymentEditModal) return;
+          var payload = Object.assign({
+            channel: 'payWizardDemo',
+            feeRate: '0',
+            feeCap: '100',
+            mid: '2025121500000001',
+            capabilities: 'Card Present',
+            mode: 'edit'
+          }, data || {});
+          if(paymentEditTitle) paymentEditTitle.textContent = payload.mode === 'add' ? 'Add Payment Channel' : 'Edit Payment Channel';
+          if(peChannel) peChannel.value = payload.channel || '';
+          if(peFeeRate) peFeeRate.value = payload.feeRate || '';
+          if(peFeeCap) peFeeCap.value = payload.feeCap || '';
+          if(peMid) peMid.value = payload.mid || '';
+          if(peCapabilities) peCapabilities.value = payload.capabilities || 'Card Present';
+          openModal(paymentEditModal);
+        }
+
+        if(merchantSettingsBtn && merchantSettingsMenu){
+          merchantSettingsBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            toggleSettingsMenu();
+          });
+          document.addEventListener('click', function(){ toggleSettingsMenu(false); });
+          merchantSettingsMenu.addEventListener('click', function(e){
+            var item = e.target.closest('.dropdown-item');
+            if(!item) return;
+            var action = item.getAttribute('data-action');
+            if(action === 'payment'){ openModal(paymentSettingModal); }
+            if(action === 'resend'){ alert('Login email resent to merchant admin (mock).'); }
+            if(action === 'toggle-status'){ setMerchantStatus(merchantStatus === 'inactive' ? 'active' : 'inactive'); }
+            toggleSettingsMenu(false);
+          });
+        }
+
+        function wireClose(btn, modal){
+          if(btn) btn.addEventListener('click', function(){ if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); } });
+        }
+
+        wireClose(paymentSettingClose, paymentSettingModal);
+        wireClose(paymentSettingCloseFooter, paymentSettingModal);
+        if(paymentSettingAdd){ paymentSettingAdd.addEventListener('click', function(){ openPaymentEdit({ mode: 'add' }); }); }
+        if(paymentSettingModal){
+          paymentSettingModal.addEventListener('click', function(e){
+            var editBtn = e.target.closest('[data-action="edit-payment"]');
+            if(editBtn){
+              var row = editBtn.closest('tr');
+              openPaymentEdit({
+                channel: row ? row.getAttribute('data-channel') : '',
+                feeRate: row ? row.getAttribute('data-fee-rate') : '',
+                feeCap: row ? row.getAttribute('data-fee-cap') : '',
+                mid: row ? row.getAttribute('data-mid') : '',
+                capabilities: row ? row.getAttribute('data-capabilities') : 'Card Present',
+                mode: 'edit'
+              });
+              return;
+            }
+            var delBtn = e.target.closest('[data-action="delete-payment"]');
+            if(delBtn){
+              var channel = delBtn.closest('tr') ? delBtn.closest('tr').getAttribute('data-channel') : 'this channel';
+              if(confirm('Delete ' + channel + ' (mock)?')){ alert('Channel removed (mock).'); }
+            }
+          });
+        }
+
+        wireClose(paymentEditClose, paymentEditModal);
+        wireClose(paymentEditCancel, paymentEditModal);
+        if(paymentEditForm){
+          paymentEditForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            alert('Payment channel saved (mock).');
+            if(paymentEditModal){ paymentEditModal.classList.remove('show'); paymentEditModal.setAttribute('aria-hidden','true'); }
+          });
+        }
+
+        wireClose(developerTokenClose, developerTokenModal);
+        wireClose(developerTokenCloseFooter, developerTokenModal);
+        if(copyTokenBtn && devTokenValue){
+          copyTokenBtn.addEventListener('click', function(){
+            navigator.clipboard && navigator.clipboard.writeText(devTokenValue.textContent.trim()).then(function(){
+              alert('Token copied.');
+            }, function(){ alert('Copy failed, please copy manually.'); });
+          });
+        }
+        if(regenTokenBtn && devTokenValue){
+          regenTokenBtn.addEventListener('click', function(){
+            var suffix = Math.random().toString(36).slice(-8);
+            devTokenValue.textContent = 'sk_live_' + suffix + suffix;
+            alert('New token generated (mock).');
+          });
+        }
+
         var btn = document.getElementById('hierAddBtn');
         var menu = document.getElementById('hierAddMenu');
         if(btn && menu){
@@ -682,6 +1002,8 @@
             if(detailTab) detailTab.textContent = 'Reseller Detail';
             if(resellerContent) resellerContent.style.display = '';
             if(merchantContent) merchantContent.style.display = 'none';
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
+            setMerchantStatus('active');
             return;
           }
           var isMerchant = info.type === 'merchant';
@@ -693,6 +1015,11 @@
           if(isMerchant){
             var mdName = document.getElementById('md-merchant-name');
             if(mdName) mdName.textContent = info.name;
+            setMerchantStatus('active');
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'inline-flex';
+          } else {
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
+            setMerchantStatus('active');
           }
         }
 
