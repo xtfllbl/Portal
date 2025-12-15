@@ -144,6 +144,14 @@
         .display-logo { display: flex; align-items: center; gap: 12px; }
         .logo-box { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--card-border); background: #fff; display: grid; place-items: center; color: #111; font-weight: 700; }
 
+        /* Profile editing */
+        .profile-card { position: relative; }
+        .profile-card.editing { border-color: #111; box-shadow: 0 8px 20px rgba(0,0,0,.10); }
+        .profile-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .profile-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .mode-pill { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--card-border); background: #f7f7f7; font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
+        .profile-form { margin-top: 6px; }
+
         /* Dropzone */
         .upload-dropzone { display: grid; place-items: center; min-height: 140px; border: 1px dashed var(--card-border); border-radius: 10px; background: #fafafa; color: var(--text-muted); cursor: pointer; transition: background .15s ease, border-color .15s ease; }
         .upload-dropzone:hover { background: #f5f5f5; }
@@ -520,34 +528,151 @@
                             </div>
                         </section>
                         <section class="tab-panel" data-panel="profile">
-                            <div class="detail-card">
-                                <h4>Merchant Profile</h4>
-                                <div class="provider-display">
+                            <div class="detail-card profile-card" id="profileCard">
+                                <div class="profile-header">
+                                    <h4>Agent / Subreseller Profile</h4>
+                                    <div class="profile-actions">
+                                        <span class="mode-pill" id="profileModePill">View</span>
+                                        <button class="chip-button" id="profileEditBtn">Edit</button>
+                                    </div>
+                                </div>
+                                <div class="provider-display" id="profileView">
+                                    <div class="display-field">
+                                        <div class="display-label">Agent/Subreseller Name</div>
+                                        <div class="display-value" id="pv-agent-name">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Contact Person</div>
+                                        <div class="display-value" id="pv-contact-person">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Contact Information</div>
+                                        <div class="display-value" id="pv-contact-info">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Email</div>
+                                        <div class="display-value" id="pv-email">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Authorization</div>
+                                        <div class="display-value" id="pv-authorization">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Cooperation Start Time</div>
+                                        <div class="display-value" id="pv-cooperation-start">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Term (Years)</div>
+                                        <div class="display-value" id="pv-term">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Country</div>
+                                        <div class="display-value" id="pv-country">-</div>
+                                    </div>
                                     <div class="display-field">
                                         <div class="display-label">Process ID</div>
-                                        <div class="display-value">00000289</div>
+                                        <div class="display-value" id="pv-process-id">-</div>
                                     </div>
                                     <div class="display-field">
                                         <div class="display-label">Paywizard ID</div>
-                                        <div class="display-value">10000001079</div>
+                                        <div class="display-value" id="pv-paywizard-id">-</div>
                                     </div>
                                     <div class="display-field">
                                         <div class="display-label">Currency</div>
-                                        <div class="display-value">USD</div>
+                                        <div class="display-value" id="pv-currency">-</div>
                                     </div>
                                     <div class="display-field">
                                         <div class="display-label">Business Name</div>
-                                        <div class="display-value">Luxe Boutique</div>
-                                    </div>
-                                    <div class="display-field">
-                                        <div class="display-label">Last Update</div>
-                                        <div class="display-value">2025-12-09 14:34:15</div>
+                                        <div class="display-value" id="pv-business-name">-</div>
                                     </div>
                                     <div class="display-field">
                                         <div class="display-label">Created By</div>
-                                        <div class="display-value">huchan17621179300@163.com</div>
+                                        <div class="display-value" id="pv-created-by">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Last Update</div>
+                                        <div class="display-value" id="pv-last-update">-</div>
+                                    </div>
+                                    <div class="display-field full">
+                                        <div class="display-label">Agent/Subreseller Territory</div>
+                                        <div class="display-value" id="pv-territory">-</div>
+                                    </div>
+                                    <div class="display-field full">
+                                        <div class="display-label">Agent/Subreseller Business Models (Multiple selection allowed)</div>
+                                        <div class="display-value">
+                                            <div class="pill-group" id="pv-business"></div>
+                                        </div>
                                     </div>
                                 </div>
+                                <form id="profileForm" class="profile-form" style="display:none;">
+                                    <div class="form-grid">
+                                        <div class="field">
+                                            <label for="pf-agent-name">Agent/Subreseller Name</label>
+                                            <input id="pf-agent-name" name="agentName" type="text" required>
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-contact-person">Contact Person</label>
+                                            <input id="pf-contact-person" name="contactPerson" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-contact-info">Contact Information</label>
+                                            <input id="pf-contact-info" name="contactInfo" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-email">Email</label>
+                                            <input id="pf-email" name="email" type="email">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-authorization">Authorization</label>
+                                            <input id="pf-authorization" name="authorization" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-cooperation-start">Cooperation Start Time</label>
+                                            <input id="pf-cooperation-start" name="cooperationStart" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-term">Term (Years)</label>
+                                            <input id="pf-term" name="term" type="number" min="0">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-country">Country</label>
+                                            <input id="pf-country" name="country" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-process-id">Process ID</label>
+                                            <input id="pf-process-id" name="processId" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-paywizard-id">Paywizard ID</label>
+                                            <input id="pf-paywizard-id" name="paywizardId" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-currency">Currency</label>
+                                            <input id="pf-currency" name="currency" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-business-name">Business Name</label>
+                                            <input id="pf-business-name" name="businessName" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-created-by">Created By</label>
+                                            <input id="pf-created-by" name="createdBy" type="text">
+                                        </div>
+                                        <div class="field full">
+                                            <label for="pf-territory">Agent/Subreseller Territory</label>
+                                            <textarea id="pf-territory" name="territory" rows="4"></textarea>
+                                        </div>
+                                        <div class="field full">
+                                            <label for="pf-business">Agent/Subreseller Business Models (comma separated)</label>
+                                            <input id="pf-business" name="businessModels" type="text" placeholder="Vending Machine Snacks, Popcorn, Coffee">
+                                            <div class="helper-text">Use commas to separate multiple business models.</div>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="chip-button" id="profileCancelBtn">Cancel</button>
+                                        <button type="submit" class="chip-button primary-action">Save</button>
+                                    </div>
+                                </form>
                             </div>
                         </section>
                         <section class="tab-panel" data-panel="token">
@@ -957,6 +1082,148 @@
             alert('New token generated (mock).');
           });
         }
+
+        // Profile edit handling
+        var profileCard = document.getElementById('profileCard');
+        var profileModePill = document.getElementById('profileModePill');
+        var profileEditBtn = document.getElementById('profileEditBtn');
+        var profileView = document.getElementById('profileView');
+        var profileForm = document.getElementById('profileForm');
+        var profileCancelBtn = document.getElementById('profileCancelBtn');
+        var profileState = {
+          agentName: 'zhongdazn',
+          contactPerson: 'zhongdazn',
+          contactInfo: 'zhongdazn',
+          email: 'admin@zhongdazn.com',
+          authorization: 'AGT-ADMIN',
+          cooperationStart: '2025-06-23 08:00:00',
+          termYears: '1000',
+          country: 'United States of America',
+          territory: 'Afghanistan, Albania, Algeria, Argentina, Australia, Brazil, Canada, China, France, Germany, India, Japan, United States of America, United Kingdom, ...',
+          businessModels: ['Vending Machine Snacks', 'Popcorn', 'Coffee', 'Cotton Candy', 'Electric Vehicle Charging', 'Vending Machine (Pharmaceuticals)', 'Vending Machine (Cosmetics)', 'Self-Service Laundromat', 'Self-Service Lockers'],
+          processId: '00000289',
+          paywizardId: '10000001079',
+          currency: 'USD',
+          businessName: 'Luxe Boutique',
+          createdBy: 'huchan17621179300@163.com',
+          lastUpdate: '2025-12-09 14:34:15'
+        };
+
+        function formatDateTime(d){
+          var now = d || new Date();
+          var pad = function(v){ return String(v).padStart(2, '0'); };
+          return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        }
+
+        function setText(id, value){
+          var el = document.getElementById(id);
+          if(el){ el.textContent = value || '--'; }
+        }
+
+        function renderProfileView(){
+          setText('pv-agent-name', profileState.agentName);
+          setText('pv-contact-person', profileState.contactPerson);
+          setText('pv-contact-info', profileState.contactInfo);
+          setText('pv-email', profileState.email);
+          setText('pv-authorization', profileState.authorization);
+          setText('pv-cooperation-start', profileState.cooperationStart);
+          setText('pv-term', profileState.termYears);
+          setText('pv-country', profileState.country);
+          setText('pv-process-id', profileState.processId);
+          setText('pv-paywizard-id', profileState.paywizardId);
+          setText('pv-currency', profileState.currency);
+          setText('pv-business-name', profileState.businessName);
+          setText('pv-created-by', profileState.createdBy);
+          setText('pv-last-update', profileState.lastUpdate);
+          var territoryEl = document.getElementById('pv-territory');
+          if(territoryEl){ territoryEl.textContent = profileState.territory || '--'; }
+          var businessWrap = document.getElementById('pv-business');
+          if(businessWrap){
+            businessWrap.innerHTML = '';
+            var models = profileState.businessModels && profileState.businessModels.length ? profileState.businessModels : ['N/A'];
+            models.forEach(function(model){
+              var pill = document.createElement('span');
+              pill.className = 'pill';
+              pill.textContent = model;
+              businessWrap.appendChild(pill);
+            });
+          }
+        }
+
+        function fillProfileForm(){
+          var setVal = function(id, val){
+            var el = document.getElementById(id);
+            if(el){ el.value = val || ''; }
+          };
+          setVal('pf-agent-name', profileState.agentName);
+          setVal('pf-contact-person', profileState.contactPerson);
+          setVal('pf-contact-info', profileState.contactInfo);
+          setVal('pf-email', profileState.email);
+          setVal('pf-authorization', profileState.authorization);
+          setVal('pf-cooperation-start', profileState.cooperationStart);
+          setVal('pf-term', profileState.termYears);
+          setVal('pf-country', profileState.country);
+          setVal('pf-process-id', profileState.processId);
+          setVal('pf-paywizard-id', profileState.paywizardId);
+          setVal('pf-currency', profileState.currency);
+          setVal('pf-business-name', profileState.businessName);
+          setVal('pf-created-by', profileState.createdBy);
+          setVal('pf-territory', profileState.territory);
+          var businessInput = document.getElementById('pf-business');
+          if(businessInput){ businessInput.value = (profileState.businessModels || []).join(', '); }
+        }
+
+        function setProfileMode(mode){
+          var editing = mode === 'edit';
+          if(profileCard) profileCard.classList.toggle('editing', editing);
+          if(profileModePill) profileModePill.textContent = editing ? 'Editing' : 'View';
+          if(profileView) profileView.style.display = editing ? 'none' : '';
+          if(profileForm) profileForm.style.display = editing ? 'block' : 'none';
+          if(profileEditBtn) profileEditBtn.style.display = editing ? 'none' : 'inline-flex';
+        }
+
+        if(profileEditBtn){
+          profileEditBtn.addEventListener('click', function(){
+            fillProfileForm();
+            setProfileMode('edit');
+          });
+        }
+
+        if(profileCancelBtn){
+          profileCancelBtn.addEventListener('click', function(){
+            fillProfileForm();
+            setProfileMode('view');
+          });
+        }
+
+        if(profileForm){
+          profileForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            profileState.agentName = document.getElementById('pf-agent-name').value.trim();
+            profileState.contactPerson = document.getElementById('pf-contact-person').value.trim();
+            profileState.contactInfo = document.getElementById('pf-contact-info').value.trim();
+            profileState.email = document.getElementById('pf-email').value.trim();
+            profileState.authorization = document.getElementById('pf-authorization').value.trim();
+            profileState.cooperationStart = document.getElementById('pf-cooperation-start').value.trim();
+            profileState.termYears = document.getElementById('pf-term').value.trim();
+            profileState.country = document.getElementById('pf-country').value.trim();
+            profileState.processId = document.getElementById('pf-process-id').value.trim();
+            profileState.paywizardId = document.getElementById('pf-paywizard-id').value.trim();
+            profileState.currency = document.getElementById('pf-currency').value.trim();
+            profileState.businessName = document.getElementById('pf-business-name').value.trim();
+            profileState.createdBy = document.getElementById('pf-created-by').value.trim();
+            profileState.territory = document.getElementById('pf-territory').value.trim();
+            var businessInput = document.getElementById('pf-business');
+            profileState.businessModels = businessInput ? businessInput.value.split(',').map(function(item){ return item.trim(); }).filter(Boolean) : [];
+            profileState.lastUpdate = formatDateTime();
+            renderProfileView();
+            setProfileMode('view');
+            alert('Profile saved (mock).');
+          });
+        }
+
+        renderProfileView();
+        setProfileMode('view');
 
         var btn = document.getElementById('hierAddBtn');
         var menu = document.getElementById('hierAddMenu');
