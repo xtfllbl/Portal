@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Template Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --background-color: #f5f7fa;
+            --sidebar-bg: #ffffff;
+            --main-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #6b7280;
+            --border-color: #e6e8ee;
+            --primary-color: #111827; /* black */
+            --primary-hover: #000000;
+            --green-color: #111827; /* unify to black & white */
+            --green-hover: #000000;
+            --shadow: 0 1px 3px rgba(15,23,42,0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 24px;
+            margin-bottom: 24px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li a, .sidebar-menu li div {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .sidebar-menu .menu-category {
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 600;
+            color: #adb5bd;
+            padding: 20px 24px 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-menu li a:hover, .sidebar-menu li.active a {
+            background-color: #e9ecef;
+            color: var(--text-primary);
+        }
+
+        .sidebar-menu li a svg { margin-right: 16px; width: 18px; height: 18px; }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* --- Top Header --- */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 32px;
+            background-color: var(--main-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header .user-profile {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .header .user-profile .avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            margin-left: 12px;
+        }
+
+        /* --- Page Content --- */
+        .page-content {
+            padding: 32px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .template-list-container {
+            width: 320px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--main-bg);
+        }
+        
+        .template-list-header { padding: 16px; border-bottom: 1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; }
+
+        .template-list {
+            list-style: none;
+            padding: 8px;
+            margin: 0;
+        }
+        
+        .template-list li {
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .template-list li:hover { background-color: #f3f4f6; }
+
+        .template-list li.active { background-color: #f1f2f4; color: #111827; }
+
+        .template-list .template-name {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .template-list .template-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .main-panel {
+            flex-grow: 1;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-header h1 { font-size: 1.25rem; margin: 0; font-weight: 600; letter-spacing:-0.01em; }
+        
+        .btn{ display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; cursor:pointer; padding:10px 14px; border-radius:999px; font-weight:600; font-size:13px; transition: all .2s ease; }
+        .btn-primary{ background-color: var(--primary-color); color:#fff; }
+        .btn-primary:hover{ background-color: var(--primary-hover); }
+        .btn-ghost{ background:#fff; color:#111827; border-color: var(--border-color); }
+        .btn-ghost:hover{ background:#f3f4f6; }
+        .btn-sm{ padding:6px 10px; font-weight:600; font-size:12px; }
+
+        .table-container {
+            background-color: var(--main-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        thead th { background-color: #f8f9fb; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 11.5px; }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+        }
+
+        .action-icon { width: 18px; height: 18px; color: var(--text-secondary); }
+        
+        .panel-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination button {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination button:hover {
+            background-color: #f1f3f5;
+        }
+
+        .pagination .page-number {
+            background-color: #e9ecef;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-weight: 500;
+        }
+        
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Icon button for concise actions */
+        .icon-btn{
+            width:28px; height:28px; border-radius:999px; border:1px solid var(--border-color);
+            display:inline-flex; align-items:center; justify-content:center; background:#fff; color:var(--text-secondary);
+            cursor:pointer; transition: all .15s ease;
+        }
+        .icon-btn:hover{ background:#f3f4f6; color:var(--text-primary); }
+        .icon-btn[disabled]{ opacity:.45; cursor:not-allowed; }
+        .icon-18{ width:18px; height:18px; }
+
+        .panel-actions{ display:flex; align-items:center; gap:8px; }
+
+        /* Modal for creating push template */
+        .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.35); display:none; align-items:center; justify-content:center; padding:24px; z-index:50; }
+        .modal{ background:#fff; border:1px solid var(--border-color); border-radius:16px; max-width:900px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden; }
+        .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border-color); }
+        .modal-title{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
+        .modal-close{ border:none; background:#fff; cursor:pointer; color:var(--text-secondary); }
+        .modal-body{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; padding:16px; }
+        .section{ border:1px solid var(--border-color); border-radius:12px; padding:14px; background:#fff; }
+        .section h5{ margin:0 0 10px 0; font-size:13px; letter-spacing:-.005em; }
+        .app-grid{ display:grid; grid-template-columns:1fr; gap:8px; max-height:360px; overflow:auto; }
+        .app-item{ display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border-color); border-radius:12px; padding:10px 12px; background:#fff; }
+        .app-left{ display:flex; align-items:center; gap:10px; }
+        .app-icon{ width:28px; height:28px; border-radius:8px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#111827; }
+        .app-name{ font-weight:600; font-size:13px; }
+        .app-sub{ color:var(--text-secondary); font-size:12px; }
+        .modal-footer{ display:flex; justify-content:flex-end; gap:8px; padding:12px 16px; border-top:1px solid var(--border-color); }
+        .selected-app-row, .template-name-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-top:1px solid var(--border-color); background:#fff; }
+        .row-label{ min-width:130px; color:var(--text-secondary); font-weight:600; font-size:12.5px; }
+        .selected-app-chip{ padding:10px 14px; background:#f3f4f6; border-radius:999px; font-weight:700; letter-spacing:-.005em; }
+        .input-lg{ flex:1; width:100%; padding:14px 16px; border:1px solid var(--border-color); border-radius:14px; font-size:14px; }
+        .input-lg:focus{ outline:none; border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.10); }
+        .radio{ width:16px; height:16px; }
+        .search{ width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:13px; }
+        .muted{ color: var(--text-secondary); font-size:12px; }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">NNAT MARKET</div>
+        <ul class="sidebar-menu">
+            <li class="menu-category">Monitoring</li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V3H3v9m18 8l-4-4H3v4h18z"/></svg>Dashboard</a></li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Alert</a></li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Terminal Geo-Location</a></li>
+            <li class="menu-category">Task</li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>App List</a></li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Firmware List</a></li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>My Activity</a></li>
+            <li class="menu-category">Management</li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/></svg>Terminal Management</a></li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Group Management</a></li>
+            <li class="active"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 21-8-4.5v-9L12 3l8 4.5v9L12 21z"/><path d="m12 11.5 8 4.5"/><path d="m12 11.5 v9"/><path d="m12 11.5-8 4.5"/><path d="M4 7.5l8-4.5l8 4.5"/><path d="M4 16.5l8 4.5l8-4.5"/></svg>Templates</a></li>
+            <li class="menu-category">Value-Added Services</li>
+            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>AirViewer</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <span>beaver.xu</span>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="template-list-container">
+                <div class="template-list-header">
+                    <h4 style="margin:0;font-size:14px;letter-spacing:-0.01em">Templates</h4>
+                    <button id="pushTemplateBtn" class="btn btn-primary btn-sm" title="Create a push template">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Push Template
+                    </button>
+                </div>
+                <ul class="template-list">
+                    <li>
+                        <span class="template-name">VendLink-EV</span>
+                        <span class="template-info">PAX Technology</span>
+                    </li>
+                     <li>
+                        <span class="template-name">VendLink-VM</span>
+                        <span class="template-info">PAX Technology</span>
+                    </li>
+                    <li class="active">
+                        <span class="template-name">BroadPOS TransIT UPT</span>
+                        <span class="template-info">PAX E800</span>
+                    </li>
+                     <li>
+                        <span class="template-name">TransIT-HC-Retail UPT</span>
+                        <span class="template-info">PAX A980</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="main-panel">
+                <div class="panel-header">
+                    <h1>BroadPOS TransIT UPT</h1>
+                    <div class="panel-actions">
+                        <button class="icon-btn" id="bulkDeleteBtn" title="Delete Selected" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" class="checkbox" id="selectAll"></th>
+                                <th>#</th>
+                                <th>Push Template Name</th>
+                                <th>Version</th>
+                                <th>Created Time</th>
+                                <th>Updated Time</th>
+                                <th>Last Used Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>1</td>
+                                <td>Haria 73747 0715</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>2025-07-15 11:00</td>
+                                <td>2025-07-15 11:00</td>
+                                <td>2025-09-28 14:30</td>
+                                <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>2</td>
+                                <td>yoyourt 0630</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>2025-06-30 15:20</td>
+                                <td>2025-06-30 15:20</td>
+                                <td>2025-09-27 14:04</td>
+                                <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                            </tr>
+                             <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>3</td>
+                                <td>Tvending 04163</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>2025-06-30 13:19</td>
+                                <td>2025-06-30 13:19</td>
+                                <td>2025-09-30 10:24</td>
+                                <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>4</td>
+                                <td>Sandstar0625</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>2025-06-25 10:38</td>
+                                <td>2025-06-25 10:38</td>
+                                <td>2025-09-08 10:42</td>
+                                <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>5</td>
+                                <td>haha0672 0623</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>2025-06-23 11:06</td>
+                                <td>2025-08-04 16:54</td>
+                                <td>2025-08-04 10:52</td>
+                                <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                            </tr>
+                             <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>6</td>
+                                <td>haha0233 0623</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>2025-06-23 10:33</td>
+                                <td>2025-07-02 10:19</td>
+                                <td>2025-07-09 10:33</td>
+                                <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="panel-footer">
+                    <span>20 / Page | 6 Records</span>
+                    <div class="pagination">
+                        <button>&lt;</button>
+                        <span class="page-number">1</span>
+                        <button>&gt;</button>
+                    </div>
+                </div>
+                <div class="note">
+                    Note: You can only select two parameter templates for comparison.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Push Template Modal -->
+    <div class="modal-overlay" id="createTemplateModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Create Push Template</h3>
+                <button class="icon-btn modal-close" id="closeModalBtn" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <section class="section">
+                    <h5>Recently Used</h5>
+                    <div class="app-grid" id="recentApps">
+                        <div class="app-item" data-app="BroadPOS TransIT UPT">
+                            <div class="app-left">
+                                <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01"/></svg></div>
+                                <div>
+                                    <div class="app-name">BroadPOS TransIT UPT</div>
+                                    <div class="app-sub">PAX UPT | Parameter Push</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-ghost btn-sm quick-add">Add Template</button>
+                        </div>
+                        <div class="app-item" data-app="TransIT-HC-Retail UPT">
+                            <div class="app-left">
+                                <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01"/></svg></div>
+                                <div>
+                                    <div class="app-name">TransIT-HC-Retail UPT</div>
+                                    <div class="app-sub">PAX A-series | Parameter Push</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-ghost btn-sm quick-add">Add Template</button>
+                        </div>
+                    </div>
+                </section>
+                <section class="section">
+                    <h5 style="display:flex;align-items:center;justify-content:space-between;gap:8px">Supported Apps <input type="text" id="appSearch" class="search" placeholder="Search apps"></h5>
+                    <div class="app-grid" id="allApps">
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="BroadPOS TransIT UPT">
+                                <div>
+                                    <div class="app-name">BroadPOS TransIT UPT</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TransIT-HC-Retail UPT">
+                                <div>
+                                    <div class="app-name">TransIT-HC-Retail UPT</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="VendLink-VM">
+                                <div>
+                                    <div class="app-name">VendLink-VM</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+            </div>
+            <div class="selected-app-row">
+                <div class="row-label">Selected App</div>
+                <div class="selected-app-chip" id="selectedAppLabel">&mdash;</div>
+            </div>
+            <div class="template-name-row">
+                <div class="row-label">Template Name</div>
+                <input type="text" id="templateNameInput" class="input-lg" placeholder="Enter a template name" disabled maxlength="64" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancelCreate">Cancel</button>
+                <button class="btn btn-primary" id="continueCreate" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            const selectAll = document.getElementById('selectAll');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const tbody = document.querySelector('tbody');
+            const pushBtn = document.getElementById('pushTemplateBtn');
+            const modal = document.getElementById('createTemplateModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelCreate = document.getElementById('cancelCreate');
+            const continueCreate = document.getElementById('continueCreate');
+            const recentApps = document.getElementById('recentApps');
+            const allApps = document.getElementById('allApps');
+            const appSearch = document.getElementById('appSearch');
+            const templateNameInput = document.getElementById('templateNameInput');
+            const selectedAppLabel = document.getElementById('selectedAppLabel');
+            let selectedAppName = '';
+
+            function updateBulkState(){
+                const checked = tbody.querySelectorAll('.row-checkbox:checked');
+                bulkDeleteBtn.disabled = checked.length === 0;
+            }
+
+            function bindRowCheckboxes(){
+                const rows = tbody.querySelectorAll('.row-checkbox');
+                rows.forEach(cb => cb.addEventListener('change', updateBulkState));
+            }
+
+            if(selectAll){
+                selectAll.addEventListener('change', (e)=>{
+                    const rows = tbody.querySelectorAll('.row-checkbox');
+                    rows.forEach(cb => cb.checked = e.target.checked);
+                    updateBulkState();
+                });
+            }
+
+            bulkDeleteBtn.addEventListener('click', ()=>{
+                const selected = Array.from(tbody.querySelectorAll('.row-checkbox:checked'));
+                if(selected.length === 0) return;
+                if(!confirm(`Delete ${selected.length} selected template(s)?`)) return;
+                selected.forEach(cb => cb.closest('tr').remove());
+                updateBulkState();
+                if(selectAll) selectAll.checked = false;
+            });
+
+            // Create Push Template modal logic
+            function openModal(){ modal.style.display = 'flex'; document.body.style.overflow='hidden'; }
+            function closeModal(){ modal.style.display = 'none'; document.body.style.overflow='auto'; clearChoice(); }
+            function clearChoice(){
+                const r = allApps.querySelectorAll('input[type=radio]');
+                r.forEach(x=>x.checked=false);
+                continueCreate.disabled = true;
+                selectedAppName = '';
+                if(selectedAppLabel) selectedAppLabel.innerHTML = '&mdash;';
+                if(templateNameInput){ templateNameInput.value=''; templateNameInput.disabled = true; }
+            }
+
+            function generateDefaultName(app){
+                const now = new Date();
+                const pad = (n)=> String(n).padStart(2,'0');
+                return `${app} ${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+            }
+
+            function addTemplateRow(appName, customName){
+                const now = new Date();
+                const pad = (n)=> String(n).padStart(2,'0');
+                const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                const idx = tbody.querySelectorAll('tr').length + 1;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                    <td>${idx}</td>
+                    <td>${customName || generateDefaultName(appName)}</td>
+                    <td>V1.00.16E_20250606</td>
+                    <td>${date}</td>
+                    <td>${date}</td>
+                    <td>—</td>
+                    <td><a class="icon-btn" href="edit_application_parameters.html" title="View Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a></td>
+                `;
+                tbody.appendChild(tr);
+                // bind new checkbox
+                const cb = tr.querySelector('.row-checkbox');
+                cb.addEventListener('change', updateBulkState);
+                updateBulkState();
+            }
+
+            if(pushBtn){ pushBtn.addEventListener('click', openModal); }
+            [closeModalBtn, cancelCreate].forEach(btn=> btn && btn.addEventListener('click', closeModal));
+
+            // Quick add on recent apps -> choose app then require name
+            recentApps.addEventListener('click', (e)=>{
+                const target = e.target.closest('.quick-add');
+                if(!target) return;
+                const app = target.closest('.app-item').dataset.app;
+                selectedAppName = app;
+                selectedAppLabel.textContent = app;
+                templateNameInput.disabled = false;
+                templateNameInput.value = generateDefaultName(app);
+                templateNameInput.focus();
+                continueCreate.disabled = false;
+            });
+
+            // Radio selection -> pick app and set default name
+            allApps.addEventListener('change', ()=>{
+                const r = allApps.querySelector('input[type=radio]:checked');
+                if(!r){ continueCreate.disabled = true; return; }
+                selectedAppName = r.value;
+                selectedAppLabel.textContent = selectedAppName;
+                templateNameInput.disabled = false;
+                templateNameInput.value = generateDefaultName(selectedAppName);
+                templateNameInput.focus();
+                continueCreate.disabled = false;
+            });
+            templateNameInput.addEventListener('input', ()=>{
+                continueCreate.disabled = !(templateNameInput.value.trim().length > 0 && selectedAppName);
+            });
+            continueCreate.addEventListener('click', ()=>{
+                if(!selectedAppName) return;
+                const name = templateNameInput.value.trim();
+                if(!name) return;
+                // Optionally add to list for persistence in demo
+                addTemplateRow(selectedAppName, name);
+                // Navigate to edit parameters page with query params
+                const url = `edit_application_parameters.html?template=${encodeURIComponent(name)}&app=${encodeURIComponent(selectedAppName)}`;
+                window.location.href = url;
+            });
+
+            // Filter apps by search
+            appSearch.addEventListener('input', ()=>{
+                const q = appSearch.value.toLowerCase();
+                allApps.querySelectorAll('.app-item').forEach(item=>{
+                    const name = item.querySelector('.app-name').textContent.toLowerCase();
+                    item.style.display = name.includes(q) ? '' : 'none';
+                });
+            });
+
+            bindRowCheckboxes();
+            updateBulkState();
+        })();
+    </script>
+
+</body>
+</html>

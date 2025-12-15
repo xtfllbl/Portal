@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Setup</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --shadow: 0 6px 18px rgba(0,0,0,.06);
+      --primary: #111827;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px 56px; }
+    h1 { margin: 14px 0 12px; font-size: 28px; font-weight: 800; }
+
+    .card { background:#fff; border:1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .card + .card { margin-top: 18px; }
+    .card-body { padding: 18px; }
+    .section-title { font-weight: 700; font-size: 14px; color:#111827; margin: 6px 0 14px; display:flex; align-items:center; gap:10px; }
+    .section-title:after { content:""; height:1px; background:var(--border); flex:1; }
+
+    .grid-3 { display:grid; grid-template-columns: repeat(3,1fr); gap:16px; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2,1fr); gap:16px; }
+    .grid-1 { display:grid; grid-template-columns: 1fr; gap:16px; }
+
+    .field { display:flex; flex-direction:column; }
+    .field label { font-size:13px; color:#6b7280; margin:2px 0 6px; }
+    .input, select, textarea { border:1px solid var(--border); background:#fff; border-radius:10px; padding:12px; font-size:15px; outline:none; transition: box-shadow .15s ease, border-color .15s ease; }
+    select { appearance:none; }
+    .input:focus, select:focus, textarea:focus { border-color:#b6c0cc; box-shadow:0 0 0 3px rgba(37,99,235,.10); }
+    textarea { min-height: 120px; resize: vertical; }
+
+    .inline-control { display:flex; align-items:center; gap:10px; height:46px; padding:0 12px; border:1px solid var(--border); border-radius:10px; background:#fff; }
+    .inline-control input[type="checkbox"] { width:18px; height:18px; accent-color:#2563eb; }
+
+    .preview { background:#fafbfc; border:1px dashed #e5e7eb; border-radius:10px; padding:16px; }
+    .preview .row { display:flex; justify-content:space-between; padding:8px 4px; color:#4b5563; }
+    .preview .row .val { color:#111827; font-weight:600; text-align:right; word-break:break-word; }
+    .preview .total { font-weight:800; }
+
+    .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+    .btn { border-radius:10px; border:1px solid #d1d5db; padding:10px 14px; background:#fff; cursor:pointer; font-weight:700; }
+    .btn:hover { background:#f5f6f7; }
+    .btn-primary { background: var(--primary); color:#fff; border-color:var(--primary); }
+    .btn-primary:hover { filter:brightness(1.05); }
+    /* Tabs */
+    .tabs-nav { display:flex; gap:8px; margin: 4px 0 14px; }
+    .tab-btn { border:1px solid var(--border); background:#fff; color:#374151; border-radius:999px; padding:8px 14px; cursor:pointer; font-weight:700; }
+    .tab-btn:hover { background:#f5f6f7; }
+    .tab-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .tab-pane { display:none; }
+    .tab-pane.active { display:block; }
+    .inline-group { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .grow { flex: 1 1 420px; min-width: 240px; }
+
+    @media (max-width: 960px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+  <script>
+    const currencyMap = {
+      CAD: { label: 'CAD - Canadian Dollar', symbol: 'CA$', locale: 'en-CA' },
+      USD: { label: 'USD - US Dollar', symbol: '$', locale: 'en-US' },
+      EUR: { label: 'EUR - Euro', symbol: 'EUR', locale: 'en-IE' }
+    };
+    function formatMoney(amount, code){
+      const c = currencyMap[code] || currencyMap.USD;
+      try { return new Intl.NumberFormat(c.locale, { style:'currency', currency: code }).format(amount||0); }
+      catch(e){ return (c.symbol || code+' ') + (Number(amount||0).toFixed(2)); }
+    }
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Billing Setup</h1>
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-target="tab-billing">Billing Setup</button>
+      <button class="tab-btn" data-target="tab-payment">Payment Link</button>
+    </div>
+
+    <div id="tab-billing" class="tab-pane active">
+    <div class="card">
+      <div class="card-body grid-3">
+        <div class="field">
+          <label for="merchant">Merchant Name</label>
+          <input id="merchant" class="input" placeholder="Select merchant" value="Tom shop" />
+        </div>
+        <div class="field">
+          <label for="plan">Plan</label>
+          <input id="plan" class="input" list="plan-list" value="eSIM Billing" placeholder="Select plan" />
+          <datalist id="plan-list">
+            <option>eSIM Billing</option>
+            <option>General Billing</option>
+            <option>POS Subscription</option>
+            <option>Software License</option>
+          </datalist>
+        </div>
+        <div class="field">
+          <label for="currency">Currency</label>
+          <select id="currency" class="input">
+            <option value="CAD">CAD - Canadian Dollar</option>
+            <option value="USD">USD - US Dollar</option>
+            <option value="EUR">EUR - Euro</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="section-title">Billing Details</div>
+        <div class="grid-3">
+          <div class="field">
+            <label for="start">Billing Start Date</label>
+            <input id="start" class="input" type="date" value="2025-10-10" />
+          </div>
+          <div class="field esim-only" id="fieldFee">
+            <label for="fee">Base Monthly Fee</label>
+            <input id="fee" class="input" type="text" inputmode="decimal" value="150.00" placeholder="0.00" />
+            <div class="muted" id="feeHint">Base monthly fee.</div>
+          </div>
+          <div class="field esim-only" id="fieldData">
+            <label for="data">Included Data (MB)</label>
+            <input id="data" class="input" type="number" min="0" step="1" value="30" />
+          </div>
+          <div class="field general-only" id="fieldAmount" style="display:none;">
+            <label for="amount">Billing Amount</label>
+            <input id="amount" class="input" type="text" inputmode="decimal" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <div class="field" id="fieldCycle" style="display:none;">
+            <label for="cycle">Billing Cycle</label>
+            <select id="cycle" class="input">
+              <option value="1">1 Month</option>
+              <option value="3" selected>3 Months</option>
+              <option value="6">6 Months</option>
+              <option value="12">12 Months</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="recurring">Recurring Payments</label>
+            <div class="inline-control">
+              <input type="checkbox" id="recurring" />
+              <span style="font-weight:600;color:#111827;">Enable Recurring Payments</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" id="recurringOptions" style="display:none;margin-top:6px;">
+          <div class="field">
+            <label for="renewalMode">Renewal Mode</label>
+            <select id="renewalMode" class="input">
+              <option value="auto" selected>Auto-renew</option>
+              <option value="fixed">Fixed cycles</option>
+            </select>
+          </div>
+          <div class="field" id="cyclesWrap" style="display:none;">
+            <label for="cycles">Number of Cycles</label>
+            <input id="cycles" class="input" type="number" min="1" step="1" placeholder="e.g., 4" />
+          </div>
+        </div>
+
+        <div class="grid-1" style="margin-top:12px;">
+          <div class="field">
+            <label for="notes">Billing Notes</label>
+            <textarea id="notes" class="input" placeholder="Add any billing notes..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="section-title">Billing Preview</div>
+        <div class="preview" id="preview">
+          <div class="row" id="rowCycle" style="display:none;"><div>Billing Cycle:</div><div class="val" id="pCycle">-</div></div>
+          <div class="row"><div id="pFeeLabel">Billing Amount:</div><div class="val" id="pFee">-</div></div>
+          <div class="row" id="rowData" style="display:none;"><div>Included Data (MB):</div><div class="val" id="pData">-</div></div>
+          <div class="row"><div>Recurring Payments:</div><div class="val" id="pRecurring">Off</div></div>
+          <div class="row" id="rowSub" style="display:none;"><div>Total Subscription Amount:</div><div class="val" id="pSubTotal">-</div></div>
+          <div class="row total"><div id="pTotalLabel">Amount Due:</div><div class="val" id="pTotal">-</div></div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btnReset" type="button">Reset</button>
+          <button class="btn btn-primary" id="btnApply" type="button">Apply Billing Setup</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Payment Link Tab -->
+    <div id="tab-payment" class="tab-pane">
+      <!-- Payer Information -->
+      <div class="card">
+        <div class="card-body">
+          <div class="section-title">Payer Information</div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="plName">Payer Name (optional)</label>
+              <input id="plName" class="input" placeholder="e.g., John Doe" />
+            </div>
+            <div class="field">
+              <label for="plEmail">Payer Email (optional)</label>
+              <input id="plEmail" class="input" type="email" placeholder="name@example.com" />
+            </div>
+            <div class="field">
+              <label for="plPhone">Payer Phone (optional)</label>
+              <input id="plPhone" class="input" type="tel" placeholder="+1 555 000 0000" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Details -->
+      <div class="card">
+        <div class="card-body">
+          <div class="section-title">Payment Details</div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="plAmount">Amount</label>
+              <input id="plAmount" class="input" inputmode="decimal" placeholder="0.00" />
+            </div>
+            <div class="field">
+              <label for="plCurrency">Currency</label>
+              <select id="plCurrency" class="input">
+                <option value="CAD">CAD - Canadian Dollar</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="plExpire">Expires On (optional)</label>
+              <input id="plExpire" class="input" type="date" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="card">
+        <div class="card-body">
+          <div class="section-title">Additional Information</div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="plDesc">Description</label>
+              <textarea id="plDesc" class="input" placeholder="Provide detailed description or instructions for the payer..."></textarea>
+            </div>
+            <div class="field">
+              <label for="plRef">External Reference (optional)</label>
+              <input id="plRef" class="input" placeholder="Order/Invoice ID" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview & Link -->
+      <div class="card">
+        <div class="card-body">
+          <div class="section-title">Payment Link Preview</div>
+          <div class="preview">
+            <div class="row"><div>Amount</div><div class="val" id="plPreviewAmount">-</div></div>
+            <div class="row"><div>Currency</div><div class="val" id="plPreviewCurrency">-</div></div>
+            <div class="row"><div>Description</div><div class="val" id="plPreviewDesc">-</div></div>
+            <div class="row"><div>Expires</div><div class="val" id="plPreviewExpire">-</div></div>
+          </div>
+
+          <div class="field" style="margin-top:12px;">
+            <label for="plLink">Payment Link</label>
+            <div class="inline-group">
+              <input id="plLink" class="input grow" readonly placeholder="Click Generate to create link" />
+              <button class="btn btn-primary" id="btnPLGenerate" type="button">Generate</button>
+              <button class="btn" id="btnPLCopy" type="button" disabled>Copy</button>
+            </div>
+          </div>
+
+          <div class="muted" style="color:#6b7280;margin-top:6px;">Share this link with payers who are not onboarded as merchants to complete payment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function sanitizeMoney(v){
+      const s = String(v||'').replace(/[^0-9.]/g,'');
+      const parts = s.split('.'); if(parts.length>2) parts.splice(2);
+      return parts[0] + (parts[1]!==undefined?('.'+parts[1].slice(0,2)):'');
+    }
+    function readNumber(id){
+      const el = document.getElementById(id); if(!el) return 0;
+      const n = parseFloat((el.value||'0').replace(/,/g,''));
+      return isNaN(n)?0:n;
+    }
+
+    function updatePlanVisibility(){
+      const planVal = (document.getElementById('plan').value||'').toLowerCase();
+      const isEsim = planVal.indexOf('esim') !== -1;
+      document.getElementById('fieldFee').style.display = isEsim ? 'flex' : 'none';
+      document.getElementById('fieldData').style.display = isEsim ? 'flex' : 'none';
+      document.getElementById('fieldAmount').style.display = isEsim ? 'none' : 'flex';
+      document.getElementById('rowData').style.display = isEsim ? 'flex' : 'none';
+      document.getElementById('pFeeLabel').textContent = isEsim ? 'Base Monthly Fee:' : 'Billing Amount:';
+    }
+
+    function toggleRecurring(){
+      const enabled = document.getElementById('recurring').checked;
+      document.getElementById('recurringOptions').style.display = enabled ? 'grid' : 'none';
+      document.getElementById('fieldCycle').style.display = enabled ? 'flex' : 'none';
+      document.getElementById('rowCycle').style.display = enabled ? 'flex' : 'none';
+      document.getElementById('rowSub').style.display = enabled ? 'flex' : 'none';
+      document.getElementById('pTotalLabel').textContent = enabled ? 'Total Cycle Amount:' : 'Amount Due:';
+    }
+    function onRenewalChange(){
+      const mode = document.getElementById('renewalMode').value;
+      document.getElementById('cyclesWrap').style.display = mode === 'fixed' ? 'block' : 'none';
+    }
+
+    function updatePreview(){
+      const cur = document.getElementById('currency').value || 'USD';
+      const months = parseInt(document.getElementById('cycle').value || '1', 10);
+      const planVal = (document.getElementById('plan').value||'').toLowerCase();
+      const isEsim = planVal.indexOf('esim') !== -1;
+
+      // amounts
+      const fee = readNumber('fee');
+      const amount = readNumber('amount');
+      const unit = isEsim ? fee : amount; // base amount
+      const recurring = document.getElementById('recurring').checked;
+
+      // per-cycle amount
+      const perCycle = recurring ? unit * months : unit;
+
+      // labels
+      const cycleLabel = months === 1 ? '1 Month' : months + ' Months';
+      document.getElementById('pCycle').textContent = cycleLabel;
+      document.getElementById('pFee').textContent = formatMoney(unit, cur);
+      document.getElementById('pData').textContent = String(readNumber('data')) + ' MB';
+      document.getElementById('pTotal').textContent = formatMoney(perCycle, cur);
+
+      // recurring text and subscription total
+      let recurringLabel = 'Off';
+      let subText = '-';
+      if (recurring) {
+        const mode = document.getElementById('renewalMode').value;
+        const cycles = parseInt(document.getElementById('cycles').value || '0', 10);
+        if (mode === 'fixed') {
+          recurringLabel = cycles > 0 ? ('On (' + cycles + ' cycles)') : 'On (Fixed cycles)';
+          subText = cycles > 0 ? formatMoney(cycles * perCycle, cur) : '-';
+        } else {
+          recurringLabel = 'On (Auto-renew)';
+          subText = '-';
+        }
+      }
+      document.getElementById('pRecurring').textContent = recurringLabel;
+      document.getElementById('pSubTotal').textContent = subText;
+    }
+
+    // Wire events
+    document.getElementById('plan').addEventListener('input', () => { updatePlanVisibility(); updatePreview(); });
+    document.getElementById('currency').addEventListener('change', updatePreview);
+    document.getElementById('fee').addEventListener('input', (e)=>{ e.target.value = sanitizeMoney(e.target.value); updatePreview(); });
+    document.getElementById('amount').addEventListener('input', (e)=>{ e.target.value = sanitizeMoney(e.target.value); updatePreview(); });
+    document.getElementById('data').addEventListener('input', updatePreview);
+    document.getElementById('cycle').addEventListener('change', updatePreview);
+    document.getElementById('recurring').addEventListener('change', ()=>{ toggleRecurring(); updatePreview(); });
+    document.getElementById('renewalMode').addEventListener('change', ()=>{ onRenewalChange(); updatePreview(); });
+    document.getElementById('cycles').addEventListener('input', updatePreview);
+
+    document.getElementById('btnReset').addEventListener('click', ()=>{
+      document.getElementById('merchant').value = '';
+      document.getElementById('plan').value = '';
+      document.getElementById('currency').value = 'CAD';
+      document.getElementById('start').value = new Date().toISOString().slice(0,10);
+      document.getElementById('fee').value = '0.00';
+      document.getElementById('amount').value = '0.00';
+      document.getElementById('data').value = '0';
+      document.getElementById('cycle').value = '1';
+      document.getElementById('notes').value = '';
+      document.getElementById('recurring').checked = false;
+      document.getElementById('renewalMode').value = 'auto';
+      document.getElementById('cycles').value = '';
+      updatePlanVisibility(); toggleRecurring(); onRenewalChange(); updatePreview();
+    });
+    document.getElementById('btnApply').addEventListener('click', ()=>{
+      alert('Billing setup applied');
+    });
+
+    // Tabs
+    function switchTab(targetId){
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.getAttribute('data-target')===targetId));
+      document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active', p.id===targetId));
+    }
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=> switchTab(btn.getAttribute('data-target')));
+    });
+
+    // Payment Link helpers
+    function updatePLPreview(){
+      const cur = document.getElementById('plCurrency').value || 'USD';
+      const amt = parseFloat((document.getElementById('plAmount').value||'0').replace(/,/g,'')) || 0;
+      document.getElementById('plPreviewAmount').textContent = formatMoney(amt, cur);
+      document.getElementById('plPreviewCurrency').textContent = cur;
+      document.getElementById('plPreviewDesc').textContent = document.getElementById('plDesc').value || '-';
+      document.getElementById('plPreviewExpire').textContent = document.getElementById('plExpire').value || 'No expiry';
+    }
+    function buildPaymentLink(){
+      const base = 'https://paywizard.example/guest-pay';
+      const params = new URLSearchParams();
+      const merchant = document.getElementById('merchant').value || '';
+      const cur = document.getElementById('plCurrency').value || 'USD';
+      const amtStr = document.getElementById('plAmount').value || '';
+      const amt = parseFloat(amtStr.replace(/,/g,''));
+      if (isNaN(amt) || amt <= 0){
+        alert('Please enter a valid amount for the payment link.');
+        return '';
+      }
+      params.set('mode','guest');
+      if (merchant) params.set('merchant', merchant);
+      params.set('currency', cur);
+      params.set('amount', amt.toFixed(2));
+      const desc = document.getElementById('plDesc').value.trim();
+      if (desc) params.set('desc', desc);
+      const ref = document.getElementById('plRef').value.trim();
+      if (ref) params.set('ref', ref);
+      const payerName = document.getElementById('plName').value.trim();
+      if (payerName) params.set('payer', payerName);
+      const payerEmail = document.getElementById('plEmail').value.trim();
+      if (payerEmail) params.set('email', payerEmail);
+      const payerPhone = document.getElementById('plPhone').value.trim();
+      if (payerPhone) params.set('phone', payerPhone);
+      const exp = document.getElementById('plExpire').value;
+      if (exp) params.set('expires', exp);
+      return base + '?' + params.toString();
+    }
+    function copyToClipboard(text){
+      if (!text) return;
+      navigator.clipboard?.writeText(text).then(()=>{ alert('Link copied'); }).catch(()=>{
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); alert('Link copied'); } catch(e){ alert('Copy failed'); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+
+    // Payment Link events
+    function clearPLLink(){
+      const input = document.getElementById('plLink');
+      input.value = '';
+      const copyBtn = document.getElementById('btnPLCopy');
+      if (copyBtn) copyBtn.disabled = true;
+    }
+    document.getElementById('plCurrency').addEventListener('change', ()=>{ updatePLPreview(); clearPLLink(); });
+    document.getElementById('plAmount').addEventListener('input', (e)=>{ e.target.value = sanitizeMoney(e.target.value); updatePLPreview(); clearPLLink(); });
+    document.getElementById('plDesc').addEventListener('input', ()=>{ updatePLPreview(); clearPLLink(); });
+    document.getElementById('plExpire').addEventListener('change', ()=>{ updatePLPreview(); clearPLLink(); });
+    ['plName','plEmail','plPhone','plRef'].forEach(id=>{
+      const el = document.getElementById(id); if (el) el.addEventListener('input', clearPLLink);
+    });
+    document.getElementById('btnPLGenerate').addEventListener('click', ()=>{
+      const link = buildPaymentLink();
+      if (link){
+        const input = document.getElementById('plLink');
+        input.value = link;
+        try { input.focus(); input.select(); } catch(e){}
+        const copyBtn = document.getElementById('btnPLCopy');
+        if (copyBtn) copyBtn.disabled = false;
+      }
+    });
+    document.getElementById('btnPLCopy').addEventListener('click', ()=>{
+      const link = document.getElementById('plLink').value;
+      if (!link){ alert('Please generate the link first.'); return; }
+      copyToClipboard(link);
+    });
+
+    // Init
+    updatePlanVisibility(); toggleRecurring(); onRenewalChange(); updatePreview();
+    // Initialize Payment Link defaults
+    document.getElementById('plCurrency').value = document.getElementById('currency').value || 'USD';
+    updatePLPreview();
+    clearPLLink();
+  </script>
+</body>
+</html>

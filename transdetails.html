@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #ffffff;
+            color: #111;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #ffffff;
+            padding: 20px;
+            height: 100vh;
+            border-right: 1px solid #e0e0e0;
+            box-sizing: border-box;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu .menu-header {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #555;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar-menu li a:hover,
+        .sidebar-menu li.active a {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px 30px 24px;
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+        }
+
+        /* Header bar holds tabs (left) and controls (right) */
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .tabs {
+            display: flex;
+        }
+        .tabs button.hidden { display: none; }
+
+        .tabs button {
+            background: none;
+            border: none;
+            padding: 12px 20px 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            color: #8e8e92;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tabs button.active {
+            color: #111;
+            border-bottom-color: #111;
+        }
+
+        /* Simple tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-range {
+            position: relative;
+            border: 1px solid #d5d5d5;
+            padding: 12px 14px 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-right: 4px;
+            color: #111;
+            background-color: #fff;
+            min-width: 280px;
+        }
+        .date-range::before {
+            content: 'Date Range';
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            background: #fff;
+            padding: 0 6px;
+            color: #8e8e92;
+            font-size: 12px;
+        }
+        
+        .filter-button, .column-button {
+            border: 1px solid #d5d5d5;
+            background-color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            color: #111;
+        }
+        .filter-button:hover, .column-button:hover { background: #f5f5f5; }
+        
+        .filter-button svg, .column-button svg {
+            margin-right: 5px;
+        }
+
+        /* Column dropdown */
+        .column-menu-wrapper {
+            position: relative;
+        }
+        .column-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 10px 12px;
+            min-width: 220px;
+            z-index: 1000;
+            display: none;
+        }
+        .column-menu.open { display: block; }
+        .column-menu h4 {
+            margin: 4px 0 8px;
+            font-size: 13px;
+            color: #333;
+        }
+        .column-menu .col-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 2px;
+            font-size: 13px;
+            color: #444;
+        }
+        .column-menu .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 10px;
+        }
+
+        .transaction-table th, .transaction-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+            font-size: 14px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .transaction-table thead th {
+            background-color: #131416;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom-color: #2a2b2e;
+        }
+        .transaction-table thead th:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .transaction-table thead th:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        
+        .transaction-table td {
+            color: #222;
+        }
+
+        /* Emphasize success rows */
+        .row-success {
+            background-color: #f7f7f7;
+        }
+        .row-success td { border-bottom-color: #ededed; }
+
+        /* Failed-tab toggle button (harmonized with other controls) */
+        .chip-toggle {
+            border: 1px solid #d5d5d5;
+            background: #fff;
+            color: #111;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .chip-toggle:hover { background: #f5f5f5; }
+        .chip-toggle.active, .chip-toggle[aria-pressed="true"] {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        .empty { padding: 24px; color: #777; }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Monochrome badges */
+        .status-preauth,
+        .status-reversal,
+        .status-purchase {
+            background-color: #f0f0f0;
+            color: #111;
+            border: 1px solid #d9d9d9;
+        }
+        
+        .card-pan {
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-pan svg {
+            margin-right: 8px;
+            color: #6c757d;
+        }
+
+        .actions-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="menu-header">BILLING</li>
+            <li><a href="#">Reconciliation Management</a></li>
+            <li><a href="#">Service Fee Log</a></li>
+            <li><a href="#">Service Fee Report</a></li>
+
+            <li class="menu-header">CUSTOMER INFORMATION</li>
+            <li><a href="#">Customer Information</a></li>
+            <li class="active"><a href="#">Customer Transaction</a></li>
+
+            <li class="menu-header">PARTNER MANAGEMENT</li>
+            <li><a href="#">Partner Information</a></li>
+            <li><a href="#">Inventory Logs</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-bar">
+            <div class="tabs">
+                <button class="active" data-target="tab-completed">Completed</button>
+                <button id="failedTabBtn" data-target="tab-failed">Failed</button>
+            </div>
+            <div class="toolbar">
+                <div class="date-range">2025-9-21 - 2025-10-21</div>
+                <button class="filter-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    Filter
+                </button>
+                <div class="column-menu-wrapper">
+                    <button class="column-button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="4" height="16"></rect><rect x="10" y="8" width="4" height="12"></rect><rect x="17" y="12" width="4" height="8"></rect></svg>
+                        Column
+                    </button>
+                    <div class="column-menu" id="columnMenu">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+                <button id="failedToggleBtn" class="chip-toggle" aria-pressed="false">Show Failed</button>
+            </div>
+        </div>
+
+        <section id="tab-completed" class="tab-panel active">
+        <table class="transaction-table" id="completedTable">
+            <thead>
+                <tr>
+                    <th>Date & Time(Processor)</th>
+                    <th>Invoice Number</th>
+                    <th>Card PAN</th>
+                    <th>Approval Code</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Currency</th>
+                    <th>MID</th>
+                    <th>TID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2025-10-17 13:51:01</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="status status-preauth">PreAuth</span></td>
+                    <td>1.23</td>
+                    <td>-</td>
+                    <td>444500187868600</td>
+                    <td>-</td>
+                    <td><button class="actions-button">&hellip;</button></td>
+                </tr>
+                <tr>
+                    <td>2025-10-17 13:42:24</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="status status-preauth">PreAuth</span></td>
+                    <td>1.23</td>
+                    <td>-</td>
+                    <td>444500187868600</td>
+                    <td>-</td>
+                    <td><button class="actions-button">&hellip;</button></td>
+                </tr>
+                <tr>
+                    <td>2025-10-11 19:12:24</td>
+                    <td>-</td>
+                    <td class="card-pan">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                        451461******8925
+                    </td>
+                    <td>-</td>
+                    <td><span class="status status-reversal">Reversal</span></td>
+                    <td>-0.01</td>
+                    <td>USD</td>
+                    <td>266482540884</td>
+                    <td>-</td>
+                    <td><button class="actions-button">&hellip;</button></td>
+                </tr>
+                <tr>
+                    <td>2025-10-11 11:02:04</td>
+                    <td>-</td>
+                    <td class="card-pan">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                        451461******8925
+                    </td>
+                    <td>-</td>
+                    <td><span class="status status-purchase">Purchase</span></td>
+                    <td>0.01</td>
+                    <td>USD</td>
+                    <td>266482540884</td>
+                    <td>-</td>
+                    <td><button class="actions-button">&hellip;</button></td>
+                </tr>
+                 <tr>
+                    <td>2025-10-11 02:21:17</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="status status-purchase">Purchase</span></td>
+                    <td>17.00</td>
+                    <td>BRL</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><button class="actions-button">&hellip;</button></td>
+                </tr>
+                 <tr>
+                    <td>2025-10-11 01:47:51</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="status status-purchase">Purchase</span></td>
+                    <td>11.00</td>
+                    <td>BRL</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><button class="actions-button">&hellip;</button></td>
+                </tr>
+            </tbody>
+        </table>
+        </section>
+        <section id="tab-failed" class="tab-panel">
+            <div class="empty">No failed transactions.</div>
+        </section>
+    </main>
+    <script>
+        (function() {
+            const table = document.querySelector('#completedTable');
+            const menu = document.getElementById('columnMenu');
+            const btn = document.querySelector('.column-button');
+            const STORAGE_KEY = 'transdetails.colVisibility';
+
+            function buildMenu() {
+                const headers = Array.from(table.querySelectorAll('thead th'));
+                const saved = loadState(headers.length);
+
+                const container = document.createElement('div');
+                const controls = document.createElement('div');
+                controls.className = 'controls';
+                const aAll = document.createElement('a'); aAll.href = '#'; aAll.textContent = 'Select all';
+                const aReset = document.createElement('a'); aReset.href = '#'; aReset.textContent = 'Reset';
+                controls.append(aAll, aReset);
+
+                const title = document.createElement('h4');
+                title.textContent = 'Show/Hide Columns';
+
+                container.append(controls, title);
+
+                headers.forEach((th, i) => {
+                    const idx = i + 1; // 1-based
+                    const item = document.createElement('label');
+                    item.className = 'col-item';
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.checked = saved[idx] !== false; // default visible
+                    cb.dataset.colIndex = String(idx);
+                    const span = document.createElement('span');
+                    span.textContent = th.textContent || `Column ${idx}`;
+                    item.append(cb, span);
+                    container.appendChild(item);
+                    setColVisible(idx, cb.checked);
+                });
+
+                menu.innerHTML = '';
+                menu.appendChild(container);
+
+                menu.addEventListener('change', (e) => {
+                    const target = e.target;
+                    if (target && target.matches('input[type="checkbox"][data-col-index]')) {
+                        const index = parseInt(target.dataset.colIndex, 10);
+                        setColVisible(index, target.checked);
+                        saveState();
+                    }
+                });
+
+                aAll.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    menu.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                        cb.checked = true;
+                        setColVisible(parseInt(cb.dataset.colIndex, 10), true);
+                    });
+                    saveState();
+                });
+
+                aReset.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem(STORAGE_KEY);
+                    menu.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                        cb.checked = true;
+                        setColVisible(parseInt(cb.dataset.colIndex, 10), true);
+                    });
+                });
+            }
+
+            function setColVisible(index, visible) {
+                const show = visible ? '' : 'none';
+                table.querySelectorAll(`thead tr th:nth-child(${index})`).forEach(el => el.style.display = show);
+                table.querySelectorAll(`tbody tr td:nth-child(${index})`).forEach(el => el.style.display = show);
+            }
+
+            function saveState() {
+                const state = {};
+                menu.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    state[cb.dataset.colIndex] = cb.checked;
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            }
+
+            function loadState(count) {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) return JSON.parse(raw);
+                } catch (_) {}
+                const def = {}; for (let i=1;i<=count;i++) def[i] = true; return def;
+            }
+
+            // Toggle menu open/close
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('open');
+            });
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.remove('open');
+                }
+            });
+
+            // Init column menu and success highlight
+            buildMenu();
+            highlightSuccessRows();
+
+            function highlightSuccessRows() {
+                const rows = document.querySelectorAll('#completedTable tbody tr');
+                rows.forEach(row => {
+                    const typeCell = row.children[4];
+                    const txt = typeCell ? typeCell.textContent.trim() : '';
+                    const isSuccess = txt === 'Purchase' || txt === 'PreAuth';
+                    row.classList.toggle('row-success', isSuccess);
+                });
+            }
+        })();
+    </script>
+    <script>
+        // Tabs + Show Failed toggle
+        (function(){
+            const tabButtons = document.querySelectorAll('.tabs button');
+            const panels = document.querySelectorAll('.tab-panel');
+            const failedBtn = document.getElementById('failedTabBtn');
+            const toggleBtn = document.getElementById('failedToggleBtn');
+            const STORAGE_TOGGLE = 'transdetails.showFailedTab';
+
+            function activate(id){
+                panels.forEach(p => p.classList.toggle('active', p.id === id));
+                tabButtons.forEach(b => b.classList.toggle('active', b.dataset.target === id));
+            }
+            tabButtons.forEach(b => b.addEventListener('click', () => activate(b.dataset.target)));
+
+            // Load toggle state
+            let showFailed = false; // default: hide Failed tab to emphasize success
+            try { const raw = localStorage.getItem(STORAGE_TOGGLE); if (raw !== null) showFailed = JSON.parse(raw); } catch(e){}
+            setToggle(showFailed);
+            applyToggle(showFailed);
+
+            toggleBtn.addEventListener('click', () => {
+                showFailed = !showFailed;
+                localStorage.setItem(STORAGE_TOGGLE, JSON.stringify(showFailed));
+                setToggle(showFailed);
+                applyToggle(showFailed);
+            });
+
+            function applyToggle(show){
+                failedBtn.classList.toggle('hidden', !show);
+                if (!show) {
+                    // If Failed is active while hiding, switch back to Completed
+                    if (failedBtn.classList.contains('active')) {
+                        activate('tab-completed');
+                    }
+                    document.getElementById('tab-failed').classList.remove('active');
+                }
+            }
+            function setToggle(on){
+                toggleBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                toggleBtn.classList.toggle('active', !!on);
+            }
+        })();
+    </script>
+
+</body>
+</html>

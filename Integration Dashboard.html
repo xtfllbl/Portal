@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Integration Dashboard | WizarPOS Developer Center</title>
+    <style>
+        /* --- Global Styles & Resets --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Header --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .header .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .header .user-info {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        /* --- Page Title --- */
+        .page-title h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            color: #212529;
+        }
+
+        .page-title p {
+            font-size: 1.1em;
+            color: #6c757d;
+            margin-top: 0;
+        }
+
+        /* --- Card Layout --- */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.25em;
+            color: #343a40;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* --- Specific Section Styling --- */
+        .customer-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .detail-item strong {
+            display: block;
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        
+        .platform-access-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .platform-access-grid ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        
+        .platform-access-grid li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .platform-access-grid .icon-check {
+            color: #28a745;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        /* --- Integration Module Styling --- */
+        .integration-module {
+            margin-bottom: 20px;
+        }
+        
+        .integration-module:last-child {
+            margin-bottom: 0;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .module-header h4 {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 0.8em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 12px;
+        }
+        
+        .badge-active {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .module-description {
+            color: #6c757d;
+            font-size: 0.95em;
+            margin: 10px 0 15px 0;
+        }
+        
+        /* --- Modern Doc Link Cards --- */
+        .doc-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 14px;
+            color: #ffffff;
+            text-decoration: none;
+            background: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 52%, #06b6d4 100%);
+            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.22);
+            overflow: hidden;
+            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+            box-sizing: border-box;
+            min-height: 72px;
+        }
+
+        .doc-card::before {
+            content: "";
+            position: absolute;
+            inset: -40% -20% auto auto;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(closest-side, rgba(255,255,255,.28), rgba(255,255,255,0));
+            transform: rotate(25deg);
+            pointer-events: none;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 36px rgba(79, 70, 229, 0.3);
+            background: linear-gradient(135deg, #4338ca 0%, #0284c7 52%, #0891b2 100%);
+        }
+
+        .doc-card:active { transform: translateY(0); }
+
+        .doc-card-text { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; }
+        .doc-card-kicker {
+            font-size: 12px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            opacity: .9;
+        }
+        .doc-card-title {
+            margin-top: 2px;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .doc-card-sub { font-size: 13px; opacity: .9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .doc-card-cta {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: saturate(150%) blur(2px);
+            font-weight: 600;
+            white-space: nowrap;
+            flex: none;
+        }
+        .doc-card svg { width: 18px; height: 18px; stroke: currentColor; }
+        .doc-card:hover .doc-card-cta { background: rgba(255, 255, 255, 0.18); }
+
+        /* spacing inside module blocks */
+        .integration-module .doc-card { margin-top: 12px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .doc-card, .doc-card:hover { transition: none; transform: none; }
+        }
+
+        /* --- Footer --- */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            margin-top: 40px;
+        }
+        
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+            .platform-access-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">WizarPOS</div>
+        <div class="user-info">Developer Center</div>
+    </header>
+
+    <div class="container">
+
+        <div class="page-title">
+            <h1>Integration Dashboard</h1>
+            <p>This page reflects the specific configuration and services enabled for your account.</p>
+        </div>
+        
+        <div class="card">
+            <h3>Customer Details</h3>
+            <div class="customer-details-grid">
+                <div class="detail-item">
+                    <strong>Company Name</strong>
+                    <span>MercuryPay Inc.</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Customer ID</strong>
+                    <span>MP-84321</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Platform Access</h3>
+            <div class="platform-access-grid">
+                <div>
+                    <h4>Testing / Development </h4>
+                    <ul>
+                        <li><span class="icon-check">✔</span> PAYWIZARD</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Production / Live</h4>
+                    <ul>
+                         <li><span class="icon-check">✔</span> TMS (Terminal Management System)</li>
+                         <li><span class="icon-check">✔</span> PAYWIZARD</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Active Integration Modules</h3>
+
+            <div class="integration-module">
+                <div class="module-header">
+                    <h4>Terminal Integration Method</h4>
+                    <span class="badge badge-active">SEMI-INTEGRATION (SOCKET)</span>
+                </div>
+                <p class="module-description">Your solution communicates directly with the payment terminal over a local network using the Socket protocol.</p>
+                <a href="https://yourcompany.gitbook.io/docs/semi-integration/socket-api" target="_blank" rel="noopener noreferrer" class="doc-card" aria-label="Open GitBook: Semi-Integration Socket API">
+                    <div class="doc-card-text">
+                        <div class="doc-card-kicker">Documentation</div>
+                        <div class="doc-card-title">Semi‑Integration · Socket API</div>
+                        <div class="doc-card-sub">Open in GitBook</div>
+                    </div>
+                    <div class="doc-card-cta">
+                        <span>Open</span>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M13 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #e9ecef; margin: 24px 0;">
+
+            <div class="integration-module">
+                <div class="module-header">
+                    <h4>Online Payment Gateway</h4>
+                    <span class="badge badge-active">ACTIVE</span>
+                </div>
+                <p class="module-description">Process e-commerce and other card-not-present transactions through our secure online gateway.</p>
+                <a href="https://yourcompany.gitbook.io/docs/online-payments/gateway-api" target="_blank" rel="noopener noreferrer" class="doc-card" aria-label="Open GitBook: Gateway API Reference">
+                    <div class="doc-card-text">
+                        <div class="doc-card-kicker">Documentation</div>
+                        <div class="doc-card-title">Online Payments · Gateway API</div>
+                        <div class="doc-card-sub">Open in GitBook</div>
+                    </div>
+                    <div class="doc-card-cta">
+                        <span>Open</span>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M13 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e9ecef; margin: 24px 0;">
+
+            <div class="integration-module">
+                <div class="module-header">
+                    <h4>Alternative Payment Methods (APM)</h4>
+                     <span class="badge badge-active">ACTIVE</span>
+                </div>
+                <p class="module-description">Enable acceptance of digital wallets, bank transfers, and other non-traditional payment methods at checkout.</p>
+                <a href="https://yourcompany.gitbook.io/docs/apm" target="_blank" rel="noopener noreferrer" class="doc-card" aria-label="Open GitBook: Alternative Payment Methods">
+                    <div class="doc-card-text">
+                        <div class="doc-card-kicker">Documentation</div>
+                        <div class="doc-card-title">Alternative Payment Methods</div>
+                        <div class="doc-card-sub">Open in GitBook</div>
+                    </div>
+                    <div class="doc-card-cta">
+                        <span>Open</span>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M13 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+             <hr style="border: none; border-top: 1px solid #e9ecef; margin: 24px 0;">
+
+            <div class="integration-module">
+                <div class="module-header">
+                    <h4>Transaction Result Data Transmission</h4>
+                     <span class="badge badge-active">ACTIVE</span>
+                </div>
+                <p class="module-description">Your system is configured to receive asynchronous transaction status updates and reconciliation data via webhooks.</p>
+                <a href="https://yourcompany.gitbook.io/docs/webhooks/transaction-results" target="_blank" rel="noopener noreferrer" class="doc-card" aria-label="Open GitBook: Webhooks Transaction Results">
+                    <div class="doc-card-text">
+                        <div class="doc-card-kicker">Documentation</div>
+                        <div class="doc-card-title">Webhooks · Transaction Results</div>
+                        <div class="doc-card-sub">Open in GitBook</div>
+                    </div>
+                    <div class="doc-card-cta">
+                        <span>Open</span>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M13 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+    
+    <footer class="footer">
+        © 2025 WizarPOS International Inc. All Rights Reserved.
+    </footer>
+
+</body>
+</html>
