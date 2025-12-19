@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Management - Branding</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0077b5; /* 第二张图的蓝色 */
+            --save-gray: #5d6d7e;   /* 第一张图按钮的灰色 */
+            --bg-body: #f4f7f9;
+            --text-main: #4a4a4a;
+            --text-light: #888;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px;
+        }
+
+        .main-card {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 15px rgba(0,0,0,0.05);
+            padding: 30px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 500;
+            margin: 0 0 25px 0;
+            color: #333;
+        }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            gap: 35px;
+        }
+
+        .tab-link {
+            padding: 12px 2px;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text-light);
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .tab-link.active {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .tab-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #333; /* 对应图2的下划线样式 */
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Branding / Logo Section Styles */
+        .sub-section {
+            margin-bottom: 40px;
+        }
+
+        .sub-header {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sub-desc {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .branding-grid {
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            gap: 25px;
+        }
+
+        .upload-area {
+            background-color: #f9f9f9;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .upload-placeholder {
+            border: 1px dashed #ccc;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .guideline-box {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .guideline-box h4 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .guideline-item {
+            margin-bottom: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .guideline-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        /* Email Settings / Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-top: 8px;
+        }
+
+        .input-container label {
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            background: #fff;
+            padding: 0 5px;
+            font-size: 12px;
+            color: var(--text-light);
+            z-index: 2;
+        }
+
+        .input-container input, .input-container select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input-container .eye-icon {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 35px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        .btn-gray { background-color: var(--save-gray); color: white; }
+        .btn-blue { background-color: var(--primary-blue); color: white; }
+
+        hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <h1 class="page-title">Branding</h1>
+
+    <div class="tabs-nav">
+        <div class="tab-link active" onclick="openTab(event, 'branding')">Logo</div>
+        <div class="tab-link" onclick="openTab(event, 'email-settings')">Email Settings</div>
+        <div class="tab-link" onclick="openTab(event, 'sms-settings')">SMS Settings</div>
+        <div class="tab-link" onclick="openTab(event, 'email-template')">Email Template</div>
+        <div class="tab-link" onclick="openTab(event, 'sms-template')">SMS Template</div>
+        <div class="tab-link" onclick="openTab(event, 'tms-info')">TMS Info</div>
+    </div>
+
+    <div id="branding" class="tab-panel active">
+        <div class="sub-section">
+            <div class="sub-header">System Header Logo</div>
+            <p class="sub-desc">Your logo will be displayed as a brand identifier in the header area of the system pages.</p>
+            <div class="branding-grid">
+                <div class="upload-area">
+                    <div style="background: #e9ecef; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                        <img src="https://via.placeholder.com/80x80/666/fff?text=Logo" alt="Logo" style="mix-blend-mode: multiply;">
+                    </div>
+                </div>
+                <div class="guideline-box">
+                    <h4>Logo Upload Guidelines</h4>
+                    <div class="guideline-item">
+                        <strong>File Specifications</strong>
+                        Your logo must be a <strong>JPG</strong> or <strong>PNG</strong> file, and the file size must not exceed <strong>2MB</strong>.
+                    </div>
+                    <div class="guideline-item">
+                        <strong>Design Recommendations</strong>
+                        The logo is displayed within a <strong>176x44</strong> pixel area. For the best possible result, we strongly recommend uploading a PNG file with a transparent background at these exact dimensions.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="sub-section">
+            <div class="sub-header">Terminal Logo</div>
+            <p class="sub-desc">This logo will be displayed on the terminal's idle screen and printed on customer receipts.</p>
+            <div class="branding-grid">
+                <div class="upload-area">
+                    <div class="upload-placeholder">
+                        <i class="fas fa-upload" style="font-size: 28px; margin-bottom: 12px;"></i>
+                        <span>Click or drag images here to upload</span>
+                    </div>
+                </div>
+                <div class="guideline-box">
+                    <h4>Terminal Logo Guidelines</h4>
+                    <div class="guideline-item">
+                        <strong>File Specifications</strong>
+                        Your logo must be a <strong>JPG</strong> or <strong>PNG</strong> file, and the file size must not exceed <strong>2MB</strong>.
+                    </div>
+                    <div class="guideline-item">
+                        <strong>Design Recommendations</strong>
+                        The logo is displayed within a <strong>240x160</strong> pixel area. For the best possible result, we strongly recommend uploading a PNG file with a transparent background at these exact dimensions.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn btn-gray"><i class="fas fa-save"></i> Save</button>
+    </div>
+
+    <div id="email-settings" class="tab-panel">
+        <div class="form-grid">
+            <div class="input-container">
+                <label>Transport Protocol</label>
+                <select>
+                    <option>SMTPS</option>
+                </select>
+            </div>
+            <div class="input-container">
+                <label>Host</label>
+                <input type="text" value="smtp.exmail.qq.com">
+            </div>
+            <div class="input-container">
+                <label>Port</label>
+                <input type="text" value="465">
+            </div>
+            <div class="input-container">
+                <label>Email User</label>
+                <input type="text" value="test@paywizard.biz">
+            </div>
+            <div class="input-container">
+                <label>Authorization Code</label>
+                <input type="password" value="password123">
+                <i class="far fa-eye-slash eye-icon"></i>
+            </div>
+            <div class="input-container">
+                <label>From</label>
+                <input type="text" value="test@paywizard.biz">
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button class="btn btn-blue">Save</button>
+        </div>
+    </div>
+
+    <div id="sms-settings" class="tab-panel"><p style="padding: 20px;">SMS Settings Configuration...</p></div>
+    <div id="email-template" class="tab-panel"><p style="padding: 20px;">Email Template Editor...</p></div>
+    <div id="sms-template" class="tab-panel"><p style="padding: 20px;">SMS Template Editor...</p></div>
+    <div id="tms-info" class="tab-panel"><p style="padding: 20px;">TMS Information Details...</p></div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabContent, tabLinks;
+        tabContent = document.getElementsByClassName("tab-panel");
+        for (i = 0; i < tabContent.length; i++) {
+            tabContent[i].classList.remove("active");
+        }
+        tabLinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tabLinks.length; i++) {
+            tabLinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>
+
+</body>
+</html>
