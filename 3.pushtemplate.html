@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Push Template Management</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
         :root {
             --background-color: #f5f7fa;
@@ -19,10 +19,23 @@
             --green-color: #111827; /* unify to black & white */
             --green-hover: #000000;
             --shadow: 0 1px 3px rgba(15,23,42,0.06);
+            --page-bg: #f5f7fa;
+            --menu-sidebar-bg: #ffffff;
+            --menu-text-strong: #0f0f10;
+            --menu-text-main: #111111;
+            --menu-text-dim: #6b7280;
+            --menu-divider: #e5e7eb;
+            --menu-hover: #f3f4f6;
+            --menu-bullet: #d1d5db;
+            --menu-active-bg: #0f0f10;
+            --menu-active-text: #ffffff;
+            --menu-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Poppins', sans-serif;
             margin: 0;
             background-color: var(--background-color);
             color: var(--text-primary);
@@ -34,54 +47,221 @@
         /* --- Sidebar Navigation --- */
         .sidebar {
             width: 260px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
+            background: var(--menu-sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--menu-divider);
+            box-shadow: var(--menu-shadow);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            padding: 24px 0;
+            flex-shrink: 0;
+            font-family: 'Poppins', 'Inter', sans-serif;
         }
 
-        .sidebar-header {
-            padding: 0 24px;
-            margin-bottom: 24px;
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex-grow: 1;
-        }
-
-        .sidebar-menu li a, .sidebar-menu li div {
+        .brand {
             display: flex;
             align-items: center;
-            padding: 12px 24px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 500;
-            transition: all 0.2s ease;
-            font-size: 14px;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--menu-divider);
         }
-        
-        .sidebar-menu .menu-category {
-            text-transform: uppercase;
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark {
+            width: 32px;
+            height: 22px;
+        }
+
+        .mark svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--menu-text-strong);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--menu-text-strong);
+            letter-spacing: 0.15px;
+        }
+
+        .brand-sub {
             font-size: 11px;
-            font-weight: 600;
-            color: #adb5bd;
-            padding: 20px 24px 8px;
+            color: var(--menu-text-dim);
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .sidebar-menu li a:hover, .sidebar-menu li.active a {
-            background-color: #e9ecef;
-            color: var(--text-primary);
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--menu-divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
         }
 
-        .sidebar-menu li a svg { margin-right: 16px; width: 18px; height: 18px; }
+        .close-btn span {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .close-btn span::before,
+        .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--menu-text-strong);
+            transform-origin: center;
+        }
+
+        .close-btn span::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn span::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--menu-text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--menu-hover);
+        }
+
+        .menu-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--menu-text-strong);
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .chevron {
+            font-size: 11px;
+            color: var(--menu-text-dim);
+        }
+
+        .menu-item.active {
+            background: var(--menu-active-bg);
+            color: var(--menu-active-text);
+        }
+
+        .menu-item.active .icon,
+        .menu-item.active .chevron {
+            color: var(--menu-active-text);
+        }
+
+        .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-menu.open {
+            display: flex;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--menu-text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--menu-bullet);
+            transform: translateY(-50%);
+        }
+
+        .sub-item:hover {
+            color: var(--menu-text-main);
+            background: var(--menu-hover);
+        }
+
+        .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--menu-active-bg);
+            color: var(--menu-active-text);
+        }
+
+        .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--menu-active-text);
+            left: 10px;
+        }
 
         /* --- Main Content --- */
         .main-content {
@@ -298,23 +478,177 @@
 <body>
 
     <aside class="sidebar">
-        <div class="sidebar-header">NNAT MARKET</div>
-        <ul class="sidebar-menu">
-            <li class="menu-category">Monitoring</li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V3H3v9m18 8l-4-4H3v4h18z"/></svg>Dashboard</a></li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Alert</a></li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Terminal Geo-Location</a></li>
-            <li class="menu-category">Task</li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>App List</a></li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Firmware List</a></li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>My Activity</a></li>
-            <li class="menu-category">Management</li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/></svg>Terminal Management</a></li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Group Management</a></li>
-            <li class="active"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 21-8-4.5v-9L12 3l8 4.5v9L12 21z"/><path d="m12 11.5 8 4.5"/><path d="m12 11.5 v9"/><path d="m12 11.5-8 4.5"/><path d="M4 7.5l8-4.5l8 4.5"/><path d="M4 16.5l8 4.5l8-4.5"/></svg>Templates</a></li>
-            <li class="menu-category">Value-Added Services</li>
-            <li><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>AirViewer</a></li>
-        </ul>
+        <div class="brand">
+            <div class="brand-left">
+                <div class="mark" aria-hidden="true"></div>
+                <div class="brand-text">
+                    <div class="brand-name">PAYwizard</div>
+                    <div class="brand-sub">menu</div>
+                </div>
+            </div>
+            <button class="close-btn" type="button" aria-label="Close menu">
+                <span></span>
+            </button>
+        </div>
+
+        <div class="menu">
+            <div class="menu-item" data-key="dashboard">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="4" y="4" width="7" height="7" rx="1.5" />
+                            <rect x="13" y="4" width="7" height="7" rx="1.5" />
+                            <rect x="4" y="13" width="7" height="7" rx="1.5" />
+                            <rect x="13" y="13" width="7" height="7" rx="1.5" />
+                        </svg>
+                    </span>
+                    <span class="label">Dashboard</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-key="transactions">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="6" width="18" height="12" rx="2" />
+                            <path d="M3 10h18" />
+                            <path d="M8 14h4" />
+                        </svg>
+                    </span>
+                    <span class="label">Transactions</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-key="batches">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 7h12l1 3H5z" />
+                            <path d="M7 10v7h10v-7" />
+                            <path d="M9 14h6" />
+                        </svg>
+                    </span>
+                    <span class="label">Batches</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-key="security">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z" />
+                            <path d="M10 12.5l2 2 3-3.5" />
+                        </svg>
+                    </span>
+                    <span class="label">Security</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="agents">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                            <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                            <path d="M4 20a4 4 0 018 0" />
+                            <path d="M12 17a4 4 0 018 0" />
+                        </svg>
+                    </span>
+                    <span class="label">Agents</span>
+                </div>
+                <span class="chevron" aria-hidden="true">></span>
+            </div>
+            <div class="sub-menu" data-parent="agents">
+                <div class="sub-item" data-key="agents-list">Agent List</div>
+                <div class="sub-item" data-key="agents-analytics">Analytics</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="merchants">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
+                            <path d="M9 21V12h6v9" />
+                        </svg>
+                    </span>
+                    <span class="label">Merchants</span>
+                </div>
+                <span class="chevron" aria-hidden="true">></span>
+            </div>
+            <div class="sub-menu" data-parent="merchants">
+                <div class="sub-item" data-key="merchants-leads">Leads</div>
+                <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
+                <div class="sub-item" data-key="merchants-list">Merchant List</div>
+                <div class="sub-item" data-key="merchants-analytics">Analytics</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="partners">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z" />
+                        </svg>
+                    </span>
+                    <span class="label">Partners</span>
+                </div>
+                <span class="chevron" aria-hidden="true">></span>
+            </div>
+            <div class="sub-menu" data-parent="partners">
+                <div class="sub-item" data-key="partners-list">Partner List</div>
+                <div class="sub-item" data-key="partners-hardware">Hardware</div>
+            </div>
+
+            <div class="menu-item active" data-toggle="submenu" data-target="devices">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z" />
+                            <path d="M10 12.5l2 2 3-3.5" />
+                        </svg>
+                    </span>
+                    <span class="label">Device Management</span>
+                </div>
+                <span class="chevron" aria-hidden="true">v</span>
+            </div>
+            <div class="sub-menu open" data-parent="devices">
+                <div class="sub-item" data-key="terminal-management">Terminal Management</div>
+                <div class="sub-item active" data-key="template-management">Template Management</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="users">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="5" y="4" width="14" height="16" rx="2" />
+                            <path d="M9 9h6M9 13h6M9 17h6" />
+                        </svg>
+                    </span>
+                    <span class="label">User Management</span>
+                </div>
+                <span class="chevron" aria-hidden="true">></span>
+            </div>
+            <div class="sub-menu" data-parent="users">
+                <div class="sub-item" data-key="users-list">User List</div>
+                <div class="sub-item" data-key="users-roles">Role Permissions</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="settings">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z" />
+                        </svg>
+                    </span>
+                    <span class="label">Settings</span>
+                </div>
+                <span class="chevron" aria-hidden="true">></span>
+            </div>
+            <div class="sub-menu" data-parent="settings">
+                <div class="sub-item" data-key="settings-branding">Branding</div>
+                <div class="sub-item" data-key="settings-payments">Payment Channels</div>
+            </div>
+        </div>
     </aside>
 
     <div class="main-content">
@@ -336,27 +670,27 @@
                 </div>
                 <ul class="template-list">
                     <li>
-                        <span class="template-name">VendLink-EV</span>
-                        <span class="template-info">PAX Technology</span>
+                        <span class="template-name">TSYS EV</span>
+                        <span class="template-info">WizarPOS</span>
                     </li>
                      <li>
-                        <span class="template-name">VendLink-VM</span>
-                        <span class="template-info">PAX Technology</span>
+                        <span class="template-name">Fiserv VM</span>
+                        <span class="template-info">WizarPOS</span>
                     </li>
                     <li class="active">
-                        <span class="template-name">BroadPOS TransIT UPT</span>
-                        <span class="template-info">PAX E800</span>
+                        <span class="template-name">TSYS UPT</span>
+                        <span class="template-info">WizarPOS Q2</span>
                     </li>
                      <li>
-                        <span class="template-name">TransIT-HC-Retail UPT</span>
-                        <span class="template-info">PAX A980</span>
+                        <span class="template-name">Fiserv Retail UPT</span>
+                        <span class="template-info">WizarPOS Q3V</span>
                     </li>
                 </ul>
             </div>
 
             <div class="main-panel">
                 <div class="panel-header">
-                    <h1>BroadPOS TransIT UPT</h1>
+                    <h1>TSYS UPT</h1>
                     <div class="panel-actions">
                         <button class="icon-btn" id="bulkDeleteBtn" title="Delete Selected" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
@@ -470,22 +804,22 @@
                 <section class="section">
                     <h5>Recently Used</h5>
                     <div class="app-grid" id="recentApps">
-                        <div class="app-item" data-app="BroadPOS TransIT UPT">
+                        <div class="app-item" data-app="TSYS UPT">
                             <div class="app-left">
                                 <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01"/></svg></div>
                                 <div>
-                                    <div class="app-name">BroadPOS TransIT UPT</div>
-                                    <div class="app-sub">PAX UPT | Parameter Push</div>
+                                    <div class="app-name">TSYS UPT</div>
+                                    <div class="app-sub">WizarPOS UPT | Parameter Push</div>
                                 </div>
                             </div>
                             <button class="btn btn-ghost btn-sm quick-add">Add Template</button>
                         </div>
-                        <div class="app-item" data-app="TransIT-HC-Retail UPT">
+                        <div class="app-item" data-app="Fiserv Retail UPT">
                             <div class="app-left">
                                 <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01"/></svg></div>
                                 <div>
-                                    <div class="app-name">TransIT-HC-Retail UPT</div>
-                                    <div class="app-sub">PAX A-series | Parameter Push</div>
+                                    <div class="app-name">Fiserv Retail UPT</div>
+                                    <div class="app-sub">WizarPOS | Parameter Push</div>
                                 </div>
                             </div>
                             <button class="btn btn-ghost btn-sm quick-add">Add Template</button>
@@ -497,27 +831,27 @@
                     <div class="app-grid" id="allApps">
                         <label class="app-item">
                             <div class="app-left">
-                                <input type="radio" name="chooseApp" class="radio" value="BroadPOS TransIT UPT">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS UPT">
                                 <div>
-                                    <div class="app-name">BroadPOS TransIT UPT</div>
+                                    <div class="app-name">TSYS UPT</div>
                                     <div class="app-sub">Parameter App</div>
                                 </div>
                             </div>
                         </label>
                         <label class="app-item">
                             <div class="app-left">
-                                <input type="radio" name="chooseApp" class="radio" value="TransIT-HC-Retail UPT">
+                                <input type="radio" name="chooseApp" class="radio" value="Fiserv Retail UPT">
                                 <div>
-                                    <div class="app-name">TransIT-HC-Retail UPT</div>
+                                    <div class="app-name">Fiserv Retail UPT</div>
                                     <div class="app-sub">Parameter App</div>
                                 </div>
                             </div>
                         </label>
                         <label class="app-item">
                             <div class="app-left">
-                                <input type="radio" name="chooseApp" class="radio" value="VendLink-VM">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS VM">
                                 <div>
-                                    <div class="app-name">VendLink-VM</div>
+                                    <div class="app-name">TSYS VM</div>
                                     <div class="app-sub">Parameter App</div>
                                 </div>
                             </div>
@@ -541,6 +875,82 @@
     </div>
 
     <script>
+        (function initSidebarMenu(){
+            const rootMenuItems = document.querySelectorAll('.menu-item');
+            const submenuTriggers = document.querySelectorAll('.menu-item[data-toggle="submenu"]');
+            const subItems = document.querySelectorAll('.sub-item');
+
+            function setActiveRoot(target){
+                rootMenuItems.forEach(item=>{
+                    item.classList.toggle('active', item === target);
+                });
+            }
+
+            function closeAllSubmenus(){
+                document.querySelectorAll('.sub-menu.open').forEach(menu => menu.classList.remove('open'));
+                submenuTriggers.forEach(trigger=>{
+                    trigger.classList.remove('expanded');
+                    const ch = trigger.querySelector('.chevron');
+                    if(ch){ ch.textContent = '>'; }
+                });
+            }
+
+            submenuTriggers.forEach(item=>{
+                item.addEventListener('click', ()=>{
+                    const targetId = item.getAttribute('data-target');
+                    const submenu = document.querySelector(`.sub-menu[data-parent="${targetId}"]`);
+                    const isOpen = submenu && submenu.classList.contains('open');
+
+                    setActiveRoot(item);
+
+                    if(!submenu){ return; }
+
+                    if(isOpen){
+                        submenu.classList.remove('open');
+                        item.classList.remove('expanded');
+                        const chClose = item.querySelector('.chevron');
+                        if(chClose){ chClose.textContent = '>'; }
+                    }else{
+                        closeAllSubmenus();
+                        submenu.classList.add('open');
+                        item.classList.add('expanded');
+                        const chOpen = item.querySelector('.chevron');
+                        if(chOpen){ chOpen.textContent = 'v'; }
+                    }
+                });
+            });
+
+            rootMenuItems.forEach(item=>{
+                if(!item.hasAttribute('data-toggle')){
+                    item.addEventListener('click', ()=>{
+                        setActiveRoot(item);
+                        closeAllSubmenus();
+                    });
+                }
+            });
+
+            subItems.forEach(sub=>{
+                sub.addEventListener('click', (evt)=>{
+                    evt.stopPropagation();
+                    subItems.forEach(s=> s.classList.remove('active'));
+                    sub.classList.add('active');
+
+                    const parentMenu = sub.closest('.sub-menu');
+                    const parentKey = parentMenu ? parentMenu.getAttribute('data-parent') : null;
+                    if(parentKey){
+                        const trigger = document.querySelector(`.menu-item[data-target="${parentKey}"]`);
+                        if(trigger){
+                            setActiveRoot(trigger);
+                            const ch = trigger.querySelector('.chevron');
+                            if(ch){ ch.textContent = 'v'; }
+                            trigger.classList.add('expanded');
+                            parentMenu.classList.add('open');
+                        }
+                    }
+                });
+            });
+        })();
+
         (function(){
             const selectAll = document.getElementById('selectAll');
             const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
