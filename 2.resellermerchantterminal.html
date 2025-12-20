@@ -244,10 +244,11 @@
         .hero-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .9; }
         .reseller-hero h1 { margin: 4px 0; font-size: 18px; font-weight: 700; }
         .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; opacity: .9; }
-        .hero-status { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+        .hero-status { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
         .hero-status-pill { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.35); font-size: 11px; font-weight: 700; transition: all .15s ease; }
         .hero-status-pill.inactive { background: #ffe8e6; color: #b40000; border-color: #ffb5ae; }
-        .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .hero-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
+        .hero-actions .chip-button { padding: 6px 10px; }
         .chip-button { padding: 7px 12px; border-radius: 999px; border: 1px solid #d9d9d9; background: #fff; color: #111; font-size: 12px; font-weight: 600; cursor: pointer; }
         .primary-action { background: #111; color: #fff; border: 1px solid #111; }
         .chip-button.danger { border-color: #ffb5ae; color: #b40000; background: #ffe8e6; }
@@ -336,6 +337,7 @@
         tbody td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
         tbody tr:nth-child(even) { background: #fcfcfc; }
         tbody tr:hover { background: #f5f5f5; }
+        .terminal-table tbody tr { cursor: pointer; }
 
         .status-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid #d9d9d9; background: var(--pill-bg); color: var(--pill-text); }
         .status-pill.success { background: #111; color: #fff; border-color: #111; }
@@ -358,6 +360,8 @@
             .field input, .field select, .search-button { width: 100%; }
             .hierarchy-tools { flex-direction: column; align-items: stretch; }
             .hierarchy-count { margin-left: 0; }
+            .hero-actions { flex-wrap: wrap; }
+            .hero-status { align-items: flex-start; }
         }
             /* Partner Hierarchy tools */
         .hierarchy-card header { display: flex; align-items: center; justify-content: space-between; }
@@ -370,7 +374,7 @@
         .dropdown-item:hover { background: #f5f5f5; }
         .dropdown-menu.wide { width: 220px; }
 
-        /* Pre-Config modal */
+        /* Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 100; }
         .modal-overlay.show { display: flex; }
         .modal { width: 640px; max-width: calc(100vw - 40px); background: #fff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: 0 14px 34px rgba(0,0,0,.16); overflow: hidden; }
@@ -380,10 +384,11 @@
         .modal .close-btn { border: none; background: transparent; font-size: 18px; line-height: 1; cursor: pointer; color: var(--text-body); }
         .modal .full { grid-column: 1 / -1; }
         /* Add Terminal specific */
-        .btn-group { display: inline-flex; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
-        .btn-group button { padding: 7px 12px; font-size: 12px; border: none; background: #fff; color: #111; cursor: pointer; }
+        .btn-group { display: flex; width: 100%; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
+        .btn-group button { flex: 1; padding: 7px 12px; font-size: 12px; border: none; background: #fff; color: #111; cursor: pointer; }
         .btn-group button + button { border-left: 1px solid var(--card-border); }
         .btn-group .active { background: #111; color: #fff; }
+        .required-mark { color: #b40000; margin-left: 2px; }
         .inline-field { display: flex; align-items: end; gap: 8px; }
         .suffix-note { font-size: 12px; color: var(--text-muted); }
 
@@ -644,7 +649,6 @@
                                             <button class="dropdown-item" data-action="resend">Resend Email</button>
                                         </div>
                                     </div>
-                                    <button id="preConfigBtn" class="chip-button">+ Pre-Configration</button>
                                     <button id="addTerminalBtn" class="chip-button">+ Add Terminal</button>
                                 </div>
                             </div>
@@ -793,7 +797,7 @@
                                 <button class="search-button" aria-label="Search">Apply</button>
                             </div>
                             <div class="table-wrapper">
-                                <table class="data-table">
+                                <table class="data-table terminal-table">
                                     <thead>
                                         <tr>
                                             <th>Terminal Name</th>
@@ -1047,17 +1051,25 @@
               <label for="at-qty">Quantity</label>
               <input id="at-qty" name="quantity" type="number" min="1" value="1" disabled title="Fixed at 1">
             </div>
-      <div class="field full">
-              <label for="at-sn">SN *</label>
+            <div class="field full">
+              <label>Terminal Type</label>
+              <div class="btn-group" role="group" aria-label="Terminal type">
+                <button type="button" class="active" data-terminal-mode="physical">Physical terminal</button>
+                <button type="button" data-terminal-mode="virtual">No physical terminal</button>
+              </div>
+              <div class="helper-text" id="at-terminal-hint">No physical terminal: only Terminal Name is required.</div>
+            </div>
+            <div class="field full" data-hardware-only>
+              <label for="at-sn">SN <span class="required-mark" id="at-sn-required">*</span></label>
               <input id="at-sn" name="sn" type="text" placeholder="1350001227" required>
             </div>
-            <div class="field">
+            <div class="field" data-hardware-only>
               <label for="at-mfr">Manufacturer</label>
               <select id="at-mfr" name="manufacturer">
                 <option value="WizarPOS">WizarPOS</option>
               </select>
             </div>
-            <div class="field">
+            <div class="field" data-hardware-only>
               <label for="at-model">Model</label>
               <select id="at-model" name="model">
                 <option value="A60">Q2P</option>
@@ -1066,7 +1078,7 @@
               </select>
             </div>
             <div class="field">
-              <label for="at-reseller">Reseller *</label>
+              <label for="at-reseller">Reseller <span class="required-mark" id="at-reseller-required">*</span></label>
               <input id="at-reseller" name="reseller" type="text" placeholder="Jill Test Reseller" required>
             </div>
             <div class="field">
@@ -1079,51 +1091,6 @@
           <div class="modal-actions">
             <button type="button" id="addTerminalCancel" class="chip-button">Cancel</button>
             <button type="submit" class="chip-button primary-action">OK</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    <!-- Pre-Configration Modal -->
-    <div id="preConfigModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-      <div class="modal" role="document">
-        <header>
-          <span>Add Pre-Configration</span>
-          <button class="close-btn" id="preConfigClose" aria-label="Close">×</button>
-        </header>
-        <form id="preConfigForm">
-          <div class="modal-body">
-            <div class="field">
-              <label for="pc-name">Template Name</label>
-              <input id="pc-name" name="name" type="text" placeholder="e.g. WizarPOS Q3 Default">
-            </div>
-            <div class="field">
-              <label for="pc-model">Model</label>
-              <select id="pc-model" name="model">
-                <option value="Q3">WizarPOS - Q3</option>
-                <option value="Q2L">WizarPOS - Q2</option>
-                <option value="Q1K">WizarPOS - Q1K</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="pc-app-profile">App Profile</label>
-              <input id="pc-app-profile" name="appProfile" type="text" placeholder="e.g. Retail_US_1.2">
-            </div>
-            <div class="field">
-              <label for="pc-network">Network</label>
-              <select id="pc-network" name="network">
-                <option value="ethernet">Ethernet</option>
-                <option value="wifi">Wi‑Fi</option>
-                <option value="cellular">Cellular</option>
-              </select>
-            </div>
-            <div class="field full">
-              <label for="pc-params">Parameters</label>
-              <textarea id="pc-params" name="params" rows="5" placeholder="key=value (one per line)"></textarea>
-            </div>
-          </div>
-          <div class="modal-actions">
-            <button type="button" id="preConfigCancel" class="chip-button">Cancel</button>
-            <button type="submit" class="chip-button primary-action">Save</button>
           </div>
         </form>
       </div>
@@ -1740,32 +1707,16 @@
           });
         });
 
-        // Pre-Configration modal logic
-        var pcBtn = document.getElementById('preConfigBtn');
-        var pcModal = document.getElementById('preConfigModal');
-        var pcClose = document.getElementById('preConfigClose');
-        var pcCancel = document.getElementById('preConfigCancel');
-        var pcForm = document.getElementById('preConfigForm');
-
-        function openPc(){ if(pcModal){ pcModal.classList.add('show'); pcModal.setAttribute('aria-hidden','false'); } }
-        function closePc(){ if(pcModal){ pcModal.classList.remove('show'); pcModal.setAttribute('aria-hidden','true'); } }
-
-        if(pcBtn){ pcBtn.addEventListener('click', function(e){ e.preventDefault(); openPc(); }); }
-        if(pcClose){ pcClose.addEventListener('click', closePc); }
-        if(pcCancel){ pcCancel.addEventListener('click', closePc); }
-        if(pcModal){ pcModal.addEventListener('click', function(e){ if(e.target === pcModal) closePc(); }); }
-        if(pcForm){ pcForm.addEventListener('submit', function(e){ e.preventDefault();
-          var data = {
-            name: document.getElementById('pc-name').value,
-            model: document.getElementById('pc-model').value,
-            appProfile: document.getElementById('pc-app-profile').value,
-            network: document.getElementById('pc-network').value,
-            params: document.getElementById('pc-params').value
-          };
-          console.log('Pre-Configration saved:', data);
-          alert('Pre-Configration saved (mock).');
-          closePc();
-        }); }
+        // Terminal row navigation
+        var terminalTableBody = document.querySelector('.terminal-table tbody');
+        if(terminalTableBody){
+          terminalTableBody.addEventListener('click', function(e){
+            if(e.target.closest('button, a, input, select, textarea, label')) return;
+            var row = e.target.closest('tr');
+            if(!row) return;
+            window.location.href = '1.terminalmanage.html';
+          });
+        }
 
         // Add Terminal modal logic
         var atBtn = document.getElementById('addTerminalBtn');
@@ -1775,11 +1726,44 @@
         var atForm = document.getElementById('addTerminalForm');
         var atLater = document.getElementById('at-activate-later');
         var atNow = document.getElementById('at-activate-now');
+        var atModeButtons = document.querySelectorAll('[data-terminal-mode]');
+        var atSn = document.getElementById('at-sn');
+        var atSnRequired = document.getElementById('at-sn-required');
+        var atReseller = document.getElementById('at-reseller');
+        var atResellerRequired = document.getElementById('at-reseller-required');
+        var atHardwareFields = document.querySelectorAll('[data-hardware-only]');
+        var atTerminalHint = document.getElementById('at-terminal-hint');
+        var atMode = 'physical';
         var atActivate = 'later';
 
         function openAt(){ if(atModal){ atModal.classList.add('show'); atModal.setAttribute('aria-hidden','false'); } }
         function closeAt(){ if(atModal){ atModal.classList.remove('show'); atModal.setAttribute('aria-hidden','true'); } }
         function setActivate(v){ atActivate = v; if(atLater) atLater.classList.toggle('active', v==='later'); if(atNow) atNow.classList.toggle('active', v==='now'); }
+        function setTerminalMode(mode){
+          atMode = mode;
+          atModeButtons.forEach(function(btn){
+            btn.classList.toggle('active', btn.getAttribute('data-terminal-mode') === mode);
+          });
+          var needsHardware = mode === 'physical';
+          if(atSn){
+            atSn.required = needsHardware;
+            atSn.disabled = !needsHardware;
+            if(!needsHardware) atSn.value = '';
+          }
+          if(atReseller){ atReseller.required = needsHardware; }
+          if(atSnRequired){ atSnRequired.style.display = needsHardware ? 'inline' : 'none'; }
+          if(atResellerRequired){ atResellerRequired.style.display = needsHardware ? 'inline' : 'none'; }
+          if(atHardwareFields.length){
+            atHardwareFields.forEach(function(field){
+              field.style.display = needsHardware ? '' : 'none';
+            });
+          }
+          if(atTerminalHint){
+            atTerminalHint.textContent = needsHardware
+              ? 'Physical terminal: SN is required for activation.'
+              : 'You can pre-configure applications and parameters by creating them before the physical terminal arrives, then simply enter the Serial Number (SN) once you have the device.';
+          }
+        }
 
         if(atBtn){ atBtn.addEventListener('click', function(e){ e.preventDefault(); openAt(); }); }
         if(atClose){ atClose.addEventListener('click', closeAt); }
@@ -1787,8 +1771,17 @@
         if(atModal){ atModal.addEventListener('click', function(e){ if(e.target === atModal) closeAt(); }); }
         if(atLater){ atLater.addEventListener('click', function(){ setActivate('later'); }); }
         if(atNow){ atNow.addEventListener('click', function(){ setActivate('now'); }); }
+        if(atModeButtons.length){
+          atModeButtons.forEach(function(btn){
+            btn.addEventListener('click', function(){
+              setTerminalMode(btn.getAttribute('data-terminal-mode'));
+            });
+          });
+          setTerminalMode(atMode);
+        }
         if(atForm){ atForm.addEventListener('submit', function(e){ e.preventDefault();
           if(!atForm.checkValidity()){ atForm.reportValidity(); return; }
+          var tidInput = document.getElementById('at-tid');
           var payload = {
             name: document.getElementById('at-name').value,
             quantity: 1,
@@ -1798,7 +1791,7 @@
             reseller: document.getElementById('at-reseller').value,
             merchant: document.getElementById('at-merchant').value,
             sn: document.getElementById('at-sn').value,
-            tid: document.getElementById('at-tid').value
+            tid: tidInput ? tidInput.value : ''
           };
           console.log('Create terminal (mock):', payload);
           alert('Terminal created (mock).');
