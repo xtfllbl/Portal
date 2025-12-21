@@ -58,6 +58,65 @@
             font-family: 'Poppins', 'Inter', sans-serif;
         }
 
+        
+        .ops-brand {
+            padding: 18px 18px 12px;
+            border-bottom: 1px solid var(--menu-divider);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ops-brand-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--menu-text-strong);
+            letter-spacing: 0.2px;
+        }
+
+        .ops-brand-sub {
+            font-size: 10px;
+            color: var(--menu-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.32em;
+        }
+
+        .ops-menu {
+            padding: 10px 8px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ops-title {
+            margin: 8px 10px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--menu-text-dim);
+        }
+
+        .ops-item {
+            display: block;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--menu-text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .ops-item:hover {
+            background: var(--menu-hover);
+        }
+
+        .ops-item.active {
+            background: #e5e7eb;
+            color: var(--menu-text-strong);
+        }
+
         .brand {
             display: flex;
             align-items: center;
@@ -454,201 +513,75 @@
         .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border-color); }
         .modal-title{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
         .modal-close{ border:none; background:#fff; cursor:pointer; color:var(--text-secondary); }
-        .modal-body{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; padding:16px; }
+        .modal-body{ display:grid; grid-template-columns: 1fr; gap:16px; padding:16px; }
         .section{ border:1px solid var(--border-color); border-radius:12px; padding:14px; background:#fff; }
         .section h5{ margin:0 0 10px 0; font-size:13px; letter-spacing:-.005em; }
-        .app-grid{ display:grid; grid-template-columns:1fr; gap:8px; max-height:360px; overflow:auto; }
-        .app-item{ display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border-color); border-radius:12px; padding:10px 12px; background:#fff; }
+        .section-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+        .section-title-group{ display:flex; flex-direction:column; gap:2px; }
+        .section-note{ margin:0; font-size:12px; color:var(--text-secondary); }
+        .section-head h5{ margin:0; }
+        .app-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; max-height:360px; overflow:auto; }
+        .app-item{ display:flex; align-items:center; justify-content:flex-start; gap:12px; border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; cursor:pointer; }
+        .app-item.selected{ border-color:#111827; box-shadow:0 0 0 2px rgba(17,24,39,.08); background:#f9fafb; }
         .app-left{ display:flex; align-items:center; gap:10px; }
         .app-icon{ width:28px; height:28px; border-radius:8px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#111827; }
         .app-name{ font-weight:600; font-size:13px; }
         .app-sub{ color:var(--text-secondary); font-size:12px; }
         .modal-footer{ display:flex; justify-content:flex-end; gap:8px; padding:12px 16px; border-top:1px solid var(--border-color); }
-        .selected-app-row, .template-name-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-top:1px solid var(--border-color); background:#fff; }
+        .selected-app-row, .template-name-row, .version-row, .param-template-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-top:1px solid var(--border-color); background:#fff; }
         .row-label{ min-width:130px; color:var(--text-secondary); font-weight:600; font-size:12.5px; }
         .selected-app-chip{ padding:10px 14px; background:#f3f4f6; border-radius:999px; font-weight:700; letter-spacing:-.005em; }
         .input-lg{ flex:1; width:100%; padding:14px 16px; border:1px solid var(--border-color); border-radius:14px; font-size:14px; }
         .input-lg:focus{ outline:none; border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.10); }
         .radio{ width:16px; height:16px; }
-        .search{ width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:13px; }
+        .search{ width:260px; max-width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:13px; }
         .muted{ color: var(--text-secondary); font-size:12px; }
+        @media (max-width: 720px){
+            .section-head{ flex-direction:column; align-items:stretch; }
+            .search{ width:100%; }
+        }
 
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-left">
-                <div class="mark" aria-hidden="true"></div>
-                <div class="brand-text">
-                    <div class="brand-name">PAYwizard</div>
-                    <div class="brand-sub">menu</div>
-                </div>
-            </div>
-            <button class="close-btn" type="button" aria-label="Close menu">
-                <span></span>
-            </button>
+        <aside class="sidebar">
+        <div class="ops-brand">
+            <div class="ops-brand-name">PAYwizard</div>
+            <div class="ops-brand-sub">Maintain</div>
         </div>
 
-        <div class="menu">
-            <div class="menu-item" data-key="dashboard">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="4" y="4" width="7" height="7" rx="1.5" />
-                            <rect x="13" y="4" width="7" height="7" rx="1.5" />
-                            <rect x="4" y="13" width="7" height="7" rx="1.5" />
-                            <rect x="13" y="13" width="7" height="7" rx="1.5" />
-                        </svg>
-                    </span>
-                    <span class="label">Dashboard</span>
-                </div>
+        <nav class="ops-menu" aria-label="Operations navigation">
+            <div class="ops-section">
+                <div class="ops-title">Payment &amp; Billing</div>
+                <a class="ops-item active" href="#">Transaction Details</a>
+                <a class="ops-item" href="#">Settlement Info</a>
+                <a class="ops-item" href="#">Billing Overview</a>
+                <a class="ops-item" href="#">Payment Channel Management</a>
+                <a class="ops-item" href="#">Service Fee Log</a>
+                <a class="ops-item" href="#">Service Fee Report</a>
+                <a class="ops-item" href="#">Cached Transaction</a>
             </div>
-
-            <div class="menu-item" data-key="transactions">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="3" y="6" width="18" height="12" rx="2" />
-                            <path d="M3 10h18" />
-                            <path d="M8 14h4" />
-                        </svg>
-                    </span>
-                    <span class="label">Transactions</span>
-                </div>
+            <div class="ops-section">
+                <div class="ops-title">Operation &amp; Maintain</div>
+                <a class="ops-item" href="#">Merchant Lead</a>
+                <a class="ops-item" href="#">Service Provider</a>
+                <a class="ops-item" href="#">Developer Manage</a>
+                <a class="ops-item" href="#">Terminal Status</a>
+                <a class="ops-item" href="#">Merchant Onboarding</a>
+                <a class="ops-item" href="#">Merchant Account</a>
             </div>
-
-            <div class="menu-item" data-key="batches">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M6 7h12l1 3H5z" />
-                            <path d="M7 10v7h10v-7" />
-                            <path d="M9 14h6" />
-                        </svg>
-                    </span>
-                    <span class="label">Batches</span>
-                </div>
+            <div class="ops-section">
+                <div class="ops-title">System Settings</div>
+                <a class="ops-item" href="#">Role Management</a>
+                <a class="ops-item" href="#">Email Configuration</a>
+                <a class="ops-item" href="#">Account Management</a>
+                <a class="ops-item" href="#">Log Management</a>
+                <a class="ops-item" href="#">Password Rule Config</a>
+                <a class="ops-item" href="#">Billing Setup</a>
+                <a class="ops-item" href="#">Parameter File</a>
             </div>
-
-            <div class="menu-item" data-key="security">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z" />
-                            <path d="M10 12.5l2 2 3-3.5" />
-                        </svg>
-                    </span>
-                    <span class="label">Security</span>
-                </div>
-            </div>
-
-            <div class="menu-item" data-toggle="submenu" data-target="agents">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
-                            <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
-                            <path d="M4 20a4 4 0 018 0" />
-                            <path d="M12 17a4 4 0 018 0" />
-                        </svg>
-                    </span>
-                    <span class="label">Agents</span>
-                </div>
-                <span class="chevron" aria-hidden="true">></span>
-            </div>
-            <div class="sub-menu" data-parent="agents">
-                <div class="sub-item" data-key="agents-list">Agent List</div>
-                <div class="sub-item" data-key="agents-analytics">Analytics</div>
-            </div>
-
-            <div class="menu-item" data-toggle="submenu" data-target="merchants">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
-                            <path d="M9 21V12h6v9" />
-                        </svg>
-                    </span>
-                    <span class="label">Merchants</span>
-                </div>
-                <span class="chevron" aria-hidden="true">></span>
-            </div>
-            <div class="sub-menu" data-parent="merchants">
-                <div class="sub-item" data-key="merchants-leads">Leads</div>
-                <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
-                <div class="sub-item" data-key="merchants-list">Merchant List</div>
-                <div class="sub-item" data-key="merchants-analytics">Analytics</div>
-            </div>
-
-            <div class="menu-item" data-toggle="submenu" data-target="partners">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z" />
-                        </svg>
-                    </span>
-                    <span class="label">Partners</span>
-                </div>
-                <span class="chevron" aria-hidden="true">></span>
-            </div>
-            <div class="sub-menu" data-parent="partners">
-                <div class="sub-item" data-key="partners-list">Partner List</div>
-                <div class="sub-item" data-key="partners-hardware">Hardware</div>
-            </div>
-
-            <div class="menu-item active" data-toggle="submenu" data-target="devices">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z" />
-                            <path d="M10 12.5l2 2 3-3.5" />
-                        </svg>
-                    </span>
-                    <span class="label">Device Management</span>
-                </div>
-                <span class="chevron" aria-hidden="true">v</span>
-            </div>
-            <div class="sub-menu open" data-parent="devices">
-                <div class="sub-item" data-key="terminal-management">Terminal Management</div>
-                <div class="sub-item active" data-key="template-management">Template Management</div>
-            </div>
-
-            <div class="menu-item" data-toggle="submenu" data-target="users">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="5" y="4" width="14" height="16" rx="2" />
-                            <path d="M9 9h6M9 13h6M9 17h6" />
-                        </svg>
-                    </span>
-                    <span class="label">User Management</span>
-                </div>
-                <span class="chevron" aria-hidden="true">></span>
-            </div>
-            <div class="sub-menu" data-parent="users">
-                <div class="sub-item" data-key="users-list">User List</div>
-                <div class="sub-item" data-key="users-roles">Role Permissions</div>
-            </div>
-
-            <div class="menu-item" data-toggle="submenu" data-target="settings">
-                <div class="menu-main">
-                    <span class="icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z" />
-                        </svg>
-                    </span>
-                    <span class="label">Settings</span>
-                </div>
-                <span class="chevron" aria-hidden="true">></span>
-            </div>
-            <div class="sub-menu" data-parent="settings">
-                <div class="sub-item" data-key="settings-branding">Branding</div>
-                <div class="sub-item" data-key="settings-payments">Payment Channels</div>
-            </div>
-        </div>
+        </nav>
     </aside>
 
     <div class="main-content">
@@ -800,32 +733,13 @@
             </div>
             <div class="modal-body">
                 <section class="section">
-                    <h5>Recently Used</h5>
-                    <div class="app-grid" id="recentApps">
-                        <div class="app-item" data-app="TSYS UPT">
-                            <div class="app-left">
-                                <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01"/></svg></div>
-                                <div>
-                                    <div class="app-name">TSYS UPT</div>
-                                    <div class="app-sub">WizarPOS UPT | Parameter Push</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-ghost btn-sm quick-add">Add Template</button>
+                    <div class="section-head">
+                        <div class="section-title-group">
+                            <h5>Supported Apps</h5>
+                            <p class="section-note">Choose a payment app to start.</p>
                         </div>
-                        <div class="app-item" data-app="Fiserv Retail UPT">
-                            <div class="app-left">
-                                <div class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h.01"/></svg></div>
-                                <div>
-                                    <div class="app-name">Fiserv Retail UPT</div>
-                                    <div class="app-sub">WizarPOS | Parameter Push</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-ghost btn-sm quick-add">Add Template</button>
-                        </div>
+                        <input type="text" id="appSearch" class="search" placeholder="Search apps">
                     </div>
-                </section>
-                <section class="section">
-                    <h5 style="display:flex;align-items:center;justify-content:space-between;gap:8px">Supported Apps <input type="text" id="appSearch" class="search" placeholder="Search apps"></h5>
                     <div class="app-grid" id="allApps">
                         <label class="app-item">
                             <div class="app-left">
@@ -860,6 +774,18 @@
             <div class="selected-app-row">
                 <div class="row-label">Selected App</div>
                 <div class="selected-app-chip" id="selectedAppLabel">&mdash;</div>
+            </div>
+            <div class="version-row">
+                <div class="row-label">App Version</div>
+                <select id="appVersionSelect" class="input-lg" disabled>
+                    <option value="">Select version</option>
+                </select>
+            </div>
+            <div class="param-template-row">
+                <div class="row-label">Parameter Template</div>
+                <select id="paramTemplateSelect" class="input-lg" disabled>
+                    <option value="">Select template</option>
+                </select>
             </div>
             <div class="template-name-row">
                 <div class="row-label">Template Name</div>
@@ -958,12 +884,37 @@
             const closeModalBtn = document.getElementById('closeModalBtn');
             const cancelCreate = document.getElementById('cancelCreate');
             const continueCreate = document.getElementById('continueCreate');
-            const recentApps = document.getElementById('recentApps');
             const allApps = document.getElementById('allApps');
             const appSearch = document.getElementById('appSearch');
-            const templateNameInput = document.getElementById('templateNameInput');
+                        const templateNameInput = document.getElementById('templateNameInput');
             const selectedAppLabel = document.getElementById('selectedAppLabel');
+            const appVersionSelect = document.getElementById('appVersionSelect');
+            const paramTemplateSelect = document.getElementById('paramTemplateSelect');
+            const appCatalog = {
+                "TSYS UPT": {
+                    versions: ["V1.00.16E_20250606", "V1.00.15A_20250312"],
+                    templates: {
+                        "V1.00.16E_20250606": ["Retail Default", "Restaurant Full", "Convenience Express"],
+                        "V1.00.15A_20250312": ["Legacy Default", "Retail Lite"]
+                    }
+                },
+                "Fiserv Retail UPT": {
+                    versions: ["V1.00.12B_20250420", "V1.00.11F_20250130"],
+                    templates: {
+                        "V1.00.12B_20250420": ["Retail Default", "Quick Start"],
+                        "V1.00.11F_20250130": ["Legacy Default"]
+                    }
+                },
+                "TSYS VM": {
+                    versions: ["V1.00.09C_20240212"],
+                    templates: {
+                        "V1.00.09C_20240212": ["VM Standard", "VM Full"]
+                    }
+                }
+            };
             let selectedAppName = '';
+            let selectedAppVersion = '';
+            let selectedParamTemplate = '';
 
             function updateBulkState(){
                 const checked = tbody.querySelectorAll('.row-checkbox:checked');
@@ -992,94 +943,187 @@
                 if(selectAll) selectAll.checked = false;
             });
 
-            // Create Push Template modal logic
-            function openModal(){ modal.style.display = 'flex'; document.body.style.overflow='hidden'; }
-            function closeModal(){ modal.style.display = 'none'; document.body.style.overflow='auto'; clearChoice(); }
+                        // Create Push Template modal logic
+            function openModal(){ modal.style.display = "flex"; document.body.style.overflow = "hidden"; }
+            function closeModal(){ modal.style.display = "none"; document.body.style.overflow = "auto"; clearChoice(); }
+
+            function resetSelect(selectEl, placeholder){
+                if(!selectEl) return;
+                selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+                selectEl.disabled = true;
+            }
+
+            function populateSelect(selectEl, options, placeholder){
+                if(!selectEl) return;
+                selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+                options.forEach((opt)=>{
+                    const option = document.createElement("option");
+                    option.value = opt;
+                    option.textContent = opt;
+                    selectEl.appendChild(option);
+                });
+                selectEl.disabled = false;
+            }
+            function syncAppCardSelection(){
+                const items = allApps.querySelectorAll(".app-item");
+                items.forEach((item)=>{
+                    const input = item.querySelector("input[type=radio]");
+                    const isChecked = input && input.checked;
+                    item.classList.toggle("selected", !!isChecked);
+                });
+            }
+
             function clearChoice(){
-                const r = allApps.querySelectorAll('input[type=radio]');
+                const r = allApps.querySelectorAll("input[type=radio]");
                 r.forEach(x=>x.checked=false);
+                syncAppCardSelection();
                 continueCreate.disabled = true;
-                selectedAppName = '';
-                if(selectedAppLabel) selectedAppLabel.innerHTML = '&mdash;';
-                if(templateNameInput){ templateNameInput.value=''; templateNameInput.disabled = true; }
+                selectedAppName = "";
+                selectedAppVersion = "";
+                selectedParamTemplate = "";
+                if(selectedAppLabel) selectedAppLabel.innerHTML = "&mdash;";
+                resetSelect(appVersionSelect, "Select version");
+                resetSelect(paramTemplateSelect, "Select template");
+                if(templateNameInput){ templateNameInput.value = ""; templateNameInput.disabled = true; }
             }
 
-            function generateDefaultName(app){
-                const now = new Date();
-                const pad = (n)=> String(n).padStart(2,'0');
-                return `${app} ${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+            function updateContinueState(){
+                const hasName = templateNameInput && templateNameInput.value.trim().length > 0;
+                continueCreate.disabled = !(selectedAppName && selectedAppVersion && selectedParamTemplate && hasName);
             }
 
-            function addTemplateRow(appName, customName){
+            function generateDefaultName(app, version, template){
                 const now = new Date();
-                const pad = (n)=> String(n).padStart(2,'0');
+                const pad = (n)=> String(n).padStart(2,"0");
+                const base = [app, version, template].filter(Boolean).join(" ") || "Template";
+                return `${base} ${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+            }
+
+                                    function setSelectedApp(app){
+                selectedAppName = app || "";
+                selectedAppVersion = "";
+                selectedParamTemplate = "";
+                if(selectedAppLabel){
+                    if(selectedAppName){
+                        selectedAppLabel.textContent = selectedAppName;
+                    } else {
+                        selectedAppLabel.innerHTML = "&mdash;";
+                    }
+                }
+
+                const items = allApps.querySelectorAll(".app-item");
+                items.forEach((item)=>{
+                    const input = item.querySelector("input[type=radio]");
+                    if(!input) return;
+                    const match = input.value === selectedAppName;
+                    input.checked = match;
+                    item.classList.toggle("selected", match);
+                });
+
+                const catalog = appCatalog[selectedAppName];
+                if(catalog && catalog.versions){
+                    populateSelect(appVersionSelect, catalog.versions, "Select version");
+                } else {
+                    resetSelect(appVersionSelect, "Select version");
+                }
+                resetSelect(paramTemplateSelect, "Select template");
+                if(templateNameInput){ templateNameInput.value = ""; templateNameInput.disabled = true; }
+                updateContinueState();
+            }
+
+            function setSelectedVersion(version){
+                selectedAppVersion = version || "";
+                selectedParamTemplate = "";
+                const catalog = appCatalog[selectedAppName];
+                if(catalog && catalog.templates && catalog.templates[selectedAppVersion]){
+                    populateSelect(paramTemplateSelect, catalog.templates[selectedAppVersion], "Select template");
+                } else {
+                    resetSelect(paramTemplateSelect, "Select template");
+                }
+                if(templateNameInput){ templateNameInput.value = ""; templateNameInput.disabled = true; }
+                updateContinueState();
+            }
+
+            function setSelectedTemplate(template){
+                selectedParamTemplate = template || "";
+                if(templateNameInput){
+                    if(selectedParamTemplate){
+                        templateNameInput.disabled = false;
+                        if(!templateNameInput.value.trim()){
+                            templateNameInput.value = generateDefaultName(selectedAppName, selectedAppVersion, selectedParamTemplate);
+                        }
+                        templateNameInput.focus();
+                    } else {
+                        templateNameInput.value = "";
+                        templateNameInput.disabled = true;
+                    }
+                }
+                updateContinueState();
+            }
+
+            function addTemplateRow(appName, customName, version){
+                const now = new Date();
+                const pad = (n)=> String(n).padStart(2,"0");
                 const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-                const idx = tbody.querySelectorAll('tr').length + 1;
-                const tr = document.createElement('tr');
+                const idx = tbody.querySelectorAll("tr").length + 1;
+                const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td><input type="checkbox" class="checkbox row-checkbox"></td>
                     <td>${idx}</td>
-                    <td>${customName || generateDefaultName(appName)}</td>
-                    <td>V1.00.16E_20250606</td>
+                    <td>${customName || generateDefaultName(appName, version, selectedParamTemplate)}</td>
+                    <td>${version || "-"}</td>
                     <td>${date}</td>
                     <td>${date}</td>
-                    <td>�?/td>
+                    <td>-</td>
                     <td><a class="icon-btn" href="edit_application_parameters.html" title="Edit Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
                 `;
                 tbody.appendChild(tr);
-                // bind new checkbox
-                const cb = tr.querySelector('.row-checkbox');
-                cb.addEventListener('change', updateBulkState);
+                const cb = tr.querySelector(".row-checkbox");
+                cb.addEventListener("change", updateBulkState);
                 updateBulkState();
             }
 
-            if(pushBtn){ pushBtn.addEventListener('click', openModal); }
-            [closeModalBtn, cancelCreate].forEach(btn=> btn && btn.addEventListener('click', closeModal));
+            if(pushBtn){ pushBtn.addEventListener("click", openModal); }
+            [closeModalBtn, cancelCreate].forEach(btn=> btn && btn.addEventListener("click", closeModal));
 
-            // Quick add on recent apps -> choose app then require name
-            recentApps.addEventListener('click', (e)=>{
-                const target = e.target.closest('.quick-add');
-                if(!target) return;
-                const app = target.closest('.app-item').dataset.app;
-                selectedAppName = app;
-                selectedAppLabel.textContent = app;
-                templateNameInput.disabled = false;
-                templateNameInput.value = generateDefaultName(app);
-                templateNameInput.focus();
-                continueCreate.disabled = false;
+            // Radio selection -> pick app
+            allApps.addEventListener("change", ()=>{
+                const r = allApps.querySelector("input[type=radio]:checked");
+                if(!r){ setSelectedApp(""); return; }
+                setSelectedApp(r.value);
             });
 
-            // Radio selection -> pick app and set default name
-            allApps.addEventListener('change', ()=>{
-                const r = allApps.querySelector('input[type=radio]:checked');
-                if(!r){ continueCreate.disabled = true; return; }
-                selectedAppName = r.value;
-                selectedAppLabel.textContent = selectedAppName;
-                templateNameInput.disabled = false;
-                templateNameInput.value = generateDefaultName(selectedAppName);
-                templateNameInput.focus();
-                continueCreate.disabled = false;
-            });
-            templateNameInput.addEventListener('input', ()=>{
-                continueCreate.disabled = !(templateNameInput.value.trim().length > 0 && selectedAppName);
-            });
-            continueCreate.addEventListener('click', ()=>{
-                if(!selectedAppName) return;
+            if(appVersionSelect){
+                appVersionSelect.addEventListener("change", ()=>{
+                    setSelectedVersion(appVersionSelect.value);
+                });
+            }
+
+            if(paramTemplateSelect){
+                paramTemplateSelect.addEventListener("change", ()=>{
+                    setSelectedTemplate(paramTemplateSelect.value);
+                });
+            }
+
+            if(templateNameInput){
+                templateNameInput.addEventListener("input", updateContinueState);
+            }
+
+            continueCreate.addEventListener("click", ()=>{
+                if(!selectedAppName || !selectedAppVersion || !selectedParamTemplate) return;
                 const name = templateNameInput.value.trim();
                 if(!name) return;
-                // Optionally add to list for persistence in demo
-                addTemplateRow(selectedAppName, name);
-                // Navigate to edit parameters page with query params
-                const url = `edit_application_parameters.html?template=${encodeURIComponent(name)}&app=${encodeURIComponent(selectedAppName)}`;
+                addTemplateRow(selectedAppName, name, selectedAppVersion);
+                const url = `edit_application_parameters.html?template=${encodeURIComponent(name)}&app=${encodeURIComponent(selectedAppName)}&version=${encodeURIComponent(selectedAppVersion)}&paramTemplate=${encodeURIComponent(selectedParamTemplate)}`;
                 window.location.href = url;
             });
 
             // Filter apps by search
-            appSearch.addEventListener('input', ()=>{
+            appSearch.addEventListener("input", ()=>{
                 const q = appSearch.value.toLowerCase();
-                allApps.querySelectorAll('.app-item').forEach(item=>{
-                    const name = item.querySelector('.app-name').textContent.toLowerCase();
-                    item.style.display = name.includes(q) ? '' : 'none';
+                allApps.querySelectorAll(".app-item").forEach(item=>{
+                    const name = item.querySelector(".app-name").textContent.toLowerCase();
+                    item.style.display = name.includes(q) ? "" : "none";
                 });
             });
 
