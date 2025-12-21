@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Management</title>
+    <style>
+        :root {
+            --page-bg: #f4f5f7;
+            --sidebar-bg: #ffffff;
+            --text-strong: #0f0f10;
+            --text-main: #111111;
+            --text-dim: #6b7280;
+            --divider: #e5e7eb;
+            --hover: #f3f4f6;
+            --bullet: #d1d5db;
+            --active-bg: #0f0f10;
+            --active-sub-bg: #111111;
+            --active-text: #ffffff;
+            --surface: #ffffff;
+            --border: #e5e7eb;
+            --accent: #1d4ed8;
+            --text-muted: #667085;
+            --shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.06);
+            --status-active: #16a34a;
+            --status-pending: #f59e0b;
+            --status-hold: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--text-main);
+        }
+
+        .page-shell {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--divider);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark {
+            width: 32px;
+            height: 22px;
+        }
+
+        .mark svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--text-strong);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-strong);
+            letter-spacing: 0.15px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .close-btn span {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .close-btn span::before,
+        .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--text-strong);
+            transform-origin: center;
+        }
+
+        .close-btn span::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn span::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--hover);
+        }
+
+        .menu-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-strong);
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .chevron {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .menu-item.active {
+            background: var(--active-bg);
+            color: var(--active-text);
+        }
+
+        .menu-item.active .icon,
+        .menu-item.active .chevron {
+            color: var(--active-text);
+        }
+
+        .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--bullet);
+            transform: translateY(-50%);
+        }
+
+        .sub-item:hover {
+            color: var(--text-main);
+            background: var(--hover);
+        }
+
+        .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--active-sub-bg);
+            color: var(--active-text);
+        }
+
+        .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--active-text);
+            left: 10px;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            height: calc(100vh - 40px);
+        }
+
+        .top-header {
+            height: 60px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .breadcrumbs {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .breadcrumbs span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            position: relative;
+            color: #555;
+        }
+
+        .icon-circle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #f5222d;
+            color: white;
+            border-radius: 10px;
+            padding: 0 4px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px 4px 0 0;
+            overflow-y: auto;
+        }
+
+        .content-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-right: 8px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            margin: 6px 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            background: #fff;
+            color: #1f2937;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn.secondary {
+            border-color: #d9d9d9;
+        }
+
+        .btn.primary {
+            background: var(--text-strong);
+            border-color: var(--text-strong);
+            color: #fff;
+        }
+
+        .btn.sm {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 10px;
+        }
+
+        .merchant-panel,
+        .detail-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-input {
+            flex: 1 1 320px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f4f6f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .search-input svg {
+            width: 18px;
+            height: 18px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .search-input input {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            color: #333;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .filter-chip.active {
+            background: var(--text-strong);
+            color: #fff;
+            border-color: var(--text-strong);
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .table-head,
+        .table-row {
+            display: grid;
+            grid-template-columns: 200px 140px 110px 220px 150px 160px 80px 80px 90px 56px;
+            gap: 12px;
+            align-items: center;
+            min-width: 1180px;
+        }
+
+        .table-head {
+            background: #f7f8fa;
+            color: var(--text-dim);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .table-row {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .table-row.selected {
+            background: #f2f6ff;
+        }
+
+        .table-link {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .cell-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .count-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-active {
+            color: #166534;
+        }
+
+        .status-active .status-dot {
+            background: var(--status-active);
+        }
+
+        .status-pending {
+            color: #92400e;
+        }
+
+        .status-pending .status-dot {
+            background: var(--status-pending);
+        }
+
+        .status-hold {
+            color: #991b1b;
+        }
+
+        .status-hold .status-dot {
+            background: var(--status-hold);
+        }
+
+        .icon-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            display: grid;
+            place-items: center;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .icon-button:hover {
+            background: #f2f2f2;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #666;
+            background: #fff;
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .page-btn {
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: var(--text-strong);
+            border-color: var(--text-strong);
+            color: #fff;
+        }
+
+        .page-size select {
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        .detail-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .detail-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .detail-metrics {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .metric-chip {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .detail-side {
+            text-align: right;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 6px;
+            color: var(--text-main);
+        }
+
+        .store-card {
+            margin: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .store-header {
+            background: #f7f8fa;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .store-title {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .store-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .store-scroll {
+            overflow-x: auto;
+        }
+
+        .store-head,
+        .store-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(200px, 1.6fr) 80px 130px;
+            gap: 12px;
+            align-items: center;
+            min-width: 760px;
+        }
+
+        .store-head {
+            background: #f7f8fa;
+            padding: 10px 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .store-row {
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .store-row.featured {
+            background: #f2f6ff;
+        }
+
+        .store-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        @media (max-width: 1100px) {
+            .page-shell {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .main-container {
+                height: auto;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .top-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                height: auto;
+                padding: 16px;
+            }
+
+            .page-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .detail-side {
+                text-align: left;
+            }
+
+            .store-card {
+                margin: 16px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="mark" aria-hidden="true"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">PAYwizard</div>
+                        <div class="brand-sub">menu</div>
+                    </div>
+                </div>
+                <button class="close-btn" type="button" aria-label="Close menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="menu">
+                <div class="menu-item" data-key="dashboard">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="4" y="13" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="13" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </span>
+                        <span class="label">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="transactions">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                                <path d="M8 14h4"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Transactions</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="batches">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 7h12l1 3H5z"></path>
+                                <path d="M7 10v7h10v-7"></path>
+                                <path d="M9 14h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Batches</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="agents">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M4 20a4 4 0 018 0"></path>
+                                <path d="M12 17a4 4 0 018 0"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Agents</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item active" data-key="merchants">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path>
+                                <path d="M9 21V12h6v9"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Merchants</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9660;</span>
+                </div>
+                <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item">Leads</div>
+                    <div class="sub-item">Onboarding</div>
+                    <div class="sub-item active">Merchant List</div>
+                    <div class="sub-item">Analytics</div>
+                </div>
+                <div class="menu-item" data-key="partners">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Partners</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item" data-key="device-management">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+                                <path d="M8 20h8"></path>
+                                <path d="M12 16v4"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Device Management</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="remote-diagnostic">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 3v3"></path>
+                                <path d="M12 18v3"></path>
+                                <path d="M3 12h3"></path>
+                                <path d="M18 12h3"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Remote Diagnostic</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="user-management">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+                                <path d="M9 9h6M9 13h6M9 17h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">User Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item" data-key="settings">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Settings</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item" data-key="tickets">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 7h16v4a2 2 0 010 4v4H4v-4a2 2 0 010-4z"></path>
+                                <circle cx="9" cy="12" r="1.2"></circle>
+                            </svg>
+                        </span>
+                        <span class="label">Tickets</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="developer-center">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 8l-4 4 4 4"></path>
+                                <path d="M16 8l4 4-4 4"></path>
+                                <path d="M12 6l-2 12"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Developer Center</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-container">
+            <header class="top-header">
+                <div class="breadcrumbs">
+                    MERCHANTS &gt; <span>Merchant List</span>
+                </div>
+                <div class="user-controls">
+                    <div class="icon-circle" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path>
+                            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                        </svg>
+                        <div class="notification-badge">5</div>
+                    </div>
+                    <div class="icon-circle" aria-label="User">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M20 21a8 8 0 1 0-16 0"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-area">
+                <div class="content-inner">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Merchant Management</h1>
+                            <p class="page-subtitle">Manage your merchant portfolio, stores, and equipment.</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn secondary" type="button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                                </svg>
+                                Filters
+                            </button>
+                            <button class="btn primary" type="button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                                Add Merchant
+                            </button>
+                        </div>
+                    </div>
+
+                    <section class="merchant-panel">
+                        <div class="panel-head">
+                            <div class="search-input">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="M16.65 16.65L21 21"></path>
+                                </svg>
+                                <input type="text" placeholder="Search by DBA, Merchant ID, or Email" aria-label="Search merchants">
+                            </div>
+                            <div class="quick-filters">
+                                <span class="filter-chip active">All (108)</span>
+                                <span class="filter-chip">Active (86)</span>
+                                <span class="filter-chip">Pending (14)</span>
+                                <span class="filter-chip">On Hold (8)</span>
+                            </div>
+                        </div>
+
+                        <div class="table-scroll">
+                            <div class="table-head">
+                                <div>DBA</div>
+                                <div>Name</div>
+                                <div>Boarded On</div>
+                                <div>Email</div>
+                                <div>Phone Number</div>
+                                <div>Owned By</div>
+                                <div>Stores</div>
+                                <div>Devices</div>
+                                <div>Status</div>
+                                <div></div>
+                            </div>
+
+                            <div class="table-row">
+                                <div>
+                                    <a href="5.merchant_detail_iso.html" class="table-link">Tasty Treats (NYC)</a>
+                                    <div class="cell-sub">ID: 82910293</div>
+                                </div>
+                                <div>Michael Valor</div>
+                                <div>09/01/23</div>
+                                <div>mg123@valor.com</div>
+                                <div>555-555-5555</div>
+                                <div>Valor Training ISO</div>
+                                <div><span class="count-pill">1</span></div>
+                                <div><span class="count-pill">1</span></div>
+                                <div class="status-indicator status-active">
+                                    <span class="status-dot"></span>
+                                    Active
+                                </div>
+                                <div>
+                                    <button class="icon-button" type="button" aria-label="More actions">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                            <circle cx="12" cy="5" r="1.6"></circle>
+                                            <circle cx="12" cy="12" r="1.6"></circle>
+                                            <circle cx="12" cy="19" r="1.6"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="table-row">
+                                <div>
+                                    <a href="5.merchant_detail_iso.html" class="table-link">Lumina Boutique</a>
+                                    <div class="cell-sub">ID: 77281920</div>
+                                </div>
+                                <div>Emily Style</div>
+                                <div>12/01/23</div>
+                                <div>emily@lumina.com</div>
+                                <div>+1 989-989-8989</div>
+                                <div>Payyou</div>
+                                <div><span class="count-pill">0</span></div>
+                                <div><span class="count-pill">0</span></div>
+                                <div class="status-indicator status-pending">
+                                    <span class="status-dot"></span>
+                                    Pending
+                                </div>
+                                <div>
+                                    <button class="icon-button" type="button" aria-label="More actions">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                            <circle cx="12" cy="5" r="1.6"></circle>
+                                            <circle cx="12" cy="12" r="1.6"></circle>
+                                            <circle cx="12" cy="19" r="1.6"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="table-row">
+                                <div>
+                                    <a href="5.merchant_detail_iso.html" class="table-link">Oswald</a>
+                                    <div class="cell-sub">ID: 55671245</div>
+                                </div>
+                                <div>M. Ashraf</div>
+                                <div>10/14/24</div>
+                                <div>fmohammedashraf@denovosystem.com</div>
+                                <div>+1 989-989-8988</div>
+                                <div>Payyou</div>
+                                <div><span class="count-pill">2</span></div>
+                                <div><span class="count-pill">3</span></div>
+                                <div class="status-indicator status-active">
+                                    <span class="status-dot"></span>
+                                    Active
+                                </div>
+                                <div>
+                                    <button class="icon-button" type="button" aria-label="More actions">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                            <circle cx="12" cy="5" r="1.6"></circle>
+                                            <circle cx="12" cy="12" r="1.6"></circle>
+                                            <circle cx="12" cy="19" r="1.6"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pagination">
+                            <div>Showing 1-10 of 108 merchants</div>
+                            <div class="page-controls">
+                                <button class="page-btn" type="button">Prev</button>
+                                <button class="page-btn active" type="button">1</button>
+                                <button class="page-btn" type="button">2</button>
+                                <button class="page-btn" type="button">3</button>
+                                <button class="page-btn" type="button">Next</button>
+                                <div class="page-size">
+                                    <select aria-label="Rows per page">
+                                        <option>10</option>
+                                        <option>20</option>
+                                        <option>50</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
