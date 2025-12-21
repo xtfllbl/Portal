@@ -1158,12 +1158,16 @@
 
         .group-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px 16px;
         }
 
         .field.full {
             grid-column: 1 / -1;
+        }
+
+        .processor-params .group-header {
+            display: none;
         }
 
         .processor-params .field label {
@@ -1808,7 +1812,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-grid two">
+                                <div class="form-grid three">
                                     <div class="field">
                                         <label for="device-template">Assign Template</label>
                                         <select class="input-field" id="device-template">
@@ -1821,6 +1825,13 @@
                                     <div class="field">
                                         <label for="device-promo">Promo Code</label>
                                         <input class="input-field" id="device-promo" type="text" placeholder="Optional">
+                                    </div>
+                                    <div class="field">
+                                        <label for="device-paywizard">Paywizard Integration</label>
+                                        <select class="input-field" id="device-paywizard">
+                                            <option value="Disable" selected>Disable</option>
+                                            <option value="Enable">Enable</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -2383,6 +2394,99 @@
                                     </div>
                                 </div>
 
+                                <div class="processor-params paywizard-params is-hidden" id="paywizardParams">
+                                    <div class="processor-params-head">
+                                        <div>
+                                            <h4>Paywizard Integration Parameters</h4>
+                                            <p>Provide the Paywizard integration settings for this device.</p>
+                                        </div>
+                                        <div class="processor-pill">Paywizard</div>
+                                    </div>
+                                    <div class="param-group">
+                                        <div class="group-header">
+                                            <div class="group-title">Paywizard Integration Parameters</div>
+                                        </div>
+                                        <div class="group-grid">
+                                            <div class="field">
+                                                <label for="pw-admin-password">Admin Password</label>
+                                                <input type="text" id="pw-admin-password" name="pw-admin-password" class="input" value="99999999">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-allow-offline">AllowOfflineMode</label>
+                                                <select id="pw-allow-offline" name="pw-allow-offline" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-amount-scale">AmountScale</label>
+                                                <select id="pw-amount-scale" name="pw-amount-scale" class="input">
+                                                    <option selected>DEFAULT</option>
+                                                    <option>0.01</option>
+                                                    <option>0.001</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-protocol-type">Protocol Type</label>
+                                                <select id="pw-protocol-type" name="pw-protocol-type" class="input">
+                                                    <option selected>DEFAULT</option>
+                                                    <option>TCP</option>
+                                                    <option>UDP</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-baud-rate">Set Baud Rate</label>
+                                                <input type="number" id="pw-baud-rate" name="pw-baud-rate" class="input" value="115200">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-socket-port">SocketPort</label>
+                                                <input type="number" id="pw-socket-port" name="pw-socket-port" class="input" value="6031">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-payment-app">Payment App</label>
+                                                <input type="text" id="pw-payment-app" name="pw-payment-app" class="input" value="">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-debug-mode">Debug Mode</label>
+                                                <select id="pw-debug-mode" name="pw-debug-mode" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-show-result">Show Payment Result</label>
+                                                <select id="pw-show-result" name="pw-show-result" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-allowed-exit">Allowed Exit</label>
+                                                <select id="pw-allowed-exit" name="pw-allowed-exit" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-logo-url">Logo Url</label>
+                                                <input type="text" id="pw-logo-url" name="pw-logo-url" class="input" value="">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-currency-code">Currency Code</label>
+                                                <input type="text" id="pw-currency-code" name="pw-currency-code" class="input" value="">
+                                            </div>
+                                            <div class="field full">
+                                                <label for="pw-server">Paywizard Server</label>
+                                                <select id="pw-server" name="pw-server" class="input">
+                                                    <option selected>RELEASE</option>
+                                                    <option>STAGING</option>
+                                                    <option>SANDBOX</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="wizard-actions">
                                     <button class="btn secondary" type="button" data-goto="2">Back</button>
                                     <button class="btn primary" type="button" data-goto="4">Review</button>
@@ -2776,6 +2880,22 @@
         if (processorSelect) {
             processorSelect.addEventListener('change', syncProcessorParams);
             syncProcessorParams();
+        }
+
+        const paywizardSelect = document.getElementById('device-paywizard');
+        const paywizardParams = document.getElementById('paywizardParams');
+
+        function syncPaywizardParams() {
+            if (!paywizardSelect || !paywizardParams) {
+                return;
+            }
+            const isEnabled = paywizardSelect.value === 'Enable';
+            paywizardParams.classList.toggle('is-hidden', !isEnabled);
+        }
+
+        if (paywizardSelect) {
+            paywizardSelect.addEventListener('change', syncPaywizardParams);
+            syncPaywizardParams();
         }
 
         setStep(1);
