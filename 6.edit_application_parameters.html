@@ -4,213 +4,1088 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Application Parameters</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root{
-            --bw-bg:#f5f7fa;
-            --bw-surface:#ffffff;
-            --bw-border:#e6e8ee;
-            --bw-text:#0f172a;
-            --bw-subtext:#6b7280;
-            --bw-black:#0b0d0f;
-        }
-        body{
-            background-color:var(--bw-bg);
-            color:var(--bw-text);
-            font-family: Inter, "SF Pro Text", -apple-system, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-        }
-        .bw-header{
-            background: var(--bw-black);
-            color:#fff;
-            border-radius:16px;
-            padding:20px 24px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        }
-        .bw-header a{ color:#e5e7eb; }
-        .bw-header a:hover{ color:#fff; }
-        .icon{ width:18px; height:18px; }
-        h1{ letter-spacing:-0.01em; }
-        h2{ letter-spacing:-0.005em; }
-        body{ font-size:15px; line-height:1.55; }
-        .card{
-            background:var(--bw-surface);
-            border:1px solid var(--bw-border);
-            border-radius:16px;
-            box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 6px 24px rgba(15,23,42,0.06);
-        }
-        .tabs{ border-bottom:1px solid var(--bw-border); }
-        .tab{
-            display:inline-block;
-            padding:12px 4px;
-            margin-right:24px;
-            color:var(--bw-subtext);
-            border-bottom:2px solid transparent;
-            font-weight:500;
-        }
-        .tab:hover{ color:#111827; }
-        .tab.is-active{
-            color:#111827;
-            border-bottom-color:#111827;
-            font-weight:600;
-        }
-        .input{
-            width:100%;
-            padding:10px 12px;
-            border:1px solid #d1d5db;
-            border-radius:12px;
-            background:var(--bw-surface);
-            color:var(--bw-text);
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-        }
-        .input:focus{
-            border-color:#111827;
-            box-shadow: 0 0 0 3px rgba(17,24,39,.12);
-        }
-        .btn{
-            display:inline-flex; align-items:center; gap:.5rem;
-            border-radius:999px; padding:10px 16px; font-weight:600;
-            border:1px solid transparent; transition: all .2s ease;
-            box-shadow: 0 1px 1px rgba(0,0,0,.03);
-        }
-        .btn-primary{ background:#111827; color:#fff; }
-        .btn-primary:hover{ background:#000; }
-        .btn-ghost{ background:#fff; color:#111827; border-color:#d1d5db; }
-        .btn-ghost:hover{ background:#f3f4f6; border-color:#cfd3d8; }
-        .muted{ color:var(--bw-subtext); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
-        /* Stepper */
-        .stepper{ position:relative; display:flex; justify-content:space-between; gap:24px; padding:14px 0 6px; }
-        .stepper::before{ content:""; position:absolute; left:0; right:0; top:23px; height:2px; background:var(--bw-border); }
-        .step{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; min-width:100px; }
-        .bullet{ width:28px; height:28px; border-radius:999px; border:2px solid #cbd5e1; background:#fff; display:flex; align-items:center; justify-content:center; color:#0f172a; }
-        .bullet.completed{ border-color:#111827; background:#111827; color:#fff; }
-        .bullet.active{ border-color:#111827; background:#111827; color:#fff; box-shadow:0 0 0 4px rgba(17,24,39,.08); }
-        .bullet .dot{ width:8px; height:8px; background:#fff; border-radius:999px; }
-        .step .title{ margin-top:8px; font-weight:600; color:#111827; font-size:12.5px; }
-        .step .sub{ margin-top:2px; color:#6b7280; font-size:11.5px; }
+        :root {
+            --background-color: #f5f7fa;
+            --sidebar-bg: #ffffff;
+            --main-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #6b7280;
+            --border-color: #e6e8ee;
+            --primary-color: #111827;
+            --primary-hover: #000000;
+            --shadow: 0 1px 3px rgba(15,23,42,0.06);
+            --page-bg: #f5f7fa;
+            --menu-sidebar-bg: #ffffff;
+            --menu-text-strong: #0f0f10;
+            --menu-text-main: #111111;
+            --menu-text-dim: #6b7280;
+            --menu-divider: #e5e7eb;
+            --menu-hover: #f3f4f6;
+            --menu-bullet: #d1d5db;
+            --menu-active-bg: #0f0f10;
+            --menu-active-text: #ffffff;
+            --menu-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px;
+            background: var(--menu-sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--menu-divider);
+            box-shadow: var(--menu-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .ops-brand {
+            padding: 18px 18px 12px;
+            border-bottom: 1px solid var(--menu-divider);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ops-brand-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--menu-text-strong);
+            letter-spacing: 0.2px;
+        }
+
+        .ops-brand-sub {
+            font-size: 10px;
+            color: var(--menu-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.32em;
+        }
+
+        .ops-menu {
+            padding: 10px 8px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ops-title {
+            margin: 8px 10px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--menu-text-dim);
+        }
+
+        .ops-item {
+            display: block;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--menu-text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .ops-item:hover {
+            background: var(--menu-hover);
+        }
+
+        .ops-item.active {
+            background: #e5e7eb;
+            color: var(--menu-text-strong);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* --- Top Header --- */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 32px;
+            background-color: var(--main-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header .user-profile {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .header .user-profile .avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            margin-left: 12px;
+        }
+
+        /* --- Page Content --- */
+        .page-content {
+            padding: 28px 32px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .page-sub {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-card {
+            padding: 16px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .info-title {
+            margin: 12px 0 4px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .info-list {
+            margin: 12px 0 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .info-list dt {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .info-list dd {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .mono {
+            font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        .form-card {
+            padding: 18px;
+        }
+
+        .form-title {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-title h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .form-title p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .param-tabs {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .param-tabs.is-hidden {
+            display: none;
+        }
+
+        .param-tab {
+            border: none;
+            background: transparent;
+            padding: 8px 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.18s ease, border-color 0.18s ease;
+        }
+
+        .param-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .param-tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--text-primary);
+        }
+
+        .param-panel {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .param-panel.active {
+            display: block;
+        }
+
+        .param-set {
+            display: none;
+        }
+
+        .param-set.active {
+            display: block;
+        }
+
+        .param-group {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            background: #fff;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-body {
+            margin-top: 18px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(17,24,39,0.12);
+        }
+
+        .input[disabled],
+        .input[readonly] {
+            background: #f9fafb;
+            color: #9ca3af;
+        }
+
+        .form-footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-ghost {
+            background: #fff;
+            color: #111827;
+            border-color: var(--border-color);
+        }
+
+        .btn-ghost:hover {
+            background: #f3f4f6;
+        }
+
+        @media (max-width: 1100px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .param-tabs {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .main-content {
+                overflow: visible;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+
+            .group-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
-<body class="p-8">
+<body>
+    <aside class="sidebar">
+        <div class="ops-brand">
+            <div class="ops-brand-name">PAYwizard</div>
+            <div class="ops-brand-sub">Maintain</div>
+        </div>
 
-    <div class="max-w-7xl mx-auto">
-        <header class="mb-6 bw-header">
-            <a href="configure_terminal.html" class="flex items-center text-sm mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon mr-1">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
-                Back to Terminal Configuration
-            </a>
-            <h1 class="text-3xl font-bold">
-                Edit Application Parameters
-            </h1>
+        <nav class="ops-menu" aria-label="Operations navigation">
+            <div class="ops-section">
+                <div class="ops-title">Payment &amp; Billing</div>
+                <a class="ops-item active" href="#">Transaction Details</a>
+                <a class="ops-item" href="#">Settlement Info</a>
+                <a class="ops-item" href="#">Billing Overview</a>
+                <a class="ops-item" href="#">Payment Channel Management</a>
+                <a class="ops-item" href="#">Service Fee Log</a>
+                <a class="ops-item" href="#">Service Fee Report</a>
+                <a class="ops-item" href="#">Cached Transaction</a>
+            </div>
+            <div class="ops-section">
+                <div class="ops-title">Operation &amp; Maintain</div>
+                <a class="ops-item" href="#">Merchant Lead</a>
+                <a class="ops-item" href="#">Service Provider</a>
+                <a class="ops-item" href="#">Developer Manage</a>
+                <a class="ops-item" href="#">Terminal Status</a>
+                <a class="ops-item" href="#">Merchant Onboarding</a>
+                <a class="ops-item" href="#">Merchant Account</a>
+            </div>
+            <div class="ops-section">
+                <div class="ops-title">System Settings</div>
+                <a class="ops-item" href="#">Role Management</a>
+                <a class="ops-item" href="#">Email Configuration</a>
+                <a class="ops-item" href="#">Account Management</a>
+                <a class="ops-item" href="#">Log Management</a>
+                <a class="ops-item" href="#">Password Rule Config</a>
+                <a class="ops-item" href="#">Billing Setup</a>
+                <a class="ops-item" href="#">Parameter File</a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <span>beaver.xu</span>
+                <div class="avatar"></div>
+            </div>
         </header>
 
-        <div class="flex flex-col lg:flex-row gap-8 card p-8">
-            <aside class="w-full lg:w-1/3 xl:w-1/4">
-                <div class="p-4 card">
-                    <button class="btn btn-primary mb-3 text-xs tracking-wide">App Detail</button>
-                    <h3 class="text-base font-semibold">Application Details</h3>
-                    <dl class="mt-4 space-y-4">
+        <main class="page-content">
+            <section class="page-header">
+                <a class="back-link" href="#" id="backLink">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </a>
+                <div>
+                    <h1 class="page-title">Edit Application Parameters</h1>
+                    <p class="page-sub" id="pageSubtitle">Update the default parameter values for this template.</p>
+                </div>
+            </section>
+
+            <div class="content-grid">
+                <aside class="card info-card">
+                    <div class="chip">App Detail</div>
+                    <h3 class="info-title">Application Details</h3>
+                    <dl class="info-list">
                         <div>
-                            <dt class="text-sm font-medium muted">Name</dt>
-                            <dd class="mt-1 text-sm font-mono">com.pax.us.pay.std.transaction</dd>
+                            <dt>Name</dt>
+                            <dd class="mono" id="appNameValue">TSYS UPT</dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium muted">Version</dt>
-                            <dd class="mt-1 text-sm">V1.00.16E_20250606</dd>
+                            <dt>Version</dt>
+                            <dd id="appVersionValue">V1.00.16E_20250606</dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium muted">Developer</dt>
-                            <dd class="mt-1 text-sm">PAX USBO</dd>
+                            <dt>Template</dt>
+                            <dd id="templateValue">Default Parameter</dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium muted">OS</dt>
-                            <dd class="mt-1 text-sm">Android</dd>
+                            <dt>Developer</dt>
+                            <dd>PAX USBO</dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium muted">Parameter File</dt>
-                            <dd class="mt-1 text-sm font-mono">retail.zip</dd>
+                            <dt>OS</dt>
+                            <dd>Android</dd>
+                        </div>
+                        <div>
+                            <dt>Parameter File</dt>
+                            <dd class="mono">retail.zip</dd>
                         </div>
                     </dl>
-                </div>
-            </aside>
+                </aside>
 
-            <main class="flex-grow">
-                <div class="stepper">
-                    <div class="step">
-                        <div class="bullet completed" aria-label="Create Task">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="title">Create Task</div>
-                    </div>
-                    <div class="step">
-                        <div class="bullet active" aria-label="Parameter">
-                            <div class="dot"></div>
-                        </div>
-                        <div class="title">Parameter</div>
-                    </div>
-                    <div class="step">
-                        <div class="bullet" aria-label="Activated"></div>
-                        <div class="title">Activated</div>
-                    </div>
-                    <div class="step">
-                        <div class="bullet" aria-label="Effective"></div>
-                        <div class="title">Effective</div>
-                    </div>
-                    <div class="step">
-                        <div class="bullet" aria-label="Completed"></div>
-                        <div class="title">Completed</div>
-                    </div>
-                </div>
-
-                <h2 class="text-xl font-semibold mt-4">Edit Parameters</h2>
-                <p class="mt-1 text-sm muted">This is step 2 of the push task. Adjust values and continue to push.</p>
-
-                <div class="mt-6 tabs">
-                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                        <a href="#" class="tab">GENERAL</a>
-                        <a href="#" class="tab is-active" aria-current="page">COMMUNICATION</a>
-                        <a href="#" class="tab">CARD TYPE</a>
-                        <a href="#" class="tab">EMV</a>
-                    </nav>
-                </div>
-                
-                <form class="mt-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="max-tries" class="block text-sm font-medium">Maximum Tries (1-9)</label>
-                            <input type="number" name="max-tries" id="max-tries" value="1" class="mt-1 input">
-                        </div>
-                        <div>
-                            <label for="connect-timeout" class="block text-sm font-medium">Connect Timeout (100ms)</label>
-                            <input type="number" name="connect-timeout" id="connect-timeout" value="300" class="mt-1 input">
-                        </div>
-                        <div>
-                            <label for="receive-timeout" class="block text-sm font-medium">Receive Timeout (100ms)</label>
-                            <input type="number" name="receive-timeout" id="receive-timeout" value="450" class="mt-1 input">
-                        </div>
-                        <div>
-                            <label for="ping-timeout" class="block text-sm font-medium">Ping Timeout (ms)</label>
-                            <input type="number" name="ping-timeout" id="ping-timeout" value="500" class="mt-1 input">
-                        </div>
+                <section class="card form-card">
+                    <div class="form-title">
+                        <h2>Edit Parameters</h2>
+                        <p>Adjust values and save as the new default.</p>
                     </div>
 
-                    <div class="pt-6 border-t border-gray-200 flex justify-end space-x-3">
-                        <a href="configure_terminal.html" class="btn btn-ghost text-sm">Cancel</a>
-                        <button type="submit" class="btn btn-primary text-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon">
-                                <path d="M2.25 12l18-9-4.5 18-5.25-6.75L2.25 12z" />
-                            </svg>
-                            Save & Push to Terminal
-                        </button>
-                    </div>
-                </form>
-            </main>
-        </div>
+                    <form class="form-body" id="paramForm">
+                        <div class="param-layout">
+                            <div class="param-tabs" id="paramTabs">
+                                <button type="button" class="param-tab active" data-tab="password">Password Information</button>
+                                <button type="button" class="param-tab" data-tab="network">Network Param</button>
+                                <button type="button" class="param-tab" data-tab="terminal">Terminal Param</button>
+                                <button type="button" class="param-tab" data-tab="trans">Supported Trans</button>
+                            </div>
+                            <div class="param-content">
+                                <div class="param-section">
+                                    <div class="param-set active" data-app="tsys">
+                                        <div class="param-panel active" data-panel="password">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Password Information</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                <div class="field">
+                                                    <label for="admin-passwd">Admin Passwd</label>
+                                                    <input type="text" id="admin-passwd" name="admin-passwd" class="input" value="99999999">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="merchant-passwd">Merchant Passwd</label>
+                                                    <input type="text" id="merchant-passwd" name="merchant-passwd" class="input" value="1234">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="super-passwd">Super Passwd</label>
+                                                    <input type="text" id="super-passwd" name="super-passwd" class="input" value="123456">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="refund-passwd">Refund Passwd</label>
+                                                    <input type="text" id="refund-passwd" name="refund-passwd" class="input" value="5555">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="reversal-passwd">Reversal Passwd</label>
+                                                    <input type="text" id="reversal-passwd" name="reversal-passwd" class="input" value="5555">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    <div class="param-panel" data-panel="network">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Network Param</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="primary-ip">Primary IP</label>
+                                                        <input type="text" id="primary-ip" name="primary-ip" class="input" value="https://stagegw.transnox.com/servlets/">
+                                                    </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="param-panel" data-panel="terminal">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Terminal Param</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                <div class="field">
+                                                    <label for="tmk-index">TMK INDEX</label>
+                                                    <input type="number" id="tmk-index" name="tmk-index" class="input" value="7">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="trace-no">Trace#</label>
+                                                    <input type="number" id="trace-no" name="trace-no" class="input" value="1">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="batch-no">Batch#</label>
+                                                    <input type="number" id="batch-no" name="batch-no" class="input" value="1">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="auto-close-batch">EnAutoClsBatch</label>
+                                                    <select id="auto-close-batch" name="auto-close-batch" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="ac-batch-time">AcBatchTime(HH:mm)</label>
+                                                    <input type="text" id="ac-batch-time" name="ac-batch-time" class="input" value="00:00">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="trans-expired">Trans Expired Days</label>
+                                                    <input type="number" id="trans-expired" name="trans-expired" class="input" value="30">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="facilitator-enable">FacilitatorEnable</label>
+                                                    <select id="facilitator-enable" name="facilitator-enable" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="is-level2">IsLevel2</label>
+                                                    <select id="is-level2" name="is-level2" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="is-estimated">IsEstimated</label>
+                                                    <select id="is-estimated" name="is-estimated" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="is-defender">IsDefender</label>
+                                                    <select id="is-defender" name="is-defender" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="force-online-pin">ForceOnlinePin</label>
+                                                    <select id="force-online-pin" name="force-online-pin" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="qps-amount">QPSAmount</label>
+                                                    <input type="number" id="qps-amount" name="qps-amount" class="input" value="0">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="tac-denial">TACDenial</label>
+                                                    <input type="text" id="tac-denial" name="tac-denial" class="input" value="0010000000">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="tac-online">TACOnline</label>
+                                                    <input type="text" id="tac-online" name="tac-online" class="input" value="DE00FC9800">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="tac-default">TACDefault</label>
+                                                    <input type="text" id="tac-default" name="tac-default" class="input" value="DC50FC9800">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="contactless-limit">Contactless Transaction Limit</label>
+                                                    <input type="number" id="contactless-limit" name="contactless-limit" class="input" value="99999999">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="cvm-limit">CVM Required Limit</label>
+                                                    <input type="number" id="cvm-limit" name="cvm-limit" class="input" value="10000">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="contactless-floor-limit">Contactless Floor Limit</label>
+                                                    <input type="number" id="contactless-floor-limit" name="contactless-floor-limit" class="input" value="0">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="floor-limit">Floor Limit</label>
+                                                    <input type="number" id="floor-limit" name="floor-limit" class="input" value="0">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="risk-manage-data">RiskManageData</label>
+                                                    <input type="text" id="risk-manage-data" name="risk-manage-data" class="input" value="4C00800000000000">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="terminal-cap">TerminalCap</label>
+                                                    <input type="text" id="terminal-cap" name="terminal-cap" class="input" value="A008C8">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="cvm-cap-no-cvm">CvmCapNoCvm</label>
+                                                    <input type="text" id="cvm-cap-no-cvm" name="cvm-cap-no-cvm" class="input" value="08">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="cvm-cap-on-cvm">CvmCapOnCvm</label>
+                                                    <input type="text" id="cvm-cap-on-cvm" name="cvm-cap-on-cvm" class="input" value="08">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="kernel-config">KernelConfig</label>
+                                                    <input type="text" id="kernel-config" name="kernel-config" class="input" value="B0">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="ext-log-data">ExtLogData</label>
+                                                    <input type="text" id="ext-log-data" name="ext-log-data" class="input" value="FFFFFFFFFFFFFFFF">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="ext-log-data-2">ExtLogData2</label>
+                                                    <input type="text" id="ext-log-data-2" name="ext-log-data-2" class="input" value="000000010000010100000201">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="aid-highest-priority">AidHighestPriority</label>
+                                                    <select id="aid-highest-priority" name="aid-highest-priority" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="support-msr">Support MSR</label>
+                                                    <select id="support-msr" name="support-msr" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="quick-chip">QuickChip</label>
+                                                    <select id="quick-chip" name="quick-chip" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="support-ids">SupportIds</label>
+                                                    <select id="support-ids" name="support-ids" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="support-maestro">SupportMaestro</label>
+                                                    <select id="support-maestro" name="support-maestro" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="support-us-maestro">SupportUSMaestro</label>
+                                                    <select id="support-us-maestro" name="support-us-maestro" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="support-amex">SupportAmex</label>
+                                                    <select id="support-amex" name="support-amex" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="support-upload-receipt">SupportUploadReceipt</label>
+                                                    <select id="support-upload-receipt" name="support-upload-receipt" class="input">
+                                                        <option>Enable</option>
+                                                        <option selected>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="max-trans">MaxTrans</label>
+                                                    <input type="number" id="max-trans" name="max-trans" class="input" value="999">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="param-panel" data-panel="trans">
+                                        <div class="param-group">
+                                            <div class="group-header">
+                                                <div class="group-title">Supported Trans</div>
+                                            </div>
+                                            <div class="group-grid">
+                                                <div class="field">
+                                                    <label for="credit-sale-switch">CreditSale Switch</label>
+                                                    <select id="credit-sale-switch" name="credit-sale-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="debit-sale-switch">DebitSale Switch</label>
+                                                    <select id="debit-sale-switch" name="debit-sale-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="force-auth-switch">ForceAuth Switch</label>
+                                                    <select id="force-auth-switch" name="force-auth-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="credit-return-switch">CreditReturn Switch</label>
+                                                    <select id="credit-return-switch" name="credit-return-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="debit-return-switch">DebitReturn Switch</label>
+                                                    <select id="debit-return-switch" name="debit-return-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="reversal-switch">Reversal Switch</label>
+                                                    <select id="reversal-switch" name="reversal-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="print-switch">Print Switch</label>
+                                                    <select id="print-switch" name="print-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="more-function-switch">MoreFunction Switch</label>
+                                                    <select id="more-function-switch" name="more-function-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="auth-only-switch">AuthOnly Switch</label>
+                                                    <select id="auth-only-switch" name="auth-only-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="auth-increment-switch">AuthIncrement Switch</label>
+                                                    <select id="auth-increment-switch" name="auth-increment-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="tip-adjust-switch">TipAdjust Switch</label>
+                                                    <select id="tip-adjust-switch" name="tip-adjust-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="capture-switch">Capture Switch</label>
+                                                    <select id="capture-switch" name="capture-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="close-batch-switch">CloseBatch Switch</label>
+                                                    <select id="close-batch-switch" name="close-batch-switch" class="input">
+                                                        <option selected>Enable</option>
+                                                        <option>Disable</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="param-set" data-app="opc">
+                                    <div class="param-panel active" data-panel="opc">
+                                        <div class="param-group">
+                                            <div class="group-header">
+                                                <div class="group-title">OPC Parameters</div>
+                                            </div>
+                                            <div class="group-grid">
+                                                <div class="field">
+                                                    <label for="opc-admin-password">Admin Password</label>
+                                                    <input type="text" id="opc-admin-password" name="opc-admin-password" class="input" value="99999999">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-allow-offline">AllowOfflineMode</label>
+                                                    <select id="opc-allow-offline" name="opc-allow-offline" class="input">
+                                                        <option selected>Disable</option>
+                                                        <option>Enable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-amount-scale">AmountScale</label>
+                                                    <select id="opc-amount-scale" name="opc-amount-scale" class="input">
+                                                        <option selected>DEFAULT</option>
+                                                        <option>0.01</option>
+                                                        <option>0.001</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-protocol-type">Protocol Type</label>
+                                                    <select id="opc-protocol-type" name="opc-protocol-type" class="input">
+                                                        <option selected>DEFAULT</option>
+                                                        <option>TCP</option>
+                                                        <option>UDP</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-baud-rate">Set Baud Rate</label>
+                                                    <input type="number" id="opc-baud-rate" name="opc-baud-rate" class="input" value="115200">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-socket-port">SocketPort</label>
+                                                    <input type="number" id="opc-socket-port" name="opc-socket-port" class="input" value="6031">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-payment-app">Payment App</label>
+                                                    <input type="text" id="opc-payment-app" name="opc-payment-app" class="input" value="">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-debug-mode">Debug Mode</label>
+                                                    <select id="opc-debug-mode" name="opc-debug-mode" class="input">
+                                                        <option selected>Disable</option>
+                                                        <option>Enable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-show-result">Show Payment Result</label>
+                                                    <select id="opc-show-result" name="opc-show-result" class="input">
+                                                        <option selected>Disable</option>
+                                                        <option>Enable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-allowed-exit">Allowed Exit</label>
+                                                    <select id="opc-allowed-exit" name="opc-allowed-exit" class="input">
+                                                        <option selected>Disable</option>
+                                                        <option>Enable</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-logo-url">Logo Url</label>
+                                                    <input type="text" id="opc-logo-url" name="opc-logo-url" class="input" value="">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-currency-code">Currency Code</label>
+                                                    <input type="text" id="opc-currency-code" name="opc-currency-code" class="input" value="">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="opc-server">Paywizard Server</label>
+                                                    <select id="opc-server" name="opc-server" class="input">
+                                                        <option selected>RELEASE</option>
+                                                        <option>STAGING</option>
+                                                        <option>SANDBOX</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="param-set" data-app="other">
+                                    <div class="param-group">
+                                        <div class="group-header">
+                                            <div class="group-title">No Parameter Template</div>
+                                        </div>
+                                        <p class="page-sub">This application does not have a default parameter template yet.</p>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-footer">
+                            <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
     </div>
 
+    <script>
+        (function(){
+            const backLink = document.getElementById('backLink');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const paramForm = document.getElementById('paramForm');
+            const appNameValue = document.getElementById('appNameValue');
+            const appVersionValue = document.getElementById('appVersionValue');
+            const templateValue = document.getElementById('templateValue');
+            const pageSubtitle = document.getElementById('pageSubtitle');
+
+            function goBack(event){
+                event.preventDefault();
+                history.back();
+            }
+
+            if(backLink){ backLink.addEventListener('click', goBack); }
+            if(cancelBtn){ cancelBtn.addEventListener('click', goBack); }
+            if(paramForm){
+                paramForm.addEventListener('submit', (event)=>{
+                    event.preventDefault();
+                });
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const appName = params.get('app') || 'TSYS UPT';
+            const appVersion = params.get('version') || 'V1.00.16E_20250606';
+            const templateName = params.get('paramTemplate') || params.get('template') || 'Default Parameter';
+
+            if(appNameValue){ appNameValue.textContent = appName; }
+            if(appVersionValue){ appVersionValue.textContent = appVersion; }
+            if(templateValue){ templateValue.textContent = templateName; }
+            if(pageSubtitle){ pageSubtitle.textContent = `${appName} - ${templateName}`; }
+
+            const paramTabs = document.getElementById('paramTabs');
+            const tabButtons = Array.from(document.querySelectorAll('.param-tab'));
+            const appKey = appName.toLowerCase();
+            const isTSYS = appKey.includes('tsys');
+            const isOPC = appKey.includes('opc');
+            let activeSet = 'other';
+            if(isTSYS){
+                activeSet = 'tsys';
+            } else if(isOPC){
+                activeSet = 'opc';
+            }
+
+            document.querySelectorAll('.param-set').forEach(set => {
+                set.classList.toggle('active', set.getAttribute('data-app') === activeSet);
+            });
+
+            if(!isTSYS && paramTabs){
+                paramTabs.classList.add('is-hidden');
+            }
+
+            function setActiveTab(tabId){
+                tabButtons.forEach(button => {
+                    button.classList.toggle('active', button.getAttribute('data-tab') === tabId);
+                });
+                document.querySelectorAll('.param-set.active .param-panel').forEach(panel => {
+                    panel.classList.toggle('active', panel.getAttribute('data-panel') === tabId);
+                });
+            }
+
+            if(isTSYS && tabButtons.length){
+                const initialTab = document.querySelector('.param-tab.active') || tabButtons[0];
+                setActiveTab(initialTab.getAttribute('data-tab'));
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', ()=> setActiveTab(button.getAttribute('data-tab')));
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
