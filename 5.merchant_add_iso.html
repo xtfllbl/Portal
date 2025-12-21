@@ -1045,6 +1045,156 @@
             margin-top: 6px;
         }
 
+        .processor-params {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .processor-params.is-hidden {
+            display: none;
+        }
+
+        .processor-params-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .processor-params-head h4 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .processor-params-head p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .processor-pill {
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .param-set {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .param-set.active {
+            display: block;
+        }
+
+        .param-tabs {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .param-tab {
+            border: none;
+            background: transparent;
+            padding: 8px 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.18s ease, border-color 0.18s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .param-tab:hover {
+            color: var(--text-main);
+        }
+
+        .param-tab.active {
+            color: var(--text-strong);
+            border-bottom-color: var(--text-strong);
+        }
+
+        .param-panel {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .param-panel.active {
+            display: block;
+        }
+
+        .param-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            background: #f9fafb;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .processor-params .field label {
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 12px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        }
+
+        .input[disabled],
+        .input[readonly] {
+            background: #f8fafc;
+            color: #9ca3af;
+        }
+
         .review-hero {
             display: flex;
             flex-direction: column;
@@ -1635,9 +1785,9 @@
                                         <label for="device-processor">Processor *</label>
                                         <select class="input-field" id="device-processor">
                                             <option value="">Select Processor</option>
-                                            <option>TSYS</option>
-                                            <option>First Data</option>
-                                            <option>Worldpay</option>
+                                            <option value="TSYS">TSYS</option>
+                                            <option value="First Data">First Data</option>
+                                            <option value="Worldpay">Worldpay</option>
                                         </select>
                                     </div>
                                     <div class="field">
@@ -1671,6 +1821,565 @@
                                     <div class="field">
                                         <label for="device-promo">Promo Code</label>
                                         <input class="input-field" id="device-promo" type="text" placeholder="Optional">
+                                    </div>
+                                </div>
+
+                                <div class="processor-params is-hidden" id="processorParams">
+                                    <div class="processor-params-head">
+                                        <div>
+                                            <h4>Processor Parameters</h4>
+                                            <p>Fill in the parameter file groups for the selected processor.</p>
+                                        </div>
+                                        <div class="processor-pill" id="processorParamName">Processor</div>
+                                    </div>
+                                    <div class="param-set" data-processor="TSYS">
+                                        <div class="param-tabs">
+                                            <button type="button" class="param-tab active" data-tab="password">Password Information</button>
+                                            <button type="button" class="param-tab" data-tab="network">Network Param</button>
+                                            <button type="button" class="param-tab" data-tab="terminal">Terminal Param</button>
+                                            <button type="button" class="param-tab" data-tab="trans">Supported Trans</button>
+                                        </div>
+                                        <div class="param-panel active" data-panel="password">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Password Information</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="admin-passwd">Admin Passwd</label>
+                                                        <input type="text" id="admin-passwd" name="admin-passwd" class="input" value="99999999">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="merchant-passwd">Merchant Passwd</label>
+                                                        <input type="text" id="merchant-passwd" name="merchant-passwd" class="input" value="1234">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="super-passwd">Super Passwd</label>
+                                                        <input type="text" id="super-passwd" name="super-passwd" class="input" value="123456">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="refund-passwd">Refund Passwd</label>
+                                                        <input type="text" id="refund-passwd" name="refund-passwd" class="input" value="5555">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="reversal-passwd">Reversal Passwd</label>
+                                                        <input type="text" id="reversal-passwd" name="reversal-passwd" class="input" value="5555">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="network">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Network Param</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="primary-ip">Primary IP</label>
+                                                        <input type="text" id="primary-ip" name="primary-ip" class="input" value="https://stagegw.transnox.com/servlets/">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="terminal">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Terminal Param</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="tmk-index">TMK INDEX</label>
+                                                        <input type="number" id="tmk-index" name="tmk-index" class="input" value="7">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="trace-no">Trace#</label>
+                                                        <input type="number" id="trace-no" name="trace-no" class="input" value="1">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="batch-no">Batch#</label>
+                                                        <input type="number" id="batch-no" name="batch-no" class="input" value="1">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="auto-close-batch">EnAutoClsBatch</label>
+                                                        <select id="auto-close-batch" name="auto-close-batch" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="ac-batch-time">AcBatchTime(HH:mm)</label>
+                                                        <input type="text" id="ac-batch-time" name="ac-batch-time" class="input" value="00:00">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="trans-expired">Trans Expired Days</label>
+                                                        <input type="number" id="trans-expired" name="trans-expired" class="input" value="30">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="facilitator-enable">FacilitatorEnable</label>
+                                                        <select id="facilitator-enable" name="facilitator-enable" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="is-level2">IsLevel2</label>
+                                                        <select id="is-level2" name="is-level2" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="is-estimated">IsEstimated</label>
+                                                        <select id="is-estimated" name="is-estimated" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="is-defender">IsDefender</label>
+                                                        <select id="is-defender" name="is-defender" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="force-online-pin">ForceOnlinePin</label>
+                                                        <select id="force-online-pin" name="force-online-pin" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="qps-amount">QPSAmount</label>
+                                                        <input type="number" id="qps-amount" name="qps-amount" class="input" value="0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tac-denial">TACDenial</label>
+                                                        <input type="text" id="tac-denial" name="tac-denial" class="input" value="0010000000">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tac-online">TACOnline</label>
+                                                        <input type="text" id="tac-online" name="tac-online" class="input" value="DE00FC9800">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tac-default">TACDefault</label>
+                                                        <input type="text" id="tac-default" name="tac-default" class="input" value="DC50FC9800">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="contactless-limit">Contactless Transaction Limit</label>
+                                                        <input type="number" id="contactless-limit" name="contactless-limit" class="input" value="99999999">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="cvm-limit">CVM Required Limit</label>
+                                                        <input type="number" id="cvm-limit" name="cvm-limit" class="input" value="10000">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="contactless-floor-limit">Contactless Floor Limit</label>
+                                                        <input type="number" id="contactless-floor-limit" name="contactless-floor-limit" class="input" value="0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="floor-limit">Floor Limit</label>
+                                                        <input type="number" id="floor-limit" name="floor-limit" class="input" value="0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="risk-manage-data">RiskManageData</label>
+                                                        <input type="text" id="risk-manage-data" name="risk-manage-data" class="input" value="4C00800000000000">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="terminal-cap">TerminalCap</label>
+                                                        <input type="text" id="terminal-cap" name="terminal-cap" class="input" value="A008C8">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="cvm-cap-no-cvm">CvmCapNoCvm</label>
+                                                        <input type="text" id="cvm-cap-no-cvm" name="cvm-cap-no-cvm" class="input" value="08">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="cvm-cap-on-cvm">CvmCapOnCvm</label>
+                                                        <input type="text" id="cvm-cap-on-cvm" name="cvm-cap-on-cvm" class="input" value="08">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="kernel-config">KernelConfig</label>
+                                                        <input type="text" id="kernel-config" name="kernel-config" class="input" value="B0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="ext-log-data">ExtLogData</label>
+                                                        <input type="text" id="ext-log-data" name="ext-log-data" class="input" value="FFFFFFFFFFFFFFFF">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="ext-log-data-2">ExtLogData2</label>
+                                                        <input type="text" id="ext-log-data-2" name="ext-log-data-2" class="input" value="000000010000010100000201">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="aid-highest-priority">AidHighestPriority</label>
+                                                        <select id="aid-highest-priority" name="aid-highest-priority" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-msr">Support MSR</label>
+                                                        <select id="support-msr" name="support-msr" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="quick-chip">QuickChip</label>
+                                                        <select id="quick-chip" name="quick-chip" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-ids">SupportIds</label>
+                                                        <select id="support-ids" name="support-ids" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-maestro">SupportMaestro</label>
+                                                        <select id="support-maestro" name="support-maestro" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-us-maestro">SupportUSMaestro</label>
+                                                        <select id="support-us-maestro" name="support-us-maestro" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-amex">SupportAmex</label>
+                                                        <select id="support-amex" name="support-amex" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-upload-receipt">SupportUploadReceipt</label>
+                                                        <select id="support-upload-receipt" name="support-upload-receipt" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="max-trans">MaxTrans</label>
+                                                        <input type="number" id="max-trans" name="max-trans" class="input" value="999">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="trans">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Supported Trans</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="credit-sale-switch">CreditSale Switch</label>
+                                                        <select id="credit-sale-switch" name="credit-sale-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="debit-sale-switch">DebitSale Switch</label>
+                                                        <select id="debit-sale-switch" name="debit-sale-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="force-auth-switch">ForceAuth Switch</label>
+                                                        <select id="force-auth-switch" name="force-auth-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="credit-return-switch">CreditReturn Switch</label>
+                                                        <select id="credit-return-switch" name="credit-return-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="debit-return-switch">DebitReturn Switch</label>
+                                                        <select id="debit-return-switch" name="debit-return-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="reversal-switch">Reversal Switch</label>
+                                                        <select id="reversal-switch" name="reversal-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="print-switch">Print Switch</label>
+                                                        <select id="print-switch" name="print-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="more-function-switch">MoreFunction Switch</label>
+                                                        <select id="more-function-switch" name="more-function-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="auth-only-switch">AuthOnly Switch</label>
+                                                        <select id="auth-only-switch" name="auth-only-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="auth-increment-switch">AuthIncrement Switch</label>
+                                                        <select id="auth-increment-switch" name="auth-increment-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tip-adjust-switch">TipAdjust Switch</label>
+                                                        <select id="tip-adjust-switch" name="tip-adjust-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="capture-switch">Capture Switch</label>
+                                                        <select id="capture-switch" name="capture-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="close-batch-switch">CloseBatch Switch</label>
+                                                        <select id="close-batch-switch" name="close-batch-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="param-set" data-processor="First Data">
+                                        <div class="param-tabs">
+                                            <button type="button" class="param-tab active" data-tab="fd-host">Host Settings</button>
+                                            <button type="button" class="param-tab" data-tab="fd-merchant">Merchant Setup</button>
+                                            <button type="button" class="param-tab" data-tab="fd-settlement">Settlement</button>
+                                        </div>
+                                        <div class="param-panel active" data-panel="fd-host">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Host Settings</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="fd-primary-host">Primary Host</label>
+                                                        <input type="text" id="fd-primary-host" name="fd-primary-host" class="input" value="https://fdgwy.firstdata.com/servlets/">
+                                                    </div>
+                                                    <div class="field full">
+                                                        <label for="fd-secondary-host">Secondary Host</label>
+                                                        <input type="text" id="fd-secondary-host" name="fd-secondary-host" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-port">Port</label>
+                                                        <input type="number" id="fd-port" name="fd-port" class="input" value="443">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-protocol">Protocol</label>
+                                                        <select id="fd-protocol" name="fd-protocol" class="input">
+                                                            <option selected>TLS</option>
+                                                            <option>SSL</option>
+                                                            <option>TCP</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-timeout">Timeout (sec)</label>
+                                                        <input type="number" id="fd-timeout" name="fd-timeout" class="input" value="30">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="fd-merchant">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Merchant Setup</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="fd-mid">Merchant ID</label>
+                                                        <input type="text" id="fd-mid" name="fd-mid" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-tid">Terminal ID</label>
+                                                        <input type="text" id="fd-tid" name="fd-tid" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-store-no">Store Number</label>
+                                                        <input type="text" id="fd-store-no" name="fd-store-no" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-agent-bank">Agent Bank Number</label>
+                                                        <input type="text" id="fd-agent-bank" name="fd-agent-bank" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-chain">Chain</label>
+                                                        <input type="text" id="fd-chain" name="fd-chain" class="input" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="fd-settlement">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Settlement</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="fd-auto-close">Auto Close Batch</label>
+                                                        <select id="fd-auto-close" name="fd-auto-close" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-batch-time">Batch Close Time</label>
+                                                        <input type="text" id="fd-batch-time" name="fd-batch-time" class="input" value="00:00">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-batch-number">Batch Number</label>
+                                                        <input type="number" id="fd-batch-number" name="fd-batch-number" class="input" value="1">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-currency">Currency Code</label>
+                                                        <input type="text" id="fd-currency" name="fd-currency" class="input" value="USD">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-tip-percent">Tip Percent</label>
+                                                        <input type="number" id="fd-tip-percent" name="fd-tip-percent" class="input" value="0">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="param-set" data-processor="Worldpay">
+                                        <div class="param-tabs">
+                                            <button type="button" class="param-tab active" data-tab="wp-general">General</button>
+                                            <button type="button" class="param-tab" data-tab="wp-network">Network</button>
+                                            <button type="button" class="param-tab" data-tab="wp-receipt">Receipts</button>
+                                        </div>
+                                        <div class="param-panel active" data-panel="wp-general">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">General</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="wp-merchant-id">Merchant ID</label>
+                                                        <input type="text" id="wp-merchant-id" name="wp-merchant-id" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-terminal-id">Terminal ID</label>
+                                                        <input type="text" id="wp-terminal-id" name="wp-terminal-id" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-store-id">Store ID</label>
+                                                        <input type="text" id="wp-store-id" name="wp-store-id" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-industry">Industry</label>
+                                                        <select id="wp-industry" name="wp-industry" class="input">
+                                                            <option selected>Retail</option>
+                                                            <option>Restaurant</option>
+                                                            <option>Quick Service</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-currency">Currency</label>
+                                                        <input type="text" id="wp-currency" name="wp-currency" class="input" value="USD">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="wp-network">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Network</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="wp-host-url">Host URL</label>
+                                                        <input type="text" id="wp-host-url" name="wp-host-url" class="input" value="https://gateway.worldpay.com/connect">
+                                                    </div>
+                                                    <div class="field full">
+                                                        <label for="wp-backup-url">Backup URL</label>
+                                                        <input type="text" id="wp-backup-url" name="wp-backup-url" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-port">Port</label>
+                                                        <input type="number" id="wp-port" name="wp-port" class="input" value="443">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-timeout">Timeout (sec)</label>
+                                                        <input type="number" id="wp-timeout" name="wp-timeout" class="input" value="30">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-heartbeat">Heartbeat Interval</label>
+                                                        <input type="number" id="wp-heartbeat" name="wp-heartbeat" class="input" value="60">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="wp-receipt">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Receipts</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="wp-header-text">Header Text</label>
+                                                        <input type="text" id="wp-header-text" name="wp-header-text" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-footer-text">Footer Text</label>
+                                                        <input type="text" id="wp-footer-text" name="wp-footer-text" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-print-logo">Print Logo</label>
+                                                        <select id="wp-print-logo" name="wp-print-logo" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-tip-line">Tip Line</label>
+                                                        <select id="wp-tip-line" name="wp-tip-line" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-signature">Signature Required</label>
+                                                        <select id="wp-signature" name="wp-signature" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -2009,6 +2718,65 @@
                 }
             });
         });
+
+        const processorSelect = document.getElementById('device-processor');
+        const processorParams = document.getElementById('processorParams');
+        const processorParamName = document.getElementById('processorParamName');
+        const paramSets = Array.from(document.querySelectorAll('.param-set'));
+
+        function activateParamTab(button, set) {
+            const tabId = button.getAttribute('data-tab');
+            if (!tabId || !set) {
+                return;
+            }
+            set.querySelectorAll('.param-tab').forEach((tab) => {
+                tab.classList.toggle('active', tab === button);
+            });
+            set.querySelectorAll('.param-panel').forEach((panel) => {
+                panel.classList.toggle('active', panel.getAttribute('data-panel') === tabId);
+            });
+        }
+
+        function syncProcessorParams() {
+            if (!processorSelect || !processorParams) {
+                return;
+            }
+            const selected = processorSelect.value;
+            const hasSelection = Boolean(selected);
+            processorParams.classList.toggle('is-hidden', !hasSelection);
+            if (processorParamName) {
+                processorParamName.textContent = selected || 'Processor';
+            }
+            paramSets.forEach((set) => {
+                const isMatch = hasSelection && set.dataset.processor === selected;
+                set.classList.toggle('active', isMatch);
+                if (isMatch) {
+                    const activeTab = set.querySelector('.param-tab.active') || set.querySelector('.param-tab');
+                    if (activeTab) {
+                        activateParamTab(activeTab, set);
+                    }
+                }
+            });
+        }
+
+        document.querySelectorAll('.param-tabs').forEach((tabs) => {
+            tabs.addEventListener('click', (event) => {
+                const button = event.target.closest('.param-tab');
+                if (!button) {
+                    return;
+                }
+                const set = button.closest('.param-set');
+                if (!set) {
+                    return;
+                }
+                activateParamTab(button, set);
+            });
+        });
+
+        if (processorSelect) {
+            processorSelect.addEventListener('change', syncProcessorParams);
+            syncProcessorParams();
+        }
 
         setStep(1);
     </script>
