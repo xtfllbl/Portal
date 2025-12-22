@@ -915,6 +915,10 @@
             color: var(--text-muted);
         }
 
+        .store-sync {
+            margin: -6px 0 14px;
+        }
+
         .form-grid {
             display: grid;
             gap: 18px;
@@ -1600,11 +1604,11 @@
 
                                 <div class="form-grid two">
                                     <div class="field">
-                                        <label for="merchant-dba">DBA *</label>
+                                        <label for="merchant-dba">DBA (MERCHANT NAME) *</label>
                                         <input class="input-field" id="merchant-dba" type="text" placeholder="Business Name">
                                     </div>
                                     <div class="field">
-                                        <label for="merchant-contact">Contact Name *</label>
+                                        <label for="merchant-contact">Contact Name</label>
                                         <input class="input-field" id="merchant-contact" type="text" placeholder="Full Name">
                                     </div>
                                 </div>
@@ -1615,7 +1619,7 @@
                                         <input class="input-field" id="merchant-email" type="email" placeholder="name@domain.com">
                                     </div>
                                     <div class="field">
-                                        <label for="merchant-phone">Phone Number *</label>
+                                        <label for="merchant-phone">Phone Number</label>
                                         <input class="input-field" id="merchant-phone" type="tel" placeholder="+1 555 555 5555">
                                     </div>
                                 </div>
@@ -1633,7 +1637,7 @@
 
                                 <div class="form-grid three">
                                     <div class="field">
-                                        <label for="merchant-zip">Zip Code *</label>
+                                        <label for="merchant-zip">Zip Code</label>
                                         <input class="input-field" id="merchant-zip" type="text" placeholder="Zip Code">
                                     </div>
                                     <div class="field">
@@ -1647,21 +1651,18 @@
                                 </div>
 
                                 <div class="form-grid two">
-                                    <div class="field">
-                                        <label for="merchant-modules">Modules and Privileges</label>
-                                        <div class="chip-input">
-                                            <span class="chip-plus">+</span>
-                                            <input class="chip-input-field" id="merchant-modules" type="text" placeholder="Dashboard, Steam, Transaction, Cloud">
-                                        </div>
-                                    </div>
-                                    <div class="field">
-                                        <label for="merchant-owner">Owner *</label>
+                                   <div class="field">
+                                        <label for="merchant-owner">Owner (Agent) *</label>
                                         <select class="input-field" id="merchant-owner">
                                             <option value="">Select Owner</option>
                                             <option>Payyou</option>
                                             <option>Valor Training ISO</option>
                                             <option>Nexus Partners</option>
                                         </select>
+                                    </div>
+                                         <div class="field">
+                                        <label for="merchant-currency">Currency</label>
+                                        <input class="input-field" id="merchant-currency" type="number" placeholder="Auto-filled">
                                     </div>
                                 </div>
 
@@ -1675,20 +1676,41 @@
                                 <h3 class="panel-title">Store Info</h3>
                                 <p class="panel-note">Add the primary store location and contact information.</p>
 
-                                <div class="field">
+                                <div class="field store-sync">
                                     <label class="checkline" for="store-same-merchant">
                                         <input id="store-same-merchant" type="checkbox">
                                         Same as Merchant Info
                                     </label>
                                 </div>
 
-                                <div class="form-grid two">
+                                <div class="form-grid three">
+                                    <div class="field">
+                                        <label for="store-mcc">MCC *</label>
+                                        <select class="input-field" id="store-mcc">
+                                            <option value="">Select MCC</option>
+                                            <option value="5311">5311 - Department Stores</option>
+                                            <option value="5411">5411 - Grocery Stores, Supermarkets</option>
+                                            <option value="5499">5499 - Miscellaneous Food Stores</option>
+                                            <option value="5541">5541 - Service Stations (Fuel)</option>
+                                            <option value="5542">5542 - Automated Fuel Dispensers</option>
+                                            <option value="5732">5732 - Electronics Stores</option>
+                                            <option value="5734">5734 - Computer Software Stores</option>
+                                            <option value="5812">5812 - Eating Places, Restaurants</option>
+                                            <option value="5814">5814 - Fast Food Restaurants</option>
+                                            <option value="5944">5944 - Jewelry Stores</option>
+                                            <option value="5999">5999 - Miscellaneous Retail Stores</option>
+                                            <option value="7011">7011 - Lodging, Hotels, Motels</option>
+                                            <option value="7299">7299 - Miscellaneous Personal Services</option>
+                                            <option value="7399">7399 - Business Services, Not Elsewhere Classified</option>
+                                            <option value="7999">7999 - Recreation Services</option>
+                                        </select>
+                                    </div>
                                     <div class="field">
                                         <label for="store-name">Store Name *</label>
                                         <input class="input-field" id="store-name" type="text" placeholder="Main Branch">
                                     </div>
                                     <div class="field">
-                                        <label for="store-manager">Manager *</label>
+                                        <label for="store-manager">Manager</label>
                                         <input class="input-field" id="store-manager" type="text" placeholder="Manager Name">
                                     </div>
                                 </div>
@@ -1699,7 +1721,7 @@
                                         <input class="input-field" id="store-phone" type="tel" placeholder="+1 555 555 5555">
                                     </div>
                                     <div class="field">
-                                        <label for="store-timezone">Time Zone *</label>
+                                        <label for="store-timezone">Time Zone</label>
                                         <select class="input-field" id="store-timezone">
                                             <option value="">Select Time Zone</option>
                                             <option>Eastern Standard Time (EST)</option>
@@ -2539,6 +2561,10 @@
                                                 <span class="review-value" id="review-store-name">Not provided</span>
                                             </div>
                                             <div class="review-item">
+                                                <span class="review-label">MCC</span>
+                                                <span class="review-value" id="review-store-mcc">Not provided</span>
+                                            </div>
+                                            <div class="review-item">
                                                 <span class="review-label">Manager</span>
                                                 <span class="review-value" id="review-store-manager">Not provided</span>
                                             </div>
@@ -2693,6 +2719,7 @@
             setReviewValue('review-merchant-owner', getFieldValue('merchant-owner'));
 
             setReviewValue('review-store-name', getFieldValue('store-name'));
+            setReviewValue('review-store-mcc', getFieldValue('store-mcc'));
             setReviewValue('review-store-manager', getFieldValue('store-manager'));
             setReviewValue('review-store-phone', getFieldValue('store-phone'));
             setReviewValue('review-store-address', formatAddress('store'));
@@ -2790,6 +2817,7 @@
             'merchant-zip',
             'merchant-owner',
             'store-name',
+            'store-mcc',
             'store-manager',
             'store-phone',
             'store-address1',
