@@ -509,26 +509,26 @@
 
         /* Modal for creating push template */
         .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.35); display:none; align-items:center; justify-content:center; padding:24px; z-index:50; }
-        .modal{ background:#fff; border:1px solid var(--border-color); border-radius:16px; max-width:900px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden; }
-        .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border-color); }
+        .modal{ background:#fff; border:1px solid var(--border-color); border-radius:16px; max-width:900px; width:100%; max-height:calc(100vh - 48px); box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden; display:flex; flex-direction:column; }
+        .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border-color); }
         .modal-title{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
         .modal-close{ border:none; background:#fff; cursor:pointer; color:var(--text-secondary); }
-        .modal-body{ display:grid; grid-template-columns: 1fr; gap:16px; padding:16px; }
-        .section{ border:1px solid var(--border-color); border-radius:12px; padding:14px; background:#fff; }
+        .modal-body{ display:flex; flex-direction:column; gap:12px; padding:14px; flex:1 1 auto; min-height:0; }
+        .section{ border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
         .section h5{ margin:0 0 10px 0; font-size:13px; letter-spacing:-.005em; }
         .section-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
         .section-title-group{ display:flex; flex-direction:column; gap:2px; }
         .section-note{ margin:0; font-size:12px; color:var(--text-secondary); }
         .section-head h5{ margin:0; }
-        .app-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; max-height:360px; overflow:auto; }
+        .app-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; overflow:auto; flex:1 1 auto; min-height:0; }
         .app-item{ display:flex; align-items:center; justify-content:flex-start; gap:12px; border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; cursor:pointer; }
         .app-item.selected{ border-color:#111827; box-shadow:0 0 0 2px rgba(17,24,39,.08); background:#f9fafb; }
         .app-left{ display:flex; align-items:center; gap:10px; }
         .app-icon{ width:28px; height:28px; border-radius:8px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#111827; }
         .app-name{ font-weight:600; font-size:13px; }
         .app-sub{ color:var(--text-secondary); font-size:12px; }
-        .modal-footer{ display:flex; justify-content:flex-end; gap:8px; padding:12px 16px; border-top:1px solid var(--border-color); }
-        .selected-app-row, .template-name-row, .version-row, .param-template-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-top:1px solid var(--border-color); background:#fff; }
+        .modal-footer{ display:flex; justify-content:flex-end; gap:8px; padding:10px 14px; border-top:1px solid var(--border-color); }
+        .selected-app-row, .template-name-row, .version-row, .param-template-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-top:1px solid var(--border-color); background:#fff; }
         .row-label{ min-width:130px; color:var(--text-secondary); font-weight:600; font-size:12.5px; }
         .selected-app-chip{ padding:10px 14px; background:#f3f4f6; border-radius:999px; font-weight:700; letter-spacing:-.005em; }
         .input-lg{ flex:1; width:100%; padding:14px 16px; border:1px solid var(--border-color); border-radius:14px; font-size:14px; }
@@ -771,11 +771,119 @@
                                 </div>
                             </div>
                         </label>
-                               <label class="app-item">
+                        <label class="app-item">
                             <div class="app-left">
                                 <input type="radio" name="chooseApp" class="radio" value="PAYwizard OPC">
                                 <div>
                                     <div class="app-name">PAYwizard OPC</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS EV">
+                                <div>
+                                    <div class="app-name">TSYS EV</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Fiserv VM">
+                                <div>
+                                    <div class="app-name">Fiserv VM</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS Q2">
+                                <div>
+                                    <div class="app-name">TSYS Q2</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS Q3">
+                                <div>
+                                    <div class="app-name">TSYS Q3</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Elavon Edge">
+                                <div>
+                                    <div class="app-name">Elavon Edge</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Worldpay Express">
+                                <div>
+                                    <div class="app-name">Worldpay Express</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Clover Flex">
+                                <div>
+                                    <div class="app-name">Clover Flex</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="PAX A920">
+                                <div>
+                                    <div class="app-name">PAX A920</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Ingenico AXIUM">
+                                <div>
+                                    <div class="app-name">Ingenico AXIUM</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Verifone Cloud">
+                                <div>
+                                    <div class="app-name">Verifone Cloud</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="NMI Gateway">
+                                <div>
+                                    <div class="app-name">NMI Gateway</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="PAYwizard Core">
+                                <div>
+                                    <div class="app-name">PAYwizard Core</div>
                                     <div class="app-sub">Parameter App</div>
                                 </div>
                             </div>
