@@ -1043,6 +1043,13 @@
             border-color: var(--accent);
         }
 
+        /* group buttons on right for mixed alignment */
+        .wizard-actions .action-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .helper-text {
             font-size: 12px;
             color: var(--text-muted);
@@ -2540,7 +2547,10 @@
 
                                 <div class="wizard-actions">
                                     <button class="btn secondary" type="button" data-goto="2">Back</button>
-                                    <button class="btn primary" type="button" data-goto="4">Review</button>
+                                    <span class="action-group">
+                                        <button class="btn secondary" type="button" id="saveTemplateBtn">Save as Template</button>
+                                        <button class="btn primary" type="button" data-goto="4">Review</button>
+                                    </span>
                                 </div>
                             </div>
 
@@ -2988,6 +2998,97 @@
         if (paywizardSelect) {
             paywizardSelect.addEventListener('change', syncPaywizardParams);
             syncPaywizardParams();
+        }
+
+        // --- Template Save/Load ---
+        const TEMPLATE_KEY = 'pw_device_param_templates';
+        const assignTemplateEl = document.getElementById('device-template');
+        const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+
+        function loadTemplates() {
+            try {
+                return JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveTemplates(list) {
+            localStorage.setItem(TEMPLATE_KEY, JSON.stringify(list));
+        }
+
+        function collectProcessorParams() {
+            const data = {};
+            document.querySelectorAll('#processorParams .input, #processorParams .input-field').forEach((el) => {
+                if (!el.id) return;
+                data[el.id] = el.value;
+            });
+            return data;
+        }
+
+        function collectPaywizardParams() {
+            const data = {};
+            document.querySelectorAll('#paywizardParams .input, #paywizardParams .input-field').forEach((el) => {
+                if (!el.id) return;
+                data[el.id] = el.value;
+            });
+            return data;
+        }
+
+        function applyTemplateToForm(tpl) {
+            if (!tpl) return;
+            if (tpl.processor) {
+                Object.entries(tpl.processor).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                });
+            }
+            if (tpl.paywizard) {
+                Object.entries(tpl.paywizard).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                });
+            }
+        }
+
+        function refreshAssignTemplateOptions() {
+            if (!assignTemplateEl) return;
+            const preserved = assignTemplateEl.value;
+            const templates = loadTemplates();
+            assignTemplateEl.innerHTML = '<option value="">Select Template</option>' +
+                templates.map((t, i) => `<option value="__tpl_${i}">${t.name}</option>`).join('');
+            if (preserved && [...assignTemplateEl.options].some(o => o.value === preserved)) {
+                assignTemplateEl.value = preserved;
+            }
+        }
+
+        if (assignTemplateEl) {
+            refreshAssignTemplateOptions();
+            assignTemplateEl.addEventListener('change', () => {
+                const val = assignTemplateEl.value;
+                if (!val || !val.startsWith('__tpl_')) return;
+                const idx = Number(val.replace('__tpl_', ''));
+                const templates = loadTemplates();
+                const tpl = templates[idx];
+                applyTemplateToForm(tpl);
+            });
+        }
+
+        if (saveTemplateBtn) {
+            saveTemplateBtn.addEventListener('click', () => {
+                const name = prompt('Template name');
+                if (!name) return;
+                const tpl = {
+                    name,
+                    processor: collectProcessorParams(),
+                    paywizard: collectPaywizardParams()
+                };
+                const templates = loadTemplates();
+                templates.unshift(tpl);
+                saveTemplates(templates);
+                refreshAssignTemplateOptions();
+                alert('Template saved');
+            });
         }
 
         setStep(1);
