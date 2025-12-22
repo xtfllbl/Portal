@@ -1069,8 +1069,14 @@
 
         .processor-params-head h4 {
             margin: 0;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
+        }
+
+        .processor-params-head h4::after {
+            content: none;
         }
 
         .processor-params-head p {
@@ -1088,6 +1094,7 @@
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
+            box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.10) inset;
         }
 
         .param-set {
@@ -1240,24 +1247,26 @@
         .review-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 16px;
-            margin-top: 16px;
+            gap: 12px;
+            margin-top: 12px;
         }
 
         .review-card {
             border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 16px;
-            background: #f9fafb;
+            border-radius: 12px;
+            padding: 14px;
+            background: #fbfbfc;
         }
 
         .review-card-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: var(--text-strong);
+            color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         .review-list {
@@ -1272,6 +1281,7 @@
             justify-content: space-between;
             gap: 10px;
             font-size: 13px;
+            padding: 2px 0;
         }
 
         .review-label {
@@ -1626,7 +1636,7 @@
 
                                 <div class="form-grid two">
                                     <div class="field">
-                                        <label for="merchant-address1">Address Line 1 *</label>
+                                        <label for="merchant-address1">Address Line 1</label>
                                         <input class="input-field" id="merchant-address1" type="text" placeholder="Street Address">
                                     </div>
                                     <div class="field">
@@ -1650,7 +1660,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-grid two">
+                                <div class="form-grid three">
                                    <div class="field">
                                         <label for="merchant-owner">Owner (Agent) *</label>
                                         <select class="input-field" id="merchant-owner">
@@ -1660,9 +1670,39 @@
                                             <option>Nexus Partners</option>
                                         </select>
                                     </div>
-                                         <div class="field">
-                                        <label for="merchant-currency">Currency</label>
-                                        <input class="input-field" id="merchant-currency" type="number" placeholder="Auto-filled">
+                                    <div class="field">
+                                        <label for="merchant-country">Country</label>
+                                        <select class="input-field" id="merchant-country">
+                                            <option value="">Select Country</option>
+                                            <option value="United States">United States</option>
+                                            <option value="Canada">Canada</option>
+                                            <option value="United Kingdom">United Kingdom</option>
+                                            <option value="Australia">Australia</option>
+                                            <option value="New Zealand">New Zealand</option>
+                                            <option value="Germany">Germany</option>
+                                            <option value="France">France</option>
+                                            <option value="Italy">Italy</option>
+                                            <option value="Spain">Spain</option>
+                                            <option value="Netherlands">Netherlands</option>
+                                            <option value="Sweden">Sweden</option>
+                                            <option value="Norway">Norway</option>
+                                            <option value="Denmark">Denmark</option>
+                                            <option value="Switzerland">Switzerland</option>
+                                            <option value="Japan">Japan</option>
+                                            <option value="China">China</option>
+                                            <option value="Hong Kong">Hong Kong</option>
+                                            <option value="Singapore">Singapore</option>
+                                            <option value="India">India</option>
+                                            <option value="Mexico">Mexico</option>
+                                            <option value="Brazil">Brazil</option>
+                                            <option value="South Africa">South Africa</option>
+                                            <option value="United Arab Emirates">United Arab Emirates</option>
+                                            <option value="Saudi Arabia">Saudi Arabia</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-currency">Currency *(</label>
+                                        <input class="input-field" id="merchant-currency" type="text" placeholder="Auto-filled">
                                     </div>
                                 </div>
 
@@ -1715,10 +1755,14 @@
                                     </div>
                                 </div>
 
-                                <div class="form-grid two">
+                                <div class="form-grid three">
                                     <div class="field">
                                         <label for="store-phone">Store Phone</label>
                                         <input class="input-field" id="store-phone" type="tel" placeholder="+1 555 555 5555">
+                                    </div>
+                                    <div class="field">
+                                        <label for="store-email">Email *</label>
+                                        <input class="input-field" id="store-email" type="email" placeholder="name@domain.com">
                                     </div>
                                     <div class="field">
                                         <label for="store-timezone">Time Zone</label>
@@ -1734,7 +1778,7 @@
 
                                 <div class="form-grid two">
                                     <div class="field">
-                                        <label for="store-address1">Address Line 1 *</label>
+                                        <label for="store-address1">Address Line 1</label>
                                         <input class="input-field" id="store-address1" type="text" placeholder="Street Address">
                                     </div>
                                     <div class="field">
@@ -1745,7 +1789,7 @@
 
                                 <div class="form-grid three">
                                     <div class="field">
-                                        <label for="store-zip">Zip Code *</label>
+                                        <label for="store-zip">Zip Code</label>
                                         <input class="input-field" id="store-zip" type="text" placeholder="Zip Code">
                                     </div>
                                     <div class="field">
@@ -1768,45 +1812,42 @@
                                 <h3 class="panel-title">Device Info</h3>
                                 <p class="panel-note">Assign the initial device used for transactions.</p>
 
-                                <div class="form-grid three">
+                                <div class="form-grid two">
                                     <div class="field">
                                         <label for="device-manufacturer">Manufacturer *</label>
                                         <select class="input-field" id="device-manufacturer">
-                                            <option value="">Select Manufacturer</option>
-                                            <option>Verifone</option>
-                                            <option>PAX</option>
-                                            <option>Ingenico</option>
+                                            <option value="">WizarPOS</option>
+                                        
                                         </select>
                                     </div>
+                                      <div class="field">
+                                        <label for="device-tpn">Terminal S/N *(Hardware serial number)</label>
+                                        <input class="input-field" id="device-tpn" type="text" placeholder="1567246">
+                                    </div>
+                         
+                    
+                                </div>
+
+                                <div class="form-grid two">
+                        
                                     <div class="field">
+                                        <label for="device-label">Terminal Name (Device Label)</label>
+                                        <input class="input-field" id="device-label" type="text" placeholder="Front Counter">
+                                    </div>
+                                
+                                           <div class="field">
                                         <label for="device-model">Device Model *</label>
                                         <select class="input-field" id="device-model">
                                             <option value="">Select Model</option>
-                                            <option>P3</option>
-                                            <option>P2</option>
-                                            <option>V400m</option>
-                                        </select>
-                                    </div>
-                                    <div class="field">
-                                        <label for="device-app">Application Sign *</label>
-                                        <select class="input-field" id="device-app">
-                                            <option value="">Select Signature</option>
-                                            <option>CRDT</option>
-                                            <option>DEBIT</option>
-                                            <option>ECOM</option>
+                                            <option>Q2</option>
+                                            <option>Q3V</option>
+                                            <option>Q3PRT</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <div class="form-grid three">
-                                    <div class="field">
-                                        <label for="device-routing">Routing Type *</label>
-                                        <select class="input-field" id="device-routing">
-                                            <option value="">Select Routing</option>
-                                            <option>Simple</option>
-                                            <option>Multi-processor</option>
-                                        </select>
-                                    </div>
+                                <div class="form-grid two">
+                                  
                                     <div class="field">
                                         <label for="device-processor">Processor *</label>
                                         <select class="input-field" id="device-processor">
@@ -1817,24 +1858,15 @@
                                         </select>
                                     </div>
                                     <div class="field">
-                                        <label for="device-tpn">TPN (Terminal ID) *</label>
-                                        <input class="input-field" id="device-tpn" type="text" placeholder="1567246">
-                                        <span class="helper-text">Terminal ID assigned by the processor.</span>
+                                        <label for="processor-version">Template Version</label>
+                                        <select class="input-field" id="processor-version" disabled>
+                                            <option value="">Select Version</option>
+                                        </select>
                                     </div>
+                                
                                 </div>
 
                                 <div class="form-grid two">
-                                    <div class="field">
-                                        <label for="device-bin">BIN *</label>
-                                        <input class="input-field" id="device-bin" type="text" placeholder="123456">
-                                    </div>
-                                    <div class="field">
-                                        <label for="device-label">Device Label</label>
-                                        <input class="input-field" id="device-label" type="text" placeholder="Front Counter">
-                                    </div>
-                                </div>
-
-                                <div class="form-grid three">
                                     <div class="field">
                                         <label for="device-template">Assign Template</label>
                                         <select class="input-field" id="device-template">
@@ -1844,10 +1876,7 @@
                                             <option>Convenience - Express</option>
                                         </select>
                                     </div>
-                                    <div class="field">
-                                        <label for="device-promo">Promo Code</label>
-                                        <input class="input-field" id="device-promo" type="text" placeholder="Optional">
-                                    </div>
+                
                                     <div class="field">
                                         <label for="device-paywizard">Paywizard Integration</label>
                                         <select class="input-field" id="device-paywizard">
@@ -2531,24 +2560,12 @@
                                                 <span class="review-value" id="review-merchant-dba">Not provided</span>
                                             </div>
                                             <div class="review-item">
-                                                <span class="review-label">Contact</span>
-                                                <span class="review-value" id="review-merchant-contact">Not provided</span>
+                                                <span class="review-label">Owner</span>
+                                                <span class="review-value" id="review-merchant-owner">Not provided</span>
                                             </div>
                                             <div class="review-item">
                                                 <span class="review-label">Email</span>
                                                 <span class="review-value" id="review-merchant-email">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Phone</span>
-                                                <span class="review-value" id="review-merchant-phone">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Address</span>
-                                                <span class="review-value" id="review-merchant-address">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Owner</span>
-                                                <span class="review-value" id="review-merchant-owner">Not provided</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2565,20 +2582,8 @@
                                                 <span class="review-value" id="review-store-mcc">Not provided</span>
                                             </div>
                                             <div class="review-item">
-                                                <span class="review-label">Manager</span>
-                                                <span class="review-value" id="review-store-manager">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Phone</span>
-                                                <span class="review-value" id="review-store-phone">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Address</span>
-                                                <span class="review-value" id="review-store-address">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Time Zone</span>
-                                                <span class="review-value" id="review-store-timezone">Not provided</span>
+                                                <span class="review-label">Email</span>
+                                                <span class="review-value" id="review-store-email">Not provided</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2587,28 +2592,20 @@
                                         <div class="review-card-title">Device</div>
                                         <div class="review-list">
                                             <div class="review-item">
-                                                <span class="review-label">Manufacturer</span>
-                                                <span class="review-value" id="review-device-manufacturer">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Model</span>
-                                                <span class="review-value" id="review-device-model">Not provided</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Application</span>
-                                                <span class="review-value" id="review-device-app">Not provided</span>
+                                                <span class="review-label">Serial Number</span>
+                                                <span class="review-value" id="review-device-tpn">Not provided</span>
                                             </div>
                                             <div class="review-item">
                                                 <span class="review-label">Processor</span>
                                                 <span class="review-value" id="review-device-processor">Not provided</span>
                                             </div>
                                             <div class="review-item">
-                                                <span class="review-label">TPN</span>
-                                                <span class="review-value" id="review-device-tpn">Not provided</span>
+                                                <span class="review-label">Template Version</span>
+                                                <span class="review-value" id="review-processor-version">Not provided</span>
                                             </div>
                                             <div class="review-item">
-                                                <span class="review-label">BIN</span>
-                                                <span class="review-value" id="review-device-bin">Not provided</span>
+                                                <span class="review-label">Paywizard Integration</span>
+                                                <span class="review-value" id="review-device-paywizard">Not provided</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2712,25 +2709,18 @@
 
         function updateReview() {
             setReviewValue('review-merchant-dba', getFieldValue('merchant-dba'));
-            setReviewValue('review-merchant-contact', getFieldValue('merchant-contact'));
-            setReviewValue('review-merchant-email', getFieldValue('merchant-email'));
-            setReviewValue('review-merchant-phone', getFieldValue('merchant-phone'));
-            setReviewValue('review-merchant-address', formatAddress('merchant'));
             setReviewValue('review-merchant-owner', getFieldValue('merchant-owner'));
+            setReviewValue('review-merchant-email', getFieldValue('merchant-email'));
 
             setReviewValue('review-store-name', getFieldValue('store-name'));
             setReviewValue('review-store-mcc', getFieldValue('store-mcc'));
-            setReviewValue('review-store-manager', getFieldValue('store-manager'));
-            setReviewValue('review-store-phone', getFieldValue('store-phone'));
-            setReviewValue('review-store-address', formatAddress('store'));
-            setReviewValue('review-store-timezone', getFieldValue('store-timezone'));
+            setReviewValue('review-store-email', getFieldValue('store-email'));
 
-            setReviewValue('review-device-manufacturer', getFieldValue('device-manufacturer'));
-            setReviewValue('review-device-model', getFieldValue('device-model'));
-            setReviewValue('review-device-app', getFieldValue('device-app'));
-            setReviewValue('review-device-processor', getFieldValue('device-processor'));
             setReviewValue('review-device-tpn', getFieldValue('device-tpn'));
-            setReviewValue('review-device-bin', getFieldValue('device-bin'));
+            setReviewValue('review-device-processor', getFieldValue('device-processor'));
+            setReviewValue('review-processor-version', (document.getElementById('processor-version') || {}).value || '');
+            const pw = document.getElementById('device-paywizard');
+            setReviewValue('review-device-paywizard', pw ? (pw.value || '') : '');
         }
 
         document.querySelectorAll('[data-goto]').forEach((btn) => {
@@ -2765,6 +2755,7 @@
         const syncPairs = [
             ['merchant-dba', 'store-name'],
             ['merchant-contact', 'store-manager'],
+            ['merchant-email', 'store-email'],
             ['merchant-phone', 'store-phone'],
             ['merchant-address1', 'store-address1'],
             ['merchant-address2', 'store-address2'],
@@ -2807,31 +2798,12 @@
 
         const reviewFieldIds = [
             'merchant-dba',
-            'merchant-contact',
             'merchant-email',
-            'merchant-phone',
-            'merchant-address1',
-            'merchant-address2',
-            'merchant-city',
-            'merchant-state',
-            'merchant-zip',
-            'merchant-owner',
             'store-name',
-            'store-mcc',
-            'store-manager',
-            'store-phone',
-            'store-address1',
-            'store-address2',
-            'store-city',
-            'store-state',
-            'store-zip',
-            'store-timezone',
-            'device-manufacturer',
-            'device-model',
-            'device-app',
+            'store-email',
             'device-processor',
             'device-tpn',
-            'device-bin'
+            'device-paywizard'
         ];
 
         reviewFieldIds.forEach((id) => {
@@ -2851,7 +2823,16 @@
             });
         });
 
+        // Keep review in sync when version changes
+        const processorVersionSelect = document.getElementById('processor-version');
+        if (processorVersionSelect) {
+            processorVersionSelect.addEventListener('change', () => {
+                if (currentStep === 4) updateReview();
+            });
+        }
+
         const processorSelect = document.getElementById('device-processor');
+        // processorVersionSelect is defined above for review sync
         const processorParams = document.getElementById('processorParams');
         const processorParamName = document.getElementById('processorParamName');
         const paramSets = Array.from(document.querySelectorAll('.param-set'));
@@ -2869,6 +2850,39 @@
             });
         }
 
+        // Processor -> Template Version list
+        const templateVersions = {
+            TSYS: [
+                'V1.00.16E_20250606',
+                'V1.00.15A_20250312',
+                'V1.00.14D_20250105',
+                'V1.00.13B_20241018',
+                'V1.00.12F_20240809',
+                'V1.00.11C_20240521'
+            ],
+            'First Data': [],
+            'Worldpay': []
+        };
+
+        function populateProcessorVersions(processor) {
+            if (!processorVersionSelect) return;
+            const list = templateVersions[processor] || [];
+            processorVersionSelect.innerHTML = '';
+            if (!processor) {
+                processorVersionSelect.innerHTML = '<option value="">Select Version</option>';
+                processorVersionSelect.disabled = true;
+                return;
+            }
+            list.forEach((v, idx) => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v;
+                if (idx === 0) opt.selected = true; // default to latest
+                processorVersionSelect.appendChild(opt);
+            });
+            processorVersionSelect.disabled = list.length === 0;
+        }
+
         function syncProcessorParams() {
             if (!processorSelect || !processorParams) {
                 return;
@@ -2878,6 +2892,10 @@
             processorParams.classList.toggle('is-hidden', !hasSelection);
             if (processorParamName) {
                 processorParamName.textContent = selected || 'Processor';
+            }
+            populateProcessorVersions(selected);
+            if (currentStep === 4) {
+                updateReview();
             }
             paramSets.forEach((set) => {
                 const isMatch = hasSelection && set.dataset.processor === selected;
@@ -2908,6 +2926,52 @@
         if (processorSelect) {
             processorSelect.addEventListener('change', syncProcessorParams);
             syncProcessorParams();
+        }
+
+        // Country-Currency linkage
+        const countryEl = document.getElementById('merchant-country');
+        const currencyEl = document.getElementById('merchant-currency');
+        const countryToCurrency = {
+            'United States': 'USD',
+            'Canada': 'CAD',
+            'United Kingdom': 'GBP',
+            'Australia': 'AUD',
+            'New Zealand': 'NZD',
+            'Germany': 'EUR',
+            'France': 'EUR',
+            'Italy': 'EUR',
+            'Spain': 'EUR',
+            'Netherlands': 'EUR',
+            'Sweden': 'SEK',
+            'Norway': 'NOK',
+            'Denmark': 'DKK',
+            'Switzerland': 'CHF',
+            'Japan': 'JPY',
+            'China': 'CNY',
+            'Hong Kong': 'HKD',
+            'Singapore': 'SGD',
+            'India': 'INR',
+            'Mexico': 'MXN',
+            'Brazil': 'BRL',
+            'South Africa': 'ZAR',
+            'United Arab Emirates': 'AED',
+            'Saudi Arabia': 'SAR'
+        };
+
+        function syncCurrencyByCountry() {
+            if (!countryEl || !currencyEl) return;
+            const name = getFieldValue('merchant-country');
+            currencyEl.value = countryToCurrency[name] || '';
+            if (currentStep === 4) {
+                updateReview();
+            }
+        }
+
+        if (countryEl) {
+            countryEl.addEventListener('change', syncCurrencyByCountry);
+            countryEl.addEventListener('input', syncCurrencyByCountry);
+            // Initialize currency if a country is already selected
+            syncCurrencyByCountry();
         }
 
         const paywizardSelect = document.getElementById('device-paywizard');
