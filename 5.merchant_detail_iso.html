@@ -769,21 +769,6 @@
             color: var(--text-muted);
         }
 
-        .progress-wrap {
-            width: 100%;
-            height: 8px;
-            background: #f1f5f9;
-            border-radius: 999px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 65%;
-            background: var(--accent);
-        }
-
         .section-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -852,10 +837,28 @@
             min-width: 920px;
         }
 
+        .store-grid-row {
+            cursor: pointer;
+            transition: background-color 0.18s ease;
+        }
+
+        .store-grid-row:hover {
+            background: #f9fafb;
+        }
+
+        .store-grid-row.active {
+            background: #f2f6ff;
+        }
+
+        .store-grid-row:focus {
+            outline: 2px solid #c7d2fe;
+            outline-offset: -2px;
+        }
+
         .device-grid-head,
         .device-grid-row {
-            grid-template-columns: 140px 140px 160px 120px 130px 120px 140px;
-            min-width: 980px;
+            grid-template-columns: 140px 130px 180px 140px 120px 130px 120px;
+            min-width: 960px;
         }
 
         .status-badge {
@@ -1011,6 +1014,165 @@
             margin-top: 2px;
         }
 
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            width: min(860px, 100%);
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18);
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 48px);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-note {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f9fafb;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .modal-close::before,
+        .modal-close::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: #111827;
+            transform-origin: center;
+        }
+
+        .modal-close::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .modal-close::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .modal-body {
+            padding: 18px 20px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow: auto;
+        }
+
+        .modal-actions {
+            padding: 12px 20px 18px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #fafafa;
+        }
+
+        .modal-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 4px;
+        }
+
+        .modal-section-note {
+            margin: 0 0 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-grid.three {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #d7dde6;
+            padding: 8px 2px 10px;
+            font-size: 15px;
+            color: var(--text-main);
+            background: transparent;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field::placeholder {
+            color: #9ca3af;
+        }
+
+        .input-field:focus {
+            border-bottom-color: var(--accent);
+            box-shadow: 0 2px 0 0 var(--accent);
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
         @media (max-width: 1100px) {
             .page-shell {
                 flex-direction: column;
@@ -1046,6 +1208,11 @@
 
             .store-card {
                 margin: 16px 12px;
+            }
+
+            .form-grid.two,
+            .form-grid.three {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1269,51 +1436,50 @@
                     <section class="profile-card">
                         <div class="profile-top">
                             <div class="profile-main">
-                                <div class="avatar">JO</div>
+                                <div class="avatar">TT</div>
                                 <div>
-                                    <h2 class="merchant-title">Joe's Famous Pizza</h2>
-                                    <div class="merchant-meta">ID: 82910293 | MCC: 5812</div>
+                                    <h2 class="merchant-title">Tasty Treats (NYC)</h2>
+                                    <div class="merchant-meta">Merchant ID: 82910293 | MCC: 5812</div>
                                 </div>
                                 <span class="status-pill">Active</span>
                             </div>
                             <div class="profile-actions">
                                 <button class="btn secondary" type="button">Edit Profile</button>
-                                <button class="btn primary" type="button">Add Store</button>
+                                <button class="btn primary open-add-store" type="button">Add Store</button>
                             </div>
                         </div>
 
                         <div class="profile-grid">
                             <div class="info-block">
-                                <div class="info-title">Contact Info</div>
-                                <div class="info-value">Joe Dough</div>
-                                <div class="info-sub">joe@pizza.com</div>
-                                <div class="info-sub">555-0123</div>
+                                <div class="info-title">DBA (Merchant Name)</div>
+                                <div class="info-value">Tasty Treats (NYC)</div>
+                                <div class="info-sub">Owner: Valor Training ISO</div>
+                                <div class="info-sub">Country: United States</div>
                             </div>
                             <div class="info-block">
-                                <div class="info-title">Legal Entity</div>
-                                <div class="info-value">Joseph Pizza LLC</div>
-                                <div class="info-sub">Corp ID: XX-XXXXXX</div>
+                                <div class="info-title">Primary Contact</div>
+                                <div class="info-value">Michael Valor</div>
+                                <div class="info-sub">mg123@valor.com</div>
+                                <div class="info-sub">555-555-5555</div>
+                            </div>
+                            <div class="info-block">
+                                <div class="info-title">Business Address</div>
+                                <div class="info-value">123 Main St</div>
+                                <div class="info-sub">Suite 500</div>
+                                <div class="info-sub">New York, NY 10001</div>
                             </div>
                             <div class="info-block">
                                 <div class="info-title">Portfolio Stats</div>
                                 <div class="stat-row">
                                     <div>
-                                        <div class="stat-number">1</div>
+                                        <div class="stat-number" id="store-count">2</div>
                                         <div class="stat-label">Stores</div>
                                     </div>
                                     <div>
-                                        <div class="stat-number">2</div>
+                                        <div class="stat-number" id="device-count">3</div>
                                         <div class="stat-label">Devices</div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="info-block">
-                                <div class="info-title">Processing Limit</div>
-                                <div class="info-value">$65k / $100k Monthly Vol</div>
-                                <div class="progress-wrap">
-                                    <div class="progress-bar"></div>
-                                </div>
-                                <div class="info-sub">65% utilized</div>
                             </div>
                         </div>
                     </section>
@@ -1322,12 +1488,9 @@
                         <div class="section-head">
                             <div>
                                 <h3 class="section-title">Stores (Locations)</h3>
-                                <div class="section-subtitle">2 stores, 3 devices</div>
+                                <div class="section-subtitle" id="store-summary-subtitle">2 stores, 3 devices. Click a store to filter devices.</div>
                             </div>
-                            <div class="section-actions">
-                                <button class="btn secondary sm" type="button">More</button>
-                                <button class="btn primary sm" type="button">Add Store</button>
-                            </div>
+                  
                         </div>
                         <div class="grid-scroll">
                             <div class="grid-head store-grid-head">
@@ -1337,25 +1500,25 @@
                                 <div>Devices</div>
                                 <div>Status</div>
                             </div>
-                            <div class="grid-row store-grid-row">
+                            <div class="grid-row store-grid-row" data-store-id="st_123" data-store-name="Downtown Location" role="button" tabindex="0" aria-pressed="false">
                                 <div>
                                     Downtown Location
                                     <div class="cell-sub">ID: st_123</div>
                                 </div>
                                 <div>123 Main St, New York, NY</div>
                                 <div>888299100293</div>
-                                <div>2 Active</div>
-                                <div><span class="status-badge active">Active</span></div>
+                                <div data-role="device-count">2 Active</div>
+                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
                             </div>
-                            <div class="grid-row store-grid-row">
+                            <div class="grid-row store-grid-row" data-store-id="st_204" data-store-name="Midtown Location" role="button" tabindex="0" aria-pressed="false">
                                 <div>
                                     Midtown Location
                                     <div class="cell-sub">ID: st_204</div>
                                 </div>
                                 <div>55 Lexington Ave, New York, NY</div>
                                 <div>888299100294</div>
-                                <div>1 Pending</div>
-                                <div><span class="status-badge pending">Pending</span></div>
+                                <div data-role="device-count">1 Pending</div>
+                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
                             </div>
                         </div>
                     </section>
@@ -1363,50 +1526,50 @@
                     <section class="section-card">
                         <div class="section-head">
                             <div>
-                                <h3 class="section-title">Devices in Store: Downtown Location</h3>
-                                <div class="section-subtitle">3 devices, last sync 10/14/24</div>
+                                <h3 class="section-title" id="device-section-title">Devices</h3>
+                                <div class="section-subtitle" id="device-filter-subtitle">All stores, 3 devices total.</div>
                             </div>
                             <div class="section-actions">
-                                <button class="btn secondary sm" type="button">Move</button>
-                                <button class="btn primary sm" type="button">Add Device</button>
+                                <button class="btn secondary sm" type="button" id="clear-store-filter" hidden>All Stores</button>
+                                <button class="btn primary sm open-add-device" type="button">Add Device</button>
                             </div>
                         </div>
                         <div class="grid-scroll">
                             <div class="grid-head device-grid-head">
-                                <div>TPN</div>
-                                <div>Device Model</div>
-                                <div>Application</div>
+                                <div>SN</div>
+                                <div>Model</div>
+                                <div>Store</div>
+                                <div>PROCESSOR</div>
                                 <div>Status</div>
                                 <div>Boarded On</div>
                                 <div>Last Txn</div>
-                                <div>Serial No</div>
                             </div>
-                            <div class="grid-row device-grid-row">
+                            <div class="grid-row device-grid-row" data-store-id="st_123">
                                 <div>156724348539</div>
                                 <div>P3</div>
-                                <div>CRDT</div>
+                                <div>Downtown Location</div>
+                                <div>TSYS</div>
                                 <div><span class="status-badge active">Active</span></div>
                                 <div>10/14/24</div>
                                 <div>10/14/24</div>
-                                <div>SN-10293</div>
                             </div>
-                            <div class="grid-row device-grid-row">
+                            <div class="grid-row device-grid-row" data-store-id="st_123">
                                 <div>156724348540</div>
                                 <div>P2</div>
-                                <div>Debit</div>
+                                <div>Downtown Location</div>
+                                <div>FISERV</div>
                                 <div><span class="status-badge active">Active</span></div>
                                 <div>10/10/24</div>
                                 <div>10/14/24</div>
-                                <div>SN-10294</div>
                             </div>
-                            <div class="grid-row device-grid-row">
+                            <div class="grid-row device-grid-row" data-store-id="st_204">
                                 <div>156724348541</div>
                                 <div>VT #1</div>
-                                <div>E-Com</div>
-                                <div><span class="status-badge offline">Offline</span></div>
+                                <div>Midtown Location</div>
+                                <div>Worldpay</div>
+                                <div><span class="status-badge pending">Pending</span></div>
                                 <div>09/30/24</div>
                                 <div>09/30/24</div>
-                                <div>SN-10295</div>
                             </div>
                         </div>
                     </section>
@@ -1414,5 +1577,631 @@
             </main>
         </div>
     </div>
+    <div class="modal-overlay" id="store-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-modal-title">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="store-modal-title">Add Store</h3>
+                    <p class="modal-note">Add the store location and contact information.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="store-modal" aria-label="Close"></button>
+            </div>
+            <form id="add-store-form" autocomplete="off">
+                <div class="modal-body">
+                    <div>
+                        <h4 class="modal-section-title">Store Info</h4>
+                        <p class="modal-section-note">Reference the onboarding step for store setup.</p>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="field">
+                            <label for="store-mcc-modal">MCC *</label>
+                            <select class="input-field" id="store-mcc-modal" required>
+                                <option value="">Select MCC</option>
+                                <option value="5311">5311 - Department Stores</option>
+                                <option value="5411">5411 - Grocery Stores, Supermarkets</option>
+                                <option value="5499">5499 - Miscellaneous Food Stores</option>
+                                <option value="5541">5541 - Service Stations (Fuel)</option>
+                                <option value="5732">5732 - Electronics Stores</option>
+                                <option value="5812">5812 - Eating Places, Restaurants</option>
+                                <option value="5814">5814 - Fast Food Restaurants</option>
+                                <option value="5999">5999 - Miscellaneous Retail Stores</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="store-name-modal">Store Name *</label>
+                            <input class="input-field" id="store-name-modal" type="text" placeholder="Main Branch" required>
+                        </div>
+                        <div class="field">
+                            <label for="store-mid-modal">Store MID</label>
+                            <input class="input-field" id="store-mid-modal" type="text" placeholder="Auto-assigned">
+                        </div>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="field">
+                            <label for="store-manager-modal">Manager</label>
+                            <input class="input-field" id="store-manager-modal" type="text" placeholder="Manager Name">
+                        </div>
+                        <div class="field">
+                            <label for="store-phone-modal">Store Phone</label>
+                            <input class="input-field" id="store-phone-modal" type="tel" placeholder="+1 555 555 5555">
+                        </div>
+                        <div class="field">
+                            <label for="store-email-modal">Email *</label>
+                            <input class="input-field" id="store-email-modal" type="email" placeholder="name@domain.com" required>
+                        </div>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="field">
+                            <label for="store-timezone-modal">Time Zone</label>
+                            <select class="input-field" id="store-timezone-modal">
+                                <option value="">Select Time Zone</option>
+                                <option>Eastern Standard Time (EST)</option>
+                                <option>Central Standard Time (CST)</option>
+                                <option>Mountain Standard Time (MST)</option>
+                                <option>Pacific Standard Time (PST)</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="store-address1-modal">Address Line 1</label>
+                            <input class="input-field" id="store-address1-modal" type="text" placeholder="Street Address">
+                        </div>
+                        <div class="field">
+                            <label for="store-address2-modal">Address Line 2</label>
+                            <input class="input-field" id="store-address2-modal" type="text" placeholder="Suite or Unit">
+                        </div>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="field">
+                            <label for="store-zip-modal">Zip Code</label>
+                            <input class="input-field" id="store-zip-modal" type="text" placeholder="Zip Code">
+                        </div>
+                        <div class="field">
+                            <label for="store-city-modal">City</label>
+                            <input class="input-field" id="store-city-modal" type="text" placeholder="City">
+                        </div>
+                        <div class="field">
+                            <label for="store-state-modal">State</label>
+                            <input class="input-field" id="store-state-modal" type="text" placeholder="State">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="store-modal">Cancel</button>
+                    <button class="btn primary" type="submit">Add Store</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="device-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="device-modal-title">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="device-modal-title">Add Device</h3>
+                    <p class="modal-note">Assign a new device and its onboarding settings.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="device-modal" aria-label="Close"></button>
+            </div>
+            <form id="add-device-form" autocomplete="off">
+                <div class="modal-body">
+                    <div>
+                        <h4 class="modal-section-title">Device Assignment</h4>
+                        <p class="modal-section-note">Choose the store and activation details.</p>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="field">
+                            <label for="device-store">Store *</label>
+                            <select class="input-field" id="device-store" required>
+                                <option value="">Select Store</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="device-application-modal">Application</label>
+                            <select class="input-field" id="device-application-modal">
+                                <option value="CRDT">CRDT</option>
+                                <option value="Debit">Debit</option>
+                                <option value="E-Com">E-Com</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="device-status-modal">Status</label>
+                            <select class="input-field" id="device-status-modal">
+                                <option value="Active">Active</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Offline">Offline</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid three">
+                        <div class="field">
+                            <label for="device-boarded-on">Boarded On</label>
+                            <input class="input-field" id="device-boarded-on" type="date">
+                        </div>
+                        <div class="field">
+                            <label for="device-last-txn">Last Txn</label>
+                            <input class="input-field" id="device-last-txn" type="date">
+                        </div>
+                        <div class="field">
+                            <label for="device-manufacturer-modal">Manufacturer *</label>
+                            <select class="input-field" id="device-manufacturer-modal" required>
+                                <option value="">Select Manufacturer</option>
+                                <option>WizarPOS</option>
+                                <option>PAX</option>
+                                <option>Ingenico</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="modal-section-title">Device Info</h4>
+                        <p class="modal-section-note">Mirror the device info step from onboarding.</p>
+                    </div>
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="device-tpn-modal">Terminal S/N *</label>
+                            <input class="input-field" id="device-tpn-modal" type="text" placeholder="1567246" required>
+                        </div>
+                        <div class="field">
+                            <label for="device-label-modal">Terminal Name</label>
+                            <input class="input-field" id="device-label-modal" type="text" placeholder="Front Counter">
+                        </div>
+                    </div>
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="device-model-modal">Device Model *</label>
+                            <select class="input-field" id="device-model-modal" required>
+                                <option value="">Select Model</option>
+                                <option>P3</option>
+                                <option>P2</option>
+                                <option>VT #1</option>
+                                <option>Q2</option>
+                                <option>Q3V</option>
+                                <option>Q3PRT</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="device-processor-modal">Processor *</label>
+                            <select class="input-field" id="device-processor-modal" required>
+                                <option value="">Select Processor</option>
+                                <option value="TSYS">TSYS</option>
+                                <option value="FISERV">FISERV</option>
+                                <option value="Worldpay">Worldpay</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="processor-version-modal">Template Version</label>
+                            <select class="input-field" id="processor-version-modal" disabled>
+                                <option value="">Select Version</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="device-template-modal">Assign Template</label>
+                            <select class="input-field" id="device-template-modal">
+                                <option value="">Select Template</option>
+                                <option>Retail - Quick Start</option>
+                                <option>Restaurant - Full Service</option>
+                                <option>Convenience - Express</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="device-paywizard-modal">Paywizard Integration</label>
+                            <select class="input-field" id="device-paywizard-modal">
+                                <option value="Disable" selected>Disable</option>
+                                <option value="Enable">Enable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="device-modal">Cancel</button>
+                    <button class="btn primary" type="submit">Add Device</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        const storeGrid = document.querySelector('.store-grid-head')?.parentElement;
+        const deviceGrid = document.querySelector('.device-grid-head')?.parentElement;
+        const storeCountEl = document.getElementById('store-count');
+        const deviceCountEl = document.getElementById('device-count');
+        const storeSummarySubtitle = document.getElementById('store-summary-subtitle');
+        const deviceSubtitle = document.getElementById('device-filter-subtitle');
+        const clearFilterButton = document.getElementById('clear-store-filter');
+
+        const storeModal = document.getElementById('store-modal');
+        const deviceModal = document.getElementById('device-modal');
+        const addStoreForm = document.getElementById('add-store-form');
+        const addDeviceForm = document.getElementById('add-device-form');
+        const deviceStoreSelect = document.getElementById('device-store');
+        const processorSelect = document.getElementById('device-processor-modal');
+        const processorVersionSelect = document.getElementById('processor-version-modal');
+        const deviceBoardedInput = document.getElementById('device-boarded-on');
+        const deviceLastTxnInput = document.getElementById('device-last-txn');
+
+        let activeStoreId = null;
+
+        const templateVersions = {
+            TSYS: [
+                'V1.00.16E_20250606',
+                'V1.00.15A_20250312',
+                'V1.00.14D_20250105',
+                'V1.00.13B_20241018'
+            ],
+            FISERV: [],
+            Worldpay: []
+        };
+
+        const getStoreRows = () => Array.from(document.querySelectorAll('.store-grid-row[data-store-id]'));
+        const getDeviceRows = () => Array.from(document.querySelectorAll('.device-grid-row[data-store-id]'));
+
+        const formatDate = (value) => {
+            if (!value) return '';
+            const [year, month, day] = value.split('-');
+            if (!year || !month || !day) return value;
+            return `${month}/${day}/${year.slice(-2)}`;
+        };
+
+        const generateStoreId = () => `st_${Math.floor(100 + Math.random() * 900)}`;
+        const generateMid = () => `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
+
+        const updateStatusBadge = (badge, status) => {
+            if (!badge) return;
+            const statusClass = status.toLowerCase();
+            badge.classList.remove('active', 'pending', 'offline');
+            badge.classList.add(statusClass);
+            badge.textContent = status;
+        };
+
+        const updateStoreDeviceSummaries = () => {
+            const deviceRows = getDeviceRows();
+            const summaryMap = new Map();
+
+            deviceRows.forEach((row) => {
+                const storeId = row.dataset.storeId;
+                if (!storeId) return;
+                const statusText = row.querySelector('.status-badge')?.textContent?.trim() || 'Active';
+                const current = summaryMap.get(storeId) || { total: 0, statuses: {} };
+                current.total += 1;
+                current.statuses[statusText] = (current.statuses[statusText] || 0) + 1;
+                summaryMap.set(storeId, current);
+            });
+
+            getStoreRows().forEach((row) => {
+                const storeId = row.dataset.storeId;
+                const summary = summaryMap.get(storeId) || { total: 0, statuses: {} };
+                const statusKeys = Object.keys(summary.statuses);
+                let label = '0 Devices';
+
+                if (summary.total > 0 && statusKeys.length === 1) {
+                    label = `${summary.total} ${statusKeys[0]}`;
+                } else if (summary.total > 0) {
+                    label = `${summary.total} Mixed`;
+                }
+
+                const countCell = row.querySelector('[data-role="device-count"]');
+                if (countCell) {
+                    countCell.textContent = label;
+                }
+
+                const statusBadge = row.querySelector('[data-role="store-status"]');
+                if (statusBadge) {
+                    let storeStatus = 'Pending';
+                    if (summary.statuses.Active) {
+                        storeStatus = 'Active';
+                    } else if (summary.statuses.Pending) {
+                        storeStatus = 'Pending';
+                    } else if (summary.statuses.Offline) {
+                        storeStatus = 'Offline';
+                    }
+                    updateStatusBadge(statusBadge, storeStatus);
+                }
+            });
+        };
+
+        const updateCounts = () => {
+            const storeTotal = getStoreRows().length;
+            const deviceTotal = getDeviceRows().length;
+            if (storeCountEl) storeCountEl.textContent = storeTotal;
+            if (deviceCountEl) deviceCountEl.textContent = deviceTotal;
+            if (storeSummarySubtitle) {
+                storeSummarySubtitle.textContent = `${storeTotal} stores, ${deviceTotal} devices. Click a store to filter devices.`;
+            }
+            updateStoreDeviceSummaries();
+        };
+
+        const setActiveStore = (storeId) => {
+            activeStoreId = storeId || null;
+            const deviceRows = getDeviceRows();
+            let visibleCount = 0;
+
+            deviceRows.forEach((row) => {
+                const matches = !activeStoreId || row.dataset.storeId === activeStoreId;
+                row.style.display = matches ? 'grid' : 'none';
+                if (matches) {
+                    visibleCount += 1;
+                }
+            });
+
+            getStoreRows().forEach((row) => {
+                const isActive = activeStoreId && row.dataset.storeId === activeStoreId;
+                row.classList.toggle('active', isActive);
+                row.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            if (deviceSubtitle) {
+                if (activeStoreId) {
+                    const storeName = getStoreRows().find((row) => row.dataset.storeId === activeStoreId)?.dataset.storeName || 'Selected Store';
+                    deviceSubtitle.textContent = `${storeName}, ${visibleCount} device${visibleCount === 1 ? '' : 's'}.`;
+                } else {
+                    deviceSubtitle.textContent = `All stores, ${deviceRows.length} devices total.`;
+                }
+            }
+
+            if (clearFilterButton) {
+                clearFilterButton.hidden = !activeStoreId;
+            }
+        };
+
+        const handleStoreSelect = (row) => {
+            const storeId = row.dataset.storeId;
+            const isActive = row.classList.contains('active');
+            setActiveStore(isActive ? null : storeId);
+        };
+
+        const openModal = (modal) => {
+            if (!modal) return;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeModal = (modal) => {
+            if (!modal) return;
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        };
+
+        const refreshStoreOptions = () => {
+            if (!deviceStoreSelect) return;
+            const selected = deviceStoreSelect.value;
+            deviceStoreSelect.innerHTML = '<option value="">Select Store</option>';
+            getStoreRows().forEach((row) => {
+                const opt = document.createElement('option');
+                opt.value = row.dataset.storeId;
+                opt.textContent = row.dataset.storeName || 'Store';
+                deviceStoreSelect.appendChild(opt);
+            });
+            if (selected) {
+                deviceStoreSelect.value = selected;
+            }
+        };
+
+        const populateProcessorVersions = (processor) => {
+            if (!processorVersionSelect) return;
+            processorVersionSelect.innerHTML = '';
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select Version';
+            processorVersionSelect.appendChild(placeholder);
+            if (!processor) {
+                processorVersionSelect.disabled = true;
+                return;
+            }
+            const list = templateVersions[processor] || [];
+            list.forEach((version, idx) => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = version;
+                if (idx === 0) option.selected = true;
+                processorVersionSelect.appendChild(option);
+            });
+            if (list.length === 0) {
+                placeholder.textContent = 'No versions available';
+            }
+            processorVersionSelect.disabled = list.length === 0;
+        };
+
+        const setDefaultDates = () => {
+            const today = new Date().toISOString().split('T')[0];
+            if (deviceBoardedInput && !deviceBoardedInput.value) {
+                deviceBoardedInput.value = today;
+            }
+            if (deviceLastTxnInput && !deviceLastTxnInput.value) {
+                deviceLastTxnInput.value = today;
+            }
+        };
+
+        if (processorSelect) {
+            processorSelect.addEventListener('change', () => populateProcessorVersions(processorSelect.value));
+            populateProcessorVersions(processorSelect.value);
+        }
+
+        document.querySelectorAll('.open-add-store').forEach((btn) => {
+            btn.addEventListener('click', () => openModal(storeModal));
+        });
+
+        document.querySelectorAll('.open-add-device').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                refreshStoreOptions();
+                if (deviceStoreSelect && activeStoreId) {
+                    deviceStoreSelect.value = activeStoreId;
+                }
+                setDefaultDates();
+                openModal(deviceModal);
+            });
+        });
+
+        document.querySelectorAll('[data-close]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-close');
+                if (target === 'store-modal') closeModal(storeModal);
+                if (target === 'device-modal') closeModal(deviceModal);
+            });
+        });
+
+        [storeModal, deviceModal].forEach((modal) => {
+            if (!modal) return;
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            if (storeModal?.classList.contains('active')) closeModal(storeModal);
+            if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
+        });
+
+        if (storeGrid) {
+            storeGrid.addEventListener('click', (event) => {
+                const row = event.target.closest('.store-grid-row[data-store-id]');
+                if (!row) return;
+                handleStoreSelect(row);
+            });
+
+            storeGrid.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                const row = event.target.closest('.store-grid-row[data-store-id]');
+                if (!row) return;
+                event.preventDefault();
+                handleStoreSelect(row);
+            });
+        }
+
+        if (clearFilterButton) {
+            clearFilterButton.addEventListener('click', () => setActiveStore(null));
+        }
+
+        if (addStoreForm) {
+            addStoreForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                if (!storeGrid) return;
+
+                const storeNameInput = document.getElementById('store-name-modal');
+                const storeMidInput = document.getElementById('store-mid-modal');
+                const storeAddress1Input = document.getElementById('store-address1-modal');
+                const storeAddress2Input = document.getElementById('store-address2-modal');
+                const storeZipInput = document.getElementById('store-zip-modal');
+                const storeCityInput = document.getElementById('store-city-modal');
+                const storeStateInput = document.getElementById('store-state-modal');
+
+                const storeName = storeNameInput?.value.trim();
+                if (!storeName) return;
+
+                const storeId = generateStoreId();
+                const mid = storeMidInput?.value.trim() || generateMid();
+                const addressLine1 = storeAddress1Input?.value.trim();
+                const addressLine2 = storeAddress2Input?.value.trim();
+                const city = storeCityInput?.value.trim();
+                const state = storeStateInput?.value.trim();
+                const zip = storeZipInput?.value.trim();
+
+                const cityState = [city, state].filter(Boolean).join(', ');
+                const addressParts = [addressLine1, addressLine2, cityState, zip].filter(Boolean);
+                const address = addressParts.length ? addressParts.join(', ') : 'Address Pending';
+
+                const row = document.createElement('div');
+                row.className = 'grid-row store-grid-row';
+                row.dataset.storeId = storeId;
+                row.dataset.storeName = storeName;
+                row.setAttribute('role', 'button');
+                row.setAttribute('tabindex', '0');
+                row.setAttribute('aria-pressed', 'false');
+
+                const nameCell = document.createElement('div');
+                nameCell.textContent = storeName;
+                const idSub = document.createElement('div');
+                idSub.className = 'cell-sub';
+                idSub.textContent = `ID: ${storeId}`;
+                nameCell.appendChild(idSub);
+
+                row.appendChild(nameCell);
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: address }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: mid }));
+
+                const deviceCell = document.createElement('div');
+                deviceCell.setAttribute('data-role', 'device-count');
+                deviceCell.textContent = '0 Devices';
+                row.appendChild(deviceCell);
+
+                const statusCell = document.createElement('div');
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'status-badge pending';
+                statusBadge.setAttribute('data-role', 'store-status');
+                statusBadge.textContent = 'Pending';
+                statusCell.appendChild(statusBadge);
+                row.appendChild(statusCell);
+
+                storeGrid.appendChild(row);
+
+                refreshStoreOptions();
+                updateCounts();
+                setActiveStore(activeStoreId);
+                addStoreForm.reset();
+                closeModal(storeModal);
+            });
+        }
+
+        if (addDeviceForm) {
+            addDeviceForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                if (!deviceGrid || !deviceStoreSelect) return;
+
+                const deviceStoreId = deviceStoreSelect.value;
+                if (!deviceStoreId) return;
+
+                const deviceModelInput = document.getElementById('device-model-modal');
+                const deviceTpnInput = document.getElementById('device-tpn-modal');
+                const deviceProcessorInput = document.getElementById('device-processor-modal');
+                const deviceStatusInput = document.getElementById('device-status-modal');
+
+                const tpn = deviceTpnInput?.value.trim() || `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
+                const deviceModel = deviceModelInput?.value || 'Unknown';
+                const processor = deviceProcessorInput?.value || 'TSYS';
+                const status = deviceStatusInput?.value || 'Active';
+                const boardedOn = formatDate(deviceBoardedInput?.value);
+                const lastTxn = formatDate(deviceLastTxnInput?.value) || boardedOn;
+                const storeName = getStoreRows().find((row) => row.dataset.storeId === deviceStoreId)?.dataset.storeName || 'Store';
+
+                const row = document.createElement('div');
+                row.className = 'grid-row device-grid-row';
+                row.dataset.storeId = deviceStoreId;
+
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: tpn }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: deviceModel }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: storeName }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: processor }));
+
+                const statusCell = document.createElement('div');
+                const statusBadge = document.createElement('span');
+                statusBadge.className = `status-badge ${status.toLowerCase()}`;
+                statusBadge.textContent = status;
+                statusCell.appendChild(statusBadge);
+                row.appendChild(statusCell);
+
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: boardedOn || 'N/A' }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: lastTxn || 'N/A' }));
+
+                deviceGrid.appendChild(row);
+
+                updateCounts();
+                setActiveStore(activeStoreId);
+                addDeviceForm.reset();
+                populateProcessorVersions('');
+                closeModal(deviceModal);
+            });
+        }
+
+        updateCounts();
+        refreshStoreOptions();
+        setActiveStore(null);
+    </script>
 </body>
 </html>
