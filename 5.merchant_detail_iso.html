@@ -2042,8 +2042,13 @@
         addDeviceButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
                 if (!activeStoreId) return;
-                setDefaultDates();
-                openModal(deviceModal);
+                const storeRow = getStoreRows().find((row) => row.dataset.storeId === activeStoreId);
+                const storeName = storeRow?.dataset.storeName || 'Selected Store';
+                const params = new URLSearchParams({
+                    storeId: activeStoreId,
+                    storeName
+                });
+                window.location.href = `5.merchant_add_device_iso.html?${params.toString()}`;
             });
         });
 

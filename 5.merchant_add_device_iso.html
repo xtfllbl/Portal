@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Device</title>
+    <style>
+        :root {
+            --page-bg: #f4f5f7;
+            --sidebar-bg: #ffffff;
+            --text-strong: #0f0f10;
+            --text-main: #111111;
+            --text-dim: #6b7280;
+            --divider: #e5e7eb;
+            --hover: #f3f4f6;
+            --bullet: #d1d5db;
+            --active-bg: #0f0f10;
+            --active-sub-bg: #111111;
+            --active-text: #ffffff;
+            --surface: #ffffff;
+            --border: #e5e7eb;
+            --accent: #1d4ed8;
+            --text-muted: #667085;
+            --shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.06);
+            --status-active: #16a34a;
+            --status-pending: #f59e0b;
+            --status-hold: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--text-main);
+        }
+
+        .page-shell {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--divider);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark {
+            width: 32px;
+            height: 22px;
+        }
+
+        .mark svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--text-strong);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-strong);
+            letter-spacing: 0.15px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .close-btn span {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .close-btn span::before,
+        .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--text-strong);
+            transform-origin: center;
+        }
+
+        .close-btn span::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn span::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--hover);
+        }
+
+        .menu-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-strong);
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .chevron {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .menu-item.active {
+            background: var(--active-bg);
+            color: var(--active-text);
+        }
+
+        .menu-item.active .icon,
+        .menu-item.active .chevron {
+            color: var(--active-text);
+        }
+
+        .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--bullet);
+            transform: translateY(-50%);
+        }
+
+        .sub-item:hover {
+            color: var(--text-main);
+            background: var(--hover);
+        }
+
+        .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--active-sub-bg);
+            color: var(--active-text);
+        }
+
+        .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--active-text);
+            left: 10px;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            height: calc(100vh - 40px);
+        }
+
+        .top-header {
+            height: 60px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .breadcrumbs {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .breadcrumbs span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            position: relative;
+            color: #555;
+        }
+
+        .icon-circle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #f5222d;
+            color: white;
+            border-radius: 10px;
+            padding: 0 4px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px 4px 0 0;
+            overflow-y: auto;
+        }
+
+        .content-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-right: 8px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            margin: 6px 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            background: #fff;
+            color: #1f2937;
+            text-decoration: none;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn.secondary {
+            border-color: #d9d9d9;
+        }
+
+        .btn.primary {
+            background: var(--text-strong);
+            border-color: var(--text-strong);
+            color: #fff;
+        }
+
+        .btn.sm {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 10px;
+        }
+
+        .merchant-panel,
+        .detail-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-input {
+            flex: 1 1 320px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f4f6f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .search-input svg {
+            width: 18px;
+            height: 18px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .search-input input {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            color: #333;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .filter-chip.active {
+            background: var(--text-strong);
+            color: #fff;
+            border-color: var(--text-strong);
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        .table-head,
+        .table-row {
+            display: grid;
+            grid-template-columns: minmax(200px, 1.3fr) minmax(140px, 1fr) 110px minmax(220px, 1.4fr) 150px minmax(160px, 1.1fr) 80px 80px 110px 70px;
+            gap: 12px;
+            align-items: center;
+            min-width: 1180px;
+        }
+
+        .table-head {
+            background: #111111;
+            color: #ffffff;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 12px 20px;
+            border-bottom: 1px solid #0b0b0b;
+            font-weight: 700;
+        }
+
+        .table-row {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .table-head > div,
+        .table-row > div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table-head > div:last-child,
+        .table-row > div:last-child {
+            justify-self: end;
+        }
+
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .table-row.selected {
+            background: #f2f6ff;
+        }
+
+        .table-link {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .cell-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .count-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-active {
+            color: #166534;
+        }
+
+        .status-active .status-dot {
+            background: var(--status-active);
+        }
+
+        .status-pending {
+            color: #92400e;
+        }
+
+        .status-pending .status-dot {
+            background: var(--status-pending);
+        }
+
+        .status-hold {
+            color: #991b1b;
+        }
+
+        .status-hold .status-dot {
+            background: var(--status-hold);
+        }
+
+        .icon-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            display: grid;
+            place-items: center;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .icon-button:hover {
+            background: #f2f2f2;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #666;
+            background: #fff;
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .page-btn {
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: var(--text-strong);
+            border-color: var(--text-strong);
+            color: #fff;
+        }
+
+        .page-size select {
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        .detail-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .detail-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .detail-metrics {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .metric-chip {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .detail-side {
+            text-align: right;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 6px;
+            color: var(--text-main);
+        }
+
+        .store-card {
+            margin: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .store-header {
+            background: #f7f8fa;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .store-title {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .store-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .store-scroll {
+            overflow-x: auto;
+        }
+
+        .store-head,
+        .store-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(200px, 1.6fr) 80px 130px;
+            gap: 12px;
+            align-items: center;
+            min-width: 760px;
+        }
+
+        .store-head {
+            background: #f7f8fa;
+            padding: 10px 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .store-row {
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .store-row.featured {
+            background: #f2f6ff;
+        }
+
+        .store-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            width: fit-content;
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+        }
+
+        .wizard-shell {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 22px 24px 26px;
+        }
+
+        .wizard-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .wizard-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .wizard-subtitle {
+            margin: 6px 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .wizard-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .store-context {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            min-width: 220px;
+        }
+
+        .store-context-label {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .store-context-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 4px;
+        }
+
+        .store-context-meta {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .wizard-steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin: 22px 0 24px;
+            position: relative;
+        }
+
+        .wizard-steps::before {
+            content: "";
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            top: 18px;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 0;
+        }
+
+        .wizard-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .wizard-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #6b7280;
+            background: #e5e7eb;
+            box-shadow: inset 0 0 0 1px #d1d5db;
+        }
+
+        .wizard-step.active .wizard-dot {
+            background: #16a34a;
+            color: #ffffff;
+            box-shadow: 0 10px 16px rgba(22, 163, 74, 0.2);
+        }
+
+        .wizard-step.completed .wizard-dot {
+            background: #111827;
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        .wizard-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .wizard-step.active .wizard-label {
+            color: #111827;
+        }
+
+        .wizard-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .wizard-panel {
+            display: none;
+            border-radius: 16px;
+            border: 1px solid #f0f0f0;
+            padding: 20px 22px 24px;
+            background: #ffffff;
+        }
+
+        .wizard-panel.active {
+            display: block;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px;
+        }
+
+        .panel-note {
+            margin: 4px 0 18px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .store-sync {
+            margin: -6px 0 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-grid.three {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #d7dde6;
+            padding: 8px 2px 10px;
+            font-size: 15px;
+            color: var(--text-main);
+            background: transparent;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field::placeholder {
+            color: #9ca3af;
+        }
+
+        .input-field:focus {
+            border-bottom-color: var(--accent);
+            box-shadow: 0 2px 0 0 var(--accent);
+        }
+
+        .input-field[readonly] {
+            color: #94a3b8;
+        }
+
+        .chip-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e3e7ee;
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: #f8fafc;
+        }
+
+        .chip-plus {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: #475569;
+            background: #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .chip-input-field {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-main);
+            width: 100%;
+        }
+
+        .checkline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .checkline input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .wizard-actions .btn {
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .wizard-actions .btn.secondary {
+            border-color: var(--border);
+        }
+
+        .wizard-actions .btn.primary {
+            border-color: var(--text-strong);
+        }
+
+        .wizard-actions .btn.primary.finish {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* group buttons on right for mixed alignment */
+        .wizard-actions .action-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .processor-params {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .processor-params.is-hidden {
+            display: none;
+        }
+
+        .processor-params-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .processor-params-head h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
+        }
+
+        .processor-params-head h4::after {
+            content: none;
+        }
+
+        .processor-params-head p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .processor-pill {
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.10) inset;
+        }
+
+        .param-set {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .param-set.active {
+            display: block;
+        }
+
+        .param-tabs {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .param-tab {
+            border: none;
+            background: transparent;
+            padding: 8px 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.18s ease, border-color 0.18s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .param-tab:hover {
+            color: var(--text-main);
+        }
+
+        .param-tab.active {
+            color: var(--text-strong);
+            border-bottom-color: var(--text-strong);
+        }
+
+        .param-panel {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .param-panel.active {
+            display: block;
+        }
+
+        .param-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            background: #f9fafb;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px 16px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .processor-params .group-header {
+            display: none;
+        }
+
+        .processor-params .field label {
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 12px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        }
+
+        .input[disabled],
+        .input[readonly] {
+            background: #f8fafc;
+            color: #9ca3af;
+        }
+
+        .review-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 6px;
+            margin: 4px 0 18px;
+        }
+
+        .review-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #16a34a;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 22px;
+        }
+
+        .review-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-strong);
+        }
+
+        .review-subtitle {
+            font-size: 14px;
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .review-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            background: #fbfbfc;
+        }
+
+        .review-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            padding: 2px 0;
+        }
+
+        .review-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 11px;
+        }
+
+        .review-value {
+            color: var(--text-main);
+            font-weight: 600;
+            text-align: right;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        @media (max-width: 1100px) {
+            .page-shell {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .main-container {
+                height: auto;
+            }
+        }
+
+        @media (max-width: 960px) {
+            .form-grid.two,
+            .form-grid.three {
+                grid-template-columns: 1fr;
+            }
+
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wizard-steps {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                text-align: left;
+            }
+
+            .wizard-steps::before {
+                display: none;
+            }
+
+            .wizard-step {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 12px;
+                text-align: left;
+            }
+
+            .wizard-dot {
+                margin-right: 4px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .top-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                height: auto;
+                padding: 16px;
+            }
+
+            .page-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .detail-side {
+                text-align: left;
+            }
+
+            .store-card {
+                margin: 16px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="mark" aria-hidden="true"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">PAYwizard</div>
+                        <div class="brand-sub">menu</div>
+                    </div>
+                </div>
+                <button class="close-btn" type="button" aria-label="Close menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="menu">
+                <div class="menu-item" data-key="dashboard">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="4" y="13" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="13" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </span>
+                        <span class="label">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="transactions">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                                <path d="M8 14h4"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Transactions</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="batches">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 7h12l1 3H5z"></path>
+                                <path d="M7 10v7h10v-7"></path>
+                                <path d="M9 14h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Batches</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="agents">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M4 20a4 4 0 018 0"></path>
+                                <path d="M12 17a4 4 0 018 0"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Agents</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item active" data-key="merchants">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path>
+                                <path d="M9 21V12h6v9"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Merchants</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9660;</span>
+                </div>
+                <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item">Leads</div>
+                    <div class="sub-item">Onboarding</div>
+                    <div class="sub-item active">Merchant List</div>
+                    <div class="sub-item">Analytics</div>
+                </div>
+                <div class="menu-item" data-key="partners">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Partners</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item" data-key="device-management">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+                                <path d="M8 20h8"></path>
+                                <path d="M12 16v4"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Device Management</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="remote-diagnostic">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 3v3"></path>
+                                <path d="M12 18v3"></path>
+                                <path d="M3 12h3"></path>
+                                <path d="M18 12h3"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Remote Diagnostic</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="user-management">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+                                <path d="M9 9h6M9 13h6M9 17h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">User Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item" data-key="settings">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Settings</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+
+                <div class="menu-item" data-key="tickets">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 7h16v4a2 2 0 010 4v4H4v-4a2 2 0 010-4z"></path>
+                                <circle cx="9" cy="12" r="1.2"></circle>
+                            </svg>
+                        </span>
+                        <span class="label">Tickets</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="developer-center">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 8l-4 4 4 4"></path>
+                                <path d="M16 8l4 4-4 4"></path>
+                                <path d="M12 6l-2 12"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Developer Center</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-container">
+            <header class="top-header">
+                <div class="breadcrumbs">
+                    MERCHANTS &gt; <span>Add Device</span>
+                </div>
+                <div class="user-controls">
+                    <div class="icon-circle" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path>
+                            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                        </svg>
+                        <div class="notification-badge">5</div>
+                    </div>
+                    <div class="icon-circle" aria-label="User">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M20 21a8 8 0 1 0-16 0"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-area">
+                <div class="content-inner">
+                    <a class="back-link" href="5.merchant_detail_iso.html">Back to Merchant Detail</a>
+
+                    <section class="wizard-shell">
+                        <div class="wizard-header">
+                            <div>
+                                <h2 class="wizard-title">Add Device</h2>
+                                <p class="wizard-subtitle">Configure the terminal and integration parameters.</p>
+                            </div>
+                            <div class="store-context" aria-live="polite">
+                                <div class="store-context-label">Adding device for</div>
+                                <div class="store-context-name" id="store-context-name">Selected Store</div>
+                                <div class="store-context-meta" id="store-context-id">ID: --</div>
+                            </div>
+                        </div>
+
+                        <form class="wizard-form" autocomplete="off">
+                            <div class="wizard-panel active">
+                                <h3 class="panel-title">Device Info</h3>
+                                <p class="panel-note">Configure the device for the selected store.</p>
+
+                                <div class="form-grid two">
+                                    <div class="field">
+                                        <label for="device-manufacturer">Manufacturer *</label>
+                                        <select class="input-field" id="device-manufacturer">
+                                            <option value="">WizarPOS</option>
+                                        
+                                        </select>
+                                    </div>
+                                      <div class="field">
+                                        <label for="device-tpn">Terminal S/N *(Hardware serial number)</label>
+                                        <input class="input-field" id="device-tpn" type="text" placeholder="1567246">
+                                    </div>
+                         
+                    
+                                </div>
+
+                                <div class="form-grid two">
+                        
+                                    <div class="field">
+                                        <label for="device-label">Terminal Name (Device Label)</label>
+                                        <input class="input-field" id="device-label" type="text" placeholder="Front Counter">
+                                    </div>
+                                
+                                           <div class="field">
+                                        <label for="device-model">Device Model *</label>
+                                        <select class="input-field" id="device-model">
+                                            <option value="">Select Model</option>
+                                            <option>Q2</option>
+                                            <option>Q3V</option>
+                                            <option>Q3PRT</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-grid two">
+                                  
+                                    <div class="field">
+                                        <label for="device-processor">Processor *</label>
+                                        <select class="input-field" id="device-processor">
+                                            <option value="">Select Processor</option>
+                                            <option value="TSYS">TSYS</option>
+                                            <option value="FISERV">FISERV</option>
+                                            <option value="Worldpay">Worldpay</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="processor-version">Template Version</label>
+                                        <select class="input-field" id="processor-version" disabled>
+                                            <option value="">Select Version</option>
+                                        </select>
+                                    </div>
+                                
+                                </div>
+
+                                <div class="form-grid two">
+                                    <div class="field">
+                                        <label for="device-template">Assign Template</label>
+                                        <select class="input-field" id="device-template">
+                                            <option value="">Select Template</option>
+                                            <option>Retail - Quick Start</option>
+                                            <option>Restaurant - Full Service</option>
+                                            <option>Convenience - Express</option>
+                                        </select>
+                                    </div>
+                
+                                    <div class="field">
+                                        <label for="device-paywizard">Paywizard Integration</label>
+                                        <select class="input-field" id="device-paywizard">
+                                            <option value="Disable" selected>Disable</option>
+                                            <option value="Enable">Enable</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="processor-params is-hidden" id="processorParams">
+                                    <div class="processor-params-head">
+                                        <div>
+                                            <h4>Processor Parameters</h4>
+                                            <p>Fill in the parameter file groups for the selected processor.</p>
+                                        </div>
+                                        <div class="processor-pill" id="processorParamName">Processor</div>
+                                    </div>
+                                    <div class="param-set" data-processor="TSYS">
+                                        <div class="param-tabs">
+                                            <button type="button" class="param-tab active" data-tab="password">Password Information</button>
+                                            <button type="button" class="param-tab" data-tab="network">Network Param</button>
+                                            <button type="button" class="param-tab" data-tab="terminal">Terminal Param</button>
+                                            <button type="button" class="param-tab" data-tab="trans">Supported Trans</button>
+                                        </div>
+                                        <div class="param-panel active" data-panel="password">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Password Information</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="admin-passwd">Admin Passwd</label>
+                                                        <input type="text" id="admin-passwd" name="admin-passwd" class="input" value="99999999">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="merchant-passwd">Merchant Passwd</label>
+                                                        <input type="text" id="merchant-passwd" name="merchant-passwd" class="input" value="1234">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="super-passwd">Super Passwd</label>
+                                                        <input type="text" id="super-passwd" name="super-passwd" class="input" value="123456">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="refund-passwd">Refund Passwd</label>
+                                                        <input type="text" id="refund-passwd" name="refund-passwd" class="input" value="5555">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="reversal-passwd">Reversal Passwd</label>
+                                                        <input type="text" id="reversal-passwd" name="reversal-passwd" class="input" value="5555">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="network">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Network Param</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="primary-ip">Primary IP</label>
+                                                        <input type="text" id="primary-ip" name="primary-ip" class="input" value="https://stagegw.transnox.com/servlets/">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="terminal">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Terminal Param</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="tmk-index">TMK INDEX</label>
+                                                        <input type="number" id="tmk-index" name="tmk-index" class="input" value="7">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="trace-no">Trace#</label>
+                                                        <input type="number" id="trace-no" name="trace-no" class="input" value="1">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="batch-no">Batch#</label>
+                                                        <input type="number" id="batch-no" name="batch-no" class="input" value="1">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="auto-close-batch">EnAutoClsBatch</label>
+                                                        <select id="auto-close-batch" name="auto-close-batch" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="ac-batch-time">AcBatchTime(HH:mm)</label>
+                                                        <input type="text" id="ac-batch-time" name="ac-batch-time" class="input" value="00:00">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="trans-expired">Trans Expired Days</label>
+                                                        <input type="number" id="trans-expired" name="trans-expired" class="input" value="30">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="facilitator-enable">FacilitatorEnable</label>
+                                                        <select id="facilitator-enable" name="facilitator-enable" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="is-level2">IsLevel2</label>
+                                                        <select id="is-level2" name="is-level2" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="is-estimated">IsEstimated</label>
+                                                        <select id="is-estimated" name="is-estimated" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="is-defender">IsDefender</label>
+                                                        <select id="is-defender" name="is-defender" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="force-online-pin">ForceOnlinePin</label>
+                                                        <select id="force-online-pin" name="force-online-pin" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="qps-amount">QPSAmount</label>
+                                                        <input type="number" id="qps-amount" name="qps-amount" class="input" value="0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tac-denial">TACDenial</label>
+                                                        <input type="text" id="tac-denial" name="tac-denial" class="input" value="0010000000">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tac-online">TACOnline</label>
+                                                        <input type="text" id="tac-online" name="tac-online" class="input" value="DE00FC9800">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tac-default">TACDefault</label>
+                                                        <input type="text" id="tac-default" name="tac-default" class="input" value="DC50FC9800">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="contactless-limit">Contactless Transaction Limit</label>
+                                                        <input type="number" id="contactless-limit" name="contactless-limit" class="input" value="99999999">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="cvm-limit">CVM Required Limit</label>
+                                                        <input type="number" id="cvm-limit" name="cvm-limit" class="input" value="10000">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="contactless-floor-limit">Contactless Floor Limit</label>
+                                                        <input type="number" id="contactless-floor-limit" name="contactless-floor-limit" class="input" value="0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="floor-limit">Floor Limit</label>
+                                                        <input type="number" id="floor-limit" name="floor-limit" class="input" value="0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="risk-manage-data">RiskManageData</label>
+                                                        <input type="text" id="risk-manage-data" name="risk-manage-data" class="input" value="4C00800000000000">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="terminal-cap">TerminalCap</label>
+                                                        <input type="text" id="terminal-cap" name="terminal-cap" class="input" value="A008C8">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="cvm-cap-no-cvm">CvmCapNoCvm</label>
+                                                        <input type="text" id="cvm-cap-no-cvm" name="cvm-cap-no-cvm" class="input" value="08">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="cvm-cap-on-cvm">CvmCapOnCvm</label>
+                                                        <input type="text" id="cvm-cap-on-cvm" name="cvm-cap-on-cvm" class="input" value="08">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="kernel-config">KernelConfig</label>
+                                                        <input type="text" id="kernel-config" name="kernel-config" class="input" value="B0">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="ext-log-data">ExtLogData</label>
+                                                        <input type="text" id="ext-log-data" name="ext-log-data" class="input" value="FFFFFFFFFFFFFFFF">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="ext-log-data-2">ExtLogData2</label>
+                                                        <input type="text" id="ext-log-data-2" name="ext-log-data-2" class="input" value="000000010000010100000201">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="aid-highest-priority">AidHighestPriority</label>
+                                                        <select id="aid-highest-priority" name="aid-highest-priority" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-msr">Support MSR</label>
+                                                        <select id="support-msr" name="support-msr" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="quick-chip">QuickChip</label>
+                                                        <select id="quick-chip" name="quick-chip" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-ids">SupportIds</label>
+                                                        <select id="support-ids" name="support-ids" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-maestro">SupportMaestro</label>
+                                                        <select id="support-maestro" name="support-maestro" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-us-maestro">SupportUSMaestro</label>
+                                                        <select id="support-us-maestro" name="support-us-maestro" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-amex">SupportAmex</label>
+                                                        <select id="support-amex" name="support-amex" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="support-upload-receipt">SupportUploadReceipt</label>
+                                                        <select id="support-upload-receipt" name="support-upload-receipt" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="max-trans">MaxTrans</label>
+                                                        <input type="number" id="max-trans" name="max-trans" class="input" value="999">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="trans">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Supported Trans</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="credit-sale-switch">CreditSale Switch</label>
+                                                        <select id="credit-sale-switch" name="credit-sale-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="debit-sale-switch">DebitSale Switch</label>
+                                                        <select id="debit-sale-switch" name="debit-sale-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="force-auth-switch">ForceAuth Switch</label>
+                                                        <select id="force-auth-switch" name="force-auth-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="credit-return-switch">CreditReturn Switch</label>
+                                                        <select id="credit-return-switch" name="credit-return-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="debit-return-switch">DebitReturn Switch</label>
+                                                        <select id="debit-return-switch" name="debit-return-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="reversal-switch">Reversal Switch</label>
+                                                        <select id="reversal-switch" name="reversal-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="print-switch">Print Switch</label>
+                                                        <select id="print-switch" name="print-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="more-function-switch">MoreFunction Switch</label>
+                                                        <select id="more-function-switch" name="more-function-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="auth-only-switch">AuthOnly Switch</label>
+                                                        <select id="auth-only-switch" name="auth-only-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="auth-increment-switch">AuthIncrement Switch</label>
+                                                        <select id="auth-increment-switch" name="auth-increment-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="tip-adjust-switch">TipAdjust Switch</label>
+                                                        <select id="tip-adjust-switch" name="tip-adjust-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="capture-switch">Capture Switch</label>
+                                                        <select id="capture-switch" name="capture-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="close-batch-switch">CloseBatch Switch</label>
+                                                        <select id="close-batch-switch" name="close-batch-switch" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="param-set" data-processor="FISERV">
+                                        <div class="param-tabs">
+                                            <button type="button" class="param-tab active" data-tab="fd-host">Host Settings</button>
+                                            <button type="button" class="param-tab" data-tab="fd-merchant">Merchant Setup</button>
+                                            <button type="button" class="param-tab" data-tab="fd-settlement">Settlement</button>
+                                        </div>
+                                        <div class="param-panel active" data-panel="fd-host">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Host Settings</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="fd-primary-host">Primary Host</label>
+                                                        <input type="text" id="fd-primary-host" name="fd-primary-host" class="input" value="https://fdgwy.firstdata.com/servlets/">
+                                                    </div>
+                                                    <div class="field full">
+                                                        <label for="fd-secondary-host">Secondary Host</label>
+                                                        <input type="text" id="fd-secondary-host" name="fd-secondary-host" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-port">Port</label>
+                                                        <input type="number" id="fd-port" name="fd-port" class="input" value="443">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-protocol">Protocol</label>
+                                                        <select id="fd-protocol" name="fd-protocol" class="input">
+                                                            <option selected>TLS</option>
+                                                            <option>SSL</option>
+                                                            <option>TCP</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-timeout">Timeout (sec)</label>
+                                                        <input type="number" id="fd-timeout" name="fd-timeout" class="input" value="30">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="fd-merchant">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Merchant Setup</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="fd-mid">Merchant ID</label>
+                                                        <input type="text" id="fd-mid" name="fd-mid" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-tid">Terminal ID</label>
+                                                        <input type="text" id="fd-tid" name="fd-tid" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-store-no">Store Number</label>
+                                                        <input type="text" id="fd-store-no" name="fd-store-no" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-agent-bank">Agent Bank Number</label>
+                                                        <input type="text" id="fd-agent-bank" name="fd-agent-bank" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-chain">Chain</label>
+                                                        <input type="text" id="fd-chain" name="fd-chain" class="input" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="fd-settlement">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Settlement</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="fd-auto-close">Auto Close Batch</label>
+                                                        <select id="fd-auto-close" name="fd-auto-close" class="input">
+                                                            <option>Enable</option>
+                                                            <option selected>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-batch-time">Batch Close Time</label>
+                                                        <input type="text" id="fd-batch-time" name="fd-batch-time" class="input" value="00:00">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-batch-number">Batch Number</label>
+                                                        <input type="number" id="fd-batch-number" name="fd-batch-number" class="input" value="1">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-currency">Currency Code</label>
+                                                        <input type="text" id="fd-currency" name="fd-currency" class="input" value="USD">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="fd-tip-percent">Tip Percent</label>
+                                                        <input type="number" id="fd-tip-percent" name="fd-tip-percent" class="input" value="0">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="param-set" data-processor="Worldpay">
+                                        <div class="param-tabs">
+                                            <button type="button" class="param-tab active" data-tab="wp-general">General</button>
+                                            <button type="button" class="param-tab" data-tab="wp-network">Network</button>
+                                            <button type="button" class="param-tab" data-tab="wp-receipt">Receipts</button>
+                                        </div>
+                                        <div class="param-panel active" data-panel="wp-general">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">General</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="wp-merchant-id">Merchant ID</label>
+                                                        <input type="text" id="wp-merchant-id" name="wp-merchant-id" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-terminal-id">Terminal ID</label>
+                                                        <input type="text" id="wp-terminal-id" name="wp-terminal-id" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-store-id">Store ID</label>
+                                                        <input type="text" id="wp-store-id" name="wp-store-id" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-industry">Industry</label>
+                                                        <select id="wp-industry" name="wp-industry" class="input">
+                                                            <option selected>Retail</option>
+                                                            <option>Restaurant</option>
+                                                            <option>Quick Service</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-currency">Currency</label>
+                                                        <input type="text" id="wp-currency" name="wp-currency" class="input" value="USD">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="wp-network">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Network</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field full">
+                                                        <label for="wp-host-url">Host URL</label>
+                                                        <input type="text" id="wp-host-url" name="wp-host-url" class="input" value="https://gateway.worldpay.com/connect">
+                                                    </div>
+                                                    <div class="field full">
+                                                        <label for="wp-backup-url">Backup URL</label>
+                                                        <input type="text" id="wp-backup-url" name="wp-backup-url" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-port">Port</label>
+                                                        <input type="number" id="wp-port" name="wp-port" class="input" value="443">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-timeout">Timeout (sec)</label>
+                                                        <input type="number" id="wp-timeout" name="wp-timeout" class="input" value="30">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-heartbeat">Heartbeat Interval</label>
+                                                        <input type="number" id="wp-heartbeat" name="wp-heartbeat" class="input" value="60">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="param-panel" data-panel="wp-receipt">
+                                            <div class="param-group">
+                                                <div class="group-header">
+                                                    <div class="group-title">Receipts</div>
+                                                </div>
+                                                <div class="group-grid">
+                                                    <div class="field">
+                                                        <label for="wp-header-text">Header Text</label>
+                                                        <input type="text" id="wp-header-text" name="wp-header-text" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-footer-text">Footer Text</label>
+                                                        <input type="text" id="wp-footer-text" name="wp-footer-text" class="input" value="">
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-print-logo">Print Logo</label>
+                                                        <select id="wp-print-logo" name="wp-print-logo" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-tip-line">Tip Line</label>
+                                                        <select id="wp-tip-line" name="wp-tip-line" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="field">
+                                                        <label for="wp-signature">Signature Required</label>
+                                                        <select id="wp-signature" name="wp-signature" class="input">
+                                                            <option selected>Enable</option>
+                                                            <option>Disable</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="processor-params paywizard-params is-hidden" id="paywizardParams">
+                                    <div class="processor-params-head">
+                                        <div>
+                                            <h4>Paywizard Integration Parameters</h4>
+                                            <p>Provide the Paywizard integration settings for this device.</p>
+                                        </div>
+                                        <div class="processor-pill">Paywizard</div>
+                                    </div>
+                                    <div class="param-group">
+                                        <div class="group-header">
+                                            <div class="group-title">Paywizard Integration Parameters</div>
+                                        </div>
+                                        <div class="group-grid">
+                                            <div class="field">
+                                                <label for="pw-admin-password">Admin Password</label>
+                                                <input type="text" id="pw-admin-password" name="pw-admin-password" class="input" value="99999999">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-allow-offline">AllowOfflineMode</label>
+                                                <select id="pw-allow-offline" name="pw-allow-offline" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-amount-scale">AmountScale</label>
+                                                <select id="pw-amount-scale" name="pw-amount-scale" class="input">
+                                                    <option selected>DEFAULT</option>
+                                                    <option>0.01</option>
+                                                    <option>0.001</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-protocol-type">Protocol Type</label>
+                                                <select id="pw-protocol-type" name="pw-protocol-type" class="input">
+                                                    <option selected>DEFAULT</option>
+                                                    <option>TCP</option>
+                                                    <option>UDP</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-baud-rate">Set Baud Rate</label>
+                                                <input type="number" id="pw-baud-rate" name="pw-baud-rate" class="input" value="115200">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-socket-port">SocketPort</label>
+                                                <input type="number" id="pw-socket-port" name="pw-socket-port" class="input" value="6031">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-payment-app">Payment App</label>
+                                                <input type="text" id="pw-payment-app" name="pw-payment-app" class="input" value="">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-debug-mode">Debug Mode</label>
+                                                <select id="pw-debug-mode" name="pw-debug-mode" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-show-result">Show Payment Result</label>
+                                                <select id="pw-show-result" name="pw-show-result" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-allowed-exit">Allowed Exit</label>
+                                                <select id="pw-allowed-exit" name="pw-allowed-exit" class="input">
+                                                    <option selected>Disable</option>
+                                                    <option>Enable</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-logo-url">Logo Url</label>
+                                                <input type="text" id="pw-logo-url" name="pw-logo-url" class="input" value="">
+                                            </div>
+                                            <div class="field">
+                                                <label for="pw-currency-code">Currency Code</label>
+                                                <input type="text" id="pw-currency-code" name="pw-currency-code" class="input" value="">
+                                            </div>
+                                            <div class="field full">
+                                                <label for="pw-server">Paywizard Server</label>
+                                                <select id="pw-server" name="pw-server" class="input">
+                                                    <option selected>RELEASE</option>
+                                                    <option>STAGING</option>
+                                                    <option>SANDBOX</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-actions">
+                                    <a class="btn secondary" href="5.merchant_detail_iso.html">Back</a>
+                                    <span class="action-group">
+                                        <button class="btn secondary" type="button" id="saveTemplateBtn">Save as Template</button>
+                                        <button class="btn primary" type="button" id="saveDeviceBtn">Save Device</button>
+                                    </span>
+                                </div>
+                            </div>
+
+                            </form>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const storeNameEl = document.getElementById('store-context-name');
+        const storeIdEl = document.getElementById('store-context-id');
+        const params = new URLSearchParams(window.location.search);
+        const storeName = params.get('storeName') || 'Selected Store';
+        const storeId = params.get('storeId');
+
+        if (storeNameEl) {
+            storeNameEl.textContent = storeName;
+        }
+        if (storeIdEl) {
+            storeIdEl.textContent = storeId ? `ID: ${storeId}` : 'ID: --';
+        }
+        if (storeName) {
+            document.title = `Add Device - ${storeName}`;
+        }
+
+        const processorSelect = document.getElementById('device-processor');
+        const processorVersionSelect = document.getElementById('processor-version');
+        const processorParams = document.getElementById('processorParams');
+        const processorParamName = document.getElementById('processorParamName');
+        const paramSets = Array.from(document.querySelectorAll('.param-set'));
+
+        function activateParamTab(button, set) {
+            const tabId = button.getAttribute('data-tab');
+            if (!tabId || !set) {
+                return;
+            }
+            set.querySelectorAll('.param-tab').forEach((tab) => {
+                tab.classList.toggle('active', tab === button);
+            });
+            set.querySelectorAll('.param-panel').forEach((panel) => {
+                panel.classList.toggle('active', panel.getAttribute('data-panel') === tabId);
+            });
+        }
+
+        const templateVersions = {
+            TSYS: [
+                'V1.00.16E_20250606',
+                'V1.00.15A_20250312',
+                'V1.00.14D_20250105',
+                'V1.00.13B_20241018',
+                'V1.00.12F_20240809',
+                'V1.00.11C_20240521'
+            ],
+            FISERV: [],
+            Worldpay: []
+        };
+
+        function populateProcessorVersions(processor) {
+            if (!processorVersionSelect) return;
+            const list = templateVersions[processor] || [];
+            processorVersionSelect.innerHTML = '';
+            if (!processor) {
+                processorVersionSelect.innerHTML = '<option value="">Select Version</option>';
+                processorVersionSelect.disabled = true;
+                return;
+            }
+            list.forEach((version, idx) => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = version;
+                if (idx === 0) option.selected = true;
+                processorVersionSelect.appendChild(option);
+            });
+            processorVersionSelect.disabled = list.length === 0;
+        }
+
+        function syncProcessorParams() {
+            if (!processorSelect || !processorParams) {
+                return;
+            }
+            const selected = processorSelect.value;
+            const hasSelection = Boolean(selected);
+            processorParams.classList.toggle('is-hidden', !hasSelection);
+            if (processorParamName) {
+                processorParamName.textContent = selected || 'Processor';
+            }
+            populateProcessorVersions(selected);
+            paramSets.forEach((set) => {
+                const isMatch = hasSelection && set.dataset.processor === selected;
+                set.classList.toggle('active', isMatch);
+                if (isMatch) {
+                    const activeTab = set.querySelector('.param-tab.active') || set.querySelector('.param-tab');
+                    if (activeTab) {
+                        activateParamTab(activeTab, set);
+                    }
+                }
+            });
+        }
+
+        document.querySelectorAll('.param-tabs').forEach((tabs) => {
+            tabs.addEventListener('click', (event) => {
+                const button = event.target.closest('.param-tab');
+                if (!button) {
+                    return;
+                }
+                const set = button.closest('.param-set');
+                if (!set) {
+                    return;
+                }
+                activateParamTab(button, set);
+            });
+        });
+
+        if (processorSelect) {
+            processorSelect.addEventListener('change', syncProcessorParams);
+            syncProcessorParams();
+        }
+
+        const paywizardSelect = document.getElementById('device-paywizard');
+        const paywizardParams = document.getElementById('paywizardParams');
+
+        function syncPaywizardParams() {
+            if (!paywizardSelect || !paywizardParams) {
+                return;
+            }
+            const isEnabled = paywizardSelect.value === 'Enable';
+            paywizardParams.classList.toggle('is-hidden', !isEnabled);
+        }
+
+        if (paywizardSelect) {
+            paywizardSelect.addEventListener('change', syncPaywizardParams);
+            syncPaywizardParams();
+        }
+
+        const TEMPLATE_KEY = 'pw_device_param_templates';
+        const assignTemplateEl = document.getElementById('device-template');
+        const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+
+        function loadTemplates() {
+            try {
+                return JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveTemplates(list) {
+            localStorage.setItem(TEMPLATE_KEY, JSON.stringify(list));
+        }
+
+        function collectProcessorParams() {
+            const data = {};
+            document.querySelectorAll('#processorParams .input, #processorParams .input-field').forEach((el) => {
+                if (!el.id) return;
+                data[el.id] = el.value;
+            });
+            return data;
+        }
+
+        function collectPaywizardParams() {
+            const data = {};
+            document.querySelectorAll('#paywizardParams .input, #paywizardParams .input-field').forEach((el) => {
+                if (!el.id) return;
+                data[el.id] = el.value;
+            });
+            return data;
+        }
+
+        function applyTemplateToForm(tpl) {
+            if (!tpl) return;
+            if (tpl.processor) {
+                Object.entries(tpl.processor).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                });
+            }
+            if (tpl.paywizard) {
+                Object.entries(tpl.paywizard).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                });
+            }
+        }
+
+        function refreshAssignTemplateOptions() {
+            if (!assignTemplateEl) return;
+            const preserved = assignTemplateEl.value;
+            const templates = loadTemplates();
+            assignTemplateEl.innerHTML = '<option value="">Select Template</option>' +
+                templates.map((template, index) => `<option value="__tpl_${index}">${template.name}</option>`).join('');
+            if (preserved && [...assignTemplateEl.options].some((opt) => opt.value === preserved)) {
+                assignTemplateEl.value = preserved;
+            }
+        }
+
+        if (assignTemplateEl) {
+            refreshAssignTemplateOptions();
+            assignTemplateEl.addEventListener('change', () => {
+                const val = assignTemplateEl.value;
+                if (!val || !val.startsWith('__tpl_')) return;
+                const idx = Number(val.replace('__tpl_', ''));
+                const templates = loadTemplates();
+                const tpl = templates[idx];
+                applyTemplateToForm(tpl);
+            });
+        }
+
+        if (saveTemplateBtn) {
+            saveTemplateBtn.addEventListener('click', () => {
+                const name = prompt('Template name');
+                if (!name) return;
+                const tpl = {
+                    name,
+                    processor: collectProcessorParams(),
+                    paywizard: collectPaywizardParams()
+                };
+                const templates = loadTemplates();
+                templates.unshift(tpl);
+                saveTemplates(templates);
+                refreshAssignTemplateOptions();
+                alert('Template saved');
+            });
+        }
+    </script>
+</body>
+</html>
