@@ -408,6 +408,11 @@
             border-radius: 10px;
         }
 
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
         .merchant-panel,
         .detail-panel {
             background: var(--surface);
@@ -847,11 +852,22 @@
         }
 
         .store-grid-row.active {
-            background: #f2f6ff;
+            background: #f1f1f1;
+            box-shadow: inset 5px 0 0 #111827, inset 0 0 0 1px rgba(17, 24, 39, 0.26);
+        }
+
+        .store-grid-row.active > div:first-child {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .store-grid-row.active .cell-sub {
+            font-weight: 500;
+            color: #6b7280;
         }
 
         .store-grid-row:focus {
-            outline: 2px solid #c7d2fe;
+            outline: 2px solid #9ca3af;
             outline-offset: -2px;
         }
 
@@ -1611,9 +1627,15 @@
                             <label for="store-name-modal">Store Name *</label>
                             <input class="input-field" id="store-name-modal" type="text" placeholder="Main Branch" required>
                         </div>
-                        <div class="field">
-                            <label for="store-mid-modal">Store MID</label>
-                            <input class="input-field" id="store-mid-modal" type="text" placeholder="Auto-assigned">
+                     <div class="field">
+                            <label for="store-timezone-modal">Time Zone</label>
+                            <select class="input-field" id="store-timezone-modal">
+                                <option value="">Select Time Zone</option>
+                                <option>Eastern Standard Time (EST)</option>
+                                <option>Central Standard Time (CST)</option>
+                                <option>Mountain Standard Time (MST)</option>
+                                <option>Pacific Standard Time (PST)</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-grid three">
@@ -1630,17 +1652,8 @@
                             <input class="input-field" id="store-email-modal" type="email" placeholder="name@domain.com" required>
                         </div>
                     </div>
-                    <div class="form-grid three">
-                        <div class="field">
-                            <label for="store-timezone-modal">Time Zone</label>
-                            <select class="input-field" id="store-timezone-modal">
-                                <option value="">Select Time Zone</option>
-                                <option>Eastern Standard Time (EST)</option>
-                                <option>Central Standard Time (CST)</option>
-                                <option>Mountain Standard Time (MST)</option>
-                                <option>Pacific Standard Time (PST)</option>
-                            </select>
-                        </div>
+                    <div class="form-grid two">
+                   
                         <div class="field">
                             <label for="store-address1-modal">Address Line 1</label>
                             <input class="input-field" id="store-address1-modal" type="text" placeholder="Street Address">
@@ -1686,14 +1699,12 @@
                 <div class="modal-body">
                     <div>
                         <h4 class="modal-section-title">Device Assignment</h4>
-                        <p class="modal-section-note">Choose the store and activation details.</p>
+                        <p class="modal-section-note">Review the store and activation details.</p>
                     </div>
                     <div class="form-grid three">
                         <div class="field">
-                            <label for="device-store">Store *</label>
-                            <select class="input-field" id="device-store" required>
-                                <option value="">Select Store</option>
-                            </select>
+                            <label for="device-store-name">Store *</label>
+                            <input class="input-field" id="device-store-name" type="text" readonly>
                         </div>
                         <div class="field">
                             <label for="device-application-modal">Application</label>
@@ -1816,7 +1827,8 @@
         const deviceModal = document.getElementById('device-modal');
         const addStoreForm = document.getElementById('add-store-form');
         const addDeviceForm = document.getElementById('add-device-form');
-        const deviceStoreSelect = document.getElementById('device-store');
+        const addDeviceButtons = document.querySelectorAll('.open-add-device');
+        const deviceStoreNameInput = document.getElementById('device-store-name');
         const processorSelect = document.getElementById('device-processor-modal');
         const processorVersionSelect = document.getElementById('processor-version-modal');
         const deviceBoardedInput = document.getElementById('device-boarded-on');
@@ -1913,10 +1925,26 @@
             updateStoreDeviceSummaries();
         };
 
+        const updateDeviceActionState = (storeName) => {
+            const canAdd = Boolean(activeStoreId);
+            addDeviceButtons.forEach((btn) => {
+                btn.disabled = !canAdd;
+                btn.title = canAdd ? 'Add device for selected store' : 'Select a store to add devices';
+            });
+            if (deviceStoreNameInput) {
+                deviceStoreNameInput.value = canAdd ? storeName : '';
+            }
+        };
+
         const setActiveStore = (storeId) => {
             activeStoreId = storeId || null;
             const deviceRows = getDeviceRows();
             let visibleCount = 0;
+            let storeName = '';
+
+            if (activeStoreId) {
+                storeName = getStoreRows().find((row) => row.dataset.storeId === activeStoreId)?.dataset.storeName || 'Selected Store';
+            }
 
             deviceRows.forEach((row) => {
                 const matches = !activeStoreId || row.dataset.storeId === activeStoreId;
@@ -1934,7 +1962,6 @@
 
             if (deviceSubtitle) {
                 if (activeStoreId) {
-                    const storeName = getStoreRows().find((row) => row.dataset.storeId === activeStoreId)?.dataset.storeName || 'Selected Store';
                     deviceSubtitle.textContent = `${storeName}, ${visibleCount} device${visibleCount === 1 ? '' : 's'}.`;
                 } else {
                     deviceSubtitle.textContent = `All stores, ${deviceRows.length} devices total.`;
@@ -1944,6 +1971,8 @@
             if (clearFilterButton) {
                 clearFilterButton.hidden = !activeStoreId;
             }
+
+            updateDeviceActionState(storeName);
         };
 
         const handleStoreSelect = (row) => {
@@ -1964,21 +1993,6 @@
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
-        };
-
-        const refreshStoreOptions = () => {
-            if (!deviceStoreSelect) return;
-            const selected = deviceStoreSelect.value;
-            deviceStoreSelect.innerHTML = '<option value="">Select Store</option>';
-            getStoreRows().forEach((row) => {
-                const opt = document.createElement('option');
-                opt.value = row.dataset.storeId;
-                opt.textContent = row.dataset.storeName || 'Store';
-                deviceStoreSelect.appendChild(opt);
-            });
-            if (selected) {
-                deviceStoreSelect.value = selected;
-            }
         };
 
         const populateProcessorVersions = (processor) => {
@@ -2025,12 +2039,9 @@
             btn.addEventListener('click', () => openModal(storeModal));
         });
 
-        document.querySelectorAll('.open-add-device').forEach((btn) => {
+        addDeviceButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
-                refreshStoreOptions();
-                if (deviceStoreSelect && activeStoreId) {
-                    deviceStoreSelect.value = activeStoreId;
-                }
+                if (!activeStoreId) return;
                 setDefaultDates();
                 openModal(deviceModal);
             });
@@ -2141,7 +2152,6 @@
 
                 storeGrid.appendChild(row);
 
-                refreshStoreOptions();
                 updateCounts();
                 setActiveStore(activeStoreId);
                 addStoreForm.reset();
@@ -2152,10 +2162,9 @@
         if (addDeviceForm) {
             addDeviceForm.addEventListener('submit', (event) => {
                 event.preventDefault();
-                if (!deviceGrid || !deviceStoreSelect) return;
+                if (!deviceGrid || !activeStoreId) return;
 
-                const deviceStoreId = deviceStoreSelect.value;
-                if (!deviceStoreId) return;
+                const deviceStoreId = activeStoreId;
 
                 const deviceModelInput = document.getElementById('device-model-modal');
                 const deviceTpnInput = document.getElementById('device-tpn-modal');
@@ -2200,7 +2209,6 @@
         }
 
         updateCounts();
-        refreshStoreOptions();
         setActiveStore(null);
     </script>
 </body>
