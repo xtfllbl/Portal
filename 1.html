@@ -1,670 +1,443 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paywizard - Payment Links Prototype</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#635bff', // Stripe-like purple/blue
-                        secondary: '#f6f9fc',
-                        dark: '#0a2540',
-                        success: '#22c55e'
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Payment Parameter Setting</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #635bff;
+        :root {
+            --primary-color: #000;
+            --primary-hover: #333;
+            --accent-color: #1890ff;
+            --bg-color: #f4f6f8;
+            --border-color: #e8e8e8;
+            --text-main: #262626;
+            --text-sub: #8c8c8c;
+            --danger: #ff4d4f;
         }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #635bff;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #7f8c8d; /* 模拟遮罩背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
         }
-        .custom-shadow { box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07); }
-        
-        /* Mobile Preview Frame */
-        .mobile-frame {
-            width: 375px;
-            height: 667px;
-            border: 12px solid #1f2937;
-            border-radius: 30px;
-            margin: 0 auto;
+
+        /* Modal Container */
+        .modal-container {
+            width: 900px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
             position: relative;
-            background: white;
+        }
+
+        /* Header */
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-title h2 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--text-main);
+        }
+
+        .header-title p {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-sub);
+            padding: 4px;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            padding: 20px 24px;
+            display: flex;
+            justify-content: flex-end; /* 右对齐按钮 */
+            gap: 12px;
+            background: #fff;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-outline {
+            background: #fff;
+            border-color: #d9d9d9;
+            color: var(--text-main);
         }
         
-        /* Smooth transitions */
-        .view-section { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
-        .view-section.active { display: block; opacity: 1; }
+        .btn-outline:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Table Area */
+        .table-container {
+            padding: 0 24px;
+            min-height: 300px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            background: #fafafa;
+            color: var(--text-sub);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .icon-box {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: #f0f2f5;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .action-icons button {
+            background: none;
+            border: 1px solid #e8e8e8;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            margin-left: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+        }
+
+        .action-icons button:hover {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .action-icons button.delete:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* NEW: The Add QR Channel Form Overlay 
+           This simulates the UI when the new button is clicked
+        */
+        .slide-form {
+            position: absolute;
+            top: 65px; /* Below header */
+            left: 0;
+            width: 100%;
+            height: calc(100% - 65px);
+            background: #fff;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-form.active {
+            transform: translateY(0);
+        }
+
+        .form-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .form-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #fff;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        /* Badge Styles */
+        .badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #eee;
+            color: #666;
+        }
+        .badge.qr { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .badge.card { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+
     </style>
 </head>
-<body class="bg-gray-50 text-slate-600 h-screen flex flex-col">
+<body>
 
-    <!-- Navbar -->
-    <nav class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold text-dark tracking-tight">PAYwizard</h1>
-            <span class="bg-gray-100 text-xs font-semibold px-2 py-1 rounded text-gray-500">PROTOTYPE</span>
+    <div class="modal-container">
+        <div class="modal-header">
+            <div class="header-title">
+                <h2>Payment Parameter Setting</h2>
+                <p>Store: Downtown Location</p>
+            </div>
+            <button class="close-btn">×</button>
         </div>
-        <div class="flex gap-4 text-sm font-medium">
-            <button onclick="switchView('dashboard')" class="hover:text-primary transition">Dashboard</button>
-            <button onclick="switchView('create')" class="hover:text-primary transition">Create Link</button>
-            <button onclick="switchView('checkout')" class="hover:text-primary transition">Customer View</button>
-        </div>
-        <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">A</div>
-    </nav>
 
-    <!-- VIEW 1: DASHBOARD -->
-    <div id="view-dashboard" class="view-section active flex-1 p-8 max-w-6xl mx-auto w-full">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-dark">Payment Links</h2>
-            <button onclick="switchView('create')" class="bg-dark hover:bg-black text-white px-4 py-2 rounded-md text-sm font-medium transition shadow-sm">
-                <i class="fas fa-plus mr-2"></i>New
+        <div class="action-bar">
+            <button class="btn btn-outline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                Add Card Channel
+            </button>
+            
+            <button class="btn btn-primary" onclick="toggleForm(true)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M3 14h7v7H3z"></path></svg>
+                Add Scan Channel
             </button>
         </div>
 
-        <!-- Banner -->
-        <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row items-center justify-between">
-            <div class="mb-4 md:mb-0">
-                <h3 class="text-2xl font-bold text-dark mb-2">Create a checkout page in a few clicks</h3>
-                <p class="text-gray-500 max-w-md">Sell products, offer subscriptions, or accept donations with a link—no code required.</p>
-                <button onclick="switchView('create')" class="mt-4 bg-dark text-white px-4 py-2 rounded text-sm">Create test payment link</button>
-            </div>
-            <div class="w-full md:w-1/3 bg-gray-50 rounded border border-gray-100 p-4 relative">
-                <!-- Abstract UI graphic -->
-                <div class="w-3/4 h-24 bg-white shadow rounded mb-2"></div>
-                <div class="w-1/2 h-4 bg-gray-200 rounded"></div>
-            </div>
-        </div>
-
-        <!-- Links List -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <table class="w-full text-sm text-left">
-                <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <th class="px-6 py-3">Name</th>
-                        <th class="px-6 py-3">Status</th>
-                        <th class="px-6 py-3">Price</th>
-                        <th class="px-6 py-3">Created</th>
-                        <th class="px-6 py-3 text-right">Actions</th>
+                        <th width="25%">PAYMENT CHANNEL</th>
+                        <th width="35%">CHANNEL COST</th>
+                        <th width="25%">DATE & TIME</th>
+                        <th width="15%">ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 font-medium text-dark">Recurring Service</td>
-                        <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold">Active</span></td>
-                        <td class="px-6 py-4">$19.99 USD / month</td>
-                        <td class="px-6 py-4 text-gray-400">Nov 10, 2:17 AM</td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-gray-500 hover:text-dark border border-gray-300 px-2 py-1 rounded bg-white text-xs mr-2">
-                                <i class="far fa-copy mr-1"></i>Copy URL
-                            </button>
-                            <button class="text-gray-400 hover:text-dark"><i class="fas fa-ellipsis-h"></i></button>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="channel-info">
+                                <span class="badge card">Card</span>
+                                <span>payWizardDemo</span>
+                            </div>
+                        </td>
+                        <td>0%, Capping 100 Per Transaction</td>
+                        <td>2025-12-15 10:19:04</td>
+                        <td class="action-icons">
+                            <button title="Edit">✎</button>
+                            <button title="Delete" class="delete">🗑</button>
                         </td>
                     </tr>
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 font-medium text-dark">WizarPOS Service</td>
-                        <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold">Active</span></td>
-                        <td class="px-6 py-4">$120.00 USD</td>
-                        <td class="px-6 py-4 text-gray-400">Nov 10, 2:12 AM</td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-gray-500 hover:text-dark border border-gray-300 px-2 py-1 rounded bg-white text-xs mr-2">
-                                <i class="far fa-copy mr-1"></i>Copy URL
-                            </button>
-                            <button class="text-gray-400 hover:text-dark"><i class="fas fa-ellipsis-h"></i></button>
+                    <tr>
+                        <td>
+                            <div class="channel-info">
+                                <span class="badge card">Card</span>
+                                <span>SmartCommerce</span>
+                            </div>
+                        </td>
+                        <td>2.4% + 0.10, Capping 75</td>
+                        <td>2025-12-09 09:02:18</td>
+                        <td class="action-icons">
+                            <button title="Edit">✎</button>
+                            <button title="Delete" class="delete">🗑</button>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td>
+                            <div class="channel-info">
+                                <span class="badge qr">QR</span>
+                                <span>Alipay Global</span>
+                            </div>
+                        </td>
+                        <td>1.2% Flat Rate</td>
+                        <td>2026-01-12 14:20:00</td>
+                        <td class="action-icons">
+                            <button title="Edit">✎</button>
+                            <button title="Delete" class="delete">🗑</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <!-- VIEW 2: CREATE PAYMENT LINK -->
-    <div id="view-create" class="view-section flex-1 flex flex-col h-full overflow-hidden">
-        <!-- Header -->
-        <div class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <button onclick="switchView('dashboard')" class="text-gray-400 hover:text-dark"><i class="fas fa-arrow-left"></i></button>
-                <h2 class="font-bold text-dark">Create a payment link</h2>
-            </div>
-            <button onclick="createLinkAction()" class="bg-primary hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm transition">
-                Create link
-            </button>
+        <div class="modal-footer">
+            <button class="btn btn-outline" style="border: 1px solid #d9d9d9;">Close</button>
         </div>
 
-        <div class="flex flex-1 overflow-hidden">
-            <!-- Left: Configuration -->
-            <div class="w-1/3 bg-white border-r border-gray-200 p-6 overflow-y-auto">
-                <div class="flex gap-6 border-b border-gray-200 mb-6">
-                    <button class="pb-2 border-b-2 border-dark font-medium text-dark text-sm">Payment page</button>
-                    <button class="pb-2 border-b-2 border-transparent hover:border-gray-300 text-gray-500 text-sm">After payment</button>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Product</label>
-                    <div class="relative">
-                        <input type="text" placeholder="Find or add a product..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" onclick="toggleProductModal()">
-                        <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
-                    </div>
-                    
-                    <!-- Selected Product Card (Hidden by default) -->
-                    <div id="selected-product-card" class="mt-4 hidden border border-gray-200 rounded-lg p-4 bg-gray-50 flex gap-4 items-start">
-                        <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-bold text-dark" id="conf-prod-name">Product Name</div>
-                            <div class="text-xs text-gray-500" id="conf-prod-desc">Description</div>
-                            <div class="text-sm font-medium text-gray-700 mt-1" id="conf-prod-price">$0.00</div>
-                        </div>
-                        <button onclick="removeProduct()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Options</label>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Collect customers' addresses</span>
-                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="toggle" id="toggle-addr" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
-                                <label for="toggle-addr" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Require phone number</span>
-                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="toggle" id="toggle-phone" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
-                                <label for="toggle-phone" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
-                            </div>
-                        </div>
-                    </div>
+        <div class="slide-form" id="scanForm">
+            <div class="modal-header" style="background: #fafafa; padding: 16px 24px;">
+                <div class="header-title">
+                    <h3 style="margin:0; font-size:16px;">Add Scan Payment Channel</h3>
+                    <p style="font-size:12px; margin-top:2px; color:#666;">Configure parameters for QR code providers (Alipay, WeChat, etc.)</p>
                 </div>
             </div>
 
-            <!-- Right: Preview -->
-            <div class="flex-1 bg-gray-100 p-8 flex flex-col items-center justify-center overflow-y-auto relative">
-                <div class="absolute top-4 right-4 bg-white rounded-md shadow-sm border border-gray-200 p-1 flex">
-                    <button onclick="setPreviewMode('desktop')" id="btn-desktop" class="px-3 py-1.5 rounded text-sm bg-gray-100 text-dark font-medium"><i class="fas fa-desktop mr-1"></i> Desktop</button>
-                    <button onclick="setPreviewMode('mobile')" id="btn-mobile" class="px-3 py-1.5 rounded text-sm text-gray-500 hover:text-dark"><i class="fas fa-mobile-alt mr-1"></i> Mobile</button>
-                </div>
-
-                <!-- Preview Container -->
-                <div id="preview-container" class="w-full max-w-3xl transition-all duration-300">
-                    <!-- Desktop Preview Card -->
-                    <div class="bg-white rounded-lg custom-shadow flex overflow-hidden min-h-[500px]">
-                        <!-- Left Summary -->
-                        <div class="w-1/2 bg-gray-50 p-8 border-r border-gray-100">
-                            <div class="flex items-center gap-2 text-gray-500 text-sm font-medium mb-8">
-                                <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">P</div>
-                                <span>Paywizard Demo</span>
-                            </div>
-                            <div class="mb-4">
-                                <div class="text-gray-500 text-sm uppercase tracking-wider font-semibold mb-1">Pay Paywizard</div>
-                                <div class="text-3xl font-bold text-dark" id="preview-total-price">$120.00</div>
-                                <div class="text-sm text-gray-400 mt-1" id="preview-interval"></div>
-                            </div>
-                            
-                            <div class="mt-8">
-                                <div class="flex gap-4 items-start mb-4">
-                                    <div class="w-12 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-gray-300">
-                                        <i class="fas fa-box"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-medium text-dark" id="preview-prod-name">WizarPOS Service</div>
-                                        <div class="text-sm text-gray-500" id="preview-prod-desc">Professional payment services</div>
-                                        <div class="text-sm font-medium text-gray-700 mt-1" id="preview-prod-price-sm">$120.00</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-auto pt-8 border-t border-gray-200 flex justify-between items-center text-sm">
-                                <span class="text-gray-500">Total due</span>
-                                <span class="font-bold text-dark" id="preview-total-bottom">$120.00</span>
-                            </div>
-                        </div>
-
-                        <!-- Right Payment Form -->
-                        <div class="w-1/2 p-8">
-                            <h3 class="text-lg font-bold text-dark mb-4">Pay with card</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Email</label>
-                                    <input type="email" value="email@example.com" disabled class="w-full border border-gray-200 bg-gray-50 rounded px-3 py-2 text-sm text-gray-400">
-                                </div>
-                                <div class="border border-gray-200 rounded-md p-3 bg-gray-50">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="flex gap-2">
-                                            <i class="fab fa-cc-visa text-blue-800 text-xl"></i>
-                                            <i class="fab fa-cc-mastercard text-red-600 text-xl"></i>
-                                            <i class="fab fa-cc-amex text-blue-500 text-xl"></i>
-                                        </div>
-                                    </div>
-                                    <div class="h-4 bg-gray-200 w-full rounded mb-2"></div>
-                                    <div class="flex gap-2">
-                                        <div class="h-4 bg-gray-200 w-1/2 rounded"></div>
-                                        <div class="h-4 bg-gray-200 w-1/2 rounded"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Cardholder name</label>
-                                    <input type="text" value="Full name on card" disabled class="w-full border border-gray-200 bg-gray-50 rounded px-3 py-2 text-sm text-gray-400">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">Country or region</label>
-                                    <div class="w-full border border-gray-200 bg-gray-50 rounded px-3 py-2 text-sm text-gray-400 flex justify-between items-center">
-                                        <span>United States</span>
-                                        <i class="fas fa-chevron-down text-xs"></i>
-                                    </div>
-                                </div>
-                                <button class="w-full bg-dark text-white py-2 rounded font-medium mt-4">Pay</button>
-                                
-                                <div class="relative py-2">
-                                    <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
-                                    <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-gray-400">Or pay with</span></div>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 gap-2">
-                                    <button class="w-full bg-black text-white py-2 rounded flex items-center justify-center gap-2">
-                                        <i class="fab fa-google"></i> Pay
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Modal -->
-    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-lg w-full max-w-2xl h-[80vh] flex flex-col shadow-2xl">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h3 class="text-lg font-bold text-dark">Add a product</h3>
-                <button onclick="toggleProductModal()" class="text-gray-400 hover:text-dark"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div class="flex-1 flex overflow-hidden">
-                <!-- Form -->
-                <div class="w-1/2 p-6 overflow-y-auto border-r border-gray-200">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
-                        <input type="text" id="prod-name-input" oninput="updateModalPreview()" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Product name">
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Description</label>
-                        <textarea id="prod-desc-input" oninput="updateModalPreview()" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Appears at checkout"></textarea>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Pricing model</label>
-                        <div class="flex bg-gray-100 p-1 rounded">
-                            <button onclick="setPricingModel('recurring')" id="btn-recurring" class="flex-1 py-1.5 text-xs font-medium rounded bg-white shadow-sm text-primary transition">Recurring</button>
-                            <button onclick="setPricingModel('oneoff')" id="btn-oneoff" class="flex-1 py-1.5 text-xs font-medium rounded text-gray-500 hover:text-dark transition">One-off</button>
-                        </div>
-                    </div>
-
-                    <div id="billing-period-container" class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Billing period</label>
-                        <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white">
-                            <option>Monthly</option>
-                            <option>Yearly</option>
-                            <option>Weekly</option>
+            <div class="form-content">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Payment Provider</label>
+                        <select>
+                            <option>Select a provider...</option>
+                            <option>Alipay Global</option>
+                            <option>WeChat Pay</option>
+                            <option>UnionPay QR</option>
+                            <option>GrabPay</option>
+                            <option>Dana</option>
                         </select>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Amount <span class="text-red-500">*</span></label>
-                        <div class="flex">
-                            <input type="number" id="prod-price-input" oninput="updateModalPreview()" value="0.00" class="flex-1 border border-gray-300 rounded-l px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            <select class="border border-l-0 border-gray-300 rounded-r px-2 py-2 text-sm bg-gray-50 text-gray-600">
-                                <option>USD</option>
-                                <option>EUR</option>
-                                <option>CNY</option>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label>Merchant ID (MID) / Partner ID</label>
+                        <input type="text" placeholder="e.g. 2088102...">
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label>App ID</label>
+                        <input type="text" placeholder="e.g. wxd930ea5d5a258f4f">
+                    </div>
 
-                <!-- Modal Preview -->
-                <div class="w-1/2 p-6 bg-gray-50 flex flex-col justify-center">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-wide">Preview</h4>
-                    <div class="bg-white p-4 rounded border border-gray-200">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <div class="font-bold text-dark" id="modal-preview-name">Product Name</div>
-                                <div class="text-xs text-gray-500" id="modal-preview-desc">Description</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-bold text-dark" id="modal-preview-price">$0.00</div>
-                                <div class="text-xs text-gray-400" id="modal-preview-interval">per month</div>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 mt-3 pt-3 flex justify-between items-center">
-                            <span class="text-sm font-bold text-dark">Total</span>
-                            <span class="text-lg font-bold text-dark" id="modal-preview-total">$0.00</span>
-                        </div>
+                    <div class="form-group full-width">
+                        <label>Merchant Private Key</label>
+                        <textarea rows="3" placeholder="-----BEGIN PRIVATE KEY-----..."></textarea>
+                        <div class="helper-text">Required for signing requests.</div>
                     </div>
-                </div>
-            </div>
 
-            <div class="p-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-                <button onclick="toggleProductModal()" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-dark">Cancel</button>
-                <button onclick="addProduct()" class="px-4 py-2 text-sm font-medium bg-dark text-white rounded hover:bg-black shadow-sm">Add product</button>
-            </div>
-        </div>
-    </div>
+                    <div class="form-group full-width">
+                        <label>Alipay/WeChat Public Key</label>
+                        <textarea rows="3" placeholder="Key provided by the channel..."></textarea>
+                    </div>
 
-    <!-- VIEW 3: CUSTOMER CHECKOUT -->
-    <div id="view-checkout" class="view-section flex-1 bg-white h-full overflow-y-auto">
-        <div class="flex min-h-screen">
-            <!-- Left Summary -->
-            <div class="w-full md:w-1/2 bg-gray-50 p-8 md:p-12 lg:p-16 border-r border-gray-200 flex flex-col">
-                <div class="mb-8">
-                    <div class="flex items-center gap-2 text-dark font-bold text-lg mb-8">
-                        <div class="w-8 h-8 bg-dark text-white rounded-full flex items-center justify-center">W</div>
-                        WizarPOS Inc.
+                    <div class="form-group">
+                        <label>MDR (Rate %)</label>
+                        <input type="number" step="0.01" placeholder="1.5">
                     </div>
-                    
-                    <div class="text-gray-500 text-sm uppercase tracking-wider font-semibold mb-2">Subscribe to</div>
-                    <h1 class="text-4xl font-bold text-dark mb-2">Recurring Service</h1>
-                    <div class="text-3xl font-bold text-dark mb-1">$19.99 <span class="text-base font-normal text-gray-500">/ month</span></div>
-                </div>
-
-                <div class="mt-8 space-y-6">
-                    <div class="flex gap-4 items-start">
-                        <div class="w-16 h-16 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-gray-300 shadow-sm">
-                            <i class="fas fa-star text-2xl"></i>
-                        </div>
-                        <div>
-                            <div class="font-medium text-dark">WizarPOS recurring services</div>
-                            <div class="text-sm text-gray-500 mt-1">Includes access to premium features, monthly reports, and 24/7 support. Billed monthly.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-auto pt-8 border-t border-gray-200">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-gray-500">Subtotal</span>
-                        <span class="font-medium text-dark">$19.99</span>
-                    </div>
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-gray-500">Tax</span>
-                        <span class="font-medium text-dark">$0.00</span>
-                    </div>
-                    <div class="flex justify-between items-center text-lg">
-                        <span class="font-bold text-dark">Total due</span>
-                        <span class="font-bold text-dark">$19.99</span>
+                    <div class="form-group">
+                        <label>Settlement Currency</label>
+                        <select>
+                            <option>USD</option>
+                            <option>CNY</option>
+                            <option>EUR</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Payment Form -->
-            <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-                <div class="max-w-md mx-auto w-full">
-                    <h2 class="text-xl font-bold text-dark mb-6">Contact information</h2>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" placeholder="you@example.com">
-                        </div>
-                    </div>
-
-                    <h2 class="text-xl font-bold text-dark mb-6">Payment method</h2>
-                    
-                    <div class="space-y-4">
-                        <!-- Payment Element Simulation -->
-                        <div class="border border-gray-300 rounded-md overflow-hidden transition focus-within:ring-1 focus-within:ring-primary focus-within:border-primary">
-                            <div class="px-3 py-2 border-b border-gray-200 bg-white">
-                                <label class="text-xs text-gray-500 font-medium mb-1 block">Card information</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="text" class="w-full outline-none text-sm" placeholder="1234 1234 1234 1234">
-                                    <div class="flex gap-1 text-gray-400">
-                                        <i class="fab fa-cc-visa"></i>
-                                        <i class="fab fa-cc-mastercard"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex divide-x divide-gray-200">
-                                <div class="w-1/2 px-3 py-2 bg-white">
-                                    <label class="text-xs text-gray-500 font-medium mb-1 block">Expiration</label>
-                                    <input type="text" class="w-full outline-none text-sm" placeholder="MM / YY">
-                                </div>
-                                <div class="w-1/2 px-3 py-2 bg-white">
-                                    <label class="text-xs text-gray-500 font-medium mb-1 block">CVC</label>
-                                    <input type="text" class="w-full outline-none text-sm" placeholder="CVC">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Cardholder name</label>
-                            <input type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" placeholder="Full name on card">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Country or region</label>
-                            <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition">
-                                <option>United States</option>
-                                <option>Canada</option>
-                                <option>United Kingdom</option>
-                            </select>
-                        </div>
-
-                        <div class="pt-4">
-                            <button onclick="processPayment()" class="w-full bg-primary hover:bg-purple-700 text-white py-3 rounded font-bold text-sm shadow-md transition transform active:scale-95 flex justify-center items-center">
-                                <span id="btn-text-pay">Subscribe</span>
-                                <i id="btn-spinner" class="fas fa-circle-notch fa-spin ml-2 hidden"></i>
-                            </button>
-                        </div>
-
-                        <!-- Wallets -->
-                        <div class="relative py-2">
-                            <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
-                            <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-gray-400">Or pay with</span></div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-3">
-                            <button class="w-full bg-black text-white py-2.5 rounded flex items-center justify-center gap-1 hover:bg-gray-800 transition">
-                                <i class="fab fa-google"></i> <span class="font-medium">Pay</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6 text-xs text-gray-400 text-center">
-                        Powered by <span class="font-bold text-gray-500">PAYwizard</span> | <a href="#" class="hover:underline">Terms</a> | <a href="#" class="hover:underline">Privacy</a>
-                    </div>
-                </div>
+            <div class="form-footer">
+                <button class="btn btn-outline" onclick="toggleForm(false)">Cancel</button>
+                <button class="btn btn-primary" onclick="toggleForm(false)">Save Configuration</button>
             </div>
         </div>
-    </div>
 
-    <!-- VIEW 4: SUCCESS -->
-    <div id="view-success" class="view-section flex-1 bg-white flex items-center justify-center min-h-screen">
-        <div class="max-w-md w-full p-8 text-center">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-success animate-bounce">
-                <i class="fas fa-check text-4xl"></i>
-            </div>
-            <h2 class="text-3xl font-bold text-dark mb-2">Thanks for subscribing!</h2>
-            <p class="text-gray-500 mb-8">A payment to WizarPOS will appear on your statement.</p>
-            
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 text-left relative overflow-hidden">
-                <!-- Receipt Jagged Edge Effect -->
-                <div class="absolute bottom-0 left-0 w-full h-2 bg-white" style="background-image: linear-gradient(45deg, transparent 50%, #f9fafb 50%), linear-gradient(-45deg, transparent 50%, #f9fafb 50%); background-size: 10px 10px; background-repeat: repeat-x;"></div>
-                
-                <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 border-dashed">
-                    <span class="font-bold text-gray-400 tracking-widest text-sm">PAYWIZARD</span>
-                    <span class="font-mono text-dark">$19.99</span>
-                </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Amount paid</span>
-                        <span class="font-medium text-dark">$19.99</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Date paid</span>
-                        <span class="font-medium text-dark">Nov 10, 2025</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Payment method</span>
-                        <span class="font-medium text-dark">VISA •••• 4242</span>
-                    </div>
-                </div>
-            </div>
-            
-            <button onclick="switchView('dashboard')" class="text-primary font-medium hover:underline">Return to Merchant Dashboard</button>
-        </div>
     </div>
 
     <script>
-        // State
-        let currentProduct = null;
-        let pricingModel = 'recurring';
-
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewName}`).classList.add('active');
-        }
-
-        function toggleProductModal() {
-            const modal = document.getElementById('product-modal');
-            modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) {
-                // Reset form when opening
-                document.getElementById('prod-name-input').value = '';
-                document.getElementById('prod-desc-input').value = '';
-                document.getElementById('prod-price-input').value = '0.00';
-                updateModalPreview();
-            }
-        }
-
-        function setPricingModel(model) {
-            pricingModel = model;
-            const btnRecurring = document.getElementById('btn-recurring');
-            const btnOneoff = document.getElementById('btn-oneoff');
-            const billingContainer = document.getElementById('billing-period-container');
-            const intervalText = document.getElementById('modal-preview-interval');
-
-            if (model === 'recurring') {
-                btnRecurring.classList.replace('text-gray-500', 'text-primary');
-                btnRecurring.classList.add('bg-white', 'shadow-sm');
-                btnOneoff.classList.replace('text-primary', 'text-gray-500');
-                btnOneoff.classList.remove('bg-white', 'shadow-sm');
-                billingContainer.classList.remove('hidden');
-                intervalText.innerText = 'per month';
+        function toggleForm(show) {
+            const form = document.getElementById('scanForm');
+            if (show) {
+                form.classList.add('active');
             } else {
-                btnOneoff.classList.replace('text-gray-500', 'text-primary');
-                btnOneoff.classList.add('bg-white', 'shadow-sm');
-                btnRecurring.classList.replace('text-primary', 'text-gray-500');
-                btnRecurring.classList.remove('bg-white', 'shadow-sm');
-                billingContainer.classList.add('hidden');
-                intervalText.innerText = '';
+                form.classList.remove('active');
             }
-        }
-
-        function updateModalPreview() {
-            const name = document.getElementById('prod-name-input').value || 'Product Name';
-            const desc = document.getElementById('prod-desc-input').value || 'Description';
-            const price = parseFloat(document.getElementById('prod-price-input').value || 0).toFixed(2);
-
-            document.getElementById('modal-preview-name').innerText = name;
-            document.getElementById('modal-preview-desc').innerText = desc;
-            document.getElementById('modal-preview-price').innerText = '$' + price;
-            document.getElementById('modal-preview-total').innerText = '$' + price;
-        }
-
-        function addProduct() {
-            const name = document.getElementById('prod-name-input').value || 'New Product';
-            const desc = document.getElementById('prod-desc-input').value || 'Description';
-            const price = parseFloat(document.getElementById('prod-price-input').value || 0).toFixed(2);
-
-            // Store state
-            currentProduct = { name, desc, price, model: pricingModel };
-
-            // Update Config UI
-            document.getElementById('conf-prod-name').innerText = name;
-            document.getElementById('conf-prod-desc').innerText = desc;
-            document.getElementById('conf-prod-price').innerText = '$' + price + (pricingModel === 'recurring' ? ' / month' : '');
-            document.getElementById('selected-product-card').classList.remove('hidden');
-
-            // Update Preview UI
-            document.getElementById('preview-prod-name').innerText = name;
-            document.getElementById('preview-prod-desc').innerText = desc;
-            document.getElementById('preview-prod-price-sm').innerText = '$' + price;
-            document.getElementById('preview-total-price').innerText = '$' + price;
-            document.getElementById('preview-total-bottom').innerText = '$' + price;
-            document.getElementById('preview-interval').innerText = pricingModel === 'recurring' ? 'per month' : '';
-
-            toggleProductModal();
-        }
-
-        function removeProduct() {
-            currentProduct = null;
-            document.getElementById('selected-product-card').classList.add('hidden');
-            
-            // Reset Preview
-            document.getElementById('preview-prod-name').innerText = 'Product Name';
-            document.getElementById('preview-total-price').innerText = '$0.00';
-            document.getElementById('preview-total-bottom').innerText = '$0.00';
-        }
-
-        function setPreviewMode(mode) {
-            const container = document.getElementById('preview-container');
-            const btnDesktop = document.getElementById('btn-desktop');
-            const btnMobile = document.getElementById('btn-mobile');
-
-            if (mode === 'mobile') {
-                container.classList.add('mobile-frame');
-                container.classList.remove('w-full', 'max-w-3xl');
-                
-                // Styles for active button
-                btnMobile.classList.add('bg-gray-100', 'text-dark', 'font-medium');
-                btnMobile.classList.remove('text-gray-500');
-                btnDesktop.classList.remove('bg-gray-100', 'text-dark', 'font-medium');
-                btnDesktop.classList.add('text-gray-500');
-            } else {
-                container.classList.remove('mobile-frame');
-                container.classList.add('w-full', 'max-w-3xl');
-
-                // Styles
-                btnDesktop.classList.add('bg-gray-100', 'text-dark', 'font-medium');
-                btnDesktop.classList.remove('text-gray-500');
-                btnMobile.classList.remove('bg-gray-100', 'text-dark', 'font-medium');
-                btnMobile.classList.add('text-gray-500');
-            }
-        }
-
-        function createLinkAction() {
-            // Simulate saving
-            alert('Payment Link Created!');
-            switchView('dashboard');
-        }
-
-        function processPayment() {
-            const btnText = document.getElementById('btn-text-pay');
-            const spinner = document.getElementById('btn-spinner');
-            
-            btnText.innerText = 'Processing...';
-            spinner.classList.remove('hidden');
-            
-            setTimeout(() => {
-                switchView('success');
-                btnText.innerText = 'Subscribe';
-                spinner.classList.add('hidden');
-            }, 1500);
         }
     </script>
 </body>
