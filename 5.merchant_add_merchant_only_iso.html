@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merchant Management</title>
+    <title>Add Merchant</title>
     <style>
         :root {
             --page-bg: #f4f5f7;
@@ -373,61 +373,6 @@
             align-items: center;
         }
 
-        .action-dropdown {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .action-menu {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            min-width: 190px;
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 6px;
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            z-index: 20;
-        }
-
-        .action-menu.show {
-            display: flex;
-        }
-
-        .action-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 10px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            text-decoration: none;
-            border: 1px solid transparent;
-            background: #ffffff;
-        }
-
-        .action-menu-item:hover {
-            background: var(--hover);
-        }
-
-        .btn-caret {
-            display: inline-flex;
-            align-items: center;
-            margin-left: 4px;
-        }
-
-        .btn-caret svg {
-            width: 12px;
-            height: 12px;
-        }
-
         .btn {
             display: inline-flex;
             align-items: center;
@@ -542,7 +487,7 @@
             grid-template-columns: minmax(200px, 1.3fr) minmax(140px, 1fr) 110px minmax(220px, 1.4fr) 150px minmax(160px, 1.1fr) 80px 80px 110px 70px;
             gap: 12px;
             align-items: center;
-            min-width: 1468px;
+            min-width: 1180px;
         }
 
         .table-head {
@@ -567,7 +512,6 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            min-width: 0;
         }
 
         .table-head > div:last-child,
@@ -825,6 +769,565 @@
             margin-top: 2px;
         }
 
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            width: fit-content;
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+        }
+
+        .wizard-shell {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 22px 24px 26px;
+        }
+
+        .wizard-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .wizard-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .wizard-subtitle {
+            margin: 6px 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .wizard-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .wizard-title-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .store-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            color: var(--text-main);
+            border-left: 1px solid var(--border);
+            padding-left: 12px;
+        }
+
+        .store-inline-name {
+            font-weight: 600;
+        }
+
+        .wizard-steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin: 22px 0 24px;
+            position: relative;
+        }
+
+        .wizard-steps::before {
+            content: "";
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            top: 18px;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 0;
+        }
+
+        .wizard-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .wizard-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #6b7280;
+            background: #e5e7eb;
+            box-shadow: inset 0 0 0 1px #d1d5db;
+        }
+
+        .wizard-step.active .wizard-dot {
+            background: #16a34a;
+            color: #ffffff;
+            box-shadow: 0 10px 16px rgba(22, 163, 74, 0.2);
+        }
+
+        .wizard-step.completed .wizard-dot {
+            background: #111827;
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        .wizard-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .wizard-step.active .wizard-label {
+            color: #111827;
+        }
+
+        .wizard-form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .wizard-panel {
+            display: none;
+            border-radius: 16px;
+            border: 1px solid #f0f0f0;
+            padding: 20px 22px 24px;
+            background: #ffffff;
+        }
+
+        .wizard-panel.active {
+            display: block;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px;
+        }
+
+        .panel-note {
+            margin: 4px 0 18px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .store-sync {
+            margin: -6px 0 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-grid.two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-grid.three {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #d7dde6;
+            padding: 8px 2px 10px;
+            font-size: 15px;
+            color: var(--text-main);
+            background: transparent;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field::placeholder {
+            color: #9ca3af;
+        }
+
+        .input-field:focus {
+            border-bottom-color: var(--accent);
+            box-shadow: 0 2px 0 0 var(--accent);
+        }
+
+        .input-field[readonly] {
+            color: #94a3b8;
+        }
+
+        .chip-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e3e7ee;
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: #f8fafc;
+        }
+
+        .chip-plus {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: #475569;
+            background: #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .chip-input-field {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-main);
+            width: 100%;
+        }
+
+        .checkline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .checkline input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .wizard-actions .btn {
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .wizard-actions .btn.secondary {
+            border-color: var(--border);
+        }
+
+        .wizard-actions .btn.primary {
+            border-color: var(--text-strong);
+        }
+
+        .wizard-actions .btn.primary.finish {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* group buttons on right for mixed alignment */
+        .wizard-actions .action-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .processor-params {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .processor-params.is-hidden {
+            display: none;
+        }
+
+        .processor-params-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .processor-params-head h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
+        }
+
+        .processor-params-head h4::after {
+            content: none;
+        }
+
+        .processor-params-head p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .processor-pill {
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.10) inset;
+        }
+
+        .param-set {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .param-set.active {
+            display: block;
+        }
+
+        .param-tabs {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .param-tab {
+            border: none;
+            background: transparent;
+            padding: 8px 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.18s ease, border-color 0.18s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .param-tab:hover {
+            color: var(--text-main);
+        }
+
+        .param-tab.active {
+            color: var(--text-strong);
+            border-bottom-color: var(--text-strong);
+        }
+
+        .param-panel {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .param-panel.active {
+            display: block;
+        }
+
+        .param-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            background: #f9fafb;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px 16px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .processor-params .group-header {
+            display: none;
+        }
+
+        .processor-params .field label {
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 12px;
+        }
+
+        .input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        }
+
+        .input[disabled],
+        .input[readonly] {
+            background: #f8fafc;
+            color: #9ca3af;
+        }
+
+        .review-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 6px;
+            margin: 4px 0 18px;
+        }
+
+        .review-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #16a34a;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 22px;
+        }
+
+        .review-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-strong);
+        }
+
+        .review-subtitle {
+            font-size: 14px;
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .review-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            background: #fbfbfc;
+        }
+
+        .review-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            padding: 2px 0;
+        }
+
+        .review-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 11px;
+        }
+
+        .review-value {
+            color: var(--text-main);
+            font-weight: 600;
+            text-align: right;
+            flex: 1;
+            word-break: break-word;
+        }
+
         @media (max-width: 1100px) {
             .page-shell {
                 flex-direction: column;
@@ -837,6 +1340,38 @@
 
             .main-container {
                 height: auto;
+            }
+        }
+
+        @media (max-width: 960px) {
+            .form-grid.two,
+            .form-grid.three {
+                grid-template-columns: 1fr;
+            }
+
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wizard-steps {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                text-align: left;
+            }
+
+            .wizard-steps::before {
+                display: none;
+            }
+
+            .wizard-step {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 12px;
+                text-align: left;
+            }
+
+            .wizard-dot {
+                margin-right: 4px;
             }
         }
 
@@ -1050,7 +1585,7 @@
         <div class="main-container">
             <header class="top-header">
                 <div class="breadcrumbs">
-                    MERCHANTS &gt; <span>Merchant List</span>
+                    MERCHANTS &gt; <span>Add Merchant</span>
                 </div>
                 <div class="user-controls">
                     <div class="icon-circle" aria-label="Notifications">
@@ -1071,214 +1606,135 @@
 
             <main class="content-area">
                 <div class="content-inner">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Merchant Management</h1>
-                            <p class="page-subtitle">Manage your merchant portfolio, stores, and equipment.</p>
+                    <a class="back-link" href="5.merchant_manage_iso.html">Back to Merchant List</a>
+
+                    <section class="wizard-shell">
+                        <div class="wizard-header">
+                            <div>
+                                <div class="wizard-title-row">
+                                    <h2 class="wizard-title">Add Merchant</h2>
+                                    <div class="store-inline" aria-live="polite">
+                                        <span class="store-inline-name">Merchant Only</span>
+                                    </div>
+                                </div>
+                                <p class="wizard-subtitle">Create a merchant profile without adding stores or devices.</p>
+                            </div>
+                            <div class="wizard-meta">Fields marked * are required</div>
                         </div>
-                        <div class="page-actions">
-                            <button class="btn secondary" type="button">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
-                                </svg>
-                                Filters
-                            </button>
-                            <div class="action-dropdown">
-                                <button class="btn primary" type="button" id="addMerchantTrigger" aria-haspopup="menu" aria-expanded="false">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M12 5v14"></path>
-                                        <path d="M5 12h14"></path>
-                                    </svg>
-                                    Add Merchant
-                                    <span class="btn-caret" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M6 9l6 6 6-6"></path>
-                                        </svg>
+
+                        <form class="wizard-form" autocomplete="off">
+                            <div class="wizard-panel active">
+                                <h3 class="panel-title">Merchant Info</h3>
+                                <p class="panel-note">Enter the primary merchant contact and business details.</p>
+
+                                <div class="form-grid two">
+                                    <div class="field">
+                                        <label for="merchant-dba">DBA (MERCHANT NAME) *</label>
+                                        <input class="input-field" id="merchant-dba" type="text" placeholder="Business Name">
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-contact">Contact Name</label>
+                                        <input class="input-field" id="merchant-contact" type="text" placeholder="Full Name">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid two">
+                                    <div class="field">
+                                        <label for="merchant-email">Email *</label>
+                                        <input class="input-field" id="merchant-email" type="email" placeholder="name@domain.com">
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-phone">Phone Number</label>
+                                        <input class="input-field" id="merchant-phone" type="tel" placeholder="+1 555 555 5555">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid two">
+                                    <div class="field">
+                                        <label for="merchant-address1">Address Line 1</label>
+                                        <input class="input-field" id="merchant-address1" type="text" placeholder="Street Address">
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-address2">Address Line 2</label>
+                                        <input class="input-field" id="merchant-address2" type="text" placeholder="Suite or Unit">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid three">
+                                    <div class="field">
+                                        <label for="merchant-zip">Zip Code</label>
+                                        <input class="input-field" id="merchant-zip" type="text" placeholder="Zip Code">
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-city">City</label>
+                                        <input class="input-field" id="merchant-city" type="text" placeholder="Auto-filled">
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-state">State</label>
+                                        <input class="input-field" id="merchant-state" type="text" placeholder="Auto-filled">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid three">
+                                    <div class="field">
+                                        <label for="merchant-owner">Owner (Agent) *</label>
+                                        <select class="input-field" id="merchant-owner">
+                                            <option value="">Select Owner</option>
+                                            <option>Payyou</option>
+                                            <option>Valor Training ISO</option>
+                                            <option>Nexus Partners</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-country">Country *</label>
+                                        <select class="input-field" id="merchant-country">
+                                            <option value="">Select Country</option>
+                                            <option value="United States">United States</option>
+                                            <option value="Canada">Canada</option>
+                                            <option value="United Kingdom">United Kingdom</option>
+                                            <option value="Australia">Australia</option>
+                                            <option value="New Zealand">New Zealand</option>
+                                            <option value="Germany">Germany</option>
+                                            <option value="France">France</option>
+                                            <option value="Italy">Italy</option>
+                                            <option value="Spain">Spain</option>
+                                            <option value="Netherlands">Netherlands</option>
+                                            <option value="Sweden">Sweden</option>
+                                            <option value="Norway">Norway</option>
+                                            <option value="Denmark">Denmark</option>
+                                            <option value="Switzerland">Switzerland</option>
+                                            <option value="Japan">Japan</option>
+                                            <option value="China">China</option>
+                                            <option value="Hong Kong">Hong Kong</option>
+                                            <option value="Singapore">Singapore</option>
+                                            <option value="India">India</option>
+                                            <option value="Mexico">Mexico</option>
+                                            <option value="Brazil">Brazil</option>
+                                            <option value="South Africa">South Africa</option>
+                                            <option value="United Arab Emirates">United Arab Emirates</option>
+                                            <option value="Saudi Arabia">Saudi Arabia</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-currency">Currency *</label>
+                                        <input class="input-field" id="merchant-currency" type="text" placeholder="Auto-filled">
+                                    </div>
+                                </div>
+
+                                <div class="wizard-actions">
+                                    <a class="btn secondary" href="5.merchant_manage_iso.html">Back</a>
+                                    <span class="action-group">
+                                        <button class="btn primary finish" type="button">Create Merchant</button>
                                     </span>
-                                </button>
-                                <div class="action-menu" id="addMerchantMenu" role="menu" aria-hidden="true">
-                                    <a class="action-menu-item" role="menuitem" href="5.merchant_add_iso.html">Quick Onboard</a>
-                                    <a class="action-menu-item" role="menuitem" href="5.merchant_add_merchant_only_iso.html">Merchant Only</a>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <section class="merchant-panel">
-                        <div class="panel-head">
-                            <div class="search-input">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <circle cx="11" cy="11" r="7"></circle>
-                                    <path d="M16.65 16.65L21 21"></path>
-                                </svg>
-                                <input type="text" placeholder="Search by DBA, Merchant ID, or Email" aria-label="Search merchants">
-                            </div>
-                            <div class="quick-filters">
-                                <span class="filter-chip active">All (108)</span>
-                                <span class="filter-chip">Active (86)</span>
-                                <span class="filter-chip">Pending (14)</span>
-                                <span class="filter-chip">On Hold (8)</span>
-                            </div>
-                        </div>
-
-                        <div class="table-scroll">
-                            <div class="table-head">
-                                <div>DBA</div>
-                                <div>Name</div>
-                                <div>Boarded On</div>
-                                <div>Email</div>
-                                <div>Phone Number</div>
-                                <div>Owned By</div>
-                                <div>Stores</div>
-                                <div>Devices</div>
-                                <div>Status</div>
-                                <div>Actions</div>
-                            </div>
-
-                            <div class="table-row">
-                                <div>
-                                    <a href="5.merchant_detail_iso.html" class="table-link">Tasty Treats (NYC)</a>
-                                    <div class="cell-sub">ID: 82910293</div>
-                                </div>
-                                <div>Michael Valor</div>
-                                <div>09/01/23</div>
-                                <div>mg123@valor.com</div>
-                                <div>555-555-5555</div>
-                                <div>Valor Training ISO</div>
-                                <div><span class="count-pill">1</span></div>
-                                <div><span class="count-pill">1</span></div>
-                                <div class="status-indicator status-active">
-                                    <span class="status-dot"></span>
-                                    Active
-                                </div>
-                                <div>
-                                    <button class="icon-button" type="button" aria-label="More actions">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                            <circle cx="12" cy="5" r="1.6"></circle>
-                                            <circle cx="12" cy="12" r="1.6"></circle>
-                                            <circle cx="12" cy="19" r="1.6"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="table-row">
-                                <div>
-                                    <a href="5.merchant_detail_iso.html" class="table-link">Lumina Boutique</a>
-                                    <div class="cell-sub">ID: 77281920</div>
-                                </div>
-                                <div>Emily Style</div>
-                                <div>12/01/23</div>
-                                <div>emily@lumina.com</div>
-                                <div>+1 989-989-8989</div>
-                                <div>Payyou</div>
-                                <div><span class="count-pill">0</span></div>
-                                <div><span class="count-pill">0</span></div>
-                                <div class="status-indicator status-pending">
-                                    <span class="status-dot"></span>
-                                    Pending
-                                </div>
-                                <div>
-                                    <button class="icon-button" type="button" aria-label="More actions">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                            <circle cx="12" cy="5" r="1.6"></circle>
-                                            <circle cx="12" cy="12" r="1.6"></circle>
-                                            <circle cx="12" cy="19" r="1.6"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="table-row">
-                                <div>
-                                    <a href="5.merchant_detail_iso.html" class="table-link">Oswald</a>
-                                    <div class="cell-sub">ID: 55671245</div>
-                                </div>
-                                <div>M. Ashraf</div>
-                                <div>10/14/24</div>
-                                <div>fmohammedashraf@denovosystem.com</div>
-                                <div>+1 989-989-8988</div>
-                                <div>Payyou</div>
-                                <div><span class="count-pill">2</span></div>
-                                <div><span class="count-pill">3</span></div>
-                                <div class="status-indicator status-active">
-                                    <span class="status-dot"></span>
-                                    Active
-                                </div>
-                                <div>
-                                    <button class="icon-button" type="button" aria-label="More actions">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                            <circle cx="12" cy="5" r="1.6"></circle>
-                                            <circle cx="12" cy="12" r="1.6"></circle>
-                                            <circle cx="12" cy="19" r="1.6"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="pagination">
-                            <div>Showing 1-10 of 108 merchants</div>
-                            <div class="page-controls">
-                                <button class="page-btn" type="button">Prev</button>
-                                <button class="page-btn active" type="button">1</button>
-                                <button class="page-btn" type="button">2</button>
-                                <button class="page-btn" type="button">3</button>
-                                <button class="page-btn" type="button">Next</button>
-                                <div class="page-size">
-                                    <select aria-label="Rows per page">
-                                        <option>10</option>
-                                        <option>20</option>
-                                        <option>50</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        </form>
                     </section>
-
                 </div>
             </main>
         </div>
     </div>
-    <script>
-        const addMerchantTrigger = document.getElementById('addMerchantTrigger');
-        const addMerchantMenu = document.getElementById('addMerchantMenu');
 
-        function closeAddMerchantMenu() {
-            if (!addMerchantMenu || !addMerchantTrigger) {
-                return;
-            }
-            addMerchantMenu.classList.remove('show');
-            addMerchantMenu.setAttribute('aria-hidden', 'true');
-            addMerchantTrigger.setAttribute('aria-expanded', 'false');
-        }
-
-        if (addMerchantTrigger && addMerchantMenu) {
-            addMerchantTrigger.addEventListener('click', (event) => {
-                event.stopPropagation();
-                const willOpen = !addMerchantMenu.classList.contains('show');
-                if (willOpen) {
-                    addMerchantMenu.classList.add('show');
-                } else {
-                    addMerchantMenu.classList.remove('show');
-                }
-                addMerchantMenu.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
-                addMerchantTrigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-            });
-
-            addMerchantMenu.addEventListener('click', (event) => {
-                if (event.target.closest('.action-menu-item')) {
-                    closeAddMerchantMenu();
-                }
-            });
-
-            document.addEventListener('click', closeAddMerchantMenu);
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
-                    closeAddMerchantMenu();
-                }
-            });
-        }
-    </script>
+    
 </body>
 </html>
