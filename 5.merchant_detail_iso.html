@@ -838,8 +838,9 @@
 
         .store-grid-head,
         .store-grid-row {
-            grid-template-columns: minmax(200px, 1.4fr) minmax(220px, 1.6fr) 140px 120px 120px;
-            min-width: 920px;
+            grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.4fr) 120px 110px 110px minmax(120px, max-content);
+            min-width: 940px;
+            column-gap: 10px;
         }
 
         .store-grid-row {
@@ -871,10 +872,170 @@
             outline-offset: -2px;
         }
 
+        .store-grid-head > div:last-child {
+            text-align: right;
+            justify-self: end;
+        }
+
+        .store-actions-cell {
+            display: flex;
+            justify-content: flex-end;
+            justify-self: end;
+            text-align: right;
+            cursor: default;
+        }
+
+        .store-settings {
+            position: relative;
+        }
+
+        .store-settings-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1f2937;
+            cursor: pointer;
+        }
+
+        .store-settings-toggle:focus {
+            outline: 2px solid #9ca3af;
+            outline-offset: 2px;
+        }
+
+        .store-settings-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 220px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            padding: 6px;
+            display: none;
+            z-index: 20;
+        }
+
+        .store-settings-menu.show {
+            display: grid;
+            gap: 2px;
+        }
+
+        .store-settings-item {
+            width: 100%;
+            text-align: left;
+            border: 1px solid transparent;
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #1f2937;
+            cursor: pointer;
+        }
+
+        .store-settings-item:hover {
+            background: #f3f4f6;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 640px;
+        }
+
+        .data-table thead th {
+            background: #f7f8fa;
+            color: var(--text-dim);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .data-table tbody td {
+            padding: 14px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            color: var(--text-main);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .data-table .cell-actions {
+            text-align: right;
+        }
+
+        .action-buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #374151;
+        }
+
+        .action-button:hover {
+            border-color: #d1d5db;
+            color: #111827;
+        }
+
+        .action-button svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .action-button.danger {
+            border-color: #fecaca;
+            color: #b91c1c;
+            background: #fff1f2;
+        }
+
         .device-grid-head,
         .device-grid-row {
-            grid-template-columns: 140px 130px 180px 140px 120px 130px 120px;
-            min-width: 960px;
+            grid-template-columns: minmax(130px, 1.1fr) 90px minmax(180px, 1.4fr) 110px 110px 110px 110px minmax(120px, max-content);
+            min-width: 980px;
+            column-gap: 10px;
+        }
+
+        .device-grid-head > div:last-child {
+            text-align: right;
+            justify-self: end;
+        }
+
+        .device-actions-cell {
+            display: flex;
+            justify-content: flex-end;
+            justify-self: end;
+            text-align: right;
+            cursor: default;
         }
 
         .status-badge {
@@ -1028,6 +1189,39 @@
             font-size: 12px;
             color: var(--text-muted);
             margin-top: 2px;
+        }
+
+        .modal-toolbar {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .settings-grid-head,
+        .settings-grid-row {
+            grid-template-columns: minmax(180px, 1.4fr) minmax(180px, 1.2fr) 160px 140px;
+            min-width: 640px;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .settings-action {
+            border: 1px solid var(--border);
+            background: #fff;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #1f2937;
+        }
+
+        .settings-action.danger {
+            border-color: #fecaca;
+            color: #b91c1c;
+            background: #fff1f2;
         }
 
         .modal-overlay {
@@ -1515,6 +1709,7 @@
                                 <div>MID</div>
                                 <div>Devices</div>
                                 <div>Status</div>
+                                <div>Actions</div>
                             </div>
                             <div class="grid-row store-grid-row" data-store-id="st_123" data-store-name="Downtown Location" role="button" tabindex="0" aria-pressed="false">
                                 <div>
@@ -1525,6 +1720,18 @@
                                 <div>888299100293</div>
                                 <div data-role="device-count">2 Active</div>
                                 <div><span class="status-badge active" data-role="store-status">Active</span></div>
+                                <div class="store-actions-cell">
+                                    <div class="store-settings">
+                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                                            Settings <span aria-hidden="true">&#9662;</span>
+                                        </button>
+                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
+                                            <button class="store-settings-item" type="button" data-action="payment">Payment Parameter Setting</button>
+                                            <button class="store-settings-item" type="button" data-action="toggle-status">Disable Merchant</button>
+                                            <button class="store-settings-item" type="button" data-action="resend">Resend Email</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="grid-row store-grid-row" data-store-id="st_204" data-store-name="Midtown Location" role="button" tabindex="0" aria-pressed="false">
                                 <div>
@@ -1535,6 +1742,18 @@
                                 <div>888299100294</div>
                                 <div data-role="device-count">1 Pending</div>
                                 <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
+                                <div class="store-actions-cell">
+                                    <div class="store-settings">
+                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                                            Settings <span aria-hidden="true">&#9662;</span>
+                                        </button>
+                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
+                                            <button class="store-settings-item" type="button" data-action="payment">Payment Parameter Setting</button>
+                                            <button class="store-settings-item" type="button" data-action="toggle-status">Disable Merchant</button>
+                                            <button class="store-settings-item" type="button" data-action="resend">Resend Email</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -1559,8 +1778,9 @@
                                 <div>Status</div>
                                 <div>Boarded On</div>
                                 <div>Last Txn</div>
+                                <div>Actions</div>
                             </div>
-                            <div class="grid-row device-grid-row" data-store-id="st_123">
+                            <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="Enable">
                                 <div>156724348539</div>
                                 <div>P3</div>
                                 <div>Downtown Location</div>
@@ -1568,8 +1788,18 @@
                                 <div><span class="status-badge active">Active</span></div>
                                 <div>10/14/24</div>
                                 <div>10/14/24</div>
+                                <div class="device-actions-cell">
+                                    <div class="store-settings">
+                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                                            Settings <span aria-hidden="true">&#9662;</span>
+                                        </button>
+                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
+                                            <button class="store-settings-item" type="button" data-action="device-settings">Device Settings</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="grid-row device-grid-row" data-store-id="st_123">
+                            <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348540" data-model="P2" data-processor="FISERV" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="Enable">
                                 <div>156724348540</div>
                                 <div>P2</div>
                                 <div>Downtown Location</div>
@@ -1577,8 +1807,18 @@
                                 <div><span class="status-badge active">Active</span></div>
                                 <div>10/10/24</div>
                                 <div>10/14/24</div>
+                                <div class="device-actions-cell">
+                                    <div class="store-settings">
+                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                                            Settings <span aria-hidden="true">&#9662;</span>
+                                        </button>
+                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
+                                            <button class="store-settings-item" type="button" data-action="device-settings">Device Settings</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="grid-row device-grid-row" data-store-id="st_204">
+                            <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-sn="156724348541" data-model="VT #1" data-processor="Worldpay" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="Enable">
                                 <div>156724348541</div>
                                 <div>VT #1</div>
                                 <div>Midtown Location</div>
@@ -1586,6 +1826,16 @@
                                 <div><span class="status-badge pending">Pending</span></div>
                                 <div>09/30/24</div>
                                 <div>09/30/24</div>
+                                <div class="device-actions-cell">
+                                    <div class="store-settings">
+                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                                            Settings <span aria-hidden="true">&#9662;</span>
+                                        </button>
+                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
+                                            <button class="store-settings-item" type="button" data-action="device-settings">Device Settings</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -1814,6 +2064,134 @@
             </form>
         </div>
     </div>
+    <div class="modal-overlay" id="store-payment-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-payment-title" style="max-width: 720px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="store-payment-title">Payment Parameter Setting</h3>
+                    <p class="modal-note" id="store-payment-subtitle">Store: Downtown Location</p>
+                </div>
+                <button class="modal-close" type="button" data-close="store-payment-modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-toolbar">
+                    <button class="btn primary sm" type="button" id="store-payment-add">Add Channel</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Payment Channel</th>
+                                <th>Channel Cost</th>
+                                <th>Date &amp; Time</th>
+                                <th class="cell-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-channel="payWizardDemo" data-fee-rate="0" data-fee-cap="100" data-mid="2025121500000001" data-capabilities="Card Present">
+                                <td>payWizardDemo</td>
+                                <td>0%, Capping 100 Per Transaction</td>
+                                <td>2025-12-15 10:19:04</td>
+                                <td class="cell-actions">
+                                    <div class="action-buttons">
+                                        <button class="action-button" type="button" data-action="edit-payment" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="action-button danger" type="button" data-action="delete-payment" aria-label="Delete">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                <path d="M10 11v6"></path>
+                                                <path d="M14 11v6"></path>
+                                                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-channel="SmartCommerce" data-fee-rate="2.4" data-fee-cap="75" data-mid="2025121500000022" data-capabilities="eCommerce">
+                                <td>SmartCommerce</td>
+                                <td>2.4% + 0.10, Capping 75</td>
+                                <td>2025-12-09 09:02:18</td>
+                                <td class="cell-actions">
+                                    <div class="action-buttons">
+                                        <button class="action-button" type="button" data-action="edit-payment" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="action-button danger" type="button" data-action="delete-payment" aria-label="Delete">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                <path d="M10 11v6"></path>
+                                                <path d="M14 11v6"></path>
+                                                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn secondary" type="button" data-close="store-payment-modal">Close</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="store-payment-edit-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-payment-edit-title" style="max-width: 640px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="store-payment-edit-title">Edit Payment Channel</h3>
+                    <p class="modal-note" id="store-payment-edit-subtitle">Configure pricing and capabilities.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="store-payment-edit-modal" aria-label="Close"></button>
+            </div>
+            <form id="store-payment-edit-form" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="store-payment-channel">Payment Channels</label>
+                            <input class="input-field" id="store-payment-channel" name="channel" type="text" readonly value="payWizardDemo">
+                        </div>
+                        <div class="field">
+                            <label for="store-payment-fee-rate">Fee Rate (%)</label>
+                            <input class="input-field" id="store-payment-fee-rate" name="feeRate" type="number" step="0.01" min="0" value="0">
+                        </div>
+                        <div class="field">
+                            <label for="store-payment-fee-cap">Fee Rate Cap</label>
+                            <input class="input-field" id="store-payment-fee-cap" name="feeCap" type="number" min="0" value="100">
+                        </div>
+                        <div class="field">
+                            <label for="store-payment-mid">Merchant ID (MID)</label>
+                            <input class="input-field" id="store-payment-mid" name="mid" type="text" readonly value="2025121500000001">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="store-payment-capabilities">Channel Capabilities</label>
+                            <select class="input-field" id="store-payment-capabilities" name="capabilities">
+                                <option value="Card Present">Card Present</option>
+                                <option value="eCommerce">eCommerce</option>
+                                <option value="MOTO">MOTO</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="store-payment-edit-modal">Cancel</button>
+                    <button class="btn primary" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
         const storeGrid = document.querySelector('.store-grid-head')?.parentElement;
         const deviceGrid = document.querySelector('.device-grid-head')?.parentElement;
@@ -1825,6 +2203,8 @@
 
         const storeModal = document.getElementById('store-modal');
         const deviceModal = document.getElementById('device-modal');
+        const storePaymentModal = document.getElementById('store-payment-modal');
+        const storePaymentEditModal = document.getElementById('store-payment-edit-modal');
         const addStoreForm = document.getElementById('add-store-form');
         const addDeviceForm = document.getElementById('add-device-form');
         const addDeviceButtons = document.querySelectorAll('.open-add-device');
@@ -1833,6 +2213,15 @@
         const processorVersionSelect = document.getElementById('processor-version-modal');
         const deviceBoardedInput = document.getElementById('device-boarded-on');
         const deviceLastTxnInput = document.getElementById('device-last-txn');
+        const storePaymentSubtitle = document.getElementById('store-payment-subtitle');
+        const storePaymentAdd = document.getElementById('store-payment-add');
+        const storePaymentEditForm = document.getElementById('store-payment-edit-form');
+        const storePaymentEditTitle = document.getElementById('store-payment-edit-title');
+        const storePaymentChannel = document.getElementById('store-payment-channel');
+        const storePaymentFeeRate = document.getElementById('store-payment-fee-rate');
+        const storePaymentFeeCap = document.getElementById('store-payment-fee-cap');
+        const storePaymentMid = document.getElementById('store-payment-mid');
+        const storePaymentCapabilities = document.getElementById('store-payment-capabilities');
 
         let activeStoreId = null;
 
@@ -1868,6 +2257,84 @@
             badge.textContent = status;
         };
 
+        const syncStoreToggleLabel = (row) => {
+            if (!row) return;
+            const toggleItem = row.querySelector('.store-settings-item[data-action="toggle-status"]');
+            if (!toggleItem) return;
+            const isDisabled = row.dataset.storeDisabled === 'true';
+            toggleItem.textContent = isDisabled ? 'Enable Merchant' : 'Disable Merchant';
+        };
+
+        const buildStoreActionsCell = () => {
+            const cell = document.createElement('div');
+            cell.className = 'store-actions-cell';
+
+            const settingsWrap = document.createElement('div');
+            settingsWrap.className = 'store-settings';
+
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'store-settings-toggle';
+            toggleButton.type = 'button';
+            toggleButton.setAttribute('aria-haspopup', 'true');
+            toggleButton.setAttribute('aria-expanded', 'false');
+            toggleButton.innerHTML = 'Settings <span aria-hidden="true">&#9662;</span>';
+
+            const menu = document.createElement('div');
+            menu.className = 'store-settings-menu';
+            menu.setAttribute('role', 'menu');
+            menu.setAttribute('aria-hidden', 'true');
+
+            const makeItem = (label, action) => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'store-settings-item';
+                item.dataset.action = action;
+                item.textContent = label;
+                return item;
+            };
+
+            menu.appendChild(makeItem('Payment Parameter Setting', 'payment'));
+            menu.appendChild(makeItem('Disable Merchant', 'toggle-status'));
+            menu.appendChild(makeItem('Resend Email', 'resend'));
+
+            settingsWrap.appendChild(toggleButton);
+            settingsWrap.appendChild(menu);
+            cell.appendChild(settingsWrap);
+            return cell;
+        };
+
+        const buildDeviceActionsCell = () => {
+            const cell = document.createElement('div');
+            cell.className = 'device-actions-cell';
+
+            const settingsWrap = document.createElement('div');
+            settingsWrap.className = 'store-settings';
+
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'store-settings-toggle';
+            toggleButton.type = 'button';
+            toggleButton.setAttribute('aria-haspopup', 'true');
+            toggleButton.setAttribute('aria-expanded', 'false');
+            toggleButton.innerHTML = 'Settings <span aria-hidden="true">&#9662;</span>';
+
+            const menu = document.createElement('div');
+            menu.className = 'store-settings-menu';
+            menu.setAttribute('role', 'menu');
+            menu.setAttribute('aria-hidden', 'true');
+
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'store-settings-item';
+            item.dataset.action = 'device-settings';
+            item.textContent = 'Device Settings';
+            menu.appendChild(item);
+
+            settingsWrap.appendChild(toggleButton);
+            settingsWrap.appendChild(menu);
+            cell.appendChild(settingsWrap);
+            return cell;
+        };
+
         const updateStoreDeviceSummaries = () => {
             const deviceRows = getDeviceRows();
             const summaryMap = new Map();
@@ -1899,17 +2366,24 @@
                     countCell.textContent = label;
                 }
 
+                const isDisabled = row.dataset.storeDisabled === 'true';
+                syncStoreToggleLabel(row);
+
                 const statusBadge = row.querySelector('[data-role="store-status"]');
                 if (statusBadge) {
-                    let storeStatus = 'Pending';
-                    if (summary.statuses.Active) {
-                        storeStatus = 'Active';
-                    } else if (summary.statuses.Pending) {
-                        storeStatus = 'Pending';
-                    } else if (summary.statuses.Offline) {
-                        storeStatus = 'Offline';
+                    if (isDisabled) {
+                        updateStatusBadge(statusBadge, 'Offline');
+                    } else {
+                        let storeStatus = 'Pending';
+                        if (summary.statuses.Active) {
+                            storeStatus = 'Active';
+                        } else if (summary.statuses.Pending) {
+                            storeStatus = 'Pending';
+                        } else if (summary.statuses.Offline) {
+                            storeStatus = 'Offline';
+                        }
+                        updateStatusBadge(statusBadge, storeStatus);
                     }
-                    updateStatusBadge(statusBadge, storeStatus);
                 }
             });
         };
@@ -1992,7 +2466,69 @@
             if (!modal) return;
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            const hasOpenModal = Boolean(document.querySelector('.modal-overlay.active'));
+            document.body.style.overflow = hasOpenModal ? 'hidden' : '';
+        };
+
+        const openPaymentEdit = (data) => {
+            if (!storePaymentEditModal) return;
+            const payload = Object.assign({
+                channel: 'payWizardDemo',
+                feeRate: '0',
+                feeCap: '100',
+                mid: '2025121500000001',
+                capabilities: 'Card Present',
+                mode: 'edit'
+            }, data || {});
+            if (storePaymentEditTitle) {
+                storePaymentEditTitle.textContent = payload.mode === 'add' ? 'Add Payment Channel' : 'Edit Payment Channel';
+            }
+            if (storePaymentChannel) storePaymentChannel.value = payload.channel || '';
+            if (storePaymentFeeRate) storePaymentFeeRate.value = payload.feeRate || '';
+            if (storePaymentFeeCap) storePaymentFeeCap.value = payload.feeCap || '';
+            if (storePaymentMid) storePaymentMid.value = payload.mid || '';
+            if (storePaymentCapabilities) {
+                storePaymentCapabilities.value = payload.capabilities || 'Card Present';
+            }
+            openModal(storePaymentEditModal);
+        };
+
+        const closeStoreMenus = () => {
+            document.querySelectorAll('.store-settings-menu.show').forEach((menu) => {
+                menu.classList.remove('show');
+                menu.setAttribute('aria-hidden', 'true');
+            });
+            document.querySelectorAll('.store-settings-toggle[aria-expanded="true"]').forEach((btn) => {
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        };
+
+        const toggleStoreMenu = (button) => {
+            if (!button) return;
+            const menu = button.closest('.store-settings')?.querySelector('.store-settings-menu');
+            if (!menu) return;
+            const willOpen = !menu.classList.contains('show');
+            closeStoreMenus();
+            if (willOpen) {
+                menu.classList.add('show');
+                menu.setAttribute('aria-hidden', 'false');
+                button.setAttribute('aria-expanded', 'true');
+            }
+        };
+
+        const setStoreDisabled = (row, disabled) => {
+            if (!row) return;
+            if (disabled) {
+                row.dataset.storeDisabled = 'true';
+            } else {
+                row.removeAttribute('data-store-disabled');
+            }
+            syncStoreToggleLabel(row);
+            if (disabled) {
+                updateStatusBadge(row.querySelector('[data-role="store-status"]'), 'Offline');
+            } else {
+                updateStoreDeviceSummaries();
+            }
         };
 
         const populateProcessorVersions = (processor) => {
@@ -2052,15 +2588,56 @@
             });
         });
 
+        if (storePaymentAdd) {
+            storePaymentAdd.addEventListener('click', () => {
+                openPaymentEdit({ mode: 'add' });
+            });
+        }
+
+        if (storePaymentModal) {
+            storePaymentModal.addEventListener('click', (event) => {
+                const editBtn = event.target.closest('[data-action="edit-payment"]');
+                if (editBtn) {
+                    const row = editBtn.closest('tr');
+                    openPaymentEdit({
+                        channel: row?.dataset.channel,
+                        feeRate: row?.dataset.feeRate,
+                        feeCap: row?.dataset.feeCap,
+                        mid: row?.dataset.mid,
+                        capabilities: row?.dataset.capabilities,
+                        mode: 'edit'
+                    });
+                    return;
+                }
+                const deleteBtn = event.target.closest('[data-action="delete-payment"]');
+                if (deleteBtn) {
+                    const channel = deleteBtn.closest('tr')?.dataset.channel || 'this channel';
+                    if (confirm(`Delete ${channel} (mock)?`)) {
+                        alert('Channel removed (mock).');
+                    }
+                }
+            });
+        }
+
+        if (storePaymentEditForm) {
+            storePaymentEditForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                alert('Payment channel saved (mock).');
+                closeModal(storePaymentEditModal);
+            });
+        }
+
         document.querySelectorAll('[data-close]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-close');
                 if (target === 'store-modal') closeModal(storeModal);
                 if (target === 'device-modal') closeModal(deviceModal);
+                if (target === 'store-payment-modal') closeModal(storePaymentModal);
+                if (target === 'store-payment-edit-modal') closeModal(storePaymentEditModal);
             });
         });
 
-        [storeModal, deviceModal].forEach((modal) => {
+        [storeModal, deviceModal, storePaymentModal, storePaymentEditModal].forEach((modal) => {
             if (!modal) return;
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
@@ -2073,23 +2650,99 @@
             if (event.key !== 'Escape') return;
             if (storeModal?.classList.contains('active')) closeModal(storeModal);
             if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
+            if (storePaymentModal?.classList.contains('active')) closeModal(storePaymentModal);
+            if (storePaymentEditModal?.classList.contains('active')) closeModal(storePaymentEditModal);
+            closeStoreMenus();
         });
 
         if (storeGrid) {
             storeGrid.addEventListener('click', (event) => {
+                const settingsToggle = event.target.closest('.store-settings-toggle');
+                if (settingsToggle) {
+                    event.stopPropagation();
+                    toggleStoreMenu(settingsToggle);
+                    return;
+                }
+
+                const settingsItem = event.target.closest('.store-settings-item');
+                if (settingsItem) {
+                    event.stopPropagation();
+                    const row = settingsItem.closest('.store-grid-row[data-store-id]');
+                    if (!row) return;
+                    const action = settingsItem.dataset.action;
+                    const storeName = row.dataset.storeName || 'Store';
+                    if (action === 'payment') {
+                        if (storePaymentSubtitle) {
+                            storePaymentSubtitle.textContent = `Store: ${storeName}`;
+                        }
+                        openModal(storePaymentModal);
+                    }
+                    if (action === 'resend') {
+                        alert(`Resent email for ${storeName} (mock).`);
+                    }
+                    if (action === 'toggle-status') {
+                        const isDisabled = row.dataset.storeDisabled === 'true';
+                        setStoreDisabled(row, !isDisabled);
+                    }
+                    closeStoreMenus();
+                    return;
+                }
+
                 const row = event.target.closest('.store-grid-row[data-store-id]');
                 if (!row) return;
+                if (event.target.closest('.store-settings')) return;
+                closeStoreMenus();
                 handleStoreSelect(row);
             });
 
             storeGrid.addEventListener('keydown', (event) => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
+                if (event.target.closest('.store-settings')) return;
                 const row = event.target.closest('.store-grid-row[data-store-id]');
                 if (!row) return;
                 event.preventDefault();
+                closeStoreMenus();
                 handleStoreSelect(row);
             });
         }
+
+        if (deviceGrid) {
+            deviceGrid.addEventListener('click', (event) => {
+                const settingsToggle = event.target.closest('.store-settings-toggle');
+                if (settingsToggle) {
+                    event.stopPropagation();
+                    toggleStoreMenu(settingsToggle);
+                    return;
+                }
+
+                const settingsItem = event.target.closest('.store-settings-item');
+                if (!settingsItem) return;
+                event.stopPropagation();
+                const row = settingsItem.closest('.device-grid-row');
+                if (!row) return;
+                const action = settingsItem.dataset.action;
+                if (action === 'device-settings') {
+                    const params = new URLSearchParams({
+                        storeId: row.dataset.storeId || '',
+                        storeName: row.dataset.storeName || '',
+                        sn: row.dataset.sn || '',
+                        label: row.dataset.label || '',
+                        model: row.dataset.model || '',
+                        processor: row.dataset.processor || '',
+                        template: row.dataset.template || '',
+                        paywizard: row.dataset.paywizard || '',
+                        manufacturer: row.dataset.manufacturer || ''
+                    });
+                    window.location.href = `5.merchant_device_settings_iso.html?${params.toString()}`;
+                }
+                closeStoreMenus();
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            if (event.target.closest('.store-settings')) return;
+            closeStoreMenus();
+        });
 
         if (clearFilterButton) {
             clearFilterButton.addEventListener('click', () => setActiveStore(null));
@@ -2155,6 +2808,8 @@
                 statusCell.appendChild(statusBadge);
                 row.appendChild(statusCell);
 
+                row.appendChild(buildStoreActionsCell());
+
                 storeGrid.appendChild(row);
 
                 updateCounts();
@@ -2173,20 +2828,36 @@
 
                 const deviceModelInput = document.getElementById('device-model-modal');
                 const deviceTpnInput = document.getElementById('device-tpn-modal');
+                const deviceLabelInput = document.getElementById('device-label-modal');
                 const deviceProcessorInput = document.getElementById('device-processor-modal');
                 const deviceStatusInput = document.getElementById('device-status-modal');
+                const deviceManufacturerInput = document.getElementById('device-manufacturer-modal');
+                const deviceTemplateInput = document.getElementById('device-template-modal');
+                const devicePaywizardInput = document.getElementById('device-paywizard-modal');
 
                 const tpn = deviceTpnInput?.value.trim() || `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
+                const label = deviceLabelInput?.value.trim() || 'Terminal';
                 const deviceModel = deviceModelInput?.value || 'Unknown';
                 const processor = deviceProcessorInput?.value || 'TSYS';
                 const status = deviceStatusInput?.value || 'Active';
                 const boardedOn = formatDate(deviceBoardedInput?.value);
                 const lastTxn = formatDate(deviceLastTxnInput?.value) || boardedOn;
                 const storeName = getStoreRows().find((row) => row.dataset.storeId === deviceStoreId)?.dataset.storeName || 'Store';
+                const manufacturer = deviceManufacturerInput?.value || 'WizarPOS';
+                const template = deviceTemplateInput?.value || 'Retail - Quick Start';
+                const paywizard = devicePaywizardInput?.value || 'Disable';
 
                 const row = document.createElement('div');
                 row.className = 'grid-row device-grid-row';
                 row.dataset.storeId = deviceStoreId;
+                row.dataset.storeName = storeName;
+                row.dataset.sn = tpn;
+                row.dataset.label = label;
+                row.dataset.model = deviceModel;
+                row.dataset.processor = processor;
+                row.dataset.manufacturer = manufacturer;
+                row.dataset.template = template;
+                row.dataset.paywizard = paywizard;
 
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: tpn }));
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: deviceModel }));
@@ -2202,6 +2873,7 @@
 
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: boardedOn || 'N/A' }));
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: lastTxn || 'N/A' }));
+                row.appendChild(buildDeviceActionsCell());
 
                 deviceGrid.appendChild(row);
 
