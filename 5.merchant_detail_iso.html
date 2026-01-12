@@ -32,6 +32,10 @@
             box-sizing: border-box;
         }
 
+        [hidden] {
+            display: none !important;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -1018,6 +1022,46 @@
             background: #fff1f2;
         }
 
+        .channel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .channel-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .channel-badge.card {
+            background: #ecfdf3;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .channel-badge.monitor {
+            background: #f3f4f6;
+            color: #374151;
+            border-color: #e5e7eb;
+        }
+
+        .channel-badge.scan {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
         .device-grid-head,
         .device-grid-row {
             grid-template-columns: minmax(130px, 1.1fr) 90px minmax(180px, 1.4fr) 110px 110px 110px 110px minmax(120px, max-content);
@@ -1194,6 +1238,9 @@
         .modal-toolbar {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .settings-grid-head,
@@ -1249,6 +1296,10 @@
             flex-direction: column;
             max-height: calc(100vh - 48px);
             overflow: hidden;
+        }
+
+        .modal.scrollable {
+            height: min(840px, calc(100vh - 48px));
         }
 
         .modal-header {
@@ -1307,7 +1358,10 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            overflow: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            min-height: 0;
         }
 
         .modal-actions {
@@ -1377,6 +1431,72 @@
         .input-field:focus {
             border-bottom-color: var(--accent);
             box-shadow: 0 2px 0 0 var(--accent);
+        }
+
+        textarea.input-field {
+            border: 1px solid #d7dde6;
+            border-radius: 12px;
+            padding: 10px 12px;
+            min-height: 96px;
+            resize: vertical;
+            background: #fff;
+        }
+
+        textarea.input-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .field-hint code {
+            font-family: "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+
+        .scan-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            font-size: 13px;
+        }
+
+        .scan-form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scan-info-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1d4ed8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 6px 0 14px;
         }
 
         .field.full {
@@ -2075,69 +2195,208 @@
             </div>
             <div class="modal-body">
                 <div class="modal-toolbar">
-                    <button class="btn primary sm" type="button" id="store-payment-add">Add Channel</button>
+                    <button class="btn primary sm" type="button" id="store-payment-add">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+                            <line x1="8" y1="20" x2="16" y2="20"></line>
+                            <line x1="12" y1="16" x2="12" y2="20"></line>
+                        </svg>
+                        Add Monitoring Channel
+                    </button>
+                    <button class="btn secondary sm" type="button" id="store-scan-add">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="4" y="4" width="6" height="6"></rect>
+                            <rect x="14" y="4" width="6" height="6"></rect>
+                            <rect x="4" y="14" width="6" height="6"></rect>
+                            <path d="M14 14h6v6h-6z"></path>
+                        </svg>
+                        Add QR/Wallet Payment
+                    </button>
                 </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Payment Channel</th>
-                                <th>Channel Cost</th>
-                                <th>Date &amp; Time</th>
-                                <th class="cell-actions">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr data-channel="payWizardDemo" data-fee-rate="0" data-fee-cap="100" data-mid="2025121500000001" data-capabilities="Card Present">
-                                <td>payWizardDemo</td>
-                                <td>0%, Capping 100 Per Transaction</td>
-                                <td>2025-12-15 10:19:04</td>
-                                <td class="cell-actions">
-                                    <div class="action-buttons">
-                                        <button class="action-button" type="button" data-action="edit-payment" aria-label="Edit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                <path d="M12 20h9"></path>
-                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
-                                            </svg>
-                                        </button>
-                                        <button class="action-button danger" type="button" data-action="delete-payment" aria-label="Delete">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                <polyline points="3 6 5 6 21 6"></polyline>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                                                <path d="M10 11v6"></path>
-                                                <path d="M14 11v6"></path>
-                                                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-channel="SmartCommerce" data-fee-rate="2.4" data-fee-cap="75" data-mid="2025121500000022" data-capabilities="eCommerce">
-                                <td>SmartCommerce</td>
-                                <td>2.4% + 0.10, Capping 75</td>
-                                <td>2025-12-09 09:02:18</td>
-                                <td class="cell-actions">
-                                    <div class="action-buttons">
-                                        <button class="action-button" type="button" data-action="edit-payment" aria-label="Edit">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                <path d="M12 20h9"></path>
-                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
-                                            </svg>
-                                        </button>
-                                        <button class="action-button danger" type="button" data-action="delete-payment" aria-label="Delete">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                                <polyline points="3 6 5 6 21 6"></polyline>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                                                <path d="M10 11v6"></path>
-                                                <path d="M14 11v6"></path>
-                                                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="channel-section">
+                    <div>
+                        <h4 class="modal-section-title">Transaction Monitoring Channels</h4>
+                        <p class="modal-section-note">Used to map terminal transactions to a merchant MID.</p>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Monitoring Channel</th>
+                                    <th>Channel Cost</th>
+                                    <th>Date &amp; Time</th>
+                                    <th class="cell-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-channel="payWizardDemo" data-fee-rate="0" data-fee-cap="100" data-mid="2025121500000001" data-capabilities="Card Present">
+                                    <td>
+                                        <div class="channel-info">
+                                            <span class="channel-badge monitor">Monitor</span>
+                                            <span>payWizardDemo</span>
+                                        </div>
+                                    </td>
+                                    <td>0%, Capping 100 Per Transaction</td>
+                                    <td>2025-12-15 10:19:04</td>
+                                    <td class="cell-actions">
+                                        <div class="action-buttons">
+                                            <button class="action-button" type="button" data-action="edit-payment" aria-label="Edit">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="action-button danger" type="button" data-action="delete-payment" aria-label="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                    <path d="M10 11v6"></path>
+                                                    <path d="M14 11v6"></path>
+                                                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr data-channel="SmartCommerce" data-fee-rate="2.4" data-fee-cap="75" data-mid="2025121500000022" data-capabilities="eCommerce">
+                                    <td>
+                                        <div class="channel-info">
+                                            <span class="channel-badge monitor">Monitor</span>
+                                            <span>SmartCommerce</span>
+                                        </div>
+                                    </td>
+                                    <td>2.4% + 0.10, Capping 75</td>
+                                    <td>2025-12-09 09:02:18</td>
+                                    <td class="cell-actions">
+                                        <div class="action-buttons">
+                                            <button class="action-button" type="button" data-action="edit-payment" aria-label="Edit">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="action-button danger" type="button" data-action="delete-payment" aria-label="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                    <path d="M10 11v6"></path>
+                                                    <path d="M14 11v6"></path>
+                                                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="channel-section">
+                    <div>
+                        <h4 class="modal-section-title">Scan Payment Channels</h4>
+                        <p class="modal-section-note">QR providers configured for this store.</p>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Scan Channel</th>
+                                    <th>Channel Cost</th>
+                                    <th>Date &amp; Time</th>
+                                    <th class="cell-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-scan-provider="Alipay Global" data-scan-mid="2088102123456789" data-scan-app-id="alipay_app_8831" data-scan-private-key="ALIPAY_PRIVATE_KEY" data-scan-public-key="ALIPAY_PUBLIC_KEY" data-scan-rate="1.2" data-scan-currency="USD">
+                                    <td>
+                                        <div class="channel-info">
+                                            <span class="channel-badge scan">Scan</span>
+                                            <span>Alipay Global</span>
+                                        </div>
+                                    </td>
+                                    <td>1.2% Flat Rate</td>
+                                    <td>2026-01-12 14:20:00</td>
+                                    <td class="cell-actions">
+                                        <div class="action-buttons">
+                                            <button class="action-button" type="button" data-action="edit-scan" aria-label="Edit">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="action-button danger" type="button" data-action="delete-scan" aria-label="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                    <path d="M10 11v6"></path>
+                                                    <path d="M14 11v6"></path>
+                                                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr data-scan-provider="WeChat Pay" data-scan-mid="wx_partner_651023" data-scan-app-id="wxd930ea5d5a258f4f" data-scan-private-key="WECHAT_PRIVATE_KEY" data-scan-public-key="WECHAT_PUBLIC_KEY" data-scan-rate="1.0" data-scan-currency="CNY">
+                                    <td>
+                                        <div class="channel-info">
+                                            <span class="channel-badge scan">Scan</span>
+                                            <span>WeChat Pay</span>
+                                        </div>
+                                    </td>
+                                    <td>1.0% + 0.05</td>
+                                    <td>2026-01-10 08:12:45</td>
+                                    <td class="cell-actions">
+                                        <div class="action-buttons">
+                                            <button class="action-button" type="button" data-action="edit-scan" aria-label="Edit">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="action-button danger" type="button" data-action="delete-scan" aria-label="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                    <path d="M10 11v6"></path>
+                                                    <path d="M14 11v6"></path>
+                                                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr data-scan-provider="HUISHU" data-scan-mercid="888000012345" data-scan-md5="md5_secret_key" data-scan-gateway="https://api.paydata.cloud/posp-api/" data-scan-country="CN" data-scan-terminal="store_1001">
+                                    <td>
+                                        <div class="channel-info">
+                                            <span class="channel-badge scan">Scan</span>
+                                            <span>HUISHU</span>
+                                        </div>
+                                    </td>
+                                    <td>Custom rate per region</td>
+                                    <td>2026-02-03 11:05:12</td>
+                                    <td class="cell-actions">
+                                        <div class="action-buttons">
+                                            <button class="action-button" type="button" data-action="edit-scan" aria-label="Edit">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="action-button danger" type="button" data-action="delete-scan" aria-label="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                                    <path d="M10 11v6"></path>
+                                                    <path d="M14 11v6"></path>
+                                                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="modal-actions">
@@ -2149,8 +2408,8 @@
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-payment-edit-title" style="max-width: 640px;">
             <div class="modal-header">
                 <div>
-                    <h3 class="modal-title" id="store-payment-edit-title">Edit Payment Channel</h3>
-                    <p class="modal-note" id="store-payment-edit-subtitle">Configure pricing and capabilities.</p>
+                    <h3 class="modal-title" id="store-payment-edit-title">Edit Monitoring Channel</h3>
+                    <p class="modal-note" id="store-payment-edit-subtitle">Select a channel and MID to group terminal transactions.</p>
                 </div>
                 <button class="modal-close" type="button" data-close="store-payment-edit-modal" aria-label="Close"></button>
             </div>
@@ -2158,7 +2417,7 @@
                 <div class="modal-body">
                     <div class="form-grid two">
                         <div class="field">
-                            <label for="store-payment-channel">Payment Channels</label>
+                            <label for="store-payment-channel">Monitoring Channel</label>
                             <input class="input-field" id="store-payment-channel" name="channel" type="text" readonly value="payWizardDemo">
                         </div>
                         <div class="field">
@@ -2192,6 +2451,137 @@
             </form>
         </div>
     </div>
+    <div class="modal-overlay" id="store-scan-modal" aria-hidden="true">
+        <div class="modal scrollable" role="dialog" aria-modal="true" aria-labelledby="store-scan-title" style="max-width: 760px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="store-scan-title">Add QR/Wallet Payment</h3>
+                    <p class="modal-note" id="store-scan-subtitle">Store: Downtown Location</p>
+                </div>
+                <button class="modal-close" type="button" data-close="store-scan-modal" aria-label="Close"></button>
+            </div>
+            <form id="store-scan-form" autocomplete="off">
+                <div class="modal-body">
+                    <div>
+                        <h4 class="modal-section-title">QR/Wallet Channel Details</h4>
+                        <p class="modal-section-note">Configure parameters for QR or wallet providers (Alipay, WeChat, Huishu, etc.).</p>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="store-scan-provider">Payment Provider</label>
+                            <select class="input-field" id="store-scan-provider" name="provider">
+                                <option value="">Select a provider</option>
+                                <option>Alipay Global</option>
+                                <option>WeChat Pay</option>
+                                <option>UnionPay QR</option>
+                                <option>GrabPay</option>
+                                <option>Dana</option>
+                                <option value="HUISHU">HUISHU (PayCools)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="scan-form-section" id="scan-default-fields">
+                        <div class="form-grid two">
+                            <div class="field">
+                                <label for="store-scan-mid">Merchant ID (MID) / Partner ID</label>
+                                <input class="input-field" id="store-scan-mid" name="mid" type="text" placeholder="e.g. 2088102...">
+                            </div>
+                            <div class="field">
+                                <label for="store-scan-app-id">App ID</label>
+                                <input class="input-field" id="store-scan-app-id" name="appId" type="text" placeholder="e.g. wxd930ea5d5a258f4f">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="store-scan-private-key">Merchant Private Key</label>
+                                <textarea class="input-field" id="store-scan-private-key" name="privateKey" rows="4" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+                                <span class="field-hint">Required for signing requests.</span>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="store-scan-public-key">Alipay/WeChat Public Key</label>
+                                <textarea class="input-field" id="store-scan-public-key" name="publicKey" rows="4" placeholder="Key provided by the channel..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-grid two">
+                            <div class="field">
+                                <label for="store-scan-rate">MDR (Rate %)</label>
+                                <input class="input-field" id="store-scan-rate" name="rate" type="number" step="0.01" min="0" placeholder="1.5">
+                            </div>
+                            <div class="field">
+                                <label for="store-scan-currency">Settlement Currency</label>
+                                <select class="input-field" id="store-scan-currency" name="currency">
+                                    <option value="USD">USD</option>
+                                    <option value="CNY">CNY</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scan-form-section" id="scan-huishu-fields" hidden>
+                        <div>
+                            <h4 class="modal-section-title">Core Credentials (Required)</h4>
+                            <div class="section-divider"></div>
+                        </div>
+                        <div class="form-grid two">
+                            <div class="field">
+                                <label for="store-huishu-mercid">Merchant ID (mercid)<span class="required">*</span></label>
+                                <input class="input-field" id="store-huishu-mercid" name="huishuMercid" type="text" placeholder="e.g. 888000012345">
+                                <span class="field-hint">Unique merchant ID provided by PayCools. Used in all requests.</span>
+                            </div>
+                            <div class="field">
+                                <label for="store-huishu-md5">MD5 Secret Key<span class="required">*</span></label>
+                                <input class="input-field" id="store-huishu-md5" name="huishuMd5" type="password" placeholder="md5_secret_key">
+                                <span class="field-hint">Used to generate the MD5 signature (sign). Do not share this key.</span>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="store-huishu-gateway">Gateway URL<span class="required">*</span></label>
+                                <select class="input-field" id="store-huishu-gateway" name="huishuGateway">
+                                    <option value="https://api.paydata.cloud/posp-api/">Production (api.paydata.cloud)</option>
+                                    <option value="https://www.iotpay.club/posp-api/">Test / Sandbox (iotpay.club)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="modal-section-title">Regional &amp; Advanced Settings</h4>
+                            <div class="section-divider"></div>
+                        </div>
+                        <div class="form-grid two">
+                            <div class="field">
+                                <label for="store-huishu-country">Default Payment Country (paycountry)<span class="required">*</span></label>
+                                <select class="input-field" id="store-huishu-country" name="huishuCountry">
+                                    <option value="">Select a region...</option>
+                                    <option value="CN">China (CN) - RMB</option>
+                                    <option value="HK">Hong Kong (HK) - HKD</option>
+                                    <option value="SG">Singapore (SG) - SGD</option>
+                                    <option value="TH">Thailand (TH) - THB</option>
+                                    <option value="ID">Indonesia (ID) - IDR</option>
+                                    <option value="PH">Philippines (PH) - PHP</option>
+                                    <option value="MY">Malaysia (MY) - MYR</option>
+                                    <option value="JPN">Japan (JPN) - JPY</option>
+                                    <option value="BR">Brazil (BR) - BRL</option>
+                                    <option value="GL">Global / Credit Card (GL)</option>
+                                </select>
+                                <span class="field-hint">Determines currency precision (e.g. IDR is unit 1, others unit 100).</span>
+                            </div>
+                            <div class="field">
+                                <label for="store-huishu-terminal">Terminal / Store ID</label>
+                                <input class="input-field" id="store-huishu-terminal" name="huishuTerminal" type="text" placeholder="Optional for most regions">
+                                <span class="field-hint">Required for specific Japan/HK offline scenarios (maps to <code>device_imei</code> or <code>store_code</code>).</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="store-scan-modal">Cancel</button>
+                    <button class="btn primary" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
         const storeGrid = document.querySelector('.store-grid-head')?.parentElement;
         const deviceGrid = document.querySelector('.device-grid-head')?.parentElement;
@@ -2205,6 +2595,7 @@
         const deviceModal = document.getElementById('device-modal');
         const storePaymentModal = document.getElementById('store-payment-modal');
         const storePaymentEditModal = document.getElementById('store-payment-edit-modal');
+        const storeScanModal = document.getElementById('store-scan-modal');
         const addStoreForm = document.getElementById('add-store-form');
         const addDeviceForm = document.getElementById('add-device-form');
         const addDeviceButtons = document.querySelectorAll('.open-add-device');
@@ -2222,8 +2613,27 @@
         const storePaymentFeeCap = document.getElementById('store-payment-fee-cap');
         const storePaymentMid = document.getElementById('store-payment-mid');
         const storePaymentCapabilities = document.getElementById('store-payment-capabilities');
+        const storeScanAdd = document.getElementById('store-scan-add');
+        const storeScanForm = document.getElementById('store-scan-form');
+        const storeScanTitle = document.getElementById('store-scan-title');
+        const storeScanSubtitle = document.getElementById('store-scan-subtitle');
+        const storeScanProvider = document.getElementById('store-scan-provider');
+        const scanDefaultFields = document.getElementById('scan-default-fields');
+        const scanHuishuFields = document.getElementById('scan-huishu-fields');
+        const storeScanMid = document.getElementById('store-scan-mid');
+        const storeScanAppId = document.getElementById('store-scan-app-id');
+        const storeScanPrivateKey = document.getElementById('store-scan-private-key');
+        const storeScanPublicKey = document.getElementById('store-scan-public-key');
+        const storeScanRate = document.getElementById('store-scan-rate');
+        const storeScanCurrency = document.getElementById('store-scan-currency');
+        const storeHuishuMercid = document.getElementById('store-huishu-mercid');
+        const storeHuishuMd5 = document.getElementById('store-huishu-md5');
+        const storeHuishuGateway = document.getElementById('store-huishu-gateway');
+        const storeHuishuCountry = document.getElementById('store-huishu-country');
+        const storeHuishuTerminal = document.getElementById('store-huishu-terminal');
 
         let activeStoreId = null;
+        let scanFormMode = 'add';
 
         const templateVersions = {
             TSYS: [
@@ -2481,7 +2891,7 @@
                 mode: 'edit'
             }, data || {});
             if (storePaymentEditTitle) {
-                storePaymentEditTitle.textContent = payload.mode === 'add' ? 'Add Payment Channel' : 'Edit Payment Channel';
+                storePaymentEditTitle.textContent = payload.mode === 'add' ? 'Add Monitoring Channel' : 'Edit Monitoring Channel';
             }
             if (storePaymentChannel) storePaymentChannel.value = payload.channel || '';
             if (storePaymentFeeRate) storePaymentFeeRate.value = payload.feeRate || '';
@@ -2491,6 +2901,63 @@
                 storePaymentCapabilities.value = payload.capabilities || 'Card Present';
             }
             openModal(storePaymentEditModal);
+        };
+
+        const normalizeProvider = (value) => (value || '').trim().toUpperCase();
+
+        const getScanTitle = (provider, mode) => {
+            if (normalizeProvider(provider).includes('HUISHU')) {
+                return mode === 'add' ? 'Add PayCools (Huishu) Channel' : 'Edit PayCools (Huishu) Channel';
+            }
+            return mode === 'add' ? 'Add QR/Wallet Payment' : 'Edit QR/Wallet Payment';
+        };
+
+        const setScanProviderState = (provider) => {
+            const isHuishu = normalizeProvider(provider).includes('HUISHU');
+            if (scanDefaultFields) scanDefaultFields.hidden = isHuishu;
+            if (scanHuishuFields) scanHuishuFields.hidden = !isHuishu;
+            if (storeScanTitle) {
+                storeScanTitle.textContent = getScanTitle(provider, scanFormMode);
+            }
+        };
+
+        const openScanEdit = (data) => {
+            if (!storeScanModal) return;
+            const payload = Object.assign({
+                provider: '',
+                mid: '',
+                appId: '',
+                privateKey: '',
+                publicKey: '',
+                rate: '',
+                currency: 'USD',
+                huishuMercid: '',
+                huishuMd5: '',
+                huishuGateway: 'https://api.paydata.cloud/posp-api/',
+                huishuCountry: '',
+                huishuTerminal: '',
+                mode: 'add'
+            }, data || {});
+            scanFormMode = payload.mode;
+            if (storeScanSubtitle) {
+                storeScanSubtitle.textContent = storePaymentSubtitle?.textContent || 'Store: Selected Store';
+            }
+            if (storeScanProvider) storeScanProvider.value = payload.provider || '';
+            setScanProviderState(storeScanProvider?.value || payload.provider);
+            if (storeScanMid) storeScanMid.value = payload.mid || '';
+            if (storeScanAppId) storeScanAppId.value = payload.appId || '';
+            if (storeScanPrivateKey) storeScanPrivateKey.value = payload.privateKey || '';
+            if (storeScanPublicKey) storeScanPublicKey.value = payload.publicKey || '';
+            if (storeScanRate) storeScanRate.value = payload.rate || '';
+            if (storeScanCurrency) storeScanCurrency.value = payload.currency || 'USD';
+            if (storeHuishuMercid) storeHuishuMercid.value = payload.huishuMercid || '';
+            if (storeHuishuMd5) storeHuishuMd5.value = payload.huishuMd5 || '';
+            if (storeHuishuGateway) {
+                storeHuishuGateway.value = payload.huishuGateway || 'https://api.paydata.cloud/posp-api/';
+            }
+            if (storeHuishuCountry) storeHuishuCountry.value = payload.huishuCountry || '';
+            if (storeHuishuTerminal) storeHuishuTerminal.value = payload.huishuTerminal || '';
+            openModal(storeScanModal);
         };
 
         const closeStoreMenus = () => {
@@ -2594,6 +3061,18 @@
             });
         }
 
+        if (storeScanAdd) {
+            storeScanAdd.addEventListener('click', () => {
+                openScanEdit({ mode: 'add' });
+            });
+        }
+
+        if (storeScanProvider) {
+            const syncScanProvider = () => setScanProviderState(storeScanProvider.value);
+            storeScanProvider.addEventListener('change', syncScanProvider);
+            storeScanProvider.addEventListener('input', syncScanProvider);
+        }
+
         if (storePaymentModal) {
             storePaymentModal.addEventListener('click', (event) => {
                 const editBtn = event.target.closest('[data-action="edit-payment"]');
@@ -2609,11 +3088,38 @@
                     });
                     return;
                 }
+                const editScanBtn = event.target.closest('[data-action="edit-scan"]');
+                if (editScanBtn) {
+                    const row = editScanBtn.closest('tr');
+                    openScanEdit({
+                        provider: row?.dataset.scanProvider,
+                        mid: row?.dataset.scanMid,
+                        appId: row?.dataset.scanAppId,
+                        privateKey: row?.dataset.scanPrivateKey,
+                        publicKey: row?.dataset.scanPublicKey,
+                        rate: row?.dataset.scanRate,
+                        currency: row?.dataset.scanCurrency,
+                        huishuMercid: row?.dataset.scanMercid,
+                        huishuMd5: row?.dataset.scanMd5,
+                        huishuGateway: row?.dataset.scanGateway,
+                        huishuCountry: row?.dataset.scanCountry,
+                        huishuTerminal: row?.dataset.scanTerminal,
+                        mode: 'edit'
+                    });
+                    return;
+                }
                 const deleteBtn = event.target.closest('[data-action="delete-payment"]');
                 if (deleteBtn) {
                     const channel = deleteBtn.closest('tr')?.dataset.channel || 'this channel';
-                    if (confirm(`Delete ${channel} (mock)?`)) {
-                        alert('Channel removed (mock).');
+                    if (confirm(`Delete card channel ${channel} (mock)?`)) {
+                alert('Monitoring channel removed (mock).');
+                    }
+                }
+                const deleteScanBtn = event.target.closest('[data-action="delete-scan"]');
+                if (deleteScanBtn) {
+                    const provider = deleteScanBtn.closest('tr')?.dataset.scanProvider || 'this channel';
+                    if (confirm(`Delete QR/Wallet channel ${provider} (mock)?`)) {
+                        alert('QR/Wallet channel removed (mock).');
                     }
                 }
             });
@@ -2622,8 +3128,16 @@
         if (storePaymentEditForm) {
             storePaymentEditForm.addEventListener('submit', (event) => {
                 event.preventDefault();
-                alert('Payment channel saved (mock).');
+                alert('Monitoring channel saved (mock).');
                 closeModal(storePaymentEditModal);
+            });
+        }
+
+        if (storeScanForm) {
+            storeScanForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                alert('QR/Wallet channel saved (mock).');
+                closeModal(storeScanModal);
             });
         }
 
@@ -2634,10 +3148,11 @@
                 if (target === 'device-modal') closeModal(deviceModal);
                 if (target === 'store-payment-modal') closeModal(storePaymentModal);
                 if (target === 'store-payment-edit-modal') closeModal(storePaymentEditModal);
+                if (target === 'store-scan-modal') closeModal(storeScanModal);
             });
         });
 
-        [storeModal, deviceModal, storePaymentModal, storePaymentEditModal].forEach((modal) => {
+        [storeModal, deviceModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
             if (!modal) return;
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
@@ -2652,6 +3167,7 @@
             if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
             if (storePaymentModal?.classList.contains('active')) closeModal(storePaymentModal);
             if (storePaymentEditModal?.classList.contains('active')) closeModal(storePaymentEditModal);
+            if (storeScanModal?.classList.contains('active')) closeModal(storeScanModal);
             closeStoreMenus();
         });
 
