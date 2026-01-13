@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Application</title>
+    <style>
+        /* General Body and Font Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 16px 24px;
+            flex-grow: 1;
+        }
+
+        /* Tabs + Tools (Search) in one row */
+        .tabs {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .tab-list {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button {
+            padding: 10px 12px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            color: #6b7280; /* gray-500 */
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px; /* overlap the border */
+        }
+
+        .tab-button:hover { color: #111827; }
+
+        .tab-button.active {
+            color: #111827; /* gray-900 */
+            border-bottom: 2px solid #111827;
+            font-weight: 600;
+        }
+        
+        .tab-tools { margin-left: auto; }
+
+        .search-input {
+            width: 280px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+            color: #111827;
+        }
+        .search-input::placeholder { color: #9ca3af; }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover { background-color: #f9fafb; }
+        
+        .app-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background-color: #7d7d7d;
+            color: white;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        /* Removed red-dot indicator */
+
+        /* Tab Content Styles */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            padding-top: 16px;
+            text-align: right;
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Modal Footer Styles */
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            text-align: right;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #d9d9d9;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .btn-primary {
+            background-color: #111827; /* black modern */
+            border-color: #111827;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            Select Application
+        </div>
+        <div class="modal-body">
+            <div class="tabs">
+                <div class="tab-list">
+                    <button class="tab-button active" data-target="#app-content">App</button>
+                    <button class="tab-button" data-target="#template-content">Push Template</button>
+                </div>
+                <div class="tab-tools">
+                    <input type="text" class="search-input" placeholder="Search">
+                </div>
+            </div>
+
+            <div id="app-content" class="tab-pane active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>APP NAME</th>
+                            <th>VERSION</th>
+                            <th>TYPE</th>
+                            <th>DEVELOPER</th>
+                            <th>UPDATED TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="radio" name="application" checked></td>
+                            <td><span class="app-icon">B</span> TSYS TransIT</td>
+                            <td>V1.04.00E_20230723</td>
+                            <td>Parameter App</td>
+                            <td>Paywizard</td>
+                            <td>2025-07-23 08:34</td>
+                        </tr>
+                        <tr>
+                            <td><input type="radio" name="application"></td>
+                            <td><span class="app-icon" style="background-color: #f56a00;">C</span> CheckUP</td>
+                            <td>1.03.07_20250708</td>
+                            <td>Standard App</td>
+                            <td>Paywizard</td>
+                            <td>2025-07-09 08:16</td>
+                        </tr>
+                        <tr>
+                            <td><input type="radio" name="application"></td>
+                            <td><span class="app-icon" style="background-color: #7265e6;">A</span> OPC</td>
+                            <td>3.5.0</td>
+                            <td>Standard App</td>
+                            <td>Paywizard</td>
+                            <td>2025-06-30 08:11</td>
+                        </tr>
+                        <tr>
+                            <td><input type="radio" name="application"></td>
+                            <td><span class="app-icon">B</span> TSYS TransIT UPT Demo</td>
+                            <td>V1.00.16E_20250606</td>
+                            <td>Parameter App</td>
+                            <td>Paywizard</td>
+                            <td>2025-06-11 07:52</td>
+                        </tr>
+                        <tr>
+                            <td><input type="radio" name="application"></td>
+                            <td><span class="app-icon" style="background-color: #00a2ae;">V</span> Vixslink-VM</td>
+                            <td>V1.13.06.20250522</td>
+                            <td>Parameter App</td>
+                            <td>Paywizard</td>
+                            <td>2025-06-03 07:46</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="template-content" class="tab-pane">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>PUSH TEMPLATE NAME</th>
+                            <th>APP NAME</th>
+                            <th>VERSION</th>
+                            <th>SIZE</th>
+                            <th>UPDATED TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                           <td><input type="checkbox"></td>
+                           <td>haHa 73747 0715</td>
+                           <td>TSYS TransIT UPT</td>
+                           <td>V1.00.16E_20250606</td>
+                           <td>18.5 MB</td>
+                           <td>2025-07-15 11:00</td>
+                        </tr>
+                        <tr>
+                           <td><input type="checkbox"></td>
+                           <td>yopoint 0630</td>
+                           <td>TSYS TransIT UPT</td>
+                           <td>V1.00.16E_20250606</td>
+                           <td>18.5 MB</td>
+                           <td>2025-06-30 15:20</td>
+                        </tr>
+                        <tr>
+                           <td><input type="checkbox"></td>
+                           <td>T-vending 04163</td>
+                           <td>TSYS TransIT UPT</td>
+                           <td>V1.00.16E_20250606</td>
+                           <td>18.5 MB</td>
+                           <td>2025-06-30 15:19</td>
+                        </tr>
+                        <tr>
+                           <td><input type="checkbox"></td>
+                           <td>Sandstar0625</td>
+                           <td>TSYS TransIT UPT</td>
+                           <td>V1.00.16E_20250606</td>
+                           <td>18.5 MB</td>
+                           <td>2025-06-25 10:38</td>
+                        </tr>
+                         <tr>
+                           <td><input type="checkbox"></td>
+                           <td>sietie Amigo Vendlink VM 1120</td>
+                           <td>VendLink-VM</td>
+                           <td>V1.13.19_20240925</td>
+                           <td>7.8 MB</td>
+                           <td>2024-11-20 12:24</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    10 / Page &nbsp; &nbsp; 11 Records
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn">CANCEL</button>
+            <button class="btn btn-primary">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Deactivate all tabs and panes
+                tabs.forEach(item => item.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+
+                // Activate the clicked tab and its corresponding pane
+                tab.classList.add('active');
+                const targetPane = document.querySelector(tab.dataset.target);
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

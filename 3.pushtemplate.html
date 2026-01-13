@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Template Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
+        :root {
+            --background-color: #f5f7fa;
+            --sidebar-bg: #ffffff;
+            --main-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #6b7280;
+            --border-color: #e6e8ee;
+            --primary-color: #111827; /* black */
+            --primary-hover: #000000;
+            --green-color: #111827; /* unify to black & white */
+            --green-hover: #000000;
+            --shadow: 0 1px 3px rgba(15,23,42,0.06);
+            --page-bg: #f5f7fa;
+            --menu-sidebar-bg: #ffffff;
+            --menu-text-strong: #0f0f10;
+            --menu-text-main: #111111;
+            --menu-text-dim: #6b7280;
+            --menu-divider: #e5e7eb;
+            --menu-hover: #f3f4f6;
+            --menu-bullet: #d1d5db;
+            --menu-active-bg: #0f0f10;
+            --menu-active-text: #ffffff;
+            --menu-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px;
+            background: var(--menu-sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--menu-divider);
+            box-shadow: var(--menu-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        
+        .ops-brand {
+            padding: 18px 18px 12px;
+            border-bottom: 1px solid var(--menu-divider);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ops-brand-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--menu-text-strong);
+            letter-spacing: 0.2px;
+        }
+
+        .ops-brand-sub {
+            font-size: 10px;
+            color: var(--menu-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.32em;
+        }
+
+        .ops-menu {
+            padding: 10px 8px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ops-title {
+            margin: 8px 10px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--menu-text-dim);
+        }
+
+        .ops-item {
+            display: block;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--menu-text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .ops-item:hover {
+            background: var(--menu-hover);
+        }
+
+        .ops-item.active {
+            background: #e5e7eb;
+            color: var(--menu-text-strong);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--menu-divider);
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark {
+            width: 32px;
+            height: 22px;
+        }
+
+        .mark svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--menu-text-strong);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--menu-text-strong);
+            letter-spacing: 0.15px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--menu-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--menu-divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .close-btn span {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .close-btn span::before,
+        .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--menu-text-strong);
+            transform-origin: center;
+        }
+
+        .close-btn span::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn span::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--menu-text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--menu-hover);
+        }
+
+        .menu-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--menu-text-strong);
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .chevron {
+            font-size: 11px;
+            color: var(--menu-text-dim);
+        }
+
+        .menu-item.active {
+            background: var(--menu-active-bg);
+            color: var(--menu-active-text);
+        }
+
+        .menu-item.active .icon,
+        .menu-item.active .chevron {
+            color: var(--menu-active-text);
+        }
+
+        .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-menu.open {
+            display: flex;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--menu-text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--menu-bullet);
+            transform: translateY(-50%);
+        }
+
+        .sub-item:hover {
+            color: var(--menu-text-main);
+            background: var(--menu-hover);
+        }
+
+        .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--menu-active-bg);
+            color: var(--menu-active-text);
+        }
+
+        .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--menu-active-text);
+            left: 10px;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* --- Top Header --- */
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 32px;
+            background-color: var(--main-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header .user-profile {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .header .user-profile .avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            margin-left: 12px;
+        }
+
+        /* --- Page Content --- */
+        .page-content {
+            padding: 32px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .template-list-container {
+            width: 320px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--main-bg);
+        }
+        
+        .template-list-header { padding: 16px; border-bottom: 1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; }
+
+        .template-list {
+            list-style: none;
+            padding: 8px;
+            margin: 0;
+        }
+        
+        .template-list li {
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .template-list li:hover { background-color: #f3f4f6; }
+
+        .template-list li.active { background-color: #f1f2f4; color: #111827; }
+
+        .template-list .template-name {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .template-list .template-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .main-panel {
+            flex-grow: 1;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-header h1 { font-size: 1.25rem; margin: 0; font-weight: 600; letter-spacing:-0.01em; }
+        
+        .btn{ display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; cursor:pointer; padding:10px 14px; border-radius:999px; font-weight:600; font-size:13px; transition: all .2s ease; }
+        .btn-primary{ background-color: var(--primary-color); color:#fff; }
+        .btn-primary:hover{ background-color: var(--primary-hover); }
+        .btn-ghost{ background:#fff; color:#111827; border-color: var(--border-color); }
+        .btn-ghost:hover{ background:#f3f4f6; }
+        .btn-sm{ padding:6px 10px; font-weight:600; font-size:12px; }
+
+        .table-container {
+            background-color: var(--main-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        thead th { background-color: #f8f9fb; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 11.5px; }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+        }
+
+        .action-icon { width: 18px; height: 18px; color: var(--text-secondary); }
+        
+        .panel-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination button {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination button:hover {
+            background-color: #f1f3f5;
+        }
+
+        .pagination .page-number {
+            background-color: #e9ecef;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-weight: 500;
+        }
+        
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Icon button for concise actions */
+        .icon-btn{
+            width:28px; height:28px; border-radius:999px; border:1px solid var(--border-color);
+            display:inline-flex; align-items:center; justify-content:center; background:#fff; color:var(--text-secondary);
+            cursor:pointer; transition: all .15s ease;
+        }
+        .icon-btn:hover{ background:#f3f4f6; color:var(--text-primary); }
+        .icon-btn[disabled]{ opacity:.45; cursor:not-allowed; }
+        .icon-18{ width:18px; height:18px; }
+
+        .panel-actions{ display:flex; align-items:center; gap:8px; }
+
+        /* Modal for creating push template */
+        .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.35); display:none; align-items:center; justify-content:center; padding:24px; z-index:50; }
+        .modal{ background:#fff; border:1px solid var(--border-color); border-radius:16px; max-width:900px; width:100%; max-height:calc(100vh - 48px); box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden; display:flex; flex-direction:column; }
+        .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border-color); }
+        .modal-title{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
+        .modal-close{ border:none; background:#fff; cursor:pointer; color:var(--text-secondary); }
+        .modal-body{ display:flex; flex-direction:column; gap:12px; padding:14px; flex:1 1 auto; min-height:0; }
+        .section{ border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+        .section h5{ margin:0 0 10px 0; font-size:13px; letter-spacing:-.005em; }
+        .section-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+        .section-title-group{ display:flex; flex-direction:column; gap:2px; }
+        .section-note{ margin:0; font-size:12px; color:var(--text-secondary); }
+        .section-head h5{ margin:0; }
+        .app-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; overflow:auto; flex:1 1 auto; min-height:0; }
+        .app-item{ display:flex; align-items:center; justify-content:flex-start; gap:12px; border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; cursor:pointer; }
+        .app-item.selected{ border-color:#111827; box-shadow:0 0 0 2px rgba(17,24,39,.08); background:#f9fafb; }
+        .app-left{ display:flex; align-items:center; gap:10px; }
+        .app-icon{ width:28px; height:28px; border-radius:8px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#111827; }
+        .app-name{ font-weight:600; font-size:13px; }
+        .app-sub{ color:var(--text-secondary); font-size:12px; }
+        .modal-footer{ display:flex; justify-content:flex-end; gap:8px; padding:10px 14px; border-top:1px solid var(--border-color); }
+        .selected-app-row, .template-name-row, .version-row, .param-template-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-top:1px solid var(--border-color); background:#fff; }
+        .row-label{ min-width:130px; color:var(--text-secondary); font-weight:600; font-size:12.5px; }
+        .selected-app-chip{ padding:10px 14px; background:#f3f4f6; border-radius:999px; font-weight:700; letter-spacing:-.005em; }
+        .input-lg{ flex:1; width:100%; padding:14px 16px; border:1px solid var(--border-color); border-radius:14px; font-size:14px; }
+        .input-lg:focus{ outline:none; border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.10); }
+        .radio{ width:16px; height:16px; }
+        .search{ width:260px; max-width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:13px; }
+        .muted{ color: var(--text-secondary); font-size:12px; }
+        @media (max-width: 720px){
+            .section-head{ flex-direction:column; align-items:stretch; }
+            .search{ width:100%; }
+        }
+        @media (max-width: 640px){
+            .app-grid{ grid-template-columns:1fr; }
+        }
+
+    </style>
+</head>
+<body>
+
+        <aside class="sidebar">
+        <div class="ops-brand">
+            <div class="ops-brand-name">PAYwizard</div>
+            <div class="ops-brand-sub">Maintain</div>
+        </div>
+
+        <nav class="ops-menu" aria-label="Operations navigation">
+            <div class="ops-section">
+                <div class="ops-title">Payment &amp; Billing</div>
+                <a class="ops-item active" href="#">Transaction Details</a>
+                <a class="ops-item" href="#">Settlement Info</a>
+                <a class="ops-item" href="#">Billing Overview</a>
+                <a class="ops-item" href="#">Payment Channel Management</a>
+                <a class="ops-item" href="#">Service Fee Log</a>
+                <a class="ops-item" href="#">Service Fee Report</a>
+                <a class="ops-item" href="#">Cached Transaction</a>
+            </div>
+            <div class="ops-section">
+                <div class="ops-title">Operation &amp; Maintain</div>
+                <a class="ops-item" href="#">Merchant Lead</a>
+                <a class="ops-item" href="#">Service Provider</a>
+                <a class="ops-item" href="#">Developer Manage</a>
+                <a class="ops-item" href="#">Terminal Status</a>
+                <a class="ops-item" href="#">Merchant Onboarding</a>
+                <a class="ops-item" href="#">Merchant Account</a>
+            </div>
+            <div class="ops-section">
+                <div class="ops-title">System Settings</div>
+                <a class="ops-item" href="#">Role Management</a>
+                <a class="ops-item" href="#">Email Configuration</a>
+                <a class="ops-item" href="#">Account Management</a>
+                <a class="ops-item" href="#">Log Management</a>
+                <a class="ops-item" href="#">Password Rule Config</a>
+                <a class="ops-item" href="#">Billing Setup</a>
+                <a class="ops-item" href="#">Parameter File</a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header class="header">
+            <div class="user-profile">
+                <span>beaver.xu</span>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <div class="template-list-container">
+                <div class="template-list-header">
+                    <h4 style="margin:0;font-size:14px;letter-spacing:-0.01em">Templates</h4>
+                    <button id="pushTemplateBtn" class="btn btn-primary btn-sm" title="Create a push template">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Push Template
+                    </button>
+                </div>
+                <ul class="template-list">
+                    <li>
+                        <span class="template-name">TSYS EV</span>
+                        <span class="template-info">WizarPOS</span>
+                    </li>
+                     <li>
+                        <span class="template-name">Fiserv VM</span>
+                        <span class="template-info">WizarPOS</span>
+                    </li>
+                    <li class="active">
+                        <span class="template-name">TSYS UPT</span>
+                        <span class="template-info">WizarPOS Q2</span>
+                    </li>
+                     <li>
+                        <span class="template-name">Fiserv Retail UPT</span>
+                        <span class="template-info">WizarPOS Q3V</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="main-panel">
+                <div class="panel-header">
+                    <h1>TSYS UPT</h1>
+                    <div class="panel-actions">
+                        <button class="icon-btn" id="bulkDeleteBtn" title="Delete Selected" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" class="checkbox" id="selectAll"></th>
+                                <th>#</th>
+                                <th>Application Version</th>
+                                <th>Default Parameter Template</th>
+                                <th>Created Time</th>
+                                <th>Updated Time</th>
+                                <th>Last Used Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>1</td>
+                                <td>V1.00.16E_20250606</td>
+                                <td>Retail Default</td>
+                                <td>2025-07-15 11:00</td>
+                                <td>2025-07-15 11:00</td>
+                                <td>2025-09-28 14:30</td>
+                                <td><a class="icon-btn" href="6.edit_application_parameters.html?app=TSYS%20UPT&amp;version=V1.00.16E_20250606&amp;template=Retail%20Default" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>2</td>
+                                <td>V1.00.15A_20250312</td>
+                                <td>Restaurant Full</td>
+                                <td>2025-06-30 15:20</td>
+                                <td>2025-06-30 15:20</td>
+                                <td>2025-09-27 14:04</td>
+                                <td><a class="icon-btn" href="6.edit_application_parameters.html?app=TSYS%20UPT&amp;version=V1.00.15A_20250312&amp;template=Restaurant%20Full" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                            </tr>
+                             <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>3</td>
+                                <td>V1.00.14D_20250105</td>
+                                <td>Convenience Express</td>
+                                <td>2025-06-30 13:19</td>
+                                <td>2025-06-30 13:19</td>
+                                <td>2025-09-30 10:24</td>
+                                <td><a class="icon-btn" href="6.edit_application_parameters.html?app=TSYS%20UPT&amp;version=V1.00.14D_20250105&amp;template=Convenience%20Express" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>4</td>
+                                <td>V1.00.13B_20241018</td>
+                                <td>Retail Lite</td>
+                                <td>2025-06-25 10:38</td>
+                                <td>2025-06-25 10:38</td>
+                                <td>2025-09-08 10:42</td>
+                                <td><a class="icon-btn" href="6.edit_application_parameters.html?app=TSYS%20UPT&amp;version=V1.00.13B_20241018&amp;template=Retail%20Lite" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>5</td>
+                                <td>V1.00.12F_20240809</td>
+                                <td>Legacy Default</td>
+                                <td>2025-06-23 11:06</td>
+                                <td>2025-08-04 16:54</td>
+                                <td>2025-08-04 10:52</td>
+                                <td><a class="icon-btn" href="6.edit_application_parameters.html?app=TSYS%20UPT&amp;version=V1.00.12F_20240809&amp;template=Legacy%20Default" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                            </tr>
+                             <tr>
+                                <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                                <td>6</td>
+                                <td>V1.00.11C_20240521</td>
+                                <td>Legacy Default</td>
+                                <td>2025-06-23 10:33</td>
+                                <td>2025-07-02 10:19</td>
+                                <td>2025-07-09 10:33</td>
+                                <td><a class="icon-btn" href="6.edit_application_parameters.html?app=TSYS%20UPT&amp;version=V1.00.11C_20240521&amp;template=Legacy%20Default" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="panel-footer">
+                    <span>20 / Page | 6 Records</span>
+                    <div class="pagination">
+                        <button>&lt;</button>
+                        <span class="page-number">1</span>
+                        <button>&gt;</button>
+                    </div>
+                </div>
+    
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Push Template Modal -->
+    <div class="modal-overlay" id="createTemplateModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Create Push Template</h3>
+                <button class="icon-btn modal-close" id="closeModalBtn" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <section class="section">
+                    <div class="section-head">
+                        <div class="section-title-group">
+                            <h5>Supported Apps</h5>
+                            <p class="section-note">Choose a payment app to start.</p>
+                        </div>
+                        <input type="text" id="appSearch" class="search" placeholder="Search apps">
+                    </div>
+                    <div class="app-grid" id="allApps">
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS UPT">
+                                <div>
+                                    <div class="app-name">TSYS UPT</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Fiserv Retail UPT">
+                                <div>
+                                    <div class="app-name">Fiserv Retail UPT</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS VM">
+                                <div>
+                                    <div class="app-name">TSYS VM</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="PAYwizard OPC">
+                                <div>
+                                    <div class="app-name">PAYwizard OPC</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS EV">
+                                <div>
+                                    <div class="app-name">TSYS EV</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Fiserv VM">
+                                <div>
+                                    <div class="app-name">Fiserv VM</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS Q2">
+                                <div>
+                                    <div class="app-name">TSYS Q2</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="TSYS Q3">
+                                <div>
+                                    <div class="app-name">TSYS Q3</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Elavon Edge">
+                                <div>
+                                    <div class="app-name">Elavon Edge</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Worldpay Express">
+                                <div>
+                                    <div class="app-name">Worldpay Express</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Clover Flex">
+                                <div>
+                                    <div class="app-name">Clover Flex</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="PAX A920">
+                                <div>
+                                    <div class="app-name">PAX A920</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Ingenico AXIUM">
+                                <div>
+                                    <div class="app-name">Ingenico AXIUM</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="Verifone Cloud">
+                                <div>
+                                    <div class="app-name">Verifone Cloud</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="NMI Gateway">
+                                <div>
+                                    <div class="app-name">NMI Gateway</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="app-item">
+                            <div class="app-left">
+                                <input type="radio" name="chooseApp" class="radio" value="PAYwizard Core">
+                                <div>
+                                    <div class="app-name">PAYwizard Core</div>
+                                    <div class="app-sub">Parameter App</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+            </div>
+            <div class="selected-app-row">
+                <div class="row-label">Selected App</div>
+                <div class="selected-app-chip" id="selectedAppLabel">&mdash;</div>
+            </div>
+            <div class="version-row">
+                <div class="row-label">App Version</div>
+                <select id="appVersionSelect" class="input-lg" disabled>
+                    <option value="">Select version</option>
+                </select>
+            </div>
+            <div class="param-template-row">
+                <div class="row-label">Parameter Template</div>
+                <select id="paramTemplateSelect" class="input-lg" disabled>
+                    <option value="">Select template</option>
+                </select>
+            </div>
+            <div class="template-name-row">
+                <div class="row-label">Template Name</div>
+                <input type="text" id="templateNameInput" class="input-lg" placeholder="Enter a template name" disabled maxlength="64" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancelCreate">Cancel</button>
+                <button class="btn btn-primary" id="continueCreate" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function initSidebarMenu(){
+            const rootMenuItems = document.querySelectorAll('.menu-item');
+            const submenuTriggers = document.querySelectorAll('.menu-item[data-toggle="submenu"]');
+            const subItems = document.querySelectorAll('.sub-item');
+
+            function setActiveRoot(target){
+                rootMenuItems.forEach(item=>{
+                    item.classList.toggle('active', item === target);
+                });
+            }
+
+            function closeAllSubmenus(){
+                document.querySelectorAll('.sub-menu.open').forEach(menu => menu.classList.remove('open'));
+                submenuTriggers.forEach(trigger=>{
+                    trigger.classList.remove('expanded');
+                    const ch = trigger.querySelector('.chevron');
+                    if(ch){ ch.textContent = '>'; }
+                });
+            }
+
+            submenuTriggers.forEach(item=>{
+                item.addEventListener('click', ()=>{
+                    const targetId = item.getAttribute('data-target');
+                    const submenu = document.querySelector(`.sub-menu[data-parent="${targetId}"]`);
+                    const isOpen = submenu && submenu.classList.contains('open');
+
+                    setActiveRoot(item);
+
+                    if(!submenu){ return; }
+
+                    if(isOpen){
+                        submenu.classList.remove('open');
+                        item.classList.remove('expanded');
+                        const chClose = item.querySelector('.chevron');
+                        if(chClose){ chClose.textContent = '>'; }
+                    }else{
+                        closeAllSubmenus();
+                        submenu.classList.add('open');
+                        item.classList.add('expanded');
+                        const chOpen = item.querySelector('.chevron');
+                        if(chOpen){ chOpen.textContent = 'v'; }
+                    }
+                });
+            });
+
+            rootMenuItems.forEach(item=>{
+                if(!item.hasAttribute('data-toggle')){
+                    item.addEventListener('click', ()=>{
+                        setActiveRoot(item);
+                        closeAllSubmenus();
+                    });
+                }
+            });
+
+            subItems.forEach(sub=>{
+                sub.addEventListener('click', (evt)=>{
+                    evt.stopPropagation();
+                    subItems.forEach(s=> s.classList.remove('active'));
+                    sub.classList.add('active');
+
+                    const parentMenu = sub.closest('.sub-menu');
+                    const parentKey = parentMenu ? parentMenu.getAttribute('data-parent') : null;
+                    if(parentKey){
+                        const trigger = document.querySelector(`.menu-item[data-target="${parentKey}"]`);
+                        if(trigger){
+                            setActiveRoot(trigger);
+                            const ch = trigger.querySelector('.chevron');
+                            if(ch){ ch.textContent = 'v'; }
+                            trigger.classList.add('expanded');
+                            parentMenu.classList.add('open');
+                        }
+                    }
+                });
+            });
+        })();
+
+        (function(){
+            const selectAll = document.getElementById('selectAll');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const tbody = document.querySelector('tbody');
+            const pushBtn = document.getElementById('pushTemplateBtn');
+            const modal = document.getElementById('createTemplateModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelCreate = document.getElementById('cancelCreate');
+            const continueCreate = document.getElementById('continueCreate');
+            const allApps = document.getElementById('allApps');
+            const appSearch = document.getElementById('appSearch');
+            const templateNameInput = document.getElementById('templateNameInput');
+            const selectedAppLabel = document.getElementById('selectedAppLabel');
+            const appVersionSelect = document.getElementById('appVersionSelect');
+            const paramTemplateSelect = document.getElementById('paramTemplateSelect');
+            const appCatalog = {
+                "TSYS UPT": {
+                    versions: ["V1.00.16E_20250606", "V1.00.15A_20250312", "V1.00.14D_20250105", "V1.00.13B_20241018", "V1.00.12F_20240809", "V1.00.11C_20240521"],
+                    templates: {
+                        "V1.00.16E_20250606": ["Retail Default", "Restaurant Full", "Convenience Express"],
+                        "V1.00.15A_20250312": ["Restaurant Full", "Legacy Default"],
+                        "V1.00.14D_20250105": ["Convenience Express", "Retail Default"],
+                        "V1.00.13B_20241018": ["Retail Lite", "Legacy Default"],
+                        "V1.00.12F_20240809": ["Legacy Default"],
+                        "V1.00.11C_20240521": ["Legacy Default"]
+                    }
+                },
+                "Fiserv Retail UPT": {
+                    versions: ["V1.00.12B_20250420", "V1.00.11F_20250130"],
+                    templates: {
+                        "V1.00.12B_20250420": ["Retail Default", "Quick Start"],
+                        "V1.00.11F_20250130": ["Legacy Default"]
+                    }
+                },
+                "TSYS VM": {
+                    versions: ["V1.00.09C_20240212"],
+                    templates: {
+                        "V1.00.09C_20240212": ["VM Standard", "VM Full"]
+                    }
+                },
+                "PAYwizard OPC": {
+                    versions: ["2.1.12-global(214)"],
+                    templates: {
+                        "2.1.12-global(214)": ["OPC_Max", "OPC_Beaver_Simple"]
+                    }
+                }
+            };
+            let selectedAppName = '';
+            let selectedAppVersion = '';
+            let selectedParamTemplate = '';
+
+            function updateBulkState(){
+                const checked = tbody.querySelectorAll('.row-checkbox:checked');
+                bulkDeleteBtn.disabled = checked.length === 0;
+            }
+
+            function bindRowCheckboxes(){
+                const rows = tbody.querySelectorAll('.row-checkbox');
+                rows.forEach(cb => cb.addEventListener('change', updateBulkState));
+            }
+
+            if(selectAll){
+                selectAll.addEventListener('change', (e)=>{
+                    const rows = tbody.querySelectorAll('.row-checkbox');
+                    rows.forEach(cb => cb.checked = e.target.checked);
+                    updateBulkState();
+                });
+            }
+
+            bulkDeleteBtn.addEventListener('click', ()=>{
+                const selected = Array.from(tbody.querySelectorAll('.row-checkbox:checked'));
+                if(selected.length === 0) return;
+                if(!confirm(`Delete ${selected.length} selected template(s)?`)) return;
+                selected.forEach(cb => cb.closest('tr').remove());
+                updateBulkState();
+                if(selectAll) selectAll.checked = false;
+            });
+
+                        // Create Push Template modal logic
+            function openModal(){ modal.style.display = "flex"; document.body.style.overflow = "hidden"; }
+            function closeModal(){ modal.style.display = "none"; document.body.style.overflow = "auto"; clearChoice(); }
+
+            function resetSelect(selectEl, placeholder){
+                if(!selectEl) return;
+                selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+                selectEl.disabled = true;
+            }
+
+            function populateSelect(selectEl, options, placeholder){
+                if(!selectEl) return;
+                selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+                options.forEach((opt)=>{
+                    const option = document.createElement("option");
+                    option.value = opt;
+                    option.textContent = opt;
+                    selectEl.appendChild(option);
+                });
+                selectEl.disabled = false;
+            }
+            function syncAppCardSelection(){
+                const items = allApps.querySelectorAll(".app-item");
+                items.forEach((item)=>{
+                    const input = item.querySelector("input[type=radio]");
+                    const isChecked = input && input.checked;
+                    item.classList.toggle("selected", !!isChecked);
+                });
+            }
+
+            function clearChoice(){
+                const r = allApps.querySelectorAll("input[type=radio]");
+                r.forEach(x=>x.checked=false);
+                syncAppCardSelection();
+                continueCreate.disabled = true;
+                selectedAppName = "";
+                selectedAppVersion = "";
+                selectedParamTemplate = "";
+                if(selectedAppLabel) selectedAppLabel.innerHTML = "&mdash;";
+                resetSelect(appVersionSelect, "Select version");
+                resetSelect(paramTemplateSelect, "Select template");
+                if(templateNameInput){ templateNameInput.value = ""; templateNameInput.disabled = true; }
+            }
+
+            function updateContinueState(){
+                const hasName = templateNameInput && templateNameInput.value.trim().length > 0;
+                continueCreate.disabled = !(selectedAppName && selectedAppVersion && selectedParamTemplate && hasName);
+            }
+
+            function generateDefaultName(app, version, template){
+                const now = new Date();
+                const pad = (n)=> String(n).padStart(2,"0");
+                const base = [app, version, template].filter(Boolean).join(" ") || "Template";
+                return `${base} ${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+            }
+
+                                    function setSelectedApp(app){
+                selectedAppName = app || "";
+                selectedAppVersion = "";
+                selectedParamTemplate = "";
+                if(selectedAppLabel){
+                    if(selectedAppName){
+                        selectedAppLabel.textContent = selectedAppName;
+                    } else {
+                        selectedAppLabel.innerHTML = "&mdash;";
+                    }
+                }
+
+                const items = allApps.querySelectorAll(".app-item");
+                items.forEach((item)=>{
+                    const input = item.querySelector("input[type=radio]");
+                    if(!input) return;
+                    const match = input.value === selectedAppName;
+                    input.checked = match;
+                    item.classList.toggle("selected", match);
+                });
+
+                const catalog = appCatalog[selectedAppName];
+                if(catalog && catalog.versions){
+                    populateSelect(appVersionSelect, catalog.versions, "Select version");
+                } else {
+                    resetSelect(appVersionSelect, "Select version");
+                }
+                resetSelect(paramTemplateSelect, "Select template");
+                if(templateNameInput){ templateNameInput.value = ""; templateNameInput.disabled = true; }
+                updateContinueState();
+            }
+
+            function setSelectedVersion(version){
+                selectedAppVersion = version || "";
+                selectedParamTemplate = "";
+                const catalog = appCatalog[selectedAppName];
+                if(catalog && catalog.templates && catalog.templates[selectedAppVersion]){
+                    populateSelect(paramTemplateSelect, catalog.templates[selectedAppVersion], "Select template");
+                } else {
+                    resetSelect(paramTemplateSelect, "Select template");
+                }
+                if(templateNameInput){ templateNameInput.value = ""; templateNameInput.disabled = true; }
+                updateContinueState();
+            }
+
+            function setSelectedTemplate(template){
+                selectedParamTemplate = template || "";
+                if(templateNameInput){
+                    if(selectedParamTemplate){
+                        templateNameInput.disabled = false;
+                        if(!templateNameInput.value.trim()){
+                            templateNameInput.value = generateDefaultName(selectedAppName, selectedAppVersion, selectedParamTemplate);
+                        }
+                        templateNameInput.focus();
+                    } else {
+                        templateNameInput.value = "";
+                        templateNameInput.disabled = true;
+                    }
+                }
+                updateContinueState();
+            }
+
+            function addTemplateRow(appName, customName, version){
+                const now = new Date();
+                const pad = (n)=> String(n).padStart(2,"0");
+                const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                const idx = tbody.querySelectorAll("tr").length + 1;
+                const templateLabel = customName || generateDefaultName(appName, version, selectedParamTemplate);
+                const editUrl = `6.edit_application_parameters.html?template=${encodeURIComponent(templateLabel)}&app=${encodeURIComponent(appName)}&version=${encodeURIComponent(version || "")}&paramTemplate=${encodeURIComponent(selectedParamTemplate)}`;
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                    <td>${idx}</td>
+                    <td>${version || "-"}</td>
+                    <td>${templateLabel}</td>
+                    <td>${date}</td>
+                    <td>${date}</td>
+                    <td>-</td>
+                    <td><a class="icon-btn" href="${editUrl}" title="Edit Default Parameters"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></a></td>
+                `;
+                tbody.appendChild(tr);
+                const cb = tr.querySelector(".row-checkbox");
+                cb.addEventListener("change", updateBulkState);
+                updateBulkState();
+            }
+
+            if(pushBtn){ pushBtn.addEventListener("click", openModal); }
+            [closeModalBtn, cancelCreate].forEach(btn=> btn && btn.addEventListener("click", closeModal));
+
+            // Radio selection -> pick app
+            allApps.addEventListener("change", ()=>{
+                const r = allApps.querySelector("input[type=radio]:checked");
+                if(!r){ setSelectedApp(""); return; }
+                setSelectedApp(r.value);
+            });
+
+            if(appVersionSelect){
+                appVersionSelect.addEventListener("change", ()=>{
+                    setSelectedVersion(appVersionSelect.value);
+                });
+            }
+
+            if(paramTemplateSelect){
+                paramTemplateSelect.addEventListener("change", ()=>{
+                    setSelectedTemplate(paramTemplateSelect.value);
+                });
+            }
+
+            if(templateNameInput){
+                templateNameInput.addEventListener("input", updateContinueState);
+            }
+
+            continueCreate.addEventListener("click", ()=>{
+                if(!selectedAppName || !selectedAppVersion || !selectedParamTemplate) return;
+                const name = templateNameInput.value.trim();
+                if(!name) return;
+                addTemplateRow(selectedAppName, name, selectedAppVersion);
+                const url = `6.edit_application_parameters.html?template=${encodeURIComponent(name)}&app=${encodeURIComponent(selectedAppName)}&version=${encodeURIComponent(selectedAppVersion)}&paramTemplate=${encodeURIComponent(selectedParamTemplate)}`;
+                window.location.href = url;
+            });
+
+            // Filter apps by search
+            appSearch.addEventListener("input", ()=>{
+                const q = appSearch.value.toLowerCase();
+                allApps.querySelectorAll(".app-item").forEach(item=>{
+                    const name = item.querySelector(".app-name").textContent.toLowerCase();
+                    item.style.display = name.includes(q) ? "" : "none";
+                });
+            });
+
+            bindRowCheckboxes();
+            updateBulkState();
+        })();
+    </script>
+
+</body>
+</html>
+

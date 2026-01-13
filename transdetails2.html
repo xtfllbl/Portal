@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details - Terminal Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #212529;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 20px 0;
+            margin-bottom: 24px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .date-range-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .date-range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .date-range-filter {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #495057;
+        }
+
+        .apply-btn {
+            padding: 8px 20px;
+            background: #212529;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .apply-btn:hover {
+            background: #343a40;
+        }
+
+        .main-content {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabs-section {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+        }
+
+        .tab {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #495057;
+            background: rgba(0,0,0,0.02);
+        }
+
+        .tab.active {
+            color: #212529;
+            background: #fff;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #212529;
+        }
+
+        .controls-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .column-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .column-toggle label {
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .column-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        .table-section {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #212529;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .amount {
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-weight: 500;
+        }
+
+        .amount.negative {
+            color: #dc3545;
+        }
+
+        .card-pan {
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 13px;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #e9ecef;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f8f9fa;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-btn.active {
+            background: #212529;
+            color: #fff;
+            border-color: #212529;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .controls-wrapper {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .column-controls {
+                flex-wrap: wrap;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .table-section {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Terminal Management</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="date-range-section">
+            <div class="date-range-header">
+                <h2 class="section-title">Date Range Filter</h2>
+            </div>
+            <div class="date-range-filter">
+                <input type="date" class="date-input" id="startDate" value="2025-09-21">
+                <span>to</span>
+                <input type="date" class="date-input" id="endDate" value="2025-10-21">
+                <button class="apply-btn" onclick="applyDateFilter()">Apply Filter</button>
+            </div>
+        </section>
+
+        <main class="main-content">
+            <section class="tabs-section">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('all', this)">All Transactions</button>
+                    <button class="tab" onclick="switchTab('successful', this)">Successful</button>
+                    <button class="tab" onclick="switchTab('failed', this)">Failed</button>
+                    <button class="tab" onclick="switchTab('pending', this)">Pending</button>
+                </div>
+            </section>
+
+            <section class="controls-section">
+                <div class="controls-wrapper">
+                    <div class="column-controls">
+                        <span style="font-size: 14px; color: #6c757d;">Show Columns:</span>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-tid" checked onchange="toggleColumn('tid')">
+                            <label for="col-tid">TID</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-invoice" checked onchange="toggleColumn('invoice')">
+                            <label for="col-invoice">Invoice</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-card" checked onchange="toggleColumn('card')">
+                            <label for="col-card">Card PAN</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-type" checked onchange="toggleColumn('type')">
+                            <label for="col-type">Type</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-amount" checked onchange="toggleColumn('amount')">
+                            <label for="col-amount">Amount</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-mid" checked onchange="toggleColumn('mid')">
+                            <label for="col-mid">MID</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-datetime" checked onchange="toggleColumn('datetime')">
+                            <label for="col-datetime">Date & Time</label>
+                        </div>
+                        <div class="column-toggle">
+                            <input type="checkbox" id="col-currency" checked onchange="toggleColumn('currency')">
+                            <label for="col-currency">Currency</label>
+                        </div>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="Search transactions..." onkeyup="searchTable(this.value)">
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-section">
+                <table id="transactionTable">
+                    <thead>
+                        <tr>
+                            <th class="col-tid">TID</th>
+                            <th class="col-invoice">Invoice Number</th>
+                            <th class="col-card">Card PAN</th>
+                            <th class="col-type">Type</th>
+                            <th class="col-amount">Amount</th>
+                            <th class="col-mid">MID</th>
+                            <th class="col-datetime">Date & Time (Processor)</th>
+                            <th class="col-currency">Currency</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-status="pending">
+                            <td class="col-tid">444500187868600</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">-</td>
+                            <td class="col-type"><span class="type-badge">PreAuth</span></td>
+                            <td class="col-amount amount">1.23</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-17 13:51:01</td>
+                            <td class="col-currency">-</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Edit</button>
+                            </td>
+                        </tr>
+                        <tr data-status="pending">
+                            <td class="col-tid">444500187868600</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">-</td>
+                            <td class="col-type"><span class="type-badge">PreAuth</span></td>
+                            <td class="col-amount amount">1.23</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-17 13:42:24</td>
+                            <td class="col-currency">-</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Edit</button>
+                            </td>
+                        </tr>
+                        <tr data-status="successful">
+                            <td class="col-tid">266482540884</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">451461****0925</td>
+                            <td class="col-type"><span class="type-badge">Reversal</span></td>
+                            <td class="col-amount amount negative">-0.01</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-11 19:12:24</td>
+                            <td class="col-currency">USD</td>
+                            <td><span class="status-badge status-success">Successful</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Refund</button>
+                            </td>
+                        </tr>
+                        <tr data-status="successful">
+                            <td class="col-tid">266482540884</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">451461****0925</td>
+                            <td class="col-type"><span class="type-badge">Purchase</span></td>
+                            <td class="col-amount amount">0.01</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-11 11:02:04</td>
+                            <td class="col-currency">USD</td>
+                            <td><span class="status-badge status-success">Successful</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Refund</button>
+                            </td>
+                        </tr>
+                        <tr data-status="successful">
+                            <td class="col-tid">-</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">-</td>
+                            <td class="col-type"><span class="type-badge">Purchase</span></td>
+                            <td class="col-amount amount">17.00</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-11 02:21:17</td>
+                            <td class="col-currency">BRL</td>
+                            <td><span class="status-badge status-success">Successful</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Refund</button>
+                            </td>
+                        </tr>
+                        <tr data-status="successful">
+                            <td class="col-tid">-</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">-</td>
+                            <td class="col-type"><span class="type-badge">Purchase</span></td>
+                            <td class="col-amount amount">11.00</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-11 01:47:51</td>
+                            <td class="col-currency">BRL</td>
+                            <td><span class="status-badge status-success">Successful</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Refund</button>
+                            </td>
+                        </tr>
+                        <tr data-status="failed">
+                            <td class="col-tid">-</td>
+                            <td class="col-invoice">-</td>
+                            <td class="col-card">-</td>
+                            <td class="col-type"><span class="type-badge">Purchase</span></td>
+                            <td class="col-amount amount">25.00</td>
+                            <td class="col-mid">-</td>
+                            <td class="col-datetime">2025-10-10 15:30:22</td>
+                            <td class="col-currency">USD</td>
+                            <td><span class="status-badge status-failed">Failed</span></td>
+                            <td class="actions-cell">
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Retry</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="pagination">
+                <div class="pagination-info">
+                    Showing 1-7 of 488 transactions
+                </div>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled>Previous</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">...</button>
+                    <button class="page-btn">25</button>
+                    <button class="page-btn">Next</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function switchTab(status, element) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+
+            // Filter rows based on status
+            const rows = document.querySelectorAll('#transactionTable tbody tr');
+            rows.forEach(row => {
+                if (status === 'all') {
+                    row.style.display = '';
+                } else {
+                    const rowStatus = row.getAttribute('data-status');
+                    row.style.display = rowStatus === status ? '' : 'none';
+                }
+            });
+        }
+
+        function toggleColumn(columnName) {
+            const checkbox = document.getElementById('col-' + columnName);
+            const elements = document.querySelectorAll('.col-' + columnName);
+            
+            elements.forEach(element => {
+                if (checkbox.checked) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        function searchTable(searchTerm) {
+            const rows = document.querySelectorAll('#transactionTable tbody tr');
+            const term = searchTerm.toLowerCase();
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        }
+
+        function applyDateFilter() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // In a real application, this would filter the data
+            console.log('Applying date filter:', startDate, 'to', endDate);
+            
+            // For demo purposes, just show a message
+            const message = document.createElement('div');
+            message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #212529; color: white; padding: 12px 20px; border-radius: 4px; z-index: 1000;';
+            message.textContent = `Filter applied: ${startDate} to ${endDate}`;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 3000);
+        }
+
+        // Set today's date as default end date
+        document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

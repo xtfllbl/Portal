@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paywizard Merchant App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bottom-nav {
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background-color: #000000;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #333333;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .page {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-purchase { background-color: rgba(52, 211, 153, 0.1); color: #10B981; }
+        .status-preauth { background-color: rgba(96, 165, 250, 0.1); color: #3B82F6; }
+        .status-reversal { background-color: rgba(248, 113, 113, 0.1); color: #EF4444; }
+        .mfa-input {
+            width: 2.5rem;
+            height: 3rem;
+            text-align: center;
+            font-size: 1.25rem;
+            border-radius: 0.375rem;
+            border: 1px solid #D1D5DB;
+            background-color: #FFFFFF;
+            color: #111827;
+        }
+        .mfa-input:focus {
+            outline: none;
+            border-color: #111827;
+            box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+    <!-- Login Page -->
+    <div id="login-page" class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 page active">
+        <div class="w-full max-w-sm">
+            <h1 class="text-4xl font-bold text-center mb-4 text-black tracking-wider">PAYWIZARD</h1>
+            <p class="text-center text-gray-500 mb-10">PORTAL</p>
+            
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="text-sm font-medium text-gray-600">Username</label>
+                    <input type="email" id="username" value="beaver.xu@wizarpos.com" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-2 focus:ring-gray-800">
+                </div>
+                <div>
+                    <label for="password" class="text-sm font-medium text-gray-600">Password</label>
+                    <div class="relative">
+                        <input type="password" id="password" value="••••••••" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-3 px-4 text-black focus:outline-none focus:ring-2 focus:ring-gray-800">
+                        <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500">
+                            <i class="fa fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="w-full btn-primary font-semibold py-3 px-4 rounded-md shadow-lg">Sign In</button>
+                </div>
+            </form>
+            <div class="text-center mt-6">
+                <a href="#" class="text-sm text-gray-500 hover:text-black">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MFA Page -->
+    <div id="mfa-page" class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 page">
+        <div class="w-full max-w-sm">
+            <h2 class="text-2xl font-bold text-center text-black">Two-Factor Authentication</h2>
+            <p class="text-center text-gray-500 mt-2 mb-8">Enter the 6-digit code from your authenticator app.</p>
+            
+            <form id="mfa-form">
+                <div class="flex justify-center space-x-2 mb-6" id="mfa-inputs">
+                    <input type="text" maxlength="1" class="mfa-input" required>
+                    <input type="text" maxlength="1" class="mfa-input" required>
+                    <input type="text" maxlength="1" class="mfa-input" required>
+                    <input type="text" maxlength="1" class="mfa-input" required>
+                    <input type="text" maxlength="1" class="mfa-input" required>
+                    <input type="text" maxlength="1" class="mfa-input" required>
+                </div>
+                <div>
+                    <button type="submit" class="w-full btn-primary font-semibold py-3 px-4 rounded-md shadow-lg">Verify</button>
+                </div>
+            </form>
+            <div class="text-center mt-6">
+                <a href="#" id="back-to-login" class="text-sm text-gray-500 hover:text-black">Back to Sign In</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main App Interface -->
+    <div id="main-app" class="hidden">
+        <div id="app-content" class="pb-24">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page">
+                <header class="p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500">Welcome back,</p>
+                            <h2 class="text-2xl font-bold">Beaver Xu</h2>
+                        </div>
+                        <div class="relative">
+                             <i class="fas fa-bell text-2xl text-gray-400"></i>
+                             <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="px-6">
+                    <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-600 text-sm">Today's Volume (USD)</p>
+                                <p class="text-3xl font-bold mt-1">$1,284.50</p>
+                            </div>
+                             <i class="fas fa-chart-line text-3xl text-green-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <p class="text-gray-600 text-sm">Today's Txns</p>
+                            <p class="text-2xl font-bold mt-1">82</p>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <p class="text-gray-600 text-sm">Pending (USD)</p>
+                            <p class="text-2xl font-bold mt-1">$5,620.10</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Recent Transactions</h3>
+                        <a href="#" id="view-all-transactions" class="text-sm text-gray-500 hover:text-black">View All</a>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <!-- Transaction Item -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 flex items-center space-x-4 transaction-item" data-id="1">
+                            <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-arrow-down text-green-500"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-semibold">Purchase</p>
+                                <p class="text-xs text-gray-500">10-25 02:21:17</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-lg text-green-600">+$17.00</p>
+                                <p class="text-xs text-gray-500">BRL</p>
+                            </div>
+                        </div>
+                        <!-- Transaction Item -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 flex items-center space-x-4 transaction-item" data-id="2">
+                            <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-blue-500"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-semibold">PreAuth</p>
+                                <p class="text-xs text-gray-500">10-25 13:51:01</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-lg text-gray-800">$1.23</p>
+                                <p class="text-xs text-gray-500">USD</p>
+                            </div>
+                        </div>
+                         <!-- Transaction Item -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-4 flex items-center space-x-4 transaction-item" data-id="3">
+                             <div class="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-undo text-red-500"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-semibold">Reversal</p>
+                                <p class="text-xs text-gray-500">10-25 19:12:24</p>
+                            </div>
+                             <div class="text-right">
+                                <p class="font-bold text-lg text-red-600">-$0.01</p>
+                                <p class="text-xs text-gray-500">USD</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Transactions Page -->
+            <div id="transactions-page" class="page">
+                <header class="p-6 sticky top-0 bg-gray-50/80 backdrop-blur-sm z-10 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                         <h2 class="text-2xl font-bold">Transactions</h2>
+                         <div class="flex items-center space-x-4">
+                            <i class="fas fa-search text-xl text-gray-500"></i>
+                            <i class="fas fa-filter text-xl text-gray-500"></i>
+                         </div>
+                    </div>
+                </header>
+
+                <main class="px-6">
+                    <div class="space-y-2">
+                        <!-- Dynamic transaction list here -->
+                    </div>
+                </main>
+            </div>
+
+             <!-- Transaction Details Page -->
+            <div id="transaction-details-page" class="page">
+                 <header class="p-6 flex items-center space-x-4">
+                    <button id="back-to-list" class="text-2xl"><i class="fas fa-arrow-left"></i></button>
+                    <h2 class="text-2xl font-bold">Transaction Details</h2>
+                </header>
+                <main class="px-6">
+                    <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6 text-center">
+                        <p class="text-4xl font-bold text-green-600 mb-2">+$17.00</p>
+                        <p class="text-gray-500">Purchase - BRL</p>
+                        <p class="mt-2 inline-flex items-center text-sm bg-green-100 text-green-700 font-medium px-3 py-1 rounded-full">
+                            <i class="fas fa-check-circle mr-2"></i>Completed
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Details</h3>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Type</span>
+                            <span class="font-medium">Purchase</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Date & Time</span>
+                            <span class="font-medium">2025-10-11 02:21:17</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Invoice Number</span>
+                            <span class="font-medium">-</span>
+                        </div>
+                         <div class="flex justify-between">
+                            <span class="text-gray-500">Card PAN</span>
+                            <span class="font-mono font-medium">**** **** **** 8925</span>
+                        </div>
+                         <div class="flex justify-between">
+                            <span class="text-gray-500">Approval Code</span>
+                            <span class="font-medium">APV5198</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">MID</span>
+                            <span class="font-medium">266482540884</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">TID</span>
+                            <span class="font-medium">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                         <button class="w-full bg-red-100 text-red-600 font-semibold py-3 px-4 rounded-md">
+                            Initiate Refund
+                        </button>
+                    </div>
+                </main>
+            </div>
+            
+            <!-- Other placeholder pages -->
+            <div id="reports-page" class="page flex items-center justify-center h-[calc(100vh-6rem)]">
+                <h1 class="text-2xl text-gray-400">Reports Page</h1>
+            </div>
+            <div id="account-page" class="page flex items-center justify-center h-[calc(100vh-6rem)]">
+                 <h1 class="text-2xl text-gray-400">Account Page</h1>
+            </div>
+
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 h-20 border-t border-gray-200 bottom-nav flex justify-around items-center">
+            <button data-page="dashboard-page" class="nav-item text-black flex flex-col items-center justify-center">
+                <i class="fas fa-tachometer-alt text-2xl"></i>
+                <span class="text-xs mt-1">Dashboard</span>
+            </button>
+            <button data-page="transactions-page" class="nav-item text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-exchange-alt text-2xl"></i>
+                <span class="text-xs mt-1">Transactions</span>
+            </button>
+            <button data-page="reports-page" class="nav-item text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-chart-pie text-2xl"></i>
+                <span class="text-xs mt-1">Reports</span>
+            </button>
+            <button data-page="account-page" class="nav-item text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-user-circle text-2xl"></i>
+                <span class="text-xs mt-1">Account</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const mfaForm = document.getElementById('mfa-form');
+        const loginPage = document.getElementById('login-page');
+        const mfaPage = document.getElementById('mfa-page');
+        const mainApp = document.getElementById('main-app');
+        
+        const navItems = document.querySelectorAll('.nav-item');
+        const pages = document.querySelectorAll('.page');
+        const viewAllTransactionsBtn = document.getElementById('view-all-transactions');
+        const backToListBtn = document.getElementById('back-to-list');
+        const backToLoginBtn = document.getElementById('back-to-login');
+        const mfaInputs = document.querySelectorAll('.mfa-input');
+
+        // Mock Login -> Go to MFA
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            switchPage('mfa-page');
+            mfaInputs[0].focus();
+        });
+        
+        // Mock MFA verification -> Go to App
+        mfaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In a real app, you would verify the MFA code here
+            mfaPage.classList.remove('active');
+            mainApp.style.display = 'block';
+            switchPage('dashboard-page');
+        });
+
+        // Go back from MFA to Login
+        backToLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchPage('login-page');
+        });
+
+
+        // Page switching function
+        function switchPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            const activePage = document.getElementById(pageId);
+            if (activePage) {
+                activePage.classList.add('active');
+            }
+            
+            // Only scroll to top if we're inside the main app content area
+            const appContent = document.getElementById('app-content');
+            if (appContent.contains(activePage)) {
+                 appContent.scrollTop = 0;
+            }
+
+
+            // Update nav item state only if switching to a main app page
+            if (mainApp.contains(activePage)) {
+                 navItems.forEach(item => {
+                    if (item.dataset.page === pageId) {
+                        item.classList.add('text-black');
+                        item.classList.remove('text-gray-400');
+                    } else {
+                        item.classList.remove('text-black');
+                        item.classList.add('text-gray-400');
+                    }
+                });
+            }
+        }
+        
+        // Navigation click events
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const pageId = item.dataset.page;
+                switchPage(pageId);
+                if (pageId === 'transactions-page') {
+                    populateTransactionsList();
+                }
+            });
+        });
+
+        // "View All" button
+        viewAllTransactionsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchPage('transactions-page');
+            populateTransactionsList();
+        });
+
+        // Attach listeners to transaction items to navigate to details
+        function attachTransactionItemListeners() {
+            document.querySelectorAll('.transaction-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    // In a real app, you would pass the transaction ID here
+                    switchPage('transaction-details-page');
+                });
+            });
+        }
+        
+        attachTransactionItemListeners();
+
+        // Back button from details to list
+        backToListBtn.addEventListener('click', () => {
+            switchPage('transactions-page');
+        });
+
+        // Mock transaction data
+        const transactionsData = [
+            { date: '2025-10-17 13:51:01', type: 'PreAuth', amount: 1.23, currency: 'USD', status: 'preauth' },
+            { date: '2025-10-17 13:42:24', type: 'PreAuth', amount: 1.23, currency: 'USD', status: 'preauth' },
+            { date: '2025-10-11 19:12:24', type: 'Reversal', amount: -0.01, currency: 'USD', status: 'reversal' },
+            { date: '2025-10-11 11:02:04', type: 'Purchase', amount: 0.01, currency: 'USD', status: 'purchase' },
+            { date: '2025-10-11 02:21:17', type: 'Purchase', amount: 17.00, currency: 'BRL', status: 'purchase' },
+            { date: '2025-10-11 01:47:51', type: 'Purchase', amount: 11.00, currency: 'BRL', status: 'purchase' },
+        ];
+
+        // Populate the transaction list
+        function populateTransactionsList() {
+            const container = document.querySelector('#transactions-page main .space-y-2');
+            container.innerHTML = ''; // Clear list
+            transactionsData.forEach(tx => {
+                const item = document.createElement('div');
+                item.className = 'bg-white border border-gray-200 rounded-xl p-4 flex justify-between items-center transaction-item';
+                item.innerHTML = `
+                    <div>
+                        <p class="font-semibold capitalize">${tx.type}</p>
+                        <p class="text-xs text-gray-500">${tx.date.split(' ')[0]}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-lg ${tx.amount > 0 ? (tx.status === 'purchase' ? 'text-green-600' : 'text-gray-800') : 'text-red-600'}">
+                            ${tx.amount > 0 ? '+' : ''}${tx.amount.toFixed(2)}
+                        </p>
+                        <span class="text-xs px-2 py-0.5 rounded-full status-${tx.status}">${tx.currency}</span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+            // Re-attach event listeners
+            attachTransactionItemListeners();
+        }
+
+        // MFA input handling
+        mfaInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                if (input.value.length === 1 && index < mfaInputs.length - 1) {
+                    mfaInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                    mfaInputs[index - 1].focus();
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin: Manage Documentation Links | WizarPOS</title>
+    <style>
+        /* --- Global Styles & Resets --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Header --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .header .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .header .user-info {
+            font-size: 0.9em;
+        }
+
+        /* --- Page Title & Context --- */
+        .page-header {
+            margin-bottom: 25px;
+        }
+        .page-header h1 {
+            font-size: 2.2em;
+            margin: 0;
+            color: #212529;
+        }
+        .page-header p {
+            font-size: 1.1em;
+            color: #6c757d;
+            margin: 5px 0 0 0;
+        }
+        
+        /* --- Card Layout for Forms --- */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 16px 24px;
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.25em;
+            color: #343a40;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+
+        /* --- Form Elements Styling --- */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1em;
+            font-family: inherit;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box; /* Important */
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+        
+        .form-control:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        /* --- Action Bar & Buttons --- */
+        .action-bar {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: #343a40;
+        }
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+        }
+
+        /* --- Success Message --- */
+        .success-message {
+            display: none; /* Hidden by default */
+            padding: 16px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">Operations Admin Panel</div>
+        <div class="user-info">Logged in as: admin@wizarpos.com</div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Manage Documentation Links</h1>
+            <p>Update the GitBook or documentation URLs for each integration feature.</p>
+        </div>
+        
+        <div class="success-message" id="success-banner">
+            <strong>Success!</strong> All documentation links have been updated system-wide.
+        </div>
+        
+        <form action="#" method="POST">
+
+            <div class="card">
+                <div class="card-header"><h3>Terminal Integration Documentation</h3></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="doc-cloud-api">Cloud API Integration</label>
+                        <input type="url" id="doc-cloud-api" name="doc_cloud_api" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/cloud-api" value="https://yourcompany.gitbook.io/docs/cloud-api">
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #e9ecef; margin: 24px 0;">
+                    <div class="form-group">
+                        <label for="doc-semi-serial">Semi-Integration: Serial</label>
+                        <input type="url" id="doc-semi-serial" name="doc_semi_serial" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/semi-integration/serial">
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-semi-mdb">Semi-Integration: MDB</label>
+                        <input type="url" id="doc-semi-mdb" name="doc_semi_mdb" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/semi-integration/mdb">
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-semi-socket">Semi-Integration: Socket</label>
+                        <input type="url" id="doc-semi-socket" name="doc_semi_socket" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/semi-integration/socket-api" value="https://yourcompany.gitbook.io/docs/semi-integration/socket-api">
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-semi-aidl">Semi-Integration: AIDL</label>
+                        <input type="url" id="doc-semi-aidl" name="doc_semi_aidl" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/semi-integration/aidl">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Additional Features & Data Transmission Docs</h3></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="doc-gateway">Online Payment Gateway</label>
+                        <input type="url" id="doc-gateway" name="doc_gateway" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/online-payments/gateway-api" value="https://yourcompany.gitbook.io/docs/online-payments/gateway-api">
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-apm">Alternative Payment Methods (APM)</label>
+                        <input type="url" id="doc-apm" name="doc_apm" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/apm" value="https://yourcompany.gitbook.io/docs/apm">
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-loyalty">Loyalty Integration (e.g., Factor4)</label>
+                        <input type="url" id="doc-loyalty" name="doc_loyalty" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/loyalty/factor4" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-webhooks">Transaction Result Data Transmission</label>
+                        <input type="url" id="doc-webhooks" name="doc_webhooks" class="form-control" placeholder="https://yourcompany.gitbook.io/docs/webhooks/transaction-results" value="https://yourcompany.gitbook.io/docs/webhooks/transaction-results">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-bar">
+                <button type="button" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save All Changes</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

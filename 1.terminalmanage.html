@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Management</title>
+    <link rel="stylesheet" href="styles/na-theme.css">
+    <style>
+        :root {
+            --banner: #111111;   /* near-black header */
+            --accent: #2563eb;   /* subtle blue accent */
+            --chip-bg: #f1f2f4;  /* gray chip */
+            --chip-text: #374151;
+        }
+        /* Page shell to match Paywizard Console look */
+        body { background: var(--bg); margin: 0; }
+        .page-wrap { max-width: 1120px; margin: 24px auto; padding: 0 20px; }
+        .crumbs { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin: 6px 0 12px; text-transform: uppercase; }
+        .crumbs span { color: #0f172a; }
+
+        /* Main card that holds the header, tabs and content */
+        .terminal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
+
+        /* Blue banner header to match the provided structure */
+        .card-banner { background: var(--banner); color: #fff; padding: 16px 18px 12px; position: relative; }
+        .banner-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .title { font-size: 22px; font-weight: 760; margin: 0; letter-spacing: .2px; }
+        .banner-meta { margin-top: 4px; color: rgba(255,255,255,.9); font-size: 12px; }
+        .banner-meta b { color: #fff; }
+        .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); }
+        .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; background: rgba(17,17,17,.75); color: #fff; border: 1px solid rgba(255,255,255,.15); }
+        .sync-text { position: absolute; right: 18px; bottom: 8px; font-size: 11px; color: rgba(255,255,255,.8); }
+        .refresh-fab { position: absolute; right: 18px; bottom: -16px; width: 36px; height: 36px; border-radius: 50%; background: #fff; color: #111; border: 1px solid rgba(0,0,0,.12); box-shadow: 0 8px 14px rgba(0,0,0,.12); display: grid; place-items: center; font-weight: 800; cursor: pointer; }
+        .card-banner .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12); color: #fff; }
+        .card-banner .icon-btn:hover { background: rgba(255,255,255,.2); }
+
+        /* Primary tabs live inside the banner */
+        .toolbar { display: none; }
+        .banner-tabs { margin-top: 10px; display: flex; gap: 14px; }
+        .banner-tabs .tab { appearance: none; background: transparent; border: none; padding: 10px 12px; margin: 0; font-weight: 700; color: rgba(255,255,255,.85); cursor: pointer; border-bottom: 3px solid transparent; }
+        .banner-tabs .tab:hover { color: #fff; }
+        .banner-tabs .tab.active { color: #fff; border-bottom-color: var(--accent); }
+
+        /* Info strip */
+        .info-strip { display: flex; justify-content: space-between; gap: 16px; align-items: center; background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        .kv { display: flex; flex-wrap: wrap; gap: 16px 22px; font-size: 13px; color: #475569; }
+        .kv b { color: #0f172a; }
+        .status-line { display: flex; align-items: center; gap: 14px; color: #475569; font-size: 13px; }
+        .muted { color: #64748b; font-size: 12px; }
+
+        /* Section content */
+        .content { padding: 18px; }
+        .content-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .subtabs { display: flex; gap: 8px; }
+        .subtab { appearance: none; background: var(--chip-bg); border: 1px solid var(--border); padding: 5px 10px; margin: 0; font-weight: 600; color: var(--chip-text); cursor: pointer; border-radius: 10px; font-size: 13px; }
+        .subtab.active { background: #111; color: #fff; border-color: #111; }
+        .content-head .btn-primary { width: auto; padding: 8px 12px; font-size: 13px; }
+
+        /* Filters */
+        .filter-bar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 10px; margin: 8px 0 12px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+        .filter-grid .field { display: flex; flex-direction: column; gap: 6px; }
+        .filter-grid label { font-size: 11px; font-weight: 700; color: #475569; }
+        .filter-bar input[type="text"], .filter-bar select { padding: 8px 10px; font-size: 13px; height: 34px; border-radius: 10px; }
+        .date-range { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .filter-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+        .filter-actions .btn-primary, .filter-actions .btn-secondary { width: auto; }
+
+        /* Task card */
+        .task-card { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow-xs); }
+        .task-title { font-size: 16px; font-weight: 650; color: #0f172a; margin: 0 0 6px; }
+        .task-title span { color: #14532d; background: #dcfce7; border-radius: 8px; padding: 2px 6px; font-size: 12px; font-weight: 700; margin-left: 6px; }
+        .task-meta { color: #475569; font-size: 13px; line-height: 1.6; }
+        .task-actions { display: flex; align-items: center; gap: 10px; }
+        .badge.success { background: #e8f5e9; color: #1b5e20; }
+        .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: #0f172a; display: grid; place-items: center; cursor: pointer; }
+        .icon-btn:hover { background: #f8fafc; }
+
+        /* History section */
+        .section { margin-top: 22px; }
+        .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .section-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+        .section-tools { display: flex; gap: 8px; }
+        .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); overflow: hidden; }
+        .table thead th { padding: 10px 12px; }
+        .table tbody td { padding: 10px 12px; }
+        .hidden { display: none; }
+        .old { display: none; }
+
+        /* Black/white button treatment */
+        .btn-primary { background: #111 !important; border-color: #111 !important; color: #fff; border: 1px solid #111; border-radius: 999px; box-shadow: 0 3px 8px rgba(0,0,0,.10); padding: 8px 12px; font-weight: 700; font-size: 13px; }
+        .btn-primary:hover { background: #000; }
+        .btn-secondary { background: #fff; color: #111; border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; font-size: 13px; }
+
+        /* Hide old info strip – info now lives inside banner */
+        .info-strip { display: none; }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="crumbs">Merchant Account > <span>Terminal Management</span> > IM30-01 41381</div>
+
+        <div class="terminal-card">
+            <div class="card-banner">
+                <div class="banner-top">
+                    <h1 class="title">IM30-01 41381</h1>
+                    <div class="banner-status">
+                        <span>Utilization 0%</span>
+                        <span>Offline 8M (2025-06-15 15:15:21)</span>
+                        <span class="pill">Active</span>
+                        <button class="icon-btn" title="More">⋮</button>
+                    </div>
+                </div>
+                <div class="banner-meta">
+                    <b>Reseller:</b> Universal Processing &nbsp;/&nbsp;
+                    <b>Merchant:</b> 1 of a Kind World Travel LLC 41381 &nbsp;/&nbsp;
+                    <b>SN:</b> 1640214640 &nbsp;/&nbsp;
+                    <b>TID:</b> UZN10E08 &nbsp;/&nbsp;
+                    <b>Model Name:</b> IM30
+                </div>
+                <div class="banner-tabs" id="primaryTabs" role="tablist">
+                    <button class="tab" data-tab="basic" role="tab" aria-selected="false">Basic Information</button>
+                    <button class="tab" data-tab="appfw" role="tab" aria-selected="false">App &amp; Firmware</button>
+                    <button class="tab active" data-tab="push" role="tab" aria-selected="true">Push Task</button>
+                    <button class="tab" data-tab="settings" role="tab" aria-selected="false">Setting</button>
+                    <button class="tab" data-tab="params" role="tab" aria-selected="false">Parameter Variables</button>
+                </div>
+                <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
+                <button class="refresh-fab" title="Sync">⟳</button>
+            </div>
+
+            
+
+            <div class="info-strip">
+                <div class="kv">
+                    <div><b>Reseller:</b> Universal Processing</div>
+                    <div><b>Merchant:</b> 1 of a Kind World Travel LLC 41381</div>
+                    <div><b>SN:</b> 1640214640</div>
+                    <div><b>TID:</b> UZN10E08</div>
+                    <div><b>Model:</b> IM30</div>
+                </div>
+                <div class="status-line">
+                    <span>🔔 0%</span>
+                    <span>🔒 Offline 8M (2025-06-15 15:15:21)</span>
+                    <span class="muted">Sync: 2024-09-23 17:05</span>
+                    <button class="icon-btn" title="Refresh">⟳</button>
+                </div>
+            </div>
+
+            <div class="content old">
+                <div class="content-head">
+                    <div class="subtabs">
+                        <div class="subtab active">App</div>
+                        <div class="subtab">Firmware</div>
+                        <div class="subtab">Launcher</div>
+                    </div>
+                    <button class="btn-primary" type="button">+ Push App</button>
+                </div>
+
+                <div class="task-card">
+                    <div>
+                        <div class="task-title">BroadPOS TransIT UPT <span>V1.00.16E_20250606</span></div>
+                        <div class="task-meta">
+                            Type: Parameter App<br>
+                            Effective Time: 2025-06-27 03:00<br>
+                            App Push Time: 2025-06-27 03:00
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <span class="badge success">Active</span>
+                        <button class="icon-btn" title="Delete">🗑</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <div class="section-title">Operation History</div>
+                        <div class="section-tools">
+                            <button class="btn-secondary">Export</button>
+                            <button class="btn-secondary">Search</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Target</th>
+                                    <th>Version</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Push App</td>
+                                    <td>BroadPOS TransIT UPT</td>
+                                    <td>V1.00.16E_20250606</td>
+                                    <td><span class="badge success">Success</span></td>
+                                    <td>2025-06-27 03:00</td>
+                                </tr>
+                                <tr>
+                                    <td>Sync</td>
+                                    <td>Device</td>
+                                    <td>—</td>
+                                    <td><span class="badge warn">Pending</span></td>
+                                    <td>2025-06-27 02:55</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New content with tabs and filters -->
+            <div class="content" id="newContent">
+                <!-- Basic Information -->
+                <section id="tab-basic" class="hidden" role="tabpanel" aria-labelledby="basic">
+                    <!-- Basic tab styles kept local to avoid changing global sheet -->
+                    <style>
+                        .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+                        .panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); }
+                        .panel.pad { padding: 12px; }
+                        .panel-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: #0f172a; }
+                        .map-card { position: relative; min-height: 240px; display: grid; place-items: center; overflow: hidden; }
+                        .map-bg { position: absolute; inset: 0; background: linear-gradient(180deg,#f3f4f6, #e5e7eb); filter: grayscale(1) contrast(1); }
+                        .map-hint { position: relative; color: #6b7280; font-weight: 600; font-size: 14px; letter-spacing: .2px; }
+                        .map-refresh { position: absolute; right: 10px; top: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #111; }
+                        .stat-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                        .stat-card { padding: 12px; }
+                        .stat-head { display: flex; align-items: center; gap: 8px; color: #4b5563; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+                        .stat-value { font-size: 22px; font-weight: 800; margin: 8px 0 6px; color: #0b1220; }
+                        .stat-sub { color: #6b7280; font-weight: 600; font-size: 12px; }
+                        .bar { height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+                        .bar > span { display: block; height: 100%; background: #111; border-radius: inherit; }
+                        .details-grid { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: start; }
+                        .kv-list { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 8px; align-items: baseline; }
+                        .kv-list dt { color: #6b7280; font-size: 13px; font-weight: 700; }
+                        .kv-list dd { margin: 0; color: #0b1220; font-weight: 700; }
+                        .device-thumb { width: 100%; height: 140px; border: 1px solid var(--border); border-radius: 10px; background: linear-gradient(180deg,#eee,#ddd); display: grid; place-items: center; color: #475569; font-weight: 700; font-size: 12px; }
+                        .btn-ghost { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: #111; font-weight: 700; font-size: 12px; }
+                        .btn-ghost:hover { background: #f8fafc; }
+                        .group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
+                        .group-meta { color: #6b7280; font-size: 12px; }
+                        .group-name { font-weight: 750; }
+                        .log-section { margin-top: 18px; }
+                        .log-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+                        .log-tab { padding: 10px 2px; margin: 0; background: transparent; border: none; color: #334155; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; }
+                        .log-tab.active { color: #0b1220; border-bottom-color: #111; }
+                        .year-chips { display: flex; gap: 8px; margin: 10px 0; }
+                        .chip { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: #111; font-weight: 700; font-size: 12px; cursor: pointer; }
+                        .chip.active { background: #111; color: #fff; border-color: #111; }
+                    </style>
+
+                    <h2 class="section-title" style="margin-bottom:10px">Dashboard</h2>
+                    <div class="dash-grid">
+                        <!-- Left stack: map + stats -->
+                        <div class="left-stack">
+                            <div class="panel map-card">
+                                <div class="map-bg" aria-hidden="true"></div>
+                                <div class="map-hint">Terminal Location Not Uploaded</div>
+                                <button class="map-refresh" title="Refresh">⟳</button>
+                            </div>
+
+                            <div class="stat-grid">
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">RAM</div>
+                                    <div class="stat-value">20.49%</div>
+                                    <div class="bar"><span style="width:20.49%"></span></div>
+                                </div>
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">CPU</div>
+                                    <div class="stat-value">33.00%</div>
+                                    <div class="bar"><span style="width:33%"></span></div>
+                                </div>
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">Battery</div>
+                                    <div class="stat-value">NA</div>
+                                    <div class="bar"><span style="width:0%"></span></div>
+                                </div>
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">Storage</div>
+                                    <div class="stat-value">0.44GB <span class="stat-sub">/ 4.55GB</span></div>
+                                    <div class="bar"><span style="width:9.67%"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right stack: details + groups -->
+                        <div class="right-stack" style="display:grid; gap:12px; align-content:start;">
+                            <div class="panel pad">
+                                <div class="panel-title">Terminal Details</div>
+                                <div class="details-grid">
+                                    <dl class="kv-list">
+                                        <dt>SN</dt><dd>1640214640</dd>
+                                        <dt>Model</dt><dd>IM30</dd>
+                                        <dt>PN</dt><dd>IM30-0AA-RD5-0JA0</dd>
+                                        <dt>Type</dt><dd>Payment Device - Smart POS</dd>
+                                    </dl>
+                                    <div class="device-thumb">Device Image</div>
+                                </div>
+                                <div style="margin-top:10px"><button class="btn-ghost" type="button">View Detail »</button></div>
+                            </div>
+                            <div class="panel pad">
+                                <div class="panel-title">Group List</div>
+                                <div class="group-item">
+                                    <div style="width:28px;height:28px;border-radius:8px;border:1px solid var(--border);display:grid;place-items:center;">👥</div>
+                                    <div>
+                                        <div class="group-name">IM30 VendLink-UPT New</div>
+                                        <div class="group-meta">Group Type: General Group · Reseller: Universal Processing · Added: 2024-09-11 18:42</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs -->
+                    <div class="log-section">
+                        <div class="log-tabs" id="basicLogTabs">
+                            <button class="log-tab active" data-log="op">Operation Log</button>
+                            <button class="log-tab" data-log="rep">Replacement Log</button>
+                            <button class="log-tab" data-log="dl">Download App Log</button>
+                        </div>
+                        <div class="year-chips" id="yearChips">
+                            <button class="chip active">2025</button>
+                            <button class="chip">2024</button>
+                            <button class="chip">2023</button>
+                            <button class="chip">2022</button>
+                            <button class="chip">2021</button>
+                            <button class="chip">2020</button>
+                            <button class="chip">2019</button>
+                            <button class="chip">Earlier</button>
+                        </div>
+
+                        <div id="log-op" class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Status</th><th>Time</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
+                                    <tr><td>Sync</td><td>Device</td><td>—</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="log-rep" class="table-wrap hidden">
+                            <table class="table">
+                                <thead><tr><th>Time</th><th>From</th><th>To</th><th>By</th></tr></thead>
+                                <tbody>
+                                    <tr><td>2025-03-02 10:25</td><td>Group A</td><td>Group B</td><td>System</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="log-dl" class="table-wrap hidden">
+                            <table class="table">
+                                <thead><tr><th>App</th><th>Version</th><th>Status</th><th>Time</th></tr></thead>
+                                <tbody>
+                                    <tr><td>PW Launcher</td><td>2.1.0</td><td><span class="badge success">Success</span></td><td>2025-06-12 13:42</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- App & Firmware -->
+                <section id="tab-appfw" class="hidden" role="tabpanel" aria-labelledby="appfw">
+                    <div class="content-head">
+                        <div class="subtabs" id="subTabs">
+                            <button class="subtab active" data-sub="app">App</button>
+                            <button class="subtab" data-sub="fw">Firmware</button>
+                            <button class="subtab" data-sub="launcher">Launcher</button>
+                        </div>
+                        <button class="btn-primary" type="button">+ Install</button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter-grid">
+                            <div class="field"><label>Name</label><input type="text" placeholder="Search name" /></div>
+                            <div class="field"><label>Version</label><input type="text" placeholder="e.g. 1.0.0" /></div>
+                            <div class="field"><label>Status</label><select><option>All</option><option>Active</option><option>Pending</option></select></div>
+                            <div class="field"><label>Channel</label><input type="text" placeholder="Optional" /></div>
+                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
+                        </div>
+                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
+                    </div>
+
+                    <div class="table-wrap" id="table-app">
+                        <table class="table">
+                            <thead><tr><th>App</th><th>Version</th><th>Status</th><th>Installed</th></tr></thead>
+                            <tbody>
+                                <tr><td>Paywizard POS</td><td>3.2.1</td><td><span class="badge success">Active</span></td><td>2025-06-27</td></tr>
+                                <tr><td>BroadPOS TransIT UPT</td><td>1.00.16E</td><td><span class="badge warn">Pending</span></td><td>2025-06-27</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-wrap hidden" id="table-fw">
+                        <table class="table">
+                            <thead><tr><th>Firmware</th><th>Build</th><th>Status</th><th>Installed</th></tr></thead>
+                            <tbody>
+                                <tr><td>IM30 System</td><td>10.1.5</td><td><span class="badge success">Active</span></td><td>2025-06-21</td></tr>
+                                <tr><td>Radio Module</td><td>2.4.7</td><td><span class="badge warn">Pending</span></td><td>&mdash;</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-wrap hidden" id="table-launcher">
+                        <table class="table">
+                            <thead><tr><th>Launcher</th><th>Version</th><th>Status</th><th>Installed</th></tr></thead>
+                            <tbody>
+                                <tr><td>PW Launcher</td><td>2.1.0</td><td><span class="badge success">Active</span></td><td>2025-06-12</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Push Task (active by default) -->
+                <section id="tab-push" role="tabpanel" aria-labelledby="push">
+                    <div class="content-head">
+                        <div class="subtabs">
+                            <button class="subtab active">App</button>
+                            <button class="subtab">Firmware</button>
+                            <button class="subtab">Launcher</button>
+                        </div>
+                        <button class="btn-primary" type="button">+ Push App</button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter-grid">
+                            <div class="field"><label>Action</label><input type="text" placeholder="Push / Install / Remove" /></div>
+                            <div class="field"><label>Target</label><input type="text" placeholder="App or Firmware" /></div>
+                            <div class="field"><label>Status</label><select><option>All</option><option>Pending</option><option>Success</option><option>Failed</option></select></div>
+                            <div class="field"><label>Operator</label><input type="text" placeholder="User or system" /></div>
+                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
+                        </div>
+                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
+                    </div>
+
+                    <div class="task-card">
+                        <div>
+                            <div class="task-title">BroadPOS TransIT UPT <span>V1.00.16E_20250606</span></div>
+                            <div class="task-meta">Type: Parameter App<br>Effective Time: 2025-06-27 03:00<br>App Push Time: 2025-06-27 03:00</div>
+                        </div>
+                        <div class="task-actions">
+                            <span class="badge success">Active</span>
+                            <button class="icon-btn" title="Delete">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-head">
+                            <div class="section-title">Operation History</div>
+                            <div class="section-tools">
+                                <button class="btn-secondary">Export</button>
+                                <button class="btn-secondary">Search</button>
+                            </div>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Status</th><th>Time</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
+                                    <tr><td>Sync</td><td>Device</td><td>&mdash;</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings -->
+                <section id="tab-settings" class="hidden" role="tabpanel" aria-labelledby="settings">
+                    <h2 class="section-title" style="margin-bottom:10px">Device Settings</h2>
+                    <fieldset>
+                        <legend>Connectivity</legend>
+                        <div class="form-group"><label><input type="checkbox" checked> Enable automatic updates</label></div>
+                        <div class="form-group"><label><input type="checkbox"> Allow remote configuration</label></div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Security</legend>
+                        <div class="form-group"><label><input type="checkbox" checked> Lock when offline for 10 minutes</label></div>
+                        <div class="hint">Applies device-level policy similar to reference UI.</div>
+                    </fieldset>
+                    <button class="btn-primary" type="button">Save Changes</button>
+                </section>
+
+                <!-- Parameter Variables -->
+                <section id="tab-params" class="hidden" role="tabpanel" aria-labelledby="params">
+                    <div class="filter-bar">
+                        <div class="filter-grid">
+                            <div class="field"><label>Key</label><input type="text" placeholder="Search key" /></div>
+                            <div class="field"><label>Value</label><input type="text" placeholder="Contains…" /></div>
+                            <div class="field"><label>Scope</label><select><option>All</option><option>System</option><option>App</option></select></div>
+                            <div class="field"><label>Modified By</label><input type="text" placeholder="User" /></div>
+                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
+                        </div>
+                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead><tr><th>Key</th><th>Value</th><th>Scope</th><th>Updated</th></tr></thead>
+                            <tbody>
+                                <tr><td>merchant.id</td><td>41381</td><td>System</td><td>2025-08-01</td></tr>
+                                <tr><td>feature.tipping</td><td>true</td><td>App</td><td>2025-08-11</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+<script>
+    (function() {
+        const tabs = document.querySelectorAll('#primaryTabs .tab');
+        const sections = {
+          basic: document.getElementById('tab-basic'),
+          appfw: document.getElementById('tab-appfw'),
+          push: document.getElementById('tab-push'),
+          settings: document.getElementById('tab-settings'),
+          params: document.getElementById('tab-params')
+        };
+
+    function showTab(key) {
+      Object.keys(sections).forEach(k => {
+        if (!sections[k]) return;
+        sections[k].classList.toggle('hidden', k !== key);
+      });
+      tabs.forEach(btn => {
+        const active = btn.getAttribute('data-tab') === key;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+    }
+
+    tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+    // Default
+    showTab('push');
+
+    // App & Firmware subtabs
+    const subTabs = document.querySelectorAll('#subTabs .subtab');
+    const tables = {
+      app: document.getElementById('table-app'),
+      fw: document.getElementById('table-fw'),
+      launcher: document.getElementById('table-launcher')
+    };
+    function showSub(key) {
+      Object.keys(tables).forEach(k => {
+        if (!tables[k]) return;
+        tables[k].classList.toggle('hidden', k !== key);
+      });
+      subTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === key));
+    }
+    subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
+    showSub('app');
+
+    // Basic tab: log subtabs + year chips (black & white UI)
+    const logTabs = document.querySelectorAll('#basicLogTabs .log-tab');
+    const logPanels = {
+      op: document.getElementById('log-op'),
+      rep: document.getElementById('log-rep'),
+      dl: document.getElementById('log-dl')
+    };
+    function showLog(key) {
+      Object.keys(logPanels).forEach(k => {
+        if (!logPanels[k]) return;
+        logPanels[k].classList.toggle('hidden', k !== key);
+      });
+      logTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.log === key));
+    }
+    logTabs.forEach(btn => btn.addEventListener('click', () => showLog(btn.dataset.log)));
+    // default state
+    showLog('op');
+
+    const yearChips = document.querySelectorAll('#yearChips .chip');
+    yearChips.forEach(chip => chip.addEventListener('click', () => {
+      yearChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    }));
+  })();
+</script>
+</body>
+</html>

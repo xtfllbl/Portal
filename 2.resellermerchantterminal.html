@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Hierarchy Dashboard</title>
+    <style>
+        :root {
+            --bg-base: #f7f7f7;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #e5e5e5;
+            --sidebar-text: #3d3d3d;
+            --sidebar-muted: #8c8c8c;
+            --sidebar-active-bg: #f2f2f2;
+            --sidebar-active-text: #111111;
+            --primary-color: #111111;
+            --card-bg: #ffffff;
+            --card-border: #e9e9e9;
+            --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            --text-heading: #111111;
+            --text-body: #3f3f3f;
+            --text-muted: #8a8a8a;
+            --pill-bg: #f2f2f2;
+            --pill-text: #333333;
+            --tree-sidebar-bg: #ffffff;
+            --tree-text-strong: #0f0f10;
+            --tree-text-main: #111111;
+            --tree-text-dim: #6b7280;
+            --tree-divider: #e5e7eb;
+            --tree-hover: #f3f4f6;
+            --tree-bullet: #d1d5db;
+            --tree-active-bg: #0f0f10;
+            --tree-active-sub-bg: #111111;
+            --tree-active-text: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-body);
+        }
+
+        .top-header {
+            height: 56px;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-heading); font-size: 15px; }
+        .brand-logo { width: 28px; height: 28px; border-radius: 6px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .icon-button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--sidebar-border); background: #fff; display: grid; place-items: center; position: relative; color: var(--text-heading); font-weight: 600; cursor: pointer; }
+        .icon-button .badge { position: absolute; right: 4px; top: 4px; background: #111; color: #fff; font-size: 10px; font-weight: 700; padding: 0 5px; line-height: 16px; border-radius: 8px; }
+        .user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--sidebar-border); background: #fff; font-size: 13px; color: var(--text-heading); }
+        .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+
+        .main-body { display: flex; min-height: calc(100vh - 56px); align-items: flex-start; gap: 20px; padding: 20px; }
+
+        .sidebar {
+            width: 260px;
+            background: var(--tree-sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--tree-divider);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--tree-divider);
+        }
+
+        .sidebar .brand-left { display: flex; align-items: center; gap: 10px; }
+        .sidebar .mark { width: 32px; height: 22px; }
+        .sidebar .mark svg { width: 100%; height: 100%; stroke: var(--tree-text-strong); }
+
+        .sidebar .brand-text { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar .brand-name { font-weight: 700; font-size: 17px; color: var(--tree-text-strong); letter-spacing: 0.15px; }
+        .sidebar .brand-sub { font-size: 11px; color: var(--tree-text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .sidebar .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--tree-divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .sidebar .close-btn span { position: relative; width: 14px; height: 14px; }
+        .sidebar .close-btn span::before,
+        .sidebar .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--tree-text-strong);
+            transform-origin: center;
+        }
+        .sidebar .close-btn span::before { transform: translate(-50%, -50%) rotate(45deg); }
+        .sidebar .close-btn span::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+        .sidebar .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--tree-text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sidebar .menu-item:hover { background: var(--tree-hover); }
+        .sidebar .menu-main { display: flex; align-items: center; gap: 10px; }
+
+        .sidebar .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--tree-text-strong);
+        }
+
+        .sidebar .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .sidebar .label { font-size: 14px; font-weight: 600; color: inherit; }
+        .sidebar .chevron { font-size: 11px; color: var(--tree-text-dim); }
+
+        .sidebar .menu-item.active { background: var(--tree-active-bg); color: var(--tree-active-text); }
+        .sidebar .menu-item.active .icon,
+        .sidebar .menu-item.active .chevron { color: var(--tree-active-text); }
+
+        .sidebar .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar .sub-menu.open { display: flex; }
+
+        .sidebar .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--tree-text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sidebar .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--tree-bullet);
+            transform: translateY(-50%);
+        }
+
+        .sidebar .sub-item:hover { color: var(--tree-text-main); background: var(--tree-hover); }
+
+        .sidebar .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--tree-active-sub-bg);
+            color: var(--tree-active-text);
+        }
+
+        .sidebar .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--tree-active-text);
+            left: 10px;
+        }
+
+        .workspace { flex: 1; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; background-color: var(--bg-base); }
+        .breadcrumb-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--text-muted); }
+        .breadcrumb-bar span:last-child { color: var(--sidebar-text); }
+
+        .content-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--card-shadow); overflow: hidden; }
+
+        .hierarchy-card header { padding: 12px 14px; border-bottom: 1px solid var(--card-border); font-size: 14px; font-weight: 600; color: var(--text-heading); }
+        .hierarchy-list { list-style: none; margin: 0; padding: 6px 0 10px; }
+        .hierarchy-list li { display: flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
+        .hierarchy-list li:hover { background-color: #f5f5f5; }
+        .hierarchy-list .selected { background-color: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 600; }
+        .tree-toggle { width: 16px; text-align: center; color: var(--text-muted); font-size: 11px; }
+        .hierarchy-list .level-1 { padding-left: 14px; }
+        .hierarchy-list .level-2 { padding-left: 22px; color: var(--text-muted); }
+        .hierarchy-list .level-3 { padding-left: 30px; color: var(--text-muted); }
+        .hierarchy-tools { padding: 10px 14px; border-bottom: 1px solid var(--card-border); background: #fafafa; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .hierarchy-search { flex: 1; min-width: 180px; }
+        .hierarchy-search input { width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 12px; color: var(--text-body); }
+        .hierarchy-search input:focus { outline: 2px solid rgba(0,0,0,.2); border-color: #111; }
+        .filter-select { min-width: 140px; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 12px; color: var(--text-body); background: #fff; }
+        .filter-select:focus { outline: 2px solid rgba(0,0,0,.2); border-color: #111; }
+        .hierarchy-count { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+        .hierarchy-scroll { max-height: 520px; overflow-y: auto; }
+
+        .page-card { display: flex; flex-direction: column; }
+        .reseller-hero { padding: 16px 20px; background: #111; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+        .hero-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .9; }
+        .reseller-hero h1 { margin: 4px 0; font-size: 18px; font-weight: 700; }
+        .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; opacity: .9; }
+        .hero-status { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+        .hero-status-pill { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.35); font-size: 11px; font-weight: 700; transition: all .15s ease; }
+        .hero-status-pill.inactive { background: #ffe8e6; color: #b40000; border-color: #ffb5ae; }
+        .hero-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
+        .hero-actions .chip-button { padding: 6px 10px; }
+        .chip-button { padding: 7px 12px; border-radius: 999px; border: 1px solid #d9d9d9; background: #fff; color: #111; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .primary-action { background: #111; color: #fff; border: 1px solid #111; }
+        .chip-button.danger { border-color: #ffb5ae; color: #b40000; background: #ffe8e6; }
+
+        .tab-bar { display: flex; list-style: none; margin: 0; padding: 0 16px; border-bottom: 1px solid var(--card-border); gap: 20px; }
+        .tab { position: relative; padding: 10px 0; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .tab.active { color: var(--primary-color); }
+        .tab.active::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 100%; height: 2px; background: var(--primary-color); border-radius: 2px 2px 0 0; }
+
+        .tab-panels { display: flex; flex-direction: column; }
+        .tab-panel { display: none; padding: 16px 20px 20px; }
+        .tab-panel.active { display: block; }
+
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .detail-card { padding: 14px; border: 1px solid var(--card-border); border-radius: 10px; background: #fff; }
+        .detail-card h4 { margin: 0 0 10px; font-size: 14px; color: var(--text-heading); }
+        .detail-card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; row-gap: 6px; column-gap: 10px; font-size: 12px; }
+        .detail-card dt { color: var(--text-muted); }
+        .detail-card dd { margin: 0; color: var(--text-body); }
+        .token-card { display: flex; flex-direction: column; gap: 12px; }
+        .token-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .token-meta strong { color: var(--text-heading); }
+        .token-list { display: flex; flex-direction: column; gap: 10px; }
+        .token-item { border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; background: #fff; }
+        .token-item .token-title { font-weight: 700; color: var(--text-heading); margin-bottom: 6px; }
+        .token-row { display: grid; grid-template-columns: 80px 1fr; gap: 6px; align-items: center; font-size: 13px; }
+        .token-row .label { color: var(--text-muted); }
+        .token-value { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .token-mask { letter-spacing: .04em; }
+
+        /* Provider form/display layout */
+        .provider-section { display: flex; flex-direction: column; gap: 12px; }
+        .provider-section h3 { margin: 4px 0; font-size: 16px; color: var(--text-heading); }
+        .provider-card { padding: 14px; border: 1px solid var(--card-border); border-radius: 10px; background: #fff; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 12px 16px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        .helper-text { font-size: 12px; color: var(--text-muted); }
+
+        /* Pure display fields */
+        .provider-display { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 12px 16px; }
+        .display-field { display: flex; flex-direction: column; gap: 6px; }
+        .display-label { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
+        .display-value { padding: 10px 12px; border: 1px solid var(--card-border); border-radius: 8px; background: #f7f7f7; min-height: 36px; display: flex; align-items: center; color: var(--text-body); }
+        .display-field.full { grid-column: 1 / -1; }
+        .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pill { padding: 4px 8px; border-radius: 999px; background: var(--pill-bg); color: var(--pill-text); border: 1px solid var(--card-border); font-size: 12px; font-weight: 600; }
+        .display-logo { display: flex; align-items: center; gap: 12px; }
+        .logo-box { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--card-border); background: #fff; display: grid; place-items: center; color: #111; font-weight: 700; }
+
+        /* Profile editing */
+        .profile-card { position: relative; }
+        .profile-card.editing { border-color: #111; box-shadow: 0 8px 20px rgba(0,0,0,.10); }
+        .profile-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .profile-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .mode-pill { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--card-border); background: #f7f7f7; font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
+        .profile-form { margin-top: 6px; }
+
+        /* Dropzone */
+        .upload-dropzone { display: grid; place-items: center; min-height: 140px; border: 1px dashed var(--card-border); border-radius: 10px; background: #fafafa; color: var(--text-muted); cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+        .upload-dropzone:hover { background: #f5f5f5; }
+        .upload-dropzone.drag { background: #f0f0f0; border-color: #111; color: #333; }
+        .upload-preview { display: flex; align-items: center; gap: 12px; }
+        .upload-preview img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--card-border); background: #fff; }
+        .upload-actions { display: flex; gap: 8px; }
+
+        /* Buttons row */
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+        /* Readonly state */
+        .is-readonly .field input,
+        .is-readonly .field textarea,
+        .is-readonly .field select { background: #f7f7f7; color: var(--text-muted); }
+        .is-readonly .upload-dropzone { pointer-events: none; opacity: .7; }
+        .is-readonly .upload-actions, .is-readonly .form-actions { display: none; }
+
+        .card-toolbar { padding: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .field label { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
+        .field input, .field select, .field textarea { min-width: 120px; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; color: var(--text-body); background: #fff; }
+        .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid rgba(0,0,0,.2); border-color: #111; }
+        .search-button { display: flex; align-items: center; justify-content: center; width: 96px; height: 36px; border-radius: 8px; border: 1px solid #111; background: #111; color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; }
+
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #111; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; border: none; white-space: nowrap; }
+        tbody td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+        tbody tr:nth-child(even) { background: #fcfcfc; }
+        tbody tr:hover { background: #f5f5f5; }
+        .terminal-table tbody tr { cursor: pointer; }
+
+        .status-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid #d9d9d9; background: var(--pill-bg); color: var(--pill-text); }
+        .status-pill.success { background: #111; color: #fff; border-color: #111; }
+        .status-pill.danger { background: #eeeeee; color: #555; border-color: #d9d9d9; }
+
+        .action-buttons { display: flex; align-items: center; gap: 8px; }
+        .action-button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--card-border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #666; font-size: 12px; font-weight: 700; }
+        .action-button:hover { color: #111; border-color: #bfbfbf; }
+        .action-button.icon-only { width: 32px; height: 32px; padding: 0; }
+        .action-button svg { width: 14px; height: 14px; }
+        .action-button.danger { border-color: #ffc7c2; color: #b40000; }
+
+        @media (max-width: 1200px) { .content-layout { grid-template-columns: 1fr; } }
+        @media (max-width: 860px) {
+            .main-body { flex-direction: column; padding: 16px; gap: 16px; }
+            .sidebar { width: 100%; }
+            .workspace { padding: 18px; }
+            .tab-bar { overflow-x: auto; }
+            .card-toolbar { flex-direction: column; align-items: stretch; }
+            .field input, .field select, .search-button { width: 100%; }
+            .hierarchy-tools { flex-direction: column; align-items: stretch; }
+            .hierarchy-count { margin-left: 0; }
+            .hero-actions { flex-wrap: wrap; }
+            .hero-status { align-items: flex-start; }
+        }
+            /* Partner Hierarchy tools */
+        .hierarchy-card header { display: flex; align-items: center; justify-content: space-between; }
+        .hierarchy-actions { position: relative; display: flex; align-items: center; gap: 8px; }
+        .icon-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--card-border); background: #fff; color: #111; display: grid; place-items: center; font-weight: 800; cursor: pointer; }
+        .icon-btn:hover { border-color: #bfbfbf; }
+        .dropdown-menu { position: absolute; top: 34px; right: 0; background: #fff; border: 1px solid var(--card-border); border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,.08); padding: 6px; width: 160px; display: none; z-index: 10; }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item { width: 100%; text-align: left; padding: 8px 10px; border: 1px solid transparent; background: #fff; border-radius: 6px; font-size: 13px; color: var(--text-heading); cursor: pointer; }
+        .dropdown-item:hover { background: #f5f5f5; }
+        .dropdown-menu.wide { width: 220px; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal-overlay.show { display: flex; }
+        .modal { width: 640px; max-width: calc(100vw - 40px); background: #fff; border: 1px solid var(--card-border); border-radius: 12px; box-shadow: 0 14px 34px rgba(0,0,0,.16); overflow: hidden; }
+        .modal header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--card-border); font-weight: 700; color: var(--text-heading); }
+        .modal .modal-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+        .modal .modal-actions { padding: 12px 16px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--card-border); }
+        .modal .close-btn { border: none; background: transparent; font-size: 18px; line-height: 1; cursor: pointer; color: var(--text-body); }
+        .modal .full { grid-column: 1 / -1; }
+        /* Add Terminal specific */
+        .btn-group { display: flex; width: 100%; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
+        .btn-group button { flex: 1; padding: 7px 12px; font-size: 12px; border: none; background: #fff; color: #111; cursor: pointer; }
+        .btn-group button + button { border-left: 1px solid var(--card-border); }
+        .btn-group .active { background: #111; color: #fff; }
+        .required-mark { color: #b40000; margin-left: 2px; }
+        .inline-field { display: flex; align-items: end; gap: 8px; }
+        .suffix-note { font-size: 12px; color: var(--text-muted); }
+
+        /* Empty state for right panel */
+        .page-card.empty > :not(.empty-state) { display: none !important; }
+        .page-card .empty-state { display: none; }
+        .page-card.empty .empty-state { display: flex; }
+        .empty-state { min-height: 360px; margin: 16px; border: 1px dashed var(--card-border); border-radius: 12px; align-items: center; justify-content: center; padding: 40px; background: #fff; text-align: center; }
+        .empty-state .inner { max-width: 460px; }
+        .empty-state .icon { width: 56px; height: 56px; border-radius: 12px; border: 1px solid var(--card-border); display: grid; place-items: center; color: var(--text-heading); font-weight: 800; margin: 0 auto 12px; }
+        .empty-state h2 { margin: 8px 0 4px; font-size: 18px; color: var(--text-heading); }
+        .empty-state p { margin: 0; font-size: 13px; color: var(--text-muted); }
+
+        /* Merchant form helpers */
+        .checkbox-line { display: inline-flex; align-items: center; gap: 8px; }
+        .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <header class="top-header">
+        <div class="brand">
+            <div class="brand-logo">PW</div>
+            <div>Paywizard Console</div>
+        </div>
+        <div class="header-actions">
+            <button class="icon-button" aria-label="Notifications">
+                <span>!</span>
+                <span class="badge">5</span>
+            </button>
+            <button class="icon-button" aria-label="Settings">
+                <span>*</span>
+            </button>
+            <div class="user-chip">
+                <div class="user-avatar">R</div>
+                <span>robasz</span>
+            </div>
+        </div>
+    </header>
+    <div class="main-body">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="mark" aria-hidden="true"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">PAYwizard</div>
+                        <div class="brand-sub">menu</div>
+                    </div>
+                </div>
+                <button class="close-btn" type="button" aria-label="Close menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="menu">
+                <div class="menu-item" data-key="dashboard">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7" rx="1.5" />
+                                <rect x="13" y="4" width="7" height="7" rx="1.5" />
+                                <rect x="4" y="13" width="7" height="7" rx="1.5" />
+                                <rect x="13" y="13" width="7" height="7" rx="1.5" />
+                            </svg>
+                        </span>
+                        <span class="label">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="transactions">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2" />
+                                <path d="M3 10h18" />
+                                <path d="M8 14h4" />
+                            </svg>
+                        </span>
+                        <span class="label">Transactions</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="batches">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 7h12l1 3H5z" />
+                                <path d="M7 10v7h10v-7" />
+                                <path d="M9 14h6" />
+                            </svg>
+                        </span>
+                        <span class="label">Batches</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="security">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z" />
+                                <path d="M10 12.5l2 2 3-3.5" />
+                            </svg>
+                        </span>
+                        <span class="label">Security</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="agents">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                                <path d="M4 20a4 4 0 018 0" />
+                                <path d="M12 17a4 4 0 018 0" />
+                            </svg>
+                        </span>
+                        <span class="label">Agents</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="agents">
+                    <div class="sub-item" data-key="agents-list">Agent List</div>
+                    <div class="sub-item" data-key="agents-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="merchants">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
+                                <path d="M9 21V12h6v9" />
+                            </svg>
+                        </span>
+                        <span class="label">Merchants</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item" data-key="merchants-leads">Leads</div>
+                    <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
+                    <div class="sub-item" data-key="merchants-list">Merchant List</div>
+                    <div class="sub-item" data-key="merchants-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="partners">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z" />
+                            </svg>
+                        </span>
+                        <span class="label">Partners</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="partners">
+                    <div class="sub-item" data-key="partners-list">Partner List</div>
+                    <div class="sub-item" data-key="partners-hardware">Hardware</div>
+                </div>
+
+                <div class="menu-item active expanded" data-toggle="submenu" data-target="devices">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z" />
+                                <path d="M10 12.5l2 2 3-3.5" />
+                            </svg>
+                        </span>
+                        <span class="label">Device Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">v</span>
+                </div>
+                <div class="sub-menu open" data-parent="devices">
+                    <div class="sub-item active" data-key="terminal-management">Terminal Management</div>
+                    <div class="sub-item" data-key="template-management">Template Management</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="users">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="4" width="14" height="16" rx="2" />
+                                <path d="M9 9h6M9 13h6M9 17h6" />
+                            </svg>
+                        </span>
+                        <span class="label">User Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="users">
+                    <div class="sub-item" data-key="users-list">User List</div>
+                    <div class="sub-item" data-key="users-roles">Role Permissions</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="settings">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z" />
+                            </svg>
+                        </span>
+                        <span class="label">Settings</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="settings">
+                    <div class="sub-item" data-key="settings-branding">Branding</div>
+                    <div class="sub-item" data-key="settings-payments">Payment Channels</div>
+                </div>
+            </div>
+        </aside>
+        <div class="workspace">
+            <div class="breadcrumb-bar">
+                <span>MERCHANT ACCOUNT</span>
+                <span>&gt;</span>
+                <span>TERMINAL LIST</span>
+            </div>
+            <div class="content-layout">
+                <section class="hierarchy-card card">
+                    <header><span>Partner Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Add Subreseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
+                    <div class="hierarchy-tools">
+                        <div class="hierarchy-search">
+                            <input id="hierarchySearch" type="text" placeholder="Search merchants or resellers">
+                        </div>
+                 </div>
+                    <div class="hierarchy-scroll">
+                        <ul class="hierarchy-list" id="hierarchyList"></ul>
+                    </div>
+                </section>
+                <main class="page-card card">
+                    <div class="empty-state">
+                        <div class="inner">
+                            <div class="icon">◇</div>
+                            <h2>Please select an merchant from left.</h2>
+                            <p>When no merchant is selected, this area will remain blank.</p>
+                        </div>
+                    </div>
+                    <div class="reseller-hero">
+                        <div>
+                            <div class="hero-label">Reseller</div>
+                            <h1>Universal Processing</h1>
+                            <div class="hero-meta">
+                                <span class="meta-item">Parent: Global Payments Inc.</span>
+                                <span class="meta-item">| Hierarchy: Apex Resellers &gt; NA Division</span>
+                                <span class="meta-item">| MID 49813</span>
+                            </div>
+                        </div>
+                            <div class="hero-status">
+                                <span class="hero-status-pill" id="merchantStatusPill">Active</span>
+                                <div class="hero-actions">
+                                    <button class="chip-button">Export</button>
+                                    <div style="position: relative;">
+                                        <button class="chip-button" id="merchantSettingsBtn" aria-haspopup="true" aria-expanded="false">Settings &#9662;</button>
+                                        <div class="dropdown-menu wide" id="merchantSettingsMenu" aria-hidden="true">
+                                            <button class="dropdown-item" data-action="payment">Payment Parameter Setting</button>
+                                            <button class="dropdown-item" data-action="toggle-status" id="toggleMerchantStatus">Disable Merchant</button>
+                                            <button class="dropdown-item" data-action="resend">Resend Email</button>
+                                        </div>
+                                    </div>
+                                    <button id="addTerminalBtn" class="chip-button">+ Add Terminal</button>
+                                </div>
+                            </div>
+                        </div>
+                    <ul class="tab-bar">
+                        <li class="tab" data-target="reseller-detail" id="detailTab">Reseller Detail</li>
+                        <li class="tab active" data-target="terminal-list">Terminal List</li>
+                        <li class="tab" data-target="profile">Profile</li>
+                        <li class="tab" data-target="token">Token</li>
+                    </ul>
+                    <div class="tab-panels">
+                        <section class="tab-panel" data-panel="reseller-detail">
+                            <div id="resellerDetailContent">
+                                <div class="detail-grid">
+                                    <div class="detail-card">
+                                        <h4>Reseller Summary</h4>
+                                        <dl>
+                                            <dt>Name</dt><dd>Universal Processing</dd>
+                                            <dt>Parent</dt><dd>Global Payments Inc.</dd>
+                                            <dt>Region</dt><dd>North America</dd>
+                                            <dt>Created</dt><dd>2024-03-18 09:42</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4>Contact</h4>
+                                        <dl>
+                                            <dt>Owner</dt><dd>Caroline Moore</dd>
+                                            <dt>Email</dt><dd>partner@universalprocessing.com</dd>
+                                            <dt>Phone</dt><dd>+1 415 555 0147</dd>
+                                            <dt>Status</dt><dd>Active</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4>Metrics</h4>
+                                        <dl>
+                                            <dt>Merchants</dt><dd>52</dd>
+                                            <dt>Terminals</dt><dd>184</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+
+                                <div class="provider-section">
+                                    <h3>Provider Information</h3>
+                                    <div class="provider-card">
+                                        <div class="provider-display">
+                                            <div class="display-field">
+                                                <div class="display-label">SP Name</div>
+                                                <div class="display-value">Universal Processing</div>
+                                            </div>
+                                            <div class="display-field">
+                                                <div class="display-label">Provider Phone Number</div>
+                                                <div class="display-value">+1 415 555 0147</div>
+                                            </div>
+                                            <div class="display-field full">
+                                                <div class="display-label">Provider Address</div>
+                                                <div class="display-value">123 Market St, San Francisco, CA 94103</div>
+                                            </div>
+                                            <div class="display-field">
+                                                <div class="display-label">Provider Application</div>
+                                                <div class="display-value">Terminal Suite</div>
+                                            </div>
+                                            <div class="display-field">
+                                                <div class="display-label">Provider Admin Email</div>
+                                                <div class="display-value">admin@provider.com</div>
+                                            </div>
+                                            <div class="display-field">
+                                                <div class="display-label">Expiration Date</div>
+                                                <div class="display-value">2026/12/31</div>
+                                            </div>
+                                            <div class="display-field">
+                                                <div class="display-label">Maximum Number of Merchants</div>
+                                                <div class="display-value">500</div>
+                                            </div>
+                                            <div class="display-field full">
+                                                <div class="display-label">Provider Business Types</div>
+                                                <div class="display-value">
+                                                    <div class="pill-group">
+                                                        <span class="pill">Retail</span>
+                                                        <span class="pill">eCommerce</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="display-field full">
+                                                <div class="display-label">Provider Logo / Image</div>
+                                                <div class="display-value display-logo">
+                                                    <div class="logo-box">UP</div>
+                                                    <div class="helper-text">Logo placeholder</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="merchantDetailContent" class="merchant-form" style="display:none;">
+                                <div class="detail-card">
+                                    <h4>Merchant Details</h4>
+                                    <div class="provider-display">
+                                        <div class="display-field">
+                                            <div class="display-label">Merchant Name</div>
+                                            <div class="display-value" id="md-merchant-name">Sunset Coffee Roasters LLC</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">Login Name (Email Address)</div>
+                                            <div class="display-value">info@sunsetcoffee.com</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">Country / Region</div>
+                                            <div class="display-value">United States</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">Contact Name</div>
+                                            <div class="display-value">Maria Gomez</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">State / Province</div>
+                                            <div class="display-value">California</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">Phone No.</div>
+                                            <div class="display-value">+1 415 555 0138</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">City</div>
+                                            <div class="display-value">San Francisco</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">Merchant Type</div>
+                                            <div class="display-value">Retail</div>
+                                        </div>
+                                        <div class="display-field">
+                                            <div class="display-label">Reseller</div>
+                                            <div class="display-value">Universal Processing</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="tab-panel active" data-panel="terminal-list">
+                            <div class="card-toolbar">
+                                <div class="field"><label for="filter-name">Terminal</label><input id="filter-name" type="text" placeholder="Name"></div>
+                                <div class="field"><label for="filter-sn">SN</label><input id="filter-sn" type="text" placeholder="Serial"></div>
+                                <div class="field"><label for="filter-tid">TID</label><input id="filter-tid" type="text" placeholder="TID"></div>
+                                <div class="field"><label for="filter-status">Status</label><select id="filter-status"><option>All</option><option>Online</option><option>Offline</option><option>Disabled</option></select></div>
+                                <div class="field"><label for="filter-date">Date</label><input id="filter-date" type="text" placeholder="2025-09-01 - 2025-09-22"></div>
+                                <button class="search-button" aria-label="Search">Apply</button>
+                            </div>
+                            <div class="table-wrapper">
+                                <table class="data-table terminal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Terminal Name</th>
+                                            <th>SN</th>
+                                            <th>TID</th>
+                                            <th>Model</th>
+                                            <th>Reseller</th>
+                                            <th>Merchant</th>
+                                            <th>Created Time</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Q2-142 64773</td><td>1130012780</td><td>EC05KCCU</td><td>WizarPOS - Q2</td>
+                                            <td>Universal Processing</td><td>JUUCE LLC 64773</td><td>2025-09-03 17:07</td>
+                                            <td><span class="status-pill success">Online</span></td>
+                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Q2L-141 64773</td><td>1130010633</td><td>JS1292M</td><td>WizarPOS - Q2</td>
+                                            <td>Universal Processing</td><td>JUUCE LLC 64773</td><td>2025-08-27 17:35</td>
+                                            <td><span class="status-pill danger">Offline</span></td>
+                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Q3-27 06272</td><td>1640216716</td><td>WQ500QNB</td><td>WizarPOS - Q3</td>
+                                            <td>Universal Processing</td><td>YO! USA 06272</td><td>2025-08-07 18:03</td>
+                                            <td><span class="status-pill success">Online</span></td>
+                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Q3-78 87278</td><td>1640281841</td><td>U5D0X60A</td><td>WizarPOS - Q3</td>
+                                            <td>Universal Processing</td><td>HAHA Innovation LLC 87278</td><td>2025-08-02 11:52</td>
+                                            <td><span class="status-pill danger">Offline</span></td>
+                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                        <section class="tab-panel" data-panel="profile">
+                            <div class="detail-card profile-card" id="profileCard">
+                                <div class="profile-header">
+                                    <h4>Agent / Subreseller Profile</h4>
+                                    <div class="profile-actions">
+                                        <span class="mode-pill" id="profileModePill">View</span>
+                                        <button class="chip-button" id="profileEditBtn">Edit</button>
+                                    </div>
+                                </div>
+                                <div class="provider-display" id="profileView">
+                                    <div class="display-field">
+                                        <div class="display-label">Agent/Subreseller Name</div>
+                                        <div class="display-value" id="pv-agent-name">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Contact Person</div>
+                                        <div class="display-value" id="pv-contact-person">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Contact Information</div>
+                                        <div class="display-value" id="pv-contact-info">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Email</div>
+                                        <div class="display-value" id="pv-email">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Authorization</div>
+                                        <div class="display-value" id="pv-authorization">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Cooperation Start Time</div>
+                                        <div class="display-value" id="pv-cooperation-start">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Term (Years)</div>
+                                        <div class="display-value" id="pv-term">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Country</div>
+                                        <div class="display-value" id="pv-country">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Process ID</div>
+                                        <div class="display-value" id="pv-process-id">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Paywizard ID</div>
+                                        <div class="display-value" id="pv-paywizard-id">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Currency</div>
+                                        <div class="display-value" id="pv-currency">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Business Name</div>
+                                        <div class="display-value" id="pv-business-name">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Created By</div>
+                                        <div class="display-value" id="pv-created-by">-</div>
+                                    </div>
+                                    <div class="display-field">
+                                        <div class="display-label">Last Update</div>
+                                        <div class="display-value" id="pv-last-update">-</div>
+                                    </div>
+                                    <div class="display-field full">
+                                        <div class="display-label">Agent/Subreseller Territory</div>
+                                        <div class="display-value" id="pv-territory">-</div>
+                                    </div>
+                                    <div class="display-field full">
+                                        <div class="display-label">Agent/Subreseller Business Models (Multiple selection allowed)</div>
+                                        <div class="display-value">
+                                            <div class="pill-group" id="pv-business"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form id="profileForm" class="profile-form" style="display:none;">
+                                    <div class="form-grid">
+                                        <div class="field">
+                                            <label for="pf-agent-name">Agent/Subreseller Name</label>
+                                            <input id="pf-agent-name" name="agentName" type="text" required>
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-contact-person">Contact Person</label>
+                                            <input id="pf-contact-person" name="contactPerson" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-contact-info">Contact Information</label>
+                                            <input id="pf-contact-info" name="contactInfo" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-email">Email</label>
+                                            <input id="pf-email" name="email" type="email">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-authorization">Authorization</label>
+                                            <input id="pf-authorization" name="authorization" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-cooperation-start">Cooperation Start Time</label>
+                                            <input id="pf-cooperation-start" name="cooperationStart" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-term">Term (Years)</label>
+                                            <input id="pf-term" name="term" type="number" min="0">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-country">Country</label>
+                                            <input id="pf-country" name="country" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-process-id">Process ID</label>
+                                            <input id="pf-process-id" name="processId" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-paywizard-id">Paywizard ID</label>
+                                            <input id="pf-paywizard-id" name="paywizardId" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-currency">Currency</label>
+                                            <input id="pf-currency" name="currency" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-business-name">Business Name</label>
+                                            <input id="pf-business-name" name="businessName" type="text">
+                                        </div>
+                                        <div class="field">
+                                            <label for="pf-created-by">Created By</label>
+                                            <input id="pf-created-by" name="createdBy" type="text">
+                                        </div>
+                                        <div class="field full">
+                                            <label for="pf-territory">Agent/Subreseller Territory</label>
+                                            <textarea id="pf-territory" name="territory" rows="4"></textarea>
+                                        </div>
+                                        <div class="field full">
+                                            <label for="pf-business">Agent/Subreseller Business Models (comma separated)</label>
+                                            <input id="pf-business" name="businessModels" type="text" placeholder="Vending Machine Snacks, Popcorn, Coffee">
+                                            <div class="helper-text">Use commas to separate multiple business models.</div>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="chip-button" id="profileCancelBtn">Cancel</button>
+                                        <button type="submit" class="chip-button primary-action">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+                        <section class="tab-panel" data-panel="token">
+                            <div class="detail-card token-card">
+                                <h4>Developer Token</h4>
+                                <div class="token-list">
+                                    <div class="token-item">
+                                        <div class="token-title">eCommerce</div>
+                                        <div class="token-row">
+                                            <div class="label">Type</div>
+                                            <div class="token-value">eCommerce</div>
+                                        </div>
+                                        <div class="token-row">
+                                            <div class="label">Token</div>
+                                            <div class="token-value">
+                                                <span class="token-mask">DVQP**********************ERT1</span>
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="token-item">
+                                        <div class="token-title">Terminal</div>
+                                        <div class="token-row">
+                                            <div class="label">Type</div>
+                                            <div class="token-value">Terminal</div>
+                                        </div>
+                                        <div class="token-row">
+                                            <div class="label">Token</div>
+                                            <div class="token-value">
+                                                <span class="token-mask">03F4**********************YHSY</span>
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="tab-panel" data-panel="organization">
+                            <div class="detail-card">
+                                <h4>Organization Structure</h4>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-body);">Organization level information for this reseller will appear in this tab.</p>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <!-- Add Terminal Modal -->
+    <div id="addTerminalModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document">
+        <header>
+          <span>Create Terminal</span>
+          <button class="close-btn" id="addTerminalClose" aria-label="Close">×</button>
+        </header>
+        <form id="addTerminalForm">
+          <div class="modal-body">
+            <div class="field">
+              <label for="at-name">Terminal Name *</label>
+              <input id="at-name" name="name" type="text" placeholder="e.g. jills juice test" required>
+            </div>
+            <div class="field">
+              <label for="at-qty">Quantity</label>
+              <input id="at-qty" name="quantity" type="number" min="1" value="1" disabled title="Fixed at 1">
+            </div>
+            <div class="field full">
+              <label>Terminal Type</label>
+              <div class="btn-group" role="group" aria-label="Terminal type">
+                <button type="button" class="active" data-terminal-mode="physical">Physical terminal</button>
+                <button type="button" data-terminal-mode="virtual">No physical terminal</button>
+              </div>
+              <div class="helper-text" id="at-terminal-hint">No physical terminal: only Terminal Name is required.</div>
+            </div>
+            <div class="field full" data-hardware-only>
+              <label for="at-sn">SN <span class="required-mark" id="at-sn-required">*</span></label>
+              <input id="at-sn" name="sn" type="text" placeholder="1350001227" required>
+            </div>
+            <div class="field" data-hardware-only>
+              <label for="at-mfr">Manufacturer</label>
+              <select id="at-mfr" name="manufacturer">
+                <option value="WizarPOS">WizarPOS</option>
+              </select>
+            </div>
+            <div class="field" data-hardware-only>
+              <label for="at-model">Model</label>
+              <select id="at-model" name="model">
+                <option value="A60">Q2P</option>
+                <option value="Q3">Q3P</option>
+                <option value="Q1K">D3</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="at-reseller">Reseller <span class="required-mark" id="at-reseller-required">*</span></label>
+              <input id="at-reseller" name="reseller" type="text" placeholder="Jill Test Reseller" required>
+            </div>
+            <div class="field">
+              <label for="at-merchant">Merchant</label>
+              <input id="at-merchant" name="merchant" type="text" placeholder="Jills juicebar">
+            </div>
+         
+
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="addTerminalCancel" class="chip-button">Cancel</button>
+            <button type="submit" class="chip-button primary-action">OK</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Payment Parameter Setting Modal -->
+    <div id="paymentSettingModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 720px;">
+        <header>
+          <span>Payment Parameter Setting</span>
+          <button class="close-btn" id="paymentSettingClose" aria-label="Close">&times;</button>
+        </header>
+        <div class="modal-body" style="grid-template-columns: 1fr;">
+          <div class="card-toolbar" style="margin:0 0 12px;">
+            <button type="button" class="chip-button primary-action" id="paymentSettingAdd">Add</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Payment Channel</th>
+                  <th>Channel Cost</th>
+                  <th>Date &amp; Time</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-channel="payWizardDemo" data-fee-rate="0" data-fee-cap="100" data-mid="2025121500000001" data-capabilities="Card Present" data-cost="0%, Capping 100 Per Transaction">
+                  <td>payWizardDemo</td>
+                  <td>0%, Capping 100 Per Transaction</td>
+                  <td>2025-12-15 10:19:04</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-button icon-only" aria-label="Edit" data-action="edit-payment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
+                      </button>
+                      <button class="action-button icon-only danger" aria-label="Delete" data-action="delete-payment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="chip-button" id="paymentSettingCloseFooter">Close</button>
+        </div>
+      </div>
+    </div>
+    <!-- Payment Channel Edit Modal -->
+    <div id="paymentEditModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 640px;">
+        <header>
+          <span id="paymentEditTitle">Edit Payment Channel</span>
+          <button class="close-btn" id="paymentEditClose" aria-label="Close">&times;</button>
+        </header>
+        <form id="paymentEditForm">
+          <div class="modal-body" style="grid-template-columns: 1fr;">
+            <div class="form-grid" style="grid-template-columns: repeat(2, minmax(240px, 1fr));">
+              <div class="field full">
+                <label for="pe-channel">Payment Channels</label>
+                <input id="pe-channel" name="channel" type="text" readonly value="payWizardDemo">
+              </div>
+              <div class="field">
+                <label for="pe-fee-rate">Fee Rate (%)</label>
+                <input id="pe-fee-rate" name="feeRate" type="number" step="0.01" min="0" value="0">
+              </div>
+              <div class="field">
+                <label for="pe-fee-cap">Fee Rate Cap</label>
+                <input id="pe-fee-cap" name="feeCap" type="number" min="0" value="100">
+              </div>
+              <div class="field full">
+                <label for="pe-mid">Merchant ID (MID)</label>
+                <input id="pe-mid" name="mid" type="text" readonly value="2025121500000001">
+              </div>
+            </div>
+            <div class="field full" style="margin-top:12px;">
+              <label for="pe-capabilities">Channel Capabilities</label>
+              <select id="pe-capabilities" name="capabilities">
+                <option value="Card Present">Card Present</option>
+                <option value="eCommerce">eCommerce</option>
+                <option value="MOTO">MOTO</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="chip-button" id="paymentEditCancel">Cancel</button>
+            <button type="submit" class="chip-button primary-action">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Developer Token Modal -->
+    <div id="developerTokenModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 520px;">
+        <header>
+          <span>Developer Token</span>
+          <button class="close-btn" id="developerTokenClose" aria-label="Close">&times;</button>
+        </header>
+        <div class="modal-body" style="grid-template-columns: 1fr;">
+          <div class="detail-card" style="border:none; box-shadow:none; padding:0;">
+            <div class="display-field">
+              <div class="display-label">Current Token</div>
+              <div class="display-value" id="devTokenValue">sk_live_a1b2c3d4e5f6g7h8i9</div>
+            </div>
+            <div class="display-field">
+              <div class="display-label">Created At</div>
+              <div class="display-value">2025-12-12 22:03:16</div>
+            </div>
+            <div class="form-actions" style="justify-content:flex-start; margin-top:12px;">
+              <button type="button" class="chip-button primary-action" id="copyTokenBtn">Copy Token</button>
+              <button type="button" class="chip-button" id="regenTokenBtn">Regenerate</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="chip-button" id="developerTokenCloseFooter">Close</button>
+        </div>
+      </div>
+    </div>
+      <script>
+        (function(){
+        // Merchant status + settings controls
+        var statusPill = document.getElementById('merchantStatusPill');
+        var toggleStatusItem = document.getElementById('toggleMerchantStatus');
+        var merchantSettingsBtn = document.getElementById('merchantSettingsBtn');
+        var merchantSettingsMenu = document.getElementById('merchantSettingsMenu');
+        var paymentSettingModal = document.getElementById('paymentSettingModal');
+        var paymentSettingClose = document.getElementById('paymentSettingClose');
+        var paymentSettingCloseFooter = document.getElementById('paymentSettingCloseFooter');
+        var paymentSettingAdd = document.getElementById('paymentSettingAdd');
+        var paymentEditModal = document.getElementById('paymentEditModal');
+        var paymentEditClose = document.getElementById('paymentEditClose');
+        var paymentEditCancel = document.getElementById('paymentEditCancel');
+        var paymentEditForm = document.getElementById('paymentEditForm');
+        var paymentEditTitle = document.getElementById('paymentEditTitle');
+        var peChannel = document.getElementById('pe-channel');
+        var peFeeRate = document.getElementById('pe-fee-rate');
+        var peFeeCap = document.getElementById('pe-fee-cap');
+        var peMid = document.getElementById('pe-mid');
+        var peCapabilities = document.getElementById('pe-capabilities');
+        var developerTokenModal = document.getElementById('developerTokenModal');
+        var developerTokenClose = document.getElementById('developerTokenClose');
+        var developerTokenCloseFooter = document.getElementById('developerTokenCloseFooter');
+        var copyTokenBtn = document.getElementById('copyTokenBtn');
+        var regenTokenBtn = document.getElementById('regenTokenBtn');
+        var devTokenValue = document.getElementById('devTokenValue');
+
+        var merchantStatus = 'active';
+        function setMerchantStatus(state){
+          merchantStatus = state;
+          if(statusPill){
+            statusPill.textContent = state === 'inactive' ? 'Inactive' : 'Active';
+            statusPill.classList.toggle('inactive', state === 'inactive');
+          }
+          if(toggleStatusItem){
+            toggleStatusItem.textContent = state === 'inactive' ? 'Enable Merchant' : 'Disable Merchant';
+          }
+        }
+
+        function toggleSettingsMenu(show){
+          if(!merchantSettingsMenu || !merchantSettingsBtn) return;
+          var next = typeof show === 'boolean' ? show : !merchantSettingsMenu.classList.contains('show');
+          merchantSettingsMenu.classList.toggle('show', next);
+          merchantSettingsMenu.setAttribute('aria-hidden', next ? 'false' : 'true');
+          merchantSettingsBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
+        }
+
+        function openModal(modal){
+          if(!modal) return;
+          modal.classList.add('show');
+          modal.setAttribute('aria-hidden','false');
+        }
+
+        function openPaymentEdit(data){
+          if(!paymentEditModal) return;
+          var payload = Object.assign({
+            channel: 'payWizardDemo',
+            feeRate: '0',
+            feeCap: '100',
+            mid: '2025121500000001',
+            capabilities: 'Card Present',
+            mode: 'edit'
+          }, data || {});
+          if(paymentEditTitle) paymentEditTitle.textContent = payload.mode === 'add' ? 'Add Payment Channel' : 'Edit Payment Channel';
+          if(peChannel) peChannel.value = payload.channel || '';
+          if(peFeeRate) peFeeRate.value = payload.feeRate || '';
+          if(peFeeCap) peFeeCap.value = payload.feeCap || '';
+          if(peMid) peMid.value = payload.mid || '';
+          if(peCapabilities) peCapabilities.value = payload.capabilities || 'Card Present';
+          openModal(paymentEditModal);
+        }
+
+        if(merchantSettingsBtn && merchantSettingsMenu){
+          merchantSettingsBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            toggleSettingsMenu();
+          });
+          document.addEventListener('click', function(){ toggleSettingsMenu(false); });
+          merchantSettingsMenu.addEventListener('click', function(e){
+            var item = e.target.closest('.dropdown-item');
+            if(!item) return;
+            var action = item.getAttribute('data-action');
+            if(action === 'payment'){ openModal(paymentSettingModal); }
+            if(action === 'resend'){ alert('Login email resent to merchant admin (mock).'); }
+            if(action === 'toggle-status'){ setMerchantStatus(merchantStatus === 'inactive' ? 'active' : 'inactive'); }
+            toggleSettingsMenu(false);
+          });
+        }
+
+        function wireClose(btn, modal){
+          if(btn) btn.addEventListener('click', function(){ if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); } });
+        }
+
+        wireClose(paymentSettingClose, paymentSettingModal);
+        wireClose(paymentSettingCloseFooter, paymentSettingModal);
+        if(paymentSettingAdd){ paymentSettingAdd.addEventListener('click', function(){ openPaymentEdit({ mode: 'add' }); }); }
+        if(paymentSettingModal){
+          paymentSettingModal.addEventListener('click', function(e){
+            var editBtn = e.target.closest('[data-action="edit-payment"]');
+            if(editBtn){
+              var row = editBtn.closest('tr');
+              openPaymentEdit({
+                channel: row ? row.getAttribute('data-channel') : '',
+                feeRate: row ? row.getAttribute('data-fee-rate') : '',
+                feeCap: row ? row.getAttribute('data-fee-cap') : '',
+                mid: row ? row.getAttribute('data-mid') : '',
+                capabilities: row ? row.getAttribute('data-capabilities') : 'Card Present',
+                mode: 'edit'
+              });
+              return;
+            }
+            var delBtn = e.target.closest('[data-action="delete-payment"]');
+            if(delBtn){
+              var channel = delBtn.closest('tr') ? delBtn.closest('tr').getAttribute('data-channel') : 'this channel';
+              if(confirm('Delete ' + channel + ' (mock)?')){ alert('Channel removed (mock).'); }
+            }
+          });
+        }
+
+        wireClose(paymentEditClose, paymentEditModal);
+        wireClose(paymentEditCancel, paymentEditModal);
+        if(paymentEditForm){
+          paymentEditForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            alert('Payment channel saved (mock).');
+            if(paymentEditModal){ paymentEditModal.classList.remove('show'); paymentEditModal.setAttribute('aria-hidden','true'); }
+          });
+        }
+
+        wireClose(developerTokenClose, developerTokenModal);
+        wireClose(developerTokenCloseFooter, developerTokenModal);
+        if(copyTokenBtn && devTokenValue){
+          copyTokenBtn.addEventListener('click', function(){
+            navigator.clipboard && navigator.clipboard.writeText(devTokenValue.textContent.trim()).then(function(){
+              alert('Token copied.');
+            }, function(){ alert('Copy failed, please copy manually.'); });
+          });
+        }
+        if(regenTokenBtn && devTokenValue){
+          regenTokenBtn.addEventListener('click', function(){
+            var suffix = Math.random().toString(36).slice(-8);
+            devTokenValue.textContent = 'sk_live_' + suffix + suffix;
+            alert('New token generated (mock).');
+          });
+        }
+
+        // Profile edit handling
+        var profileCard = document.getElementById('profileCard');
+        var profileModePill = document.getElementById('profileModePill');
+        var profileEditBtn = document.getElementById('profileEditBtn');
+        var profileView = document.getElementById('profileView');
+        var profileForm = document.getElementById('profileForm');
+        var profileCancelBtn = document.getElementById('profileCancelBtn');
+        var profileState = {
+          agentName: 'zhongdazn',
+          contactPerson: 'zhongdazn',
+          contactInfo: 'zhongdazn',
+          email: 'admin@zhongdazn.com',
+          authorization: 'AGT-ADMIN',
+          cooperationStart: '2025-06-23 08:00:00',
+          termYears: '1000',
+          country: 'United States of America',
+          territory: 'Afghanistan, Albania, Algeria, Argentina, Australia, Brazil, Canada, China, France, Germany, India, Japan, United States of America, United Kingdom, ...',
+          businessModels: ['Vending Machine Snacks', 'Popcorn', 'Coffee', 'Cotton Candy', 'Electric Vehicle Charging', 'Vending Machine (Pharmaceuticals)', 'Vending Machine (Cosmetics)', 'Self-Service Laundromat', 'Self-Service Lockers'],
+          processId: '00000289',
+          paywizardId: '10000001079',
+          currency: 'USD',
+          businessName: 'Luxe Boutique',
+          createdBy: 'huchan17621179300@163.com',
+          lastUpdate: '2025-12-09 14:34:15'
+        };
+
+        function formatDateTime(d){
+          var now = d || new Date();
+          var pad = function(v){ return String(v).padStart(2, '0'); };
+          return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        }
+
+        function setText(id, value){
+          var el = document.getElementById(id);
+          if(el){ el.textContent = value || '--'; }
+        }
+
+        function renderProfileView(){
+          setText('pv-agent-name', profileState.agentName);
+          setText('pv-contact-person', profileState.contactPerson);
+          setText('pv-contact-info', profileState.contactInfo);
+          setText('pv-email', profileState.email);
+          setText('pv-authorization', profileState.authorization);
+          setText('pv-cooperation-start', profileState.cooperationStart);
+          setText('pv-term', profileState.termYears);
+          setText('pv-country', profileState.country);
+          setText('pv-process-id', profileState.processId);
+          setText('pv-paywizard-id', profileState.paywizardId);
+          setText('pv-currency', profileState.currency);
+          setText('pv-business-name', profileState.businessName);
+          setText('pv-created-by', profileState.createdBy);
+          setText('pv-last-update', profileState.lastUpdate);
+          var territoryEl = document.getElementById('pv-territory');
+          if(territoryEl){ territoryEl.textContent = profileState.territory || '--'; }
+          var businessWrap = document.getElementById('pv-business');
+          if(businessWrap){
+            businessWrap.innerHTML = '';
+            var models = profileState.businessModels && profileState.businessModels.length ? profileState.businessModels : ['N/A'];
+            models.forEach(function(model){
+              var pill = document.createElement('span');
+              pill.className = 'pill';
+              pill.textContent = model;
+              businessWrap.appendChild(pill);
+            });
+          }
+        }
+
+        function fillProfileForm(){
+          var setVal = function(id, val){
+            var el = document.getElementById(id);
+            if(el){ el.value = val || ''; }
+          };
+          setVal('pf-agent-name', profileState.agentName);
+          setVal('pf-contact-person', profileState.contactPerson);
+          setVal('pf-contact-info', profileState.contactInfo);
+          setVal('pf-email', profileState.email);
+          setVal('pf-authorization', profileState.authorization);
+          setVal('pf-cooperation-start', profileState.cooperationStart);
+          setVal('pf-term', profileState.termYears);
+          setVal('pf-country', profileState.country);
+          setVal('pf-process-id', profileState.processId);
+          setVal('pf-paywizard-id', profileState.paywizardId);
+          setVal('pf-currency', profileState.currency);
+          setVal('pf-business-name', profileState.businessName);
+          setVal('pf-created-by', profileState.createdBy);
+          setVal('pf-territory', profileState.territory);
+          var businessInput = document.getElementById('pf-business');
+          if(businessInput){ businessInput.value = (profileState.businessModels || []).join(', '); }
+        }
+
+        function setProfileMode(mode){
+          var editing = mode === 'edit';
+          if(profileCard) profileCard.classList.toggle('editing', editing);
+          if(profileModePill) profileModePill.textContent = editing ? 'Editing' : 'View';
+          if(profileView) profileView.style.display = editing ? 'none' : '';
+          if(profileForm) profileForm.style.display = editing ? 'block' : 'none';
+          if(profileEditBtn) profileEditBtn.style.display = editing ? 'none' : 'inline-flex';
+        }
+
+        if(profileEditBtn){
+          profileEditBtn.addEventListener('click', function(){
+            fillProfileForm();
+            setProfileMode('edit');
+          });
+        }
+
+        if(profileCancelBtn){
+          profileCancelBtn.addEventListener('click', function(){
+            fillProfileForm();
+            setProfileMode('view');
+          });
+        }
+
+        if(profileForm){
+          profileForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            profileState.agentName = document.getElementById('pf-agent-name').value.trim();
+            profileState.contactPerson = document.getElementById('pf-contact-person').value.trim();
+            profileState.contactInfo = document.getElementById('pf-contact-info').value.trim();
+            profileState.email = document.getElementById('pf-email').value.trim();
+            profileState.authorization = document.getElementById('pf-authorization').value.trim();
+            profileState.cooperationStart = document.getElementById('pf-cooperation-start').value.trim();
+            profileState.termYears = document.getElementById('pf-term').value.trim();
+            profileState.country = document.getElementById('pf-country').value.trim();
+            profileState.processId = document.getElementById('pf-process-id').value.trim();
+            profileState.paywizardId = document.getElementById('pf-paywizard-id').value.trim();
+            profileState.currency = document.getElementById('pf-currency').value.trim();
+            profileState.businessName = document.getElementById('pf-business-name').value.trim();
+            profileState.createdBy = document.getElementById('pf-created-by').value.trim();
+            profileState.territory = document.getElementById('pf-territory').value.trim();
+            var businessInput = document.getElementById('pf-business');
+            profileState.businessModels = businessInput ? businessInput.value.split(',').map(function(item){ return item.trim(); }).filter(Boolean) : [];
+            profileState.lastUpdate = formatDateTime();
+            renderProfileView();
+            setProfileMode('view');
+            alert('Profile saved (mock).');
+          });
+        }
+
+        renderProfileView();
+        setProfileMode('view');
+
+        var btn = document.getElementById('hierAddBtn');
+        var menu = document.getElementById('hierAddMenu');
+        if(btn && menu){
+          btn.addEventListener('click', function(e){ e.stopPropagation(); menu.classList.toggle('show'); menu.setAttribute('aria-hidden', menu.classList.contains('show') ? 'false' : 'true'); });
+          document.addEventListener('click', function(){ menu.classList.remove('show'); menu.setAttribute('aria-hidden','true'); });
+          menu.addEventListener('click', function(e){
+            var t = e.target.closest('.dropdown-item');
+            if(!t) return; e.stopPropagation();
+            var type = t.getAttribute('data-type');
+            console.log('Add ' + type); // Hook real flow here
+            menu.classList.remove('show');
+            menu.setAttribute('aria-hidden','true');
+          });
+        }
+
+        // Sync right panel empty-state based on selection
+        var pageCard = document.querySelector('.page-card');
+        function syncRightPanelEmpty(){
+          if(!pageCard) return;
+          var hasSelected = !!document.querySelector('.hierarchy-list .selected');
+          pageCard.classList.toggle('empty', !hasSelected);
+        }
+
+        // Detail tab and panel toggling between Reseller and Merchant
+        var detailTab = document.getElementById('detailTab');
+        var resellerContent = document.getElementById('resellerDetailContent');
+        var merchantContent = document.getElementById('merchantDetailContent');
+        function getSelectedInfo(){
+          var selected = document.querySelector('.hierarchy-list .selected');
+          if(!selected) return null;
+          var labelSpan = selected.querySelector(':scope > span:nth-child(2)');
+          var raw = (labelSpan ? labelSpan.textContent : selected.textContent).trim();
+          var type = /^\[M\]/.test(raw) ? 'merchant' : 'reseller';
+          var name = raw.replace(/^\[[^\]]+\]\s*/, '');
+          return { type: type, name: name };
+        }
+        function applySelection(){
+          var info = getSelectedInfo();
+          var heroLabel = document.querySelector('.hero-label');
+          var heroTitle = document.querySelector('.reseller-hero h1');
+          if(!info){
+            if(detailTab) detailTab.textContent = 'Reseller Detail';
+            if(resellerContent) resellerContent.style.display = '';
+            if(merchantContent) merchantContent.style.display = 'none';
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
+            setMerchantStatus('active');
+            return;
+          }
+          var isMerchant = info.type === 'merchant';
+          if(heroLabel) heroLabel.textContent = isMerchant ? 'Merchant' : 'Reseller';
+          if(heroTitle) heroTitle.textContent = info.name;
+          if(detailTab) detailTab.textContent = isMerchant ? 'Merchant Detail' : 'Reseller Detail';
+          if(resellerContent) resellerContent.style.display = isMerchant ? 'none' : '';
+          if(merchantContent) merchantContent.style.display = isMerchant ? '' : 'none';
+          if(isMerchant){
+            var mdName = document.getElementById('md-merchant-name');
+            if(mdName) mdName.textContent = info.name;
+            setMerchantStatus('active');
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'inline-flex';
+          } else {
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
+            setMerchantStatus('active');
+          }
+        }
+
+        // Hierarchy data + rendering with filters
+        var hierarchyListEl = document.getElementById('hierarchyList');
+        var hierarchySearch = document.getElementById('hierarchySearch');
+        var hierarchyTypeFilter = document.getElementById('hierarchyTypeFilter');
+        var hierarchyCount = document.getElementById('hierarchyCount');
+        var hierarchyState = { filterText: '', filterType: 'all', selectedId: 'm-luxe' };
+
+        var hierarchyData = [
+          { id: 'r-apex', level: 1, type: 'reseller', tag: 'R', name: 'Apex Resellers' },
+          { id: 'sr-global', level: 2, type: 'reseller', tag: 'SR', name: 'Global Payments Inc.' },
+          { id: 'm-luxe', level: 3, type: 'merchant', tag: 'M', name: 'Luxe Boutique' },
+          { id: 'm-sunnydale', level: 3, type: 'merchant', tag: 'M', name: 'Sunnydale Bakery' },
+          { id: 'm-variety-vending', level: 3, type: 'merchant', tag: 'M', name: 'Variety Vending LLC' },
+          { id: 'm-north-shore', level: 3, type: 'merchant', tag: 'M', name: 'North Shore Market' },
+          { id: 'm-brightside', level: 3, type: 'merchant', tag: 'M', name: 'Brightside Floral' },
+          { id: 'm-harborview', level: 3, type: 'merchant', tag: 'M', name: 'Harborview Cafe' },
+          { id: 'sr-northern-trail', level: 2, type: 'reseller', tag: 'SR', name: 'Northern Trail Commerce' },
+          { id: 'm-maple-leaf', level: 3, type: 'merchant', tag: 'M', name: 'Maple Leaf Grocers' },
+          { id: 'm-sierra-coffee', level: 3, type: 'merchant', tag: 'M', name: 'Sierra Coffee Lab' },
+          { id: 'm-clearview-pharmacy', level: 3, type: 'merchant', tag: 'M', name: 'Clearview Pharmacy' },
+          { id: 'm-rolling-pin', level: 3, type: 'merchant', tag: 'M', name: 'Rolling Pin Bakery' },
+          { id: 'm-coastline-surf', level: 3, type: 'merchant', tag: 'M', name: 'Coastline Surf Shop' },
+          { id: 'm-beacon-home', level: 3, type: 'merchant', tag: 'M', name: 'Beacon Home Supply' },
+          { id: 'sr-silverline', level: 2, type: 'reseller', tag: 'SR', name: 'Silverline Processing' },
+          { id: 'm-vintage-vinyl', level: 3, type: 'merchant', tag: 'M', name: 'Vintage Vinyl Shop' },
+          { id: 'm-midtown-comics', level: 3, type: 'merchant', tag: 'M', name: 'Midtown Comics' },
+          { id: 'm-cornerstone-hardware', level: 3, type: 'merchant', tag: 'M', name: 'Cornerstone Hardware' },
+          { id: 'm-garden-grove', level: 3, type: 'merchant', tag: 'M', name: 'Garden Grove Market' },
+          { id: 'm-metro-tech', level: 3, type: 'merchant', tag: 'M', name: 'Metro Tech Outlet' },
+          { id: 'm-little-sprout', level: 3, type: 'merchant', tag: 'M', name: 'Little Sprout Kids' },
+          { id: 'sr-sunrise', level: 2, type: 'reseller', tag: 'SR', name: 'Sunrise Merchant Group' },
+          { id: 'm-sunbeam-books', level: 3, type: 'merchant', tag: 'M', name: 'Sunbeam Books' },
+          { id: 'm-copper-kettle', level: 3, type: 'merchant', tag: 'M', name: 'Copper Kettle Diner' },
+          { id: 'm-cedar-outfitters', level: 3, type: 'merchant', tag: 'M', name: 'Cedar Ridge Outfitters' },
+          { id: 'm-riverstone-gifts', level: 3, type: 'merchant', tag: 'M', name: 'Riverstone Gifts' },
+          { id: 'm-bluebird-books', level: 3, type: 'merchant', tag: 'M', name: 'Bluebird Booksellers' },
+          { id: 'm-ironclad-fitness', level: 3, type: 'merchant', tag: 'M', name: 'Ironclad Fitness' },
+          { id: 'sr-summit-midatlantic', level: 2, type: 'reseller', tag: 'SR', name: 'SummitPay MidAtlantic' },
+          { id: 'm-oak-ash', level: 3, type: 'merchant', tag: 'M', name: 'Oak & Ash Furniture' },
+          { id: 'm-harbor-house', level: 3, type: 'merchant', tag: 'M', name: 'Harbor House Bistro' },
+          { id: 'm-lantern-tea', level: 3, type: 'merchant', tag: 'M', name: 'Lantern Tea Co.' },
+          { id: 'm-evergreen-wellness', level: 3, type: 'merchant', tag: 'M', name: 'Evergreen Wellness' },
+          { id: 'm-foothill-outdoors', level: 3, type: 'merchant', tag: 'M', name: 'Foothill Outdoors' },
+          { id: 'm-lighthouse-pet', level: 3, type: 'merchant', tag: 'M', name: 'Lighthouse Pet Supply' },
+          { id: 'r-pacific', level: 1, type: 'reseller', tag: 'R', name: 'Pacific Reseller Group' },
+          { id: 'sr-westward', level: 2, type: 'reseller', tag: 'SR', name: 'Westward Pay Partners' },
+          { id: 'm-golden-gate-grocery', level: 3, type: 'merchant', tag: 'M', name: 'Golden Gate Grocery' },
+          { id: 'm-bayview-pharmacy', level: 3, type: 'merchant', tag: 'M', name: 'Bayview Pharmacy' },
+          { id: 'm-outerlands-coffee', level: 3, type: 'merchant', tag: 'M', name: 'Outerlands Coffee' },
+          { id: 'm-marina-market', level: 3, type: 'merchant', tag: 'M', name: 'Marina Market' },
+          { id: 'm-mission-fresh', level: 3, type: 'merchant', tag: 'M', name: 'Mission Fresh Foods' },
+          { id: 'sr-redwood', level: 2, type: 'reseller', tag: 'SR', name: 'Redwood Transactions' },
+          { id: 'm-redwood-deli', level: 3, type: 'merchant', tag: 'M', name: 'Redwood Deli' },
+          { id: 'm-sequoia-stationery', level: 3, type: 'merchant', tag: 'M', name: 'Sequoia Stationery' },
+          { id: 'm-timberline-tools', level: 3, type: 'merchant', tag: 'M', name: 'Timberline Tools' },
+          { id: 'm-moss-maple-home', level: 3, type: 'merchant', tag: 'M', name: 'Moss & Maple Home' },
+          { id: 'm-redwood-ridge-bikes', level: 3, type: 'merchant', tag: 'M', name: 'Redwood Ridge Bikes' },
+          { id: 'sr-cascade', level: 2, type: 'reseller', tag: 'SR', name: 'Cascade Commerce Hub' },
+          { id: 'm-riverwalk-apparel', level: 3, type: 'merchant', tag: 'M', name: 'Riverwalk Apparel' },
+          { id: 'm-summit-ridge-sports', level: 3, type: 'merchant', tag: 'M', name: 'Summit Ridge Sports' },
+          { id: 'm-pine-needle-gifts', level: 3, type: 'merchant', tag: 'M', name: 'Pine Needle Gifts' },
+          { id: 'm-brookstone-bakery', level: 3, type: 'merchant', tag: 'M', name: 'Brookstone Bakery' },
+          { id: 'm-prairie-sky-toys', level: 3, type: 'merchant', tag: 'M', name: 'Prairie Sky Toys' },
+          { id: 'sr-desert-star', level: 2, type: 'reseller', tag: 'SR', name: 'Desert Star Processing' },
+          { id: 'm-sonoran-smoothies', level: 3, type: 'merchant', tag: 'M', name: 'Sonoran Smoothies' },
+          { id: 'm-oasis-tech', level: 3, type: 'merchant', tag: 'M', name: 'Oasis Tech Repair' },
+          { id: 'm-mesa-books', level: 3, type: 'merchant', tag: 'M', name: 'Mesa Books & Games' },
+          { id: 'm-cactus-bloom', level: 3, type: 'merchant', tag: 'M', name: 'Cactus Bloom Floral' },
+          { id: 'm-arroyo-artisans', level: 3, type: 'merchant', tag: 'M', name: 'Arroyo Artisans' }
+        ];
+
+        function matchesHierarchyFilter(item){
+          var text = hierarchyState.filterText;
+          var typeMatch = hierarchyState.filterType === 'all' || (hierarchyState.filterType === 'merchant' ? item.type === 'merchant' : item.type !== 'merchant');
+          var textMatch = !text || item.name.toLowerCase().indexOf(text) !== -1;
+          return typeMatch && textMatch;
+        }
+
+        function renderHierarchy(){
+          if(!hierarchyListEl) return;
+          hierarchyListEl.innerHTML = '';
+          var filtered = hierarchyData.filter(matchesHierarchyFilter);
+          filtered.forEach(function(item){
+            var li = document.createElement('li');
+            li.className = 'level-' + item.level + (hierarchyState.selectedId === item.id ? ' selected' : '');
+            li.setAttribute('data-id', item.id);
+            li.setAttribute('data-type', item.type);
+            var toggle = document.createElement('span');
+            toggle.className = 'tree-toggle';
+            toggle.textContent = item.level >= 3 ? '-' : 'v';
+            var label = document.createElement('span');
+            label.textContent = '[' + item.tag + '] ' + item.name;
+            li.appendChild(toggle);
+            li.appendChild(label);
+            li.addEventListener('click', function(){
+              var already = li.classList.contains('selected');
+              Array.prototype.forEach.call(hierarchyListEl.querySelectorAll('li'), function(x){ x.classList.remove('selected'); });
+              if(!already){
+                li.classList.add('selected');
+                hierarchyState.selectedId = item.id;
+              } else {
+                hierarchyState.selectedId = null;
+              }
+              syncRightPanelEmpty();
+              applySelection();
+            });
+            hierarchyListEl.appendChild(li);
+          });
+          if(hierarchyCount) hierarchyCount.textContent = 'Showing ' + filtered.length + ' of ' + hierarchyData.length;
+          syncRightPanelEmpty();
+          applySelection();
+        }
+
+        if(hierarchySearch){
+          hierarchySearch.addEventListener('input', function(){
+            hierarchyState.filterText = this.value.trim().toLowerCase();
+            renderHierarchy();
+          });
+        }
+        if(hierarchyTypeFilter){
+          hierarchyTypeFilter.addEventListener('change', function(){
+            hierarchyState.filterType = this.value;
+            renderHierarchy();
+          });
+        }
+
+        renderHierarchy();
+
+        // Tabs switching
+        var tabEls = document.querySelectorAll('.tab-bar .tab');
+        var panels = document.querySelectorAll('.tab-panels .tab-panel');
+        tabEls.forEach(function(tab){
+          tab.addEventListener('click', function(){
+            var target = tab.getAttribute('data-target');
+            // update tabs
+            tabEls.forEach(function(t){ t.classList.toggle('active', t === tab); });
+            // update panels
+            panels.forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-panel') === target); });
+          });
+        });
+
+        // Terminal row navigation
+        var terminalTableBody = document.querySelector('.terminal-table tbody');
+        if(terminalTableBody){
+          terminalTableBody.addEventListener('click', function(e){
+            if(e.target.closest('button, a, input, select, textarea, label')) return;
+            var row = e.target.closest('tr');
+            if(!row) return;
+            window.location.href = '1.terminalmanage.html';
+          });
+        }
+
+        // Add Terminal modal logic
+        var atBtn = document.getElementById('addTerminalBtn');
+        var atModal = document.getElementById('addTerminalModal');
+        var atClose = document.getElementById('addTerminalClose');
+        var atCancel = document.getElementById('addTerminalCancel');
+        var atForm = document.getElementById('addTerminalForm');
+        var atLater = document.getElementById('at-activate-later');
+        var atNow = document.getElementById('at-activate-now');
+        var atModeButtons = document.querySelectorAll('[data-terminal-mode]');
+        var atSn = document.getElementById('at-sn');
+        var atSnRequired = document.getElementById('at-sn-required');
+        var atReseller = document.getElementById('at-reseller');
+        var atResellerRequired = document.getElementById('at-reseller-required');
+        var atHardwareFields = document.querySelectorAll('[data-hardware-only]');
+        var atTerminalHint = document.getElementById('at-terminal-hint');
+        var atMode = 'physical';
+        var atActivate = 'later';
+
+        function openAt(){ if(atModal){ atModal.classList.add('show'); atModal.setAttribute('aria-hidden','false'); } }
+        function closeAt(){ if(atModal){ atModal.classList.remove('show'); atModal.setAttribute('aria-hidden','true'); } }
+        function setActivate(v){ atActivate = v; if(atLater) atLater.classList.toggle('active', v==='later'); if(atNow) atNow.classList.toggle('active', v==='now'); }
+        function setTerminalMode(mode){
+          atMode = mode;
+          atModeButtons.forEach(function(btn){
+            btn.classList.toggle('active', btn.getAttribute('data-terminal-mode') === mode);
+          });
+          var needsHardware = mode === 'physical';
+          if(atSn){
+            atSn.required = needsHardware;
+            atSn.disabled = !needsHardware;
+            if(!needsHardware) atSn.value = '';
+          }
+          if(atReseller){ atReseller.required = needsHardware; }
+          if(atSnRequired){ atSnRequired.style.display = needsHardware ? 'inline' : 'none'; }
+          if(atResellerRequired){ atResellerRequired.style.display = needsHardware ? 'inline' : 'none'; }
+          if(atHardwareFields.length){
+            atHardwareFields.forEach(function(field){
+              field.style.display = needsHardware ? '' : 'none';
+            });
+          }
+          if(atTerminalHint){
+            atTerminalHint.textContent = needsHardware
+              ? 'Physical terminal: SN is required for activation.'
+              : 'You can pre-configure applications and parameters by creating them before the physical terminal arrives, then simply enter the Serial Number (SN) once you have the device.';
+          }
+        }
+
+        if(atBtn){ atBtn.addEventListener('click', function(e){ e.preventDefault(); openAt(); }); }
+        if(atClose){ atClose.addEventListener('click', closeAt); }
+        if(atCancel){ atCancel.addEventListener('click', closeAt); }
+        if(atModal){ atModal.addEventListener('click', function(e){ if(e.target === atModal) closeAt(); }); }
+        if(atLater){ atLater.addEventListener('click', function(){ setActivate('later'); }); }
+        if(atNow){ atNow.addEventListener('click', function(){ setActivate('now'); }); }
+        if(atModeButtons.length){
+          atModeButtons.forEach(function(btn){
+            btn.addEventListener('click', function(){
+              setTerminalMode(btn.getAttribute('data-terminal-mode'));
+            });
+          });
+          setTerminalMode(atMode);
+        }
+        if(atForm){ atForm.addEventListener('submit', function(e){ e.preventDefault();
+          if(!atForm.checkValidity()){ atForm.reportValidity(); return; }
+          var tidInput = document.getElementById('at-tid');
+          var payload = {
+            name: document.getElementById('at-name').value,
+            quantity: 1,
+            activate: atActivate,
+            manufacturer: document.getElementById('at-mfr').value,
+            model: document.getElementById('at-model').value,
+            reseller: document.getElementById('at-reseller').value,
+            merchant: document.getElementById('at-merchant').value,
+            sn: document.getElementById('at-sn').value,
+            tid: tidInput ? tidInput.value : ''
+          };
+          console.log('Create terminal (mock):', payload);
+          alert('Terminal created (mock).');
+          closeAt();
+        }); }
+
+        // Provider form logic
+        var providerForm = document.getElementById('providerForm');
+        var logoInput = document.getElementById('sp-logo-input');
+        var logoDrop = document.getElementById('sp-logo-drop');
+        var logoPreview = document.getElementById('sp-logo-preview');
+        var logoImg = document.getElementById('sp-logo-img');
+        var logoName = document.getElementById('sp-logo-name');
+        var logoChange = document.getElementById('sp-logo-change');
+        var logoRemove = document.getElementById('sp-logo-remove');
+        var providerCancel = document.getElementById('providerCancel');
+        var providerIsReadOnly = providerForm && providerForm.classList.contains('is-readonly');
+
+        function showPreview(file){
+          if(!file) return;
+          var reader = new FileReader();
+          reader.onload = function(e){
+            logoImg.src = e.target.result;
+            logoName.textContent = file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+            logoPreview.style.display = 'flex';
+          };
+          reader.readAsDataURL(file);
+        }
+
+        if(!providerIsReadOnly){
+          if(logoDrop){
+            logoDrop.addEventListener('click', function(){ logoInput.click(); });
+            logoDrop.addEventListener('dragover', function(e){ e.preventDefault(); logoDrop.classList.add('drag'); });
+            logoDrop.addEventListener('dragleave', function(){ logoDrop.classList.remove('drag'); });
+            logoDrop.addEventListener('drop', function(e){
+              e.preventDefault(); logoDrop.classList.remove('drag');
+              var file = e.dataTransfer.files && e.dataTransfer.files[0];
+              if(file) { logoInput.files = e.dataTransfer.files; showPreview(file); }
+            });
+          }
+          if(logoInput){ logoInput.addEventListener('change', function(){ var f = logoInput.files && logoInput.files[0]; if(f) showPreview(f); }); }
+          if(logoChange){ logoChange.addEventListener('click', function(){ logoInput.click(); }); }
+          if(logoRemove){ logoRemove.addEventListener('click', function(){ logoInput.value = ''; logoPreview.style.display = 'none'; }); }
+
+          if(providerCancel){ providerCancel.addEventListener('click', function(){
+            if(providerForm) providerForm.reset();
+            if(logoPreview) { logoPreview.style.display = 'none'; }
+          }); }
+
+          if(providerForm){ providerForm.addEventListener('submit', function(e){ e.preventDefault();
+            var formData = {
+              spName: document.getElementById('sp-name').value,
+              spPhone: document.getElementById('sp-phone').value,
+              spAddress: document.getElementById('sp-address').value,
+              spApplication: document.getElementById('sp-application').value,
+              spAdminEmail: document.getElementById('sp-admin-email').value,
+              spExpire: document.getElementById('sp-expire').value,
+              spMaxMerchants: document.getElementById('sp-max-merchants').value,
+              spBusinessTypes: Array.from(document.getElementById('sp-business-types').selectedOptions).map(function(o){ return o.value; })
+            };
+            console.log('Provider saved:', formData);
+            alert('Provider information saved (mock).');
+          }); }
+        }
+      })();
+    </script>
+    <script>
+      (function(){
+        var sidebar = document.querySelector('.sidebar');
+        if(!sidebar) return;
+        var rootMenuItems = sidebar.querySelectorAll('.menu-item');
+        var submenuTriggers = sidebar.querySelectorAll('.menu-item[data-toggle="submenu"]');
+        var subItems = sidebar.querySelectorAll('.sub-item');
+
+        function setActiveRoot(target){
+          rootMenuItems.forEach(function(item){
+            item.classList.toggle('active', item === target);
+          });
+        }
+
+        function closeAllSubmenus(){
+          sidebar.querySelectorAll('.sub-menu.open').forEach(function(menu){
+            menu.classList.remove('open');
+          });
+          submenuTriggers.forEach(function(trigger){
+            trigger.classList.remove('expanded');
+            var ch = trigger.querySelector('.chevron');
+            if(ch) ch.textContent = '>';
+          });
+        }
+
+        submenuTriggers.forEach(function(trigger){
+          var targetId = trigger.getAttribute('data-target');
+          var submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+          var ch = trigger.querySelector('.chevron');
+          if(ch) ch.textContent = submenu && submenu.classList.contains('open') ? 'v' : '>';
+        });
+
+        submenuTriggers.forEach(function(item){
+          item.addEventListener('click', function(){
+            var targetId = item.getAttribute('data-target');
+            var submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+            var isOpen = submenu && submenu.classList.contains('open');
+
+            setActiveRoot(item);
+
+            if(!submenu) return;
+
+            if(isOpen){
+              submenu.classList.remove('open');
+              item.classList.remove('expanded');
+              var chClose = item.querySelector('.chevron');
+              if(chClose) chClose.textContent = '>';
+            } else {
+              closeAllSubmenus();
+              submenu.classList.add('open');
+              item.classList.add('expanded');
+              var chOpen = item.querySelector('.chevron');
+              if(chOpen) chOpen.textContent = 'v';
+            }
+          });
+        });
+
+        rootMenuItems.forEach(function(item){
+          if(!item.hasAttribute('data-toggle')){
+            item.addEventListener('click', function(){
+              setActiveRoot(item);
+              closeAllSubmenus();
+            });
+          }
+        });
+
+        subItems.forEach(function(sub){
+          sub.addEventListener('click', function(evt){
+            evt.stopPropagation();
+            subItems.forEach(function(s){ s.classList.remove('active'); });
+            sub.classList.add('active');
+            var parent = sub.parentElement && sub.parentElement.getAttribute('data-parent');
+            if(!parent) return;
+            var trigger = sidebar.querySelector('.menu-item[data-target="' + parent + '"]');
+            if(trigger) setActiveRoot(trigger);
+          });
+        });
+      })();
+    </script>
+</body>
+</html>

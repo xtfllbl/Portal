@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing & Payments</title>
+    <style>
+        /* 1. 全局和字体设置 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --page-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --color-blue: #0d6efd;
+            --color-green: #198754;
+            --color-dark: #212529;
+            
+            /* 状态: Pending (卡片) */
+            --status-pending-bg: #e6f7ff;
+            --status-pending-text: #1d90ff;
+            --status-pending-border: #b3e0ff;
+
+            /* 状态: Active (表格) */
+            --status-active-bg: #e6f0ff;
+            --status-active-text: #0052cc;
+            
+            /* 状态: Paid (表格) */
+            --status-paid-bg: #e6f9f0;
+            --status-paid-text: #006422;
+
+            /* 状态: Unknown (表格) */
+            --status-unknown-bg: #fff8e6;
+            --status-unknown-text: #ff8b00;
+
+            /* 周期徽章 (表格) */
+            --cycle-badge-bg: #e6f9f0;
+            --cycle-badge-text: #006422;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background-color: var(--page-bg);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 2. 页面主要布局 */
+        .billing-page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .billing-top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .user-profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .user-profile-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--card-bg);
+        }
+
+        .billing-main-content {
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 24px 32px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        /* 3. 标签页导航 */
+        .tabs-container {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        .tab-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 8px 4px 12px 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            cursor: pointer;
+        }
+
+        .tab-link.active {
+            color: var(--color-blue);
+            border-bottom-color: var(--color-blue);
+        }
+
+        /* 4. 标签页内容窗格 */
+        .tab-pane {
+            display: none; /* 默认隐藏 */
+        }
+
+        .tab-pane.active {
+            display: block; /* 激活时显示 */
+        }
+
+        /* 5. 工具栏 (Pending Payments) */
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .btn-base {
+            background-color: var(--card-bg);
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-base:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-base svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+        }
+
+        /* 6. 账单卡片列表 (Pending Payments) */
+        .invoice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .invoice-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 24px;
+            gap: 20px;
+        }
+
+        .card-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .invoice-amount {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .invoice-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .card-header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 16px;
+        }
+
+        .status-badge.pending {
+            background-color: var(--status-pending-bg);
+            color: var(--status-pending-text);
+            border: 1px solid var(--status-pending-border);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .btn:hover {
+            opacity: 0.85;
+        }
+        
+        .btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .btn-pay {
+            background-color: var(--color-dark);
+            color: var(--card-bg);
+        }
+
+        .btn-download {
+            background-color: var(--color-green);
+            color: var(--card-bg);
+        }
+
+        .card-divider {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 0;
+        }
+
+        .card-details {
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: auto auto 1fr auto auto;
+            gap: 12px 16px;
+            font-size: 0.9rem;
+        }
+
+        .card-details .label {
+            color: var(--text-secondary);
+        }
+
+        .card-details .value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .card-details .label { grid-column: 1; }
+        .card-details .value { grid-column: 2; }
+        .card-details .label-col-2 { grid-column: 4; }
+        .card-details .value-col-2 { grid-column: 5; }
+        
+        /* 7. 账单历史工具栏 (Billing History) */
+        .history-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .history-toolbar-left,
+        .history-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .btn-export svg {
+            fill: var(--text-primary); /* Export icon is darker */
+        }
+        
+        .filter-select, .date-range-picker input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        
+        .filter-select {
+            appearance: none;
+            padding-right: 30px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 14px 14px;
+        }
+        
+        .date-range-picker {
+            position: relative;
+        }
+        
+        .date-range-picker input {
+            padding-right: 32px;
+        }
+        
+        .date-range-picker svg {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+        }
+        
+        .btn-search {
+            background-color: var(--color-dark);
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-search svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--card-bg);
+        }
+        
+        /* 8. 账单历史表格 (Billing History) */
+        .table-wrapper {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        
+        .billing-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .billing-table th,
+        .billing-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+            vertical-align: top;
+        }
+        
+        .billing-table th {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background-color: #fdfdfd;
+        }
+        
+        .billing-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .billing-table .sub-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .billing-table .main-text {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .status-badge-table {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 16px;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+        
+        .status-badge-table.active {
+            background-color: var(--status-active-bg);
+            color: var(--status-active-text);
+        }
+        
+        .status-badge-table.paid {
+            background-color: var(--status-paid-bg);
+            color: var(--status-paid-text);
+        }
+        
+        .status-badge-table.unknown {
+            background-color: var(--status-unknown-bg);
+            color: var(--status-unknown-text);
+        }
+        .status-badge-table.pending {
+            background-color: var(--status-pending-bg);
+            color: var(--status-pending-text);
+        }
+        
+        .cycle-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            background-color: var(--cycle-badge-bg);
+            color: var(--cycle-badge-text);
+        }
+        
+        .cycle-link {
+            font-weight: 500;
+            color: var(--color-blue);
+            text-decoration: none;
+        }
+        .cycle-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 9. 类型徽章 */
+        .type-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid #c7d2fe;
+            color: #3730a3;
+            background: #eef2ff;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <symbol id="icon-user" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </symbol>
+            <symbol id="icon-refresh" viewBox="0 0 24 24">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </symbol>
+            <symbol id="icon-pay" viewBox="0 0 24 24">
+                <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+            </symbol>
+            <symbol id="icon-download" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </symbol>
+            <symbol id="icon-export" viewBox="0 0 24 24">
+                <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/>
+            </symbol>
+            <symbol id="icon-search" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </symbol>
+            <symbol id="icon-calendar" viewBox="0 0 24 24">
+                <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <div class="billing-page-wrapper">
+        <nav class="billing-top-nav">
+            <div class="breadcrumbs">
+                ESIM SERVICES &nbsp; / &nbsp; BILLING & PAYMENTS
+            </div>
+            <div class="user-profile-icon">
+                <svg><use href="#icon-user"></use></svg>
+            </div>
+        </nav>
+
+        <main class="billing-main-content">
+            
+            <h1>Billing & Payments</h1>
+
+            <div class="tabs-container">
+                <nav class="tabs-nav">
+                    <a id="tab-pending" class="tab-link active">Pending Payments</a>
+                    <a id="tab-history" class="tab-link">Billing History</a>
+                </nav>
+            </div>
+
+            <div id="pending-payments-content" class="tab-pane active">
+                
+                <div class="toolbar">
+                    <button class="btn-base btn-refresh">
+                        <svg><use href="#icon-refresh"></use></svg>
+                        Refresh
+                    </button>
+                </div>
+    
+                <div class="invoice-list" id="invoiceList"></div>
+            </div>
+
+            <div id="billing-history-content" class="tab-pane">
+                
+                <div class="history-toolbar">
+                    <div class="history-toolbar-left">
+                        <button class="btn-base btn-export">
+                            <svg><use href="#icon-export"></use></svg>
+                            Export
+                        </button>
+                    </div>
+                    <div class="history-toolbar-right">
+                        <select class="filter-select">
+                            <option value="">Payment Status</option>
+                            <option value="active">Active</option>
+                            <option value="paid">Paid</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                        <select class="filter-select">
+                            <option value="">Cycle</option>
+                            <option value="3m">3 Months</option>
+                            <option value="6m">6 Months</option>
+                        </select>
+                        <div class="date-range-picker">
+                            <input type="text" value="2025-9-27 - 2025-10-27" placeholder="Date Range">
+                            <svg><use href="#icon-calendar"></use></svg>
+                        </div>
+                        <button class="btn-search">
+                            <svg><use href="#icon-search"></use></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="billing-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice No.</th>
+                                <th>Date & Time</th>
+                                <th>Merchant Name</th>
+                                <th>Billing Period</th>
+                                <th>Cycle</th>
+                                <th>Amount</th>
+                                <th>Payment Status</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Tab switching + 所有账单类型组合展示
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabPending = document.getElementById('tab-pending');
+            const tabHistory = document.getElementById('tab-history');
+            const contentPending = document.getElementById('pending-payments-content');
+            const contentHistory = document.getElementById('billing-history-content');
+            const invoiceList = document.getElementById('invoiceList');
+            const historyBody = document.getElementById('historyBody');
+
+            function fmtMoney(v, c='CAD'){
+                try { return new Intl.NumberFormat('en-CA',{style:'currency',currency:c}).format(Number(v||0)); }
+                catch(e){ return 'CAD ' + Number(v||0).toFixed(2); }
+            }
+
+            const dataSets = {
+                one: {
+                    pending: [
+                        { currency:'CAD', amount:200, invoice:'966700000000000001', status:'pending', date:'2025-10-10', merchant:'SMITH HARDWARE' }
+                    ],
+                    history: [
+                        { no:'966700000000000001', dt:'2025-10-10 09:32:11', merchant:'SMITH HARDWARE', period:'-', cycle:'-', amount:200, sub:'Billing Amount: CAD 200', status:'pending', due:'Oct 20, 2025', dueSub:'10 days left' },
+                        { no:'966700000000000002', dt:'2025-10-02 15:10:02', merchant:'SMITH HARDWARE', period:'-', cycle:'-', amount:150, sub:'Billing Amount: CAD 150', status:'paid', due:'-', dueSub:'' },
+                        { no:'966700000000000003', dt:'2025-09-28 10:51:44', merchant:'SMITH HARDWARE', period:'-', cycle:'-', amount:120, sub:'Billing Amount: CAD 120', status:'unknown', due:'-', dueSub:'' }
+                    ]
+                },
+                recurring: {
+                    pending: [
+                        { currency:'CAD', amount:200, invoice:'966711111111111111', status:'pending', period:'Oct 30, 2025 - Oct 30, 2026', cycle:12, renewal:'Auto-renew' }
+                    ],
+                    history: [
+                        { no:'966711111111111111', dt:'2025-10-24 16:05:10', merchant:'SMITH HARDWARE', period:'Oct 30, 2025 - Oct 30, 2026', cycle:'12 Months', amount:200, sub:'Per month', status:'active', due:'Oct 30, 2026', dueSub:'12 months' },
+                        { no:'966711111111111112', dt:'2025-09-24 15:10:42', merchant:'SMITH HARDWARE', period:'Jul 01, 2025 - Sep 30, 2025', cycle:'3 Months', amount:600, sub:'3 x CAD 200', status:'paid', due:'Sep 30, 2025', dueSub:'Paid' },
+                        { no:'966711111111111113', dt:'2025-08-01 12:21:00', merchant:'SMITH HARDWARE', period:'Aug 01, 2025 - Aug 31, 2025', cycle:'1 Month', amount:200, sub:'Per month', status:'unknown', due:'Aug 31, 2025', dueSub:'-' }
+                    ]
+                },
+                esim: {
+                    pending: [
+                        { currency:'CAD', total:120, invoice:'966777557174598500', status:'pending', period:'Oct 30, 2025 - Apr 30, 2026', base:20, plan:'6 Months', overage:0, allowance:102, rate:0 },
+                        { currency:'CAD', total:72,  invoice:'966777489173041700', status:'pending', period:'Oct 30, 2025 - Apr 30, 2026', base:12, plan:'6 Months', overage:0, allowance:102, rate:0 }
+                    ],
+                    history: [
+                        { no:'966777557174598500', dt:'2025-10-24 16:05:10', merchant:'SMITH HARDWARE', period:'Oct 30, 2025 - Apr 30, 2026', cycle:'5 months', amount:120, sub:'Base Fee: CAD 20', status:'active', due:'Apr 30, 2026', dueSub:'185 days left' },
+                        { no:'966777449172041700', dt:'2025-10-24 16:04:42', merchant:'SMITH HARDWARE', period:'Oct 30, 2025 - Apr 30, 2026', cycle:'5 months', amount:72,  sub:'Base Fee: CAD 12', status:'active', due:'Apr 30, 2026', dueSub:'185 days left' },
+                        { no:'96674549124139100',  dt:'2025-10-24 13:57:43', merchant:'SMITH HARDWARE', period:'Oct 29, 2025 - Jan 29, 2026', cycle:'3 Months', amount:75,  sub:'Base Fee: CAD 25', status:'paid',   due:'Jan 29, 2026', dueSub:'88 days left' },
+                        { no:'96673542839934100',  dt:'2025-10-24 13:17:43', merchant:'SMITH HARDWARE', period:'Oct 29, 2025 - Jan 29, 2026', cycle:'3 Months', amount:150, sub:'Base Fee: CAD 50', status:'unknown', due:'Jan 29, 2026', dueSub:'94 days left' }
+                    ]
+                }
+            };
+
+            function renderPendingAll(){
+                const items = [
+                    ...dataSets.one.pending.map(p => ({kind:'one', ...p})),
+                    ...dataSets.recurring.pending.map(p => ({kind:'recurring', ...p})),
+                    ...dataSets.esim.pending.map(p => ({kind:'esim', ...p}))
+                ];
+                const kindLabel = k => k==='esim' ? 'eSIM' : (k==='recurring' ? 'Recurring' : 'One-time');
+                const html = items.map(p => {
+                    if(p.kind === 'esim'){
+                        return `
+                        <div class="invoice-card">
+                            <div class="card-header">
+                                <div class="card-header-left">
+                                    <span class="invoice-amount">${fmtMoney(p.total, p.currency)}</span>
+                                    <span class="invoice-meta">Invoice No. <strong>${p.invoice}</strong></span>
+                                    <span class="invoice-meta">Billing Period: <strong>${p.period}</strong></span>
+                                </div>
+                                <div class="card-header-right">
+                                    <span class="type-badge">${kindLabel(p.kind)}</span>
+                                    <span class="status-badge pending">Pending Payment</span>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-pay"><svg><use href="#icon-pay"></use></svg>Pay Now</button>
+                                        <button class="btn btn-download"><svg><use href="#icon-download"></use></svg>Download</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="card-divider">
+                            <div class="card-details">
+                                <span class="label">Base Fee</span>
+                                <span class="value">${fmtMoney(p.base, p.currency)}</span>
+                                <span></span>
+                                <span class="label label-col-2">Plan Type</span>
+                                <span class="value value-col-2">${p.plan}</span>
+
+                                <span class="label">Data Overage</span>
+                                <span class="value">${fmtMoney(p.overage, p.currency)}</span>
+                                <span></span>
+                                <span class="label label-col-2">Data Allowance</span>
+                                <span class="value value-col-2">${p.allowance} MB</span>
+
+                                <span class="label">Overage Rate</span>
+                                <span class="value">${fmtMoney(p.rate, p.currency)}/MB</span>
+                            </div>
+                        </div>`;
+                    }
+                    if(p.kind === 'recurring'){
+                        return `
+                        <div class="invoice-card">
+                            <div class="card-header">
+                                <div class="card-header-left">
+                                    <span class="invoice-amount">${fmtMoney(p.amount, p.currency)} / mo</span>
+                                    <span class="invoice-meta">Invoice No. <strong>${p.invoice}</strong></span>
+                                    <span class="invoice-meta">Billing Period: <strong>${p.period || '-'}</strong></span>
+                                </div>
+                                <div class="card-header-right">
+                                    <span class="type-badge">${kindLabel(p.kind)}</span>
+                                    <span class="status-badge pending">Pending Payment</span>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-pay"><svg><use href="#icon-pay"></use></svg>Pay Now</button>
+                                        <button class="btn btn-download"><svg><use href="#icon-download"></use></svg>Download</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="card-divider">
+                            <div class="card-details">
+                                <span class="label">Billing Amount</span>
+                                <span class="value">${fmtMoney(p.amount, p.currency)}</span>
+                                <span></span>
+                                <span class="label label-col-2">Billing Cycle</span>
+                                <span class="value value-col-2">${p.cycle} Months</span>
+
+                                <span class="label">Recurring</span>
+                                <span class="value">On (${p.renewal})</span>
+                            </div>
+                        </div>`;
+                    }
+                    // one-time
+                    return `
+                    <div class="invoice-card">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <span class="invoice-amount">${fmtMoney(p.amount, p.currency)}</span>
+                                <span class="invoice-meta">Invoice No. <strong>${p.invoice}</strong></span>
+                                <span class="invoice-meta">Billing Date: <strong>${p.date}</strong></span>
+                            </div>
+                            <div class="card-header-right">
+                                <span class="type-badge">${kindLabel(p.kind)}</span>
+                                <span class="status-badge pending">Pending Payment</span>
+                                <div class="action-buttons">
+                                    <button class="btn btn-pay"><svg><use href="#icon-pay"></use></svg>Pay Now</button>
+                                    <button class="btn btn-download"><svg><use href="#icon-download"></use></svg>Download</button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="card-divider">
+                        <div class="card-details">
+                            <span class="label">Billing Amount</span>
+                            <span class="value">${fmtMoney(p.amount, p.currency)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+                invoiceList.innerHTML = html;
+            }
+
+            function renderHistoryAll(){
+                const rows = [
+                    ...dataSets.one.history.map(r => ({kind:'one', ...r})),
+                    ...dataSets.recurring.history.map(r => ({kind:'recurring', ...r})),
+                    ...dataSets.esim.history.map(r => ({kind:'esim', ...r}))
+                ];
+                const statusClass = s => ({active:'active', paid:'paid', unknown:'unknown', pending:'pending'})[s]||'unknown';
+                const cycleCell = c => {
+                    if(!c || c==='-') return '-';
+                    if(/months?/i.test(c)) return `<span class="cycle-badge">${c}</span>`;
+                    return `<a href="#" class="cycle-link">${c}</a>`;
+                };
+                const kindLabel = k => k==='esim' ? 'eSIM' : (k==='recurring' ? 'Recurring' : 'One-time');
+                historyBody.innerHTML = rows.map(r => {
+                    const subParts = [];
+                    if (r.sub) subParts.push(r.sub);
+                    subParts.push('Type: ' + kindLabel(r.kind));
+                    const subHtml = `<span class="sub-text">${subParts.join(' • ')}</span>`;
+                    return `
+                    <tr>
+                        <td class="main-text">${r.no}</td>
+                        <td>${r.dt}</td>
+                        <td>${r.merchant}</td>
+                        <td>${r.period || '-'}</td>
+                        <td>${cycleCell(r.cycle||'-')}</td>
+                        <td><span class="main-text">${fmtMoney(r.amount)}</span>${subHtml}</td>
+                        <td><span class="status-badge-table ${statusClass(r.status)}">${(r.status||'').charAt(0).toUpperCase()+ (r.status||'').slice(1)}</span></td>
+                        <td>${r.due?`<span class="main-text">${r.due}</span>${r.dueSub?`<span class=\"sub-text\">${r.dueSub}</span>`:''}`:'-'}</td>
+                    </tr>`;
+                }).join('');
+            }
+
+            function render(){
+                renderPendingAll();
+                renderHistoryAll();
+            }
+
+
+            // tabs
+            tabPending.addEventListener('click', function(e) {
+                e.preventDefault();
+                tabPending.classList.add('active');
+                tabHistory.classList.remove('active');
+                contentPending.classList.add('active');
+                contentHistory.classList.remove('active');
+            });
+            tabHistory.addEventListener('click', function(e) {
+                e.preventDefault();
+                tabHistory.classList.add('active');
+                tabPending.classList.remove('active');
+                contentHistory.classList.add('active');
+                contentPending.classList.remove('active');
+            });
+
+            render();
+        });
+    </script>
+
+</body>
+</html>

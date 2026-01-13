@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Paywizard Menu Prototype</title>
+    <style>
+        :root {
+            --page-bg: #f4f5f7;
+            --sidebar-bg: #ffffff;
+            --text-strong: #0f0f10;
+            --text-main: #111111;
+            --text-dim: #6b7280;
+            --divider: #e5e7eb;
+            --hover: #f3f4f6;
+            --bullet: #d1d5db;
+            --active-bg: #0f0f10;
+            --active-sub-bg: #111111;
+            --active-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px 0;
+            background: var(--page-bg);
+            font-family: "Poppins", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--divider);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark {
+            width: 32px;
+            height: 22px;
+        }
+
+        .mark svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--text-strong);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-strong);
+            letter-spacing: 0.15px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .close-btn span {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .close-btn span::before,
+        .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--text-strong);
+            transform-origin: center;
+        }
+
+        .close-btn span::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn span::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .menu-section {
+            margin: 12px 10px 4px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .menu-section:first-child {
+            margin-top: 4px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--hover);
+        }
+
+        .menu-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-strong);
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .chevron {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .menu-item.active {
+            background: var(--active-bg);
+            color: var(--active-text);
+        }
+
+        .menu-item.active .icon,
+        .menu-item.active .chevron {
+            color: var(--active-text);
+        }
+
+        .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-menu.open {
+            display: flex;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--bullet);
+            transform: translateY(-50%);
+        }
+
+        .sub-item:hover {
+            color: var(--text-main);
+            background: var(--hover);
+        }
+
+        .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--active-sub-bg);
+            color: var(--active-text);
+        }
+
+        .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--active-text);
+            left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-left">
+                <div class="mark" aria-hidden="true">
+
+                </div>
+                <div class="brand-text">
+                    <div class="brand-name">PAYwizard</div>
+                    <div class="brand-sub">menu</div>
+                </div>
+            </div>
+            <button class="close-btn" type="button" aria-label="Close menu">
+                <span></span>
+            </button>
+        </div>
+
+        <div class="menu">
+            <div class="menu-item active" data-key="dashboard">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="4" y="4" width="7" height="7" rx="1.5" />
+                            <rect x="13" y="4" width="7" height="7" rx="1.5" />
+                            <rect x="4" y="13" width="7" height="7" rx="1.5" />
+                            <rect x="13" y="13" width="7" height="7" rx="1.5" />
+                        </svg>
+                    </span>
+                    <span class="label">Dashboard</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-key="transactions">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="6" width="18" height="12" rx="2" />
+                            <path d="M3 10h18" />
+                            <path d="M8 14h4" />
+                        </svg>
+                    </span>
+                    <span class="label">Transactions</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-key="batches">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 7h12l1 3H5z" />
+                            <path d="M7 10v7h10v-7" />
+                            <path d="M9 14h6" />
+                        </svg>
+                    </span>
+                    <span class="label">Batches</span>
+                </div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="agents">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                            <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                            <path d="M4 20a4 4 0 018 0" />
+                            <path d="M12 17a4 4 0 018 0" />
+                        </svg>
+                    </span>
+                    <span class="label">Agents</span>
+                </div>
+                <span class="chevron" aria-hidden="true">&#9654;</span>
+            </div>
+            <div class="sub-menu" data-parent="agents">
+                <div class="sub-item" data-key="agents-list">Agent List</div>
+                <div class="sub-item" data-key="agents-analytics">Analytics</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="merchants">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
+                            <path d="M9 21V12h6v9" />
+                        </svg>
+                    </span>
+                    <span class="label">Merchants</span>
+                </div>
+                <span class="chevron" aria-hidden="true">&#9654;</span>
+            </div>
+            <div class="sub-menu" data-parent="merchants">
+                <div class="sub-item" data-key="merchants-leads">Leads</div>
+                <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
+                <div class="sub-item" data-key="merchants-list">Merchant List</div>
+                <div class="sub-item" data-key="merchants-analytics">Analytics</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="partners">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z" />
+                        </svg>
+                    </span>
+                    <span class="label">Partners</span>
+                </div>
+                <span class="chevron" aria-hidden="true">&#9654;</span>
+            </div>
+            <div class="sub-menu" data-parent="partners">
+                <div class="sub-item" data-key="partners-list">Partner List</div>
+                <div class="sub-item" data-key="partners-hardware">Hardware</div>
+            </div>
+
+            <div class="menu-item" data-key="device-management">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="12" rx="2" />
+                            <path d="M8 20h8" />
+                            <path d="M12 16v4" />
+                        </svg>
+                    </span>
+                    <span class="label">Device Management</span>
+                </div>
+            </div>
+            <div class="menu-item" data-key="remote-diagnostic">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M12 3v3" />
+                            <path d="M12 18v3" />
+                            <path d="M3 12h3" />
+                            <path d="M18 12h3" />
+                        </svg>
+                    </span>
+                    <span class="label">Remote Diagnostic</span>
+                </div>
+            </div>
+
+            <!-- Billing (hidden): Reconciliation Management, Service Fee Log, Service Fee Report -->
+            <div class="menu-item" data-toggle="submenu" data-target="users">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="5" y="4" width="14" height="16" rx="2" />
+                            <path d="M9 9h6M9 13h6M9 17h6" />
+                        </svg>
+                    </span>
+                    <span class="label">User Management</span>
+                </div>
+                <span class="chevron" aria-hidden="true">&#9654;</span>
+            </div>
+            <div class="sub-menu" data-parent="users">
+                <div class="sub-item" data-key="users-list">User List</div>
+                <div class="sub-item" data-key="users-roles">Role Permissions</div>
+            </div>
+
+            <div class="menu-item" data-toggle="submenu" data-target="settings">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z" />
+                        </svg>
+                    </span>
+                    <span class="label">Settings</span>
+                </div>
+                <span class="chevron" aria-hidden="true">&#9654;</span>
+            </div>
+            <div class="sub-menu" data-parent="settings">
+                <div class="sub-item" data-key="settings-branding">Branding</div>
+                <div class="sub-item" data-key="settings-payments">Payment Channels</div>
+            </div>
+
+            <div class="menu-item" data-key="tickets">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 7h16v4a2 2 0 010 4v4H4v-4a2 2 0 010-4z" />
+                            <circle cx="9" cy="12" r="1.2" />
+                        </svg>
+                    </span>
+                    <span class="label">Tickets</span>
+                </div>
+            </div>
+            <div class="menu-item" data-key="developer-center">
+                <div class="menu-main">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M8 8l-4 4 4 4" />
+                            <path d="M16 8l4 4-4 4" />
+                            <path d="M12 6l-2 12" />
+                        </svg>
+                    </span>
+                    <span class="label">Developer Center</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var rootMenuItems = document.querySelectorAll(".menu-item");
+            var submenuTriggers = document.querySelectorAll(".menu-item[data-toggle=\"submenu\"]");
+            var subItems = document.querySelectorAll(".sub-item");
+
+            function setActiveRoot(target) {
+                rootMenuItems.forEach(function (item) {
+                    if (item === target) {
+                        item.classList.add("active");
+                    } else {
+                        item.classList.remove("active");
+                    }
+                });
+            }
+
+            function closeAllSubmenus() {
+                document.querySelectorAll(".sub-menu.open").forEach(function (menu) {
+                    menu.classList.remove("open");
+                });
+                submenuTriggers.forEach(function (trigger) {
+                    trigger.classList.remove("expanded");
+                    var ch = trigger.querySelector(".chevron");
+                    if (ch) {
+                        ch.textContent = "▸";
+                    }
+                });
+            }
+
+            submenuTriggers.forEach(function (item) {
+                item.addEventListener("click", function () {
+                    var targetId = item.getAttribute("data-target");
+                    var submenu = document.querySelector('.sub-menu[data-parent=\"' + targetId + '\"]');
+                    var isOpen = submenu && submenu.classList.contains("open");
+
+                    setActiveRoot(item);
+
+                    if (!submenu) {
+                        return;
+                    }
+
+                    if (isOpen) {
+                        submenu.classList.remove("open");
+                        item.classList.remove("expanded");
+                        var chClose = item.querySelector(".chevron");
+                        if (chClose) {
+                            chClose.textContent = "▸";
+                        }
+                    } else {
+                        closeAllSubmenus();
+                        submenu.classList.add("open");
+                        item.classList.add("expanded");
+                        var chOpen = item.querySelector(".chevron");
+                        if (chOpen) {
+                            chOpen.textContent = "▾";
+                        }
+                    }
+                });
+            });
+
+            rootMenuItems.forEach(function (item) {
+                if (!item.hasAttribute("data-toggle")) {
+                    item.addEventListener("click", function () {
+                        setActiveRoot(item);
+                        closeAllSubmenus();
+                    });
+                }
+            });
+
+            subItems.forEach(function (sub) {
+                sub.addEventListener("click", function (evt) {
+                    evt.stopPropagation();
+                    subItems.forEach(function (s) {
+                        s.classList.remove("active");
+                    });
+                    sub.classList.add("active");
+                });
+            });
+
+            closeAllSubmenus();
+        });
+    </script>
+
+</body>
+
+</html>
