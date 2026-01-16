@@ -1036,7 +1036,18 @@
         .checkline input {
             width: 18px;
             height: 18px;
-            accent-color: var(--accent);
+            accent-color: var(--text-strong);
+        }
+
+        .field label.checkline {
+            text-transform: none;
+            letter-spacing: 0;
+            font-size: 14px;
+        }
+
+        .form-divider {
+            border-top: 1px solid var(--border);
+            margin: 6px 0 2px;
         }
 
         .wizard-actions {
@@ -1656,6 +1667,17 @@
                                             <option>Q3V</option>
                                             <option>Q3PRT</option>
                                         </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-divider"></div>
+
+                                <div class="form-grid two">
+                                    <div class="field full">
+                                        <label class="checkline" for="device-provision-toggle">
+                                            <input type="checkbox" id="device-provision-toggle" checked>
+                                            Deploy Payment app & Parameters
+                                        </label>
                                     </div>
                                 </div>
 
@@ -2385,6 +2407,14 @@
         const processorParams = document.getElementById('processorParams');
         const processorParamName = document.getElementById('processorParamName');
         const paramSets = Array.from(document.querySelectorAll('.param-set'));
+        const provisionToggle = document.getElementById('device-provision-toggle');
+        const assignTemplateEl = document.getElementById('device-template');
+        const paywizardSelect = document.getElementById('device-paywizard');
+        const paywizardParams = document.getElementById('paywizardParams');
+
+        function isProvisionEnabled() {
+            return !provisionToggle || provisionToggle.checked;
+        }
 
         function activateParamTab(button, set) {
             const tabId = button.getAttribute('data-tab');
@@ -2435,6 +2465,13 @@
             if (!processorSelect || !processorParams) {
                 return;
             }
+            if (!isProvisionEnabled()) {
+                processorParams.classList.add('is-hidden');
+                if (processorVersionSelect) {
+                    processorVersionSelect.disabled = true;
+                }
+                return;
+            }
             const selected = processorSelect.value;
             const hasSelection = Boolean(selected);
             processorParams.classList.toggle('is-hidden', !hasSelection);
@@ -2473,14 +2510,11 @@
             syncProcessorParams();
         }
 
-        const paywizardSelect = document.getElementById('device-paywizard');
-        const paywizardParams = document.getElementById('paywizardParams');
-
         function syncPaywizardParams() {
             if (!paywizardSelect || !paywizardParams) {
                 return;
             }
-            const isEnabled = paywizardSelect.value === 'Enable';
+            const isEnabled = isProvisionEnabled() && paywizardSelect.value === 'Enable';
             paywizardParams.classList.toggle('is-hidden', !isEnabled);
         }
 
@@ -2489,8 +2523,39 @@
             syncPaywizardParams();
         }
 
+        function setProvisionState() {
+            const enabled = isProvisionEnabled();
+            if (processorSelect) {
+                processorSelect.disabled = !enabled;
+            }
+            if (assignTemplateEl) {
+                assignTemplateEl.disabled = !enabled;
+            }
+            if (paywizardSelect) {
+                paywizardSelect.disabled = !enabled;
+            }
+            if (!enabled) {
+                if (processorVersionSelect) {
+                    processorVersionSelect.disabled = true;
+                }
+                if (processorParams) {
+                    processorParams.classList.add('is-hidden');
+                }
+                if (paywizardParams) {
+                    paywizardParams.classList.add('is-hidden');
+                }
+                return;
+            }
+            syncProcessorParams();
+            syncPaywizardParams();
+        }
+
+        if (provisionToggle) {
+            provisionToggle.addEventListener('change', setProvisionState);
+        }
+        setProvisionState();
+
         const TEMPLATE_KEY = 'pw_device_param_templates';
-        const assignTemplateEl = document.getElementById('device-template');
         const saveTemplateBtn = document.getElementById('saveTemplateBtn');
 
         function loadTemplates() {
