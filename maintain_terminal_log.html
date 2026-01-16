@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Log Maintenance</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #ffffff;
+            color: #111;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #ffffff;
+            padding: 20px;
+            height: 100vh;
+            border-right: 1px solid #e0e0e0;
+            box-sizing: border-box;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu .menu-header {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #555;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar-menu li a:hover,
+        .sidebar-menu li.active a {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px 30px 24px;
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-input {
+            border: 1px solid #d5d5d5;
+            background-color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 240px;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 14px;
+        }
+
+        .transaction-table th, .transaction-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+            font-size: 14px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .transaction-table thead th {
+            background-color: #131416;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom-color: #2a2b2e;
+        }
+
+        .transaction-table thead th:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .transaction-table thead th:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .row-link {
+            color: #111;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .row-link:hover {
+            text-decoration: underline;
+        }
+
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d5d5d5;
+            background: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #111;
+            text-decoration: none;
+        }
+
+        .view-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .empty {
+            padding: 24px;
+            color: #777;
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .main-content {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .toolbar {
+                width: 100%;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="menu-header">BILLING</li>
+            <li><a href="#">Reconciliation Management</a></li>
+            <li><a href="#">Service Fee Log</a></li>
+            <li><a href="#">Service Fee Report</a></li>
+
+            <li class="menu-header">CUSTOMER INFORMATION</li>
+            <li><a href="#">Customer Information</a></li>
+            <li class="active"><a href="#">Customer Transaction</a></li>
+
+            <li class="menu-header">PARTNER MANAGEMENT</li>
+            <li><a href="#">Partner Information</a></li>
+            <li><a href="#">Inventory Logs</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-bar">
+            <div>
+                <h1 class="page-title">Terminal Log Maintenance</h1>
+                <p class="page-subtitle">All terminal logs not linked to a specific transaction.</p>
+            </div>
+            <div class="toolbar">
+                <input id="snSearch" class="search-input" type="text" placeholder="Filter by SN">
+            </div>
+        </div>
+
+        <table class="transaction-table" id="logTable">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Terminal SN</th>
+                    <th>Transaction ID</th>
+                    <th>Stage</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-sn="PW-TER-009183">
+                    <td>2025-10-17 13:51:02</td>
+                    <td>PW-TER-009183</td>
+                    <td><a class="row-link" href="opc_log.html">-</a></td>
+                    <td>HOST TO OPC</td>
+                    <td><a class="view-btn" href="opc_log.html">View Log</a></td>
+                </tr>
+                <tr data-sn="PW-TER-009183">
+                    <td>2025-10-17 13:51:03</td>
+                    <td>PW-TER-009183</td>
+                    <td><a class="row-link" href="opc_log.html">-</a></td>
+                    <td>OPC TO APP</td>
+                    <td><a class="view-btn" href="opc_log.html">View Log</a></td>
+                </tr>
+                <tr data-sn="PW-TER-002471">
+                    <td>2025-10-16 21:22:11</td>
+                    <td>PW-TER-002471</td>
+                    <td><a class="row-link" href="opc_log.html">-</a></td>
+                    <td>APP TO OPC</td>
+                    <td><a class="view-btn" href="opc_log.html">View Log</a></td>
+                </tr>
+                <tr data-sn="PW-TER-010292">
+                    <td>2025-10-16 21:22:15</td>
+                    <td>PW-TER-010292</td>
+                    <td><a class="row-link" href="opc_log.html">-</a></td>
+                    <td>OPC TO HOST</td>
+                    <td><a class="view-btn" href="opc_log.html">View Log</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="emptyState" class="empty" style="display:none;">No logs match this SN.</div>
+    </main>
+
+    <script>
+        (function() {
+            const input = document.getElementById('snSearch');
+            const table = document.getElementById('logTable');
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const emptyState = document.getElementById('emptyState');
+
+            function applyFilter() {
+                const term = input.value.trim().toLowerCase();
+                let visibleCount = 0;
+                rows.forEach(row => {
+                    const sn = (row.dataset.sn || '').toLowerCase();
+                    const show = term === '' || sn.includes(term);
+                    row.style.display = show ? '' : 'none';
+                    if (show) visibleCount += 1;
+                });
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+
+            input.addEventListener('input', applyFilter);
+        })();
+    </script>
+</body>
+</html>
