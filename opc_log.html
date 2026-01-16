@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Detail</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #ffffff;
+            color: #111;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #ffffff;
+            padding: 20px;
+            height: 100vh;
+            border-right: 1px solid #e0e0e0;
+            box-sizing: border-box;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu .menu-header {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #555;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar-menu li a:hover,
+        .sidebar-menu li.active a {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px 30px 24px;
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .ghost-btn {
+            border: 1px solid #d5d5d5;
+            background-color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #111;
+            text-decoration: none;
+        }
+
+        .ghost-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .info-line {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #777;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #111;
+        }
+
+        .info-sep {
+            color: #c2c2c2;
+            font-weight: 600;
+        }
+
+        .log-tabs {
+            display: flex;
+            gap: 18px;
+            border-bottom: 1px solid #e6e6e6;
+            margin-top: 20px;
+        }
+
+        .log-tab {
+            background: none;
+            border: none;
+            padding: 10px 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #8e8e92;
+            border-bottom: 2px solid transparent;
+        }
+
+        .log-tab.active {
+            color: #111;
+            border-bottom-color: #111;
+        }
+
+        .log-panel {
+            display: none;
+            margin-top: 14px;
+            border: 1px solid #e6e6e6;
+            border-radius: 12px;
+            background: #0f1115;
+            padding: 12px;
+        }
+
+        .log-panel.active {
+            display: block;
+        }
+
+        .log-meta {
+            font-size: 12px;
+            color: #c2c2c2;
+            margin-bottom: 10px;
+        }
+
+        .log-content {
+            font-family: "SF Mono", Monaco, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #d6d6d6;
+            white-space: pre-wrap;
+            margin: 0;
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .main-content {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .log-tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="menu-header">BILLING</li>
+            <li><a href="#">Reconciliation Management</a></li>
+            <li><a href="#">Service Fee Log</a></li>
+            <li><a href="#">Service Fee Report</a></li>
+
+            <li class="menu-header">CUSTOMER INFORMATION</li>
+            <li><a href="#">Customer Information</a></li>
+            <li class="active"><a href="#">Customer Transaction</a></li>
+
+            <li class="menu-header">PARTNER MANAGEMENT</li>
+            <li><a href="#">Partner Information</a></li>
+            <li><a href="#">Inventory Logs</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Log Detail</h1>
+            </div>
+            <div class="header-actions">
+                <a class="ghost-btn" href="transdetails.html">Back to Transactions</a>
+            </div>
+        </div>
+
+        <div class="info-line">
+            <span class="info-label">Transaction ID:</span>
+            <span class="info-value">20251017135101</span>
+            <span class="info-sep">|</span>
+            <span class="info-label">Terminal SN:</span>
+            <span class="info-value">WP2310PQ20000000</span>
+        </div>
+
+        <div class="log-tabs" role="tablist">
+            <button class="log-tab active" role="tab" aria-selected="true" data-target="log-1">1.HOST > OPC</button>
+            <button class="log-tab" role="tab" aria-selected="false" data-target="log-2">2.OPC > APP</button>
+            <button class="log-tab" role="tab" aria-selected="false" data-target="log-3">3.APP > OPC</button>
+            <button class="log-tab" role="tab" aria-selected="false" data-target="log-4">4.OPC > HOST</button>
+        </div>
+
+        <div id="log-1" class="log-panel active" role="tabpanel">
+            <div class="log-meta">2025-10-17 13:51:02 | Duration 118ms | OK</div>
+            <pre class="log-content">{
+  "sn": "PW-TER-009183",
+  "transaction_id": "TXN-20251017-135101",
+  "stage": "terminal_upload",
+  "payload": {
+    "amount": "1.23",
+    "currency": "USD",
+    "pan_masked": "451461******8925"
+  }
+}</pre>
+        </div>
+
+        <div id="log-2" class="log-panel" role="tabpanel">
+            <div class="log-meta">2025-10-17 13:51:03 | Duration 221ms | OK</div>
+            <pre class="log-content">{
+  "forwarded_to": "/v1/terminal/opc-logs/upload",
+  "signature": "RSA-SHA256",
+  "trace_id": "pw-7c9b71"
+}</pre>
+        </div>
+
+        <div id="log-3" class="log-panel" role="tabpanel">
+            <div class="log-meta">2025-10-17 13:51:04 | Duration 612ms | Approved</div>
+            <pre class="log-content">{
+  "processor": "UPI-NZ",
+  "result": "00",
+  "message": "Approved"
+}</pre>
+        </div>
+
+        <div id="log-4" class="log-panel" role="tabpanel">
+            <div class="log-meta">2025-10-17 13:51:05 | Duration 94ms | Delivered</div>
+            <pre class="log-content">{
+  "status": "delivered",
+  "device_ack": "ok",
+  "masked_fields": ["pan", "expiry", "cvv"]
+}</pre>
+        </div>
+    </main>
+    <script>
+        (function() {
+            const tabs = document.querySelectorAll('.log-tab');
+            const panels = document.querySelectorAll('.log-panel');
+
+            function activate(targetId) {
+                panels.forEach(panel => panel.classList.toggle('active', panel.id === targetId));
+                tabs.forEach(tab => {
+                    const isActive = tab.dataset.target === targetId;
+                    tab.classList.toggle('active', isActive);
+                    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => activate(tab.dataset.target));
+            });
+        })();
+    </script>
+</body>
+</html>
