@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads | Paywizard Portal</title>
+    <style>
+        :root {
+            --page-bg: #f4f5f7;
+            --page-gradient: radial-gradient(circle at 15% 10%, #ffffff 0%, #f5f6f8 35%, #eef1f5 100%);
+            --sidebar-bg: #ffffff;
+            --text-strong: #0f0f10;
+            --text-main: #111111;
+            --text-dim: #6b7280;
+            --divider: #e5e7eb;
+            --hover: #f3f4f6;
+            --bullet: #d1d5db;
+            --active-bg: #0f0f10;
+            --active-sub-bg: #111111;
+            --active-text: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+            --card-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            --accent-green: #29c565;
+            --accent-blue: #2e8af5;
+            --accent-dark: #111111;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--page-gradient);
+            font-family: "Poppins", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--text-main);
+        }
+
+        .app-shell {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            align-items: flex-start;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-radius: 18px;
+            border: 1px solid var(--divider);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark {
+            width: 32px;
+            height: 22px;
+        }
+
+        .mark svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--text-strong);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-strong);
+            letter-spacing: 0.15px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--divider);
+            background: #f9fafb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .close-btn span {
+            position: relative;
+            width: 14px;
+            height: 14px;
+        }
+
+        .close-btn span::before,
+        .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: var(--text-strong);
+            transform-origin: center;
+        }
+
+        .close-btn span::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .close-btn span::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .menu {
+            padding: 10px 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .menu-item:hover {
+            background: var(--hover);
+        }
+
+        .menu-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-strong);
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .chevron {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .menu-item.active {
+            background: var(--active-bg);
+            color: var(--active-text);
+        }
+
+        .menu-item.active .icon,
+        .menu-item.active .chevron {
+            color: var(--active-text);
+        }
+
+        .sub-menu {
+            margin: 4px 0 10px;
+            padding-left: 32px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-menu.open {
+            display: flex;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 13px;
+            color: var(--text-dim);
+            padding: 4px 0 4px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .sub-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid var(--bullet);
+            transform: translateY(-50%);
+        }
+
+        .sub-item:hover {
+            color: var(--text-main);
+            background: var(--hover);
+        }
+
+        .sub-item.active {
+            padding: 6px 10px 6px 24px;
+            background: var(--active-sub-bg);
+            color: var(--active-text);
+        }
+
+        .sub-item.active::before {
+            width: 7px;
+            height: 7px;
+            border: none;
+            background: var(--active-text);
+            left: 10px;
+        }
+
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .breadcrumb strong {
+            color: var(--text-strong);
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-pill {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid var(--card-border);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .icon-pill svg {
+            width: 18px;
+            height: 18px;
+            stroke: #111;
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            border: 2px solid #fff;
+        }
+
+        .page-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-strong);
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: #fff;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.8;
+        }
+
+        .btn-green {
+            border-color: rgba(41, 197, 101, 0.4);
+            color: #0f7f3a;
+        }
+
+        .btn-green svg {
+            stroke: #0f7f3a;
+        }
+
+        .btn-blue {
+            border-color: rgba(46, 138, 245, 0.4);
+            color: #1d63bf;
+        }
+
+        .btn-blue svg {
+            stroke: #1d63bf;
+        }
+
+        .btn-dark {
+            border-color: #111111;
+            background: #111111;
+            color: #fff;
+        }
+
+        .btn-dark svg {
+            stroke: #fff;
+        }
+
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .filter-row.secondary {
+            grid-template-columns: repeat(2, minmax(160px, 1fr)) auto auto;
+            align-items: center;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-field input,
+        .filter-field select {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            font-size: 13px;
+            color: var(--text-main);
+            background: #fff;
+        }
+
+        .filter-field select {
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%),
+                linear-gradient(135deg, #6b7280 50%, transparent 50%),
+                linear-gradient(to right, #ffffff, #ffffff);
+            background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px), 100% 0;
+            background-size: 5px 5px, 5px 5px, 2.5em 2.5em;
+            background-repeat: no-repeat;
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .icon-button svg {
+            width: 16px;
+            height: 16px;
+            stroke: #111;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 920px;
+        }
+
+        thead th {
+            background: #111111;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 12px 14px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--card-border);
+            color: #3b3b3b;
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: #374151;
+        }
+
+        .action-btn:hover {
+            border-color: #cbd5f5;
+            box-shadow: 0 6px 12px rgba(17, 24, 39, 0.08);
+        }
+
+        @media (max-width: 1100px) {
+            .app-shell {
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .filter-row {
+                grid-template-columns: repeat(2, minmax(160px, 1fr));
+            }
+
+            .filter-row.secondary {
+                grid-template-columns: repeat(2, minmax(160px, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-row,
+            .filter-row.secondary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="mark" aria-hidden="true">
+                        <svg viewBox="0 0 36 24">
+                            <path d="M4 18V6h6l4 6 4-6h6v12" />
+                            <path d="M24 18h8" />
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-name">PAYwizard</div>
+                        <div class="brand-sub">portal</div>
+                    </div>
+                </div>
+                <button class="close-btn" type="button" aria-label="Close menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="menu">
+                <div class="menu-item" data-key="dashboard">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7" rx="1.5" />
+                                <rect x="13" y="4" width="7" height="7" rx="1.5" />
+                                <rect x="4" y="13" width="7" height="7" rx="1.5" />
+                                <rect x="13" y="13" width="7" height="7" rx="1.5" />
+                            </svg>
+                        </span>
+                        <span class="label">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="transactions">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2" />
+                                <path d="M3 10h18" />
+                                <path d="M8 14h4" />
+                            </svg>
+                        </span>
+                        <span class="label">Transactions</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="batches">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 7h12l1 3H5z" />
+                                <path d="M7 10v7h10v-7" />
+                                <path d="M9 14h6" />
+                            </svg>
+                        </span>
+                        <span class="label">Batches</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="agents">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                                <path d="M4 20a4 4 0 018 0" />
+                                <path d="M12 17a4 4 0 018 0" />
+                            </svg>
+                        </span>
+                        <span class="label">Agents</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+                <div class="sub-menu" data-parent="agents">
+                    <div class="sub-item" data-key="agents-list">Agent List</div>
+                    <div class="sub-item" data-key="agents-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="merchants">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
+                                <path d="M9 21V12h6v9" />
+                            </svg>
+                        </span>
+                        <span class="label">Merchants</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+                <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item" data-key="merchants-leads">Contact</div>
+                    <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
+                    <div class="sub-item" data-key="merchants-list">Merchant List</div>
+                    <div class="sub-item" data-key="merchants-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="partners">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z" />
+                            </svg>
+                        </span>
+                        <span class="label">Partners</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+                <div class="sub-menu" data-parent="partners">
+                    <div class="sub-item" data-key="partners-list">Partner List</div>
+                    <div class="sub-item" data-key="partners-hardware">Hardware</div>
+                </div>
+
+                <div class="menu-item" data-key="device-management">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="4" width="18" height="12" rx="2" />
+                                <path d="M8 20h8" />
+                                <path d="M12 16v4" />
+                            </svg>
+                        </span>
+                        <span class="label">Device Management</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-key="remote-diagnostic">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M12 3v3" />
+                                <path d="M12 18v3" />
+                                <path d="M3 12h3" />
+                                <path d="M18 12h3" />
+                            </svg>
+                        </span>
+                        <span class="label">Remote Diagnostic</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="users">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="4" width="14" height="16" rx="2" />
+                                <path d="M9 9h6M9 13h6M9 17h6" />
+                            </svg>
+                        </span>
+                        <span class="label">User Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+                <div class="sub-menu" data-parent="users">
+                    <div class="sub-item" data-key="users-list">User List</div>
+                    <div class="sub-item" data-key="users-roles">Role Permissions</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="settings">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z" />
+                            </svg>
+                        </span>
+                        <span class="label">Settings</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                </div>
+                <div class="sub-menu" data-parent="settings">
+                    <div class="sub-item" data-key="settings-branding">Branding</div>
+                    <div class="sub-item" data-key="settings-payments">Payment Channels</div>
+                </div>
+
+                <div class="menu-item" data-key="tickets">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 7h16v4a2 2 0 010 4v4H4v-4a2 2 0 010-4z" />
+                                <circle cx="9" cy="12" r="1.2" />
+                            </svg>
+                        </span>
+                        <span class="label">Tickets</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-key="developer-center">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 8l-4 4 4 4" />
+                                <path d="M16 8l4 4-4 4" />
+                                <path d="M12 6l-2 12" />
+                            </svg>
+                        </span>
+                        <span class="label">Developer Center</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <span>Merchants</span>
+                    <span>&gt;</span>
+                    <strong>Contact</strong>
+                </div>
+                <div class="top-actions">
+                    <button class="icon-pill" type="button" aria-label="Notifications">
+                        <span class="badge">99+</span>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M15 17h5l-1.4-1.4a2 2 0 01-.6-1.4V10a6 6 0 10-12 0v4.2c0 .5-.2 1-.6 1.4L4 17h5" />
+                            <path d="M9 17a3 3 0 006 0" />
+                        </svg>
+                    </button>
+                    <button class="icon-pill" type="button" aria-label="Account">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M20 20a8 8 0 10-16 0" />
+                            <circle cx="12" cy="9" r="3" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <section class="page-card">
+                <div class="page-header">
+                    <div class="page-title">Contact</div>
+                    
+                </div>
+
+                
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Contact ID</th>
+                                <th>Country Name</th>
+                                <th>Merchant Name</th>
+                                <th>Terminal SN</th>
+                                <th>Contact Name</th>
+                                <th>Phone</th>
+                                <th>Merchant Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>00000309</td>
+                                <td>Portugal</td>
+                                <td>Vila Verde Em Flor</td>
+                                <td>SN-PT-0001</td>
+                                <td>Vila Verde</td>
+                                <td>+351 912 345 678</td>
+                                <td>vilaverde@mail.com</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" type="button" aria-label="View">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 3h9l3 3v15H6z" />
+                                                <path d="M15 3v3h3" />
+                                                <path d="M9 13h6" />
+                                                <path d="M9 17h6" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 17.5V21h3.5L18 9.5l-3.5-3.5L3 17.5z" />
+                                                <path d="M14.5 6l3.5 3.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Copy">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <rect x="8" y="8" width="11" height="13" rx="2" />
+                                                <rect x="5" y="3" width="11" height="13" rx="2" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="More">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <circle cx="6" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1" />
+                                                <circle cx="18" cy="12" r="1" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>00000308</td>
+                                <td>Spain</td>
+                                <td>Salta King</td>
+                                <td>SN-ES-0002</td>
+                                <td>Qunqiang Lin</td>
+                                <td>+34 612 345 678</td>
+                                <td>saltaking@mail.com</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" type="button" aria-label="View">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 3h9l3 3v15H6z" />
+                                                <path d="M15 3v3h3" />
+                                                <path d="M9 13h6" />
+                                                <path d="M9 17h6" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 17.5V21h3.5L18 9.5l-3.5-3.5L3 17.5z" />
+                                                <path d="M14.5 6l3.5 3.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Copy">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <rect x="8" y="8" width="11" height="13" rx="2" />
+                                                <rect x="5" y="3" width="11" height="13" rx="2" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="More">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <circle cx="6" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1" />
+                                                <circle cx="18" cy="12" r="1" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>00000307</td>
+                                <td>United States</td>
+                                <td>K-popsy</td>
+                                <td>SN-US-0003</td>
+                                <td>XR</td>
+                                <td>+1 415 555 0137</td>
+                                <td>kpopsy@mail.com</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" type="button" aria-label="View">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 3h9l3 3v15H6z" />
+                                                <path d="M15 3v3h3" />
+                                                <path d="M9 13h6" />
+                                                <path d="M9 17h6" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 17.5V21h3.5L18 9.5l-3.5-3.5L3 17.5z" />
+                                                <path d="M14.5 6l3.5 3.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Copy">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <rect x="8" y="8" width="11" height="13" rx="2" />
+                                                <rect x="5" y="3" width="11" height="13" rx="2" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="More">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <circle cx="6" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1" />
+                                                <circle cx="18" cy="12" r="1" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>00000306</td>
+                                <td>Tajikistan</td>
+                                <td>Giyos</td>
+                                <td>SN-TJ-0004</td>
+                                <td>Giyos</td>
+                                <td>+992 900 112 233</td>
+                                <td>giyos@mail.com</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" type="button" aria-label="View">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 3h9l3 3v15H6z" />
+                                                <path d="M15 3v3h3" />
+                                                <path d="M9 13h6" />
+                                                <path d="M9 17h6" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 17.5V21h3.5L18 9.5l-3.5-3.5L3 17.5z" />
+                                                <path d="M14.5 6l3.5 3.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Copy">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <rect x="8" y="8" width="11" height="13" rx="2" />
+                                                <rect x="5" y="3" width="11" height="13" rx="2" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="More">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <circle cx="6" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1" />
+                                                <circle cx="18" cy="12" r="1" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>00000305</td>
+                                <td>Spain</td>
+                                <td>Dispho AI</td>
+                                <td>SN-ES-0005</td>
+                                <td>Jing</td>
+                                <td>+34 622 987 654</td>
+                                <td>expansion@mail.com</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" type="button" aria-label="View">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 3h9l3 3v15H6z" />
+                                                <path d="M15 3v3h3" />
+                                                <path d="M9 13h6" />
+                                                <path d="M9 17h6" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 17.5V21h3.5L18 9.5l-3.5-3.5L3 17.5z" />
+                                                <path d="M14.5 6l3.5 3.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Copy">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <rect x="8" y="8" width="11" height="13" rx="2" />
+                                                <rect x="5" y="3" width="11" height="13" rx="2" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="More">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <circle cx="6" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1" />
+                                                <circle cx="18" cy="12" r="1" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>00000304</td>
+                                <td>Russia</td>
+                                <td>Intercara</td>
+                                <td>SN-RU-0006</td>
+                                <td>Diana Akopova</td>
+                                <td>+7 912 123 4567</td>
+                                <td>smedap@mail.com</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" type="button" aria-label="View">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M6 3h9l3 3v15H6z" />
+                                                <path d="M15 3v3h3" />
+                                                <path d="M9 13h6" />
+                                                <path d="M9 17h6" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 17.5V21h3.5L18 9.5l-3.5-3.5L3 17.5z" />
+                                                <path d="M14.5 6l3.5 3.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="Copy">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <rect x="8" y="8" width="11" height="13" rx="2" />
+                                                <rect x="5" y="3" width="11" height="13" rx="2" />
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" type="button" aria-label="More">
+                                            <svg viewBox="0 0 24 24" fill="none">
+                                                <circle cx="6" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1" />
+                                                <circle cx="18" cy="12" r="1" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var rootMenuItems = document.querySelectorAll(".menu-item");
+            var submenuTriggers = document.querySelectorAll(".menu-item[data-toggle=\"submenu\"]");
+            var subItems = document.querySelectorAll(".sub-item");
+
+            function setActiveRoot(target) {
+                rootMenuItems.forEach(function (item) {
+                    if (item === target) {
+                        item.classList.add("active");
+                    } else {
+                        item.classList.remove("active");
+                    }
+                });
+            }
+
+            function closeAllSubmenus() {
+                document.querySelectorAll(".sub-menu.open").forEach(function (menu) {
+                    menu.classList.remove("open");
+                });
+                submenuTriggers.forEach(function (trigger) {
+                    trigger.classList.remove("expanded");
+                    var ch = trigger.querySelector(".chevron");
+                    if (ch) {
+                        ch.textContent = "▸";
+                    }
+                });
+            }
+
+            function openSubmenu(targetId) {
+                var submenu = document.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+                var trigger = document.querySelector('.menu-item[data-target="' + targetId + '"]');
+                if (!submenu || !trigger) {
+                    return;
+                }
+                submenu.classList.add("open");
+                trigger.classList.add("expanded");
+                var chOpen = trigger.querySelector(".chevron");
+                if (chOpen) {
+                    chOpen.textContent = "▾";
+                }
+            }
+
+            function setActiveSub(target) {
+                subItems.forEach(function (item) {
+                    item.classList.toggle("active", item === target);
+                });
+            }
+
+            submenuTriggers.forEach(function (item) {
+                item.addEventListener("click", function () {
+                    var targetId = item.getAttribute("data-target");
+                    var submenu = document.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+                    var isOpen = submenu && submenu.classList.contains("open");
+
+                    setActiveRoot(item);
+
+                    if (!submenu) {
+                        return;
+                    }
+
+                    if (isOpen) {
+                        submenu.classList.remove("open");
+                        item.classList.remove("expanded");
+                        var chClose = item.querySelector(".chevron");
+                        if (chClose) {
+                            chClose.textContent = "▸";
+                        }
+                    } else {
+                        closeAllSubmenus();
+                        submenu.classList.add("open");
+                        item.classList.add("expanded");
+                        var chOpen = item.querySelector(".chevron");
+                        if (chOpen) {
+                            chOpen.textContent = "▾";
+                        }
+                    }
+                });
+            });
+
+            rootMenuItems.forEach(function (item) {
+                if (!item.hasAttribute("data-toggle")) {
+                    item.addEventListener("click", function () {
+                        setActiveRoot(item);
+                        closeAllSubmenus();
+                        subItems.forEach(function (sub) {
+                            sub.classList.remove("active");
+                        });
+                    });
+                }
+            });
+
+            subItems.forEach(function (sub) {
+                sub.addEventListener("click", function (evt) {
+                    evt.stopPropagation();
+                    setActiveSub(sub);
+                    var parent = sub.closest(".sub-menu");
+                    if (parent) {
+                        var parentKey = parent.getAttribute("data-parent");
+                        var parentRoot = document.querySelector('.menu-item[data-target="' + parentKey + '"]');
+                        if (parentRoot) {
+                            setActiveRoot(parentRoot);
+                        }
+                    }
+                });
+            });
+
+            closeAllSubmenus();
+            var defaultRoot = document.querySelector('.menu-item[data-target="merchants"]');
+            var defaultSub = document.querySelector('.sub-item[data-key="merchants-leads"]');
+            if (defaultRoot) {
+                setActiveRoot(defaultRoot);
+                openSubmenu("merchants");
+            }
+            if (defaultSub) {
+                setActiveSub(defaultSub);
+            }
+        });
+    </script>
+</body>
+
+</html>
