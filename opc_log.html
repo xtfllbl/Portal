@@ -136,31 +136,8 @@
             font-weight: 600;
         }
 
-        .log-tabs {
-            display: flex;
-            gap: 18px;
-            border-bottom: 1px solid #e6e6e6;
-            margin-top: 20px;
-        }
-
-        .log-tab {
-            background: none;
-            border: none;
-            padding: 10px 2px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #8e8e92;
-            border-bottom: 2px solid transparent;
-        }
-
-        .log-tab.active {
-            color: #111;
-            border-bottom-color: #111;
-        }
-
         .log-panel {
-            display: none;
+            display: block;
             margin-top: 14px;
             border: 1px solid #e6e6e6;
             border-radius: 12px;
@@ -168,14 +145,19 @@
             padding: 12px;
         }
 
-        .log-panel.active {
-            display: block;
-        }
-
         .log-meta {
             font-size: 12px;
             color: #c2c2c2;
             margin-bottom: 10px;
+        }
+
+        .log-title {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 14px;
         }
 
         .log-content {
@@ -204,9 +186,6 @@
                 border-radius: 0;
             }
 
-            .log-tabs {
-                overflow-x: auto;
-            }
         }
     </style>
 </head>
@@ -233,31 +212,27 @@
             <div>
                 <h1 class="page-title">Log Detail</h1>
             </div>
-            <div class="header-actions">
-                <a class="ghost-btn" href="transdetails.html">Back to Transactions</a>
-            </div>
+     
         </div>
 
         <div class="info-line">
-            <span class="info-label">Transaction ID:</span>
-            <span class="info-value">20251017135101</span>
+            <span class="info-label">Timestamp:</span>
+            <span class="info-value">2025-10-17 13:51:02</span>
             <span class="info-sep">|</span>
             <span class="info-label">Terminal SN:</span>
             <span class="info-value">WP2310PQ20000000</span>
         </div>
 
-        <div class="log-tabs" role="tablist">
-            <button class="log-tab active" role="tab" aria-selected="true" data-target="log-1">1.HOST > OPC</button>
-            <button class="log-tab" role="tab" aria-selected="false" data-target="log-2">2.OPC > APP</button>
-            <button class="log-tab" role="tab" aria-selected="false" data-target="log-3">3.APP > OPC</button>
-            <button class="log-tab" role="tab" aria-selected="false" data-target="log-4">4.OPC > HOST</button>
+        <div class="log-title">
+            <span class="info-label">Log Title:</span>
+            <span class="info-value">MDB ERROR</span>
         </div>
 
-        <div id="log-1" class="log-panel active" role="tabpanel">
+        <div class="log-panel">
             <div class="log-meta">2025-10-17 13:51:02 | Duration 118ms | OK</div>
             <pre class="log-content">{
   "sn": "PW-TER-009183",
-  "transaction_id": "TXN-20251017-135101",
+  "timestamp": "2025-10-17 13:51:02",
   "stage": "terminal_upload",
   "payload": {
     "amount": "1.23",
@@ -266,52 +241,6 @@
   }
 }</pre>
         </div>
-
-        <div id="log-2" class="log-panel" role="tabpanel">
-            <div class="log-meta">2025-10-17 13:51:03 | Duration 221ms | OK</div>
-            <pre class="log-content">{
-  "forwarded_to": "/v1/terminal/opc-logs/upload",
-  "signature": "RSA-SHA256",
-  "trace_id": "pw-7c9b71"
-}</pre>
-        </div>
-
-        <div id="log-3" class="log-panel" role="tabpanel">
-            <div class="log-meta">2025-10-17 13:51:04 | Duration 612ms | Approved</div>
-            <pre class="log-content">{
-  "processor": "UPI-NZ",
-  "result": "00",
-  "message": "Approved"
-}</pre>
-        </div>
-
-        <div id="log-4" class="log-panel" role="tabpanel">
-            <div class="log-meta">2025-10-17 13:51:05 | Duration 94ms | Delivered</div>
-            <pre class="log-content">{
-  "status": "delivered",
-  "device_ack": "ok",
-  "masked_fields": ["pan", "expiry", "cvv"]
-}</pre>
-        </div>
     </main>
-    <script>
-        (function() {
-            const tabs = document.querySelectorAll('.log-tab');
-            const panels = document.querySelectorAll('.log-panel');
-
-            function activate(targetId) {
-                panels.forEach(panel => panel.classList.toggle('active', panel.id === targetId));
-                tabs.forEach(tab => {
-                    const isActive = tab.dataset.target === targetId;
-                    tab.classList.toggle('active', isActive);
-                    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-                });
-            }
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => activate(tab.dataset.target));
-            });
-        })();
-    </script>
 </body>
 </html>
