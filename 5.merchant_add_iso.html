@@ -819,8 +819,9 @@
         }
 
         .wizard-steps {
+            --step-count: 5;
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 18px;
             margin: 22px 0 24px;
             position: relative;
@@ -829,8 +830,8 @@
         .wizard-steps::before {
             content: "";
             position: absolute;
-            left: 6%;
-            right: 6%;
+            left: calc(100% / var(--step-count) / 2);
+            right: calc(100% / var(--step-count) / 2);
             top: 18px;
             height: 2px;
             background: #e5e7eb;
@@ -846,6 +847,14 @@
             position: relative;
             z-index: 1;
             cursor: pointer;
+        }
+
+        .wizard-step.locked {
+            cursor: not-allowed;
+        }
+
+        .wizard-step.locked .wizard-dot {
+            opacity: 0.6;
         }
 
         .wizard-dot {
@@ -1043,6 +1052,15 @@
             border-color: var(--accent);
         }
 
+        .wizard-actions .btn.primary.finish.done {
+            background: #16a34a;
+            border-color: #16a34a;
+        }
+
+        .wizard-actions.done-state {
+            justify-content: flex-end;
+        }
+
         /* group buttons on right for mixed alignment */
         .wizard-actions .action-group {
             display: inline-flex;
@@ -1230,12 +1248,27 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: #dcfce7;
-            color: #16a34a;
+            background: #e5e7eb;
+            color: #475569;
             display: grid;
             place-items: center;
             font-weight: 700;
             font-size: 22px;
+        }
+
+        .review-icon-svg {
+            width: 28px;
+            height: 28px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .review-hero.is-complete .review-icon {
+            background: #dcfce7;
+            color: #16a34a;
         }
 
         .review-title {
@@ -1274,6 +1307,24 @@
             justify-content: space-between;
             text-transform: uppercase;
             letter-spacing: 0.04em;
+        }
+
+        .review-card-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #16a34a;
+            display: none;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .review-card-check.visible {
+            display: grid;
         }
 
         .review-list {
@@ -1610,7 +1661,11 @@
                             </div>
                             <div class="wizard-step" data-step="4" role="button" tabindex="0">
                                 <div class="wizard-dot">4</div>
-                                <div class="wizard-label">Finish</div>
+                                <div class="wizard-label">Review</div>
+                            </div>
+                            <div class="wizard-step" data-step="5" role="button" tabindex="-1">
+                                <div class="wizard-dot">5</div>
+                                <div class="wizard-label">ACTIVATE</div>
                             </div>
                         </div>
 
@@ -2555,15 +2610,25 @@
                             </div>
 
                             <div class="wizard-panel" data-step="4">
-                                <div class="review-hero">
-                                    <div class="review-icon">&#10003;</div>
-                                    <h3 class="review-title">Ready to Activate</h3>
-                                    <p class="review-subtitle">Review the merchant, store, and device details before creating the profile.</p>
+                                <div class="review-hero" id="reviewHero">
+                                    <div class="review-icon" id="reviewHeroIcon" aria-hidden="true">
+                                        <svg class="review-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+                                            <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+                                            <path d="M9 9h6"></path>
+                                            <path d="M9 13h6"></path>
+                                            <path d="M9 17h4"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="review-title" id="reviewHeroTitle">Review Onboarding Details</h3>
+                                    <p class="review-subtitle" id="reviewHeroSubtitle">Review the key merchant, store, and device information across the onboarding flow before activation.</p>
                                 </div>
 
                                 <div class="review-grid">
                                     <div class="review-card">
-                                        <div class="review-card-title">Merchant</div>
+                                        <div class="review-card-title">
+                                            Merchant
+                                            <span class="review-card-check" id="review-merchant-check" aria-hidden="true">&#10003;</span>
+                                        </div>
                                         <div class="review-list">
                                             <div class="review-item">
                                                 <span class="review-label">DBA</span>
@@ -2581,7 +2646,10 @@
                                     </div>
 
                                     <div class="review-card">
-                                        <div class="review-card-title">Store</div>
+                                        <div class="review-card-title">
+                                            Store
+                                            <span class="review-card-check" id="review-store-check" aria-hidden="true">&#10003;</span>
+                                        </div>
                                         <div class="review-list">
                                             <div class="review-item">
                                                 <span class="review-label">Store Name</span>
@@ -2599,7 +2667,10 @@
                                     </div>
 
                                     <div class="review-card">
-                                        <div class="review-card-title">Device</div>
+                                        <div class="review-card-title">
+                                            Device
+                                            <span class="review-card-check" id="review-device-check" aria-hidden="true">&#10003;</span>
+                                        </div>
                                         <div class="review-list">
                                             <div class="review-item">
                                                 <span class="review-label">Serial Number</span>
@@ -2621,9 +2692,9 @@
                                     </div>
                                 </div>
 
-                                <div class="wizard-actions">
-                                    <button class="btn secondary" type="button" data-goto="3">Back</button>
-                                    <button class="btn primary finish" type="button">Create Merchant</button>
+                                <div class="wizard-actions" id="reviewActions">
+                                    <button class="btn secondary" type="button" data-goto="3" id="reviewBackBtn">Back</button>
+                                    <button class="btn primary finish" type="button" id="onboardMerchantBtn">Onboard Merchant</button>
                                 </div>
                             </div>
                         </form>
@@ -2636,14 +2707,81 @@
     <script>
         const steps = Array.from(document.querySelectorAll('.wizard-step'));
         const panels = Array.from(document.querySelectorAll('.wizard-panel'));
+        const reviewStep = 4;
+        const finishStep = 5;
         let currentStep = 1;
+        let onboardingCompleted = false;
+
+        const reviewHero = document.getElementById('reviewHero');
+        const reviewHeroIcon = document.getElementById('reviewHeroIcon');
+        const reviewHeroTitle = document.getElementById('reviewHeroTitle');
+        const reviewHeroSubtitle = document.getElementById('reviewHeroSubtitle');
+        const reviewActions = document.getElementById('reviewActions');
+        const reviewBackBtn = document.getElementById('reviewBackBtn');
+        const onboardMerchantBtn = document.getElementById('onboardMerchantBtn');
+        const reviewCardChecks = Array.from(document.querySelectorAll('.review-card-check'));
+        const reviewIconMarkup = '<svg class="review-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>';
+
+        function isStepLocked(stepNum) {
+            if (!onboardingCompleted) {
+                return stepNum === finishStep;
+            }
+            return stepNum < finishStep;
+        }
+
+        function applyReviewState() {
+            const isComplete = onboardingCompleted && currentStep === finishStep;
+            if (reviewHero) {
+                reviewHero.classList.toggle('is-complete', isComplete);
+            }
+            if (reviewHeroIcon) {
+                if (isComplete) {
+                    reviewHeroIcon.textContent = '\u2713';
+                } else {
+                    reviewHeroIcon.innerHTML = reviewIconMarkup;
+                }
+            }
+            if (reviewHeroTitle) {
+                reviewHeroTitle.textContent = isComplete ? 'Onboarding Complete' : 'Review Onboarding Details';
+            }
+            if (reviewHeroSubtitle) {
+                reviewHeroSubtitle.textContent = isComplete
+                    ? 'Merchant, store, and terminal push are completed.'
+                    : 'Review the key merchant, store, and device information across the onboarding flow before activation.';
+            }
+            reviewCardChecks.forEach((checkEl) => {
+                checkEl.classList.toggle('visible', isComplete);
+            });
+            if (reviewActions) {
+                reviewActions.classList.toggle('done-state', isComplete);
+            }
+            if (reviewBackBtn) {
+                reviewBackBtn.style.display = isComplete ? 'none' : '';
+                reviewBackBtn.setAttribute('aria-hidden', isComplete ? 'true' : 'false');
+            }
+            if (onboardMerchantBtn) {
+                onboardMerchantBtn.textContent = isComplete ? 'Done' : 'Onboard Merchant';
+                onboardMerchantBtn.classList.toggle('done', isComplete);
+                onboardMerchantBtn.disabled = isComplete;
+            }
+        }
 
         function setStep(step) {
-            const maxStep = panels.length || 1;
-            const nextStep = Math.min(Math.max(step, 1), maxStep);
+            const maxStep = steps.length || 1;
+            let nextStep = Math.min(Math.max(step, 1), maxStep);
+
+            if (!onboardingCompleted && nextStep > reviewStep) {
+                nextStep = reviewStep;
+            }
+            if (onboardingCompleted && nextStep < finishStep) {
+                nextStep = finishStep;
+            }
 
             steps.forEach((stepEl) => {
                 const stepNum = Number(stepEl.dataset.step);
+                const locked = isStepLocked(stepNum);
+                stepEl.classList.toggle('locked', locked);
+                stepEl.setAttribute('tabindex', locked ? '-1' : '0');
                 stepEl.classList.toggle('active', stepNum === nextStep);
                 stepEl.classList.toggle('completed', stepNum < nextStep);
                 if (stepNum === nextStep) {
@@ -2654,13 +2792,16 @@
             });
 
             panels.forEach((panel) => {
-                panel.classList.toggle('active', Number(panel.dataset.step) === nextStep);
+                const panelStep = Number(panel.dataset.step);
+                const showReviewPanel = panelStep === reviewStep && nextStep === finishStep;
+                panel.classList.toggle('active', panelStep === nextStep || showReviewPanel);
             });
 
             currentStep = nextStep;
-            if (currentStep === 4) {
+            if (currentStep >= reviewStep) {
                 updateReview();
             }
+            applyReviewState();
         }
 
         const reviewFallback = 'Not provided';
@@ -2736,7 +2877,7 @@
         document.querySelectorAll('[data-goto]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const target = Number(btn.dataset.goto);
-                if (target) {
+                if (target && !isStepLocked(target)) {
                     setStep(target);
                 }
             });
@@ -2745,7 +2886,7 @@
         steps.forEach((stepEl) => {
             stepEl.addEventListener('click', () => {
                 const target = Number(stepEl.dataset.step);
-                if (target) {
+                if (target && !isStepLocked(target)) {
                     setStep(target);
                 }
             });
@@ -2754,12 +2895,22 @@
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
                     const target = Number(stepEl.dataset.step);
-                    if (target) {
+                    if (target && !isStepLocked(target)) {
                         setStep(target);
                     }
                 }
             });
         });
+
+        if (onboardMerchantBtn) {
+            onboardMerchantBtn.addEventListener('click', () => {
+                if (onboardingCompleted) {
+                    return;
+                }
+                onboardingCompleted = true;
+                setStep(finishStep);
+            });
+        }
 
         const syncToggle = document.getElementById('store-same-merchant');
         const syncPairs = [
@@ -2786,7 +2937,7 @@
                 }
                 toField.value = fromField.value;
             });
-            if (currentStep === 4) {
+            if (currentStep >= reviewStep) {
                 updateReview();
             }
         }
@@ -2822,12 +2973,12 @@
                 return;
             }
             field.addEventListener('input', () => {
-                if (currentStep === 4) {
+                if (currentStep >= reviewStep) {
                     updateReview();
                 }
             });
             field.addEventListener('change', () => {
-                if (currentStep === 4) {
+                if (currentStep >= reviewStep) {
                     updateReview();
                 }
             });
@@ -2837,7 +2988,7 @@
         const processorVersionSelect = document.getElementById('processor-version');
         if (processorVersionSelect) {
             processorVersionSelect.addEventListener('change', () => {
-                if (currentStep === 4) updateReview();
+                if (currentStep >= reviewStep) updateReview();
             });
         }
 
@@ -2904,7 +3055,7 @@
                 processorParamName.textContent = selected || 'Processor';
             }
             populateProcessorVersions(selected);
-            if (currentStep === 4) {
+            if (currentStep >= reviewStep) {
                 updateReview();
             }
             paramSets.forEach((set) => {
@@ -2972,7 +3123,7 @@
             if (!countryEl || !currencyEl) return;
             const name = getFieldValue('merchant-country');
             currencyEl.value = countryToCurrency[name] || '';
-            if (currentStep === 4) {
+            if (currentStep >= reviewStep) {
                 updateReview();
             }
         }
