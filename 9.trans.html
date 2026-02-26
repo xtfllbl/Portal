@@ -1,0 +1,1813 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --page-bg: #f4f5f7;
+            --surface: #ffffff;
+            --border: #dde1e8;
+            --text-main: #1e2431;
+            --text-muted: #7a808d;
+            --active-bg: #1f222b;
+            --active-bg-2: #2a2d37;
+            --head-bg: #111319;
+            --shadow-soft: 0 1px 2px rgba(17, 20, 28, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--page-bg);
+            color: var(--text-main);
+            font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .side {
+            width: 300px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .brand {
+            padding: 6px 8px 2px;
+        }
+
+        .brand-main {
+            font-size: 40px;
+            line-height: 1;
+            font-weight: 700;
+            color: #11131a;
+            letter-spacing: 0.4px;
+        }
+
+        .brand-sub {
+            margin-top: 2px;
+            font-size: 17px;
+            letter-spacing: 3px;
+            color: #1a202d;
+            padding-left: 120px;
+            line-height: 1;
+        }
+
+        .menu-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            padding: 12px 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            text-decoration: none;
+            color: #1f2532;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .menu-item:hover {
+            background: #f1f3f7;
+        }
+
+        .menu-item.active {
+            color: #ffffff;
+            background: linear-gradient(90deg, var(--active-bg), var(--active-bg-2));
+        }
+
+        .menu-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            color: currentColor;
+            flex-shrink: 0;
+        }
+
+        .menu-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: currentColor;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .menu-caret {
+            font-size: 11px;
+            color: #8a91a0;
+        }
+
+        .menu-item.active .menu-caret {
+            color: #d7dce7;
+        }
+        .main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .top-header {
+            height: 80px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px 0 34px;
+        }
+
+        .crumb {
+            color: #242c39;
+            font-size: 16px;
+            letter-spacing: 0.04em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: #eef0f4;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #545c6b;
+            position: relative;
+        }
+
+        .icon-btn svg,
+        .user-btn svg {
+            width: 19px;
+            height: 19px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .notif {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 30px;
+            height: 24px;
+            border-radius: 8px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+            padding: 0 4px;
+            line-height: 1;
+        }
+
+        .user-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid #131822;
+            background: #060910;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .panel {
+            height: 100%;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            padding: 18px 20px 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #313948;
+        }
+
+        .control-row {
+            margin-top: 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tabs {
+            display: inline-flex;
+            gap: 18px;
+            border-bottom: 1px solid #d9dce3;
+            min-width: 240px;
+        }
+
+        .tab {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: #828896;
+            font-weight: 500;
+            padding: 8px 0 13px;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            color: #11141e;
+            border-color: #ced2da;
+        }
+
+        .tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-range {
+            min-width: 360px;
+            height: 44px;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            padding: 12px 14px 0;
+            position: relative;
+            color: #3a4352;
+            font-size: 16px;
+            line-height: 1;
+            background: #fff;
+        }
+
+        .date-range::before {
+            content: "Date Range";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: #fff;
+            padding: 0 6px;
+            font-size: 12px;
+            color: #79808d;
+            line-height: 1;
+        }
+
+        .tool-btn {
+            width: 44px;
+            height: 44px;
+            border: 1px solid #d3d7df;
+            border-radius: 10px;
+            background: #f8f9fb;
+            color: #656d7b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .tool-btn:hover {
+            background: #eef1f6;
+            border-color: #c3c9d4;
+        }
+
+        .tool-btn svg {
+            width: 17px;
+            height: 17px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .tool-btn-text {
+            width: auto;
+            padding: 0 12px;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #414a59;
+        }
+
+        .tool-btn-text svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .export-action-wrap {
+            position: relative;
+        }
+
+        .export-action-btn .action-caret {
+            width: 14px;
+            height: 14px;
+            stroke-width: 2;
+        }
+
+        .export-action-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 210px;
+            background: #fff;
+            border: 1px solid #d7dde8;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14);
+            padding: 6px;
+            display: none;
+            z-index: 45;
+        }
+
+        .export-action-menu.show {
+            display: block;
+        }
+
+        .export-action-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            text-align: left;
+            color: #334155;
+            padding: 9px 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .export-action-item:hover {
+            background: #f1f4f8;
+        }
+
+        .job-count {
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 11px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .job-count.show {
+            display: inline-flex;
+        }
+
+        .export-drawer {
+            position: fixed;
+            top: 102px;
+            right: 22px;
+            width: 360px;
+            max-height: calc(100vh - 126px);
+            background: #fff;
+            border: 1px solid #d7dde8;
+            border-radius: 12px;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateX(calc(100% + 22px));
+            transition: transform 0.2s ease;
+            z-index: 40;
+        }
+
+        .export-drawer.show {
+            transform: translateX(0);
+        }
+
+        .export-drawer-head {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e5e9f1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .export-drawer-head h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #1f2735;
+        }
+
+        .drawer-link {
+            border: none;
+            background: transparent;
+            color: #3b82f6;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .drawer-note {
+            margin: 0;
+            padding: 10px 14px;
+            border-bottom: 1px solid #eef1f6;
+            color: #6f7786;
+            font-size: 12px;
+            line-height: 1.4;
+            background: #fafbfd;
+        }
+
+        .export-list {
+            padding: 10px 12px 12px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .export-empty {
+            border: 1px dashed #d7dce7;
+            border-radius: 10px;
+            padding: 18px 14px;
+            color: #7b8393;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .export-item {
+            border: 1px solid #e2e7ef;
+            border-radius: 10px;
+            padding: 10px 10px 9px;
+            background: #fff;
+        }
+
+        .export-item-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .export-name {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #273142;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .job-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .job-status.queued {
+            background: #eceff4;
+            color: #4b5565;
+        }
+
+        .job-status.processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .job-status.ready {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .job-status.downloaded {
+            background: #e9ecef;
+            color: #4b5563;
+        }
+
+        .export-meta {
+            margin: 6px 0 0;
+            font-size: 11px;
+            color: #6d7482;
+            line-height: 1.35;
+        }
+
+        .job-progress {
+            margin-top: 8px;
+            height: 6px;
+            border-radius: 999px;
+            background: #edf1f7;
+            overflow: hidden;
+        }
+
+        .job-progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #94a3b8, #2563eb);
+            transition: width 0.25s ease;
+        }
+
+        .export-actions {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .export-time {
+            font-size: 11px;
+            color: #8a91a0;
+        }
+
+        .download-btn {
+            border: 1px solid #cdd4df;
+            border-radius: 8px;
+            background: #f7f8fb;
+            color: #334155;
+            font-size: 12px;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .download-btn:hover {
+            background: #eef2f7;
+            border-color: #b7c1d0;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 14, 23, 0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 50;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .export-modal {
+            width: min(420px, 100%);
+            border: 1px solid #d7dde8;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+            overflow: hidden;
+        }
+
+        .export-modal-head {
+            padding: 14px 14px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px solid #e8ecf3;
+        }
+
+        .export-modal-head h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .close-modal-btn {
+            border: 1px solid #d4d9e2;
+            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            background: #f8fafc;
+            color: #475569;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .export-modal-note {
+            margin: 0;
+            padding: 10px 14px 0;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .export-fields {
+            padding: 12px 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .field {
+            display: grid;
+            gap: 5px;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2f3a4b;
+        }
+
+        .field select,
+        .field input {
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #ccd3df;
+            padding: 0 10px;
+            font-size: 13px;
+            color: #334155;
+            background: #fff;
+        }
+
+        .field input[readonly] {
+            background: #f8fafc;
+            color: #667085;
+        }
+
+        .export-modal-actions {
+            padding: 0 14px 14px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            border-radius: 8px;
+            height: 36px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn.secondary {
+            border: 1px solid #d1d7e2;
+            background: #fff;
+            color: #475569;
+        }
+
+        .modal-btn.primary {
+            border: 1px solid #0f172a;
+            background: #111827;
+            color: #fff;
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            border: 1px solid #d4dbea;
+            border-radius: 10px;
+            background: #fff;
+            color: #273142;
+            font-size: 13px;
+            padding: 10px 12px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            z-index: 55;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .table-wrap {
+            margin-top: 12px;
+            border: 1px solid #dadee6;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            scrollbar-color: #babec8 #eceef2;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1460px;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: var(--head-bg);
+            color: #fff;
+            text-align: left;
+            padding: 11px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 11px 10px;
+            border-bottom: 1px solid #dde1e8;
+            color: #4f5663;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background: #fafbfc;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .pill-auth {
+            color: #15824a;
+            background: #caedd8;
+        }
+
+        .pill-preauth {
+            color: #0e609d;
+            background: #cde7f7;
+        }
+
+        .pill-purchase {
+            color: #158149;
+            background: #cfeeda;
+        }
+        .card-pan {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-pan svg {
+            width: 18px;
+            height: 18px;
+            stroke: #8c9099;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .failed-rows {
+            display: none;
+        }
+
+        .fake-scroll {
+            margin: 7px 0 10px;
+            height: 9px;
+            border-radius: 999px;
+            background: #d5d8de;
+            overflow: hidden;
+        }
+
+        .fake-scroll span {
+            display: block;
+            height: 100%;
+            width: 69%;
+            background: #babec8;
+            border-radius: 999px;
+        }
+
+        .footer-row {
+            border-top: 1px solid #e6e9ef;
+            margin-top: auto;
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 10px 8px 6px;
+        }
+
+        .pager {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .arrow,
+        .page {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .arrow {
+            color: #8e94a2;
+            font-size: 26px;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+        }
+
+        .page {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            color: #7b8291;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .page.active {
+            background: #03060d;
+            color: #fff;
+        }
+
+        .page-size {
+            margin-left: 10px;
+            min-width: 102px;
+            height: 48px;
+            border-radius: 10px;
+            border: 1px solid #ced3dc;
+            background: #f8f9fb;
+            color: #444d5b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 0 14px;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .page-size svg {
+            width: 16px;
+            height: 16px;
+            stroke: #8a90a0;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .meta {
+            position: absolute;
+            right: 8px;
+            color: #9197a4;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        @media (max-width: 1280px) {
+            .brand-main { font-size: 30px; }
+            .brand-sub { font-size: 13px; padding-left: 90px; }
+            .crumb { font-size: 15px; }
+            .title { font-size: 20px; }
+            .tab { font-size: 16px; }
+            .date-range { font-size: 16px; min-width: 270px; }
+            .tool-btn-text { font-size: 12px; padding: 0 10px; }
+            tbody td { font-size: 14px; }
+            .pill { font-size: 12px; }
+            .page-size { font-size: 14px; }
+        }
+
+        @media (max-width: 980px) {
+            .app {
+                flex-direction: column;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .side {
+                width: 100%;
+            }
+
+            .menu-card {
+                max-height: 240px;
+                flex: initial;
+            }
+
+            .top-header {
+                height: auto;
+                padding: 10px 12px;
+            }
+
+            .panel {
+                height: auto;
+                padding: 12px;
+            }
+
+            .title {
+                font-size: 22px;
+            }
+
+            .tools {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .date-range {
+                flex: 1 1 240px;
+                min-width: 0;
+            }
+
+            .export-drawer {
+                top: auto;
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                width: auto;
+                max-height: 64vh;
+                transform: translateY(calc(100% + 16px));
+            }
+
+            .export-drawer.show {
+                transform: translateY(0);
+            }
+
+            .toast {
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+            }
+
+            .footer-row {
+                justify-content: flex-start;
+                min-height: 106px;
+                padding-bottom: 30px;
+            }
+
+            .meta {
+                left: 8px;
+                right: auto;
+                bottom: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="side">
+            <div class="brand">
+                <div class="brand-main">PAYwizard</div>
+                <div class="brand-sub">PORTAL</div>
+            </div>
+
+            <nav class="menu-card" aria-label="Main menu">
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7"></rect>
+                                <rect x="13" y="4" width="7" height="7"></rect>
+                                <rect x="4" y="13" width="7" height="7"></rect>
+                                <rect x="13" y="13" width="7" height="7"></rect>
+                            </svg>
+                        </span>
+                        <span>Dashboard</span>
+                    </span>
+                </a>
+
+                <a class="menu-item active" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </span>
+                        <span>Transactions</span>
+                    </span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="9" cy="8" r="3"></circle>
+                                <circle cx="16.5" cy="9.5" r="2.5"></circle>
+                                <path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path>
+                            </svg>
+                        </span>
+                        <span>Agents</span>
+                    </span>
+                    <span class="menu-caret">&#9662;</span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <path d="M6 10V7a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"></path>
+                            </svg>
+                        </span>
+                        <span>Merchants</span>
+                    </span>
+                    <span class="menu-caret">&#9662;</span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4.5 9.5A7.5 7.5 0 0 1 12 2a7.5 7.5 0 0 1 7.5 7.5c0 3.5-2.4 5.3-3.8 6l1.8 3H6.5l1.8-3c-1.5-.7-3.8-2.5-3.8-6z"></path>
+                            </svg>
+                        </span>
+                        <span>Partners</span>
+                    </span>
+                    <span class="menu-caret">&#9662;</span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="4" width="14" height="12" rx="2"></rect>
+                                <line x1="7" y1="20" x2="14" y2="20"></line>
+                            </svg>
+                        </span>
+                        <span>Device Management</span>
+                    </span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="9" cy="8" r="3"></circle>
+                                <path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path>
+                            </svg>
+                        </span>
+                        <span>User Management</span>
+                    </span>
+                    <span class="menu-caret">&#9662;</span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+                            </svg>
+                        </span>
+                        <span>Settings</span>
+                    </span>
+                    <span class="menu-caret">&#9662;</span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 7h16v4a2 2 0 0 1 0 4v4H4v-4a2 2 0 0 1 0-4z"></path>
+                            </svg>
+                        </span>
+                        <span>Tickets</span>
+                    </span>
+                </a>
+
+                <a class="menu-item" href="#">
+                    <span class="menu-left">
+                        <span class="menu-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 8l-4 4 4 4"></path>
+                                <path d="M16 8l4 4-4 4"></path>
+                            </svg>
+                        </span>
+                        <span>Developer Center</span>
+                    </span>
+                    <span class="menu-caret">&#9662;</span>
+                </a>
+            </nav>
+        </aside>
+        <section class="main">
+            <header class="top-header">
+                <div class="crumb">TRANSACTIONS</div>
+                <div class="header-actions">
+                    <div class="icon-btn" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path>
+                            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                        </svg>
+                        <span class="notif">27</span>
+                    </div>
+                    <div class="user-btn" aria-label="User">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21a8 8 0 0 0-16 0"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content">
+                <section class="panel">
+                    <h1 class="title">Transactions</h1>
+
+                    <div class="control-row">
+                        <div class="tabs" role="tablist" aria-label="Transaction tabs">
+                            <button class="tab active" data-target="completed" role="tab" aria-selected="true">Completed</button>
+                            <button class="tab" data-target="failed" role="tab" aria-selected="false">Failed</button>
+                        </div>
+
+                        <div class="tools">
+                            <div class="date-range" id="dateRangeText">2026-2-26 - 2026-2-26</div>
+                            <button class="tool-btn" type="button" aria-label="Filter">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M22 3H2l8 9.5V20l4 2v-9.5L22 3z"></path>
+                                </svg>
+                            </button>
+                            <button class="tool-btn" type="button" aria-label="Column settings">
+                                <svg viewBox="0 0 24 24">
+                                    <line x1="6" y1="4" x2="6" y2="20"></line>
+                                    <circle cx="6" cy="9" r="2"></circle>
+                                    <line x1="12" y1="4" x2="12" y2="20"></line>
+                                    <circle cx="12" cy="15" r="2"></circle>
+                                    <line x1="18" y1="4" x2="18" y2="20"></line>
+                                    <circle cx="18" cy="8" r="2"></circle>
+                                </svg>
+                            </button>
+                            <div class="export-action-wrap">
+                                <button class="tool-btn tool-btn-text export-action-btn" type="button" id="exportActionBtn" aria-label="Export options" aria-expanded="false">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 3v12"></path>
+                                        <path d="M7 10l5 5 5-5"></path>
+                                        <path d="M5 20h14"></path>
+                                    </svg>
+                                    <span>Export</span>
+                                    <span class="job-count" id="jobReadyCount">0</span>
+                                    <svg class="action-caret" viewBox="0 0 24 24">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="export-action-menu" id="exportActionMenu" role="menu" aria-label="Export actions">
+                                    <button class="export-action-item" type="button" id="openExportModalBtn" role="menuitem">New Export Task</button>
+                                    <button class="export-action-item" type="button" id="toggleExportDrawerBtn" role="menuitem">View Export Tasks</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>DATE &amp; TIME(PROCESSOR)</th>
+                                        <th>INVOICE NUMBER</th>
+                                        <th>CARD PAN</th>
+                                        <th>APPROVAL CODE</th>
+                                        <th>TYPE</th>
+                                        <th>AMOUNT</th>
+                                        <th>CURRENCY</th>
+                                        <th>MID</th>
+                                        <th>TID</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="completed-rows">
+                                    <tr>
+                                        <td>2026-02-26 03:49:54</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-auth">AuthCompletion</span></td>
+                                        <td>2.20</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 03:48:57</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-preauth">PreAuth</span></td>
+                                        <td>3.00</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 03:46:57</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-preauth">PreAuth</span></td>
+                                        <td>3.00</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 03:36:35</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-auth">AuthCompletion</span></td>
+                                        <td>16.00</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 03:35:25</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-preauth">PreAuth</span></td>
+                                        <td>3.00</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 03:24:59</td>
+                                        <td>-</td>
+                                        <td>
+                                            <span class="card-pan">
+                                                <svg viewBox="0 0 24 24">
+                                                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                                </svg>
+                                                **** *****2631
+                                            </span>
+                                        </td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-purchase">Purchase</span></td>
+                                        <td>2.20</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 03:23:40</td>
+                                        <td>-</td>
+                                        <td>
+                                            <span class="card-pan">
+                                                <svg viewBox="0 0 24 24">
+                                                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                                </svg>
+                                                **** *****2631
+                                            </span>
+                                        </td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-purchase">Purchase</span></td>
+                                        <td>2.20</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 02:55:56</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td><span class="pill pill-auth">AuthCompletion</span></td>
+                                        <td>1.00</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                </tbody>
+                                <tbody class="failed-rows">
+                                    <tr>
+                                        <td>2026-02-26 02:09:10</td>
+                                        <td>INV-24018</td>
+                                        <td>-</td>
+                                        <td>DECLINED</td>
+                                        <td><span class="pill pill-preauth">PreAuth</span></td>
+                                        <td>3.00</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-02-26 01:57:54</td>
+                                        <td>INV-24011</td>
+                                        <td>
+                                            <span class="card-pan">
+                                                <svg viewBox="0 0 24 24">
+                                                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                                </svg>
+                                                **** *****2631
+                                            </span>
+                                        </td>
+                                        <td>DECLINED</td>
+                                        <td><span class="pill pill-purchase">Purchase</span></td>
+                                        <td>2.20</td>
+                                        <td>SGD</td>
+                                        <td>00024062600</td>
+                                        <td>00024062600</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="fake-scroll" aria-hidden="true"><span></span></div>
+                    <div class="footer-row">
+                        <div class="pager">
+                            <button class="arrow" aria-label="First">&laquo;</button>
+                            <button class="arrow" aria-label="Previous">&lsaquo;</button>
+                            <button class="page active">1</button>
+                            <button class="page">2</button>
+                            <button class="page">3</button>
+                            <button class="arrow" aria-label="Next">&rsaquo;</button>
+                            <button class="arrow" aria-label="Last">&raquo;</button>
+
+                            <button class="page-size" type="button" aria-label="Rows per page">
+                                <span>20</span>
+                                <svg viewBox="0 0 24 24">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="meta">1 / 3 (47)</div>
+                    </div>
+                </section>
+            </main>
+        </section>
+    </div>
+
+    <aside class="export-drawer" id="exportDrawer" aria-live="polite" aria-label="Export Tasks">
+        <div class="export-drawer-head">
+            <h3>Export Tasks</h3>
+            <button class="drawer-link" type="button" id="clearDoneJobsBtn">Clear Downloaded</button>
+        </div>
+        <p class="drawer-note">Export files are generated in background. Download becomes available when status is Ready.</p>
+        <div class="export-list" id="exportList">
+            <div class="export-empty">No export tasks yet.</div>
+        </div>
+    </aside>
+
+    <div class="modal-backdrop" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+        <div class="export-modal">
+            <div class="export-modal-head">
+                <h3 id="exportModalTitle">Create Export Task</h3>
+                <button class="close-modal-btn" type="button" id="closeExportModalBtn" aria-label="Close">X</button>
+            </div>
+            <p class="export-modal-note">The export is asynchronous. You can continue using the page while the file is being generated.</p>
+            <div class="export-fields">
+                <div class="field">
+                    <label for="exportScope">Data Scope</label>
+                    <select id="exportScope">
+                        <option value="current">Current Tab</option>
+                        <option value="completed">Completed Only</option>
+                        <option value="failed">Failed Only</option>
+                        <option value="all">All Transactions</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="exportFormat">File Type</label>
+                    <select id="exportFormat">
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="exportRange">Date Range</label>
+                    <input id="exportRange" type="text" readonly>
+                </div>
+            </div>
+            <div class="export-modal-actions">
+                <button class="modal-btn secondary" type="button" id="cancelExportBtn">Cancel</button>
+                <button class="modal-btn primary" type="button" id="queueExportBtn">Queue Export</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="exportToast" role="status" aria-live="polite"></div>
+
+    <script>
+        (function () {
+            const tabs = document.querySelectorAll(".tab");
+            const completedRows = document.querySelector(".completed-rows");
+            const failedRows = document.querySelector(".failed-rows");
+            const dateRangeText = document.getElementById("dateRangeText");
+            const exportActionWrap = document.querySelector(".export-action-wrap");
+            const exportActionBtn = document.getElementById("exportActionBtn");
+            const exportActionMenu = document.getElementById("exportActionMenu");
+            const exportModal = document.getElementById("exportModal");
+            const openExportModalBtn = document.getElementById("openExportModalBtn");
+            const closeExportModalBtn = document.getElementById("closeExportModalBtn");
+            const cancelExportBtn = document.getElementById("cancelExportBtn");
+            const queueExportBtn = document.getElementById("queueExportBtn");
+            const exportScope = document.getElementById("exportScope");
+            const exportFormat = document.getElementById("exportFormat");
+            const exportRange = document.getElementById("exportRange");
+            const exportDrawer = document.getElementById("exportDrawer");
+            const toggleExportDrawerBtn = document.getElementById("toggleExportDrawerBtn");
+            const clearDoneJobsBtn = document.getElementById("clearDoneJobsBtn");
+            const exportList = document.getElementById("exportList");
+            const jobReadyCount = document.getElementById("jobReadyCount");
+            const exportToast = document.getElementById("exportToast");
+
+            const state = {
+                activeTab: "completed",
+                jobs: [],
+                nextId: 1,
+                toastTimer: null
+            };
+
+            const scopeLabelMap = {
+                current: "Current Tab",
+                completed: "Completed",
+                failed: "Failed",
+                all: "All"
+            };
+
+            const statusMap = {
+                queued: { text: "Queued", className: "queued" },
+                processing: { text: "Processing", className: "processing" },
+                ready: { text: "Ready", className: "ready" },
+                downloaded: { text: "Downloaded", className: "downloaded" }
+            };
+
+            function switchTab(target) {
+                state.activeTab = target;
+
+                tabs.forEach((item) => {
+                    const active = item.dataset.target === target;
+                    item.classList.toggle("active", active);
+                    item.setAttribute("aria-selected", active ? "true" : "false");
+                });
+
+                if (target === "failed") {
+                    completedRows.style.display = "none";
+                    failedRows.style.display = "table-row-group";
+                } else {
+                    completedRows.style.display = "table-row-group";
+                    failedRows.style.display = "none";
+                }
+            }
+
+            function showToast(message) {
+                exportToast.textContent = message;
+                exportToast.classList.add("show");
+                if (state.toastTimer) {
+                    window.clearTimeout(state.toastTimer);
+                }
+                state.toastTimer = window.setTimeout(() => {
+                    exportToast.classList.remove("show");
+                }, 2600);
+            }
+
+            function closeActionMenu() {
+                exportActionMenu.classList.remove("show");
+                exportActionBtn.setAttribute("aria-expanded", "false");
+            }
+
+            function toggleActionMenu() {
+                const willOpen = !exportActionMenu.classList.contains("show");
+                exportActionMenu.classList.toggle("show", willOpen);
+                exportActionBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+            }
+
+            function openExportModal() {
+                closeActionMenu();
+                exportRange.value = dateRangeText ? dateRangeText.textContent.trim() : "";
+                exportScope.value = "current";
+                exportFormat.value = "csv";
+                exportModal.classList.add("show");
+            }
+
+            function closeExportModal() {
+                exportModal.classList.remove("show");
+            }
+
+            function toggleExportDrawer(forceOpen) {
+                const open = typeof forceOpen === "boolean" ? forceOpen : !exportDrawer.classList.contains("show");
+                exportDrawer.classList.toggle("show", open);
+            }
+
+            function formatTimestamp(dateObj) {
+                const yyyy = String(dateObj.getFullYear());
+                const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+                const dd = String(dateObj.getDate()).padStart(2, "0");
+                const hh = String(dateObj.getHours()).padStart(2, "0");
+                const mi = String(dateObj.getMinutes()).padStart(2, "0");
+                const ss = String(dateObj.getSeconds()).padStart(2, "0");
+                return `${yyyy}${mm}${dd}_${hh}${mi}${ss}`;
+            }
+
+            function formatDisplayTime(dateObj) {
+                const yyyy = String(dateObj.getFullYear());
+                const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+                const dd = String(dateObj.getDate()).padStart(2, "0");
+                const hh = String(dateObj.getHours()).padStart(2, "0");
+                const mi = String(dateObj.getMinutes()).padStart(2, "0");
+                return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+            }
+
+            function escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/\"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function updateReadyCounter() {
+                const readyCount = state.jobs.filter((job) => job.status === "ready").length;
+                jobReadyCount.textContent = String(readyCount);
+                jobReadyCount.classList.toggle("show", readyCount > 0);
+            }
+
+            function renderJobs() {
+                updateReadyCounter();
+
+                if (state.jobs.length === 0) {
+                    exportList.innerHTML = '<div class="export-empty">No export tasks yet.</div>';
+                    return;
+                }
+
+                exportList.innerHTML = state.jobs.map((job) => {
+                    const statusInfo = statusMap[job.status] || statusMap.queued;
+                    const scopeLabel = scopeLabelMap[job.scopeResolved] || "Current Tab";
+                    const actionButton = job.status === "ready"
+                        ? `<button class="download-btn" data-action="download" data-id="${job.id}" type="button">Download</button>`
+                        : '<span></span>';
+
+                    return `
+                        <div class="export-item">
+                            <div class="export-item-head">
+                                <p class="export-name">${escapeHtml(job.fileName)}</p>
+                                <span class="job-status ${statusInfo.className}">${statusInfo.text}</span>
+                            </div>
+                            <p class="export-meta">${scopeLabel} | ${job.format.toUpperCase()} | ${escapeHtml(job.range)}</p>
+                            <div class="job-progress">
+                                <div class="job-progress-bar" style="width:${job.progress}%"></div>
+                            </div>
+                            <div class="export-actions">
+                                <span class="export-time">Created at ${escapeHtml(job.createdAt)}</span>
+                                ${actionButton}
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            }
+
+            function getCellText(cell) {
+                if (!cell) {
+                    return "";
+                }
+                return cell.textContent.replace(/\s+/g, " ").trim();
+            }
+
+            function extractRowsFromTbody(selector) {
+                return Array.from(document.querySelectorAll(`${selector} tr`)).map((row) => {
+                    const cells = row.querySelectorAll("td");
+                    return {
+                        datetime: getCellText(cells[0]),
+                        invoice: getCellText(cells[1]),
+                        pan: getCellText(cells[2]),
+                        approval: getCellText(cells[3]),
+                        type: getCellText(cells[4]),
+                        amount: getCellText(cells[5]),
+                        currency: getCellText(cells[6]),
+                        mid: getCellText(cells[7]),
+                        tid: getCellText(cells[8])
+                    };
+                });
+            }
+
+            function getExportRows(scope) {
+                let effectiveScope = scope;
+                if (scope === "current") {
+                    effectiveScope = state.activeTab;
+                }
+
+                const completedData = extractRowsFromTbody(".completed-rows");
+                const failedData = extractRowsFromTbody(".failed-rows");
+
+                if (effectiveScope === "completed") {
+                    return completedData;
+                }
+                if (effectiveScope === "failed") {
+                    return failedData;
+                }
+                return completedData.concat(failedData);
+            }
+
+            function buildCsv(rows) {
+                const headers = ["DateTime", "Invoice", "CardPAN", "ApprovalCode", "Type", "Amount", "Currency", "MID", "TID"];
+                const csvRows = rows.map((row) => {
+                    const values = [row.datetime, row.invoice, row.pan, row.approval, row.type, row.amount, row.currency, row.mid, row.tid];
+                    return values.map((value) => `"${String(value).replace(/"/g, "\"\"")}"`).join(",");
+                });
+                return [headers.join(","), ...csvRows].join("\n");
+            }
+
+            function downloadJob(jobId) {
+                const job = state.jobs.find((item) => item.id === jobId);
+                if (!job || job.status !== "ready") {
+                    return;
+                }
+
+                const rows = getExportRows(job.scopeResolved);
+                let payload;
+                let mimeType;
+
+                if (job.format === "json") {
+                    payload = JSON.stringify(rows, null, 2);
+                    mimeType = "application/json;charset=utf-8";
+                } else {
+                    payload = buildCsv(rows);
+                    mimeType = "text/csv;charset=utf-8";
+                }
+
+                const blob = new Blob([payload], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = job.fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                job.status = "downloaded";
+                renderJobs();
+                showToast("Export downloaded.");
+            }
+
+            function createExportJob() {
+                const now = new Date();
+                const scope = exportScope.value;
+                const format = exportFormat.value;
+                const range = exportRange.value || (dateRangeText ? dateRangeText.textContent.trim() : "");
+                const effectiveScope = scope === "current" ? state.activeTab : scope;
+                const fileName = `transactions_${effectiveScope}_${formatTimestamp(now)}.${format}`;
+
+                const job = {
+                    id: state.nextId++,
+                    scope,
+                    scopeResolved: effectiveScope,
+                    format,
+                    range,
+                    fileName,
+                    createdAt: formatDisplayTime(now),
+                    status: "queued",
+                    progress: 8
+                };
+
+                state.jobs.unshift(job);
+                renderJobs();
+                closeExportModal();
+                toggleExportDrawer(true);
+                showToast("Export task queued. It will be generated in background.");
+
+                window.setTimeout(() => {
+                    job.status = "processing";
+                    job.progress = 55;
+                    renderJobs();
+                }, 1200);
+
+                window.setTimeout(() => {
+                    job.status = "ready";
+                    job.progress = 100;
+                    renderJobs();
+                    showToast("Export ready. Open Export Tasks to download.");
+                }, 4200);
+            }
+
+            tabs.forEach((tab) => {
+                tab.addEventListener("click", () => {
+                    switchTab(tab.dataset.target);
+                });
+            });
+
+            openExportModalBtn.addEventListener("click", openExportModal);
+            closeExportModalBtn.addEventListener("click", closeExportModal);
+            cancelExportBtn.addEventListener("click", closeExportModal);
+            queueExportBtn.addEventListener("click", createExportJob);
+
+            exportActionBtn.addEventListener("click", () => {
+                toggleActionMenu();
+            });
+
+            toggleExportDrawerBtn.addEventListener("click", () => {
+                closeActionMenu();
+                toggleExportDrawer();
+            });
+
+            clearDoneJobsBtn.addEventListener("click", () => {
+                state.jobs = state.jobs.filter((job) => job.status !== "downloaded");
+                renderJobs();
+            });
+
+            exportList.addEventListener("click", (event) => {
+                const target = event.target.closest("button[data-action='download']");
+                if (!target) {
+                    return;
+                }
+                const id = Number(target.dataset.id);
+                downloadJob(id);
+            });
+
+            exportModal.addEventListener("click", (event) => {
+                if (event.target === exportModal) {
+                    closeExportModal();
+                }
+            });
+
+            document.addEventListener("click", (event) => {
+                const target = event.target;
+                if (!exportDrawer.classList.contains("show")) {
+                    if (!exportActionWrap.contains(target)) {
+                        closeActionMenu();
+                    }
+                    return;
+                }
+                if (exportDrawer.contains(target) || exportActionWrap.contains(target)) {
+                    return;
+                }
+                closeActionMenu();
+                toggleExportDrawer(false);
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeActionMenu();
+                    closeExportModal();
+                    toggleExportDrawer(false);
+                }
+            });
+
+            switchTab("completed");
+            renderJobs();
+        })();
+    </script>
+</body>
+</html>
+
+
