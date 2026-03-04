@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lead - wizarPOS Onboarding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef2ff;
+      --bg-accent: #fdf6ff;
+      --card: #ffffff;
+      --ink: #101828;
+      --muted: #667085;
+      --primary: #1f4bb8;
+      --primary-dark: #17398b;
+      --primary-soft: #e7edff;
+      --stroke: #e4e7ec;
+      --danger: #e4483d;
+      --shadow: 0 18px 40px rgba(27, 43, 94, 0.12);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Sora", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 15%, rgba(124, 150, 255, 0.28), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(255, 172, 210, 0.28), transparent 40%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-accent) 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: clamp(24px, 4vw, 56px) clamp(18px, 4vw, 48px) 64px;
+    }
+
+    .hero {
+      margin-bottom: clamp(32px, 6vw, 52px);
+    }
+
+    .hero-panel {
+      position: relative;
+      padding: clamp(24px, 4vw, 38px);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-panel::before,
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .hero-panel::before {
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(124, 150, 255, 0.45), transparent 70%);
+      top: -30px;
+      right: -30px;
+    }
+
+    .hero-panel::after {
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255, 172, 210, 0.4), transparent 70%);
+      bottom: -60px;
+      left: -50px;
+    }
+
+    .hero-text h1 {
+      margin: 0 0 16px;
+      font-size: clamp(32px, 4vw, 44px);
+      letter-spacing: -0.02em;
+      color: #1d2e7a;
+    }
+
+    .hero-text p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .hero-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(228, 231, 236, 0.9);
+      padding: clamp(20px, 3vw, 28px);
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d2e7a;
+      margin: 0 0 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #344054;
+    }
+
+    .required {
+      color: var(--danger);
+      margin-right: 4px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--stroke);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #8aa6ff;
+      box-shadow: 0 0 0 3px rgba(31, 75, 184, 0.16);
+    }
+
+    input[readonly] {
+      background: #f5f7ff;
+      color: #1d2e7a;
+      border-color: #cbd5ff;
+      font-weight: 600;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    .hint {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .action {
+      display: flex;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    .action.action-split {
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      border: none;
+      background: linear-gradient(135deg, #1f4bb8, #3f74ff);
+      color: #fff;
+      padding: 12px 32px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 12px 24px rgba(31, 75, 184, 0.24);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-secondary {
+      border: 1.5px solid #c9d6ff;
+      background: #f4f6ff;
+      color: #1d2e7a;
+      padding: 11px 28px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(31, 75, 184, 0.12);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(31, 75, 184, 0.28);
+    }
+
+    .label-note {
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .inline-error {
+      color: var(--danger);
+      display: none;
+    }
+
+    .inline-error.is-visible {
+      display: block;
+    }
+
+    .input-error {
+      border-color: rgba(228, 72, 61, 0.7);
+      box-shadow: 0 0 0 3px rgba(228, 72, 61, 0.12);
+    }
+
+    .step[hidden] {
+      display: none;
+    }
+
+    .success-card {
+      text-align: center;
+    }
+
+    .success-card h2 {
+      margin-bottom: 12px;
+    }
+
+    .success-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .fade-up {
+      animation: fadeUp 0.8s ease both;
+      animation-delay: var(--delay, 0ms);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 680px) {
+      .hero-panel {
+        padding: 22px;
+        border-radius: 22px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .btn-primary {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero fade-up" style="--delay: 50ms;" id="hero-panel">
+      <div class="hero-panel">
+        <div class="hero-text">
+          <h1>Hi There!</h1>
+          <p>
+            Thank you for choosing wizarPOS to streamline your payment processes! We're
+            excited to support you at every step and ensure a smooth experience for your
+            business.
+          </p>
+          <p>
+            To begin the onboarding process, please fill out the information below. Our
+            onboarding team will review your details and reach out to you as soon as possible
+            to guide you through the next steps.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <form id="lead-form" novalidate>
+      <div class="step" data-step="1">
+        <section class="card fade-up" style="--delay: 120ms;">
+          <h2 class="section-title">1. Basic Information</h2>
+          <div class="form-grid">
+            <div>
+              <label for="device-sn"><span class="required">*</span>Activate Device SN</label>
+              <input id="device-sn" name="device-sn" type="text" value="WP4420PQ29000020" readonly />
+              <p class="hint">Auto-detected from the current device.</p>
+            </div>
+
+            <div>
+              <label for="contact"><span class="required">*</span>Contact Name</label>
+              <input id="contact" name="contact" type="text" placeholder="Contact Name" required />
+              <p class="hint">Fill in the merchant's contact name.</p>
+            </div>
+
+            <div>
+              <label for="email">Email<span class="label-note">either email or phone</span></label>
+              <input id="email" name="email" type="email" placeholder="name@company.com" aria-describedby="contact-error" />
+              <p class="hint">Enter the contact's email address. Make sure there are no spaces before or after the address.</p>
+            </div>
+
+            <div>
+              <label for="phone">Phone<span class="label-note">either email or phone</span></label>
+              <input id="phone" name="phone" type="tel" placeholder="+11234567890" aria-describedby="contact-error" />
+              <p class="hint">Enter the contact's mobile number, e.g., +11234567890. Do not include spaces.</p>
+              <p class="hint inline-error" id="contact-error" role="alert" aria-live="polite">
+                Please provide either an email or a phone number.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <div class="action fade-up" style="--delay: 200ms;">
+          <button class="btn-primary" type="button" id="next-btn">Get Started</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="2" hidden>
+        <section class="card fade-up" style="--delay: 120ms;">
+          <h2 class="section-title">2. Detailed Information</h2>
+          <div class="form-grid">
+            <div>
+              <label for="country">Country</label>
+              <select id="country" name="country">
+                <option value="" selected>Please Select</option>
+                <option value="us">United States</option>
+                <option value="ca">Canada</option>
+                <option value="gb">United Kingdom</option>
+                <option value="my">Malaysia</option>
+              </select>
+              <p class="hint">(Optional) Enter the English letters of the shipping country, or select from the dropdown.</p>
+            </div>
+
+            <div>
+              <label for="region">State/Province/Region</label>
+              <select id="region" name="region">
+                <option value="" selected>State/Province/Region</option>
+                <option value="region-1">Region 1</option>
+                <option value="region-2">Region 2</option>
+                <option value="region-3">Region 3</option>
+              </select>
+              <p class="hint">(Optional) Select the province where the merchant is located.</p>
+            </div>
+
+            <div>
+              <label for="merchant">Merchant Name</label>
+              <input id="merchant" name="merchant" type="text" placeholder="Merchant Name" />
+              <p class="hint">(Optional) Fill in the merchant name.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="action action-split fade-up" style="--delay: 200ms;">
+          <button class="btn-secondary" type="button" id="skip-btn">Skip</button>
+          <button class="btn-primary" type="button" id="submit-btn">Submit</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="3" hidden>
+        <section class="card fade-up success-card" style="--delay: 120ms;">
+          <h2 class="section-title">Submission Successful</h2>
+          <p>Thanks for sharing your information. Our team will contact you soon to help with account opening.</p>
+        </section>
+      </div>
+    </form>
+  </main>
+  <script>
+    const steps = Array.from(document.querySelectorAll(".step"));
+    const stepById = new Map(steps.map((step) => [step.dataset.step, step]));
+    const heroPanel = document.querySelector("#hero-panel");
+    const contactField = document.querySelector("#contact");
+    const emailField = document.querySelector("#email");
+    const phoneField = document.querySelector("#phone");
+    const contactError = document.querySelector("#contact-error");
+
+    const setContactError = (message) => {
+      if (!message) {
+        contactError.classList.remove("is-visible");
+        contactError.textContent = "Please provide either an email or a phone number.";
+        emailField.classList.remove("input-error");
+        phoneField.classList.remove("input-error");
+        return;
+      }
+
+      contactError.textContent = message;
+      contactError.classList.add("is-visible");
+      emailField.classList.add("input-error");
+      phoneField.classList.add("input-error");
+    };
+
+    const showStep = (stepId) => {
+      steps.forEach((step) => {
+        step.hidden = step.dataset.step !== stepId;
+      });
+      heroPanel.hidden = stepId !== "1";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    document.querySelector("#next-btn").addEventListener("click", () => {
+      setContactError("");
+
+      if (!contactField.checkValidity()) {
+        contactField.reportValidity();
+        return;
+      }
+
+      const emailValue = emailField.value.trim();
+      const phoneValue = phoneField.value.trim();
+
+      if (!emailValue && !phoneValue) {
+        setContactError("Please provide either an email or a phone number.");
+        return;
+      }
+
+      if (emailValue && !emailField.checkValidity()) {
+        emailField.reportValidity();
+        return;
+      }
+
+      showStep("2");
+    });
+
+    document.querySelector("#skip-btn").addEventListener("click", () => {
+      showStep("3");
+    });
+
+    document.querySelector("#submit-btn").addEventListener("click", () => {
+      showStep("3");
+    });
+
+    const clearContactError = () => {
+      if (emailField.value.trim() || phoneField.value.trim()) {
+        setContactError("");
+      }
+    };
+
+    emailField.addEventListener("input", clearContactError);
+    phoneField.addEventListener("input", clearContactError);
+  </script>
+</body>
+</html>
