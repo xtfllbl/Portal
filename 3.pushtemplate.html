@@ -534,11 +534,11 @@
         .input-lg{ flex:1; width:100%; padding:14px 16px; border:1px solid var(--border-color); border-radius:14px; font-size:14px; }
         .input-lg:focus{ outline:none; border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.10); }
         .radio{ width:16px; height:16px; }
-        .search{ width:260px; max-width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:13px; }
+        .sync-apps-btn{ min-width:92px; justify-content:center; letter-spacing:.04em; }
         .muted{ color: var(--text-secondary); font-size:12px; }
         @media (max-width: 720px){
             .section-head{ flex-direction:column; align-items:stretch; }
-            .search{ width:100%; }
+            .sync-apps-btn{ align-self:flex-start; }
         }
         @media (max-width: 640px){
             .app-grid{ grid-template-columns:1fr; }
@@ -741,7 +741,7 @@
                             <h5>Supported Apps</h5>
                             <p class="section-note">Choose a payment app to start.</p>
                         </div>
-                        <input type="text" id="appSearch" class="search" placeholder="Search apps">
+                        <button type="button" id="syncAppsBtn" class="btn btn-ghost btn-sm sync-apps-btn">SYNC</button>
                     </div>
                     <div class="app-grid" id="allApps">
                         <label class="app-item">
@@ -1005,7 +1005,7 @@
             const cancelCreate = document.getElementById('cancelCreate');
             const continueCreate = document.getElementById('continueCreate');
             const allApps = document.getElementById('allApps');
-            const appSearch = document.getElementById('appSearch');
+            const syncAppsBtn = document.getElementById('syncAppsBtn');
             const templateNameInput = document.getElementById('templateNameInput');
             const selectedAppLabel = document.getElementById('selectedAppLabel');
             const appVersionSelect = document.getElementById('appVersionSelect');
@@ -1101,6 +1101,63 @@
                     const isChecked = input && input.checked;
                     item.classList.toggle("selected", !!isChecked);
                 });
+            }
+
+            function renderAppCards(appNames){
+                allApps.innerHTML = "";
+                const fragment = document.createDocumentFragment();
+                appNames.forEach((appName)=>{
+                    const item = document.createElement("label");
+                    item.className = "app-item";
+
+                    const left = document.createElement("div");
+                    left.className = "app-left";
+
+                    const input = document.createElement("input");
+                    input.type = "radio";
+                    input.name = "chooseApp";
+                    input.className = "radio";
+                    input.value = appName;
+
+                    const textWrap = document.createElement("div");
+                    const nameEl = document.createElement("div");
+                    nameEl.className = "app-name";
+                    nameEl.textContent = appName;
+
+                    const subEl = document.createElement("div");
+                    subEl.className = "app-sub";
+                    subEl.textContent = "Parameter App";
+
+                    textWrap.appendChild(nameEl);
+                    textWrap.appendChild(subEl);
+                    left.appendChild(input);
+                    left.appendChild(textWrap);
+                    item.appendChild(left);
+                    fragment.appendChild(item);
+                });
+                allApps.appendChild(fragment);
+            }
+
+            function syncAppList(){
+                const existingAppNames = Array.from(allApps.querySelectorAll("input[type=radio]")).map((input)=> input.value);
+                const mergedAppNames = [...existingAppNames];
+                Object.keys(appCatalog).forEach((name)=>{
+                    if(!mergedAppNames.includes(name)){
+                        mergedAppNames.push(name);
+                    }
+                });
+
+                renderAppCards(mergedAppNames);
+
+                if(selectedAppName && mergedAppNames.includes(selectedAppName)){
+                    const selectedRadio = Array.from(allApps.querySelectorAll("input[type=radio]")).find((input)=> input.value === selectedAppName);
+                    if(selectedRadio){
+                        selectedRadio.checked = true;
+                    }
+                    syncAppCardSelection();
+                } else {
+                    clearChoice();
+                }
             }
 
             function clearChoice(){
@@ -1250,14 +1307,9 @@
                 window.location.href = url;
             });
 
-            // Filter apps by search
-            appSearch.addEventListener("input", ()=>{
-                const q = appSearch.value.toLowerCase();
-                allApps.querySelectorAll(".app-item").forEach(item=>{
-                    const name = item.querySelector(".app-name").textContent.toLowerCase();
-                    item.style.display = name.includes(q) ? "" : "none";
-                });
-            });
+            if(syncAppsBtn){
+                syncAppsBtn.addEventListener("click", syncAppList);
+            }
 
             bindRowCheckboxes();
             updateBulkState();
