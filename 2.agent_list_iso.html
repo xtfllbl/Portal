@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent List</title>
+  <style>
+    :root {
+      --bg: #f2f3f5;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --black: #111111;
+      --success-bg: #d9f6e4;
+      --success-text: #148047;
+      --danger-bg: #ffe8e6;
+      --danger-text: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .sidebar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .brand {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand .name {
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      transform: scaleX(0.84);
+      transform-origin: left center;
+      display: inline-block;
+    }
+    .brand .sub {
+      margin-top: 4px;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      font-size: 12px;
+    }
+
+    .nav {
+      padding: 10px;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: default;
+      color: #111;
+    }
+    .menu-item.active {
+      background: #1e1f24;
+      color: #fff;
+      font-weight: 600;
+    }
+    .sub-menu {
+      margin: 6px 0 10px 24px;
+      display: grid;
+      gap: 4px;
+    }
+    .sub-item {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #4b5563;
+      font-size: 14px;
+      width: fit-content;
+    }
+    .sub-item.active {
+      background: #1e1f24;
+      color: #fff;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar,
+    .crumb,
+    .content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .topbar {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 18px;
+      gap: 12px;
+    }
+    .badge-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      position: relative;
+    }
+    .badge-btn .badge {
+      position: absolute;
+      top: -8px;
+      right: -7px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: 700;
+    }
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #0b0b0f;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .crumb {
+      padding: 21px 18px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      font-size: 14px;
+    }
+    .crumb b { color: #111; }
+
+    .content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .toolbar-left {
+      display: grid;
+      gap: 8px;
+    }
+    .scope-hint {
+      font-size: 13px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fafafa;
+      padding: 7px 10px;
+    }
+    .toolbar-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input {
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      min-width: 220px;
+      font-size: 14px;
+      background: #fff;
+    }
+    .input:focus {
+      outline: 2px solid rgba(17, 17, 17, 0.16);
+      border-color: #111;
+    }
+
+    .btn {
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 0 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn.black {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+    thead th {
+      background: #111319;
+      color: #fff;
+      text-align: left;
+      padding: 15px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+      color: #374151;
+      vertical-align: middle;
+    }
+    tbody tr:hover { background: #fafafa; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .status-pill.enable {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+    .status-pill.disable {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #4b5563;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .icon-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: #f9fafb;
+    }
+    .icon-btn.dark {
+      background: #0b0b0f;
+      color: #fff;
+      border-color: #0b0b0f;
+    }
+    .name-tree {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .tree-branch {
+      width: 12px;
+      color: #9ca3af;
+      flex: 0 0 12px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+      width: min(920px, calc(100vw - 24px));
+      max-height: calc(100vh - 32px);
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      flex: 0 0 auto;
+      background: #fff;
+    }
+    .modal-title { font-size: 24px; line-height: 1.2; }
+    .modal-form { min-height: 0; display: flex; flex-direction: column; }
+    .modal-body {
+      padding: 18px 20px 12px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      overflow: auto;
+      max-height: calc(100vh - 210px);
+    }
+    .modal-body .full { grid-column: 1 / -1; }
+    .form-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 16px;
+    }
+    .form-section.scope {
+      background: #fafafa;
+    }
+    .section-title {
+      grid-column: 1 / -1;
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #374151;
+      font-weight: 600;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 14px;
+      background: #fff;
+    }
+    .field select[multiple] {
+      min-height: 108px;
+      padding: 10px 12px;
+    }
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid rgba(17, 17, 17, 0.16);
+      border-color: #111;
+    }
+    .help {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .modal-foot {
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex: 0 0 auto;
+      background: #fff;
+    }
+
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { max-height: 280px; }
+      .toolbar-right { width: 100%; }
+      .input { flex: 1; min-width: 120px; }
+    }
+    @media (max-width: 720px) {
+      .modal-title { font-size: 20px; }
+      .modal-body {
+        padding: 14px;
+        max-height: calc(100vh - 190px);
+      }
+      .form-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="name">PAYwizard</div>
+        <div class="sub">SANDBOX</div>
+      </div>
+      <div class="nav">
+        <div class="menu-item">Dashboard</div>
+        <div class="menu-item">Transactions</div>
+        <div class="menu-item active">Agents <span>v</span></div>
+        <div class="sub-menu">
+          <div class="sub-item active">Agent List</div>
+          <div class="sub-item">Analytics</div>
+        </div>
+        <div class="menu-item">Merchants</div>
+        <div class="menu-item">Partners</div>
+        <div class="menu-item">Device Management</div>
+        <div class="menu-item">User Management</div>
+        <div class="menu-item">Settings</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="badge-btn" aria-label="Notifications">
+          Bell
+          <span class="badge">29</span>
+        </button>
+        <div class="avatar" aria-label="User">U</div>
+      </header>
+
+      <section class="crumb">AGENTS &nbsp;&gt;&nbsp; <b>AGENT LIST</b></section>
+
+      <section class="content">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="scope-hint" id="scopeHint"></div>
+          </div>
+          <div class="toolbar-right">
+            <input class="input" id="searchName" type="text" placeholder="Reseller Name">
+            <button class="btn" id="resetSearch">Reset</button>
+            <button class="btn black" id="doSearch">Search</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Reseller Name</th>
+                <th>Reseller Level</th>
+                <th>Reseller Contacts</th>
+                <th>Reseller Email</th>
+                <th>Status</th>
+                <th>Date &amp; Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="agentTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="createMask" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <span class="modal-title">Create Reseller</span>
+        <button class="btn" id="closeCreate">Close</button>
+      </div>
+      <form id="createForm" class="modal-form">
+        <div class="modal-body">
+          <section class="form-section scope">
+            <h4 class="section-title">Creation Scope</h4>
+            <div class="field">
+              <label for="parentResellerDisplay">Parent Reseller</label>
+              <input id="parentResellerDisplay" type="text" readonly>
+            </div>
+            <div class="field">
+              <label for="resellerLevel">New Reseller Level</label>
+              <input id="resellerLevel" type="text" readonly>
+            </div>
+            <input id="parentReseller" type="hidden" required>
+          </section>
+
+          <section class="form-section">
+            <h4 class="section-title">Basic Information</h4>
+            <div class="field">
+              <label for="resellerName">Reseller Name *</label>
+              <input id="resellerName" type="text" required placeholder="e.g. Future Pay Hub">
+            </div>
+            <div class="field">
+              <label for="resellerContact">Contact Person *</label>
+              <input id="resellerContact" type="text" required placeholder="e.g. Alex Cooper">
+            </div>
+            <div class="field">
+              <label for="resellerContactInfo">Contact Information *</label>
+              <input id="resellerContactInfo" type="text" required placeholder="e.g. +1 415 555 1000">
+            </div>
+            <div class="field">
+              <label for="resellerEmail">Reseller Email *</label>
+              <input id="resellerEmail" type="email" required placeholder="e.g. alex@futurepay.com">
+            </div>
+            <div class="field">
+              <label for="resellerAuthorization">Reseller Authorization *</label>
+              <select id="resellerAuthorization" required>
+                <option value="AGT-ADMIN">AGT-ADMIN</option>
+                <option value="AGT-MANAGER">AGT-MANAGER</option>
+                <option value="AGT-OPS">AGT-OPS</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h4 class="section-title">Cooperation & Region</h4>
+            <div class="field">
+              <label for="cooperationStart">Cooperation Start Time *</label>
+              <input id="cooperationStart" type="datetime-local" required>
+            </div>
+            <div class="field">
+              <label for="resellerTerm">Reseller Term (Years) *</label>
+              <input id="resellerTerm" type="number" min="1" required value="1">
+            </div>
+            <div class="field">
+              <label for="resellerCountry">Country or Region *</label>
+              <select id="resellerCountry" required>
+                <option value="">Select Country</option>
+                <option value="United States">United States</option>
+                <option value="Canada">Canada</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Australia">Australia</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="resellerState">State/Province/Region</label>
+              <input id="resellerState" type="text" placeholder="e.g. California">
+            </div>
+            <div class="field">
+              <label for="resellerCity">City/Town</label>
+              <input id="resellerCity" type="text" placeholder="e.g. San Francisco">
+            </div>
+            <div class="field">
+              <label for="resellerMcc">MCC (Multiple selections allowed) *</label>
+              <select id="resellerMcc" multiple required>
+                <option value="5411">5411 - Grocery Stores</option>
+                <option value="5812">5812 - Eating Places</option>
+                <option value="5814">5814 - Fast Food Restaurants</option>
+                <option value="5499">5499 - Misc Food Stores</option>
+                <option value="5999">5999 - Misc Retail</option>
+              </select>
+            </div>
+          </section>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" id="cancelCreate">Cancel</button>
+          <button type="submit" class="btn black" id="submitCreate">Create Reseller</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var currentAccount = {
+        role: "service_provider",
+        manageableParentLevels: [1, 2],
+        resellerId: null
+      };
+
+      var agents = [
+        { id: "r-agenttest", name: "agenttest", level: 1, contact: "Beaver", email: "xtfllb@gmail2.com", status: "Enable", createdAt: "2026-03-04 23:13:26", parentId: "" },
+        { id: "r-zhongdazn", name: "zhongdazn", level: 1, contact: "zhongdazn", email: "admin@zhongdazn.com", status: "Enable", createdAt: "2025-06-23 15:41:32", parentId: "" },
+        { id: "sr-twoagent", name: "twoAgent", level: 2, contact: "twoAgent", email: "twoAgent@qq.com", status: "Enable", createdAt: "2025-01-14 17:10:46", parentId: "r-agenttest" },
+        { id: "sr-agdd", name: "agdd", level: 2, contact: "agdd", email: "agdd@qq.com", status: "Enable", createdAt: "2025-01-14 17:05:25", parentId: "r-agenttest" },
+        { id: "sr-angwinmg", name: "123456789012345678901234567890", level: 2, contact: "angwinmg", email: "188282@qq.com", status: "Enable", createdAt: "2025-01-14 15:36:11", parentId: "r-zhongdazn" },
+        { id: "sr-ageindgmin11", name: "ageindgmin11", level: 2, contact: "wangming", email: "zetrev@bqail.com", status: "Enable", createdAt: "2025-01-09 18:47:04", parentId: "r-zhongdazn" },
+        { id: "s3-oneleaveagent", name: "OneLeaveAgent", level: 3, contact: "YIDLS", email: "ziccaj@bqail.com", status: "Enable", createdAt: "2025-01-09 10:04:57", parentId: "sr-agdd" },
+        { id: "s3-agent", name: "Agent", level: 3, contact: "test", email: "dzw@test.com", status: "Enable", createdAt: "2024-10-22 10:39:55", parentId: "sr-twoagent" }
+      ];
+
+      var searchText = "";
+      var tableBody = document.getElementById("agentTableBody");
+      var scopeHint = document.getElementById("scopeHint");
+      var searchName = document.getElementById("searchName");
+      var doSearch = document.getElementById("doSearch");
+      var resetSearch = document.getElementById("resetSearch");
+
+      var createMask = document.getElementById("createMask");
+      var closeCreate = document.getElementById("closeCreate");
+      var cancelCreate = document.getElementById("cancelCreate");
+      var createForm = document.getElementById("createForm");
+      var parentReseller = document.getElementById("parentReseller");
+      var parentResellerDisplay = document.getElementById("parentResellerDisplay");
+      var resellerName = document.getElementById("resellerName");
+      var resellerLevel = document.getElementById("resellerLevel");
+      var resellerContact = document.getElementById("resellerContact");
+      var resellerContactInfo = document.getElementById("resellerContactInfo");
+      var resellerEmail = document.getElementById("resellerEmail");
+      var resellerAuthorization = document.getElementById("resellerAuthorization");
+      var cooperationStart = document.getElementById("cooperationStart");
+      var resellerTerm = document.getElementById("resellerTerm");
+      var resellerCountry = document.getElementById("resellerCountry");
+      var resellerState = document.getElementById("resellerState");
+      var resellerCity = document.getElementById("resellerCity");
+      var resellerMcc = document.getElementById("resellerMcc");
+      var submitCreate = document.getElementById("submitCreate");
+      var createContext = {
+        parentId: "",
+        lockParent: false
+      };
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function nowString() {
+        var d = new Date();
+        var pad = function (v) { return String(v).padStart(2, "0"); };
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+      }
+
+      function nowLocalDatetimeValue() {
+        var d = new Date();
+        var pad = function (v) { return String(v).padStart(2, "0"); };
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+      }
+
+      function getScopeText() {
+        if (currentAccount.role === "service_provider") {
+          return "Current account: Service Provider. You can create child resellers under Level 1 and Level 2 resellers.";
+        }
+        if (currentAccount.role === "reseller") {
+          return "Current account: Reseller. You can only create child resellers under your own account.";
+        }
+        return "Current account: Read-only.";
+      }
+
+      function canCreateUnder(parentAgent) {
+        if (!parentAgent) return false;
+        if (currentAccount.role === "service_provider") {
+          return currentAccount.manageableParentLevels.indexOf(parentAgent.level) !== -1;
+        }
+        if (currentAccount.role === "reseller") {
+          return parentAgent.id === currentAccount.resellerId;
+        }
+        return false;
+      }
+
+      function getAgentById(id) {
+        return agents.find(function (a) { return a.id === id; });
+      }
+
+      function buildHierarchyOrder() {
+        var byParent = {};
+        agents.forEach(function (agent) {
+          var key = agent.parentId || "__root__";
+          if (!byParent[key]) byParent[key] = [];
+          byParent[key].push(agent);
+        });
+        var ordered = [];
+        function walk(parentId) {
+          var key = parentId || "__root__";
+          var children = byParent[key] || [];
+          children.forEach(function (child) {
+            ordered.push(child);
+            walk(child.id);
+          });
+        }
+        walk("");
+        return ordered;
+      }
+
+      function getVisibleRows() {
+        var ordered = buildHierarchyOrder();
+        if (!searchText) return ordered;
+
+        var matched = ordered.filter(function (agent) {
+          return agent.name.toLowerCase().indexOf(searchText) !== -1;
+        });
+        var includeIds = {};
+        matched.forEach(function (agent) {
+          var cur = agent;
+          while (cur) {
+            includeIds[cur.id] = true;
+            cur = cur.parentId ? getAgentById(cur.parentId) : null;
+          }
+        });
+        return ordered.filter(function (agent) { return !!includeIds[agent.id]; });
+      }
+
+      function renderAgentName(agent) {
+        var indent = Math.max(0, agent.level - 1) * 24;
+        var branch = agent.level > 1 ? "|-" : "";
+        return "<div class='name-tree' style='padding-left:" + indent + "px'><span class='tree-branch'>" + branch + "</span><span>" + escapeHtml(agent.name) + "</span></div>";
+      }
+
+      function renderScopeHints() {
+        var txt = getScopeText();
+        scopeHint.textContent = txt;
+      }
+
+      function renderTable() {
+        var rows = getVisibleRows();
+        if (!rows.length) {
+          tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:30px;'>No reseller found.</td></tr>";
+          return;
+        }
+        tableBody.innerHTML = rows.map(function (agent) {
+          var statusClass = agent.status === "Enable" ? "enable" : "disable";
+          var canCreateChild = canCreateUnder(agent);
+          var createTitle = canCreateChild ? "Create child reseller under " + agent.name : "No permission to create child reseller under this agent";
+          return [
+            "<tr>",
+            "<td>" + renderAgentName(agent) + "</td>",
+            "<td>" + agent.level + "</td>",
+            "<td>" + escapeHtml(agent.contact) + "</td>",
+            "<td>" + escapeHtml(agent.email) + "</td>",
+            "<td><span class='status-pill " + statusClass + "'>" + escapeHtml(agent.status) + "</span></td>",
+            "<td>" + escapeHtml(agent.createdAt) + "</td>",
+            "<td>",
+            "<div class='actions'>",
+            "<button class='icon-btn' data-action='create-child' data-id='" + agent.id + "' title='" + escapeHtml(createTitle) + "'" + (canCreateChild ? "" : " disabled") + ">+</button>",
+            "<button class='icon-btn' data-action='view' data-id='" + agent.id + "' title='View'>#</button>",
+            "<button class='icon-btn' data-action='edit' data-id='" + agent.id + "' title='Edit'>E</button>",
+            "<button class='icon-btn' data-action='toggle' data-id='" + agent.id + "' title='Enable/Disable'>X</button>",
+            "<button class='icon-btn dark' data-action='setting' data-id='" + agent.id + "' title='Settings'>S</button>",
+            "<button class='icon-btn' data-action='reset' data-id='" + agent.id + "' title='Reset'>R</button>",
+            "</div>",
+            "</td>",
+            "</tr>"
+          ].join("");
+        }).join("");
+      }
+
+      function openCreateModal(parentId, lockParent) {
+        if (createForm) createForm.reset();
+        if (resellerAuthorization) resellerAuthorization.value = "AGT-ADMIN";
+        if (resellerTerm) resellerTerm.value = "1";
+        if (cooperationStart) cooperationStart.value = nowLocalDatetimeValue();
+        createContext.parentId = parentId || "";
+        createContext.lockParent = !!lockParent;
+        if (!applyCreationScope(createContext.parentId)) {
+          alert("Cannot determine parent reseller for this creation.");
+          return;
+        }
+        createMask.classList.add("show");
+        createMask.setAttribute("aria-hidden", "false");
+        resellerName.focus();
+      }
+
+      function closeCreateModal() {
+        createMask.classList.remove("show");
+        createMask.setAttribute("aria-hidden", "true");
+      }
+
+      function applyCreationScope(parentId) {
+        var parent = getAgentById(parentId);
+        if (!parent || !canCreateUnder(parent)) {
+          parentReseller.value = "";
+          if (parentResellerDisplay) parentResellerDisplay.value = "";
+          if (resellerLevel) resellerLevel.value = "--";
+          submitCreate.disabled = true;
+          return false;
+        }
+        parentReseller.value = parent.id;
+        if (parentResellerDisplay) {
+          parentResellerDisplay.value = parent.name + " (L" + parent.level + ")";
+        }
+        if (resellerLevel) {
+          resellerLevel.value = "L" + (parent.level + 1);
+        }
+        submitCreate.disabled = false;
+        return true;
+      }
+
+      function buildId(name) {
+        var slug = String(name || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        if (!slug) slug = "reseller";
+        return "sr-" + slug.slice(0, 16) + "-" + String(Date.now()).slice(-6);
+      }
+
+      doSearch.addEventListener("click", function () {
+        searchText = searchName.value.trim().toLowerCase();
+        renderTable();
+      });
+
+      resetSearch.addEventListener("click", function () {
+        searchText = "";
+        searchName.value = "";
+        renderTable();
+      });
+
+      searchName.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          doSearch.click();
+        }
+      });
+
+      closeCreate.addEventListener("click", closeCreateModal);
+      cancelCreate.addEventListener("click", closeCreateModal);
+      createMask.addEventListener("click", function (e) {
+        if (e.target === createMask) closeCreateModal();
+      });
+
+      tableBody.addEventListener("click", function (e) {
+        var btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+        var id = btn.getAttribute("data-id");
+        var action = btn.getAttribute("data-action");
+        var target = agents.find(function (a) { return a.id === id; });
+        if (!target) return;
+
+        if (action === "create-child") {
+          if (!canCreateUnder(target)) {
+            alert("Current account does not have permission to create child reseller under " + target.name + ".");
+            return;
+          }
+          openCreateModal(target.id, true);
+          return;
+        }
+        if (action === "toggle") {
+          target.status = target.status === "Enable" ? "Disable" : "Enable";
+          renderTable();
+          return;
+        }
+        if (action === "view") { alert("View reseller: " + target.name + " (mock)."); return; }
+        if (action === "edit") { alert("Edit reseller: " + target.name + " (mock)."); return; }
+        if (action === "setting") { alert("Open settings: " + target.name + " (mock)."); return; }
+        if (action === "reset") { alert("Reset password/email for: " + target.name + " (mock)."); return; }
+      });
+
+      createForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!createForm.checkValidity()) {
+          createForm.reportValidity();
+          return;
+        }
+
+        var parent = getAgentById(parentReseller.value);
+        if (!canCreateUnder(parent)) {
+          alert("Current account does not have permission for selected parent.");
+          return;
+        }
+        var selectedMcc = Array.from(resellerMcc.selectedOptions).map(function (option) { return option.value; });
+        if (!selectedMcc.length) {
+          alert("Please select at least one MCC.");
+          return;
+        }
+
+        var newLevel = parent.level + 1;
+        var newAgent = {
+          id: buildId(resellerName.value.trim()),
+          name: resellerName.value.trim(),
+          level: newLevel,
+          contact: resellerContact.value.trim(),
+          contactInfo: resellerContactInfo.value.trim(),
+          email: resellerEmail.value.trim(),
+          authorization: resellerAuthorization.value,
+          cooperationStart: cooperationStart.value,
+          termYears: resellerTerm.value,
+          country: resellerCountry.value,
+          state: resellerState.value.trim(),
+          city: resellerCity.value.trim(),
+          mcc: selectedMcc,
+          status: "Enable",
+          createdAt: nowString(),
+          parentId: parent.id
+        };
+        var parentIndex = agents.findIndex(function (a) { return a.id === parent.id; });
+        var insertAt = agents.length;
+        if (parentIndex !== -1) {
+          insertAt = parentIndex + 1;
+          while (insertAt < agents.length && agents[insertAt].level > parent.level) {
+            insertAt++;
+          }
+        }
+        agents.splice(insertAt, 0, newAgent);
+        renderTable();
+        closeCreateModal();
+        alert("Reseller created under " + parent.name + " (L" + newLevel + ") (mock).");
+      });
+
+      renderScopeHints();
+      renderTable();
+    })();
+  </script>
+</body>
+</html>

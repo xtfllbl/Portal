@@ -372,7 +372,9 @@
         .dropdown-menu.show { display: block; }
         .dropdown-item { width: 100%; text-align: left; padding: 8px 10px; border: 1px solid transparent; background: #fff; border-radius: 6px; font-size: 13px; color: var(--text-heading); cursor: pointer; }
         .dropdown-item:hover { background: #f5f5f5; }
+        .dropdown-item:disabled { opacity: .45; cursor: not-allowed; background: #f3f4f6; }
         .dropdown-menu.wide { width: 220px; }
+        .hierarchy-scope { margin: 10px 14px 0; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; background: #fafafa; font-size: 12px; color: var(--text-muted); line-height: 1.45; }
 
         /* Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 100; }
@@ -603,13 +605,14 @@
         </aside>
         <div class="workspace">
             <div class="breadcrumb-bar">
-                <span>MERCHANT ACCOUNT</span>
+                <span>AGENTS</span>
                 <span>&gt;</span>
-                <span>TERMINAL LIST</span>
+                <span>AGENT LIST</span>
             </div>
             <div class="content-layout">
                 <section class="hierarchy-card card">
-                    <header><span>Partner Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Add Subreseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
+                    <header><span>Agent Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Create Reseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
+                    <div class="hierarchy-scope" id="hierarchyScopeHint"></div>
                     <div class="hierarchy-tools">
                         <div class="hierarchy-search">
                             <input id="hierarchySearch" type="text" placeholder="Search merchants or resellers">
@@ -1033,6 +1036,48 @@
                 </main>
             </div>
         </div>
+    </div>
+    <!-- Create Reseller Modal -->
+    <div id="createResellerModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal" role="document" style="max-width: 620px;">
+        <header>
+          <span>Create Reseller</span>
+          <button class="close-btn" id="createResellerClose" aria-label="Close">&times;</button>
+        </header>
+        <form id="createResellerForm">
+          <div class="modal-body">
+            <div class="field full">
+              <label>Permission Scope</label>
+              <div class="helper-text" id="createResellerScope"></div>
+            </div>
+            <div class="field full">
+              <label for="cr-parent">Parent Reseller <span class="required-mark">*</span></label>
+              <select id="cr-parent" name="parentReseller" required></select>
+              <div class="helper-text" id="cr-parent-help"></div>
+            </div>
+            <div class="field">
+              <label for="cr-name">Reseller Name *</label>
+              <input id="cr-name" name="resellerName" type="text" placeholder="e.g. East Coast Partner" required>
+            </div>
+            <div class="field">
+              <label for="cr-level">New Reseller Level</label>
+              <input id="cr-level" type="text" readonly>
+            </div>
+            <div class="field">
+              <label for="cr-contact">Contact Person *</label>
+              <input id="cr-contact" name="contactName" type="text" placeholder="e.g. Jane Smith" required>
+            </div>
+            <div class="field">
+              <label for="cr-email">Reseller Email *</label>
+              <input id="cr-email" name="contactEmail" type="email" placeholder="e.g. jane@partner.com" required>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="createResellerCancel" class="chip-button">Cancel</button>
+            <button type="submit" id="createResellerSubmit" class="chip-button primary-action">Create Reseller</button>
+          </div>
+        </form>
+      </div>
     </div>
     <!-- Add Terminal Modal -->
     <div id="addTerminalModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
@@ -1501,16 +1546,41 @@
         renderProfileView();
         setProfileMode('view');
 
+        var currentAccount = {
+          role: 'service_provider',
+          name: 'Universal Processing',
+          manageableParentLevels: [1, 2],
+          resellerId: null
+        };
+        var hierarchyScopeHint = document.getElementById('hierarchyScopeHint');
+        var createResellerModal = document.getElementById('createResellerModal');
+        var createResellerForm = document.getElementById('createResellerForm');
+        var createResellerClose = document.getElementById('createResellerClose');
+        var createResellerCancel = document.getElementById('createResellerCancel');
+        var createResellerSubmit = document.getElementById('createResellerSubmit');
+        var createResellerScope = document.getElementById('createResellerScope');
+        var createResellerParent = document.getElementById('cr-parent');
+        var createResellerParentHelp = document.getElementById('cr-parent-help');
+        var createResellerName = document.getElementById('cr-name');
+        var createResellerLevel = document.getElementById('cr-level');
+        var createResellerContact = document.getElementById('cr-contact');
+        var createResellerEmail = document.getElementById('cr-email');
         var btn = document.getElementById('hierAddBtn');
         var menu = document.getElementById('hierAddMenu');
+        var addResellerMenuItem = menu ? menu.querySelector('[data-type="reseller"]') : null;
         if(btn && menu){
           btn.addEventListener('click', function(e){ e.stopPropagation(); menu.classList.toggle('show'); menu.setAttribute('aria-hidden', menu.classList.contains('show') ? 'false' : 'true'); });
           document.addEventListener('click', function(){ menu.classList.remove('show'); menu.setAttribute('aria-hidden','true'); });
           menu.addEventListener('click', function(e){
             var t = e.target.closest('.dropdown-item');
             if(!t) return; e.stopPropagation();
+            if(t.disabled) return;
             var type = t.getAttribute('data-type');
-            console.log('Add ' + type); // Hook real flow here
+            if(type === 'reseller'){
+              openCreateResellerFlow();
+            } else if(type === 'merchant'){
+              alert('Merchant creation flow remains unchanged (mock).');
+            }
             menu.classList.remove('show');
             menu.setAttribute('aria-hidden','true');
           });
@@ -1637,6 +1707,200 @@
           { id: 'm-arroyo-artisans', level: 3, type: 'merchant', tag: 'M', name: 'Arroyo Artisans' }
         ];
 
+        function getHierarchyItemById(id){
+          for(var i = 0; i < hierarchyData.length; i++){
+            if(hierarchyData[i].id === id) return hierarchyData[i];
+          }
+          return null;
+        }
+
+        function getAccountScopeText(){
+          if(currentAccount.role === 'service_provider'){
+            return 'Current account: Service Provider. You can create child resellers for Level 1 and Level 2 resellers.';
+          }
+          if(currentAccount.role === 'reseller'){
+            return 'Current account: Reseller. You can only create child resellers under your own reseller account.';
+          }
+          return 'Current account: Read-only.';
+        }
+
+        function renderAccountScopeHint(){
+          if(hierarchyScopeHint){
+            hierarchyScopeHint.textContent = getAccountScopeText();
+          }
+        }
+
+        function canCreateSubResellerUnder(parent){
+          if(!parent || parent.type !== 'reseller') return false;
+          if(currentAccount.role === 'service_provider'){
+            return currentAccount.manageableParentLevels.indexOf(parent.level) !== -1;
+          }
+          if(currentAccount.role === 'reseller'){
+            return !!currentAccount.resellerId && parent.id === currentAccount.resellerId;
+          }
+          return false;
+        }
+
+        function getAllowedParentResellers(){
+          return hierarchyData.filter(function(item){
+            return canCreateSubResellerUnder(item);
+          });
+        }
+
+        function refreshCreateResellerActionState(){
+          if(!addResellerMenuItem) return;
+          var hasPermission = getAllowedParentResellers().length > 0;
+          addResellerMenuItem.disabled = !hasPermission;
+          addResellerMenuItem.title = hasPermission ? '' : 'No available parent reseller in your permission scope.';
+        }
+
+        function updateCreateResellerScopeText(){
+          if(createResellerScope){
+            createResellerScope.textContent = getAccountScopeText();
+          }
+        }
+
+        function updateCreateResellerLevelPreview(){
+          if(!createResellerLevel) return;
+          var parent = getHierarchyItemById(createResellerParent ? createResellerParent.value : '');
+          createResellerLevel.value = parent ? 'L' + (parent.level + 1) : '--';
+        }
+
+        function getPreferredParentResellerId(){
+          var selected = getHierarchyItemById(hierarchyState.selectedId);
+          if(selected && canCreateSubResellerUnder(selected)){
+            return selected.id;
+          }
+          var allowed = getAllowedParentResellers();
+          return allowed.length ? allowed[0].id : '';
+        }
+
+        function populateCreateResellerParentOptions(preferredId){
+          if(!createResellerParent) return;
+          var allowed = getAllowedParentResellers();
+          createResellerParent.innerHTML = '';
+          if(!allowed.length){
+            var empty = document.createElement('option');
+            empty.value = '';
+            empty.textContent = 'No eligible parent reseller';
+            createResellerParent.appendChild(empty);
+            createResellerParent.disabled = true;
+            if(createResellerSubmit) createResellerSubmit.disabled = true;
+            if(createResellerParentHelp){
+              createResellerParentHelp.textContent = 'Current account has no permission scope to create reseller.';
+            }
+            updateCreateResellerLevelPreview();
+            return;
+          }
+
+          allowed.forEach(function(item){
+            var option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name + ' (L' + item.level + ')';
+            createResellerParent.appendChild(option);
+          });
+          createResellerParent.disabled = false;
+          if(createResellerSubmit) createResellerSubmit.disabled = false;
+          var hasPreferred = !!preferredId && allowed.some(function(item){ return item.id === preferredId; });
+          createResellerParent.value = hasPreferred ? preferredId : allowed[0].id;
+          if(createResellerParentHelp){
+            createResellerParentHelp.textContent = currentAccount.role === 'service_provider'
+              ? 'Service Provider can create child resellers for Level 1 and Level 2 parents.'
+              : 'Reseller account can only create child resellers under its own account.';
+          }
+          updateCreateResellerLevelPreview();
+        }
+
+        function openCreateResellerFlow(){
+          if(!createResellerModal) return;
+          if(createResellerForm){
+            createResellerForm.reset();
+          }
+          updateCreateResellerScopeText();
+          populateCreateResellerParentOptions(getPreferredParentResellerId());
+          createResellerModal.classList.add('show');
+          createResellerModal.setAttribute('aria-hidden', 'false');
+          if(createResellerName) createResellerName.focus();
+        }
+
+        function closeCreateResellerFlow(){
+          if(!createResellerModal) return;
+          createResellerModal.classList.remove('show');
+          createResellerModal.setAttribute('aria-hidden', 'true');
+        }
+
+        function buildResellerId(name){
+          var base = (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          if(!base) base = 'reseller';
+          return 'sr-' + base.slice(0, 18) + '-' + String(Date.now()).slice(-6);
+        }
+
+        function findInsertIndexForNewChild(parentId){
+          var parentIndex = -1;
+          for(var i = 0; i < hierarchyData.length; i++){
+            if(hierarchyData[i].id === parentId){
+              parentIndex = i;
+              break;
+            }
+          }
+          if(parentIndex === -1) return hierarchyData.length;
+          var parentLevel = hierarchyData[parentIndex].level;
+          var insertIndex = parentIndex + 1;
+          while(insertIndex < hierarchyData.length && hierarchyData[insertIndex].level > parentLevel){
+            insertIndex++;
+          }
+          return insertIndex;
+        }
+
+        if(createResellerClose){
+          createResellerClose.addEventListener('click', closeCreateResellerFlow);
+        }
+        if(createResellerCancel){
+          createResellerCancel.addEventListener('click', closeCreateResellerFlow);
+        }
+        if(createResellerModal){
+          createResellerModal.addEventListener('click', function(e){
+            if(e.target === createResellerModal) closeCreateResellerFlow();
+          });
+        }
+        if(createResellerParent){
+          createResellerParent.addEventListener('change', updateCreateResellerLevelPreview);
+        }
+        if(createResellerForm){
+          createResellerForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            if(!createResellerForm.checkValidity()){
+              createResellerForm.reportValidity();
+              return;
+            }
+            var parent = getHierarchyItemById(createResellerParent.value);
+            if(!canCreateSubResellerUnder(parent)){
+              alert('Current account does not have permission to create reseller under selected parent.');
+              return;
+            }
+            var newLevel = parent.level + 1;
+            var newReseller = {
+              id: buildResellerId(createResellerName.value.trim()),
+              parentId: parent.id,
+              level: newLevel,
+              type: 'reseller',
+              tag: newLevel === 1 ? 'R' : 'SR',
+              name: createResellerName.value.trim(),
+              contactPerson: createResellerContact.value.trim(),
+              email: createResellerEmail.value.trim(),
+              createdAt: formatDateTime()
+            };
+            var insertAt = findInsertIndexForNewChild(parent.id);
+            hierarchyData.splice(insertAt, 0, newReseller);
+            hierarchyState.selectedId = newReseller.id;
+            renderHierarchy();
+            closeCreateResellerFlow();
+            alert('Reseller created under ' + parent.name + ' (L' + newLevel + ') (mock).');
+          });
+        }
+
+        renderAccountScopeHint();
+
         function matchesHierarchyFilter(item){
           var text = hierarchyState.filterText;
           var typeMatch = hierarchyState.filterType === 'all' || (hierarchyState.filterType === 'merchant' ? item.type === 'merchant' : item.type !== 'merchant');
@@ -1675,6 +1939,7 @@
             hierarchyListEl.appendChild(li);
           });
           if(hierarchyCount) hierarchyCount.textContent = 'Showing ' + filtered.length + ' of ' + hierarchyData.length;
+          refreshCreateResellerActionState();
           syncRightPanelEmpty();
           applySelection();
         }
