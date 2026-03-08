@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Service Providers</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #6b7280;
+            --line: #e5e7eb;
+            --primary: #111827;
+            --primary-hover: #000000;
+            --success-bg: #ecfdf5;
+            --success-text: #166534;
+            --normal-bg: #f3f4f6;
+            --normal-text: #374151;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .summary-item {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .summary-item strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .toolbar {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .input-text {
+            width: 280px;
+            max-width: 100%;
+            height: 36px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .inline-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text);
+            margin-right: 4px;
+        }
+
+        .btn {
+            height: 34px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-ghost {
+            background: #fff;
+            color: var(--text);
+            border-color: var(--line);
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .table-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            max-height: calc(100vh - 285px);
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: 13px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #f8fafc;
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tbody tr:hover {
+            background: #fcfcfd;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status.assigned {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .status.unassigned {
+            background: var(--normal-bg);
+            color: var(--normal-text);
+        }
+
+        .row-btn {
+            border: 1px solid #d1d5db;
+            border-radius: 999px;
+            background: #fff;
+            color: #111827;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+
+        .row-btn:hover {
+            background: #f9fafb;
+        }
+
+        .row-btn.danger {
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .footer-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 2px 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .action-result {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        @media (max-width: 960px) {
+            .summary-card {
+                grid-template-columns: repeat(2, minmax(160px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .summary-card {
+                grid-template-columns: 1fr;
+            }
+            .table-scroll {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="top-bar">
+            <div>
+                <h1>Assign Service Providers</h1>
+                <p id="pageSubtitle" class="subtitle"></p>
+            </div>
+            <a id="backLink" class="btn-link" href="3.pushtemplate_new.html">Back To Versions</a>
+        </div>
+
+        <section class="summary-card">
+            <div class="summary-item">
+                Application
+                <strong id="summaryApp">-</strong>
+            </div>
+            <div class="summary-item">
+                Version
+                <strong id="summaryVersion">-</strong>
+            </div>
+            <div class="summary-item">
+                Default Template
+                <strong id="summaryTemplate">-</strong>
+            </div>
+            <div class="summary-item">
+                Assigned Providers
+                <strong id="summaryAssigned">0 / 0</strong>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <input id="searchInput" class="input-text" type="text" placeholder="Search by provider ID or name">
+            <label class="inline-check">
+                <input id="assignedOnly" type="checkbox">
+                Assigned only
+            </label>
+            <button id="assignSelectedBtn" class="btn btn-primary" type="button">Assign Selected</button>
+            <button id="unassignSelectedBtn" class="btn btn-ghost" type="button">Unassign Selected</button>
+            <button id="clearSelectedBtn" class="btn btn-ghost" type="button">Clear Selection</button>
+        </section>
+
+        <section class="table-card">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:42px;"><input id="selectVisible" type="checkbox"></th>
+                            <th style="width:150px;">Provider ID</th>
+                            <th>Provider Name</th>
+                            <th style="width:140px;">Status</th>
+                            <th style="width:120px; text-align:right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="providerTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="footer-info">
+            <span id="tableSummary">Showing 0 providers</span>
+            <span id="actionResult" class="action-result"></span>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const appName = params.get('app') || 'TSYS UPT';
+        const versionName = params.get('version') || 'Unknown Version';
+        const templateName = params.get('template') || 'N/A';
+        const storageKey = `provider_assignment::${appName}::${versionName}`;
+
+        const providerTableBody = document.getElementById('providerTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const assignedOnly = document.getElementById('assignedOnly');
+        const selectVisible = document.getElementById('selectVisible');
+        const assignSelectedBtn = document.getElementById('assignSelectedBtn');
+        const unassignSelectedBtn = document.getElementById('unassignSelectedBtn');
+        const clearSelectedBtn = document.getElementById('clearSelectedBtn');
+        const tableSummary = document.getElementById('tableSummary');
+        const actionResult = document.getElementById('actionResult');
+        const summaryAssigned = document.getElementById('summaryAssigned');
+
+        document.getElementById('summaryApp').textContent = appName;
+        document.getElementById('summaryVersion').textContent = versionName;
+        document.getElementById('summaryTemplate').textContent = templateName;
+        document.getElementById('pageSubtitle').textContent = `Configure provider assignments for ${versionName}`;
+        document.getElementById('backLink').href = `3.pushtemplate_new.html?app=${encodeURIComponent(appName)}`;
+
+        const providers = createProviders(180);
+        const providerMap = new Map(providers.map(provider => [provider.id, provider]));
+        const selectedIds = new Set();
+
+        loadAssignments();
+        renderTable();
+
+        searchInput.addEventListener('input', () => {
+            selectedIds.clear();
+            renderTable();
+        });
+
+        assignedOnly.addEventListener('change', () => {
+            selectedIds.clear();
+            renderTable();
+        });
+
+        selectVisible.addEventListener('change', () => {
+            const visibleProviders = getVisibleProviders();
+            visibleProviders.forEach(provider => {
+                if (selectVisible.checked) {
+                    selectedIds.add(provider.id);
+                } else {
+                    selectedIds.delete(provider.id);
+                }
+            });
+            renderTable();
+        });
+
+        providerTableBody.addEventListener('change', event => {
+            const checkbox = event.target.closest('.row-check');
+            if (!checkbox) return;
+            const { id } = checkbox.dataset;
+            if (checkbox.checked) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+            renderTable();
+        });
+
+        providerTableBody.addEventListener('click', event => {
+            const button = event.target.closest('[data-action]');
+            if (!button) return;
+            const { action, id } = button.dataset;
+            if (action === 'assign') {
+                updateSingle(id, true);
+            }
+            if (action === 'unassign') {
+                updateSingle(id, false);
+            }
+        });
+
+        assignSelectedBtn.addEventListener('click', () => {
+            updateSelected(true);
+        });
+
+        unassignSelectedBtn.addEventListener('click', () => {
+            updateSelected(false);
+        });
+
+        clearSelectedBtn.addEventListener('click', () => {
+            selectedIds.clear();
+            setActionResult('Selection cleared.');
+            renderTable();
+        });
+
+        function createProviders(total) {
+            const providerList = [];
+            for (let i = 1; i <= total; i += 1) {
+                providerList.push({
+                    id: `SP${String(i).padStart(4, '0')}`,
+                    name: `Service Provider ${String(i).padStart(3, '0')}`,
+                    assigned: false
+                });
+            }
+            return providerList;
+        }
+
+        function safeReadAssignments() {
+            try {
+                const raw = window.localStorage.getItem(storageKey);
+                return raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function safeWriteAssignments(assignedIds) {
+            try {
+                window.localStorage.setItem(storageKey, JSON.stringify(assignedIds));
+            } catch (error) {
+                // Ignore storage write errors in prototype mode.
+            }
+        }
+
+        function createSeedAssignment() {
+            const seed = `${appName}::${versionName}`.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+            const result = [];
+            providers.forEach((provider, index) => {
+                if (((index + seed) % 13 === 0) || ((index + seed) % 29 === 0)) {
+                    result.push(provider.id);
+                }
+            });
+            return result;
+        }
+
+        function loadAssignments() {
+            let assignedIds = safeReadAssignments();
+            if (!Array.isArray(assignedIds)) {
+                assignedIds = createSeedAssignment();
+                safeWriteAssignments(assignedIds);
+            }
+            const assignedSet = new Set(assignedIds);
+            providers.forEach(provider => {
+                provider.assigned = assignedSet.has(provider.id);
+            });
+        }
+
+        function saveAssignments() {
+            const assignedIds = providers.filter(provider => provider.assigned).map(provider => provider.id);
+            safeWriteAssignments(assignedIds);
+        }
+
+        function getVisibleProviders() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            const assignedOnlyEnabled = assignedOnly.checked;
+            return providers.filter(provider => {
+                if (assignedOnlyEnabled && !provider.assigned) return false;
+                if (!keyword) return true;
+                return provider.id.toLowerCase().includes(keyword) || provider.name.toLowerCase().includes(keyword);
+            });
+        }
+
+        function renderTable() {
+            const visibleProviders = getVisibleProviders();
+            providerTableBody.innerHTML = '';
+
+            if (visibleProviders.length === 0) {
+                providerTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#6b7280; padding:28px;">No providers found.</td></tr>';
+            } else {
+                visibleProviders.forEach(provider => {
+                    const row = `
+                        <tr>
+                            <td><input class="row-check" data-id="${provider.id}" type="checkbox" ${selectedIds.has(provider.id) ? 'checked' : ''}></td>
+                            <td>${provider.id}</td>
+                            <td>${provider.name}</td>
+                            <td><span class="status ${provider.assigned ? 'assigned' : 'unassigned'}">${provider.assigned ? 'Assigned' : 'Unassigned'}</span></td>
+                            <td style="text-align:right;">
+                                <button type="button" class="row-btn ${provider.assigned ? 'danger' : ''}" data-action="${provider.assigned ? 'unassign' : 'assign'}" data-id="${provider.id}">
+                                    ${provider.assigned ? 'Unassign' : 'Assign'}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    providerTableBody.insertAdjacentHTML('beforeend', row);
+                });
+            }
+
+            const selectedVisibleCount = visibleProviders.filter(provider => selectedIds.has(provider.id)).length;
+            const assignedCount = providers.filter(provider => provider.assigned).length;
+            const allVisibleSelected = visibleProviders.length > 0 && selectedVisibleCount === visibleProviders.length;
+            const partialVisibleSelected = selectedVisibleCount > 0 && !allVisibleSelected;
+
+            selectVisible.checked = allVisibleSelected;
+            selectVisible.indeterminate = partialVisibleSelected;
+            summaryAssigned.textContent = `${assignedCount} / ${providers.length}`;
+            tableSummary.textContent = `Showing ${visibleProviders.length} of ${providers.length}. Selected ${selectedIds.size}.`;
+        }
+
+        function updateSelected(assignValue) {
+            if (selectedIds.size === 0) {
+                setActionResult('Please select providers first.');
+                return;
+            }
+
+            let changedCount = 0;
+            selectedIds.forEach(id => {
+                const provider = providerMap.get(id);
+                if (!provider || provider.assigned === assignValue) return;
+                provider.assigned = assignValue;
+                changedCount += 1;
+            });
+
+            saveAssignments();
+            renderTable();
+            if (changedCount === 0) {
+                setActionResult('No provider status changed.');
+                return;
+            }
+            setActionResult(`${changedCount} provider(s) ${assignValue ? 'assigned' : 'unassigned'}.`);
+        }
+
+        function updateSingle(id, assignValue) {
+            const provider = providerMap.get(id);
+            if (!provider) return;
+            provider.assigned = assignValue;
+            saveAssignments();
+            renderTable();
+            setActionResult(`${provider.id} ${assignValue ? 'assigned' : 'unassigned'}.`);
+        }
+
+        function setActionResult(message) {
+            actionResult.textContent = message;
+        }
+    </script>
+</body>
+</html>

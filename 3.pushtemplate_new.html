@@ -382,6 +382,35 @@
         .icon-btn.danger:hover { background: #fef2f2; color: #ef4444; }
         .icon-16{ width:16px; height:16px; }
 
+        .version-link {
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .version-link:hover {
+            text-decoration: underline;
+        }
+        .version-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+        }
+        .assign-btn {
+            border: 1px solid #d1d5db;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #111827;
+            text-decoration: none;
+            line-height: 1.4;
+            background: #fff;
+        }
+        .assign-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
         .badge {
             display: inline-flex;
             align-items: center;
@@ -530,7 +559,7 @@
                                     <th>Created Time</th>
                                     <th>Updated Time</th>
                                     <th>Last Used Time</th>
-                                    <th style="width: 60px; text-align: right;">Action</th>
+                                    <th style="width: 170px; text-align: right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="versionTableBody">
@@ -650,24 +679,43 @@
         
         let currentAppName = 'TSYS UPT';
 
-        // Init
-        renderTables(currentAppName);
+        function buildAssignProviderUrl(appName, version, templateName) {
+            const params = new URLSearchParams({
+                app: appName,
+                version,
+                template: templateName
+            });
+            return `3.version_provider_assign.html?${params.toString()}`;
+        }
+
+        function activateAppByName(name) {
+            if (!appData[name]) return;
+            currentAppName = name;
+
+            const items = appList.querySelectorAll('li');
+            items.forEach(i => {
+                const itemName = i.querySelector('.template-name')?.textContent?.trim();
+                i.classList.toggle('active', itemName === name);
+            });
+
+            appTitle.textContent = name;
+            if (appSubtitle) {
+                appSubtitle.textContent = `Manage parameter definitions and templates for ${appData[name].subtitle}`;
+            }
+            modalAppName.value = name;
+            renderTables(name);
+        }
 
         // Logic to switch Apps (Left sidebar click)
         function selectApp(element, name, subtitle) {
-            currentAppName = name;
-            // Update Sidebar Active State
-            const items = appList.querySelectorAll('li');
-            items.forEach(i => i.classList.remove('active'));
-            element.classList.add('active');
-
-            // Update Header
-            appTitle.textContent = name;
-            appSubtitle.textContent = `Manage parameter definitions and templates for ${subtitle}`;
-            modalAppName.value = name;
-
-            renderTables(name);
+            activateAppByName(name);
         }
+
+        const queryApp = new URLSearchParams(window.location.search).get('app');
+        if (queryApp && appData[queryApp]) {
+            currentAppName = queryApp;
+        }
+        activateAppByName(currentAppName);
 
         function renderTables(appName) {
             const data = appData[appName];
@@ -703,20 +751,25 @@
             // Render Versions (If available)
             if(data && data.versions && data.versions.length > 0) {
                 data.versions.forEach(v => {
+                    const assignUrl = buildAssignProviderUrl(appName, v.ver, v.template);
                     const row = `
                          <tr>
                             <td><input type="checkbox" class="checkbox"></td>
                             <td>${v.id}</td>
-                            <td style="font-weight:500;">${v.ver}</td>
+                            <td style="font-weight:500;">
+                                <a class="version-link" href="${assignUrl}" title="Assign service providers">${v.ver}</a>
+                            </td>
                             <td>${v.template}</td>
                             <td>${v.created}</td>
                             <td>${v.updated}</td>
                             <td>${v.used}</td>
-                            <td style="text-align: right; display: flex; justify-content: flex-end; gap: 4px;">
-                                <!-- Edit Button Removed -->
-                                <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </button>
+                            <td style="text-align: right;">
+                                <div class="version-actions">
+                                    <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
+                                    <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
