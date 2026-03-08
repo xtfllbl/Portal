@@ -385,6 +385,22 @@
         .modal .modal-actions { padding: 12px 16px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--card-border); }
         .modal .close-btn { border: none; background: transparent; font-size: 18px; line-height: 1; cursor: pointer; color: var(--text-body); }
         .modal .full { grid-column: 1 / -1; }
+        .cr-modal { width: min(920px, calc(100vw - 40px)); max-height: calc(100vh - 40px); display: flex; flex-direction: column; }
+        .cr-modal header { padding: 14px 20px; flex: 0 0 auto; }
+        .cr-title { font-size: 24px; line-height: 1.2; }
+        .cr-modal-form { min-height: 0; display: flex; flex-direction: column; }
+        .cr-modal-body { padding: 18px 20px 12px; display: grid; grid-template-columns: 1fr; gap: 12px; overflow: auto; max-height: calc(100vh - 210px); }
+        .cr-form-section { border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; background: #fff; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+        .cr-form-section.scope { background: #fafafa; }
+        .cr-section-title { grid-column: 1 / -1; margin: 0; font-size: 14px; font-weight: 700; color: var(--text-heading); }
+        .cr-field { display: flex; flex-direction: column; gap: 6px; }
+        .cr-field.full { grid-column: 1 / -1; }
+        .cr-field label { font-size: 13px; font-weight: 600; color: var(--text-body); letter-spacing: 0; text-transform: none; }
+        .cr-field input, .cr-field select, .cr-field textarea { width: 100%; min-width: 0; min-height: 38px; padding: 0 12px; border: 1px solid var(--card-border); border-radius: 10px; font-size: 14px; color: var(--text-body); background: #fff; }
+        .cr-field select[multiple] { min-height: 108px; padding: 10px 12px; }
+        .cr-field input:focus, .cr-field select:focus, .cr-field textarea:focus { outline: 2px solid rgba(0,0,0,.16); border-color: #111; }
+        .cr-help { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+        .cr-modal-actions { padding: 12px 20px; flex: 0 0 auto; background: #fff; }
         /* Add Terminal specific */
         .btn-group { display: flex; width: 100%; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
         .btn-group button { flex: 1; padding: 7px 12px; font-size: 12px; border: none; background: #fff; color: #111; cursor: pointer; }
@@ -407,6 +423,11 @@
         /* Merchant form helpers */
         .checkbox-line { display: inline-flex; align-items: center; gap: 8px; }
         .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+        @media (max-width: 860px) {
+            .cr-title { font-size: 20px; }
+            .cr-modal-body { padding: 14px; max-height: calc(100vh - 190px); }
+            .cr-form-section { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -1039,40 +1060,95 @@
     </div>
     <!-- Create Reseller Modal -->
     <div id="createResellerModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-      <div class="modal" role="document" style="max-width: 620px;">
+      <div class="modal cr-modal" role="document">
         <header>
-          <span>Create Reseller</span>
+          <span class="cr-title">Create Reseller</span>
           <button class="close-btn" id="createResellerClose" aria-label="Close">&times;</button>
         </header>
-        <form id="createResellerForm">
-          <div class="modal-body">
-            <div class="field full">
-              <label>Permission Scope</label>
-              <div class="helper-text" id="createResellerScope"></div>
-            </div>
-            <div class="field full">
-              <label for="cr-parent">Parent Reseller <span class="required-mark">*</span></label>
-              <select id="cr-parent" name="parentReseller" required></select>
-              <div class="helper-text" id="cr-parent-help"></div>
-            </div>
-            <div class="field">
-              <label for="cr-name">Reseller Name *</label>
-              <input id="cr-name" name="resellerName" type="text" placeholder="e.g. East Coast Partner" required>
-            </div>
-            <div class="field">
-              <label for="cr-level">New Reseller Level</label>
-              <input id="cr-level" type="text" readonly>
-            </div>
-            <div class="field">
-              <label for="cr-contact">Contact Person *</label>
-              <input id="cr-contact" name="contactName" type="text" placeholder="e.g. Jane Smith" required>
-            </div>
-            <div class="field">
-              <label for="cr-email">Reseller Email *</label>
-              <input id="cr-email" name="contactEmail" type="email" placeholder="e.g. jane@partner.com" required>
-            </div>
+        <form id="createResellerForm" class="cr-modal-form">
+          <div class="cr-modal-body">
+            <section class="cr-form-section scope">
+              <h4 class="cr-section-title">Creation Scope</h4>
+              <div class="cr-field">
+                <label for="cr-parent-display">Parent Reseller</label>
+                <input id="cr-parent-display" type="text" readonly>
+              </div>
+              <div class="cr-field">
+                <label for="cr-level">New Reseller Level</label>
+                <input id="cr-level" type="text" readonly>
+              </div>
+              <input id="cr-parent" name="parentReseller" type="hidden" required>
+            </section>
+
+            <section class="cr-form-section">
+              <h4 class="cr-section-title">Basic Information</h4>
+              <div class="cr-field">
+                <label for="cr-name">Reseller Name <span class="required-mark">*</span></label>
+                <input id="cr-name" name="resellerName" type="text" placeholder="e.g. East Coast Partner" required>
+              </div>
+              <div class="cr-field">
+                <label for="cr-contact">Contact Person <span class="required-mark">*</span></label>
+                <input id="cr-contact" name="contactName" type="text" placeholder="e.g. Jane Smith" required>
+              </div>
+              <div class="cr-field">
+                <label for="cr-contact-info">Contact Information <span class="required-mark">*</span></label>
+                <input id="cr-contact-info" name="contactInfo" type="text" placeholder="e.g. +1 415 555 1000" required>
+              </div>
+              <div class="cr-field">
+                <label for="cr-email">Reseller Email <span class="required-mark">*</span></label>
+                <input id="cr-email" name="contactEmail" type="email" placeholder="e.g. jane@partner.com" required>
+              </div>
+              <div class="cr-field">
+                <label for="cr-authorization">Reseller Authorization <span class="required-mark">*</span></label>
+                <select id="cr-authorization" name="authorization" required>
+                  <option value="AGT-ADMIN">AGT-ADMIN</option>
+                  <option value="AGT-MANAGER">AGT-MANAGER</option>
+                  <option value="AGT-OPS">AGT-OPS</option>
+                </select>
+              </div>
+            </section>
+
+            <section class="cr-form-section">
+              <h4 class="cr-section-title">Cooperation &amp; Region</h4>
+              <div class="cr-field">
+                <label for="cr-cooperation-start">Cooperation Start Time <span class="required-mark">*</span></label>
+                <input id="cr-cooperation-start" name="cooperationStart" type="datetime-local" required>
+              </div>
+              <div class="cr-field">
+                <label for="cr-term">Reseller Term (Years) <span class="required-mark">*</span></label>
+                <input id="cr-term" name="termYears" type="number" min="1" value="1" required>
+              </div>
+              <div class="cr-field">
+                <label for="cr-country">Country or Region <span class="required-mark">*</span></label>
+                <select id="cr-country" name="country" required>
+                  <option value="">Select Country</option>
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Australia">Australia</option>
+                </select>
+              </div>
+              <div class="cr-field">
+                <label for="cr-state">State/Province/Region</label>
+                <input id="cr-state" name="state" type="text" placeholder="e.g. California">
+              </div>
+              <div class="cr-field">
+                <label for="cr-city">City/Town</label>
+                <input id="cr-city" name="city" type="text" placeholder="e.g. San Francisco">
+              </div>
+              <div class="cr-field">
+                <label for="cr-mcc">MCC (Multiple selections allowed) <span class="required-mark">*</span></label>
+                <select id="cr-mcc" name="mcc" multiple required>
+                  <option value="5411">5411 - Grocery Stores</option>
+                  <option value="5812">5812 - Eating Places</option>
+                  <option value="5814">5814 - Fast Food Restaurants</option>
+                  <option value="5499">5499 - Misc Food Stores</option>
+                  <option value="5999">5999 - Misc Retail</option>
+                </select>
+              </div>
+            </section>
           </div>
-          <div class="modal-actions">
+          <div class="modal-actions cr-modal-actions">
             <button type="button" id="createResellerCancel" class="chip-button">Cancel</button>
             <button type="submit" id="createResellerSubmit" class="chip-button primary-action">Create Reseller</button>
           </div>
@@ -1436,6 +1512,12 @@
           return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
         }
 
+        function formatDateTimeLocalInput(d){
+          var now = d || new Date();
+          var pad = function(v){ return String(v).padStart(2, '0'); };
+          return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        }
+
         function setText(id, value){
           var el = document.getElementById(id);
           if(el){ el.textContent = value || '--'; }
@@ -1558,13 +1640,20 @@
         var createResellerClose = document.getElementById('createResellerClose');
         var createResellerCancel = document.getElementById('createResellerCancel');
         var createResellerSubmit = document.getElementById('createResellerSubmit');
-        var createResellerScope = document.getElementById('createResellerScope');
         var createResellerParent = document.getElementById('cr-parent');
-        var createResellerParentHelp = document.getElementById('cr-parent-help');
+        var createResellerParentDisplay = document.getElementById('cr-parent-display');
         var createResellerName = document.getElementById('cr-name');
         var createResellerLevel = document.getElementById('cr-level');
         var createResellerContact = document.getElementById('cr-contact');
+        var createResellerContactInfo = document.getElementById('cr-contact-info');
         var createResellerEmail = document.getElementById('cr-email');
+        var createResellerAuthorization = document.getElementById('cr-authorization');
+        var createResellerCooperationStart = document.getElementById('cr-cooperation-start');
+        var createResellerTerm = document.getElementById('cr-term');
+        var createResellerCountry = document.getElementById('cr-country');
+        var createResellerState = document.getElementById('cr-state');
+        var createResellerCity = document.getElementById('cr-city');
+        var createResellerMcc = document.getElementById('cr-mcc');
         var btn = document.getElementById('hierAddBtn');
         var menu = document.getElementById('hierAddMenu');
         var addResellerMenuItem = menu ? menu.querySelector('[data-type="reseller"]') : null;
@@ -1754,18 +1843,6 @@
           addResellerMenuItem.title = hasPermission ? '' : 'No available parent reseller in your permission scope.';
         }
 
-        function updateCreateResellerScopeText(){
-          if(createResellerScope){
-            createResellerScope.textContent = getAccountScopeText();
-          }
-        }
-
-        function updateCreateResellerLevelPreview(){
-          if(!createResellerLevel) return;
-          var parent = getHierarchyItemById(createResellerParent ? createResellerParent.value : '');
-          createResellerLevel.value = parent ? 'L' + (parent.level + 1) : '--';
-        }
-
         function getPreferredParentResellerId(){
           var selected = getHierarchyItemById(hierarchyState.selectedId);
           if(selected && canCreateSubResellerUnder(selected)){
@@ -1775,40 +1852,20 @@
           return allowed.length ? allowed[0].id : '';
         }
 
-        function populateCreateResellerParentOptions(preferredId){
-          if(!createResellerParent) return;
-          var allowed = getAllowedParentResellers();
-          createResellerParent.innerHTML = '';
-          if(!allowed.length){
-            var empty = document.createElement('option');
-            empty.value = '';
-            empty.textContent = 'No eligible parent reseller';
-            createResellerParent.appendChild(empty);
-            createResellerParent.disabled = true;
+        function applyCreateResellerScope(parentId){
+          var parent = getHierarchyItemById(parentId);
+          if(!parent || !canCreateSubResellerUnder(parent)){
+            if(createResellerParent) createResellerParent.value = '';
+            if(createResellerParentDisplay) createResellerParentDisplay.value = '';
+            if(createResellerLevel) createResellerLevel.value = '--';
             if(createResellerSubmit) createResellerSubmit.disabled = true;
-            if(createResellerParentHelp){
-              createResellerParentHelp.textContent = 'Current account has no permission scope to create reseller.';
-            }
-            updateCreateResellerLevelPreview();
-            return;
+            return false;
           }
-
-          allowed.forEach(function(item){
-            var option = document.createElement('option');
-            option.value = item.id;
-            option.textContent = item.name + ' (L' + item.level + ')';
-            createResellerParent.appendChild(option);
-          });
-          createResellerParent.disabled = false;
+          if(createResellerParent) createResellerParent.value = parent.id;
+          if(createResellerParentDisplay) createResellerParentDisplay.value = parent.name + ' (L' + parent.level + ')';
+          if(createResellerLevel) createResellerLevel.value = 'L' + (parent.level + 1);
           if(createResellerSubmit) createResellerSubmit.disabled = false;
-          var hasPreferred = !!preferredId && allowed.some(function(item){ return item.id === preferredId; });
-          createResellerParent.value = hasPreferred ? preferredId : allowed[0].id;
-          if(createResellerParentHelp){
-            createResellerParentHelp.textContent = currentAccount.role === 'service_provider'
-              ? 'Service Provider can create child resellers for Level 1 and Level 2 parents.'
-              : 'Reseller account can only create child resellers under its own account.';
-          }
-          updateCreateResellerLevelPreview();
+          return true;
         }
 
         function openCreateResellerFlow(){
@@ -1816,8 +1873,13 @@
           if(createResellerForm){
             createResellerForm.reset();
           }
-          updateCreateResellerScopeText();
-          populateCreateResellerParentOptions(getPreferredParentResellerId());
+          if(createResellerAuthorization) createResellerAuthorization.value = 'AGT-ADMIN';
+          if(createResellerTerm) createResellerTerm.value = '1';
+          if(createResellerCooperationStart) createResellerCooperationStart.value = formatDateTimeLocalInput();
+          if(!applyCreateResellerScope(getPreferredParentResellerId())){
+            alert('No eligible parent reseller in your permission scope.');
+            return;
+          }
           createResellerModal.classList.add('show');
           createResellerModal.setAttribute('aria-hidden', 'false');
           if(createResellerName) createResellerName.focus();
@@ -1863,9 +1925,6 @@
             if(e.target === createResellerModal) closeCreateResellerFlow();
           });
         }
-        if(createResellerParent){
-          createResellerParent.addEventListener('change', updateCreateResellerLevelPreview);
-        }
         if(createResellerForm){
           createResellerForm.addEventListener('submit', function(e){
             e.preventDefault();
@@ -1878,6 +1937,13 @@
               alert('Current account does not have permission to create reseller under selected parent.');
               return;
             }
+            var selectedMcc = createResellerMcc
+              ? Array.from(createResellerMcc.selectedOptions).map(function(option){ return option.value; })
+              : [];
+            if(!selectedMcc.length){
+              alert('Please select at least one MCC.');
+              return;
+            }
             var newLevel = parent.level + 1;
             var newReseller = {
               id: buildResellerId(createResellerName.value.trim()),
@@ -1887,7 +1953,15 @@
               tag: newLevel === 1 ? 'R' : 'SR',
               name: createResellerName.value.trim(),
               contactPerson: createResellerContact.value.trim(),
+              contactInfo: createResellerContactInfo ? createResellerContactInfo.value.trim() : '',
               email: createResellerEmail.value.trim(),
+              authorization: createResellerAuthorization ? createResellerAuthorization.value : '',
+              cooperationStart: createResellerCooperationStart ? createResellerCooperationStart.value : '',
+              termYears: createResellerTerm ? createResellerTerm.value : '',
+              country: createResellerCountry ? createResellerCountry.value : '',
+              state: createResellerState ? createResellerState.value.trim() : '',
+              city: createResellerCity ? createResellerCity.value.trim() : '',
+              mcc: selectedMcc,
               createdAt: formatDateTime()
             };
             var insertAt = findInsertIndexForNewChild(parent.id);
