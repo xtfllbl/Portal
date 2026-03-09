@@ -84,6 +84,17 @@
         .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); overflow: hidden; }
         .table thead th { padding: 10px 12px; }
         .table tbody td { padding: 10px 12px; }
+        #tab-appfw .table-wrap { overflow-x: auto; }
+        #tab-appfw .table { min-width: 980px; }
+        #tab-appfw .app-table-title {
+            margin: 14px 0 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+        #tab-appfw .app-table-title:first-child { margin-top: 0; }
+        .app-para-table .minor-code { margin-left: 10px; color: #2563eb; font-size: 12px; text-decoration: none; }
+        .app-para-table .minor-code:hover { text-decoration: underline; }
         .hidden { display: none; }
         .old { display: none; }
 
@@ -120,7 +131,7 @@
                 </div>
                 <div class="banner-tabs" id="primaryTabs" role="tablist">
                     <button class="tab" data-tab="basic" role="tab" aria-selected="false">Basic Information</button>
-                    <button class="tab" data-tab="appfw" role="tab" aria-selected="false">App &amp; Firmware</button>
+                    <button class="tab" data-tab="appfw" role="tab" aria-selected="false">APP &amp; Parameters</button>
                     <button class="tab active" data-tab="push" role="tab" aria-selected="true">Push Task</button>
                     <button class="tab" data-tab="settings" role="tab" aria-selected="false">Setting</button>
                     <button class="tab" data-tab="params" role="tab" aria-selected="false">Parameter Variables</button>
@@ -364,15 +375,13 @@
                     </div>
                 </section>
 
-                <!-- App & Firmware -->
+                <!-- App & Parameters -->
                 <section id="tab-appfw" class="hidden" role="tabpanel" aria-labelledby="appfw">
                     <div class="content-head">
                         <div class="subtabs" id="subTabs">
-                            <button class="subtab active" data-sub="app">App</button>
-                            <button class="subtab" data-sub="fw">Firmware</button>
-                            <button class="subtab" data-sub="launcher">Launcher</button>
+                            <button class="subtab active" data-sub="app">APP</button>
+                            <button class="subtab" data-sub="para">Parameters</button>
                         </div>
-                        <button class="btn-primary" type="button">+ Install</button>
                     </div>
 
                     <div class="filter-bar">
@@ -386,31 +395,54 @@
                         <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
                     </div>
 
-                    <div class="table-wrap" id="table-app">
-                        <table class="table">
-                            <thead><tr><th>App</th><th>Version</th><th>Status</th><th>Installed</th></tr></thead>
-                            <tbody>
-                                <tr><td>Paywizard POS</td><td>3.2.1</td><td><span class="badge success">Active</span></td><td>2025-06-27</td></tr>
-                                <tr><td>BroadPOS TransIT UPT</td><td>1.00.16E</td><td><span class="badge warn">Pending</span></td><td>2025-06-27</td></tr>
-                            </tbody>
-                        </table>
+                    <div id="table-app">
+                        <div class="app-table-title">Subscribed APP List</div>
+                        <div class="table-wrap">
+                            <table class="table app-para-table">
+                                <thead><tr><th>Name</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td>support_PayWizard_Demo_V2.2.2_2601271 <a href="#" class="minor-code">201</a></td>
+                                        <td>com.wizarpos.paywizard.demo</td>
+                                        <td>2.2.2_2601271</td>
+                                        <td>2026-02-11</td>
+                                    </tr>
+                                    <tr>
+                                        <td>opcDavidChen2.3.3</td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>2.3.3-global</td>
+                                        <td>2026-02-10</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="app-table-title">Installed APP List</div>
+                        <div class="table-wrap">
+                            <table class="table app-para-table">
+                                <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Installed Time</th><th>Cert DN</th></tr></thead>
+                                <tbody>
+                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.113</td><td>2026-02-12 16:54:11</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.7</td><td>2026-02-11 14:12:33</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.2_2601271</td><td>2026-02-02 16:43:19</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>InitConnectionMode</td><td>com.wizarpos.setusbattrs</td><td>1.0</td><td>2024-05-21 10:31:50</td><td>EMAILADDRESS=support...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <div class="table-wrap hidden" id="table-fw">
-                        <table class="table">
-                            <thead><tr><th>Firmware</th><th>Build</th><th>Status</th><th>Installed</th></tr></thead>
+                    <div class="table-wrap hidden" id="table-para">
+                        <table class="table app-para-table">
+                            <thead><tr><th>Name</th><th>Group</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
                             <tbody>
-                                <tr><td>IM30 System</td><td>10.1.5</td><td><span class="badge success">Active</span></td><td>2025-06-21</td></tr>
-                                <tr><td>Radio Module</td><td>2.4.7</td><td><span class="badge warn">Pending</span></td><td>&mdash;</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="table-wrap hidden" id="table-launcher">
-                        <table class="table">
-                            <thead><tr><th>Launcher</th><th>Version</th><th>Status</th><th>Installed</th></tr></thead>
-                            <tbody>
-                                <tr><td>PW Launcher</td><td>2.1.0</td><td><span class="badge success">Active</span></td><td>2025-06-12</td></tr>
+                                <tr>
+                                    <td>appParam-WP4130PQ23203182-1364</td>
+                                    <td>Root</td>
+                                    <td>com.wizarpos.opc</td>
+                                    <td>20260211111347</td>
+                                    <td>2026-02-11 11:13:47</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -540,12 +572,11 @@
     // Default
     showTab('push');
 
-    // App & Firmware subtabs
+    // App & Parameters subtabs
     const subTabs = document.querySelectorAll('#subTabs .subtab');
     const tables = {
       app: document.getElementById('table-app'),
-      fw: document.getElementById('table-fw'),
-      launcher: document.getElementById('table-launcher')
+      para: document.getElementById('table-para')
     };
     function showSub(key) {
       Object.keys(tables).forEach(k => {
