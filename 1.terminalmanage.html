@@ -105,10 +105,440 @@
 
         /* Hide old info strip – info now lives inside banner */
         .info-strip { display: none; }
+
+        /* Shell from reseller page */
+        .top-header {
+            height: 56px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .shell-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; font-size: 15px; }
+        .shell-brand-logo { width: 28px; height: 28px; border-radius: 6px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+        .shell-header-actions { display: flex; align-items: center; gap: 12px; }
+        .shell-icon-button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; display: grid; place-items: center; position: relative; color: #0f172a; font-weight: 600; cursor: pointer; }
+        .shell-icon-button .badge { position: absolute; right: 4px; top: 4px; background: #111; color: #fff; font-size: 10px; font-weight: 700; padding: 0 5px; line-height: 16px; border-radius: 8px; }
+        .shell-user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; border: 1px solid #e5e5e5; background: #fff; font-size: 13px; color: #0f172a; }
+        .shell-user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+        .main-body { display: flex; min-height: calc(100vh - 56px); align-items: flex-start; gap: 20px; padding: 20px; }
+        .workspace { flex: 1; min-width: 0; }
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .sidebar .brand-left { display: flex; align-items: center; gap: 10px; }
+        .sidebar .brand-text { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar .brand-name { font-weight: 700; font-size: 17px; color: #0f0f10; letter-spacing: 0.15px; }
+        .sidebar .brand-sub { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar .close-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid #e5e7eb; background: #f9fafb; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+        .sidebar .close-btn span { position: relative; width: 14px; height: 14px; }
+        .sidebar .close-btn span::before,
+        .sidebar .close-btn span::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 14px;
+            height: 1.6px;
+            background: #0f0f10;
+            transform-origin: center;
+        }
+        .sidebar .close-btn span::before { transform: translate(-50%, -50%) rotate(45deg); }
+        .sidebar .close-btn span::after { transform: translate(-50%, -50%) rotate(-45deg); }
+        .sidebar .menu { padding: 10px 10px 16px; display: flex; flex-direction: column; gap: 2px; }
+        .sidebar .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: #111111; transition: background-color 0.18s ease, color 0.18s ease; }
+        .sidebar .menu-item:hover { background: #f3f4f6; }
+        .sidebar .menu-main { display: flex; align-items: center; gap: 10px; }
+        .sidebar .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #0f0f10; }
+        .sidebar .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .sidebar .label { font-size: 14px; font-weight: 600; color: inherit; }
+        .sidebar .chevron { font-size: 11px; color: #6b7280; }
+        .sidebar .menu-item.active { background: #0f0f10; color: #ffffff; }
+        .sidebar .menu-item.active .icon,
+        .sidebar .menu-item.active .chevron { color: #ffffff; }
+        .sidebar .sub-menu { margin: 4px 0 10px; padding-left: 32px; display: none; flex-direction: column; gap: 2px; }
+        .sidebar .sub-menu.open { display: flex; }
+        .sidebar .sub-item { position: relative; font-size: 13px; color: #6b7280; padding: 4px 0 4px 14px; border-radius: 999px; cursor: pointer; transition: background-color 0.18s ease, color 0.18s ease; }
+        .sidebar .sub-item::before { content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; border: 1px solid #d1d5db; transform: translateY(-50%); }
+        .sidebar .sub-item:hover { color: #111111; background: #f3f4f6; }
+        .sidebar .sub-item.active { padding: 6px 10px 6px 24px; background: #111111; color: #ffffff; }
+        .sidebar .sub-item.active::before { width: 7px; height: 7px; border: none; background: #ffffff; left: 10px; }
+
+        .source-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .push-app-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            padding: 20px;
+        }
+        .push-app-modal-overlay.open { display: flex; }
+        .push-app-modal {
+            width: min(1240px, 96vw);
+            max-height: calc(100vh - 40px);
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 22px 54px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .push-app-modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .push-app-modal-title { margin: 0; font-size: 22px; font-weight: 700; color: #111827; }
+        .push-app-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #111827;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .push-app-modal-body { padding: 16px 24px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+        .push-app-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
+        .source-tabs { display: flex; gap: 8px; }
+        .source-tab {
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 10px;
+        }
+        .source-tab.active { color: #111827; border-bottom-color: #111827; }
+        .source-search { width: 280px; max-width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; }
+        .select-table-wrap { border: 1px solid #e5e7eb; border-radius: 10px; overflow: auto; }
+        .select-table { width: 100%; border-collapse: collapse; min-width: 980px; }
+        .select-table thead th {
+            background: #fafafa;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .select-table tbody td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+        .select-table tbody tr { cursor: pointer; transition: background-color .16s ease; }
+        .select-table tbody tr:hover { background: #f8fafc; }
+        .select-table tbody tr.active { background: #eef2ff; }
+        .pick-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1.6px solid #9ca3af;
+            display: inline-block;
+            position: relative;
+        }
+        .pick-dot.active { border-color: #dc2626; }
+        .pick-dot.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc2626;
+            transform: translate(-50%, -50%);
+        }
+        .app-name-cell { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; }
+        .app-avatar { width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; background: #e5e7eb; color: #334155; flex-shrink: 0; }
+        .app-source-note { font-size: 12px; color: #64748b; }
+        .empty-row td { text-align: center; color: #94a3b8; padding: 24px 12px; }
+        .push-app-modal-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .picked-app-hint { font-size: 13px; color: #475569; font-weight: 600; }
+        .push-app-links { display: flex; gap: 14px; font-size: 13px; flex-wrap: wrap; }
+        .push-app-modal-footer .action-buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .push-app-modal-footer .btn-primary,
+        .push-app-modal-footer .btn-secondary {
+            width: auto;
+            min-width: 96px;
+        }
+
+        @media (max-width: 1160px) {
+            .main-body { flex-direction: column; }
+            .sidebar { width: 100%; }
+        }
+        @media (max-width: 900px) {
+            .content-head,
+            .section-head,
+            .task-card,
+            .push-app-tools,
+            .push-app-modal-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .push-app-modal-footer .action-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .source-search { width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="page-wrap">
+    <header class="top-header">
+        <div class="shell-brand">
+            <div class="shell-brand-logo">PW</div>
+            <div>Paywizard Console</div>
+        </div>
+        <div class="shell-header-actions">
+            <button class="shell-icon-button" aria-label="Notifications">
+                <span>!</span>
+                <span class="badge">5</span>
+            </button>
+            <button class="shell-icon-button" aria-label="Settings">*</button>
+            <div class="shell-user-chip">
+                <div class="shell-user-avatar">R</div>
+                <span>robasz</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-body">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="brand-text">
+                        <div class="brand-name">PAYwizard</div>
+                        <div class="brand-sub">menu</div>
+                    </div>
+                </div>
+                <button class="close-btn" type="button" aria-label="Close menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <div class="menu">
+                <div class="menu-item" data-key="dashboard">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="4" y="13" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="13" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </span>
+                        <span class="label">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="transactions">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                                <path d="M8 14h4"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Transactions</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="batches">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 7h12l1 3H5z"></path>
+                                <path d="M7 10v7h10v-7"></path>
+                                <path d="M9 14h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Batches</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="security">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path>
+                                <path d="M10 12.5l2 2 3-3.5"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Security</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="agents">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M4 20a4 4 0 018 0"></path>
+                                <path d="M12 17a4 4 0 018 0"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Agents</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="agents">
+                    <div class="sub-item" data-key="agents-list" data-link="2.agent_list_iso.html">Agent List</div>
+                    <div class="sub-item" data-key="agents-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="merchants">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path>
+                                <path d="M9 21V12h6v9"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Merchants</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item" data-key="merchants-leads">Leads</div>
+                    <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
+                    <div class="sub-item" data-key="merchants-list">Merchant List</div>
+                    <div class="sub-item" data-key="merchants-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="partners">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Partners</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="partners">
+                    <div class="sub-item" data-key="partners-list">Partner List</div>
+                    <div class="sub-item" data-key="partners-hardware">Hardware</div>
+                </div>
+
+                <div class="menu-item active expanded" data-toggle="submenu" data-target="devices">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path>
+                                <path d="M10 12.5l2 2 3-3.5"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Device Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">v</span>
+                </div>
+                <div class="sub-menu open" data-parent="devices">
+                    <div class="sub-item active" data-key="terminal-management" data-link="1.terminalmanage.html">Terminal Management</div>
+                    <div class="sub-item" data-key="template-management" data-link="3.pushtemplate_new.html">Template Management</div>
+                </div>
+
+                <div class="menu-item" data-key="app-center" data-link="10.customer_app_upload_manage.html">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                                <path d="M8 12h8"></path>
+                                <path d="M12 8v8"></path>
+                            </svg>
+                        </span>
+                        <span class="label">APP</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="users">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+                                <path d="M9 9h6M9 13h6M9 17h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">User Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="users">
+                    <div class="sub-item" data-key="users-list">User List</div>
+                    <div class="sub-item" data-key="users-roles">Role Permissions</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="settings">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Settings</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="settings">
+                    <div class="sub-item" data-key="settings-branding" data-link="branding.html">Branding</div>
+                    <div class="sub-item" data-key="settings-payments">Payment Channels</div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="workspace">
+            <div class="page-wrap">
         <div class="crumbs">Merchant Account > <span>Terminal Management</span> > IM30-01 41381</div>
 
         <div class="terminal-card">
@@ -455,8 +885,9 @@
                             <button class="subtab active">App</button>
                             <button class="subtab">Firmware</button>
                             <button class="subtab">Launcher</button>
+                            <span class="source-chip">WSTORE + APP Uploaded</span>
                         </div>
-                        <button class="btn-primary" type="button">+ Push App</button>
+                        <button id="openPushAppModal" class="btn-primary" type="button">+ Push App</button>
                     </div>
 
                     <div class="filter-bar">
@@ -472,8 +903,13 @@
 
                     <div class="task-card">
                         <div>
-                            <div class="task-title">BroadPOS TransIT UPT <span>V1.00.16E_20250606</span></div>
-                            <div class="task-meta">Type: Parameter App<br>Effective Time: 2025-06-27 03:00<br>App Push Time: 2025-06-27 03:00</div>
+                            <div class="task-title"><span id="activePushNameText">BroadPOS TransIT UPT</span> <span id="activePushVersion">V1.00.16E_20250606</span></div>
+                            <div class="task-meta">
+                                Type: <span id="activePushType">Parameter App</span><br>
+                                Source: <span id="activePushSource">WSTORE</span><br>
+                                Effective Time: <span id="activePushEffectiveTime">2025-06-27 03:00</span><br>
+                                App Push Time: <span id="activePushTime">2025-06-27 03:00</span>
+                            </div>
                         </div>
                         <div class="task-actions">
                             <span class="badge success">Active</span>
@@ -492,11 +928,11 @@
                         <div class="table-wrap">
                             <table class="table">
                                 <thead>
-                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Status</th><th>Time</th></tr>
+                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Source</th><th>Status</th><th>Time</th></tr>
                                 </thead>
-                                <tbody>
-                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
-                                    <tr><td>Sync</td><td>Device</td><td>&mdash;</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
+                                <tbody id="pushHistoryBody">
+                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td>WSTORE</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
+                                    <tr><td>Sync</td><td>Device</td><td>&mdash;</td><td>&mdash;</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -524,7 +960,7 @@
                     <div class="filter-bar">
                         <div class="filter-grid">
                             <div class="field"><label>Key</label><input type="text" placeholder="Search key" /></div>
-                            <div class="field"><label>Value</label><input type="text" placeholder="Contains…" /></div>
+                            <div class="field"><label>Value</label><input type="text" placeholder="Contains value" /></div>
                             <div class="field"><label>Scope</label><select><option>All</option><option>System</option><option>App</option></select></div>
                             <div class="field"><label>Modified By</label><input type="text" placeholder="User" /></div>
                             <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
@@ -542,76 +978,416 @@
                     </div>
                 </section>
             </div>
+        </div>
+    </div>
+        </div>
+    </div>
 
+    <div id="pushAppModal" class="push-app-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="push-app-modal">
+            <div class="push-app-modal-header">
+                <h2 class="push-app-modal-title">Select Application</h2>
+                <button id="closePushAppModal" class="push-app-close" type="button" aria-label="Close">&times;</button>
+            </div>
+            <div class="push-app-modal-body">
+                <div class="push-app-tools">
+                    <div class="source-tabs" id="sourceTabs">
+                        <button class="source-tab active" type="button" data-source="public">WSTORE</button>
+                        <button class="source-tab" type="button" data-source="customer">APP Uploaded</button>
+                    </div>
+                    <input id="sourceSearchInput" class="source-search" type="text" placeholder="Search">
+                </div>
+                <div class="select-table-wrap">
+                    <table class="select-table">
+                        <thead>
+                            <tr>
+                                <th style="width:46px"></th>
+                                <th>APP NAME</th>
+                                <th>VERSION</th>
+                                <th>TYPE</th>
+                                <th>DEVELOPER</th>
+                                <th>UPDATED TIME</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selectAppRows"></tbody>
+                    </table>
+                </div>
+                <div class="push-app-links">
+                    <a href="10.customer_app_upload_manage.html">Open APP page</a>
+                </div>
+            </div>
+            <div class="push-app-modal-footer">
+                <div id="pickedAppHint" class="picked-app-hint">No app selected</div>
+                <div class="action-buttons">
+                    <button id="cancelPushAppModal" class="btn-secondary" type="button">Cancel</button>
+                    <button id="confirmPushApp" class="btn-primary" type="button">OK</button>
+                </div>
+            </div>
         </div>
     </div>
 <script>
     (function() {
         const tabs = document.querySelectorAll('#primaryTabs .tab');
         const sections = {
-          basic: document.getElementById('tab-basic'),
-          appfw: document.getElementById('tab-appfw'),
-          push: document.getElementById('tab-push'),
-          settings: document.getElementById('tab-settings'),
-          params: document.getElementById('tab-params')
+            basic: document.getElementById('tab-basic'),
+            appfw: document.getElementById('tab-appfw'),
+            push: document.getElementById('tab-push'),
+            settings: document.getElementById('tab-settings'),
+            params: document.getElementById('tab-params')
         };
 
-    function showTab(key) {
-      Object.keys(sections).forEach(k => {
-        if (!sections[k]) return;
-        sections[k].classList.toggle('hidden', k !== key);
-      });
-      tabs.forEach(btn => {
-        const active = btn.getAttribute('data-tab') === key;
-        btn.classList.toggle('active', active);
-        btn.setAttribute('aria-selected', String(active));
-      });
-    }
+        function showTab(key) {
+            Object.keys(sections).forEach(k => {
+                if (!sections[k]) return;
+                sections[k].classList.toggle('hidden', k !== key);
+            });
+            tabs.forEach(btn => {
+                const active = btn.getAttribute('data-tab') === key;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', String(active));
+            });
+        }
 
-    tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
-    // Default
-    showTab('push');
+        tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+        showTab('push');
 
-    // App & Parameters subtabs
-    const subTabs = document.querySelectorAll('#subTabs .subtab');
-    const tables = {
-      app: document.getElementById('table-app'),
-      para: document.getElementById('table-para')
-    };
-    function showSub(key) {
-      Object.keys(tables).forEach(k => {
-        if (!tables[k]) return;
-        tables[k].classList.toggle('hidden', k !== key);
-      });
-      subTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === key));
-    }
-    subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
-    showSub('app');
+        const subTabs = document.querySelectorAll('#subTabs .subtab');
+        const tables = {
+            app: document.getElementById('table-app'),
+            para: document.getElementById('table-para')
+        };
 
-    // Basic tab: log subtabs + year chips (black & white UI)
-    const logTabs = document.querySelectorAll('#basicLogTabs .log-tab');
-    const logPanels = {
-      op: document.getElementById('log-op'),
-      rep: document.getElementById('log-rep'),
-      dl: document.getElementById('log-dl')
-    };
-    function showLog(key) {
-      Object.keys(logPanels).forEach(k => {
-        if (!logPanels[k]) return;
-        logPanels[k].classList.toggle('hidden', k !== key);
-      });
-      logTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.log === key));
-    }
-    logTabs.forEach(btn => btn.addEventListener('click', () => showLog(btn.dataset.log)));
-    // default state
-    showLog('op');
+        function showSub(key) {
+            Object.keys(tables).forEach(k => {
+                if (!tables[k]) return;
+                tables[k].classList.toggle('hidden', k !== key);
+            });
+            subTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === key));
+        }
 
-    const yearChips = document.querySelectorAll('#yearChips .chip');
-    yearChips.forEach(chip => chip.addEventListener('click', () => {
-      yearChips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-    }));
-  })();
+        subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
+        showSub('app');
+
+        const logTabs = document.querySelectorAll('#basicLogTabs .log-tab');
+        const logPanels = {
+            op: document.getElementById('log-op'),
+            rep: document.getElementById('log-rep'),
+            dl: document.getElementById('log-dl')
+        };
+
+        function showLog(key) {
+            Object.keys(logPanels).forEach(k => {
+                if (!logPanels[k]) return;
+                logPanels[k].classList.toggle('hidden', k !== key);
+            });
+            logTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.log === key));
+        }
+
+        logTabs.forEach(btn => btn.addEventListener('click', () => showLog(btn.dataset.log)));
+        showLog('op');
+
+        const yearChips = document.querySelectorAll('#yearChips .chip');
+        yearChips.forEach(chip => chip.addEventListener('click', () => {
+            yearChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+        }));
+    })();
+
+    (function(){
+        const sidebar = document.querySelector('.sidebar');
+        if(!sidebar) return;
+
+        const rootMenuItems = sidebar.querySelectorAll('.menu-item');
+        const submenuTriggers = sidebar.querySelectorAll('.menu-item[data-toggle="submenu"]');
+        const subItems = sidebar.querySelectorAll('.sub-item');
+
+        function setActiveRoot(target){
+            rootMenuItems.forEach(item => item.classList.toggle('active', item === target));
+        }
+
+        function closeAllSubmenus(){
+            sidebar.querySelectorAll('.sub-menu.open').forEach(menu => menu.classList.remove('open'));
+            submenuTriggers.forEach(trigger => {
+                trigger.classList.remove('expanded');
+                const ch = trigger.querySelector('.chevron');
+                if(ch) ch.textContent = '>';
+            });
+        }
+
+        submenuTriggers.forEach(trigger => {
+            const targetId = trigger.getAttribute('data-target');
+            const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+            const ch = trigger.querySelector('.chevron');
+            if(ch) ch.textContent = submenu && submenu.classList.contains('open') ? 'v' : '>';
+        });
+
+        submenuTriggers.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetId = item.getAttribute('data-target');
+                const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+                const isOpen = submenu && submenu.classList.contains('open');
+
+                setActiveRoot(item);
+                if(!submenu) return;
+
+                if(isOpen){
+                    submenu.classList.remove('open');
+                    item.classList.remove('expanded');
+                    const chClose = item.querySelector('.chevron');
+                    if(chClose) chClose.textContent = '>';
+                } else {
+                    closeAllSubmenus();
+                    submenu.classList.add('open');
+                    item.classList.add('expanded');
+                    const chOpen = item.querySelector('.chevron');
+                    if(chOpen) chOpen.textContent = 'v';
+                }
+            });
+        });
+
+        rootMenuItems.forEach(item => {
+            if(item.hasAttribute('data-toggle')) return;
+            item.addEventListener('click', () => {
+                setActiveRoot(item);
+                closeAllSubmenus();
+                const link = item.getAttribute('data-link');
+                if(link) window.location.href = link;
+            });
+        });
+
+        subItems.forEach(sub => {
+            sub.addEventListener('click', evt => {
+                evt.stopPropagation();
+                subItems.forEach(s => s.classList.remove('active'));
+                sub.classList.add('active');
+                const parent = sub.parentElement && sub.parentElement.getAttribute('data-parent');
+                if(parent){
+                    const trigger = sidebar.querySelector('.menu-item[data-target="' + parent + '"]');
+                    if(trigger) setActiveRoot(trigger);
+                }
+                const link = sub.getAttribute('data-link');
+                if(link) window.location.href = link;
+            });
+        });
+    })();
+
+    (function(){
+        const STORAGE_KEY = 'pw_customer_apps';
+        const defaultCustomerApps = [
+            { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18' },
+            { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45' },
+            { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10' }
+        ];
+
+        function loadListedCustomerApps(){
+            try {
+                const raw = window.localStorage.getItem(STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : defaultCustomerApps;
+                if(!Array.isArray(parsed)) return [];
+                return parsed
+                    .filter(item => item && item.listed !== false)
+                    .map((item, idx) => ({
+                        id: item.id || `cus-${idx + 1}`,
+                        name: item.name || 'Unknown APP',
+                        version: item.version || '1.0.0',
+                        type: item.type || 'Standard App',
+                        developer: '1 of a Kind World Travel LLC',
+                        updated: item.updated || '2026-03-01 00:00'
+                    }));
+            } catch (e){
+                return defaultCustomerApps
+                    .filter(item => item.listed !== false)
+                    .map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        version: item.version,
+                        type: item.type,
+                        developer: '1 of a Kind World Travel LLC',
+                        updated: item.updated
+                    }));
+            }
+        }
+
+        const appData = {
+            public: [
+                { id: 'pub-1', name: 'BroadPOS TransIT', version: 'V1.04.00E_20230723', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-07-23 08:34' },
+                { id: 'pub-2', name: 'CheckUP', version: '1.03.07_20250708', type: 'Standard App', developer: 'PAX USBO', updated: '2025-07-09 08:16' },
+                { id: 'pub-3', name: 'AirViewer', version: '3.5.0', type: 'Standard App', developer: 'PAXSTORE Team', updated: '2025-06-30 08:11' },
+                { id: 'pub-4', name: 'BroadPOS TransIT UPT Demo', version: 'V1.00.16E_20250606', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-06-11 07:52' },
+                { id: 'pub-5', name: 'Vixslink-VM', version: 'V1.13.06.20250522', type: 'Parameter App', developer: 'PAX Technology', updated: '2025-06-03 07:46' }
+            ],
+            customer: loadListedCustomerApps()
+        };
+
+        const modal = document.getElementById('pushAppModal');
+        const openBtn = document.getElementById('openPushAppModal');
+        const closeBtn = document.getElementById('closePushAppModal');
+        const cancelBtn = document.getElementById('cancelPushAppModal');
+        const confirmBtn = document.getElementById('confirmPushApp');
+        const sourceTabs = document.querySelectorAll('#sourceTabs .source-tab');
+        const searchInput = document.getElementById('sourceSearchInput');
+        const rowsWrap = document.getElementById('selectAppRows');
+        const pickedHint = document.getElementById('pickedAppHint');
+
+        const activePushName = document.getElementById('activePushNameText');
+        const activePushVersion = document.getElementById('activePushVersion');
+        const activePushType = document.getElementById('activePushType');
+        const activePushSource = document.getElementById('activePushSource');
+        const activePushEffectiveTime = document.getElementById('activePushEffectiveTime');
+        const activePushTime = document.getElementById('activePushTime');
+        const pushHistoryBody = document.getElementById('pushHistoryBody');
+
+        if(!modal || !openBtn || !rowsWrap) return;
+
+        let activeSource = 'public';
+        let searchKeyword = '';
+        const selectedBySource = { public: 'pub-1', customer: null };
+
+        function nowText(){
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+        }
+
+        function avatarBg(name){
+            const palette = ['#dbeafe', '#fee2e2', '#dcfce7', '#e0e7ff', '#fef3c7', '#e0f2fe'];
+            const sum = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+            return palette[sum % palette.length];
+        }
+
+        function filteredApps(){
+            const list = appData[activeSource] || [];
+            if(!searchKeyword) return list;
+            return list.filter(item => {
+                const text = `${item.name} ${item.version} ${item.type} ${item.developer}`.toLowerCase();
+                return text.includes(searchKeyword);
+            });
+        }
+
+        function updatePickedHint(){
+            const selectedId = selectedBySource[activeSource];
+            const selected = (appData[activeSource] || []).find(item => item.id === selectedId);
+            if(!selected){
+                if(activeSource === 'customer' && !(appData.customer || []).length){
+                    pickedHint.textContent = 'No published APP Uploaded apps. Go to APP page and publish an app.';
+                    return;
+                }
+                pickedHint.textContent = 'No app selected';
+                return;
+            }
+            pickedHint.textContent = `Selected: ${selected.name} (${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'})`;
+        }
+
+        function renderRows(){
+            const selectedId = selectedBySource[activeSource];
+            const rows = filteredApps();
+
+            if(!rows.length){
+                rowsWrap.innerHTML = '<tr class="empty-row"><td colspan="6">No applications found.</td></tr>';
+                updatePickedHint();
+                return;
+            }
+
+            rowsWrap.innerHTML = rows.map(app => {
+                const picked = app.id === selectedId;
+                return `
+                    <tr class="${picked ? 'active' : ''}" data-app-id="${app.id}">
+                        <td><span class="pick-dot ${picked ? 'active' : ''}"></span></td>
+                        <td>
+                            <div class="app-name-cell">
+                                <span class="app-avatar" style="background:${avatarBg(app.name)}">${(app.name || '?').trim().charAt(0).toUpperCase()}</span>
+                                <div>
+                                    <div>${app.name}</div>
+                                    <div class="app-source-note">${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${app.version}</td>
+                        <td>${app.type}</td>
+                        <td>${app.developer}</td>
+                        <td>${app.updated}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            rowsWrap.querySelectorAll('tr[data-app-id]').forEach(row => {
+                row.addEventListener('click', () => {
+                    selectedBySource[activeSource] = row.getAttribute('data-app-id');
+                    renderRows();
+                });
+            });
+
+            updatePickedHint();
+        }
+
+        function setSource(source){
+            activeSource = source;
+            sourceTabs.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-source') === source));
+            if(!selectedBySource[source] && (appData[source] || []).length){
+                selectedBySource[source] = appData[source][0].id;
+            }
+            renderRows();
+        }
+
+        function openModal(){
+            appData.customer = loadListedCustomerApps();
+            if(selectedBySource.customer && !(appData.customer || []).some(item => item.id === selectedBySource.customer)){
+                selectedBySource.customer = null;
+            }
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            renderRows();
+        }
+
+        function closeModal(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        sourceTabs.forEach(tab => tab.addEventListener('click', () => setSource(tab.getAttribute('data-source'))));
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        searchInput.addEventListener('input', () => {
+            searchKeyword = searchInput.value.trim().toLowerCase();
+            renderRows();
+        });
+        modal.addEventListener('click', evt => {
+            if(evt.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', evt => {
+            if(evt.key === 'Escape' && modal.classList.contains('open')) closeModal();
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            const selectedId = selectedBySource[activeSource];
+            const selected = (appData[activeSource] || []).find(item => item.id === selectedId);
+            if(!selected){
+                alert('Please select an application first.');
+                return;
+            }
+            const now = nowText();
+            activePushName.textContent = selected.name;
+            activePushVersion.textContent = selected.version;
+            activePushType.textContent = selected.type;
+            activePushSource.textContent = activeSource === 'public' ? 'WSTORE' : 'APP Uploaded';
+            activePushEffectiveTime.textContent = now;
+            activePushTime.textContent = now;
+
+            const statusClass = activeSource === 'public' ? 'success' : 'warn';
+            const statusText = activeSource === 'public' ? 'Success' : 'Pending';
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>Push App</td><td>${selected.name}</td><td>${selected.version}</td><td>${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>${now}</td>`;
+            pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
+            closeModal();
+        });
+
+        setSource('public');
+    })();
 </script>
 </body>
 </html>

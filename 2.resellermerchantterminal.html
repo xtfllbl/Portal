@@ -585,8 +585,21 @@
                     <span class="chevron" aria-hidden="true">v</span>
                 </div>
                 <div class="sub-menu open" data-parent="devices">
-                    <div class="sub-item active" data-key="terminal-management">Terminal Management</div>
-                    <div class="sub-item" data-key="template-management">Template Management</div>
+                    <div class="sub-item active" data-key="terminal-management" data-link="1.terminalmanage.html">Terminal Management</div>
+                    <div class="sub-item" data-key="template-management" data-link="3.pushtemplate_new.html">Template Management</div>
+                </div>
+
+                <div class="menu-item" data-key="app-center" data-link="10.customer_app_upload_manage.html">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                <path d="M8 12h8" />
+                                <path d="M12 8v8" />
+                            </svg>
+                        </span>
+                        <span class="label">APP</span>
+                    </div>
                 </div>
 
                 <div class="menu-item" data-toggle="submenu" data-target="users">
@@ -619,7 +632,7 @@
                     <span class="chevron" aria-hidden="true">></span>
                 </div>
                 <div class="sub-menu" data-parent="settings">
-                    <div class="sub-item" data-key="settings-branding">Branding</div>
+                    <div class="sub-item" data-key="settings-branding" data-link="branding.html">Branding</div>
                     <div class="sub-item" data-key="settings-payments">Payment Channels</div>
                 </div>
             </div>
@@ -2259,6 +2272,10 @@
             item.addEventListener('click', function(){
               setActiveRoot(item);
               closeAllSubmenus();
+              var link = item.getAttribute('data-link');
+              if(link){
+                window.location.href = link;
+              }
             });
           }
         });
@@ -2272,6 +2289,10 @@
             if(!parent) return;
             var trigger = sidebar.querySelector('.menu-item[data-target="' + parent + '"]');
             if(trigger) setActiveRoot(trigger);
+            var link = sub.getAttribute('data-link');
+            if(link){
+              window.location.href = link;
+            }
           });
         });
       })();

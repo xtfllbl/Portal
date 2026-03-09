@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APP Center</title>
+  <link rel="stylesheet" href="styles/na-theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); }
+    .top-header { height: 56px; background: #fff; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; font-size: 15px; }
+    .brand-logo { width: 28px; height: 28px; border-radius: 6px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; display: grid; place-items: center; position: relative; color: #0f172a; font-weight: 600; cursor: pointer; }
+    .icon-button .badge { position: absolute; right: 4px; top: 4px; background: #111; color: #fff; font-size: 10px; font-weight: 700; padding: 0 5px; line-height: 16px; border-radius: 8px; }
+    .user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; border: 1px solid #e5e5e5; background: #fff; font-size: 13px; color: #0f172a; }
+    .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+
+    .main-body { display: flex; min-height: calc(100vh - 56px); align-items: flex-start; gap: 20px; padding: 20px; }
+    .workspace { flex: 1; min-width: 0; }
+    .page-wrap { max-width: 1200px; margin: 0 auto; }
+    .crumbs { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin: 6px 0 12px; text-transform: uppercase; }
+    .crumbs span { color: #0f172a; }
+
+    .sidebar { width: 260px; background: #fff; border-radius: 18px; border: 1px solid #e5e7eb; box-shadow: 0 18px 40px rgba(0,0,0,.08); overflow: hidden; display: flex; flex-direction: column; }
+    .sidebar .head { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 14px; border-bottom: 1px solid #e5e7eb; }
+    .sidebar .head .name { font-weight: 700; font-size: 17px; color: #0f0f10; }
+    .sidebar .head .sub { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+    .sidebar .menu { padding: 10px 10px 16px; display: flex; flex-direction: column; gap: 2px; }
+    .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: #111; transition: .18s; }
+    .menu-item:hover { background: #f3f4f6; }
+    .menu-main { display: flex; align-items: center; gap: 10px; }
+    .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #0f0f10; }
+    .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .label { font-size: 14px; font-weight: 600; color: inherit; }
+    .chevron { font-size: 11px; color: #6b7280; }
+    .menu-item.active { background: #0f0f10; color: #fff; }
+    .menu-item.active .icon, .menu-item.active .chevron { color: #fff; }
+    .sub-menu { margin: 4px 0 10px; padding-left: 32px; display: none; flex-direction: column; gap: 2px; }
+    .sub-menu.open { display: flex; }
+    .sub-item { position: relative; font-size: 13px; color: #6b7280; padding: 4px 0 4px 14px; border-radius: 999px; cursor: pointer; }
+    .sub-item::before { content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; border: 1px solid #d1d5db; transform: translateY(-50%); }
+    .sub-item:hover { color: #111; background: #f3f4f6; }
+    .sub-item.active { padding: 6px 10px 6px 24px; background: #111; color: #fff; }
+    .sub-item.active::before { width: 7px; height: 7px; border: none; background: #fff; left: 10px; }
+
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-xs); overflow: hidden; }
+    .card-head { padding: 18px 24px 10px; border-bottom: 1px solid var(--border); }
+    .card-head h1 { margin: 0; font-size: 40px; color: #111827; }
+    .card-tabs { display: flex; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--border); }
+    .tab-btn { border: none; background: transparent; color: #6b7280; font-size: 16px; font-weight: 700; padding: 12px 2px; border-bottom: 2px solid transparent; cursor: pointer; }
+    .tab-btn.active { color: #111827; border-bottom-color: #111827; }
+    .pane { display: none; padding: 16px 24px 24px; }
+    .pane.active { display: block; }
+
+    .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .box { border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .box h3 { margin: 0 0 10px; font-size: 20px; color: #111827; }
+    .dropzone { border: 1px dashed #cbd5e1; border-radius: 12px; min-height: 220px; background: #f8fafc; display: grid; place-items: center; text-align: center; color: #64748b; padding: 12px; }
+    .dropzone strong { display: block; margin-bottom: 8px; font-size: 20px; color: #111827; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 12px; font-weight: 700; color: #475569; }
+    .field input, .field select { height: 36px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; }
+    .upload-actions { margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px; }
+    .guide { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: #475569; font-size: 14px; }
+    .guide strong { color: #111827; }
+
+    .tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tools input, .tools select { height: 36px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; }
+    .tools .search { min-width: 260px; flex: 1; }
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
+    .table { min-width: 980px; }
+    .table thead th { background: #fafafa; font-size: 12px; text-transform: uppercase; color: #64748b; letter-spacing: .03em; }
+    .table tbody td { font-size: 14px; }
+    .pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .pill.active { background: #dcfce7; color: #166534; }
+    .pill.off { background: #e2e8f0; color: #334155; }
+    .actions { display: flex; gap: 6px; }
+    .small-btn { border: 1px solid var(--border); border-radius: 999px; background: #fff; color: #0f172a; font-size: 12px; font-weight: 700; padding: 5px 10px; cursor: pointer; text-decoration: none; }
+    .small-btn:hover { background: #f8fafc; }
+    .small-btn.update { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+    .small-btn.toggle { color: #0369a1; border-color: #bae6fd; background: #f0f9ff; }
+
+    @media (max-width: 1160px) { .main-body { flex-direction: column; } .sidebar { width: 100%; } }
+    @media (max-width: 980px) { .upload-grid { grid-template-columns: 1fr; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top-header">
+    <div class="brand"><div class="brand-logo">PW</div><div>Paywizard Console</div></div>
+    <div class="header-actions">
+      <button class="icon-button" aria-label="Notifications"><span>!</span><span class="badge">5</span></button>
+      <button class="icon-button" aria-label="Settings">*</button>
+      <div class="user-chip"><div class="user-avatar">R</div><span>robasz</span></div>
+    </div>
+  </header>
+
+  <div class="main-body">
+    <aside class="sidebar">
+      <div class="head"><div><div class="name">PAYwizard</div><div class="sub">menu</div></div><button class="icon-button" aria-label="Close">x</button></div>
+      <div class="menu">
+        <div class="menu-item" data-key="dashboard"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg></span><span class="label">Dashboard</span></div></div>
+        <div class="menu-item" data-key="transactions"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h4"></path></svg></span><span class="label">Transactions</span></div></div>
+        <div class="menu-item" data-key="batches"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 3H5z"></path><path d="M7 10v7h10v-7"></path><path d="M9 14h6"></path></svg></span><span class="label">Batches</span></div></div>
+        <div class="menu-item" data-key="security"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path><path d="M10 12.5l2 2 3-3.5"></path></svg></span><span class="label">Security</span></div></div>
+
+        <div class="menu-item" data-toggle="submenu" data-target="agents"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path><path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path><path d="M4 20a4 4 0 018 0"></path><path d="M12 17a4 4 0 018 0"></path></svg></span><span class="label">Agents</span></div><span class="chevron">></span></div>
+        <div class="sub-menu" data-parent="agents"><div class="sub-item" data-link="2.agent_list_iso.html">Agent List</div><div class="sub-item">Analytics</div></div>
+
+        <div class="menu-item" data-toggle="submenu" data-target="merchants"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path><path d="M9 21V12h6v9"></path></svg></span><span class="label">Merchants</span></div><span class="chevron">></span></div>
+        <div class="sub-menu" data-parent="merchants"><div class="sub-item">Leads</div><div class="sub-item">Onboarding</div><div class="sub-item">Merchant List</div><div class="sub-item">Analytics</div></div>
+
+        <div class="menu-item" data-toggle="submenu" data-target="partners"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path></svg></span><span class="label">Partners</span></div><span class="chevron">></span></div>
+        <div class="sub-menu" data-parent="partners"><div class="sub-item">Partner List</div><div class="sub-item">Hardware</div></div>
+
+        <div class="menu-item" data-toggle="submenu" data-target="devices"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path><path d="M10 12.5l2 2 3-3.5"></path></svg></span><span class="label">Device Management</span></div><span class="chevron">></span></div>
+        <div class="sub-menu" data-parent="devices"><div class="sub-item" data-link="1.terminalmanage.html">Terminal Management</div><div class="sub-item" data-link="3.pushtemplate_new.html">Template Management</div></div>
+
+        <div class="menu-item active" data-key="app-center" data-link="10.customer_app_upload_manage.html"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></span><span class="label">APP</span></div></div>
+
+        <div class="menu-item" data-toggle="submenu" data-target="users"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6M9 13h6M9 17h6"></path></svg></span><span class="label">User Management</span></div><span class="chevron">></span></div>
+        <div class="sub-menu" data-parent="users"><div class="sub-item">User List</div><div class="sub-item">Role Permissions</div></div>
+
+        <div class="menu-item" data-toggle="submenu" data-target="settings"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path></svg></span><span class="label">Settings</span></div><span class="chevron">></span></div>
+        <div class="sub-menu" data-parent="settings"><div class="sub-item" data-link="branding.html">Branding</div><div class="sub-item">Payment Channels</div></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <div class="page-wrap">
+        <div class="crumbs">APP > <span>APP Center</span></div>
+        <section class="card">
+          <div class="card-head"><h1>APP</h1></div>
+          <div class="card-tabs" id="tabs">
+            <button class="tab-btn active" data-tab="upload" type="button">Upload APP</button>
+            <button class="tab-btn" data-tab="manage" type="button">Manage APP</button>
+          </div>
+
+          <div id="pane-upload" class="pane active">
+            <div class="upload-grid">
+              <div class="box">
+                <h3>Upload New APP</h3>
+                <div class="dropzone">
+                  <div>
+                    <strong>Drop APK Here</strong>
+                    <div>or choose file from local disk</div>
+                    <div style="margin-top:8px;"><input id="appFile" type="file" accept=".apk"></div>
+                  </div>
+                </div>
+                <div class="fields">
+                  <div class="field"><label for="appName">APP Name</label><input id="appName" type="text" placeholder="UPT Retail Plus"></div>
+                  <div class="field"><label for="appVersion">Version</label><input id="appVersion" type="text" placeholder="2.6.2_20260309"></div>
+                  <div class="field"><label for="appType">Type</label><select id="appType"><option>Standard App</option><option>Parameter App</option><option>Tool App</option></select></div>
+                  <div class="field"><label for="appPackage">Package</label><input id="appPackage" type="text" placeholder="com.customer.app"></div>
+                </div>
+                <div class="upload-actions">
+                  <button id="resetUpload" class="btn-secondary" type="button">Reset</button>
+                  <button id="submitUpload" class="btn-primary" type="button">Upload APP</button>
+                </div>
+              </div>
+              <div class="box">
+                <h3>Upload Guidelines</h3>
+                <ul class="guide">
+                  <li><strong>Format:</strong> APK only.</li>
+                  <li><strong>Version:</strong> same package must increase version code.</li>
+                  <li><strong>Auto fill:</strong> APP name / version / package auto-filled from APK filename rules in this prototype.</li>
+                  <li><strong>Scope:</strong> APP belongs to current merchant only.</li>
+                  <li><strong>Push rule:</strong> only <strong>Published</strong> APPs can be pushed from Terminal Management.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="pane-manage" class="pane">
+            <div class="tools">
+              <input id="searchInput" class="search" type="text" placeholder="Search APP name / package">
+              <select id="statusFilter"><option value="all">All Status</option><option value="published">Published</option><option value="unpublished">Unpublished</option></select>
+              <button id="applyFilter" class="btn-secondary" type="button">Apply</button>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>APP Name</th><th>Package</th><th>Version</th><th>Type</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead>
+                <tbody id="appTableBody"></tbody>
+              </table>
+            </div>
+            <input id="updateFileInput" type="file" accept=".apk" style="display:none;">
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const sidebar = document.querySelector('.sidebar');
+      if(!sidebar) return;
+      const rootMenuItems = sidebar.querySelectorAll('.menu-item');
+      const submenuTriggers = sidebar.querySelectorAll('.menu-item[data-toggle="submenu"]');
+      const subItems = sidebar.querySelectorAll('.sub-item');
+      function setActiveRoot(target){ rootMenuItems.forEach(item => item.classList.toggle('active', item === target)); }
+      function closeAll(){ sidebar.querySelectorAll('.sub-menu.open').forEach(m => m.classList.remove('open')); submenuTriggers.forEach(t => { t.classList.remove('expanded'); const ch = t.querySelector('.chevron'); if(ch) ch.textContent = '>'; }); }
+      submenuTriggers.forEach(t => { const id = t.getAttribute('data-target'); const m = sidebar.querySelector('.sub-menu[data-parent="' + id + '"]'); const ch = t.querySelector('.chevron'); if(ch) ch.textContent = m && m.classList.contains('open') ? 'v' : '>'; });
+      submenuTriggers.forEach(item => item.addEventListener('click', () => { const id = item.getAttribute('data-target'); const menu = sidebar.querySelector('.sub-menu[data-parent="' + id + '"]'); const open = menu && menu.classList.contains('open'); setActiveRoot(item); if(!menu) return; if(open){ menu.classList.remove('open'); item.classList.remove('expanded'); const ch = item.querySelector('.chevron'); if(ch) ch.textContent = '>'; } else { closeAll(); menu.classList.add('open'); item.classList.add('expanded'); const ch = item.querySelector('.chevron'); if(ch) ch.textContent = 'v'; } }));
+      rootMenuItems.forEach(item => { if(item.hasAttribute('data-toggle')) return; item.addEventListener('click', () => { setActiveRoot(item); closeAll(); const link = item.getAttribute('data-link'); if(link) window.location.href = link; }); });
+      subItems.forEach(sub => sub.addEventListener('click', evt => { evt.stopPropagation(); subItems.forEach(s => s.classList.remove('active')); sub.classList.add('active'); const parent = sub.parentElement && sub.parentElement.getAttribute('data-parent'); if(parent){ const trigger = sidebar.querySelector('.menu-item[data-target="' + parent + '"]'); if(trigger) setActiveRoot(trigger); } const link = sub.getAttribute('data-link'); if(link) window.location.href = link; }));
+    })();
+
+    (function(){
+      const tabs = document.querySelectorAll('#tabs .tab-btn');
+      const paneUpload = document.getElementById('pane-upload');
+      const paneManage = document.getElementById('pane-manage');
+      function showTab(name){ tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === name)); paneUpload.classList.toggle('active', name === 'upload'); paneManage.classList.toggle('active', name === 'manage'); }
+      tabs.forEach(t => t.addEventListener('click', () => showTab(t.getAttribute('data-tab'))));
+
+      const STORAGE_KEY = 'pw_customer_apps';
+      const DEFAULT_APPS = [
+        { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18' },
+        { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45' },
+        { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10' }
+      ];
+
+      const appName = document.getElementById('appName');
+      const appVersion = document.getElementById('appVersion');
+      const appType = document.getElementById('appType');
+      const appPackage = document.getElementById('appPackage');
+      const appFile = document.getElementById('appFile');
+      const updateFileInput = document.getElementById('updateFileInput');
+      const resetUpload = document.getElementById('resetUpload');
+      const submitUpload = document.getElementById('submitUpload');
+      const appTableBody = document.getElementById('appTableBody');
+      const searchInput = document.getElementById('searchInput');
+      const statusFilter = document.getElementById('statusFilter');
+      const applyFilter = document.getElementById('applyFilter');
+      let updateTargetId = '';
+      let apps = [];
+
+      function nowText(){
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+      }
+
+      function normalizeApps(raw){
+        if(!Array.isArray(raw)) return [];
+        return raw.map((item, idx) => ({
+          id: item.id || `cus-${Date.now()}-${idx}`,
+          name: item.name || 'Unknown APP',
+          package: item.package || 'com.customer.unknown',
+          version: item.version || '1.0.0',
+          type: item.type || 'Standard App',
+          listed: item.listed !== false,
+          updated: item.updated || nowText()
+        }));
+      }
+
+      function loadApps(){
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if(!raw){
+            return normalizeApps(DEFAULT_APPS);
+          }
+          const parsed = JSON.parse(raw);
+          const normalized = normalizeApps(parsed);
+          return normalized.length ? normalized : normalizeApps(DEFAULT_APPS);
+        } catch (e){
+          return normalizeApps(DEFAULT_APPS);
+        }
+      }
+
+      function saveApps(){
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+      }
+
+      function slugify(text){
+        return (text || '').toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/(^\.|\.$)/g, '');
+      }
+
+      function parseApkMeta(fileName){
+        const base = fileName.replace(/\.apk$/i, '');
+        const packageMatch = base.match(/com\.[A-Za-z0-9_.]+/);
+        const versionMatch = base.match(/v?\d+\.\d+(?:\.\d+)?(?:[_\-.][A-Za-z0-9]+)*/i);
+        const cleanedName = base
+          .replace(packageMatch ? packageMatch[0] : '', ' ')
+          .replace(versionMatch ? versionMatch[0] : '', ' ')
+          .replace(/[_\-.]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const name = cleanedName || base;
+        const version = versionMatch ? versionMatch[0].replace(/^v/i, '') : '1.0.0';
+        const pkg = packageMatch ? packageMatch[0] : `com.customer.${slugify(name) || 'app'}`;
+        let type = 'Standard App';
+        const lowerName = name.toLowerCase();
+        if(lowerName.includes('param') || lowerName.includes('config')) type = 'Parameter App';
+        if(lowerName.includes('tool') || lowerName.includes('ota') || lowerName.includes('util')) type = 'Tool App';
+        return { name, version, package: pkg, type };
+      }
+
+      function requireApk(file){
+        return !!(file && /\.apk$/i.test(file.name));
+      }
+
+      function renderTable(){
+        appTableBody.innerHTML = apps.map(app => {
+          const statusKey = app.listed ? 'published' : 'unpublished';
+          const statusHtml = app.listed ? '<span class="pill active">Published</span>' : '<span class="pill off">Unpublished</span>';
+          const toggleLabel = app.listed ? 'Unpublish' : 'Publish';
+          const deleteClass = 'small-btn remove-app';
+          return `<tr data-id="${app.id}" data-status="${statusKey}">
+            <td data-col="name">${app.name}</td>
+            <td data-col="package">${app.package}</td>
+            <td data-col="version">${app.version}</td>
+            <td data-col="type">${app.type}</td>
+            <td data-col="status">${statusHtml}</td>
+            <td data-col="updated">${app.updated}</td>
+            <td class="actions">
+              <button class="small-btn update upload-update" type="button">Upload Update</button>
+              <button class="small-btn toggle toggle-list" type="button">${toggleLabel}</button>
+              <button class="${deleteClass}" type="button">Delete</button>
+            </td>
+          </tr>`;
+        }).join('');
+        applyTableFilter();
+      }
+
+      function applyTableFilter(){
+        const keyword = searchInput.value.trim().toLowerCase();
+        const status = statusFilter.value;
+        appTableBody.querySelectorAll('tr').forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const statusOk = status === 'all' || row.getAttribute('data-status') === status;
+          const keywordOk = !keyword || text.includes(keyword);
+          row.style.display = statusOk && keywordOk ? '' : 'none';
+        });
+      }
+
+      function resetUploadFields(){
+        appName.value = '';
+        appVersion.value = '';
+        appType.value = 'Standard App';
+        appPackage.value = '';
+        appFile.value = '';
+      }
+
+      appFile.addEventListener('change', () => {
+        const file = appFile.files && appFile.files[0];
+        if(!file) return;
+        if(!requireApk(file)){
+          alert('Only APK files are supported.');
+          appFile.value = '';
+          return;
+        }
+        const meta = parseApkMeta(file.name);
+        appName.value = meta.name;
+        appVersion.value = meta.version;
+        appPackage.value = meta.package;
+        appType.value = meta.type;
+      });
+
+      resetUpload.addEventListener('click', resetUploadFields);
+
+      submitUpload.addEventListener('click', () => {
+        const file = appFile.files && appFile.files[0];
+        if(!requireApk(file)){
+          alert('Please upload an APK file.');
+          return;
+        }
+        const name = appName.value.trim();
+        const version = appVersion.value.trim();
+        const type = appType.value;
+        const pkg = appPackage.value.trim();
+        if(!name || !version || !pkg){
+          alert('Please complete APP fields before upload.');
+          return;
+        }
+        apps.unshift({
+          id: `cus-${Date.now()}`,
+          name,
+          package: pkg,
+          version,
+          type,
+          listed: true,
+          updated: nowText()
+        });
+        saveApps();
+        renderTable();
+        resetUploadFields();
+        showTab('manage');
+      });
+
+      applyFilter.addEventListener('click', applyTableFilter);
+
+      updateFileInput.addEventListener('change', () => {
+        const file = updateFileInput.files && updateFileInput.files[0];
+        if(!file || !updateTargetId){
+          updateFileInput.value = '';
+          updateTargetId = '';
+          return;
+        }
+        if(!requireApk(file)){
+          alert('Only APK files are supported.');
+          updateFileInput.value = '';
+          updateTargetId = '';
+          return;
+        }
+        const app = apps.find(item => item.id === updateTargetId);
+        if(!app){
+          updateFileInput.value = '';
+          updateTargetId = '';
+          return;
+        }
+        const meta = parseApkMeta(file.name);
+        const nextVersion = prompt(`Upload update for ${app.name}\nCurrent version: ${app.version}\nEnter new version:`, meta.version || app.version);
+        if(nextVersion && nextVersion.trim()){
+          app.version = nextVersion.trim();
+          app.package = meta.package || app.package;
+          app.updated = nowText();
+          saveApps();
+          renderTable();
+          alert('Update uploaded successfully.');
+        }
+        updateFileInput.value = '';
+        updateTargetId = '';
+      });
+
+      appTableBody.addEventListener('click', evt => {
+        const row = evt.target.closest('tr[data-id]');
+        if(!row) return;
+        const id = row.getAttribute('data-id');
+        const app = apps.find(item => item.id === id);
+        if(!app) return;
+
+        const updateBtn = evt.target.closest('.upload-update');
+        if(updateBtn){
+          updateTargetId = id;
+          updateFileInput.click();
+          return;
+        }
+
+        const toggleBtn = evt.target.closest('.toggle-list');
+        if(toggleBtn){
+          app.listed = !app.listed;
+          app.updated = nowText();
+          saveApps();
+          renderTable();
+          return;
+        }
+
+        const deleteBtn = evt.target.closest('.remove-app');
+        if(!deleteBtn) return;
+        if(!confirm(`Delete ${app.name}?`)) return;
+        if(!confirm(`Please confirm again: permanently delete ${app.name}?`)) return;
+        apps = apps.filter(item => item.id !== id);
+        saveApps();
+        renderTable();
+      });
+
+      apps = loadApps();
+      saveApps();
+      renderTable();
+    })();
+  </script>
+</body>
+</html>
