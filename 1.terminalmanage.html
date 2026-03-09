@@ -284,8 +284,12 @@
             background: #dc2626;
             transform: translate(-50%, -50%);
         }
-        .app-name-cell { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; }
-        .app-avatar { width: 42px; height: 42px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; background: #e5e7eb; color: #334155; flex-shrink: 0; }
+        .app-name-cell { display: flex; align-items: center; gap: 10px; color: #0f172a; }
+        .app-name-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .app-name-title { font-weight: 700; color: #0f172a; }
+        .app-avatar { width: 42px; height: 42px; border-radius: 10px; display: block; flex-shrink: 0; overflow: hidden; }
+        .app-icon-mark { display: block; width: 100%; height: 100%; }
+        .app-icon-mark svg { width: 100%; height: 100%; display: block; }
         .app-source-note { font-size: 12px; color: #64748b; }
         .empty-row td { text-align: center; color: #94a3b8; padding: 24px 12px; }
         .push-app-modal-footer {
@@ -1174,10 +1178,75 @@
     (function(){
         const STORAGE_KEY = 'pw_customer_apps';
         const defaultCustomerApps = [
-            { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18' },
-            { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45' },
-            { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10' }
+            { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18', iconKey: 'store' },
+            { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45', iconKey: 'travel' },
+            { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10', iconKey: 'tool' }
         ];
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function hashText(text){
+            return String(text || '').split('').reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) % 2147483647, 7);
+        }
+
+        function deriveIconKey(name, type){
+            const lower = `${name || ''} ${type || ''}`.toLowerCase();
+            if(lower.includes('broadpos') || lower.includes('transit') || lower.includes('terminal')) return 'terminal';
+            if(lower.includes('check')) return 'check';
+            if(lower.includes('air') || lower.includes('view')) return 'view';
+            if(lower.includes('retail') || lower.includes('store')) return 'store';
+            if(lower.includes('travel') || lower.includes('trip') || lower.includes('pay') || lower.includes('flight')) return 'travel';
+            if(lower.includes('ota') || lower.includes('tool') || lower.includes('update')) return 'tool';
+            if(lower.includes('link') || lower.includes('vm') || lower.includes('network')) return 'network';
+            if((type || '').toLowerCase().includes('parameter')) return 'tune';
+            if((type || '').toLowerCase().includes('tool')) return 'tool';
+            return 'grid';
+        }
+
+        function iconTheme(seed){
+            const palettes = [
+                { bg: '#0f172a', plate: '#2563eb', accent: '#93c5fd', soft: '#dbeafe' },
+                { bg: '#172554', plate: '#7c3aed', accent: '#c4b5fd', soft: '#ede9fe' },
+                { bg: '#0f3d3e', plate: '#0f766e', accent: '#5eead4', soft: '#ccfbf1' },
+                { bg: '#4a1d15', plate: '#ea580c', accent: '#fdba74', soft: '#ffedd5' },
+                { bg: '#164e63', plate: '#0284c7', accent: '#7dd3fc', soft: '#e0f2fe' },
+                { bg: '#3f1d4d', plate: '#db2777', accent: '#f9a8d4', soft: '#fce7f3' }
+            ];
+            return palettes[hashText(seed) % palettes.length];
+        }
+
+        function iconArt(iconKey, theme){
+            switch(iconKey){
+                case 'terminal':
+                    return `<rect x="16" y="17" width="32" height="30" rx="10" fill="#ffffff" fill-opacity=".98"/><rect x="22" y="24" width="20" height="11" rx="4" fill="${theme.soft}"/><circle cx="39" cy="29" r="3" fill="${theme.plate}"/><path d="M24 40h16" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
+                case 'check':
+                    return `<circle cx="32" cy="32" r="17" fill="#ffffff" fill-opacity=".96"/><path d="M24 32l5 5 11-13" stroke="${theme.plate}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+                case 'view':
+                    return `<path d="M16 32c4.5-7 10.5-10.5 16-10.5S43.5 25 48 32c-4.5 7-10.5 10.5-16 10.5S20.5 39 16 32z" fill="#ffffff" fill-opacity=".96"/><circle cx="32" cy="32" r="7.5" fill="${theme.plate}"/><circle cx="32" cy="32" r="3" fill="${theme.soft}"/>`;
+                case 'store':
+                    return `<path d="M20 24h24l-1.8 6.5H21.8L20 24z" fill="#ffffff" fill-opacity=".95"/><path d="M23 30.5h18V44a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 23 44V30.5z" fill="#ffffff"/><path d="M28 24c0-3 1.5-5 4-5s4 2 4 5" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/><path d="M28 37h8" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
+                case 'travel':
+                    return `<path d="M18 40l28-16-7 16-7-4-4 7-2-3-8 0z" fill="#ffffff" fill-opacity=".96"/><path d="M30 20l4 10" stroke="${theme.plate}" stroke-width="3" stroke-linecap="round"/>`;
+                case 'tool':
+                    return `<path d="M32 18v4M32 42v4M18 32h4M42 32h4M22.5 22.5l2.8 2.8M38.7 38.7l2.8 2.8M41.5 22.5l-2.8 2.8M25.3 38.7l-2.8 2.8" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/><circle cx="32" cy="32" r="10" fill="#ffffff"/><circle cx="32" cy="32" r="5" fill="${theme.plate}"/>`;
+                case 'network':
+                    return `<circle cx="22" cy="24" r="6" fill="#ffffff"/><circle cx="42" cy="24" r="6" fill="#ffffff"/><circle cx="32" cy="40" r="6" fill="#ffffff"/><path d="M28 24h8M26 28l6 8M38 28l-6 8" stroke="${theme.plate}" stroke-width="3.1" stroke-linecap="round"/>`;
+                case 'tune':
+                    return `<path d="M24 22v20M32 18v28M40 24v16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="28" r="4" fill="${theme.accent}"/><circle cx="32" cy="39" r="4" fill="${theme.accent}"/><circle cx="40" cy="30" r="4" fill="${theme.accent}"/>`;
+                default:
+                    return `<rect x="20" y="20" width="10" height="10" rx="3" fill="#ffffff"/><rect x="34" y="20" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="20" y="34" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="34" y="34" width="10" height="10" rx="3" fill="#ffffff"/>`;
+            }
+        }
+
+        function renderAppIcon(app, className){
+            const name = app && app.name ? app.name : 'APP';
+            const type = app && app.type ? app.type : 'Standard App';
+            const iconKey = app && app.iconKey ? app.iconKey : deriveIconKey(name, type);
+            const theme = iconTheme(`${name}-${iconKey}-${type}`);
+            return `<span class="${className || 'app-icon-mark'}" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="18" fill="${theme.bg}"/><circle cx="48" cy="16" r="10" fill="${theme.accent}" opacity=".95"/><circle cx="18" cy="48" r="7" fill="${theme.soft}" opacity=".72"/><rect x="10" y="10" width="44" height="44" rx="14" fill="${theme.plate}" opacity=".38"/>${iconArt(iconKey, theme)}</svg></span>`;
+        }
 
         function loadListedCustomerApps(){
             try {
@@ -1191,6 +1260,7 @@
                         name: item.name || 'Unknown APP',
                         version: item.version || '1.0.0',
                         type: item.type || 'Standard App',
+                        iconKey: item.iconKey || deriveIconKey(item.name, item.type),
                         developer: '1 of a Kind World Travel LLC',
                         updated: item.updated || '2026-03-01 00:00'
                     }));
@@ -1202,6 +1272,7 @@
                         name: item.name,
                         version: item.version,
                         type: item.type,
+                        iconKey: item.iconKey || deriveIconKey(item.name, item.type),
                         developer: '1 of a Kind World Travel LLC',
                         updated: item.updated
                     }));
@@ -1210,11 +1281,11 @@
 
         const appData = {
             public: [
-                { id: 'pub-1', name: 'BroadPOS TransIT', version: 'V1.04.00E_20230723', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-07-23 08:34' },
-                { id: 'pub-2', name: 'CheckUP', version: '1.03.07_20250708', type: 'Standard App', developer: 'PAX USBO', updated: '2025-07-09 08:16' },
-                { id: 'pub-3', name: 'AirViewer', version: '3.5.0', type: 'Standard App', developer: 'PAXSTORE Team', updated: '2025-06-30 08:11' },
-                { id: 'pub-4', name: 'BroadPOS TransIT UPT Demo', version: 'V1.00.16E_20250606', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-06-11 07:52' },
-                { id: 'pub-5', name: 'Vixslink-VM', version: 'V1.13.06.20250522', type: 'Parameter App', developer: 'PAX Technology', updated: '2025-06-03 07:46' }
+                { id: 'pub-1', name: 'BroadPOS TransIT', version: 'V1.04.00E_20230723', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-07-23 08:34', iconKey: 'terminal' },
+                { id: 'pub-2', name: 'CheckUP', version: '1.03.07_20250708', type: 'Standard App', developer: 'PAX USBO', updated: '2025-07-09 08:16', iconKey: 'check' },
+                { id: 'pub-3', name: 'AirViewer', version: '3.5.0', type: 'Standard App', developer: 'PAXSTORE Team', updated: '2025-06-30 08:11', iconKey: 'view' },
+                { id: 'pub-4', name: 'BroadPOS TransIT UPT Demo', version: 'V1.00.16E_20250606', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-06-11 07:52', iconKey: 'terminal' },
+                { id: 'pub-5', name: 'Vixslink-VM', version: 'V1.13.06.20250522', type: 'Parameter App', developer: 'PAX Technology', updated: '2025-06-03 07:46', iconKey: 'network' }
             ],
             customer: loadListedCustomerApps()
         };
@@ -1251,12 +1322,6 @@
             const hh = String(d.getHours()).padStart(2, '0');
             const min = String(d.getMinutes()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-        }
-
-        function avatarBg(name){
-            const palette = ['#dbeafe', '#fee2e2', '#dcfce7', '#e0e7ff', '#fef3c7', '#e0f2fe'];
-            const sum = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-            return palette[sum % palette.length];
         }
 
         function filteredApps(){
@@ -1299,17 +1364,17 @@
                         <td><span class="pick-dot ${picked ? 'active' : ''}"></span></td>
                         <td>
                             <div class="app-name-cell">
-                                <span class="app-avatar" style="background:${avatarBg(app.name)}">${(app.name || '?').trim().charAt(0).toUpperCase()}</span>
-                                <div>
-                                    <div>${app.name}</div>
+                                <div class="app-avatar">${renderAppIcon(app, 'app-icon-mark')}</div>
+                                <div class="app-name-copy">
+                                    <div class="app-name-title">${escapeHtml(app.name)}</div>
                                     <div class="app-source-note">${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</div>
                                 </div>
                             </div>
                         </td>
-                        <td>${app.version}</td>
-                        <td>${app.type}</td>
-                        <td>${app.developer}</td>
-                        <td>${app.updated}</td>
+                        <td>${escapeHtml(app.version)}</td>
+                        <td>${escapeHtml(app.type)}</td>
+                        <td>${escapeHtml(app.developer)}</td>
+                        <td>${escapeHtml(app.updated)}</td>
                     </tr>
                 `;
             }).join('');

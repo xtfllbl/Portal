@@ -54,12 +54,30 @@
     .pane { display: none; padding: 16px 24px 24px; }
     .pane.active { display: block; }
 
-    .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .box { border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .upload-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, .95fr); gap: 16px; align-items: start; }
+    .box { border: 1px solid var(--border); border-radius: 16px; padding: 18px; background: #fff; }
     .box h3 { margin: 0 0 10px; font-size: 20px; color: #111827; }
-    .dropzone { border: 1px dashed #cbd5e1; border-radius: 12px; min-height: 220px; background: #f8fafc; display: grid; place-items: center; text-align: center; color: #64748b; padding: 12px; }
-    .dropzone strong { display: block; margin-bottom: 8px; font-size: 20px; color: #111827; }
-    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .upload-box { display: flex; flex-direction: column; gap: 16px; }
+    .upload-subtitle { margin: -2px 0 0; color: #64748b; font-size: 14px; line-height: 1.5; }
+    .upload-stage { display: grid; grid-template-columns: minmax(0, 1.15fr) 320px; gap: 14px; align-items: stretch; }
+    .dropzone { border: 1px dashed #cbd5e1; border-radius: 16px; min-height: 250px; background: radial-gradient(circle at top right, #dbeafe, transparent 32%), linear-gradient(180deg, #f8fbff 0%, #f8fafc 100%); display: grid; place-items: center; text-align: center; color: #475569; padding: 18px; }
+    .dropzone-copy { max-width: 290px; }
+    .dropzone strong { display: block; margin-bottom: 8px; font-size: 24px; color: #111827; }
+    .dropzone-input { margin-top: 14px; }
+    .dropzone input { width: 100%; }
+    .selected-file { margin: 12px auto 0; display: inline-flex; align-items: center; min-height: 34px; padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid #dbe3ef; color: #334155; font-size: 13px; font-weight: 600; max-width: 100%; word-break: break-all; }
+    .app-preview-card { border: 1px solid #dbe3ef; border-radius: 16px; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); padding: 16px; display: flex; flex-direction: column; gap: 14px; min-height: 250px; }
+    .preview-kicker { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; }
+    .preview-head { display: flex; align-items: center; gap: 14px; }
+    .preview-icon { width: 88px; height: 88px; flex-shrink: 0; }
+    .preview-title { font-size: 22px; font-weight: 700; color: #111827; line-height: 1.1; }
+    .preview-package { margin-top: 6px; font-size: 13px; color: #64748b; line-height: 1.45; word-break: break-all; }
+    .preview-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .preview-stat { padding: 11px 12px; border-radius: 12px; border: 1px solid #e5e7eb; background: rgba(255, 255, 255, .9); }
+    .preview-stat span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
+    .preview-stat strong { font-size: 14px; color: #111827; line-height: 1.35; }
+    .preview-note { margin: 0; color: #475569; font-size: 13px; line-height: 1.55; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: 12px; font-weight: 700; color: #475569; }
     .field input, .field select { height: 36px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; }
@@ -74,6 +92,13 @@
     .table { min-width: 980px; }
     .table thead th { background: #fafafa; font-size: 12px; text-transform: uppercase; color: #64748b; letter-spacing: .03em; }
     .table tbody td { font-size: 14px; }
+    .app-icon-mark { display: block; width: 100%; height: 100%; }
+    .app-icon-mark svg { width: 100%; height: 100%; display: block; }
+    .manage-app-cell { display: flex; align-items: center; gap: 12px; min-width: 260px; }
+    .manage-app-icon { width: 44px; height: 44px; flex-shrink: 0; }
+    .manage-app-copy { display: flex; flex-direction: column; gap: 4px; }
+    .manage-app-name { font-weight: 700; color: #111827; line-height: 1.3; }
+    .manage-app-caption { font-size: 12px; color: #64748b; }
     .pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
     .pill.active { background: #dcfce7; color: #166534; }
     .pill.off { background: #e2e8f0; color: #334155; }
@@ -84,7 +109,8 @@
     .small-btn.toggle { color: #0369a1; border-color: #bae6fd; background: #f0f9ff; }
 
     @media (max-width: 1160px) { .main-body { flex-direction: column; } .sidebar { width: 100%; } }
-    @media (max-width: 980px) { .upload-grid { grid-template-columns: 1fr; } .fields { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .upload-stage { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .upload-grid { grid-template-columns: 1fr; } .fields, .preview-meta { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -140,13 +166,32 @@
 
           <div id="pane-upload" class="pane active">
             <div class="upload-grid">
-              <div class="box">
+              <div class="box upload-box">
                 <h3>Upload New APP</h3>
-                <div class="dropzone">
-                  <div>
-                    <strong>Drop APK Here</strong>
-                    <div>or choose file from local disk</div>
-                    <div style="margin-top:8px;"><input id="appFile" type="file" accept=".apk"></div>
+                <div class="upload-subtitle">Upload an APK, review the generated APP icon, and publish it for terminal push under your service provider hierarchy.</div>
+                <div class="upload-stage">
+                  <div class="dropzone">
+                    <div class="dropzone-copy">
+                      <strong>Drop APK Here</strong>
+                      <div>or choose file from local disk</div>
+                      <div id="selectedFileName" class="selected-file">No APK selected</div>
+                      <div class="dropzone-input"><input id="appFile" type="file" accept=".apk"></div>
+                    </div>
+                  </div>
+                  <div class="app-preview-card">
+                    <div class="preview-kicker">Icon Preview</div>
+                    <div class="preview-head">
+                      <div id="uploadPreviewIcon" class="preview-icon"></div>
+                      <div>
+                        <div id="previewAppName" class="preview-title">APP name</div>
+                        <div id="previewAppPackage" class="preview-package">com.customer.app</div>
+                      </div>
+                    </div>
+                    <div class="preview-meta">
+                      <div class="preview-stat"><span>Version</span><strong id="previewAppVersion">-</strong></div>
+                      <div class="preview-stat"><span>Type</span><strong id="previewAppType">Standard App</strong></div>
+                    </div>
+                    <p class="preview-note">This icon will also appear in APP Management and in Terminal Management when terminals select an APP to push.</p>
                   </div>
                 </div>
                 <div class="fields">
@@ -217,9 +262,9 @@
 
       const STORAGE_KEY = 'pw_customer_apps';
       const DEFAULT_APPS = [
-        { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18' },
-        { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45' },
-        { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10' }
+        { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18', iconKey: 'store' },
+        { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45', iconKey: 'travel' },
+        { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10', iconKey: 'tool' }
       ];
 
       const appName = document.getElementById('appName');
@@ -227,6 +272,12 @@
       const appType = document.getElementById('appType');
       const appPackage = document.getElementById('appPackage');
       const appFile = document.getElementById('appFile');
+      const selectedFileName = document.getElementById('selectedFileName');
+      const uploadPreviewIcon = document.getElementById('uploadPreviewIcon');
+      const previewAppName = document.getElementById('previewAppName');
+      const previewAppPackage = document.getElementById('previewAppPackage');
+      const previewAppVersion = document.getElementById('previewAppVersion');
+      const previewAppType = document.getElementById('previewAppType');
       const updateFileInput = document.getElementById('updateFileInput');
       const resetUpload = document.getElementById('resetUpload');
       const submitUpload = document.getElementById('submitUpload');
@@ -247,6 +298,89 @@
         return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
       }
 
+      function escapeHtml(value){
+        return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+      }
+
+      function hashText(text){
+        return String(text || '').split('').reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) % 2147483647, 7);
+      }
+
+      function deriveIconKey(name, type){
+        const lower = `${name || ''} ${type || ''}`.toLowerCase();
+        if(lower.includes('broadpos') || lower.includes('transit') || lower.includes('terminal')) return 'terminal';
+        if(lower.includes('check')) return 'check';
+        if(lower.includes('air') || lower.includes('view')) return 'view';
+        if(lower.includes('retail') || lower.includes('store')) return 'store';
+        if(lower.includes('travel') || lower.includes('trip') || lower.includes('pay') || lower.includes('flight')) return 'travel';
+        if(lower.includes('ota') || lower.includes('tool') || lower.includes('update')) return 'tool';
+        if(lower.includes('link') || lower.includes('vm') || lower.includes('network')) return 'network';
+        if((type || '').toLowerCase().includes('parameter')) return 'tune';
+        if((type || '').toLowerCase().includes('tool')) return 'tool';
+        return 'grid';
+      }
+
+      function iconTheme(seed){
+        const palettes = [
+          { bg: '#0f172a', plate: '#2563eb', accent: '#93c5fd', soft: '#dbeafe' },
+          { bg: '#172554', plate: '#7c3aed', accent: '#c4b5fd', soft: '#ede9fe' },
+          { bg: '#0f3d3e', plate: '#0f766e', accent: '#5eead4', soft: '#ccfbf1' },
+          { bg: '#4a1d15', plate: '#ea580c', accent: '#fdba74', soft: '#ffedd5' },
+          { bg: '#164e63', plate: '#0284c7', accent: '#7dd3fc', soft: '#e0f2fe' },
+          { bg: '#3f1d4d', plate: '#db2777', accent: '#f9a8d4', soft: '#fce7f3' }
+        ];
+        return palettes[hashText(seed) % palettes.length];
+      }
+
+      function iconArt(iconKey, theme){
+        switch(iconKey){
+          case 'terminal':
+            return `<rect x="16" y="17" width="32" height="30" rx="10" fill="#ffffff" fill-opacity=".98"/><rect x="22" y="24" width="20" height="11" rx="4" fill="${theme.soft}"/><circle cx="39" cy="29" r="3" fill="${theme.plate}"/><path d="M24 40h16" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
+          case 'check':
+            return `<circle cx="32" cy="32" r="17" fill="#ffffff" fill-opacity=".96"/><path d="M24 32l5 5 11-13" stroke="${theme.plate}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+          case 'view':
+            return `<path d="M16 32c4.5-7 10.5-10.5 16-10.5S43.5 25 48 32c-4.5 7-10.5 10.5-16 10.5S20.5 39 16 32z" fill="#ffffff" fill-opacity=".96"/><circle cx="32" cy="32" r="7.5" fill="${theme.plate}"/><circle cx="32" cy="32" r="3" fill="${theme.soft}"/>`;
+          case 'store':
+            return `<path d="M20 24h24l-1.8 6.5H21.8L20 24z" fill="#ffffff" fill-opacity=".95"/><path d="M23 30.5h18V44a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 23 44V30.5z" fill="#ffffff"/><path d="M28 24c0-3 1.5-5 4-5s4 2 4 5" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/><path d="M28 37h8" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
+          case 'travel':
+            return `<path d="M18 40l28-16-7 16-7-4-4 7-2-3-8 0z" fill="#ffffff" fill-opacity=".96"/><path d="M30 20l4 10" stroke="${theme.plate}" stroke-width="3" stroke-linecap="round"/>`;
+          case 'tool':
+            return `<path d="M32 18v4M32 42v4M18 32h4M42 32h4M22.5 22.5l2.8 2.8M38.7 38.7l2.8 2.8M41.5 22.5l-2.8 2.8M25.3 38.7l-2.8 2.8" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/><circle cx="32" cy="32" r="10" fill="#ffffff"/><circle cx="32" cy="32" r="5" fill="${theme.plate}"/>`;
+          case 'network':
+            return `<circle cx="22" cy="24" r="6" fill="#ffffff"/><circle cx="42" cy="24" r="6" fill="#ffffff"/><circle cx="32" cy="40" r="6" fill="#ffffff"/><path d="M28 24h8M26 28l6 8M38 28l-6 8" stroke="${theme.plate}" stroke-width="3.1" stroke-linecap="round"/>`;
+          case 'tune':
+            return `<path d="M24 22v20M32 18v28M40 24v16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="28" r="4" fill="${theme.accent}"/><circle cx="32" cy="39" r="4" fill="${theme.accent}"/><circle cx="40" cy="30" r="4" fill="${theme.accent}"/>`;
+          default:
+            return `<rect x="20" y="20" width="10" height="10" rx="3" fill="#ffffff"/><rect x="34" y="20" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="20" y="34" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="34" y="34" width="10" height="10" rx="3" fill="#ffffff"/>`;
+        }
+      }
+
+      function renderAppIcon(app, className){
+        const name = app && app.name ? app.name : 'APP';
+        const type = app && app.type ? app.type : 'Standard App';
+        const iconKey = app && app.iconKey ? app.iconKey : deriveIconKey(name, type);
+        const theme = iconTheme(`${name}-${iconKey}-${type}`);
+        return `<span class="${className || 'app-icon-mark'}" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="18" fill="${theme.bg}"/><circle cx="48" cy="16" r="10" fill="${theme.accent}" opacity=".95"/><circle cx="18" cy="48" r="7" fill="${theme.soft}" opacity=".72"/><rect x="10" y="10" width="44" height="44" rx="14" fill="${theme.plate}" opacity=".38"/>${iconArt(iconKey, theme)}</svg></span>`;
+      }
+
+      function updateUploadPreview(){
+        const current = {
+          name: appName.value.trim() || 'APP name',
+          package: appPackage.value.trim() || 'com.customer.app',
+          version: appVersion.value.trim() || '-',
+          type: appType.value || 'Standard App'
+        };
+        if(previewAppName) previewAppName.textContent = current.name;
+        if(previewAppPackage) previewAppPackage.textContent = current.package;
+        if(previewAppVersion) previewAppVersion.textContent = current.version;
+        if(previewAppType) previewAppType.textContent = current.type;
+        if(uploadPreviewIcon) uploadPreviewIcon.innerHTML = renderAppIcon(current, 'app-icon-mark');
+        if(selectedFileName){
+          const file = appFile.files && appFile.files[0];
+          selectedFileName.textContent = file ? file.name : 'No APK selected';
+        }
+      }
+
       function normalizeApps(raw){
         if(!Array.isArray(raw)) return [];
         return raw.map((item, idx) => ({
@@ -255,6 +389,7 @@
           package: item.package || 'com.customer.unknown',
           version: item.version || '1.0.0',
           type: item.type || 'Standard App',
+          iconKey: item.iconKey || deriveIconKey(item.name, item.type),
           listed: item.listed !== false,
           updated: item.updated || nowText()
         }));
@@ -313,12 +448,12 @@
           const toggleLabel = app.listed ? 'Unpublish' : 'Publish';
           const deleteClass = 'small-btn remove-app';
           return `<tr data-id="${app.id}" data-status="${statusKey}">
-            <td data-col="name">${app.name}</td>
-            <td data-col="package">${app.package}</td>
-            <td data-col="version">${app.version}</td>
-            <td data-col="type">${app.type}</td>
+            <td data-col="name"><div class="manage-app-cell"><div class="manage-app-icon">${renderAppIcon(app, 'app-icon-mark')}</div><div class="manage-app-copy"><div class="manage-app-name">${escapeHtml(app.name)}</div><div class="manage-app-caption">${app.listed ? 'Published and available for push' : 'Unpublished and hidden from push'}</div></div></div></td>
+            <td data-col="package">${escapeHtml(app.package)}</td>
+            <td data-col="version">${escapeHtml(app.version)}</td>
+            <td data-col="type">${escapeHtml(app.type)}</td>
             <td data-col="status">${statusHtml}</td>
-            <td data-col="updated">${app.updated}</td>
+            <td data-col="updated">${escapeHtml(app.updated)}</td>
             <td class="actions">
               <button class="small-btn update upload-update" type="button">Upload Update</button>
               <button class="small-btn toggle toggle-list" type="button">${toggleLabel}</button>
@@ -346,14 +481,19 @@
         appType.value = 'Standard App';
         appPackage.value = '';
         appFile.value = '';
+        updateUploadPreview();
       }
 
       appFile.addEventListener('change', () => {
         const file = appFile.files && appFile.files[0];
-        if(!file) return;
+        if(!file){
+          updateUploadPreview();
+          return;
+        }
         if(!requireApk(file)){
           alert('Only APK files are supported.');
           appFile.value = '';
+          updateUploadPreview();
           return;
         }
         const meta = parseApkMeta(file.name);
@@ -361,9 +501,12 @@
         appVersion.value = meta.version;
         appPackage.value = meta.package;
         appType.value = meta.type;
+        updateUploadPreview();
       });
 
       resetUpload.addEventListener('click', resetUploadFields);
+      [appName, appVersion, appPackage].forEach(field => field.addEventListener('input', updateUploadPreview));
+      appType.addEventListener('change', updateUploadPreview);
 
       submitUpload.addEventListener('click', () => {
         const file = appFile.files && appFile.files[0];
@@ -385,6 +528,7 @@
           package: pkg,
           version,
           type,
+          iconKey: deriveIconKey(name, type),
           listed: true,
           updated: nowText()
         });
@@ -420,6 +564,8 @@
         if(nextVersion && nextVersion.trim()){
           app.version = nextVersion.trim();
           app.package = meta.package || app.package;
+          app.type = meta.type || app.type;
+          app.iconKey = app.iconKey || deriveIconKey(app.name, app.type);
           app.updated = nowText();
           saveApps();
           renderTable();
@@ -464,6 +610,7 @@
       apps = loadApps();
       saveApps();
       renderTable();
+      updateUploadPreview();
     })();
   </script>
 </body>
