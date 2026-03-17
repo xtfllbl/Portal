@@ -1,125 +1,433 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High Fidelity Prototype</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Processor Parameters - UI Redesign (Contrast)</title>
+    <style>
+        :root {
+            /* 纯黑白灰配色系统 */
+            --color-black: #000000;
+            --color-white: #ffffff;
+            --text-main: #333333;
+            --text-muted: #888888;
+            --border-normal: #cccccc;
+            --border-light: #e0e0e0;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --bg-control-idle: #f5f5f5; /* 原有的灰底色 */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px;
+            margin: 0;
+        }
+
+        .comparison-layout {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .comparison-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comparison-header {
+            font-size: 20px;
+            font-weight: bold;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-light);
+            margin-bottom: 16px;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--color-black);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* 顶部 Tab 样式 */
+        .tab-header {
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 32px;
+        }
+
+        .tab-item {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--color-black);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--color-black);
+        }
+
+        /* 表单网格 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px 48px;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* 普通输入框样式 */
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid var(--border-normal);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--bg-control-idle);
+            color: var(--text-muted);
+            border-color: var(--border-light);
+            cursor: not-allowed;
+        }
+
+        /* ===== BEFORE (当前设计) ===== */
+        .segmented-control-before {
+            display: inline-flex;
+            background-color: var(--bg-control-idle);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            overflow: hidden;
+            width: fit-content; 
+        }
+
+        .segmented-item-before {
+            padding: 8px 24px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background-color: transparent;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .segmented-item-before:not(:last-child) {
+            border-right: 1px solid var(--border-light);
+        }
+
+        .segmented-item-before.active {
+            background-color: var(--color-black);
+            color: var(--color-white);
+        }
+
+        .radio-group-before {
+            display: flex;
+            gap: 32px;
+            padding: 4px 0;
+        }
+
+        .radio-label-before {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        .radio-custom-before {
+            height: 12px; /* 原生的 radio 大小 */
+            width: 12px;
+            background-color: #fff;
+            border: 1px solid var(--border-normal);
+            border-radius: 50%;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .radio-label-before input:checked ~ .radio-custom-before {
+            border-color: var(--color-black);
+        }
+
+        .radio-custom-before::after {
+            content: "";
+            position: absolute;
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-black);
+        }
+
+        .radio-label-before input:checked ~ .radio-custom-before::after {
+            display: block;
+        }
+
+        /* ===== AFTER (改进设计) ===== */
+        .segmented-control-after {
+            display: inline-flex;
+            gap: 4px; /* 内部增加间距，避免未选中状态在视觉上粘连 */
+            overflow: hidden;
+            width: fit-content; 
+        }
+
+        .segmented-item-after {
+            padding: 8px 24px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 4px;
+            transition: all 0.15s ease-in-out;
+            user-select: none;
+            
+            /* 未选中时的核心样式：白底、中灰文字、细边框 */
+            background-color: var(--color-white);
+            color: var(--text-muted);
+            border: 1px solid var(--border-light);
+        }
+
+        /* 改进：悬停状态，加强交互反馈 */
+        .segmented-item-after:hover:not(.active) {
+            background-color: var(--bg-control-idle);
+            color: var(--text-main);
+            border-color: var(--border-normal);
+        }
+
+        /* 选中状态：纯黑底白字 */
+        .segmented-item-after.active {
+            background-color: var(--color-black);
+            color: var(--color-white);
+            border-color: var(--color-black);
+        }
+
+        /* 改进：Radio Box 的可视性 */
+        .radio-group-after {
+            display: flex;
+            gap: 32px;
+            padding: 4px 0;
+        }
+
+        .radio-label-after {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        .radio-label-after input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        /* 改进：增大 Radio 尺寸 */
+        .radio-custom-after {
+            height: 18px; 
+            width: 18px;
+            background-color: transparent;
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+            
+            /* 未选中时的核心样式：中灰色边框 */
+            border: 2px solid var(--text-muted);
+        }
+
+        .radio-label-after:hover input:not(:checked) ~ .radio-custom-after {
+            border-color: var(--text-main);
+        }
+
+        /* 选中状态：黑色粗边框 */
+        .radio-label-after input:checked ~ .radio-custom-after {
+            border-color: var(--color-black);
+        }
+
+        /* 改进：增大内部点尺寸，强化选中视觉 */
+        .radio-custom-after::after {
+            content: "";
+            position: absolute;
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px; 
+            height: 10px;
+            border-radius: 50%;
+            background: var(--color-black);
+        }
+
+        .radio-label-after input:checked ~ .radio-custom-after::after {
+            display: block;
+        }
+
+        /* 隐藏原生 Radio */
+        .radio-label-before input[type="radio"],
+        .radio-label-after input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        /* 用于对比说明的标签 */
+        .annotation-tag {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px solid red;
+            color: red;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            position: absolute;
+            pointer-events: none;
+        }
+
+    </style>
 </head>
-<body class="bg-gray-50 p-8 font-sans">
+<body>
 
-    <div class="mb-12">
-        <h2 class="text-lg font-bold text-gray-700 mb-4">方案一：引入搜索栏形成操作区（推荐）</h2>
-        <div class="max-w-6xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="bg-[#1e1e1e] text-white p-6 relative">
-                <div class="text-xs text-gray-400 mb-2 uppercase tracking-wide">Merchant</div>
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h1 class="text-2xl font-bold mb-1">zhongdasmart</h1>
-                        <div class="text-sm text-gray-300">Parent : zhongdazn</div>
+<div class="comparison-layout">
+    
+    <div class="comparison-column">
+        <div class="comparison-header">BEFORE (当前设计)</div>
+        <div class="form-card">
+            <div class="section-title">Processor Parameters</div>
+            <div class="section-subtitle">Fill in the parameter file groups...</div>
+            <div class="tab-header">
+                <div class="tab-item">Para</div>
+            </div>
+            <div class="grid-container">
+                <div class="form-item">
+                    <label class="form-label">TID</label>
+                    <input type="text" class="form-input" value="11111111" readonly>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">Receipt Print</label>
+                    <div class="radio-group-before">
+                        <label class="radio-label-before">
+                            <input type="radio" name="receiptPrintBefore" value="1" checked>
+                            <span class="radio-custom-before"></span>1
+                        </label>
+                        <label class="radio-label-before">
+                            <input type="radio" name="receiptPrintBefore" value="2">
+                            <span class="radio-custom-before"></span>2
+                        </label>
                     </div>
-                    <div class="flex flex-col items-end gap-4">
-                        <span class="bg-white text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">Active</span>
-                        <div class="flex gap-2">
-                            <button class="bg-white text-gray-800 text-sm px-4 py-1.5 rounded flex items-center gap-2 hover:bg-gray-100 transition"><i class="fa-regular fa-file-export"></i> Export</button>
-                            <button class="bg-white text-gray-800 text-sm px-4 py-1.5 rounded flex items-center gap-2 hover:bg-gray-100 transition"><i class="fa-solid fa-gear"></i> Settings</button>
-                        </div>
+                </div>
+                
+                <div class="form-item">
+                    <label class="form-label">Merchandise Return (未选中)</label>
+                    <div class="segmented-control-before">
+                        <div class="segmented-item-before">Enable</div>
+                        <div class="segmented-item-before">Disable</div>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">Enable MSR</label>
+                    <div class="segmented-control-before">
+                        <div class="segmented-item-before active">Enable</div>
+                        <div class="segmented-item-before">Disable</div>
                     </div>
                 </div>
             </div>
-
-            <div class="flex border-b border-gray-200 px-6 pt-2">
-                <button class="px-4 py-3 text-gray-500 font-medium text-sm hover:text-gray-800">Merchant Detail</button>
-                <button class="px-4 py-3 text-gray-900 font-medium text-sm border-b-2 border-gray-900">Terminal List</button>
-            </div>
-
-            <div class="flex justify-between items-center px-6 py-4 bg-white">
-                <div class="relative w-80">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                    </span>
-                    <input type="text" class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-gray-800 focus:border-gray-800 outline-none transition-shadow" placeholder="Search SN (e.g., WP5220VQ3...), TID...">
-                </div>
-                <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <i class="fa-solid fa-filter text-gray-400"></i> Filter
-                </button>
-            </div>
-
-            <table class="w-full text-left text-sm text-gray-600">
-                <thead class="bg-[#1e1e1e] text-white text-xs uppercase font-semibold">
-                    <tr>
-                        <th class="px-6 py-3">Terminal Name</th>
-                        <th class="px-6 py-3">SN</th>
-                        <th class="px-6 py-3">TID</th>
-                        <th class="px-6 py-3">Model</th>
-                        <th class="px-6 py-3">Merchant Name</th>
-                        <th class="px-6 py-3">Store Name</th>
-                        <th class="px-6 py-3">Created Date</th>
-                        <th class="px-6 py-3 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="px-6 py-4"></td>
-                        <td class="px-6 py-4">WP5220VQ3<br>9000009</td>
-                        <td class="px-6 py-4">-</td>
-                        <td class="px-6 py-4">-</td>
-                        <td class="px-6 py-4">zhongdasmart</td>
-                        <td class="px-6 py-4">zhongdasmart</td>
-                        <td class="px-6 py-4">2025-06-24<br>22:08:19</td>
-                        <td class="px-6 py-4 flex justify-center gap-2">
-                            <button class="text-gray-400 hover:text-gray-600 border rounded p-1.5"><i class="fa-regular fa-file-lines"></i></button>
-                            <button class="text-red-400 hover:text-red-600 border border-red-100 rounded p-1.5"><i class="fa-regular fa-trash-can"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="annotation-tag" style="top: 250px; left: 180px;">原 radio：太小</div>
+            <div class="annotation-tag" style="top: 350px; left: 450px;">原未选中：灰底+灰字，对比低且易混淆</div>
         </div>
     </div>
 
-    <div>
-        <h2 class="text-lg font-bold text-gray-700 mb-4">方案二：去除边框的幽灵按钮（Ghost Button）</h2>
-        <div class="max-w-6xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="bg-[#1e1e1e] text-white p-6 relative">
-                <div class="text-xs text-gray-400 mb-2 uppercase tracking-wide">Merchant</div>
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h1 class="text-2xl font-bold mb-1">zhongdasmart</h1>
-                        <div class="text-sm text-gray-300">Parent : zhongdazn</div>
+    <div class="comparison-column">
+        <div class="comparison-header">AFTER (改进设计)</div>
+        <div class="form-card">
+            <div class="section-title">Processor Parameters</div>
+            <div class="section-subtitle">Fill in the parameter file groups...</div>
+            <div class="tab-header">
+                <div class="tab-item">Para</div>
+            </div>
+            <div class="grid-container">
+                <div class="form-item">
+                    <label class="form-label">TID</label>
+                    <input type="text" class="form-input" value="11111111" readonly>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">Receipt Print</label>
+                    <div class="radio-group-after">
+                        <label class="radio-label-after">
+                            <input type="radio" name="receiptPrintAfter" value="1" checked>
+                            <span class="radio-custom-after"></span>1
+                        </label>
+                        <label class="radio-label-after">
+                            <input type="radio" name="receiptPrintAfter" value="2">
+                            <span class="radio-custom-after"></span>2
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-item">
+                    <label class="form-label">Merchandise Return (未选中)</label>
+                    <div class="segmented-control-after" onclick="toggleSegment(this)">
+                        <div class="segmented-item-after">Enable</div>
+                        <div class="segmented-item-after">Disable</div>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label class="form-label">Enable MSR</label>
+                    <div class="segmented-control-after" onclick="toggleSegment(this)">
+                        <div class="segmented-item-after active">Enable</div>
+                        <div class="segmented-item-after">Disable</div>
                     </div>
                 </div>
             </div>
-            <div class="flex border-b border-gray-200 px-6 pt-2">
-                <button class="px-4 py-3 text-gray-500 font-medium text-sm hover:text-gray-800">Merchant Detail</button>
-                <button class="px-4 py-3 text-gray-900 font-medium text-sm border-b-2 border-gray-900">Terminal List</button>
-            </div>
-
-            <div class="flex justify-end px-4 py-3 bg-white">
-                <button class="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors">
-                    <i class="fa-solid fa-filter"></i> Filter
-                </button>
-            </div>
-
-            <table class="w-full text-left text-sm text-gray-600">
-                <thead class="bg-[#1e1e1e] text-white text-xs uppercase font-semibold">
-                    <tr>
-                        <th class="px-6 py-3">Terminal Name</th>
-                        <th class="px-6 py-3">SN</th>
-                        <th class="px-6 py-3">TID</th>
-                        <th class="px-6 py-3">Model</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b">
-                        <td class="px-6 py-4"></td>
-                        <td class="px-6 py-4">WP5220VQ3...</td>
-                        <td class="px-6 py-4">-</td>
-                        <td class="px-6 py-4">-</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="annotation-tag" style="top: 250px; left: 830px;">新 radio：更大，实心 vs 空心对比显著</div>
+            <div class="annotation-tag" style="top: 350px; left: 1080px;">新未选中：白底+灰字+边框，静默且清晰</div>
+            <div class="annotation-tag" style="top: 390px; left: 1080px;">增加 Hover 反馈</div>
         </div>
     </div>
+
+</div>
+
+<script>
+    function toggleSegment(controlElement) {
+        controlElement.addEventListener('click', function(e) {
+            if (e.target.classList.contains('segmented-item-after')) {
+                const items = controlElement.querySelectorAll('.segmented-item-after');
+                items.forEach(item => item.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+        });
+    }
+</script>
+
 </body>
 </html>
