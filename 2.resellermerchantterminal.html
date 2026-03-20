@@ -32,6 +32,8 @@
             --tree-active-bg: #0f0f10;
             --tree-active-sub-bg: #111111;
             --tree-active-text: #ffffff;
+            --tree-line: #d7dce3;
+            --tree-focus: #1d4ed8;
         }
 
         * { box-sizing: border-box; }
@@ -221,22 +223,134 @@
         .content-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
         .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; box-shadow: var(--card-shadow); overflow: hidden; }
 
-        .hierarchy-card header { padding: 12px 14px; border-bottom: 1px solid var(--card-border); font-size: 14px; font-weight: 600; color: var(--text-heading); }
-        .hierarchy-list { list-style: none; margin: 0; padding: 6px 0 10px; }
-        .hierarchy-list li { display: flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
-        .hierarchy-list li:hover { background-color: #f5f5f5; }
-        .hierarchy-list .selected { background-color: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 600; }
-        .tree-toggle { width: 16px; text-align: center; color: var(--text-muted); font-size: 11px; }
-        .hierarchy-list .level-1 { padding-left: 14px; }
-        .hierarchy-list .level-2 { padding-left: 22px; color: var(--text-muted); }
-        .hierarchy-list .level-3 { padding-left: 30px; color: var(--text-muted); }
-        .hierarchy-tools { padding: 10px 14px; border-bottom: 1px solid var(--card-border); background: #fafafa; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .hierarchy-search { flex: 1; min-width: 180px; }
-        .hierarchy-search input { width: 100%; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 12px; color: var(--text-body); }
+        .hierarchy-card header { padding: 14px 14px 12px; border-bottom: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text-heading); }
+        .hierarchy-list { list-style: none; margin: 0; padding: 6px 8px 10px; display: flex; flex-direction: column; gap: 1px; }
+        .hierarchy-list li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: calc(var(--depth, 0) * 10px);
+            padding: 3px 8px 3px 4px;
+            min-height: 30px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background-color 0.18s ease, border-color 0.18s ease;
+        }
+        .hierarchy-list li:hover { background-color: #f7f8fb; }
+        .hierarchy-list .selected {
+            background: #f5f7fb;
+            border-color: #d8e0ec;
+            color: var(--sidebar-active-text);
+            font-weight: 500;
+        }
+        .tree-toggle {
+            width: 14px;
+            height: 14px;
+            border: none;
+            border-radius: 4px;
+            padding: 0;
+            background: transparent;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex: 0 0 14px;
+        }
+        .tree-toggle:hover { color: var(--text-heading); }
+        .tree-toggle.placeholder { visibility: hidden; pointer-events: none; }
+        .tree-toggle svg { width: 9px; height: 9px; transition: transform 0.18s ease; }
+        .tree-toggle.collapsed svg { transform: rotate(-90deg); }
+        .hierarchy-node-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #64748b;
+            flex: 0 0 16px;
+        }
+        .hierarchy-node-icon svg {
+            width: 10px;
+            height: 10px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .hierarchy-node-main {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            flex-wrap: nowrap;
+        }
+        .hierarchy-node-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            order: 2;
+            margin-left: auto;
+            min-height: auto;
+            padding: 0;
+            border-radius: 0;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+            background: transparent;
+            opacity: .78;
+            white-space: nowrap;
+        }
+        .hierarchy-node-name {
+            order: 1;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-heading);
+            font-size: 11.5px;
+            line-height: 1.2;
+        }
+        .hierarchy-list .selected .hierarchy-node-name { font-weight: 700; }
+        .hierarchy-list .selected .hierarchy-node-badge { opacity: 1; }
+        .hierarchy-list .selected .hierarchy-node-icon { background: #ffffff; border-color: #dbe2ec; }
+        .hierarchy-node-icon.kind-super-iso { color: #a16207; }
+        .hierarchy-node-icon.kind-iso { color: #1d4ed8; }
+        .hierarchy-node-icon.kind-subiso { color: #0f766e; }
+        .hierarchy-node-icon.kind-agent { color: #475569; }
+        .hierarchy-node-icon.kind-merchant { color: #15803d; }
+        .hierarchy-node-icon.kind-store { color: #c2410c; }
+        .hierarchy-node-badge.kind-super-iso { color: #a16207; }
+        .hierarchy-node-badge.kind-iso { color: #1d4ed8; }
+        .hierarchy-node-badge.kind-subiso { color: #0f766e; }
+        .hierarchy-node-badge.kind-agent { color: #475569; }
+        .hierarchy-node-badge.kind-merchant { color: #15803d; }
+        .hierarchy-node-badge.kind-store { color: #c2410c; }
+        .hierarchy-tools {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .hierarchy-search { flex: 1 1 100%; min-width: 0; }
+        .hierarchy-search input { width: 100%; height: 34px; padding: 0 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 12px; color: var(--text-body); }
         .hierarchy-search input:focus { outline: 2px solid rgba(0,0,0,.2); border-color: #111; }
-        .filter-select { min-width: 140px; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 12px; color: var(--text-body); background: #fff; }
+        .filter-select { min-width: 108px; height: 30px; padding: 0 8px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 11px; color: var(--text-body); background: #fff; }
         .filter-select:focus { outline: 2px solid rgba(0,0,0,.2); border-color: #111; }
-        .hierarchy-count { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+        .hierarchy-count { margin-left: auto; font-size: 11px; color: var(--text-muted); }
         .hierarchy-scroll { max-height: 520px; overflow-y: auto; }
 
         .page-card { display: flex; flex-direction: column; }
@@ -358,8 +472,9 @@
             .tab-bar { overflow-x: auto; }
             .card-toolbar { flex-direction: column; align-items: stretch; }
             .field input, .field select, .search-button { width: 100%; }
-            .hierarchy-tools { flex-direction: column; align-items: stretch; }
-            .hierarchy-count { margin-left: 0; }
+            .hierarchy-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+            .hierarchy-search { grid-column: 1 / -1; }
+            .hierarchy-count { margin-left: 0; justify-self: end; }
             .hero-actions { flex-wrap: wrap; }
             .hero-status { align-items: flex-start; }
         }
@@ -374,7 +489,6 @@
         .dropdown-item:hover { background: #f5f5f5; }
         .dropdown-item:disabled { opacity: .45; cursor: not-allowed; background: #f3f4f6; }
         .dropdown-menu.wide { width: 220px; }
-        .hierarchy-scope { margin: 10px 14px 0; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 8px; background: #fafafa; font-size: 12px; color: var(--text-muted); line-height: 1.45; }
 
         /* Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 100; }
@@ -645,13 +759,19 @@
             </div>
             <div class="content-layout">
                 <section class="hierarchy-card card">
-                    <header><span>Agent Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Create Reseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
-                    <div class="hierarchy-scope" id="hierarchyScopeHint"></div>
+                    <header><span>Partner Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Create Reseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
                     <div class="hierarchy-tools">
                         <div class="hierarchy-search">
-                            <input id="hierarchySearch" type="text" placeholder="Search merchants or resellers">
+                            <input id="hierarchySearch" type="text" placeholder="Search hierarchy">
                         </div>
-                 </div>
+                        <select id="hierarchyTypeFilter" class="filter-select" aria-label="Filter hierarchy type">
+                            <option value="all">All nodes</option>
+                            <option value="partner">Partners only</option>
+                            <option value="merchant">Merchants only</option>
+                            <option value="store">Stores only</option>
+                        </select>
+                        <div class="hierarchy-count" id="hierarchyCount"></div>
+                    </div>
                     <div class="hierarchy-scroll">
                         <ul class="hierarchy-list" id="hierarchyList"></ul>
                     </div>
@@ -660,18 +780,18 @@
                     <div class="empty-state">
                         <div class="inner">
                             <div class="icon">◇</div>
-                            <h2>Please select an merchant from left.</h2>
-                            <p>When no merchant is selected, this area will remain blank.</p>
+                            <h2>Please select a node from the left.</h2>
+                            <p>Use the hierarchy tree to review partner, merchant, and store details.</p>
                         </div>
                     </div>
                     <div class="reseller-hero">
                         <div>
-                            <div class="hero-label">Reseller</div>
+                            <div class="hero-label">Merchant</div>
                             <h1>Universal Processing</h1>
                             <div class="hero-meta">
-                                <span class="meta-item">Parent: Global Payments Inc.</span>
-                                <span class="meta-item">| Hierarchy: Apex Resellers &gt; NA Division</span>
-                                <span class="meta-item">| MID 49813</span>
+                                <span class="meta-item" id="heroParentMeta">Parent: Global Payments Inc.</span>
+                                <span class="meta-item" id="heroPathMeta">| Path: Apex Resellers &gt; NA Division</span>
+                                <span class="meta-item" id="heroLayerMeta">| Layer: Merchant</span>
                             </div>
                         </div>
                             <div class="hero-status">
@@ -1647,7 +1767,47 @@
           manageableParentLevels: [1, 2],
           resellerId: null
         };
-        var hierarchyScopeHint = document.getElementById('hierarchyScopeHint');
+        var hierarchyKindMeta = {
+          super_iso: { label: 'Super ISO', type: 'reseller' },
+          iso: { label: 'ISO', type: 'reseller' },
+          subiso: { label: 'Sub ISO', type: 'reseller' },
+          agent: { label: 'Agent', type: 'reseller' },
+          merchant: { label: 'Merchant', type: 'merchant' },
+          store: { label: 'Store', type: 'store' }
+        };
+        function getHierarchyKindMeta(kind){
+          return hierarchyKindMeta[kind] || hierarchyKindMeta.agent;
+        }
+        function getHierarchyKindClass(kind){
+          return 'kind-' + String(kind || 'agent').replace(/_/g, '-');
+        }
+        function getResellerKindByLevel(level){
+          if(level === 1) return 'super_iso';
+          if(level === 2) return 'iso';
+          if(level === 3) return 'subiso';
+          return 'agent';
+        }
+        function getHierarchyChevronSvg(){
+          return '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>';
+        }
+        function getHierarchyIconSvg(kind){
+          if(kind === 'super_iso'){
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 18 1.4-8 3.6 3 2-7 2 7 3.6-3L19 18"/><path d="M6 18h12"/></svg>';
+          }
+          if(kind === 'iso'){
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V8l6-4 6 4v12"/><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M12 16h.01"/></svg>';
+          }
+          if(kind === 'subiso'){
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v4H6z"/><path d="M4 14h7v4H4z"/><path d="M13 14h7v4h-7z"/><path d="M12 10v4"/></svg>';
+          }
+          if(kind === 'merchant'){
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M5 10 7 5h10l2 5"/><path d="M10 14h4"/></svg>';
+          }
+          if(kind === 'store'){
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-4.4 6-10a6 6 0 1 0-12 0c0 5.6 6 10 6 10Z"/><path d="M9 10h6"/><path d="M10 13h4"/></svg>';
+          }
+          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>';
+        }
         var createResellerModal = document.getElementById('createResellerModal');
         var createResellerForm = document.getElementById('createResellerForm');
         var createResellerClose = document.getElementById('createResellerClose');
@@ -1667,6 +1827,9 @@
         var createResellerState = document.getElementById('cr-state');
         var createResellerCity = document.getElementById('cr-city');
         var createResellerMcc = document.getElementById('cr-mcc');
+        var heroParentMeta = document.getElementById('heroParentMeta');
+        var heroPathMeta = document.getElementById('heroPathMeta');
+        var heroLayerMeta = document.getElementById('heroLayerMeta');
         var btn = document.getElementById('hierAddBtn');
         var menu = document.getElementById('hierAddMenu');
         var addResellerMenuItem = menu ? menu.querySelector('[data-type="reseller"]') : null;
@@ -1688,125 +1851,57 @@
           });
         }
 
-        // Sync right panel empty-state based on selection
         var pageCard = document.querySelector('.page-card');
         function syncRightPanelEmpty(){
           if(!pageCard) return;
-          var hasSelected = !!document.querySelector('.hierarchy-list .selected');
-          pageCard.classList.toggle('empty', !hasSelected);
+          pageCard.classList.toggle('empty', !hierarchyState.selectedId);
         }
 
-        // Detail tab and panel toggling between Reseller and Merchant
         var detailTab = document.getElementById('detailTab');
         var resellerContent = document.getElementById('resellerDetailContent');
         var merchantContent = document.getElementById('merchantDetailContent');
-        function getSelectedInfo(){
-          var selected = document.querySelector('.hierarchy-list .selected');
-          if(!selected) return null;
-          var labelSpan = selected.querySelector(':scope > span:nth-child(2)');
-          var raw = (labelSpan ? labelSpan.textContent : selected.textContent).trim();
-          var type = /^\[M\]/.test(raw) ? 'merchant' : 'reseller';
-          var name = raw.replace(/^\[[^\]]+\]\s*/, '');
-          return { type: type, name: name };
-        }
-        function applySelection(){
-          var info = getSelectedInfo();
-          var heroLabel = document.querySelector('.hero-label');
-          var heroTitle = document.querySelector('.reseller-hero h1');
-          if(!info){
-            if(detailTab) detailTab.textContent = 'Reseller Detail';
-            if(resellerContent) resellerContent.style.display = '';
-            if(merchantContent) merchantContent.style.display = 'none';
-            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
-            setMerchantStatus('active');
-            return;
-          }
-          var isMerchant = info.type === 'merchant';
-          if(heroLabel) heroLabel.textContent = isMerchant ? 'Merchant' : 'Reseller';
-          if(heroTitle) heroTitle.textContent = info.name;
-          if(detailTab) detailTab.textContent = isMerchant ? 'Merchant Detail' : 'Reseller Detail';
-          if(resellerContent) resellerContent.style.display = isMerchant ? 'none' : '';
-          if(merchantContent) merchantContent.style.display = isMerchant ? '' : 'none';
-          if(isMerchant){
-            var mdName = document.getElementById('md-merchant-name');
-            if(mdName) mdName.textContent = info.name;
-            setMerchantStatus('active');
-            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'inline-flex';
-          } else {
-            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
-            setMerchantStatus('active');
-          }
-        }
-
-        // Hierarchy data + rendering with filters
         var hierarchyListEl = document.getElementById('hierarchyList');
         var hierarchySearch = document.getElementById('hierarchySearch');
         var hierarchyTypeFilter = document.getElementById('hierarchyTypeFilter');
         var hierarchyCount = document.getElementById('hierarchyCount');
-        var hierarchyState = { filterText: '', filterType: 'all', selectedId: 'm-luxe' };
+        var hierarchyState = { filterText: '', filterType: 'all', selectedId: 'm-luxe', collapsedIds: {} };
 
         var hierarchyData = [
-          { id: 'r-apex', level: 1, type: 'reseller', tag: 'R', name: 'Apex Resellers' },
-          { id: 'sr-global', level: 2, type: 'reseller', tag: 'SR', name: 'Global Payments Inc.' },
-          { id: 'm-luxe', level: 3, type: 'merchant', tag: 'M', name: 'Luxe Boutique' },
-          { id: 'm-sunnydale', level: 3, type: 'merchant', tag: 'M', name: 'Sunnydale Bakery' },
-          { id: 'm-variety-vending', level: 3, type: 'merchant', tag: 'M', name: 'Variety Vending LLC' },
-          { id: 'm-north-shore', level: 3, type: 'merchant', tag: 'M', name: 'North Shore Market' },
-          { id: 'm-brightside', level: 3, type: 'merchant', tag: 'M', name: 'Brightside Floral' },
-          { id: 'm-harborview', level: 3, type: 'merchant', tag: 'M', name: 'Harborview Cafe' },
-          { id: 'sr-northern-trail', level: 2, type: 'reseller', tag: 'SR', name: 'Northern Trail Commerce' },
-          { id: 'm-maple-leaf', level: 3, type: 'merchant', tag: 'M', name: 'Maple Leaf Grocers' },
-          { id: 'm-sierra-coffee', level: 3, type: 'merchant', tag: 'M', name: 'Sierra Coffee Lab' },
-          { id: 'm-clearview-pharmacy', level: 3, type: 'merchant', tag: 'M', name: 'Clearview Pharmacy' },
-          { id: 'm-rolling-pin', level: 3, type: 'merchant', tag: 'M', name: 'Rolling Pin Bakery' },
-          { id: 'm-coastline-surf', level: 3, type: 'merchant', tag: 'M', name: 'Coastline Surf Shop' },
-          { id: 'm-beacon-home', level: 3, type: 'merchant', tag: 'M', name: 'Beacon Home Supply' },
-          { id: 'sr-silverline', level: 2, type: 'reseller', tag: 'SR', name: 'Silverline Processing' },
-          { id: 'm-vintage-vinyl', level: 3, type: 'merchant', tag: 'M', name: 'Vintage Vinyl Shop' },
-          { id: 'm-midtown-comics', level: 3, type: 'merchant', tag: 'M', name: 'Midtown Comics' },
-          { id: 'm-cornerstone-hardware', level: 3, type: 'merchant', tag: 'M', name: 'Cornerstone Hardware' },
-          { id: 'm-garden-grove', level: 3, type: 'merchant', tag: 'M', name: 'Garden Grove Market' },
-          { id: 'm-metro-tech', level: 3, type: 'merchant', tag: 'M', name: 'Metro Tech Outlet' },
-          { id: 'm-little-sprout', level: 3, type: 'merchant', tag: 'M', name: 'Little Sprout Kids' },
-          { id: 'sr-sunrise', level: 2, type: 'reseller', tag: 'SR', name: 'Sunrise Merchant Group' },
-          { id: 'm-sunbeam-books', level: 3, type: 'merchant', tag: 'M', name: 'Sunbeam Books' },
-          { id: 'm-copper-kettle', level: 3, type: 'merchant', tag: 'M', name: 'Copper Kettle Diner' },
-          { id: 'm-cedar-outfitters', level: 3, type: 'merchant', tag: 'M', name: 'Cedar Ridge Outfitters' },
-          { id: 'm-riverstone-gifts', level: 3, type: 'merchant', tag: 'M', name: 'Riverstone Gifts' },
-          { id: 'm-bluebird-books', level: 3, type: 'merchant', tag: 'M', name: 'Bluebird Booksellers' },
-          { id: 'm-ironclad-fitness', level: 3, type: 'merchant', tag: 'M', name: 'Ironclad Fitness' },
-          { id: 'sr-summit-midatlantic', level: 2, type: 'reseller', tag: 'SR', name: 'SummitPay MidAtlantic' },
-          { id: 'm-oak-ash', level: 3, type: 'merchant', tag: 'M', name: 'Oak & Ash Furniture' },
-          { id: 'm-harbor-house', level: 3, type: 'merchant', tag: 'M', name: 'Harbor House Bistro' },
-          { id: 'm-lantern-tea', level: 3, type: 'merchant', tag: 'M', name: 'Lantern Tea Co.' },
-          { id: 'm-evergreen-wellness', level: 3, type: 'merchant', tag: 'M', name: 'Evergreen Wellness' },
-          { id: 'm-foothill-outdoors', level: 3, type: 'merchant', tag: 'M', name: 'Foothill Outdoors' },
-          { id: 'm-lighthouse-pet', level: 3, type: 'merchant', tag: 'M', name: 'Lighthouse Pet Supply' },
-          { id: 'r-pacific', level: 1, type: 'reseller', tag: 'R', name: 'Pacific Reseller Group' },
-          { id: 'sr-westward', level: 2, type: 'reseller', tag: 'SR', name: 'Westward Pay Partners' },
-          { id: 'm-golden-gate-grocery', level: 3, type: 'merchant', tag: 'M', name: 'Golden Gate Grocery' },
-          { id: 'm-bayview-pharmacy', level: 3, type: 'merchant', tag: 'M', name: 'Bayview Pharmacy' },
-          { id: 'm-outerlands-coffee', level: 3, type: 'merchant', tag: 'M', name: 'Outerlands Coffee' },
-          { id: 'm-marina-market', level: 3, type: 'merchant', tag: 'M', name: 'Marina Market' },
-          { id: 'm-mission-fresh', level: 3, type: 'merchant', tag: 'M', name: 'Mission Fresh Foods' },
-          { id: 'sr-redwood', level: 2, type: 'reseller', tag: 'SR', name: 'Redwood Transactions' },
-          { id: 'm-redwood-deli', level: 3, type: 'merchant', tag: 'M', name: 'Redwood Deli' },
-          { id: 'm-sequoia-stationery', level: 3, type: 'merchant', tag: 'M', name: 'Sequoia Stationery' },
-          { id: 'm-timberline-tools', level: 3, type: 'merchant', tag: 'M', name: 'Timberline Tools' },
-          { id: 'm-moss-maple-home', level: 3, type: 'merchant', tag: 'M', name: 'Moss & Maple Home' },
-          { id: 'm-redwood-ridge-bikes', level: 3, type: 'merchant', tag: 'M', name: 'Redwood Ridge Bikes' },
-          { id: 'sr-cascade', level: 2, type: 'reseller', tag: 'SR', name: 'Cascade Commerce Hub' },
-          { id: 'm-riverwalk-apparel', level: 3, type: 'merchant', tag: 'M', name: 'Riverwalk Apparel' },
-          { id: 'm-summit-ridge-sports', level: 3, type: 'merchant', tag: 'M', name: 'Summit Ridge Sports' },
-          { id: 'm-pine-needle-gifts', level: 3, type: 'merchant', tag: 'M', name: 'Pine Needle Gifts' },
-          { id: 'm-brookstone-bakery', level: 3, type: 'merchant', tag: 'M', name: 'Brookstone Bakery' },
-          { id: 'm-prairie-sky-toys', level: 3, type: 'merchant', tag: 'M', name: 'Prairie Sky Toys' },
-          { id: 'sr-desert-star', level: 2, type: 'reseller', tag: 'SR', name: 'Desert Star Processing' },
-          { id: 'm-sonoran-smoothies', level: 3, type: 'merchant', tag: 'M', name: 'Sonoran Smoothies' },
-          { id: 'm-oasis-tech', level: 3, type: 'merchant', tag: 'M', name: 'Oasis Tech Repair' },
-          { id: 'm-mesa-books', level: 3, type: 'merchant', tag: 'M', name: 'Mesa Books & Games' },
-          { id: 'm-cactus-bloom', level: 3, type: 'merchant', tag: 'M', name: 'Cactus Bloom Floral' },
-          { id: 'm-arroyo-artisans', level: 3, type: 'merchant', tag: 'M', name: 'Arroyo Artisans' }
+          { id: 'sp-apex', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'Apex Resellers' },
+          { id: 'iso-global', parentId: 'sp-apex', level: 2, kind: 'iso', type: 'reseller', name: 'Global Payments Inc.' },
+          { id: 'sub-northern', parentId: 'iso-global', level: 3, kind: 'subiso', type: 'reseller', name: 'Northern Trail Commerce' },
+          { id: 'agt-manhattan', parentId: 'sub-northern', level: 4, kind: 'agent', type: 'reseller', name: 'Manhattan Field Ops' },
+          { id: 'm-luxe', parentId: 'agt-manhattan', level: 5, kind: 'merchant', type: 'merchant', name: 'Luxe Boutique' },
+          { id: 'st-luxe-soho', parentId: 'm-luxe', level: 6, kind: 'store', type: 'store', name: 'Soho Flagship' },
+          { id: 'st-luxe-nomad', parentId: 'm-luxe', level: 6, kind: 'store', type: 'store', name: 'NoMad Pop-Up' },
+          { id: 'm-sunnydale', parentId: 'agt-manhattan', level: 5, kind: 'merchant', type: 'merchant', name: 'Sunnydale Bakery' },
+          { id: 'st-sunny-chelsea', parentId: 'm-sunnydale', level: 6, kind: 'store', type: 'store', name: 'Chelsea Store' },
+          { id: 'st-sunny-hudson', parentId: 'm-sunnydale', level: 6, kind: 'store', type: 'store', name: 'Hudson Kiosk' },
+          { id: 'agt-eastcoast', parentId: 'sub-northern', level: 4, kind: 'agent', type: 'reseller', name: 'East Coast Growth Team' },
+          { id: 'm-harborview', parentId: 'agt-eastcoast', level: 5, kind: 'merchant', type: 'merchant', name: 'Harborview Cafe' },
+          { id: 'st-harbor-pier7', parentId: 'm-harborview', level: 6, kind: 'store', type: 'store', name: 'Pier 7 Store' },
+          { id: 'm-maple-leaf', parentId: 'agt-eastcoast', level: 5, kind: 'merchant', type: 'merchant', name: 'Maple Leaf Grocers' },
+          { id: 'st-maple-union', parentId: 'm-maple-leaf', level: 6, kind: 'store', type: 'store', name: 'Union Square Market' },
+          { id: 'iso-silverline', parentId: 'sp-apex', level: 2, kind: 'iso', type: 'reseller', name: 'Silverline Processing' },
+          { id: 'sub-summit', parentId: 'iso-silverline', level: 3, kind: 'subiso', type: 'reseller', name: 'SummitPay MidAtlantic' },
+          { id: 'agt-brooklyn', parentId: 'sub-summit', level: 4, kind: 'agent', type: 'reseller', name: 'Brooklyn Partner Desk' },
+          { id: 'm-north-shore', parentId: 'agt-brooklyn', level: 5, kind: 'merchant', type: 'merchant', name: 'North Shore Market' },
+          { id: 'st-north-williamsburg', parentId: 'm-north-shore', level: 6, kind: 'store', type: 'store', name: 'Williamsburg Store' },
+          { id: 'm-brightside', parentId: 'agt-brooklyn', level: 5, kind: 'merchant', type: 'merchant', name: 'Brightside Floral' },
+          { id: 'st-brightside-downtown', parentId: 'm-brightside', level: 6, kind: 'store', type: 'store', name: 'Downtown Studio' },
+          { id: 'sp-pacific', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'Pacific Reseller Group' },
+          { id: 'iso-westward', parentId: 'sp-pacific', level: 2, kind: 'iso', type: 'reseller', name: 'Westward Pay Partners' },
+          { id: 'sub-cascade', parentId: 'iso-westward', level: 3, kind: 'subiso', type: 'reseller', name: 'Cascade Commerce Hub' },
+          { id: 'agt-bayarea', parentId: 'sub-cascade', level: 4, kind: 'agent', type: 'reseller', name: 'Bay Area Agent Desk' },
+          { id: 'm-golden-gate', parentId: 'agt-bayarea', level: 5, kind: 'merchant', type: 'merchant', name: 'Golden Gate Grocery' },
+          { id: 'st-golden-ferry', parentId: 'm-golden-gate', level: 6, kind: 'store', type: 'store', name: 'Ferry Building Store' },
+          { id: 'm-mission-fresh', parentId: 'agt-bayarea', level: 5, kind: 'merchant', type: 'merchant', name: 'Mission Fresh Foods' },
+          { id: 'st-mission-valencia', parentId: 'm-mission-fresh', level: 6, kind: 'store', type: 'store', name: 'Valencia Store' },
+          { id: 'iso-redwood', parentId: 'sp-pacific', level: 2, kind: 'iso', type: 'reseller', name: 'Redwood Transactions' },
+          { id: 'sub-desert', parentId: 'iso-redwood', level: 3, kind: 'subiso', type: 'reseller', name: 'Desert Star Processing' },
+          { id: 'agt-coastal', parentId: 'sub-desert', level: 4, kind: 'agent', type: 'reseller', name: 'Coastal Agent Network' },
+          { id: 'm-redwood-deli', parentId: 'agt-coastal', level: 5, kind: 'merchant', type: 'merchant', name: 'Redwood Deli' },
+          { id: 'st-redwood-berkeley', parentId: 'm-redwood-deli', level: 6, kind: 'store', type: 'store', name: 'Berkeley Counter' }
         ];
 
         function getHierarchyItemById(id){
@@ -1816,24 +1911,65 @@
           return null;
         }
 
-        function getAccountScopeText(){
-          if(currentAccount.role === 'service_provider'){
-            return 'Current account: Service Provider. You can create child resellers for Level 1 and Level 2 resellers.';
-          }
-          if(currentAccount.role === 'reseller'){
-            return 'Current account: Reseller. You can only create child resellers under your own reseller account.';
-          }
-          return 'Current account: Read-only.';
+        function getHierarchyParent(item){
+          return item && item.parentId ? getHierarchyItemById(item.parentId) : null;
         }
 
-        function renderAccountScopeHint(){
-          if(hierarchyScopeHint){
-            hierarchyScopeHint.textContent = getAccountScopeText();
+        function getHierarchyPath(item){
+          var path = [];
+          var current = item;
+          var limit = 0;
+          while(current && limit < 12){
+            path.unshift(current);
+            current = current.parentId ? getHierarchyItemById(current.parentId) : null;
+            limit++;
           }
+          return path;
+        }
+
+        function getHierarchyPathText(item){
+          return getHierarchyPath(item).map(function(node){ return node.name; }).join(' > ');
+        }
+
+        function hasHierarchyChildren(id){
+          for(var i = 0; i < hierarchyData.length; i++){
+            if(hierarchyData[i].parentId === id) return true;
+          }
+          return false;
+        }
+
+        function isDescendantOf(itemId, ancestorId){
+          var current = getHierarchyItemById(itemId);
+          var limit = 0;
+          while(current && current.parentId && limit < 12){
+            if(current.parentId === ancestorId) return true;
+            current = getHierarchyItemById(current.parentId);
+            limit++;
+          }
+          return false;
+        }
+
+        function expandSelectedAncestors(item){
+          var current = item;
+          var limit = 0;
+          while(current && current.parentId && limit < 12){
+            delete hierarchyState.collapsedIds[current.parentId];
+            current = getHierarchyItemById(current.parentId);
+            limit++;
+          }
+        }
+
+        function getSelectedInfo(){
+          var item = getHierarchyItemById(hierarchyState.selectedId);
+          if(!item) return null;
+          return {
+            item: item,
+            meta: getHierarchyKindMeta(item.kind)
+          };
         }
 
         function canCreateSubResellerUnder(parent){
-          if(!parent || parent.type !== 'reseller') return false;
+          if(!parent || parent.type !== 'reseller' || parent.level >= 4) return false;
           if(currentAccount.role === 'service_provider'){
             return currentAccount.manageableParentLevels.indexOf(parent.level) !== -1;
           }
@@ -1874,9 +2010,10 @@
             if(createResellerSubmit) createResellerSubmit.disabled = true;
             return false;
           }
+          var nextKind = getResellerKindByLevel(parent.level + 1);
           if(createResellerParent) createResellerParent.value = parent.id;
-          if(createResellerParentDisplay) createResellerParentDisplay.value = parent.name + ' (L' + parent.level + ')';
-          if(createResellerLevel) createResellerLevel.value = 'L' + (parent.level + 1);
+          if(createResellerParentDisplay) createResellerParentDisplay.value = parent.name + ' (' + getHierarchyKindMeta(parent.kind).label + ')';
+          if(createResellerLevel) createResellerLevel.value = getHierarchyKindMeta(nextKind).label;
           if(createResellerSubmit) createResellerSubmit.disabled = false;
           return true;
         }
@@ -1958,12 +2095,13 @@
               return;
             }
             var newLevel = parent.level + 1;
+            var newKind = getResellerKindByLevel(newLevel);
             var newReseller = {
               id: buildResellerId(createResellerName.value.trim()),
               parentId: parent.id,
               level: newLevel,
+              kind: newKind,
               type: 'reseller',
-              tag: newLevel === 1 ? 'R' : 'SR',
               name: createResellerName.value.trim(),
               contactPerson: createResellerContact.value.trim(),
               contactInfo: createResellerContactInfo ? createResellerContactInfo.value.trim() : '',
@@ -1982,50 +2120,147 @@
             hierarchyState.selectedId = newReseller.id;
             renderHierarchy();
             closeCreateResellerFlow();
-            alert('Reseller created under ' + parent.name + ' (L' + newLevel + ') (mock).');
+            alert(getHierarchyKindMeta(newKind).label + ' created under ' + parent.name + ' (mock).');
           });
         }
 
-        renderAccountScopeHint();
-
         function matchesHierarchyFilter(item){
           var text = hierarchyState.filterText;
-          var typeMatch = hierarchyState.filterType === 'all' || (hierarchyState.filterType === 'merchant' ? item.type === 'merchant' : item.type !== 'merchant');
-          var textMatch = !text || item.name.toLowerCase().indexOf(text) !== -1;
+          var meta = getHierarchyKindMeta(item.kind);
+          var typeMatch = hierarchyState.filterType === 'all'
+            || (hierarchyState.filterType === 'partner' && item.type === 'reseller')
+            || hierarchyState.filterType === item.type;
+          var textMatch = !text || [item.name, meta.label, getHierarchyPathText(item)].join(' ').toLowerCase().indexOf(text) !== -1;
           return typeMatch && textMatch;
+        }
+
+        function getFilteredHierarchyIds(){
+          if(!hierarchyState.filterText && hierarchyState.filterType === 'all') return null;
+          var includeIds = {};
+          hierarchyData.forEach(function(item){
+            if(!matchesHierarchyFilter(item)) return;
+            getHierarchyPath(item).forEach(function(node){
+              includeIds[node.id] = true;
+            });
+          });
+          return includeIds;
+        }
+
+        function areAncestorsExpanded(item){
+          var current = item;
+          var limit = 0;
+          while(current && current.parentId && limit < 12){
+            if(hierarchyState.collapsedIds[current.parentId]) return false;
+            current = getHierarchyItemById(current.parentId);
+            limit++;
+          }
+          return true;
+        }
+
+        function applySelection(){
+          var info = getSelectedInfo();
+          var heroLabel = document.querySelector('.hero-label');
+          var heroTitle = document.querySelector('.reseller-hero h1');
+          if(!info){
+            if(heroLabel) heroLabel.textContent = 'Partner';
+            if(heroTitle) heroTitle.textContent = 'Universal Processing';
+            if(heroParentMeta) heroParentMeta.textContent = 'Parent: Service Provider';
+            if(heroPathMeta) heroPathMeta.textContent = '| Path: Select a node from the hierarchy';
+            if(heroLayerMeta) heroLayerMeta.textContent = '| Layer: -';
+            if(detailTab) detailTab.textContent = 'Partner Detail';
+            if(resellerContent) resellerContent.style.display = '';
+            if(merchantContent) merchantContent.style.display = 'none';
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
+            setMerchantStatus('active');
+            return;
+          }
+          var item = info.item;
+          var meta = info.meta;
+          var parent = getHierarchyParent(item);
+          var isMerchantLike = item.type === 'merchant' || item.type === 'store';
+          var showMerchantActions = item.type === 'merchant';
+          if(heroLabel) heroLabel.textContent = meta.label;
+          if(heroTitle) heroTitle.textContent = item.name;
+          if(heroParentMeta) heroParentMeta.textContent = 'Parent: ' + (parent ? parent.name : 'Service Provider');
+          if(heroPathMeta) heroPathMeta.textContent = '| Path: ' + getHierarchyPathText(item);
+          if(heroLayerMeta) heroLayerMeta.textContent = '| Layer: ' + meta.label + ' (L' + item.level + ')';
+          if(detailTab) detailTab.textContent = meta.label + ' Detail';
+          if(resellerContent) resellerContent.style.display = isMerchantLike ? 'none' : '';
+          if(merchantContent) merchantContent.style.display = isMerchantLike ? '' : 'none';
+          if(isMerchantLike){
+            var mdName = document.getElementById('md-merchant-name');
+            if(mdName) mdName.textContent = item.name;
+            setMerchantStatus('active');
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = showMerchantActions ? 'inline-flex' : 'none';
+          } else {
+            if(merchantSettingsBtn) merchantSettingsBtn.style.display = 'none';
+            setMerchantStatus('active');
+          }
         }
 
         function renderHierarchy(){
           if(!hierarchyListEl) return;
           hierarchyListEl.innerHTML = '';
-          var filtered = hierarchyData.filter(matchesHierarchyFilter);
-          filtered.forEach(function(item){
+          var selectedItem = getHierarchyItemById(hierarchyState.selectedId);
+          if(selectedItem) expandSelectedAncestors(selectedItem);
+          var filteredIds = getFilteredHierarchyIds();
+          var visibleCount = 0;
+          hierarchyData.forEach(function(item){
+            if(filteredIds && !filteredIds[item.id]) return;
+            if(!filteredIds && !areAncestorsExpanded(item)) return;
+            visibleCount++;
+            var meta = getHierarchyKindMeta(item.kind);
+            var hasChildren = hasHierarchyChildren(item.id);
+            var collapsed = !!hierarchyState.collapsedIds[item.id];
             var li = document.createElement('li');
-            li.className = 'level-' + item.level + (hierarchyState.selectedId === item.id ? ' selected' : '');
+            li.className = hierarchyState.selectedId === item.id ? 'selected' : '';
+            li.style.setProperty('--depth', Math.max(0, item.level - 1));
+            li.setAttribute('data-depth', String(Math.max(0, item.level - 1)));
             li.setAttribute('data-id', item.id);
             li.setAttribute('data-type', item.type);
-            var toggle = document.createElement('span');
-            toggle.className = 'tree-toggle';
-            toggle.textContent = item.level >= 3 ? '-' : 'v';
-            var label = document.createElement('span');
-            label.textContent = '[' + item.tag + '] ' + item.name;
+            li.title = getHierarchyPathText(item);
+            var toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'tree-toggle' + (hasChildren && collapsed ? ' collapsed' : '') + (hasChildren ? '' : ' placeholder');
+            toggle.innerHTML = hasChildren ? getHierarchyChevronSvg() : '';
+            if(hasChildren){
+              toggle.setAttribute('aria-label', (collapsed ? 'Expand ' : 'Collapse ') + item.name);
+              toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                if(collapsed){
+                  delete hierarchyState.collapsedIds[item.id];
+                } else {
+                  hierarchyState.collapsedIds[item.id] = true;
+                  if(hierarchyState.selectedId && isDescendantOf(hierarchyState.selectedId, item.id)){
+                    hierarchyState.selectedId = item.id;
+                  }
+                }
+                renderHierarchy();
+              });
+            }
+            var icon = document.createElement('span');
+            icon.className = 'hierarchy-node-icon ' + getHierarchyKindClass(item.kind);
+            icon.innerHTML = getHierarchyIconSvg(item.kind);
+            var main = document.createElement('div');
+            main.className = 'hierarchy-node-main';
+            var badge = document.createElement('span');
+            badge.className = 'hierarchy-node-badge ' + getHierarchyKindClass(item.kind);
+            badge.textContent = meta.label;
+            var name = document.createElement('span');
+            name.className = 'hierarchy-node-name';
+            name.textContent = item.name;
+            main.appendChild(badge);
+            main.appendChild(name);
             li.appendChild(toggle);
-            li.appendChild(label);
+            li.appendChild(icon);
+            li.appendChild(main);
             li.addEventListener('click', function(){
-              var already = li.classList.contains('selected');
-              Array.prototype.forEach.call(hierarchyListEl.querySelectorAll('li'), function(x){ x.classList.remove('selected'); });
-              if(!already){
-                li.classList.add('selected');
-                hierarchyState.selectedId = item.id;
-              } else {
-                hierarchyState.selectedId = null;
-              }
-              syncRightPanelEmpty();
-              applySelection();
+              hierarchyState.selectedId = hierarchyState.selectedId === item.id ? null : item.id;
+              renderHierarchy();
             });
             hierarchyListEl.appendChild(li);
           });
-          if(hierarchyCount) hierarchyCount.textContent = 'Showing ' + filtered.length + ' of ' + hierarchyData.length;
+          if(hierarchyCount) hierarchyCount.textContent = 'Showing ' + visibleCount + ' of ' + hierarchyData.length;
           refreshCreateResellerActionState();
           syncRightPanelEmpty();
           applySelection();
