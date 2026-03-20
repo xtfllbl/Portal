@@ -227,11 +227,11 @@
         .hierarchy-list { list-style: none; margin: 0; padding: 4px 8px 8px; display: flex; flex-direction: column; gap: 0; }
         .hierarchy-list li {
             position: relative;
-            display: flex;
+            display: grid;
+            grid-template-columns: 12px minmax(0, 1fr);
             align-items: center;
-            gap: 4px;
-            margin-left: calc(var(--depth, 0) * 8px);
-            padding: 1px 6px 1px 4px;
+            column-gap: 6px;
+            padding: 1px 6px 1px calc(4px + (var(--depth, 0) * 14px));
             min-height: 26px;
             border-radius: 7px;
             font-size: 11px;
@@ -276,14 +276,19 @@
         .tree-toggle.collapsed svg { transform: rotate(-90deg); }
         .hierarchy-node-main {
             min-width: 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            column-gap: 8px;
+            flex: 1;
+        }
+        .hierarchy-node-label {
+            min-width: 0;
             display: flex;
             align-items: center;
-            gap: 4px;
-            flex: 1;
-            flex-wrap: nowrap;
+            gap: 5px;
         }
         .hierarchy-node-glyph {
-            order: 0;
             width: 12px;
             height: 12px;
             display: inline-flex;
@@ -306,23 +311,19 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            order: 2;
-            margin-left: auto;
             min-height: auto;
             padding: 0;
             border-radius: 0;
             font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
+            font-weight: 600;
+            letter-spacing: 0.07em;
             text-transform: uppercase;
             border: none;
             background: transparent;
-            opacity: .72;
+            opacity: .5;
             white-space: nowrap;
         }
         .hierarchy-node-name {
-            order: 1;
-            flex: 1;
             min-width: 0;
             white-space: nowrap;
             overflow: hidden;
@@ -332,12 +333,12 @@
             line-height: 1.2;
         }
         .hierarchy-list .selected .hierarchy-node-name { font-weight: 700; }
-        .hierarchy-list .selected .hierarchy-node-badge { opacity: 1; }
+        .hierarchy-list .selected .hierarchy-node-badge { opacity: .72; }
         .hierarchy-list .selected .hierarchy-node-glyph { opacity: 1; }
-        .hierarchy-node-badge.kind-super-iso { color: #a16207; }
-        .hierarchy-node-badge.kind-iso { color: #1d4ed8; }
-        .hierarchy-node-badge.kind-subiso { color: #0f766e; }
-        .hierarchy-node-badge.kind-agent { color: #475569; }
+        .hierarchy-node-badge.kind-super-iso { color: #9a7b46; }
+        .hierarchy-node-badge.kind-iso { color: #5f7fc0; }
+        .hierarchy-node-badge.kind-subiso { color: #4f8b86; }
+        .hierarchy-node-badge.kind-agent { color: #748091; }
         .hierarchy-node-glyph.kind-merchant { color: #15803d; }
         .hierarchy-node-glyph.kind-store { color: #c2410c; }
         .hierarchy-tools {
@@ -1776,8 +1777,8 @@
           iso: { label: 'ISO', shortLabel: 'ISO', type: 'reseller' },
           subiso: { label: 'Sub ISO', shortLabel: 'SUB', type: 'reseller' },
           agent: { label: 'Agent', shortLabel: 'AGT', type: 'reseller' },
-          merchant: { label: 'Merchant', shortLabel: 'MCH', type: 'merchant' },
-          store: { label: 'Store', shortLabel: 'STR', type: 'store' }
+          merchant: { label: 'Merchant', type: 'merchant' },
+          store: { label: 'Store', type: 'store' }
         };
         function getHierarchyKindMeta(kind){
           return hierarchyKindMeta[kind] || hierarchyKindMeta.agent;
@@ -1794,23 +1795,14 @@
         function getHierarchyChevronSvg(){
           return '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>';
         }
-        function getHierarchyIconSvg(kind){
-          if(kind === 'super_iso'){
-            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 18 1.4-8 3.6 3 2-7 2 7 3.6-3L19 18"/><path d="M6 18h12"/></svg>';
-          }
-          if(kind === 'iso'){
-            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V8l6-4 6 4v12"/><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M12 16h.01"/></svg>';
-          }
-          if(kind === 'subiso'){
-            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v4H6z"/><path d="M4 14h7v4H4z"/><path d="M13 14h7v4h-7z"/><path d="M12 10v4"/></svg>';
-          }
+        function getEntityGlyphSvg(kind){
           if(kind === 'merchant'){
             return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M5 10 7 5h10l2 5"/><path d="M10 14h4"/></svg>';
           }
           if(kind === 'store'){
             return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-4.4 6-10a6 6 0 1 0-12 0c0 5.6 6 10 6 10Z"/><path d="M9 10h6"/><path d="M10 13h4"/></svg>';
           }
-          return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4"/><path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>';
+          return '';
         }
         var createResellerModal = document.getElementById('createResellerModal');
         var createResellerForm = document.getElementById('createResellerForm');
@@ -2244,16 +2236,19 @@
             }
             var main = document.createElement('div');
             main.className = 'hierarchy-node-main';
+            var label = document.createElement('div');
+            label.className = 'hierarchy-node-label';
             var name = document.createElement('span');
             name.className = 'hierarchy-node-name';
             name.textContent = item.name;
             if(item.type !== 'reseller'){
               var glyph = document.createElement('span');
               glyph.className = 'hierarchy-node-glyph ' + getHierarchyKindClass(item.kind);
-              glyph.innerHTML = getHierarchyIconSvg(item.kind);
-              main.appendChild(glyph);
+              glyph.innerHTML = getEntityGlyphSvg(item.kind);
+              label.appendChild(glyph);
             }
-            main.appendChild(name);
+            label.appendChild(name);
+            main.appendChild(label);
             if(item.type === 'reseller'){
               var badge = document.createElement('span');
               badge.className = 'hierarchy-node-badge ' + getHierarchyKindClass(item.kind);
