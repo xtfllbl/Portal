@@ -226,12 +226,13 @@
         .hierarchy-card header { padding: 14px 14px 12px; border-bottom: 1px solid var(--card-border); font-size: 14px; font-weight: 700; color: var(--text-heading); }
         .hierarchy-list { list-style: none; margin: 0; padding: 6px 8px 10px; display: flex; flex-direction: column; gap: 1px; }
         .hierarchy-list li {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             margin-left: calc(var(--depth, 0) * 10px);
-            padding: 3px 8px 3px 4px;
-            min-height: 30px;
+            padding: 2px 8px 2px 4px;
+            min-height: 28px;
             border-radius: 8px;
             font-size: 12px;
             cursor: pointer;
@@ -240,10 +241,20 @@
         }
         .hierarchy-list li:hover { background-color: #f7f8fb; }
         .hierarchy-list .selected {
-            background: #f5f7fb;
-            border-color: #d8e0ec;
+            background: #f6f7f9;
+            border-color: transparent;
             color: var(--sidebar-active-text);
             font-weight: 500;
+        }
+        .hierarchy-list .selected::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 5px;
+            bottom: 5px;
+            width: 3px;
+            border-radius: 999px;
+            background: #111827;
         }
         .tree-toggle {
             width: 14px;
@@ -263,32 +274,11 @@
         .tree-toggle.placeholder { visibility: hidden; pointer-events: none; }
         .tree-toggle svg { width: 9px; height: 9px; transition: transform 0.18s ease; }
         .tree-toggle.collapsed svg { transform: rotate(-90deg); }
-        .hierarchy-node-icon {
-            width: 16px;
-            height: 16px;
-            border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid transparent;
-            background: transparent;
-            color: #64748b;
-            flex: 0 0 16px;
-        }
-        .hierarchy-node-icon svg {
-            width: 10px;
-            height: 10px;
-            stroke: currentColor;
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
         .hierarchy-node-main {
             min-width: 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex: 1;
             flex-wrap: nowrap;
         }
@@ -323,13 +313,6 @@
         }
         .hierarchy-list .selected .hierarchy-node-name { font-weight: 700; }
         .hierarchy-list .selected .hierarchy-node-badge { opacity: 1; }
-        .hierarchy-list .selected .hierarchy-node-icon { background: #ffffff; border-color: #dbe2ec; }
-        .hierarchy-node-icon.kind-super-iso { color: #a16207; }
-        .hierarchy-node-icon.kind-iso { color: #1d4ed8; }
-        .hierarchy-node-icon.kind-subiso { color: #0f766e; }
-        .hierarchy-node-icon.kind-agent { color: #475569; }
-        .hierarchy-node-icon.kind-merchant { color: #15803d; }
-        .hierarchy-node-icon.kind-store { color: #c2410c; }
         .hierarchy-node-badge.kind-super-iso { color: #a16207; }
         .hierarchy-node-badge.kind-iso { color: #1d4ed8; }
         .hierarchy-node-badge.kind-subiso { color: #0f766e; }
@@ -2238,9 +2221,6 @@
                 renderHierarchy();
               });
             }
-            var icon = document.createElement('span');
-            icon.className = 'hierarchy-node-icon ' + getHierarchyKindClass(item.kind);
-            icon.innerHTML = getHierarchyIconSvg(item.kind);
             var main = document.createElement('div');
             main.className = 'hierarchy-node-main';
             var badge = document.createElement('span');
@@ -2252,7 +2232,6 @@
             main.appendChild(badge);
             main.appendChild(name);
             li.appendChild(toggle);
-            li.appendChild(icon);
             li.appendChild(main);
             li.addEventListener('click', function(){
               hierarchyState.selectedId = hierarchyState.selectedId === item.id ? null : item.id;
