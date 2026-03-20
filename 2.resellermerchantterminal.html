@@ -240,6 +240,11 @@
             transition: background-color 0.18s ease, border-color 0.18s ease;
         }
         .hierarchy-list li:hover { background-color: #f7f8fa; }
+        .hierarchy-list li.group-start {
+            margin-top: 6px;
+            padding-top: 7px;
+            box-shadow: inset 0 1px 0 #edf1f5;
+        }
         .hierarchy-list .selected {
             background: #f4f6f8;
             border-color: transparent;
@@ -1860,9 +1865,33 @@
         var hierarchySearch = document.getElementById('hierarchySearch');
         var hierarchyTypeFilter = document.getElementById('hierarchyTypeFilter');
         var hierarchyCount = document.getElementById('hierarchyCount');
-        var hierarchyState = { filterText: '', filterType: 'all', selectedId: 'm-luxe', collapsedIds: {} };
+        var hierarchyState = {
+          filterText: '',
+          filterType: 'all',
+          selectedId: 'm-direct-riverfront',
+          collapsedIds: {
+            'sp-apex': true,
+            'sp-pacific': true
+          }
+        };
 
         var hierarchyData = [
+          { id: 'm-direct-riverfront', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Riverfront Market' },
+          { id: 'st-direct-riverfront-main', parentId: 'm-direct-riverfront', level: 2, kind: 'store', type: 'store', name: 'Main Hall' },
+          { id: 'st-direct-riverfront-airport', parentId: 'm-direct-riverfront', level: 2, kind: 'store', type: 'store', name: 'Airport Kiosk' },
+          { id: 'm-direct-midtown', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Midtown Deli' },
+          { id: 'st-direct-midtown-counter', parentId: 'm-direct-midtown', level: 2, kind: 'store', type: 'store', name: 'Office Tower Counter' },
+          { id: 'm-direct-skyline', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Skyline Fitness Club' },
+          { id: 'st-direct-skyline-downtown', parentId: 'm-direct-skyline', level: 2, kind: 'store', type: 'store', name: 'Downtown Branch' },
+          { id: 'st-direct-skyline-westend', parentId: 'm-direct-skyline', level: 2, kind: 'store', type: 'store', name: 'West End Branch' },
+          { id: 'm-direct-urban-pet', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Urban Pet Supply' },
+          { id: 'st-direct-urban-pet-harbor', parentId: 'm-direct-urban-pet', level: 2, kind: 'store', type: 'store', name: 'Harbor Point Shop' },
+          { id: 'm-direct-harbor-medical', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Harbor Medical Group' },
+          { id: 'st-direct-harbor-clinic', parentId: 'm-direct-harbor-medical', level: 2, kind: 'store', type: 'store', name: 'Central Clinic' },
+          { id: 'st-direct-harbor-annex', parentId: 'm-direct-harbor-medical', level: 2, kind: 'store', type: 'store', name: 'North Annex' },
+          { id: 'm-direct-corner-table', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Corner Table Hospitality' },
+          { id: 'st-direct-corner-table-main', parentId: 'm-direct-corner-table', level: 2, kind: 'store', type: 'store', name: 'Riverside Dining Room' },
+          { id: 'st-direct-corner-table-event', parentId: 'm-direct-corner-table', level: 2, kind: 'store', type: 'store', name: 'Convention Booth' },
           { id: 'sp-apex', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'Apex Resellers' },
           { id: 'iso-global', parentId: 'sp-apex', level: 2, kind: 'iso', type: 'reseller', name: 'Global Payments Inc.' },
           { id: 'sub-northern', parentId: 'iso-global', level: 3, kind: 'subiso', type: 'reseller', name: 'Northern Trail Commerce' },
@@ -1924,7 +1953,11 @@
         }
 
         function getHierarchyPathText(item){
-          return getHierarchyPath(item).map(function(node){ return node.name; }).join(' > ');
+          var chain = getHierarchyPath(item).map(function(node){ return node.name; });
+          if(currentAccount && currentAccount.name){
+            chain.unshift(currentAccount.name);
+          }
+          return chain.join(' > ');
         }
 
         function hasHierarchyChildren(id){
@@ -2201,6 +2234,8 @@
           if(selectedItem) expandSelectedAncestors(selectedItem);
           var filteredIds = getFilteredHierarchyIds();
           var visibleCount = 0;
+          var hasVisibleDirectTopMerchant = false;
+          var partnerSectionStarted = false;
           hierarchyData.forEach(function(item){
             if(filteredIds && !filteredIds[item.id]) return;
             if(!filteredIds && !areAncestorsExpanded(item)) return;
@@ -2210,6 +2245,10 @@
             var collapsed = !!hierarchyState.collapsedIds[item.id];
             var li = document.createElement('li');
             li.className = hierarchyState.selectedId === item.id ? 'selected' : '';
+            if(!partnerSectionStarted && hasVisibleDirectTopMerchant && !item.parentId && item.type === 'reseller'){
+              li.className += (li.className ? ' ' : '') + 'group-start';
+              partnerSectionStarted = true;
+            }
             li.style.setProperty('--depth', Math.max(0, item.level - 1));
             li.setAttribute('data-depth', String(Math.max(0, item.level - 1)));
             li.setAttribute('data-id', item.id);
@@ -2262,6 +2301,9 @@
               renderHierarchy();
             });
             hierarchyListEl.appendChild(li);
+            if(!item.parentId && item.type === 'merchant'){
+              hasVisibleDirectTopMerchant = true;
+            }
           });
           if(hierarchyCount) hierarchyCount.textContent = visibleCount + '/' + hierarchyData.length;
           refreshCreateResellerActionState();
