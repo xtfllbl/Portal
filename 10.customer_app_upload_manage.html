@@ -116,10 +116,37 @@
     .small-btn:hover { background: #f8fafc; }
     .small-btn.update { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
     .small-btn.toggle { color: #0369a1; border-color: #bae6fd; background: #f0f9ff; }
+    .notice-panel { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid #dbe3ef; background: #f8fafc; color: #334155; font-size: 13px; line-height: 1.45; }
+    .notice-panel.neutral { border-color: #dbe3ef; background: #f8fafc; color: #475569; }
+    .notice-panel.info { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+    .notice-panel.success { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+    .notice-panel.warning { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+    .notice-panel.error { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
+
+    body.modal-open { overflow: hidden; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(15, 23, 42, .45); display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal-backdrop[hidden] { display: none !important; }
+    .modal-panel { width: min(920px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: #fff; border-radius: 20px; box-shadow: 0 30px 80px rgba(15, 23, 42, .26); border: 1px solid #e2e8f0; }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 24px 16px; border-bottom: 1px solid #e5e7eb; }
+    .modal-kicker { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
+    .modal-head h3 { margin: 0; font-size: 28px; color: #111827; }
+    .modal-close { width: 38px; height: 38px; }
+    .modal-body { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-current { border: 1px solid #dbe3ef; border-radius: 16px; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); padding: 16px; }
+    .modal-current-head { display: flex; align-items: center; gap: 14px; }
+    .modal-current-icon { width: 62px; height: 62px; flex-shrink: 0; }
+    .modal-current-name { font-size: 20px; font-weight: 700; color: #111827; line-height: 1.2; }
+    .modal-current-meta { margin-top: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .modal-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: 14px; align-items: stretch; }
+    .modal-upload-box { border: 1px dashed #cbd5e1; border-radius: 16px; min-height: 220px; background: radial-gradient(circle at top right, #dbeafe, transparent 32%), linear-gradient(180deg, #f8fbff 0%, #f8fafc 100%); display: grid; place-items: center; text-align: center; color: #475569; padding: 18px; }
+    .modal-upload-copy { max-width: 320px; }
+    .modal-upload-copy strong { display: block; margin-bottom: 8px; font-size: 22px; color: #111827; }
+    .modal-selected-file { margin-top: 12px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
     @media (max-width: 1160px) { .main-body { flex-direction: column; } .sidebar { width: 100%; } }
     @media (max-width: 1100px) { .upload-stage { grid-template-columns: 1fr; } }
-    @media (max-width: 980px) { .upload-grid { grid-template-columns: 1fr; } .fields, .preview-meta { grid-template-columns: 1fr; } .tools { justify-content: flex-start; flex-wrap: wrap; } .tools .search, .tools select { width: 100%; flex: 1 1 100%; } }
+    @media (max-width: 980px) { .upload-grid, .modal-grid { grid-template-columns: 1fr; } .fields, .preview-meta, .modal-current-meta { grid-template-columns: 1fr; } .tools { justify-content: flex-start; flex-wrap: wrap; } .tools .search, .tools select { width: 100%; flex: 1 1 100%; } .modal-backdrop { padding: 12px; } .modal-head, .modal-body { padding-left: 16px; padding-right: 16px; } }
   </style>
 </head>
 <body>
@@ -211,6 +238,7 @@
                   <button id="resetUpload" class="btn-secondary" type="button">Reset</button>
                   <button id="submitUpload" class="btn-primary upload-submit" type="button">Upload APP</button>
                 </div>
+                <div id="uploadValidation" class="notice-panel neutral" aria-live="polite">Upload an APK to parse metadata and check package/version conflicts automatically.</div>
               </div>
               <div class="box">
                 <h3>Upload Guidelines</h3>
@@ -238,7 +266,74 @@
                 <tbody id="appTableBody"></tbody>
               </table>
             </div>
-            <input id="updateFileInput" type="file" accept=".apk" style="display:none;">
+          </div>
+
+          <div id="updateModal" class="modal-backdrop" hidden>
+            <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
+              <div class="modal-head">
+                <div>
+                  <div class="modal-kicker">Upload Update</div>
+                  <h3 id="updateModalTitle">Upload New APP Version</h3>
+                </div>
+                <button id="closeUpdateModal" class="icon-button modal-close" type="button" aria-label="Close update dialog">x</button>
+              </div>
+              <div class="modal-body">
+                <div class="modal-current">
+                  <div class="modal-current-head">
+                    <div id="updateCurrentIcon" class="modal-current-icon"></div>
+                    <div>
+                      <div class="modal-kicker">Current APP</div>
+                      <div id="updateCurrentName" class="modal-current-name">APP name</div>
+                      <div id="updateCurrentPackage" class="preview-package">com.customer.app</div>
+                    </div>
+                  </div>
+                  <div class="modal-current-meta">
+                    <div class="preview-stat"><span>Current Version</span><strong id="updateCurrentVersion">-</strong></div>
+                    <div class="preview-stat"><span>Type</span><strong id="updateCurrentType">Standard App</strong></div>
+                    <div class="preview-stat"><span>Status</span><strong id="updateCurrentStatus">Published</strong></div>
+                  </div>
+                </div>
+
+                <div class="modal-grid">
+                  <div class="modal-upload-box">
+                    <div class="modal-upload-copy">
+                      <strong>Select New APK</strong>
+                      <div>Upload a higher version APK for this package.</div>
+                      <div id="updateSelectedFileName" class="selected-file modal-selected-file">No APK selected</div>
+                      <div class="dropzone-input"><input id="updateFileInput" type="file" accept=".apk"></div>
+                    </div>
+                  </div>
+                  <div class="app-preview-card">
+                    <div class="preview-kicker">Parsed Preview</div>
+                    <div class="preview-head">
+                      <div id="updatePreviewIcon" class="preview-icon"></div>
+                      <div>
+                        <div id="updatePreviewName" class="preview-title">APP name</div>
+                        <div id="updatePreviewPackage" class="preview-package">com.customer.app</div>
+                      </div>
+                    </div>
+                    <div class="preview-meta">
+                      <div class="preview-stat"><span>Version</span><strong id="updatePreviewVersion">-</strong></div>
+                      <div class="preview-stat"><span>Type</span><strong id="updatePreviewType">Standard App</strong></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="fields">
+                  <div class="field"><label for="updateAppName">APP Name</label><input id="updateAppName" type="text" placeholder="UPT Retail Plus"></div>
+                  <div class="field"><label for="updateAppVersion">Version</label><input id="updateAppVersion" type="text" placeholder="2.6.2_20260309"></div>
+                  <div class="field"><label for="updateAppType">Type</label><select id="updateAppType"><option>Standard App</option><option>Parameter App</option><option>Tool App</option></select></div>
+                  <div class="field"><label for="updateAppPackage">Package</label><input id="updateAppPackage" type="text" placeholder="com.customer.app"></div>
+                </div>
+
+                <div id="updateValidation" class="notice-panel neutral" aria-live="polite">Upload a newer APK with the same package name as the current app.</div>
+
+                <div class="modal-actions">
+                  <button id="cancelUpdate" class="btn-secondary" type="button">Cancel</button>
+                  <button id="submitUpdate" class="btn-primary upload-submit" type="button">Upload Update</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -285,13 +380,35 @@
       const previewAppPackage = document.getElementById('previewAppPackage');
       const previewAppVersion = document.getElementById('previewAppVersion');
       const previewAppType = document.getElementById('previewAppType');
-      const updateFileInput = document.getElementById('updateFileInput');
       const resetUpload = document.getElementById('resetUpload');
       const submitUpload = document.getElementById('submitUpload');
+      const uploadValidation = document.getElementById('uploadValidation');
       const appTableBody = document.getElementById('appTableBody');
       const searchInput = document.getElementById('searchInput');
       const statusFilter = document.getElementById('statusFilter');
       const applyFilter = document.getElementById('applyFilter');
+      const updateModal = document.getElementById('updateModal');
+      const closeUpdateModal = document.getElementById('closeUpdateModal');
+      const cancelUpdate = document.getElementById('cancelUpdate');
+      const submitUpdate = document.getElementById('submitUpdate');
+      const updateCurrentIcon = document.getElementById('updateCurrentIcon');
+      const updateCurrentName = document.getElementById('updateCurrentName');
+      const updateCurrentPackage = document.getElementById('updateCurrentPackage');
+      const updateCurrentVersion = document.getElementById('updateCurrentVersion');
+      const updateCurrentType = document.getElementById('updateCurrentType');
+      const updateCurrentStatus = document.getElementById('updateCurrentStatus');
+      const updateFileInput = document.getElementById('updateFileInput');
+      const updateSelectedFileName = document.getElementById('updateSelectedFileName');
+      const updatePreviewIcon = document.getElementById('updatePreviewIcon');
+      const updatePreviewName = document.getElementById('updatePreviewName');
+      const updatePreviewPackage = document.getElementById('updatePreviewPackage');
+      const updatePreviewVersion = document.getElementById('updatePreviewVersion');
+      const updatePreviewType = document.getElementById('updatePreviewType');
+      const updateAppName = document.getElementById('updateAppName');
+      const updateAppVersion = document.getElementById('updateAppVersion');
+      const updateAppType = document.getElementById('updateAppType');
+      const updateAppPackage = document.getElementById('updateAppPackage');
+      const updateValidation = document.getElementById('updateValidation');
       let updateTargetId = '';
       let apps = [];
 
@@ -307,6 +424,49 @@
 
       function escapeHtml(value){
         return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+      }
+
+      function normalizePackage(value){
+        return String(value || '').trim().toLowerCase();
+      }
+
+      function tokenizeVersion(value){
+        return String(value || '')
+          .trim()
+          .replace(/^v/i, '')
+          .split(/[^A-Za-z0-9]+/)
+          .filter(Boolean)
+          .map(part => /^\d+$/.test(part) ? Number(part) : part.toLowerCase());
+      }
+
+      function isZeroLike(value){
+        return value === undefined || value === 0 || value === '0' || value === '';
+      }
+
+      function compareVersionPart(left, right){
+        if(left === undefined && right === undefined) return 0;
+        if(left === undefined) return isZeroLike(right) ? 0 : -1;
+        if(right === undefined) return isZeroLike(left) ? 0 : 1;
+        if(typeof left === 'number' && typeof right === 'number'){
+          if(left === right) return 0;
+          return left > right ? 1 : -1;
+        }
+        if(typeof left === 'number') return 1;
+        if(typeof right === 'number') return -1;
+        const compare = left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' });
+        if(compare === 0) return 0;
+        return compare > 0 ? 1 : -1;
+      }
+
+      function compareVersions(left, right){
+        const leftParts = tokenizeVersion(left);
+        const rightParts = tokenizeVersion(right);
+        const length = Math.max(leftParts.length, rightParts.length);
+        for(let i = 0; i < length; i += 1){
+          const compare = compareVersionPart(leftParts[i], rightParts[i]);
+          if(compare !== 0) return compare;
+        }
+        return 0;
       }
 
       function hashText(text){
@@ -388,6 +548,26 @@
         }
       }
 
+      function updateModalPreview(){
+        const targetApp = apps.find(item => item.id === updateTargetId);
+        const fallback = targetApp || { package: 'com.customer.app', type: 'Standard App' };
+        const current = {
+          name: updateAppName.value.trim() || 'APP name',
+          package: updateAppPackage.value.trim() || fallback.package,
+          version: updateAppVersion.value.trim() || '-',
+          type: updateAppType.value || fallback.type
+        };
+        if(updatePreviewName) updatePreviewName.textContent = current.name;
+        if(updatePreviewPackage) updatePreviewPackage.textContent = current.package;
+        if(updatePreviewVersion) updatePreviewVersion.textContent = current.version;
+        if(updatePreviewType) updatePreviewType.textContent = current.type;
+        if(updatePreviewIcon) updatePreviewIcon.innerHTML = renderAppIcon(current, 'app-icon-mark');
+        if(updateSelectedFileName){
+          const file = updateFileInput.files && updateFileInput.files[0];
+          updateSelectedFileName.textContent = file ? file.name : 'No APK selected';
+        }
+      }
+
       function normalizeApps(raw){
         if(!Array.isArray(raw)) return [];
         return raw.map((item, idx) => ({
@@ -448,6 +628,194 @@
         return !!(file && /\.apk$/i.test(file.name));
       }
 
+      function setNotice(element, tone, message){
+        if(!element) return;
+        element.className = `notice-panel ${tone}`;
+        element.textContent = message;
+      }
+
+      function highestVersionAppByPackage(pkg, excludeId){
+        const normalized = normalizePackage(pkg);
+        if(!normalized) return null;
+        return apps
+          .filter(item => normalizePackage(item.package) === normalized && item.id !== excludeId)
+          .reduce((best, item) => {
+            if(!best) return item;
+            const versionCompare = compareVersions(item.version, best.version);
+            if(versionCompare > 0) return item;
+            if(versionCompare === 0 && String(item.updated || '') > String(best.updated || '')) return item;
+            return best;
+          }, null);
+      }
+
+      function evaluateNewUpload(pkg, version){
+        const normalizedPkg = normalizePackage(pkg);
+        const cleanVersion = String(version || '').trim();
+        if(!normalizedPkg && !cleanVersion){
+          return { tone: 'neutral', valid: false, message: 'Upload an APK to parse metadata and check package/version conflicts automatically.' };
+        }
+        if(!normalizedPkg){
+          return { tone: 'warning', valid: false, message: 'Package is required to check whether this APP already exists.' };
+        }
+        const existing = highestVersionAppByPackage(normalizedPkg);
+        if(!existing){
+          if(!cleanVersion){
+            return { tone: 'success', valid: false, message: 'New package detected. Fill in the version and upload the APK to create a new app.' };
+          }
+          return { tone: 'success', valid: true, isNew: true, message: 'New package detected. This APP will be added as a new application.' };
+        }
+        if(!cleanVersion){
+          return { tone: 'warning', valid: false, existing, message: `Package ${existing.package} already exists. Enter a version to compare with ${existing.version}.` };
+        }
+        const versionCompare = compareVersions(cleanVersion, existing.version);
+        if(versionCompare > 0){
+          return { tone: 'info', valid: true, isUpdate: true, existing, message: `Package ${existing.package} already exists. Version ${cleanVersion} is higher than ${existing.version}, so this upload will be treated as an app update.` };
+        }
+        if(versionCompare === 0){
+          return { tone: 'warning', valid: false, existing, message: `Package ${existing.package} with version ${existing.version} has already been uploaded.` };
+        }
+        return { tone: 'error', valid: false, existing, message: `A newer version ${existing.version} has already been uploaded for package ${existing.package}.` };
+      }
+
+      function evaluateUpdateCandidate(targetApp, pkg, version){
+        if(!targetApp){
+          return { tone: 'error', valid: false, message: 'Current APP was not found.' };
+        }
+        const normalizedPkg = normalizePackage(pkg);
+        const currentPkg = normalizePackage(targetApp.package);
+        const cleanVersion = String(version || '').trim();
+        if(!normalizedPkg && !cleanVersion){
+          return { tone: 'neutral', valid: false, message: 'Upload a newer APK with the same package name as the current app.' };
+        }
+        if(!normalizedPkg){
+          return { tone: 'warning', valid: false, message: 'Package is required for update validation.' };
+        }
+        if(normalizedPkg !== currentPkg){
+          return { tone: 'error', valid: false, message: `Package mismatch. Expected ${targetApp.package}, got ${pkg}.` };
+        }
+        if(!cleanVersion){
+          return { tone: 'warning', valid: false, message: 'Version is required for update validation.' };
+        }
+        const versionCompare = compareVersions(cleanVersion, targetApp.version);
+        if(versionCompare > 0){
+          return { tone: 'success', valid: true, message: `Valid update. Version ${cleanVersion} is higher than current ${targetApp.version}.` };
+        }
+        if(versionCompare === 0){
+          return { tone: 'warning', valid: false, message: `This APK has the same version as the current app (${targetApp.version}).` };
+        }
+        return { tone: 'error', valid: false, message: `A newer app version ${targetApp.version} has already been uploaded for this package.` };
+      }
+
+      function refreshUploadState(){
+        updateUploadPreview();
+        const hasAnyInput = !!((appFile.files && appFile.files[0]) || appName.value.trim() || appVersion.value.trim() || appPackage.value.trim());
+        if(!hasAnyInput){
+          const result = { tone: 'neutral', valid: false, message: 'Upload an APK to parse metadata and check package/version conflicts automatically.' };
+          setNotice(uploadValidation, result.tone, result.message);
+          return result;
+        }
+        const result = evaluateNewUpload(appPackage.value, appVersion.value);
+        setNotice(uploadValidation, result.tone, result.message);
+        return result;
+      }
+
+      function fillUpdateCurrent(app){
+        if(updateCurrentIcon) updateCurrentIcon.innerHTML = renderAppIcon(app, 'app-icon-mark');
+        if(updateCurrentName) updateCurrentName.textContent = app.name;
+        if(updateCurrentPackage) updateCurrentPackage.textContent = app.package;
+        if(updateCurrentVersion) updateCurrentVersion.textContent = app.version;
+        if(updateCurrentType) updateCurrentType.textContent = app.type;
+        if(updateCurrentStatus) updateCurrentStatus.textContent = app.listed ? 'Published' : 'Unpublished';
+      }
+
+      function refreshUpdateState(){
+        updateModalPreview();
+        const targetApp = apps.find(item => item.id === updateTargetId);
+        if(!targetApp){
+          const result = { tone: 'error', valid: false, message: 'Current APP was not found.' };
+          setNotice(updateValidation, result.tone, result.message);
+          return result;
+        }
+        const hasFile = !!(updateFileInput.files && updateFileInput.files[0]);
+        const changed = hasFile
+          || updateAppName.value.trim() !== targetApp.name
+          || updateAppVersion.value.trim() !== targetApp.version
+          || normalizePackage(updateAppPackage.value) !== normalizePackage(targetApp.package)
+          || updateAppType.value !== targetApp.type;
+        if(!changed){
+          const result = { tone: 'neutral', valid: false, message: 'Upload a newer APK with the same package name as the current app.' };
+          setNotice(updateValidation, result.tone, result.message);
+          return result;
+        }
+        const result = evaluateUpdateCandidate(targetApp, updateAppPackage.value, updateAppVersion.value);
+        setNotice(updateValidation, result.tone, result.message);
+        return result;
+      }
+
+      function moveAppToTop(id){
+        const index = apps.findIndex(item => item.id === id);
+        if(index <= 0) return;
+        const moved = apps.splice(index, 1)[0];
+        apps.unshift(moved);
+      }
+
+      function applyAppData(targetApp, payload){
+        targetApp.name = payload.name;
+        targetApp.package = payload.package;
+        targetApp.version = payload.version;
+        targetApp.type = payload.type;
+        targetApp.iconKey = deriveIconKey(payload.name, payload.type);
+        targetApp.updated = nowText();
+        moveAppToTop(targetApp.id);
+      }
+
+      function resetUploadFields(){
+        appName.value = '';
+        appVersion.value = '';
+        appType.value = 'Standard App';
+        appPackage.value = '';
+        appFile.value = '';
+        refreshUploadState();
+      }
+
+      function resetUpdateFields(app){
+        updateFileInput.value = '';
+        if(app){
+          updateAppName.value = app.name || '';
+          updateAppVersion.value = app.version || '';
+          updateAppType.value = app.type || 'Standard App';
+          updateAppPackage.value = app.package || '';
+          fillUpdateCurrent(app);
+        } else {
+          updateAppName.value = '';
+          updateAppVersion.value = '';
+          updateAppType.value = 'Standard App';
+          updateAppPackage.value = '';
+          if(updateCurrentIcon) updateCurrentIcon.innerHTML = '';
+          if(updateCurrentName) updateCurrentName.textContent = 'APP name';
+          if(updateCurrentPackage) updateCurrentPackage.textContent = 'com.customer.app';
+          if(updateCurrentVersion) updateCurrentVersion.textContent = '-';
+          if(updateCurrentType) updateCurrentType.textContent = 'Standard App';
+          if(updateCurrentStatus) updateCurrentStatus.textContent = '-';
+        }
+        updateModalPreview();
+        setNotice(updateValidation, 'neutral', 'Upload a newer APK with the same package name as the current app.');
+      }
+
+      function openUpdateDialog(app){
+        updateTargetId = app.id;
+        resetUpdateFields(app);
+        updateModal.hidden = false;
+        document.body.classList.add('modal-open');
+      }
+
+      function closeUpdateDialog(){
+        updateModal.hidden = true;
+        document.body.classList.remove('modal-open');
+        updateTargetId = '';
+        resetUpdateFields(null);
+      }
+
       function renderTable(){
         appTableBody.innerHTML = apps.map(app => {
           const statusKey = app.listed ? 'published' : 'unpublished';
@@ -482,25 +850,16 @@
         });
       }
 
-      function resetUploadFields(){
-        appName.value = '';
-        appVersion.value = '';
-        appType.value = 'Standard App';
-        appPackage.value = '';
-        appFile.value = '';
-        updateUploadPreview();
-      }
-
       appFile.addEventListener('change', () => {
         const file = appFile.files && appFile.files[0];
         if(!file){
-          updateUploadPreview();
+          refreshUploadState();
           return;
         }
         if(!requireApk(file)){
           alert('Only APK files are supported.');
           appFile.value = '';
-          updateUploadPreview();
+          refreshUploadState();
           return;
         }
         const meta = parseApkMeta(file.name);
@@ -508,12 +867,12 @@
         appVersion.value = meta.version;
         appPackage.value = meta.package;
         appType.value = meta.type;
-        updateUploadPreview();
+        refreshUploadState();
       });
 
       resetUpload.addEventListener('click', resetUploadFields);
-      [appName, appVersion, appPackage].forEach(field => field.addEventListener('input', updateUploadPreview));
-      appType.addEventListener('change', updateUploadPreview);
+      [appName, appVersion, appPackage].forEach(field => field.addEventListener('input', refreshUploadState));
+      appType.addEventListener('change', refreshUploadState);
 
       submitUpload.addEventListener('click', () => {
         const file = appFile.files && appFile.files[0];
@@ -527,6 +886,21 @@
         const pkg = appPackage.value.trim();
         if(!name || !version || !pkg){
           alert('Please complete APP fields before upload.');
+          return;
+        }
+        const validation = evaluateNewUpload(pkg, version);
+        setNotice(uploadValidation, validation.tone, validation.message);
+        if(!validation.valid){
+          alert(validation.message);
+          return;
+        }
+        if(validation.isUpdate && validation.existing){
+          applyAppData(validation.existing, { name, package: pkg, version, type });
+          saveApps();
+          renderTable();
+          resetUploadFields();
+          showTab('manage');
+          alert('Detected the same package with a higher version. This APK has been uploaded as an app update.');
           return;
         }
         apps.unshift({
@@ -543,43 +917,86 @@
         renderTable();
         resetUploadFields();
         showTab('manage');
+        alert('APP uploaded successfully.');
       });
 
       applyFilter.addEventListener('click', applyTableFilter);
 
       updateFileInput.addEventListener('change', () => {
         const file = updateFileInput.files && updateFileInput.files[0];
-        if(!file || !updateTargetId){
+        if(!updateTargetId){
           updateFileInput.value = '';
-          updateTargetId = '';
+          refreshUpdateState();
+          return;
+        }
+        if(!file){
+          refreshUpdateState();
           return;
         }
         if(!requireApk(file)){
           alert('Only APK files are supported.');
           updateFileInput.value = '';
-          updateTargetId = '';
+          refreshUpdateState();
           return;
         }
         const app = apps.find(item => item.id === updateTargetId);
         if(!app){
           updateFileInput.value = '';
-          updateTargetId = '';
+          refreshUpdateState();
           return;
         }
         const meta = parseApkMeta(file.name);
-        const nextVersion = prompt(`Upload update for ${app.name}\nCurrent version: ${app.version}\nEnter new version:`, meta.version || app.version);
-        if(nextVersion && nextVersion.trim()){
-          app.version = nextVersion.trim();
-          app.package = meta.package || app.package;
-          app.type = meta.type || app.type;
-          app.iconKey = app.iconKey || deriveIconKey(app.name, app.type);
-          app.updated = nowText();
-          saveApps();
-          renderTable();
-          alert('Update uploaded successfully.');
+        updateAppName.value = meta.name;
+        updateAppVersion.value = meta.version;
+        updateAppPackage.value = meta.package;
+        updateAppType.value = meta.type;
+        refreshUpdateState();
+      });
+
+      [updateAppName, updateAppVersion, updateAppPackage].forEach(field => field.addEventListener('input', refreshUpdateState));
+      updateAppType.addEventListener('change', refreshUpdateState);
+      closeUpdateModal.addEventListener('click', closeUpdateDialog);
+      cancelUpdate.addEventListener('click', closeUpdateDialog);
+      updateModal.addEventListener('click', evt => {
+        if(evt.target === updateModal) closeUpdateDialog();
+      });
+      document.addEventListener('keydown', evt => {
+        if(evt.key === 'Escape' && !updateModal.hidden){
+          closeUpdateDialog();
         }
-        updateFileInput.value = '';
-        updateTargetId = '';
+      });
+
+      submitUpdate.addEventListener('click', () => {
+        const app = apps.find(item => item.id === updateTargetId);
+        if(!app){
+          alert('Current APP was not found.');
+          closeUpdateDialog();
+          return;
+        }
+        const file = updateFileInput.files && updateFileInput.files[0];
+        if(!requireApk(file)){
+          alert('Please upload an APK file for the update.');
+          return;
+        }
+        const name = updateAppName.value.trim();
+        const version = updateAppVersion.value.trim();
+        const type = updateAppType.value;
+        const pkg = updateAppPackage.value.trim();
+        if(!name || !version || !pkg){
+          alert('Please complete APP fields before uploading the update.');
+          return;
+        }
+        const validation = evaluateUpdateCandidate(app, pkg, version);
+        setNotice(updateValidation, validation.tone, validation.message);
+        if(!validation.valid){
+          alert(validation.message);
+          return;
+        }
+        applyAppData(app, { name, package: pkg, version, type });
+        saveApps();
+        renderTable();
+        closeUpdateDialog();
+        alert('Update uploaded successfully.');
       });
 
       appTableBody.addEventListener('click', evt => {
@@ -591,8 +1008,7 @@
 
         const updateBtn = evt.target.closest('.upload-update');
         if(updateBtn){
-          updateTargetId = id;
-          updateFileInput.click();
+          openUpdateDialog(app);
           return;
         }
 
@@ -617,7 +1033,8 @@
       apps = loadApps();
       saveApps();
       renderTable();
-      updateUploadPreview();
+      refreshUploadState();
+      resetUpdateFields(null);
     })();
   </script>
 </body>
