@@ -159,7 +159,7 @@
     const transactionColumnSize=Math.max(1,Math.ceil(transactionGroup.fields.length/3));
     const transactionColumns=Array.from({length:Math.ceil(transactionGroup.fields.length/transactionColumnSize)},(_,index)=>transactionGroup.fields.slice(index*transactionColumnSize,(index+1)*transactionColumnSize)).filter(column=>column.length);
     const transactionHtml=`<section class="mini top-transaction"><h4>${transactionGroup.title}</h4><div class="tx-grid">${transactionColumns.map(column=>`<div class="tx-col"><div class="kv">${column.map(rowHtml).join("")}</div></div>`).join("")}</div></section>`;
-    wrap.innerHTML=`<details class="card more" open><summary>More Info</summary><div class="more-grid">${transactionHtml}<div class="more-bottom">${restGroups.map(group=>groupHtml(group)).join("")}</div></div></details>`;
+    wrap.innerHTML=`<details class="card more" open><summary></summary><div class="more-grid">${transactionHtml}<div class="more-bottom">${restGroups.map(group=>groupHtml(group)).join("")}</div></div></details>`;
     const toast=document.getElementById("toast");let timer=null;const ping=t=>{toast.textContent=t;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),1800)};
     const modal=document.getElementById("receiptModal"),openBtn=document.getElementById("viewReceiptBtn"),closeBtn=document.getElementById("closeReceiptBtn");
     const toggle=open=>{modal.classList.toggle("open",open);modal.setAttribute("aria-hidden",open?"false":"true")};
