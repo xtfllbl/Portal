@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merchant Overview</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
             --page-bg: #f4f5f7;
@@ -1062,24 +1063,326 @@
             border-color: #bfdbfe;
         }
 
+        .device-table-shell {
+            border-top: 1px solid #eceef2;
+            border-bottom: 1px solid #eceef2;
+        }
+
+        .device-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px;
+        }
+
+        .device-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .device-search-field {
+            width: min(100%, 260px);
+            height: 38px;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            padding: 0 14px;
+            font-size: 14px;
+            color: #374151;
+            background: #fff;
+            outline: none;
+        }
+
+        .device-search-field:focus {
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+        }
+
+        .device-toolbar-button {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            background: #fff;
+            color: #4b5563;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .device-toolbar-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .device-toolbar-button:hover {
+            border-color: #c7ccd5;
+            background: #f8fafc;
+        }
+
+        .device-toolbar-button.primary {
+            background: #111111;
+            border-color: #111111;
+            color: #fff;
+        }
+
+        .device-toolbar-button.primary:hover {
+            background: #242424;
+            border-color: #242424;
+        }
+
         .device-grid-head,
         .device-grid-row {
-            grid-template-columns: minmax(130px, 1.1fr) 90px minmax(180px, 1.4fr) 110px 110px 110px 110px minmax(120px, max-content);
-            min-width: 980px;
-            column-gap: 10px;
+            grid-template-columns: minmax(160px, 1.15fr) minmax(220px, 1.7fr) minmax(110px, 0.9fr) minmax(240px, 1.7fr) 130px minmax(170px, max-content);
+            min-width: 1080px;
+            column-gap: 18px;
+        }
+
+        .device-grid-head {
+            background: #1f1f23;
+            color: #fff;
+        }
+
+        .device-grid-head > div {
+            color: inherit;
         }
 
         .device-grid-head > div:last-child {
-            text-align: right;
-            justify-self: end;
+            text-align: left;
+            justify-self: start;
+        }
+
+        .device-grid-row {
+            min-height: 72px;
+        }
+
+        .device-grid-row:hover {
+            background: #fbfbfc;
+        }
+
+        .device-cell-mono {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .device-terminal-cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .device-terminal-text {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .device-terminal-input {
+            display: none;
+            width: 100%;
+            max-width: 220px;
+            height: 34px;
+            border: 1px solid #d7dbe2;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: 14px;
+            color: #111827;
+            outline: none;
+        }
+
+        .device-terminal-cell.is-editing .device-terminal-text {
+            display: none;
+        }
+
+        .device-terminal-cell.is-editing .device-terminal-input {
+            display: block;
+        }
+
+        .device-terminal-tools {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-4px);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+        }
+
+        .device-terminal-cell:hover .device-terminal-tools,
+        .device-terminal-cell:focus-within .device-terminal-tools,
+        .device-terminal-cell.is-editing .device-terminal-tools {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .device-terminal-tool {
+            width: 18px;
+            height: 18px;
+            border: none;
+            background: transparent;
+            padding: 0;
+            color: #111111;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.72;
+        }
+
+        .device-terminal-tool:hover {
+            color: #111111;
+            opacity: 1;
+        }
+
+        .device-terminal-tool i {
+            font-size: 15px;
+            line-height: 1;
+        }
+
+        .device-terminal-cell.is-synced .device-terminal-tool[data-action="sync-terminal"] {
+            color: #111111;
+            opacity: 1;
         }
 
         .device-actions-cell {
             display: flex;
-            justify-content: flex-end;
-            justify-self: end;
-            text-align: right;
+            justify-content: flex-start;
+            text-align: left;
             cursor: default;
+        }
+
+        .device-row-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .device-settings-button {
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #d7dbe2;
+            background: #fff;
+            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .device-settings-button:hover {
+            border-color: #c7ccd5;
+            color: #374151;
+            background: #f8fafc;
+        }
+
+        .device-settings-button svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .device-empty-state {
+            display: none;
+            padding: 28px 20px;
+            border-top: 1px solid #f0f0f0;
+            color: #6b7280;
+            font-size: 14px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .device-empty-state.show {
+            display: block;
+        }
+
+        .device-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding: 16px 20px 10px;
+            border-top: 1px solid #f0f0f0;
+            background: #fff;
+            flex-wrap: wrap;
+        }
+
+        .device-pagination-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .device-page-button {
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            font-size: 24px;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+        }
+
+        .device-page-button:hover:not(:disabled) {
+            color: #4b5563;
+        }
+
+        .device-page-button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .device-page-indicator {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            background: #111111;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .device-page-size {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .device-page-size select {
+            min-width: 96px;
+            height: 46px;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            background: #fff;
+            padding: 0 42px 0 16px;
+            font-size: 16px;
+            color: #374151;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .device-page-size::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            width: 9px;
+            height: 9px;
+            border-right: 2px solid #9ca3af;
+            border-bottom: 2px solid #9ca3af;
+            transform: rotate(45deg) translateY(-2px);
+            pointer-events: none;
         }
 
         .status-badge {
@@ -1889,73 +2192,164 @@
                                 <button class="btn primary sm open-add-device" type="button">Add Device</button>
                             </div>
                         </div>
-                        <div class="grid-scroll">
-                            <div class="grid-head device-grid-head">
-                                <div>SN</div>
-                                <div>Model</div>
-                                <div>Store</div>
-                                <div>PROCESSOR</div>
-                                <div>Status</div>
-                                <div>Boarded On</div>
-                                <div>Last Txn</div>
-                                <div>Actions</div>
+                        <div class="device-table-shell">
+                            <div class="device-toolbar">
+                                <div class="device-toolbar-group">
+                                    <input class="device-search-field" id="device-search-input" type="text" placeholder="Terminal Name">
+                                    <button class="device-toolbar-button" type="button" id="device-search-reset" aria-label="Reset terminal name search">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 11a8 8 0 1 1-2.34-5.66"></path>
+                                            <path d="M20 4v7h-7"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="device-toolbar-button primary" type="button" id="device-search-submit" aria-label="Search devices">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="M20 20l-3.5-3.5"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="Enable">
-                                <div>156724348539</div>
-                                <div>P3</div>
-                                <div>Downtown Location</div>
-                                <div>TSYS</div>
-                                <div><span class="status-badge active">Active</span></div>
-                                <div>10/14/24</div>
-                                <div>10/14/24</div>
-                                <div class="device-actions-cell">
-                                    <div class="store-settings">
-                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                                            Settings <span aria-hidden="true">&#9662;</span>
-                                        </button>
-                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
-                                            <button class="store-settings-item" type="button" data-action="device-settings">Device Settings</button>
+                            <div class="grid-scroll">
+                                <div class="grid-head device-grid-head">
+                                    <div>STORE NAME</div>
+                                    <div>SN</div>
+                                    <div>MODEL</div>
+                                    <div>TERMINAL NAME</div>
+                                    <div>STATUS</div>
+                                    <div>ACTIONS</div>
+                                </div>
+                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="Enable">
+                                    <div data-role="store-name">Downtown Location</div>
+                                    <div class="device-cell-mono" data-role="device-sn">156724348539</div>
+                                    <div data-role="device-model">P3</div>
+                                    <div class="device-terminal-cell" data-role="device-terminal">
+                                        <span class="device-terminal-text" data-role="terminal-text">Front Counter</span>
+                                        <input class="device-terminal-input" data-role="terminal-input" type="text" value="Front Counter" maxlength="64">
+                                        <div class="device-terminal-tools">
+                                            <button class="device-terminal-tool" type="button" data-action="edit-terminal" aria-label="Edit terminal name" title="Edit">
+                                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                            </button>
+                                            <button class="device-terminal-tool" type="button" data-action="sync-terminal" aria-label="Sync terminal name" title="Sync">
+                                                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div data-role="device-status"><span class="status-badge active">Active</span></div>
+                                    <div class="device-actions-cell">
+                                        <div class="device-row-actions">
+                                            <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M8 6V4h8v2"></path>
+                                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                                    <path d="M10 11v5"></path>
+                                                    <path d="M14 11v5"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="device-settings-button" type="button" data-action="device-settings">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
+                                                </svg>
+                                                <span>Settings</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348540" data-model="P2" data-processor="FISERV" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="Enable">
+                                    <div data-role="store-name">Downtown Location</div>
+                                    <div class="device-cell-mono" data-role="device-sn">156724348540</div>
+                                    <div data-role="device-model">P2</div>
+                                    <div class="device-terminal-cell" data-role="device-terminal">
+                                        <span class="device-terminal-text" data-role="terminal-text">Side Bar</span>
+                                        <input class="device-terminal-input" data-role="terminal-input" type="text" value="Side Bar" maxlength="64">
+                                        <div class="device-terminal-tools">
+                                            <button class="device-terminal-tool" type="button" data-action="edit-terminal" aria-label="Edit terminal name" title="Edit">
+                                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                            </button>
+                                            <button class="device-terminal-tool" type="button" data-action="sync-terminal" aria-label="Sync terminal name" title="Sync">
+                                                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div data-role="device-status"><span class="status-badge active">Active</span></div>
+                                    <div class="device-actions-cell">
+                                        <div class="device-row-actions">
+                                            <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M8 6V4h8v2"></path>
+                                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                                    <path d="M10 11v5"></path>
+                                                    <path d="M14 11v5"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="device-settings-button" type="button" data-action="device-settings">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
+                                                </svg>
+                                                <span>Settings</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-sn="156724348541" data-model="VT #1" data-processor="Worldpay" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="Enable">
+                                    <div data-role="store-name">Midtown Location</div>
+                                    <div class="device-cell-mono" data-role="device-sn">156724348541</div>
+                                    <div data-role="device-model">VT #1</div>
+                                    <div class="device-terminal-cell" data-role="device-terminal">
+                                        <span class="device-terminal-text" data-role="terminal-text">Register 1</span>
+                                        <input class="device-terminal-input" data-role="terminal-input" type="text" value="Register 1" maxlength="64">
+                                        <div class="device-terminal-tools">
+                                            <button class="device-terminal-tool" type="button" data-action="edit-terminal" aria-label="Edit terminal name" title="Edit">
+                                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                            </button>
+                                            <button class="device-terminal-tool" type="button" data-action="sync-terminal" aria-label="Sync terminal name" title="Sync">
+                                                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div data-role="device-status"><span class="status-badge pending">Pending</span></div>
+                                    <div class="device-actions-cell">
+                                        <div class="device-row-actions">
+                                            <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M8 6V4h8v2"></path>
+                                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                                    <path d="M10 11v5"></path>
+                                                    <path d="M14 11v5"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="device-settings-button" type="button" data-action="device-settings">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
+                                                </svg>
+                                                <span>Settings</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348540" data-model="P2" data-processor="FISERV" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="Enable">
-                                <div>156724348540</div>
-                                <div>P2</div>
-                                <div>Downtown Location</div>
-                                <div>FISERV</div>
-                                <div><span class="status-badge active">Active</span></div>
-                                <div>10/10/24</div>
-                                <div>10/14/24</div>
-                                <div class="device-actions-cell">
-                                    <div class="store-settings">
-                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                                            Settings <span aria-hidden="true">&#9662;</span>
-                                        </button>
-                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
-                                            <button class="store-settings-item" type="button" data-action="device-settings">Device Settings</button>
-                                        </div>
-                                    </div>
+                            <div class="device-empty-state" id="device-empty-state">No devices match the current filter.</div>
+                            <div class="device-pagination">
+                                <div class="device-pagination-controls">
+                                    <button class="device-page-button" type="button" id="device-page-first" aria-label="First page">&laquo;</button>
+                                    <button class="device-page-button" type="button" id="device-page-prev" aria-label="Previous page">&lsaquo;</button>
+                                    <span class="device-page-indicator" id="device-page-indicator">1</span>
+                                    <button class="device-page-button" type="button" id="device-page-next" aria-label="Next page">&rsaquo;</button>
+                                    <button class="device-page-button" type="button" id="device-page-last" aria-label="Last page">&raquo;</button>
                                 </div>
-                            </div>
-                            <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-sn="156724348541" data-model="VT #1" data-processor="Worldpay" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="Enable">
-                                <div>156724348541</div>
-                                <div>VT #1</div>
-                                <div>Midtown Location</div>
-                                <div>Worldpay</div>
-                                <div><span class="status-badge pending">Pending</span></div>
-                                <div>09/30/24</div>
-                                <div>09/30/24</div>
-                                <div class="device-actions-cell">
-                                    <div class="store-settings">
-                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                                            Settings <span aria-hidden="true">&#9662;</span>
-                                        </button>
-                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
-                                            <button class="store-settings-item" type="button" data-action="device-settings">Device Settings</button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <label class="device-page-size" aria-label="Page size">
+                                    <select id="device-page-size">
+                                        <option value="10" selected>10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                </label>
                             </div>
                         </div>
                     </section>
@@ -2591,8 +2985,19 @@
         const storeCountEl = document.getElementById('store-count');
         const deviceCountEl = document.getElementById('device-count');
         const storeSummarySubtitle = document.getElementById('store-summary-subtitle');
+        const deviceSectionTitle = document.getElementById('device-section-title');
         const deviceSubtitle = document.getElementById('device-filter-subtitle');
         const clearFilterButton = document.getElementById('clear-store-filter');
+        const deviceSearchInput = document.getElementById('device-search-input');
+        const deviceSearchSubmit = document.getElementById('device-search-submit');
+        const deviceSearchReset = document.getElementById('device-search-reset');
+        const deviceEmptyState = document.getElementById('device-empty-state');
+        const devicePageSize = document.getElementById('device-page-size');
+        const devicePageIndicator = document.getElementById('device-page-indicator');
+        const devicePageFirst = document.getElementById('device-page-first');
+        const devicePagePrev = document.getElementById('device-page-prev');
+        const devicePageNext = document.getElementById('device-page-next');
+        const devicePageLast = document.getElementById('device-page-last');
 
         const storeModal = document.getElementById('store-modal');
         const deviceModal = document.getElementById('device-modal');
@@ -2637,6 +3042,12 @@
 
         let activeStoreId = null;
         let scanFormMode = 'add';
+        const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
+        const deviceTableState = {
+            searchTerm: '',
+            currentPage: 1,
+            pageSize: Number(devicePageSize?.value || 10)
+        };
 
         const templateVersions = {
             TSYS: [
@@ -2661,6 +3072,134 @@
 
         const generateStoreId = () => `st_${Math.floor(100 + Math.random() * 900)}`;
         const generateMid = () => `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
+
+        const loadDeviceTerminalNames = () => {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(DEVICE_TERMINAL_NAME_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                return {};
+            }
+        };
+
+        const saveDeviceTerminalNames = (map) => {
+            localStorage.setItem(DEVICE_TERMINAL_NAME_KEY, JSON.stringify(map));
+        };
+
+        const getStoredTerminalName = (sn) => {
+            if (!sn) return '';
+            const terminalNames = loadDeviceTerminalNames();
+            return (terminalNames[sn] || '').trim();
+        };
+
+        const setStoredTerminalName = (sn, value) => {
+            if (!sn) return;
+            const terminalNames = loadDeviceTerminalNames();
+            const trimmedValue = (value || '').trim();
+            if (trimmedValue) {
+                terminalNames[sn] = trimmedValue;
+            } else {
+                delete terminalNames[sn];
+            }
+            saveDeviceTerminalNames(terminalNames);
+        };
+
+        const getTerminalNameForRow = (row) => {
+            if (!row) return '';
+            const stored = getStoredTerminalName(row.dataset.sn || '');
+            return stored || row.dataset.label || row.dataset.sn || '';
+        };
+
+        const applyTerminalNameToRow = (row, value) => {
+            if (!row) return;
+            const terminalName = (value || '').trim() || row.dataset.sn || 'Terminal';
+            row.dataset.label = terminalName;
+            const textEl = row.querySelector('[data-role="terminal-text"]');
+            const inputEl = row.querySelector('[data-role="terminal-input"]');
+            if (textEl) textEl.textContent = terminalName;
+            if (inputEl) inputEl.value = terminalName;
+        };
+
+        const flashTerminalSyncState = (row) => {
+            const cell = row?.querySelector('[data-role="device-terminal"]');
+            if (!cell) return;
+            cell.classList.add('is-synced');
+            window.setTimeout(() => cell.classList.remove('is-synced'), 1200);
+        };
+
+        const closeTerminalEditor = (row, resetValue = false) => {
+            const cell = row?.querySelector('[data-role="device-terminal"]');
+            const inputEl = row?.querySelector('[data-role="terminal-input"]');
+            if (!cell || !inputEl) return;
+            if (resetValue) {
+                inputEl.value = getTerminalNameForRow(row);
+            }
+            cell.classList.remove('is-editing');
+        };
+
+        const commitTerminalName = (row) => {
+            if (!row) return;
+            const inputEl = row.querySelector('[data-role="terminal-input"]');
+            const nextValue = (inputEl?.value || '').trim() || row.dataset.sn || 'Terminal';
+            applyTerminalNameToRow(row, nextValue);
+            setStoredTerminalName(row.dataset.sn || '', nextValue);
+            closeTerminalEditor(row);
+            flashTerminalSyncState(row);
+        };
+
+        const openTerminalEditor = (row) => {
+            const cell = row?.querySelector('[data-role="device-terminal"]');
+            const inputEl = row?.querySelector('[data-role="terminal-input"]');
+            if (!cell || !inputEl) return;
+            cell.classList.add('is-editing');
+            inputEl.value = getTerminalNameForRow(row);
+            inputEl.focus();
+            inputEl.select();
+        };
+
+        const createDeviceTerminalCell = (label) => {
+            const cell = document.createElement('div');
+            cell.className = 'device-terminal-cell';
+            cell.setAttribute('data-role', 'device-terminal');
+
+            const text = document.createElement('span');
+            text.className = 'device-terminal-text';
+            text.setAttribute('data-role', 'terminal-text');
+            text.textContent = label;
+
+            const input = document.createElement('input');
+            input.className = 'device-terminal-input';
+            input.setAttribute('data-role', 'terminal-input');
+            input.type = 'text';
+            input.maxLength = 64;
+            input.value = label;
+
+            const tools = document.createElement('div');
+            tools.className = 'device-terminal-tools';
+
+            const editButton = document.createElement('button');
+            editButton.className = 'device-terminal-tool';
+            editButton.type = 'button';
+            editButton.dataset.action = 'edit-terminal';
+            editButton.setAttribute('aria-label', 'Edit terminal name');
+            editButton.title = 'Edit';
+            editButton.innerHTML = '<i class="bi bi-pencil-square" aria-hidden="true"></i>';
+
+            const syncButton = document.createElement('button');
+            syncButton.className = 'device-terminal-tool';
+            syncButton.type = 'button';
+            syncButton.dataset.action = 'sync-terminal';
+            syncButton.setAttribute('aria-label', 'Sync terminal name');
+            syncButton.title = 'Sync';
+            syncButton.innerHTML = '<i class="bi bi-arrow-repeat" aria-hidden="true"></i>';
+
+            tools.appendChild(editButton);
+            tools.appendChild(syncButton);
+            cell.appendChild(text);
+            cell.appendChild(input);
+            cell.appendChild(tools);
+            return cell;
+        };
 
         const updateStatusBadge = (badge, status) => {
             if (!badge) return;
@@ -2720,31 +3259,27 @@
             const cell = document.createElement('div');
             cell.className = 'device-actions-cell';
 
-            const settingsWrap = document.createElement('div');
-            settingsWrap.className = 'store-settings';
-
-            const toggleButton = document.createElement('button');
-            toggleButton.className = 'store-settings-toggle';
-            toggleButton.type = 'button';
-            toggleButton.setAttribute('aria-haspopup', 'true');
-            toggleButton.setAttribute('aria-expanded', 'false');
-            toggleButton.innerHTML = 'Settings <span aria-hidden="true">&#9662;</span>';
-
-            const menu = document.createElement('div');
-            menu.className = 'store-settings-menu';
-            menu.setAttribute('role', 'menu');
-            menu.setAttribute('aria-hidden', 'true');
-
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'store-settings-item';
-            item.dataset.action = 'device-settings';
-            item.textContent = 'Device Settings';
-            menu.appendChild(item);
-
-            settingsWrap.appendChild(toggleButton);
-            settingsWrap.appendChild(menu);
-            cell.appendChild(settingsWrap);
+            const actions = document.createElement('div');
+            actions.className = 'device-row-actions';
+            actions.innerHTML = `
+                <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4h8v2"></path>
+                        <path d="M19 6l-1 14H6L5 6"></path>
+                        <path d="M10 11v5"></path>
+                        <path d="M14 11v5"></path>
+                    </svg>
+                </button>
+                <button class="device-settings-button" type="button" data-action="device-settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            `;
+            cell.appendChild(actions);
             return cell;
         };
 
@@ -2812,6 +3347,76 @@
             updateStoreDeviceSummaries();
         };
 
+        const getFilteredDeviceRows = () => {
+            const searchTerm = deviceTableState.searchTerm.trim().toLowerCase();
+            return getDeviceRows().filter((row) => {
+                if (activeStoreId && row.dataset.storeId !== activeStoreId) {
+                    return false;
+                }
+                if (!searchTerm) {
+                    return true;
+                }
+                const haystack = [
+                    row.dataset.storeName,
+                    row.dataset.sn,
+                    row.dataset.model,
+                    getTerminalNameForRow(row)
+                ].join(' ').toLowerCase();
+                return haystack.includes(searchTerm);
+            });
+        };
+
+        const refreshDeviceGrid = () => {
+            const allRows = getDeviceRows();
+            const filteredRows = getFilteredDeviceRows();
+            const storeName = activeStoreId
+                ? getStoreRows().find((row) => row.dataset.storeId === activeStoreId)?.dataset.storeName || 'Selected Store'
+                : '';
+            const totalRows = filteredRows.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / deviceTableState.pageSize));
+
+            if (deviceTableState.currentPage > totalPages) {
+                deviceTableState.currentPage = totalPages;
+            }
+
+            const startIndex = (deviceTableState.currentPage - 1) * deviceTableState.pageSize;
+            const endIndex = startIndex + deviceTableState.pageSize;
+            const visibleRows = new Set(filteredRows.slice(startIndex, endIndex));
+
+            allRows.forEach((row) => {
+                row.style.display = visibleRows.has(row) ? 'grid' : 'none';
+            });
+
+            if (deviceSectionTitle) {
+                deviceSectionTitle.textContent = activeStoreId ? `Devices (${storeName})` : 'Devices';
+            }
+
+            if (deviceSubtitle) {
+                if (activeStoreId) {
+                    deviceSubtitle.textContent = `${storeName}, ${totalRows} Device${totalRows === 1 ? '' : 's'} Total.`;
+                } else {
+                    deviceSubtitle.textContent = `All Stores, ${totalRows} Devices Total.`;
+                }
+            }
+
+            if (clearFilterButton) {
+                clearFilterButton.hidden = !activeStoreId;
+            }
+
+            if (deviceEmptyState) {
+                deviceEmptyState.classList.toggle('show', totalRows === 0);
+            }
+
+            if (devicePageIndicator) {
+                devicePageIndicator.textContent = `${Math.min(deviceTableState.currentPage, totalPages)}`;
+            }
+
+            if (devicePageFirst) devicePageFirst.disabled = deviceTableState.currentPage <= 1 || totalRows === 0;
+            if (devicePagePrev) devicePagePrev.disabled = deviceTableState.currentPage <= 1 || totalRows === 0;
+            if (devicePageNext) devicePageNext.disabled = deviceTableState.currentPage >= totalPages || totalRows === 0;
+            if (devicePageLast) devicePageLast.disabled = deviceTableState.currentPage >= totalPages || totalRows === 0;
+        };
+
         const updateDeviceActionState = (storeName) => {
             const canAdd = Boolean(activeStoreId);
             addDeviceButtons.forEach((btn) => {
@@ -2825,21 +3430,11 @@
 
         const setActiveStore = (storeId) => {
             activeStoreId = storeId || null;
-            const deviceRows = getDeviceRows();
-            let visibleCount = 0;
             let storeName = '';
 
             if (activeStoreId) {
                 storeName = getStoreRows().find((row) => row.dataset.storeId === activeStoreId)?.dataset.storeName || 'Selected Store';
             }
-
-            deviceRows.forEach((row) => {
-                const matches = !activeStoreId || row.dataset.storeId === activeStoreId;
-                row.style.display = matches ? 'grid' : 'none';
-                if (matches) {
-                    visibleCount += 1;
-                }
-            });
 
             getStoreRows().forEach((row) => {
                 const isActive = activeStoreId && row.dataset.storeId === activeStoreId;
@@ -2847,19 +3442,9 @@
                 row.setAttribute('aria-pressed', isActive ? 'true' : 'false');
             });
 
-            if (deviceSubtitle) {
-                if (activeStoreId) {
-                    deviceSubtitle.textContent = `${storeName}, ${visibleCount} device${visibleCount === 1 ? '' : 's'}.`;
-                } else {
-                    deviceSubtitle.textContent = `All stores, ${deviceRows.length} devices total.`;
-                }
-            }
-
-            if (clearFilterButton) {
-                clearFilterButton.hidden = !activeStoreId;
-            }
-
             updateDeviceActionState(storeName);
+            deviceTableState.currentPage = 1;
+            refreshDeviceGrid();
         };
 
         const handleStoreSelect = (row) => {
@@ -3227,25 +3812,43 @@
 
         if (deviceGrid) {
             deviceGrid.addEventListener('click', (event) => {
-                const settingsToggle = event.target.closest('.store-settings-toggle');
-                if (settingsToggle) {
-                    event.stopPropagation();
-                    toggleStoreMenu(settingsToggle);
+                const actionButton = event.target.closest('[data-action]');
+                if (!actionButton) return;
+                event.stopPropagation();
+                const row = actionButton.closest('.device-grid-row');
+                if (!row) return;
+                const action = actionButton.dataset.action;
+
+                if (action === 'edit-terminal') {
+                    openTerminalEditor(row);
                     return;
                 }
 
-                const settingsItem = event.target.closest('.store-settings-item');
-                if (!settingsItem) return;
-                event.stopPropagation();
-                const row = settingsItem.closest('.device-grid-row');
-                if (!row) return;
-                const action = settingsItem.dataset.action;
+                if (action === 'sync-terminal') {
+                    commitTerminalName(row);
+                    refreshDeviceGrid();
+                    return;
+                }
+
+                if (action === 'delete-device') {
+                    const terminalName = getTerminalNameForRow(row) || row.dataset.sn || 'this device';
+                    if (!confirm(`Delete ${terminalName} (mock)?`)) {
+                        return;
+                    }
+                    const sn = row.dataset.sn || '';
+                    row.remove();
+                    setStoredTerminalName(sn, '');
+                    updateCounts();
+                    refreshDeviceGrid();
+                    return;
+                }
+
                 if (action === 'device-settings') {
                     const params = new URLSearchParams({
                         storeId: row.dataset.storeId || '',
                         storeName: row.dataset.storeName || '',
                         sn: row.dataset.sn || '',
-                        label: row.dataset.label || '',
+                        label: getTerminalNameForRow(row),
                         model: row.dataset.model || '',
                         processor: row.dataset.processor || '',
                         template: row.dataset.template || '',
@@ -3254,7 +3857,22 @@
                     });
                     window.location.href = `5.merchant_device_settings_iso.html?${params.toString()}`;
                 }
-                closeStoreMenus();
+            });
+
+            deviceGrid.addEventListener('keydown', (event) => {
+                const input = event.target.closest('[data-role="terminal-input"]');
+                if (!input) return;
+                const row = input.closest('.device-grid-row');
+                if (!row) return;
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    commitTerminalName(row);
+                    refreshDeviceGrid();
+                }
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeTerminalEditor(row, true);
+                }
             });
         }
 
@@ -3265,6 +3883,70 @@
 
         if (clearFilterButton) {
             clearFilterButton.addEventListener('click', () => setActiveStore(null));
+        }
+
+        if (deviceSearchSubmit) {
+            deviceSearchSubmit.addEventListener('click', () => {
+                deviceTableState.searchTerm = deviceSearchInput?.value.trim() || '';
+                deviceTableState.currentPage = 1;
+                refreshDeviceGrid();
+            });
+        }
+
+        if (deviceSearchInput) {
+            deviceSearchInput.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                deviceTableState.searchTerm = deviceSearchInput.value.trim();
+                deviceTableState.currentPage = 1;
+                refreshDeviceGrid();
+            });
+        }
+
+        if (deviceSearchReset) {
+            deviceSearchReset.addEventListener('click', () => {
+                deviceTableState.searchTerm = '';
+                deviceTableState.currentPage = 1;
+                if (deviceSearchInput) deviceSearchInput.value = '';
+                refreshDeviceGrid();
+            });
+        }
+
+        if (devicePageSize) {
+            devicePageSize.addEventListener('change', () => {
+                deviceTableState.pageSize = Number(devicePageSize.value || 10);
+                deviceTableState.currentPage = 1;
+                refreshDeviceGrid();
+            });
+        }
+
+        if (devicePageFirst) {
+            devicePageFirst.addEventListener('click', () => {
+                deviceTableState.currentPage = 1;
+                refreshDeviceGrid();
+            });
+        }
+
+        if (devicePagePrev) {
+            devicePagePrev.addEventListener('click', () => {
+                deviceTableState.currentPage = Math.max(1, deviceTableState.currentPage - 1);
+                refreshDeviceGrid();
+            });
+        }
+
+        if (devicePageNext) {
+            devicePageNext.addEventListener('click', () => {
+                const totalPages = Math.max(1, Math.ceil(getFilteredDeviceRows().length / deviceTableState.pageSize));
+                deviceTableState.currentPage = Math.min(totalPages, deviceTableState.currentPage + 1);
+                refreshDeviceGrid();
+            });
+        }
+
+        if (devicePageLast) {
+            devicePageLast.addEventListener('click', () => {
+                deviceTableState.currentPage = Math.max(1, Math.ceil(getFilteredDeviceRows().length / deviceTableState.pageSize));
+                refreshDeviceGrid();
+            });
         }
 
         if (addStoreForm) {
@@ -3355,12 +4037,10 @@
                 const devicePaywizardInput = document.getElementById('device-paywizard-modal');
 
                 const tpn = deviceTpnInput?.value.trim() || `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
-                const label = deviceLabelInput?.value.trim() || 'Terminal';
+                const label = deviceLabelInput?.value.trim() || tpn;
                 const deviceModel = deviceModelInput?.value || 'Unknown';
                 const processor = deviceProcessorInput?.value || 'TSYS';
                 const status = deviceStatusInput?.value || 'Active';
-                const boardedOn = formatDate(deviceBoardedInput?.value);
-                const lastTxn = formatDate(deviceLastTxnInput?.value) || boardedOn;
                 const storeName = getStoreRows().find((row) => row.dataset.storeId === deviceStoreId)?.dataset.storeName || 'Store';
                 const manufacturer = deviceManufacturerInput?.value || 'WizarPOS';
                 const template = deviceTemplateInput?.value || 'Retail - Quick Start';
@@ -3378,32 +4058,48 @@
                 row.dataset.template = template;
                 row.dataset.paywizard = paywizard;
 
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: tpn }));
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: deviceModel }));
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: storeName }));
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: processor }));
+                const storeCell = document.createElement('div');
+                storeCell.setAttribute('data-role', 'store-name');
+                storeCell.textContent = storeName;
+                row.appendChild(storeCell);
+
+                const snCell = document.createElement('div');
+                snCell.className = 'device-cell-mono';
+                snCell.setAttribute('data-role', 'device-sn');
+                snCell.textContent = tpn;
+                row.appendChild(snCell);
+
+                const modelCell = document.createElement('div');
+                modelCell.setAttribute('data-role', 'device-model');
+                modelCell.textContent = deviceModel;
+                row.appendChild(modelCell);
+
+                row.appendChild(createDeviceTerminalCell(label));
 
                 const statusCell = document.createElement('div');
+                statusCell.setAttribute('data-role', 'device-status');
                 const statusBadge = document.createElement('span');
                 statusBadge.className = `status-badge ${status.toLowerCase()}`;
                 statusBadge.textContent = status;
                 statusCell.appendChild(statusBadge);
                 row.appendChild(statusCell);
 
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: boardedOn || 'N/A' }));
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: lastTxn || 'N/A' }));
                 row.appendChild(buildDeviceActionsCell());
 
                 deviceGrid.appendChild(row);
+                setStoredTerminalName(tpn, label);
 
                 updateCounts();
-                setActiveStore(activeStoreId);
+                refreshDeviceGrid();
                 addDeviceForm.reset();
                 populateProcessorVersions('');
                 closeModal(deviceModal);
             });
         }
 
+        getDeviceRows().forEach((row) => {
+            applyTerminalNameToRow(row, getTerminalNameForRow(row));
+        });
         updateCounts();
         setActiveStore(null);
     </script>

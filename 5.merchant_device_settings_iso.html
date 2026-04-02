@@ -2375,13 +2375,34 @@
     </div>
 
     <script>
+        const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
         const storeNameEl = document.getElementById('store-context-name');
         const params = new URLSearchParams(window.location.search);
         const storeName = params.get('storeName') || 'Selected Store';
         const storeId = params.get('storeId');
         const deviceSn = params.get('sn') || '';
-        const deviceLabelValue = params.get('label') || '';
-        const storeBadgeText = [storeName, deviceLabelValue || deviceSn].filter(Boolean).join(' · ');
+        const loadTerminalNames = () => {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(DEVICE_TERMINAL_NAME_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                return {};
+            }
+        };
+        const saveTerminalName = (sn, value) => {
+            if (!sn) return;
+            const names = loadTerminalNames();
+            const trimmed = (value || '').trim();
+            if (trimmed) {
+                names[sn] = trimmed;
+            } else {
+                delete names[sn];
+            }
+            localStorage.setItem(DEVICE_TERMINAL_NAME_KEY, JSON.stringify(names));
+        };
+        const storedDeviceLabel = deviceSn ? (loadTerminalNames()[deviceSn] || '').trim() : '';
+        const deviceLabelValue = storedDeviceLabel || params.get('label') || '';
+        const storeBadgeText = [storeName, deviceLabelValue || deviceSn].filter(Boolean).join(' / ');
         const titleSuffix = deviceLabelValue || deviceSn || storeName || 'Device';
 
         if (storeNameEl) {
@@ -2420,9 +2441,8 @@
         if (deviceTemplate && deviceValues.template) deviceTemplate.value = deviceValues.template;
         if (paywizardSelect) paywizardSelect.value = deviceValues.paywizard;
 
-        [deviceTpn, deviceLabel].forEach((field) => {
-            if (field) field.readOnly = true;
-        });
+        if (deviceTpn) deviceTpn.readOnly = true;
+        if (deviceLabel) deviceLabel.readOnly = false;
 
         [
             deviceManufacturer,
@@ -2434,6 +2454,28 @@
         ].forEach((field) => {
             if (field) field.disabled = true;
         });
+
+        const syncDeviceLabelUi = (value) => {
+            const nextLabel = (value || '').trim() || deviceSn || storeName || 'Device';
+            if (storeNameEl) {
+                storeNameEl.textContent = [storeName, nextLabel || deviceSn].filter(Boolean).join(' / ');
+            }
+            document.title = `Device Settings - ${nextLabel || storeName || 'Device'}`;
+        };
+
+        if (deviceLabel) {
+            deviceLabel.addEventListener('input', () => {
+                syncDeviceLabelUi(deviceLabel.value);
+            });
+            deviceLabel.addEventListener('change', () => {
+                saveTerminalName(deviceSn, deviceLabel.value);
+                syncDeviceLabelUi(deviceLabel.value);
+            });
+            deviceLabel.addEventListener('blur', () => {
+                saveTerminalName(deviceSn, deviceLabel.value);
+                syncDeviceLabelUi(deviceLabel.value);
+            });
+        }
 
         function activateParamTab(button, set) {
             const tabId = button.getAttribute('data-tab');
