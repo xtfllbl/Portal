@@ -85,6 +85,27 @@
     .ghost{border:1px solid var(--line);background:#fff;color:#686f80}
     .search{min-width:160px;border:1px solid #0f1014;background:#0f1014;color:#fff}
     .cols{width:min(1048px,calc(100vw - 90px));padding:22px 22px 18px;right:-128px;max-height:76vh;overflow:auto}
+    .presetbox{padding:16px 18px 18px;border:1px solid #e4e8f0;border-radius:16px;background:linear-gradient(180deg,#fcfdff 0%,#f7f9fc 100%);margin-bottom:18px}
+    .presettop{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .presettop h3{margin:0;font-size:17px;font-weight:600;color:#2d3545}
+    .presettop p{margin:4px 0 0;font-size:12px;line-height:1.4;color:#7b8394}
+    .presetmeta{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 12px;border-radius:999px;background:#eef2f8;color:#53627a;font-size:12px;font-weight:600;white-space:nowrap}
+    .presetmeta.active{background:#111827;color:#fff}
+    .presetlist{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+    .presetchip{min-width:132px;padding:12px 14px;border:1px solid #d7dce6;border-radius:14px;background:#fff;text-align:left;color:#2f3746;display:flex;flex-direction:column;gap:4px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+    .presetchip:hover{border-color:#bfc9d8;box-shadow:0 8px 20px rgba(31,41,55,.06)}
+    .presetchip.active{border-color:#111827;background:#111827;color:#fff}
+    .presetchip.empty{opacity:.72}
+    .presetchip.dirty{box-shadow:0 0 0 3px rgba(244,114,182,.14)}
+    .presetname{font-size:15px;font-weight:600;line-height:1.2}
+    .presetdesc{font-size:11px;line-height:1.35;color:#7a8293}
+    .presetchip.active .presetdesc{color:#d7deea}
+    .presetactions{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .presetnote{font-size:12px;line-height:1.4;color:#70798b}
+    .presetbtns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .mini{min-width:124px;height:40px;padding:0 14px;border-radius:12px;border:1px solid #d7dce6;background:#fff;color:#4c5668;font-size:14px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .mini.dark{border-color:#111827;background:#111827;color:#fff}
+    .mini:disabled{cursor:not-allowed;opacity:.52;box-shadow:none}
     .row{display:flex;align-items:center;justify-content:space-between;gap:20px}
     .row.top{margin-bottom:26px}
     .ctl{border:none;background:transparent;padding:0;color:#14161c;font-size:21px;font-weight:500}
@@ -166,6 +187,25 @@
             <div class="anchor">
               <button class="tool" id="colsBtn" aria-label="Columns"><svg viewBox="0 0 24 24"><line x1="6" y1="4" x2="6" y2="20"></line><circle cx="6" cy="9" r="2"></circle><line x1="12" y1="4" x2="12" y2="20"></line><circle cx="12" cy="15" r="2"></circle><line x1="18" y1="4" x2="18" y2="20"></line><circle cx="18" cy="8" r="2"></circle></svg></button>
               <div class="pop cols" id="colsPop">
+                <div class="presetbox">
+                  <div class="presettop">
+                    <div>
+                      <h3>Saved Column Views</h3>
+                      <p>Create up to 5 custom views, give each one a meaningful name, and switch between them in one click.</p>
+                    </div>
+                    <span class="presetmeta" id="presetMeta">Current: Default</span>
+                  </div>
+                  <div class="presetlist" id="presetList"></div>
+                  <div class="presetactions">
+                    <span class="presetnote" id="presetNote">Views are stored in this browser.</span>
+                    <div class="presetbtns">
+                      <button class="mini" id="addViewBtn" type="button">Add View</button>
+                      <button class="mini dark" id="saveViewBtn" type="button">Save Current</button>
+                      <button class="mini" id="renameViewBtn" type="button">Rename</button>
+                      <button class="mini" id="deleteViewBtn" type="button">Delete</button>
+                    </div>
+                  </div>
+                </div>
                 <div class="row top"><button class="ctl" id="selectAll">Select All</button><button class="ctl" id="resetCols">Reset</button></div>
                 <div class="row head"><span>Show/Hide Columns</span></div>
                 <div class="list" id="colList"></div>
@@ -270,11 +310,52 @@
         {status:"failed",processorTime:"2026-04-07 09:58:11",terminalTime:"-",timezone:"",invoiceNumber:"260407095811",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"DECLINED",type:"Failed",amount:"12.50",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-095811",transId:"TRX-095811",transLogId:"LOG-20260407-095811",transIndexCode:"IDX-20260407-095811",batch:"B346",trace:"547220",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
         {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"}
       ];
-      const state={tab:"completed",filters:{transLogId:"",paywizardId:"",tid:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},columns:defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}))};
+      const viewStoreKey="paywizard.transactionList.savedViews";
+      const maxCustomViews=5;
+      const cloneColumns=cols=>cols.map(c=>({key:c.key,visible:c.visible}));
+      const defaultColumns=()=>defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
+      const normalizeColumns=input=>{
+        if(!Array.isArray(input)) return null;
+        const map=new Map(input.filter(x=>x&&typeof x.key==="string").map(x=>[x.key,{key:x.key,visible:Boolean(x.visible)}]));
+        return defaultOrder.map(key=>map.get(key)||{key,visible:false});
+      };
+      const makeViewId=()=>`view-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+      const normalizeViewName=name=>String(name||"").replace(/\s+/g," ").trim().slice(0,32);
+      const normalizeSavedViews=input=>{
+        if(!Array.isArray(input)) return [];
+        return input.map(view=>{
+          const columns=normalizeColumns(view?.columns);
+          const name=normalizeViewName(view?.name);
+          const id=typeof view?.id==="string"&&view.id?view.id:makeViewId();
+          return columns&&name?{id,name,columns}:null;
+        }).filter(Boolean).slice(0,maxCustomViews);
+      };
+      const loadSavedViews=()=>{
+        try{
+          const raw=localStorage.getItem(viewStoreKey);
+          if(!raw) return [];
+          const parsed=JSON.parse(raw);
+          if(Array.isArray(parsed)) return normalizeSavedViews(parsed);
+          const migrated=[];
+          if(parsed?.setA){const cols=normalizeColumns(parsed.setA); if(cols) migrated.push({id:"legacy-set-a",name:"Set A",columns:cols});}
+          if(parsed?.setB){const cols=normalizeColumns(parsed.setB); if(cols) migrated.push({id:"legacy-set-b",name:"Set B",columns:cols});}
+          return migrated.slice(0,maxCustomViews);
+        }catch(_){return [];}
+      };
+      const state={
+        tab:"completed",
+        filters:{transLogId:"",paywizardId:"",tid:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
+        columns:defaultColumns(),
+        savedViews:loadSavedViews(),
+        selectedViewId:"default",
+        hasUnsavedViewChanges:false
+      };
       const head=document.getElementById("headRow"),body=document.getElementById("bodyRows"),colList=document.getElementById("colList");
       const filterBtn=document.getElementById("filterBtn"),colsBtn=document.getElementById("colsBtn"),menuBtn=document.getElementById("menuBtn"),exportBtn=document.getElementById("exportBtn");
       const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
       const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
+      const presetList=document.getElementById("presetList"),presetMeta=document.getElementById("presetMeta"),presetNote=document.getElementById("presetNote");
+      const addViewBtn=document.getElementById("addViewBtn"),saveViewBtn=document.getElementById("saveViewBtn"),renameViewBtn=document.getElementById("renameViewBtn"),deleteViewBtn=document.getElementById("deleteViewBtn");
       const fields={
         transLogId:document.getElementById("fTransLogId"),
         paywizardId:document.getElementById("fPaywizardId"),
@@ -295,6 +376,94 @@
       const norm=s=>String(s||"").trim().toLowerCase();
       const colState=k=>state.columns.find(c=>c.key===k);
       const visible=()=>state.columns.filter(c=>c.visible);
+      const persistViews=()=>{
+        try{
+          localStorage.setItem(viewStoreKey,JSON.stringify(state.savedViews));
+        }catch(_){}
+      };
+      const currentSavedView=()=>state.savedViews.find(v=>v.id===state.selectedViewId)||null;
+      const currentViewLabel=()=>{
+        if(state.hasUnsavedViewChanges) return currentSavedView()?`Custom (${currentSavedView().name})`:"Custom";
+        if(state.selectedViewId==="default") return "Default";
+        return currentSavedView()?.name||"Custom";
+      };
+      const setColumns=(cols,viewId,unsaved)=>{
+        const normalized=normalizeColumns(cols);
+        if(!normalized) return;
+        state.columns=cloneColumns(normalized);
+        state.selectedViewId=viewId||"default";
+        state.hasUnsavedViewChanges=Boolean(unsaved);
+      };
+      const markColumnsCustom=()=>{
+        state.hasUnsavedViewChanges=true;
+      };
+      const requestViewName=(initialValue,editingId)=>{
+        const value=window.prompt("Enter a view name",initialValue||"");
+        if(value===null) return null;
+        const name=normalizeViewName(value);
+        if(!name){window.alert("View name cannot be empty."); return null;}
+        if(state.savedViews.some(v=>v.id!==editingId&&v.name.toLowerCase()===name.toLowerCase())){window.alert("View name already exists."); return null;}
+        return name;
+      };
+      const saveCurrentToExistingView=viewId=>{
+        const view=state.savedViews.find(v=>v.id===viewId);
+        if(!view) return;
+        view.columns=cloneColumns(state.columns);
+        state.selectedViewId=viewId;
+        state.hasUnsavedViewChanges=false;
+        persistViews();
+      };
+      const createViewFromCurrent=()=>{
+        if(state.savedViews.length>=maxCustomViews){window.alert("You can save up to 5 custom views."); return;}
+        const name=requestViewName(`View ${state.savedViews.length+1}`,"");
+        if(!name) return;
+        const view={id:makeViewId(),name,columns:cloneColumns(state.columns)};
+        state.savedViews.push(view);
+        state.selectedViewId=view.id;
+        state.hasUnsavedViewChanges=false;
+        persistViews();
+      };
+      const renameCurrentView=()=>{
+        const view=currentSavedView();
+        if(!view){window.alert("Select a custom view to rename."); return;}
+        const name=requestViewName(view.name,view.id);
+        if(!name) return;
+        view.name=name;
+        persistViews();
+      };
+      const deleteCurrentView=()=>{
+        const view=currentSavedView();
+        if(!view){window.alert("Select a custom view to delete."); return;}
+        if(!window.confirm(`Delete "${view.name}"?`)) return;
+        state.savedViews=state.savedViews.filter(v=>v.id!==view.id);
+        setColumns(defaultColumns(),"default",false);
+        persistViews();
+      };
+      const applySavedView=viewId=>{
+        if(viewId==="default"){
+          setColumns(defaultColumns(),"default",false);
+          return true;
+        }
+        const view=state.savedViews.find(v=>v.id===viewId);
+        if(!view) return false;
+        setColumns(view.columns,view.id,false);
+        return true;
+      };
+      const renderPresets=()=>{
+        const views=[{id:"default",name:"Default",desc:"System layout"}].concat(state.savedViews.map(view=>({id:view.id,name:view.name,desc:`${view.columns.filter(c=>c.visible).length} columns shown`})));
+        presetList.innerHTML=views.map(view=>{
+          const active=state.selectedViewId===view.id;
+          const dirty=active&&state.hasUnsavedViewChanges;
+          return `<button class="presetchip${active?" active":""}${dirty?" dirty":""}" type="button" data-view="${view.id}"><span class="presetname">${esc(view.name)}</span><span class="presetdesc">${dirty?"Unsaved changes":esc(view.desc)}</span></button>`;
+        }).join("");
+        presetMeta.textContent=`Current: ${currentViewLabel()}`;
+        presetMeta.classList.toggle("active",state.selectedViewId!=="default"||state.hasUnsavedViewChanges);
+        presetNote.textContent=state.hasUnsavedViewChanges?"Current layout has unsaved changes. Save it to the selected view or create a new one.":`Views are stored in this browser. ${state.savedViews.length}/${maxCustomViews} custom views used.`;
+        saveViewBtn.disabled=state.selectedViewId==="default";
+        renameViewBtn.disabled=state.selectedViewId==="default";
+        deleteViewBtn.disabled=state.selectedViewId==="default";
+        addViewBtn.disabled=state.savedViews.length>=maxCustomViews;
+      };
       const activeFilterCount=()=>Object.values(state.filters).filter(v=>v!=="").length;
       const updateFilterUi=()=>{
         const count=activeFilterCount();
@@ -347,6 +516,7 @@
       };
       const renderCols=()=>{
         colList.innerHTML=state.columns.map(c=>`<div class="citem" draggable="true" data-key="${c.key}"><button class="grip" type="button"><svg viewBox="0 0 24 24"><line x1="6" y1="7" x2="18" y2="7"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="6" y1="17" x2="18" y2="17"></line></svg></button><label class="toggle"><input type="checkbox" data-key="${c.key}"${c.visible?" checked":""}><span class="box"></span><span>${esc(defs[c.key][2])}</span></label></div>`).join("");
+        renderPresets();
       };
       const syncFilters=()=>Object.keys(fields).forEach(k=>fields[k].value=state.filters[k]);
       const resetFilters=()=>{
@@ -359,7 +529,7 @@
         renderTable();
       };
       const resetCols=()=>{
-        state.columns=defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
+        setColumns(defaultColumns(),"default");
         renderCols();
         renderTable();
       };
@@ -389,14 +559,16 @@
       document.getElementById("searchBtn").onclick=()=>{applyFilters(); setPop("");};
       document.getElementById("resetFilters").onclick=resetFilters;
       document.getElementById("openCols").onclick=e=>{e.stopPropagation(); applyFilters(); setPop("cols");};
-      document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); renderCols(); renderTable();};
+      document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); markColumnsCustom(); renderCols(); renderTable();};
       document.getElementById("resetCols").onclick=resetCols;
       Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter") applyFilters();}));
       colList.addEventListener("change",e=>{
         const input=e.target.closest('input[type="checkbox"]');
         if(!input) return;
         colState(input.dataset.key).visible=input.checked;
+        markColumnsCustom();
         renderTable();
+        renderPresets();
       });
       let dragKey="";
       colList.addEventListener("dragstart",e=>{
@@ -420,8 +592,39 @@
         if(!dragKey) return;
         state.columns=Array.from(colList.querySelectorAll(".citem")).map(i=>colState(i.dataset.key));
         dragKey="";
+        markColumnsCustom();
+        renderTable();
+        renderPresets();
+      });
+      presetList.addEventListener("click",e=>{
+        const btn=e.target.closest(".presetchip");
+        if(!btn) return;
+        if(!applySavedView(btn.dataset.view)) return;
+        renderCols();
         renderTable();
       });
+      addViewBtn.onclick=()=>{
+        createViewFromCurrent();
+        renderCols();
+        renderTable();
+      };
+      saveViewBtn.onclick=()=>{
+        const view=currentSavedView();
+        if(!view){window.alert("Select a custom view first, or create a new one."); return;}
+        saveCurrentToExistingView(view.id);
+        renderCols();
+        renderTable();
+      };
+      renameViewBtn.onclick=()=>{
+        renameCurrentView();
+        renderCols();
+        renderTable();
+      };
+      deleteViewBtn.onclick=()=>{
+        deleteCurrentView();
+        renderCols();
+        renderTable();
+      };
       menuPop.addEventListener("click",e=>{
         const btn=e.target.closest(".mitem");
         if(btn) exportRows(btn.dataset.format);
