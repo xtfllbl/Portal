@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f7fb;--card:#fff;--line:#d9dde7;--ink:#272f3d;--muted:#757d8f;--dark:#1d1e23;
+      --green:#119146;--greenbg:#dcfae8;--orange:#dc5b00;--orangebg:#ffe8cb;--red:#c63e35;--redbg:#fde3de;
+      --shadow:0 12px 30px rgba(23,30,47,.06);--pop:0 18px 36px rgba(23,30,47,.14)
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%}
+    body{font-family:"Poppins","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh;display:flex;gap:22px;padding:22px}
+    .side{width:354px;flex:0 0 354px;display:flex;flex-direction:column;gap:18px}
+    .brand{padding:20px 18px 6px 24px}
+    .brand h1{margin:0;font-size:58px;line-height:.92;letter-spacing:.03em;color:#1a1719}
+    .brand h1 span{letter-spacing:.08em}
+    .brand p{margin:10px 0 0;padding-left:188px;font-size:21px;letter-spacing:.18em;text-transform:uppercase;color:#20252f}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+    .nav{flex:1;min-height:0;padding:14px 10px;overflow:auto}
+    .item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-radius:16px;color:#212837;text-decoration:none;font-size:17px;font-weight:500;margin-bottom:8px}
+    .item.active{background:#2b2b2f;color:#fff}
+    .item b{display:inline-flex;align-items:center;gap:12px;font-weight:500}
+    .item svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .caret{font-size:14px;color:#81899b}
+    .item.active .caret{color:#dde2ea}
+    .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:22px}
+    .top{min-height:96px;padding:18px 26px 18px 38px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .crumb{font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+    .topr{display:flex;align-items:center;gap:14px}
+    .circle{width:56px;height:56px;border-radius:50%;display:grid;place-items:center}
+    .circle.light{border:1px solid #eceef3;background:#f7f7fa;color:#5c6678}
+    .circle.dark{background:#0f1014;color:#fff}
+    .circle svg,.tool svg,.seg svg,.ghost svg,.search svg,.more svg,.grip svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .panel{flex:1;min-height:0;padding:22px 24px 18px;position:relative;overflow:visible}
+    .panel h2{margin:0;font-size:34px;line-height:1.15;font-weight:600;color:#2a3240}
+    .bar{margin-top:18px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .tabs{min-width:286px;display:inline-flex;gap:20px;border-bottom:1px solid #d9dce5}
+    .tab{border:none;background:transparent;padding:0 24px 16px;color:#808797;font-size:20px;font-weight:500;border-bottom:3px solid transparent}
+    .tab.active{color:#20252f;border-bottom-color:#cfd3db}
+    .acts{display:flex;align-items:center;gap:12px;position:relative}
+    .date{min-width:270px;height:50px;padding:16px 18px 0;border:1px solid #cfd5e0;border-radius:12px;position:relative;background:#fff;color:#3b4658;font-size:16px;display:inline-flex;align-items:center}
+    .date:before{content:attr(data-label);position:absolute;left:14px;top:-11px;padding:0 8px;background:#fff;color:#778096;font-size:13px}
+    .anchor{position:relative}
+    .tool{width:52px;height:50px;border:1px solid var(--line);border-radius:12px;background:#fff;color:#6e788d;display:grid;place-items:center;position:relative}
+    .tool.open,.tool:hover,.seg:hover{background:#f7f8fb;color:#434d61;border-color:#c8cfdb}
+    .tool.active{background:#eef2f8;border-color:#b9c4d5;color:#2f3d56}
+    .badge{position:absolute;right:-6px;top:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:600;line-height:20px;text-align:center;display:none}
+    .badge.show{display:block}
+    .split{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+    .seg{width:52px;height:50px;border:none;background:transparent;color:#6e788d;display:grid;place-items:center}
+    .seg+.seg{border-left:1px solid var(--line)}
+    .pop{position:absolute;top:calc(100% + 18px);right:0;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--pop);display:none;z-index:30}
+    .pop.show{display:block}
+    .pop:before,.pop:after{content:"";position:absolute;width:18px;height:18px;transform:rotate(45deg);right:18px}
+    .pop:before{top:-10px;background:var(--line)}
+    .pop:after{top:-9px;background:#fff}
+    .filterpanel{margin-top:0;max-height:0;opacity:0;overflow:hidden;border:1px solid transparent;border-radius:18px;background:linear-gradient(180deg,#fcfdff 0%,#f7f9fc 100%);padding:0 22px;transition:max-height .28s ease,opacity .2s ease,margin-top .2s ease,padding .2s ease,border-color .2s ease}
+    .filterpanel.show{margin-top:18px;max-height:720px;opacity:1;padding:22px;border-color:#e3e7ef}
+    .filterhead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .filterhead h3{margin:0;font-size:18px;font-weight:600;color:#2d3545}
+    .filterhead p{margin:5px 0 0;color:#7a8293;font-size:13px;line-height:1.4}
+    .filterstate{display:inline-flex;align-items:center;justify-content:center;min-width:88px;height:34px;padding:0 12px;border-radius:999px;background:#eef2f8;color:#526179;font-size:13px;font-weight:600;white-space:nowrap}
+    .filterstate.active{background:#111827;color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}
+    .field{width:100%;height:54px;border:1px solid #cfd5e0;border-radius:14px;padding:0 18px;background:#fff;color:#2e3747;font-size:15px;outline:none}
+    .field::placeholder{color:#7d8495}
+    .field:focus{border-color:#a9b3c4;box-shadow:0 0 0 4px rgba(113,128,150,.12)}
+    .sel{position:relative}
+    .sel:after{content:"";position:absolute;right:24px;top:50%;width:14px;height:14px;margin-top:-9px;border-right:2px solid #8b93a5;border-bottom:2px solid #8b93a5;transform:rotate(45deg);pointer-events:none}
+    select.field{appearance:none;padding-right:58px}
+    .fbtns{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .fmeta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:#6e7688;font-size:13px}
+    .fmeta strong{color:#2d3545}
+    .btns{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap}
+    .ghost,.search{min-width:150px;height:50px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-weight:500}
+    .ghost{border:1px solid var(--line);background:#fff;color:#686f80}
+    .search{min-width:160px;border:1px solid #0f1014;background:#0f1014;color:#fff}
+    .cols{width:min(1048px,calc(100vw - 90px));padding:22px 22px 18px;right:-128px;max-height:76vh;overflow:auto}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .row.top{margin-bottom:26px}
+    .ctl{border:none;background:transparent;padding:0;color:#14161c;font-size:21px;font-weight:500}
+    .row.head{margin-bottom:18px;color:#404754;font-size:18px}
+    .list{display:flex;flex-wrap:wrap;gap:16px 36px}
+    .citem{width:calc(50% - 18px);min-height:40px;display:flex;align-items:center;gap:14px;color:#4b5261;cursor:grab;user-select:none}
+    .citem.dragging{opacity:.45}
+    .grip{width:28px;height:28px;border:none;background:transparent;color:#b6b8be;display:grid;place-items:center;padding:0}
+    .toggle{display:inline-flex;align-items:center;gap:14px;cursor:pointer}
+    .toggle input{position:absolute;opacity:0;pointer-events:none}
+    .box{width:32px;height:32px;border-radius:9px;border:2px solid #d8dbe3;background:#fff;display:grid;place-items:center;flex:0 0 32px}
+    .box:before{content:"";width:9px;height:16px;border-right:2px solid transparent;border-bottom:2px solid transparent;transform:rotate(40deg) translate(-1px,-2px)}
+    .toggle input:checked+.box{background:#0f1014;border-color:#0f1014}
+    .toggle input:checked+.box:before{border-right-color:#fff;border-bottom-color:#fff}
+    .toggle span:last-child{font-size:18px;color:#454c5b}
+    .menu{width:220px;padding:8px}
+    .mitem{width:100%;height:44px;border:none;background:transparent;border-radius:10px;color:#41495a;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:14px}
+    .mitem:hover{background:#f4f6fa}
+    .tablewrap{margin-top:10px;border-radius:14px;overflow:hidden}
+    .scroll{overflow:auto;padding-bottom:2px}
+    table{width:max-content;min-width:100%;border-collapse:collapse;background:#fff}
+    th{position:sticky;top:0;z-index:2;background:var(--dark);color:#fff;font-size:13px;font-weight:600;text-transform:uppercase;white-space:nowrap;text-align:left;padding:14px;border-right:1px solid rgba(255,255,255,.02)}
+    td{padding:10px 14px;border-bottom:1px solid #e5e8ef;color:#525a69;font-size:14px;line-height:1.35;vertical-align:middle;white-space:nowrap;background:#fff}
+    tbody tr:hover td{background:#fcfcfe}
+    .empty td{padding:42px 18px;text-align:center;color:#8690a2;font-size:15px}
+    .pill{display:inline-flex;align-items:center;justify-content:center;min-width:84px;padding:6px 12px;border-radius:8px;font-size:14px;font-weight:600}
+    .purchase{color:var(--green);background:var(--greenbg)}
+    .refund{color:var(--orange);background:var(--orangebg)}
+    .failed{color:var(--red);background:var(--redbg)}
+    .pan{display:inline-flex;align-items:center;gap:10px}
+    .chip{min-width:24px;height:16px;border-radius:3px;border:1px solid rgba(0,0,0,.08);display:inline-flex;align-items:center;justify-content:center;padding:0 4px;font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#fff;color:#1a4fb3}
+    .chip.maestro{color:#fff;background:linear-gradient(90deg,#d93843 0 50%,#0671ce 50% 100%)}
+    .more{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);background:#fafbfd;color:#768096;display:grid;place-items:center}
+    .more svg{width:17px;height:17px}
+    .scroll::-webkit-scrollbar,.nav::-webkit-scrollbar,.cols::-webkit-scrollbar{width:10px;height:10px}
+    .scroll::-webkit-scrollbar-thumb,.nav::-webkit-scrollbar-thumb,.cols::-webkit-scrollbar-thumb{background:#ccd1db;border-radius:999px}
+    .scroll::-webkit-scrollbar-track,.nav::-webkit-scrollbar-track,.cols::-webkit-scrollbar-track{background:#eff2f7;border-radius:999px}
+    @media (max-width:1600px){.brand h1{font-size:48px}.brand p{padding-left:154px;font-size:18px}.side{width:314px;flex-basis:314px}.cols{right:-50px}}
+    @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
+    @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.citem{width:100%}}
+    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns{flex-direction:column;align-items:stretch}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand"><h1>PAY<span>wizard</span></h1><p>Sandbox</p></div>
+      <nav class="nav card" aria-label="Main navigation">
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7"></rect><rect x="13" y="4" width="7" height="7"></rect><rect x="4" y="13" width="7" height="7"></rect><rect x="13" y="13" width="7" height="7"></rect></svg>Dashboard</b></a>
+        <a class="item active" href="12.transaction_list.html"><b><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>Transactions</b></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><circle cx="16.5" cy="9.5" r="2.5"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path></svg>Agents</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M6 10V7a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"></path></svg>Merchants</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><path d="M4.5 9.5A7.5 7.5 0 0 1 12 2a7.5 7.5 0 0 1 7.5 7.5c0 3.5-2.4 5.3-3.8 6l1.8 3H6.5l1.8-3c-1.5-.7-3.8-2.5-3.8-6z"></path></svg>Partners</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="12" rx="2"></rect><line x1="7" y1="20" x2="14" y2="20"></line><line x1="18" y1="8" x2="21" y2="8"></line><line x1="18" y1="13" x2="21" y2="13"></line></svg>Device Management</b></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path><line x1="18" y1="7" x2="21" y2="7"></line><line x1="18" y1="12" x2="21" y2="12"></line></svg>User Management</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>Settings</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><path d="M4 7h13v10H4z"></path><path d="M17 10h3v7h-3"></path><path d="M8 7V5h5v2"></path></svg>Tickets</b></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M9 9l-2 3 2 3"></path><path d="M15 9l2 3-2 3"></path></svg>Developer Center</b><span class="caret">&#9662;</span></a>
+      </nav>
+    </aside>
+    <section class="main">
+      <header class="top card">
+        <div class="crumb">TRANSACTIONS</div>
+        <div class="topr">
+          <div class="circle light"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></div>
+          <div class="circle dark"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+        </div>
+      </header>
+      <main class="panel card">
+        <h2>Transactions</h2>
+        <div class="bar">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="completed">Completed</button>
+            <button class="tab" data-tab="failed">Failed</button>
+          </div>
+          <div class="acts">
+            <div class="date" data-label="Date Range (Processor)">2026-4-7 - 2026-4-7</div>
+            <button class="tool" id="filterBtn" aria-label="Toggle filters" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V20l4 2v-9.5L22 3z"></path></svg><span class="badge" id="filterBadge">0</span></button>
+            <div class="anchor">
+              <button class="tool" id="colsBtn" aria-label="Columns"><svg viewBox="0 0 24 24"><line x1="6" y1="4" x2="6" y2="20"></line><circle cx="6" cy="9" r="2"></circle><line x1="12" y1="4" x2="12" y2="20"></line><circle cx="12" cy="15" r="2"></circle><line x1="18" y1="4" x2="18" y2="20"></line><circle cx="18" cy="8" r="2"></circle></svg></button>
+              <div class="pop cols" id="colsPop">
+                <div class="row top"><button class="ctl" id="selectAll">Select All</button><button class="ctl" id="resetCols">Reset</button></div>
+                <div class="row head"><span>Show/Hide Columns</span></div>
+                <div class="list" id="colList"></div>
+              </div>
+            </div>
+            <div class="anchor">
+              <div class="split">
+                <button class="seg" id="exportBtn" aria-label="Export"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><path d="M12 12v6"></path><path d="M9.5 15.5L12 18l2.5-2.5"></path></svg></button>
+                <button class="seg" id="menuBtn" aria-label="Export menu"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+              </div>
+              <div class="pop menu" id="menuPop">
+                <button class="mitem" data-format="csv"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><path d="M12 12v6"></path><path d="M9.5 15.5L12 18l2.5-2.5"></path></svg>Export CSV</button>
+                <button class="mitem" data-format="json"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4"></path><path d="M16 8l4 4-4 4"></path><path d="M11 5l2 14"></path></svg>Export JSON</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section class="filterpanel" id="filtersPanel">
+          <div class="filterhead">
+            <div>
+              <h3>Transaction Filters</h3>
+            </div>
+            <span class="filterstate" id="filterState">0 Active</span>
+          </div>
+          <div class="grid">
+            <input class="field" id="fTransLogId" placeholder="Trans Log ID">
+            <input class="field" id="fPaywizardId" placeholder="PAYwizard ID">
+            <input class="field" id="fTid" placeholder="TID">
+            <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
+            <input class="field" id="fApprovalCode" placeholder="Approval Code">
+            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Refund</option><option>Failed</option></select></div>
+            <input class="field" id="fSn" placeholder="SN">
+            <input class="field" id="fStoreId" placeholder="Store ID">
+            <input class="field" id="fTerminalName" placeholder="Terminal Name">
+            <input class="field" id="fCardPan" placeholder="Card PAN">
+            <input class="field" id="fAmount" placeholder="Amount">
+            <input class="field" id="fMid" placeholder="MID">
+            <input class="field" id="fMerchantName" placeholder="Merchant Name">
+            <input class="field" id="fStoreName" placeholder="Store Name">
+          </div>
+          <div class="fbtns">
+            <div class="fmeta">
+              <span></span>
+            </div>
+            <div class="btns">
+              <button class="ghost" id="openCols"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><path d="M5.7 5.7l2.1 2.1M16.2 16.2l2.1 2.1M18.3 5.7l-2.1 2.1M7.8 16.2l-2.1 2.1"></path></svg>Settings</button>
+              <button class="ghost" id="resetFilters"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>Reset</button>
+              <button class="search" id="searchBtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="20" y1="20" x2="16.65" y2="16.65"></line></svg>Search</button>
+            </div>
+          </div>
+        </section>
+        <div class="tablewrap">
+          <div class="scroll">
+            <table>
+              <thead><tr id="headRow"></tr></thead>
+              <tbody id="bodyRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
+  <script>
+    (() => {
+      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","sn"];
+      const defaultOrder=["processorTime","timezone","cardPan","type","currency","tid","storeId","transLogId","batch","merchantName","terminalName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","paywizardId","transId","transIndexCode","trace","storeName","email","sn"];
+      const defs={
+        processorTime:["DATE & TIME (PROCESSOR)",220,"Date & Time (Processor)"],
+        terminalTime:["DATE & TIME (TERMINAL)",220,"Date & Time (Terminal)"],
+        timezone:["TIMEZONE",140,"Timezone"],
+        invoiceNumber:["INVOICE NUMBER",176,"Invoice Number"],
+        cardPan:["CARD PAN",188,"Card PAN"],
+        approvalCode:["APPROVAL CODE",146,"Approval Code"],
+        type:["TYPE",120,"Type"],
+        amount:["AMOUNT",98,"Amount"],
+        currency:["CURRENCY",98,"Currency"],
+        mid:["MID",152,"MID"],
+        tid:["TID",130,"TID"],
+        merchantName:["MERCHANT NAME",168,"Merchant Name"],
+        storeName:["STORE NAME",146,"Store Name"],
+        sn:["SN",180,"SN"],
+        paywizardId:["PAYwizard ID",170,"PAYwizard ID"],
+        transId:["TRANS ID",146,"Trans ID"],
+        transLogId:["TRANS LOG ID",170,"Trans Log ID"],
+        transIndexCode:["TRANS INDEX CODE",176,"Trans Index Code"],
+        batch:["BATCH",110,"Batch"],
+        trace:["TRACE",110,"Trace"],
+        terminalName:["TERMINAL NAME",190,"Terminal Name"],
+        phoneNumber:["PHONE NUMBER",156,"Phone Number"],
+        email:["EMAIL",220,"Email"],
+        storeId:["STORE ID",140,"Store ID"]
+      };
+      const rows=[
+        {status:"completed",processorTime:"2026-04-07 11:47:56",terminalTime:"-",timezone:"",invoiceNumber:"260407114756",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"16.98",currency:"GBP",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-114756",transId:"TRX-114756",transLogId:"LOG-20260407-114756",transIndexCode:"IDX-20260407-114756",batch:"B347",trace:"550321",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"completed",processorTime:"2026-04-07 11:22:19",terminalTime:"-",timezone:"",invoiceNumber:"260407112219",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Refund",amount:"6.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-112219",transId:"TRX-112219",transLogId:"LOG-20260407-112219",transIndexCode:"IDX-20260407-112219",batch:"B347",trace:"550322",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"completed",processorTime:"2026-04-07 11:21:14",terminalTime:"-",timezone:"",invoiceNumber:"260407112114",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Refund",amount:"7.23",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-112114",transId:"TRX-112114",transLogId:"LOG-20260407-112114",transIndexCode:"IDX-20260407-112114",batch:"B347",trace:"550323",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"completed",processorTime:"2026-04-07 11:19:01",terminalTime:"-",timezone:"",invoiceNumber:"260407111901",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"8.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111901",transId:"TRX-111901",transLogId:"LOG-20260407-111901",transIndexCode:"IDX-20260407-111901",batch:"B347",trace:"550324",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"completed",processorTime:"2026-04-07 11:18:41",terminalTime:"-",timezone:"",invoiceNumber:"260407111841",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"7.23",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111841",transId:"TRX-111841",transLogId:"LOG-20260407-111841",transIndexCode:"IDX-20260407-111841",batch:"B347",trace:"550325",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"completed",processorTime:"2026-04-07 11:18:22",terminalTime:"-",timezone:"",invoiceNumber:"260407111822",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"6.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111822",transId:"TRX-111822",transLogId:"LOG-20260407-111822",transIndexCode:"IDX-20260407-111822",batch:"B347",trace:"550326",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"completed",processorTime:"2026-04-07 10:46:02",terminalTime:"-",timezone:"",invoiceNumber:"260407104602",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"622397",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-104602",transId:"TRX-104602",transLogId:"LOG-20260407-104602",transIndexCode:"IDX-20260407-104602",batch:"B344",trace:"548901",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"},
+        {status:"completed",processorTime:"2026-04-07 10:39:16",terminalTime:"-",timezone:"",invoiceNumber:"260407103916",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"506708",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-103916",transId:"TRX-103916",transLogId:"LOG-20260407-103916",transIndexCode:"IDX-20260407-103916",batch:"B344",trace:"548902",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"},
+        {status:"failed",processorTime:"2026-04-07 09:58:11",terminalTime:"-",timezone:"",invoiceNumber:"260407095811",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"DECLINED",type:"Failed",amount:"12.50",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-095811",transId:"TRX-095811",transLogId:"LOG-20260407-095811",transIndexCode:"IDX-20260407-095811",batch:"B346",trace:"547220",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
+        {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"}
+      ];
+      const state={tab:"completed",filters:{transLogId:"",paywizardId:"",tid:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},columns:defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}))};
+      const head=document.getElementById("headRow"),body=document.getElementById("bodyRows"),colList=document.getElementById("colList");
+      const filterBtn=document.getElementById("filterBtn"),colsBtn=document.getElementById("colsBtn"),menuBtn=document.getElementById("menuBtn"),exportBtn=document.getElementById("exportBtn");
+      const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
+      const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
+      const fields={
+        transLogId:document.getElementById("fTransLogId"),
+        paywizardId:document.getElementById("fPaywizardId"),
+        tid:document.getElementById("fTid"),
+        invoiceNumber:document.getElementById("fInvoiceNumber"),
+        approvalCode:document.getElementById("fApprovalCode"),
+        type:document.getElementById("fType"),
+        sn:document.getElementById("fSn"),
+        storeId:document.getElementById("fStoreId"),
+        terminalName:document.getElementById("fTerminalName"),
+        cardPan:document.getElementById("fCardPan"),
+        amount:document.getElementById("fAmount"),
+        mid:document.getElementById("fMid"),
+        merchantName:document.getElementById("fMerchantName"),
+        storeName:document.getElementById("fStoreName")
+      };
+      const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;");
+      const norm=s=>String(s||"").trim().toLowerCase();
+      const colState=k=>state.columns.find(c=>c.key===k);
+      const visible=()=>state.columns.filter(c=>c.visible);
+      const activeFilterCount=()=>Object.values(state.filters).filter(v=>v!=="").length;
+      const updateFilterUi=()=>{
+        const count=activeFilterCount();
+        filterBadge.textContent=String(count);
+        filterBadge.classList.toggle("show",count>0);
+        filterState.textContent=`${count} Active`;
+        filterState.classList.toggle("active",count>0);
+        filterResultLabel.textContent=count?`Showing filtered rows in the ${state.tab} tab.`:`Showing all rows in the current tab.`;
+        filterBtn.classList.toggle("active",filtersPanel.classList.contains("show"));
+        filterBtn.setAttribute("aria-pressed",filtersPanel.classList.contains("show")?"true":"false");
+      };
+      const setPop=k=>{
+        ["cols","menu"].forEach(x=>({cols:colsPop,menu:menuPop}[x]).classList.toggle("show",x===k));
+        colsBtn.classList.toggle("open",k==="cols");
+        menuBtn.classList.toggle("open",k==="menu");
+      };
+      const toggleFilters=force=>{
+        const open=typeof force==="boolean"?force:!filtersPanel.classList.contains("show");
+        filtersPanel.classList.toggle("show",open);
+        updateFilterUi();
+      };
+      const matches=r=>{
+        if(r.status!==state.tab) return false;
+        return (!state.filters.transLogId||norm(r.transLogId).includes(norm(state.filters.transLogId))) &&
+          (!state.filters.paywizardId||norm(r.paywizardId).includes(norm(state.filters.paywizardId))) &&
+          (!state.filters.tid||norm(r.tid).includes(norm(state.filters.tid))) &&
+          (!state.filters.invoiceNumber||norm(r.invoiceNumber).includes(norm(state.filters.invoiceNumber))) &&
+          (!state.filters.approvalCode||norm(r.approvalCode).includes(norm(state.filters.approvalCode))) &&
+          (!state.filters.type||norm(r.type)===norm(state.filters.type)) &&
+          (!state.filters.sn||norm(r.sn).includes(norm(state.filters.sn))) &&
+          (!state.filters.storeId||norm(r.storeId).includes(norm(state.filters.storeId))) &&
+          (!state.filters.terminalName||norm(r.terminalName).includes(norm(state.filters.terminalName))) &&
+          (!state.filters.cardPan||norm(r.cardPanMasked+" "+r.cardPanPlain).includes(norm(state.filters.cardPan))) &&
+          (!state.filters.amount||norm(r.amount).includes(norm(state.filters.amount))) &&
+          (!state.filters.mid||norm(r.mid).includes(norm(state.filters.mid))) &&
+          (!state.filters.merchantName||norm(r.merchantName).includes(norm(state.filters.merchantName))) &&
+          (!state.filters.storeName||norm(r.storeName).includes(norm(state.filters.storeName)));
+      };
+      const cell=(k,r)=>{
+        if(k==="cardPan") return `<span class="pan"><span class="chip ${esc(r.cardBrand)}">${esc(r.cardBrand)}</span><span>${esc(r.cardPanMasked)}</span></span>`;
+        if(k==="type"){const c=r.type==="Refund"?"refund":r.type==="Failed"?"failed":"purchase"; return `<span class="pill ${c}">${esc(r.type)}</span>`;}
+        const v=r[k];
+        return v===""?"&nbsp;":esc(v??"-");
+      };
+      const renderTable=()=>{
+        const cols=visible(), data=rows.filter(matches);
+        head.innerHTML=cols.map(c=>`<th style="min-width:${defs[c.key][1]}px">${defs[c.key][0]}</th>`).join("")+`<th style="min-width:82px">ACTIONS</th>`;
+        body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" aria-label="More actions"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
+        updateFilterUi();
+      };
+      const renderCols=()=>{
+        colList.innerHTML=state.columns.map(c=>`<div class="citem" draggable="true" data-key="${c.key}"><button class="grip" type="button"><svg viewBox="0 0 24 24"><line x1="6" y1="7" x2="18" y2="7"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="6" y1="17" x2="18" y2="17"></line></svg></button><label class="toggle"><input type="checkbox" data-key="${c.key}"${c.visible?" checked":""}><span class="box"></span><span>${esc(defs[c.key][2])}</span></label></div>`).join("");
+      };
+      const syncFilters=()=>Object.keys(fields).forEach(k=>fields[k].value=state.filters[k]);
+      const resetFilters=()=>{
+        Object.keys(state.filters).forEach(k=>state.filters[k]="");
+        syncFilters();
+        renderTable();
+      };
+      const applyFilters=()=>{
+        Object.keys(fields).forEach(k=>state.filters[k]=fields[k].value.trim());
+        renderTable();
+      };
+      const resetCols=()=>{
+        state.columns=defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
+        renderCols();
+        renderTable();
+      };
+      const exportRows=fmt=>{
+        const cols=visible();
+        const data=rows.filter(matches).map(r=>Object.fromEntries(cols.map(c=>[defs[c.key][2],c.key==="cardPan"?r.cardPanMasked:r[c.key]])));
+        const stamp="20260407_120000";
+        let blob,name;
+        if(fmt==="json"){
+          blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+          name=`transaction_list_${state.tab}_${stamp}.json`;
+        }else{
+          const headers=cols.map(c=>defs[c.key][2]);
+          const csv=[headers.join(",")].concat(data.map(r=>headers.map(h=>`"${String(r[h]??"").replace(/"/g,'""')}"`).join(","))).join("\n");
+          blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+          name=`transaction_list_${state.tab}_${stamp}.csv`;
+        }
+        const url=URL.createObjectURL(blob), a=document.createElement("a");
+        a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        setPop("");
+      };
+      document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{state.tab=t.dataset.tab; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t)); renderTable();});
+      filterBtn.onclick=e=>{e.stopPropagation(); syncFilters(); setPop(""); toggleFilters();};
+      colsBtn.onclick=e=>{e.stopPropagation(); setPop(colsPop.classList.contains("show")?"":"cols");};
+      menuBtn.onclick=e=>{e.stopPropagation(); setPop(menuPop.classList.contains("show")?"":"menu");};
+      exportBtn.onclick=()=>exportRows("csv");
+      document.getElementById("searchBtn").onclick=()=>{applyFilters(); setPop("");};
+      document.getElementById("resetFilters").onclick=resetFilters;
+      document.getElementById("openCols").onclick=e=>{e.stopPropagation(); applyFilters(); setPop("cols");};
+      document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); renderCols(); renderTable();};
+      document.getElementById("resetCols").onclick=resetCols;
+      Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter") applyFilters();}));
+      colList.addEventListener("change",e=>{
+        const input=e.target.closest('input[type="checkbox"]');
+        if(!input) return;
+        colState(input.dataset.key).visible=input.checked;
+        renderTable();
+      });
+      let dragKey="";
+      colList.addEventListener("dragstart",e=>{
+        const item=e.target.closest(".citem");
+        if(!item) return;
+        dragKey=item.dataset.key;
+        item.classList.add("dragging");
+        e.dataTransfer?.setData("text/plain",dragKey);
+      });
+      colList.addEventListener("dragover",e=>{
+        e.preventDefault();
+        const drag=colList.querySelector(".citem.dragging");
+        const target=e.target.closest(".citem");
+        if(!drag||!target||drag===target) return;
+        const r=target.getBoundingClientRect();
+        colList.insertBefore(drag,e.clientY<r.top+r.height/2?target:target.nextSibling);
+      });
+      colList.addEventListener("dragend",()=>{
+        const drag=colList.querySelector(".citem.dragging");
+        if(drag) drag.classList.remove("dragging");
+        if(!dragKey) return;
+        state.columns=Array.from(colList.querySelectorAll(".citem")).map(i=>colState(i.dataset.key));
+        dragKey="";
+        renderTable();
+      });
+      menuPop.addEventListener("click",e=>{
+        const btn=e.target.closest(".mitem");
+        if(btn) exportRows(btn.dataset.format);
+      });
+      document.addEventListener("click",e=>{if(e.target.closest(".anchor")) return; setPop("");});
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"){setPop(""); toggleFilters(false);}});
+      renderCols();
+      renderTable();
+    })();
+  </script>
+</body>
+</html>
