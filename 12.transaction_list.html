@@ -92,12 +92,17 @@
     .presetmeta{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 12px;border-radius:999px;background:#eef2f8;color:#53627a;font-size:12px;font-weight:600;white-space:nowrap}
     .presetmeta.active{background:#111827;color:#fff}
     .presetlist{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
-    .presetchip{min-width:132px;padding:12px 14px;border:1px solid #d7dce6;border-radius:14px;background:#fff;text-align:left;color:#2f3746;display:flex;flex-direction:column;gap:4px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease}
+    .presetchip{width:176px;min-height:84px;padding:12px 14px;border:1px solid #d7dce6;border-radius:14px;background:#fff;text-align:left;color:#2f3746;display:flex;flex-direction:column;gap:4px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;flex:0 0 176px}
     .presetchip:hover{border-color:#bfc9d8;box-shadow:0 8px 20px rgba(31,41,55,.06)}
     .presetchip.active{border-color:#111827;background:#111827;color:#fff}
     .presetchip.empty{opacity:.72}
     .presetchip.dirty{box-shadow:0 0 0 3px rgba(244,114,182,.14)}
-    .presetname{font-size:15px;font-weight:600;line-height:1.2}
+    .presetchip.addview{border:2px dashed #cfd7e5;background:#fbfcff;align-items:center;justify-content:center;text-align:center;color:#60708a}
+    .presetchip.addview:hover{border-color:#9bb0cd;background:#f7faff;box-shadow:none}
+    .presetchip.addview:disabled{cursor:not-allowed;opacity:.5}
+    .presetchip.addview .presetname{display:flex;align-items:center;justify-content:center;gap:8px}
+    .addplus{font-size:28px;line-height:1;font-weight:400;color:#4594e6}
+    .presetname{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px;font-weight:600;line-height:1.2}
     .presetdesc{font-size:11px;line-height:1.35;color:#7a8293}
     .presetchip.active .presetdesc{color:#d7deea}
     .presetactions{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -107,11 +112,13 @@
     .mini.dark{border-color:#111827;background:#111827;color:#fff}
     .mini:disabled{cursor:not-allowed;opacity:.52;box-shadow:none}
     .row{display:flex;align-items:center;justify-content:space-between;gap:20px}
-    .row.top{margin-bottom:26px}
-    .ctl{border:none;background:transparent;padding:0;color:#14161c;font-size:21px;font-weight:500}
-    .row.head{margin-bottom:18px;color:#404754;font-size:18px}
-    .list{display:flex;flex-wrap:wrap;gap:16px 36px}
-    .citem{width:calc(50% - 18px);min-height:40px;display:flex;align-items:center;gap:14px;color:#4b5261;cursor:grab;user-select:none}
+    .row.head{margin-bottom:10px;color:#404754;font-size:18px}
+    .headtools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .ctl{height:36px;padding:0 14px;border:1px solid #d7dce6;border-radius:999px;background:#fff;color:#5c6678;font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;transition:border-color .18s ease,background-color .18s ease,color .18s ease}
+    .ctl:hover{border-color:#c2cada;background:#f7f9fc;color:#2f3746}
+    .seq{width:28px;height:28px;border-radius:999px;background:#eef2f8;color:#53627a;font-size:12px;font-weight:600;display:grid;place-items:center;flex:0 0 28px}
+    .list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 36px}
+    .citem{width:100%;min-height:40px;display:flex;align-items:center;gap:14px;color:#4b5261;cursor:grab;user-select:none}
     .citem.dragging{opacity:.45}
     .grip{width:28px;height:28px;border:none;background:transparent;color:#b6b8be;display:grid;place-items:center;padding:0}
     .toggle{display:inline-flex;align-items:center;gap:14px;cursor:pointer}
@@ -145,8 +152,8 @@
     .scroll::-webkit-scrollbar-track,.nav::-webkit-scrollbar-track,.cols::-webkit-scrollbar-track{background:#eff2f7;border-radius:999px}
     @media (max-width:1600px){.brand h1{font-size:48px}.brand p{padding-left:154px;font-size:18px}.side{width:314px;flex-basis:314px}.cols{right:-50px}}
     @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
-    @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.citem{width:100%}}
-    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns{flex-direction:column;align-items:stretch}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
+    @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}
+    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
   </style>
 </head>
 <body>
@@ -199,15 +206,19 @@
                   <div class="presetactions">
                     <span class="presetnote" id="presetNote">Views are stored in this browser.</span>
                     <div class="presetbtns">
-                      <button class="mini" id="addViewBtn" type="button">Add View</button>
                       <button class="mini dark" id="saveViewBtn" type="button">Save Current</button>
                       <button class="mini" id="renameViewBtn" type="button">Rename</button>
                       <button class="mini" id="deleteViewBtn" type="button">Delete</button>
                     </div>
                   </div>
                 </div>
-                <div class="row top"><button class="ctl" id="selectAll">Select All</button><button class="ctl" id="resetCols">Reset</button></div>
-                <div class="row head"><span>Show/Hide Columns</span></div>
+                <div class="row head">
+                  <span>Show/Hide Columns</span>
+                  <div class="headtools">
+                    <button class="ctl" id="selectAll">Select All</button>
+                    <button class="ctl" id="resetCols">Reset</button>
+                  </div>
+                </div>
                 <div class="list" id="colList"></div>
               </div>
             </div>
@@ -355,7 +366,7 @@
       const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
       const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
       const presetList=document.getElementById("presetList"),presetMeta=document.getElementById("presetMeta"),presetNote=document.getElementById("presetNote");
-      const addViewBtn=document.getElementById("addViewBtn"),saveViewBtn=document.getElementById("saveViewBtn"),renameViewBtn=document.getElementById("renameViewBtn"),deleteViewBtn=document.getElementById("deleteViewBtn");
+      const saveViewBtn=document.getElementById("saveViewBtn"),renameViewBtn=document.getElementById("renameViewBtn"),deleteViewBtn=document.getElementById("deleteViewBtn");
       const fields={
         transLogId:document.getElementById("fTransLogId"),
         paywizardId:document.getElementById("fPaywizardId"),
@@ -451,18 +462,21 @@
       };
       const renderPresets=()=>{
         const views=[{id:"default",name:"Default",desc:"System layout"}].concat(state.savedViews.map(view=>({id:view.id,name:view.name,desc:`${view.columns.filter(c=>c.visible).length} columns shown`})));
-        presetList.innerHTML=views.map(view=>{
+        const viewCards=views.map(view=>{
           const active=state.selectedViewId===view.id;
           const dirty=active&&state.hasUnsavedViewChanges;
           return `<button class="presetchip${active?" active":""}${dirty?" dirty":""}" type="button" data-view="${view.id}"><span class="presetname">${esc(view.name)}</span><span class="presetdesc">${dirty?"Unsaved changes":esc(view.desc)}</span></button>`;
-        }).join("");
+        });
+        if(state.savedViews.length<maxCustomViews){
+          viewCards.push(`<button class="presetchip addview" type="button" data-action="add-view"><span class="presetname"><span class="addplus">+</span><span>Add View</span></span><span class="presetdesc">Create a new custom view</span></button>`);
+        }
+        presetList.innerHTML=viewCards.join("");
         presetMeta.textContent=`Current: ${currentViewLabel()}`;
         presetMeta.classList.toggle("active",state.selectedViewId!=="default"||state.hasUnsavedViewChanges);
         presetNote.textContent=state.hasUnsavedViewChanges?"Current layout has unsaved changes. Save it to the selected view or create a new one.":`Views are stored in this browser. ${state.savedViews.length}/${maxCustomViews} custom views used.`;
         saveViewBtn.disabled=state.selectedViewId==="default";
         renameViewBtn.disabled=state.selectedViewId==="default";
         deleteViewBtn.disabled=state.selectedViewId==="default";
-        addViewBtn.disabled=state.savedViews.length>=maxCustomViews;
       };
       const activeFilterCount=()=>Object.values(state.filters).filter(v=>v!=="").length;
       const updateFilterUi=()=>{
@@ -515,7 +529,7 @@
         updateFilterUi();
       };
       const renderCols=()=>{
-        colList.innerHTML=state.columns.map(c=>`<div class="citem" draggable="true" data-key="${c.key}"><button class="grip" type="button"><svg viewBox="0 0 24 24"><line x1="6" y1="7" x2="18" y2="7"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="6" y1="17" x2="18" y2="17"></line></svg></button><label class="toggle"><input type="checkbox" data-key="${c.key}"${c.visible?" checked":""}><span class="box"></span><span>${esc(defs[c.key][2])}</span></label></div>`).join("");
+        colList.innerHTML=state.columns.map((c,index)=>`<div class="citem" draggable="true" data-key="${c.key}"><button class="grip" type="button"><svg viewBox="0 0 24 24"><line x1="6" y1="7" x2="18" y2="7"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="6" y1="17" x2="18" y2="17"></line></svg></button><span class="seq">${index+1}</span><label class="toggle"><input type="checkbox" data-key="${c.key}"${c.visible?" checked":""}><span class="box"></span><span>${esc(defs[c.key][2])}</span></label></div>`).join("");
         renderPresets();
       };
       const syncFilters=()=>Object.keys(fields).forEach(k=>fields[k].value=state.filters[k]);
@@ -593,21 +607,22 @@
         state.columns=Array.from(colList.querySelectorAll(".citem")).map(i=>colState(i.dataset.key));
         dragKey="";
         markColumnsCustom();
+        renderCols();
         renderTable();
-        renderPresets();
       });
       presetList.addEventListener("click",e=>{
         const btn=e.target.closest(".presetchip");
         if(!btn) return;
+        if(btn.dataset.action==="add-view"){
+          createViewFromCurrent();
+          renderCols();
+          renderTable();
+          return;
+        }
         if(!applySavedView(btn.dataset.view)) return;
         renderCols();
         renderTable();
       });
-      addViewBtn.onclick=()=>{
-        createViewFromCurrent();
-        renderCols();
-        renderTable();
-      };
       saveViewBtn.onclick=()=>{
         const view=currentSavedView();
         if(!view){window.alert("Select a custom view first, or create a new one."); return;}
