@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merchant Management</title>
+    <title>Merchant List</title>
     <style>
         :root {
             --page-bg: #f4f5f7;
@@ -840,6 +840,1087 @@
             }
         }
 
+        :root {
+            --page-bg: #f6f7f9;
+            --surface: #ffffff;
+            --surface-dark: #111215;
+            --border: #dfe3ea;
+            --border-soft: #eceff4;
+            --text-main: #30333b;
+            --text-muted: #9096a3;
+            --blue: #3a7bf7;
+            --green: #1a9850;
+            --menu-dark: #2d2d31;
+            --menu-shadow: 0 16px 40px rgba(20, 24, 33, 0.08);
+            --card-shadow: 0 12px 32px rgba(20, 24, 33, 0.06);
+        }
+
+        body {
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: var(--page-bg);
+        }
+
+        .page-shell {
+            display: grid;
+            grid-template-columns: 310px minmax(0, 1fr);
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: auto;
+            min-height: calc(100vh - 40px);
+            border-radius: 16px;
+            border-color: var(--border);
+            box-shadow: var(--menu-shadow);
+        }
+
+        .brand {
+            display: block;
+            padding: 22px 22px 12px;
+            border-bottom: none;
+        }
+
+        .brand-left,
+        .brand-text {
+            display: block;
+        }
+
+        .mark,
+        .close-btn,
+        .notification-badge,
+        [data-key="batches"],
+        [data-key="tickets"],
+        [data-key="developer-center"] {
+            display: none;
+        }
+
+        .brand-name {
+            font-size: 40px;
+            font-weight: 800;
+            line-height: 0.92;
+            letter-spacing: 0.02em;
+            color: #1b1b1f;
+        }
+
+        .brand-sub {
+            margin-top: 6px;
+            font-size: 15px;
+            letter-spacing: 0.18em;
+            color: #202026;
+        }
+
+        .menu {
+            padding: 6px 8px 16px;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            min-height: 54px;
+            padding: 0 16px;
+            border-radius: 18px;
+            margin-bottom: 6px;
+        }
+
+        .menu-main {
+            gap: 12px;
+        }
+
+        .icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 1.9;
+        }
+
+        .label {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-item.active {
+            background: var(--menu-dark);
+        }
+
+        .sub-menu {
+            margin: 0 0 8px;
+            padding: 8px 0 0 36px;
+            gap: 0;
+        }
+
+        .sub-item {
+            display: flex;
+            align-items: center;
+            min-height: 44px;
+            margin-bottom: 10px;
+            padding: 0 16px 0 28px;
+            font-size: 17px;
+            font-weight: 500;
+            color: #2b2d33;
+        }
+
+        .sub-item::before {
+            left: 12px;
+            width: 10px;
+            height: 10px;
+            border-width: 2px;
+        }
+
+        .sub-item.active {
+            padding-left: 28px;
+            background: var(--menu-dark);
+        }
+
+        .sub-item.active::before {
+            left: 12px;
+            width: 10px;
+            height: 10px;
+            background: #ffffff;
+        }
+
+        .main-container {
+            height: auto;
+            gap: 20px;
+        }
+
+        .top-header {
+            min-height: 80px;
+            height: auto;
+            padding: 14px 34px;
+            border-radius: 16px;
+            border-color: var(--border);
+            box-shadow: 0 2px 8px rgba(20, 24, 33, 0.03);
+        }
+
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        .breadcrumbs svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .breadcrumbs span:first-child {
+            color: #8c919e;
+            font-weight: 500;
+        }
+
+        .breadcrumbs span:last-child {
+            color: #32353d;
+            font-weight: 700;
+        }
+
+        .user-controls {
+            gap: 18px;
+        }
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-color: var(--border-soft);
+            background: #fbfbfc;
+            color: #575d68;
+        }
+
+        .icon-circle:last-child {
+            border-color: #111215;
+            background: #111215;
+            color: #ffffff;
+        }
+
+        .icon-circle svg {
+            width: 23px;
+            height: 23px;
+        }
+
+        .content-area {
+            padding: 0;
+            overflow: visible;
+        }
+
+        .content-inner {
+            padding-right: 0;
+        }
+
+        .merchant-panel {
+            border-radius: 16px;
+            border-color: var(--border);
+            box-shadow: 0 4px 14px rgba(20, 24, 33, 0.03);
+            padding: 22px;
+            overflow: visible;
+        }
+
+        .page-header {
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .page-title {
+            font-size: 30px;
+            color: #394150;
+        }
+
+        .page-subtitle,
+        .panel-head,
+        .table-head,
+        .table-row,
+        .pagination,
+        .action-dropdown .action-menu,
+        .btn-caret {
+            display: none;
+        }
+
+        .page-actions {
+            gap: 18px;
+        }
+
+        .btn {
+            min-height: 42px;
+            padding: 0 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .btn.green {
+            background: var(--green);
+            border-color: var(--green);
+            color: #ffffff;
+        }
+
+        .btn.primary {
+            background: #111215;
+            border-color: #111215;
+            color: #ffffff;
+        }
+
+        .panel-filters {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .filter-field {
+            display: flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 16px;
+            border: 1px solid #d9dde5;
+            border-radius: 12px;
+            background: #ffffff;
+            color: var(--text-muted);
+        }
+
+        .filter-field input,
+        .filter-field select {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .filter-field.select {
+            position: relative;
+            padding-right: 42px;
+        }
+
+        .filter-field.select::after {
+            content: "";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid #9197a5;
+            border-bottom: 2px solid #9197a5;
+            transform: translateY(-65%) rotate(45deg);
+            pointer-events: none;
+        }
+
+        .filter-field select {
+            appearance: none;
+        }
+
+        .panel-toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .panel-tool {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid #e1e5eb;
+            background: #ffffff;
+            display: grid;
+            place-items: center;
+            color: #5f6673;
+            cursor: pointer;
+        }
+
+        .panel-tool.dark {
+            border-color: #111215;
+            background: #111215;
+            color: #ffffff;
+        }
+
+        .panel-tool svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .merchant-table-wrap {
+            overflow-x: auto;
+            overflow-y: visible;
+            padding-bottom: 8px;
+        }
+
+        .merchant-table {
+            width: 100%;
+            min-width: 1580px;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        .merchant-table th,
+        .merchant-table td {
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .merchant-table th {
+            background: #1f1f23;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .merchant-table td {
+            border-bottom: 1px solid var(--border-soft);
+            color: #585d67;
+            font-size: 14px;
+            background: #ffffff;
+        }
+
+        .merchant-table tr:hover td {
+            background: #fafbfd;
+        }
+
+        .merchant-table th:first-child {
+            border-top-left-radius: 8px;
+        }
+
+        .merchant-table th:last-child {
+            border-top-right-radius: 8px;
+        }
+
+        .merchant-link {
+            display: inline-block;
+            color: var(--blue);
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+
+        .merchant-meta {
+            color: #7f8693;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        .cell-two-line {
+            line-height: 1.42;
+        }
+
+        .align-center {
+            text-align: center;
+        }
+
+        .table-actions {
+            position: relative;
+        }
+
+        .action-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .table-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid #e3e6ec;
+            background: #ffffff;
+            display: grid;
+            place-items: center;
+            color: #66707d;
+            cursor: pointer;
+        }
+
+        .table-action svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.9;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .table-action.more svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            stroke: none;
+        }
+
+        .row-action-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 240px;
+            padding: 6px 0;
+            border: 1px solid #e1e4ea;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: var(--card-shadow);
+            display: none;
+            z-index: 20;
+        }
+
+        .row-action-menu.show {
+            display: block;
+        }
+
+        .row-action-item {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            color: #50545c;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .row-action-item:hover {
+            background: #f2f4f7;
+        }
+
+        .panel-footer {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 18px;
+            padding: 10px 6px 2px;
+            color: #7f8592;
+            font-size: 15px;
+        }
+
+        .footer-pagination,
+        .footer-summary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-pagination {
+            justify-self: center;
+        }
+
+        .footer-summary {
+            justify-self: end;
+            gap: 10px;
+        }
+
+        .page-control {
+            border: none;
+            background: transparent;
+            color: #858b98;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 6px 4px;
+        }
+
+        .page-number {
+            width: 50px;
+            height: 50px;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            background: transparent;
+            color: #6f7684;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .page-number.active {
+            background: #101116;
+            color: #ffffff;
+        }
+
+        .page-size-box,
+        .page-index-box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #ffffff;
+            color: #535863;
+        }
+
+        .page-size-box {
+            min-width: 96px;
+            height: 52px;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-left: 8px;
+        }
+
+        .page-size-box svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .page-index-box {
+            min-width: 60px;
+            height: 40px;
+            padding: 0 14px;
+            display: grid;
+            place-items: center;
+            color: #59606d;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.42);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 80;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .ereceipt-modal {
+            width: min(1120px, 100%);
+            max-height: calc(100vh - 48px);
+            background: #ffffff;
+            border-radius: 26px;
+            border: 1px solid #dfe3ea;
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ereceipt-header,
+        .ereceipt-footer {
+            padding: 22px 28px;
+            background: #ffffff;
+        }
+
+        .ereceipt-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid #edf0f3;
+        }
+
+        .ereceipt-title {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.1;
+            color: #111827;
+        }
+
+        .ereceipt-subtitle {
+            margin: 8px 0 0;
+            max-width: 660px;
+            color: #475467;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .ereceipt-close {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: #4b5563;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .ereceipt-close svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .ereceipt-body {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.82fr);
+            background: linear-gradient(90deg, #ffffff 0%, #ffffff 64%, #f7f9fc 64%, #f7f9fc 100%);
+        }
+
+        .ereceipt-config,
+        .ereceipt-preview-pane {
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .ereceipt-config {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .ereceipt-section {
+            background: #ffffff;
+            border: 1px solid #eaedf2;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .ghost-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid #d9dee8;
+            background: #ffffff;
+            color: #445065;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ghost-btn:hover {
+            background: #f8fafc;
+        }
+
+        .logo-upload {
+            display: grid;
+            grid-template-columns: 104px minmax(0, 1fr);
+            gap: 16px;
+            align-items: center;
+            padding: 16px;
+            border: 1px dashed #cfd8e3;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #fbfdff 0%, #f6f9ff 100%);
+        }
+
+        .logo-preview {
+            width: 104px;
+            height: 104px;
+            border-radius: 20px;
+            background: #111827;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 18px 30px rgba(17, 24, 39, 0.18);
+        }
+
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .logo-preview.has-image {
+            background: #ffffff;
+        }
+
+        .logo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .logo-placeholder svg {
+            width: 28px;
+            height: 28px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .logo-initials {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .logo-caption {
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.72;
+        }
+
+        .logo-copy {
+            min-width: 0;
+        }
+
+        .logo-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .language-switch {
+            display: inline-grid;
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .language-option {
+            position: relative;
+            display: block;
+            cursor: pointer;
+        }
+
+        .language-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .language-option span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            border-radius: 14px;
+            border: 1px solid #d7dce5;
+            background: #ffffff;
+            color: #475467;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.18s ease;
+        }
+
+        .language-option input:checked + span {
+            background: #111827;
+            border-color: #111827;
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(17, 24, 39, 0.14);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .line-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .field-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #344054;
+        }
+
+        .line-input {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 1px solid #d7dce5;
+            background: #ffffff;
+            color: #111827;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .line-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .ereceipt-preview-pane {
+            padding: 28px;
+            background:
+                radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 32%),
+                linear-gradient(180deg, #f8fbff 0%, #f7f9fc 100%);
+            border-left: 1px solid #edf0f3;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .preview-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .preview-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .receipt-card {
+            width: min(100%, 360px);
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 26px 24px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+            position: relative;
+        }
+
+        .receipt-card::before {
+            content: "";
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e2e8f0;
+        }
+
+        .receipt-top {
+            text-align: center;
+        }
+
+        .receipt-logo {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 14px;
+            border-radius: 22px;
+            background: #111827;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .receipt-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .receipt-logo.has-image {
+            background: #ffffff;
+            border: 1px solid #edf0f3;
+        }
+
+        .receipt-brand {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            word-break: break-word;
+        }
+
+        .receipt-divider {
+            margin: 18px 0;
+            border-top: 1px dashed #d0d5dd;
+        }
+
+        .receipt-line-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .receipt-line {
+            font-size: 13px;
+            line-height: 1.45;
+            color: #111827;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .receipt-line.empty {
+            color: #98a2b3;
+            font-style: italic;
+        }
+
+        .receipt-line.empty::before {
+            content: attr(data-placeholder);
+        }
+
+        .receipt-line.empty span {
+            display: none;
+        }
+
+        .receipt-transaction {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .receipt-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 13px;
+            color: #344054;
+        }
+
+        .receipt-row strong {
+            color: #111827;
+        }
+
+        .receipt-total {
+            padding-top: 10px;
+            margin-top: 4px;
+            border-top: 1px dashed #d0d5dd;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .ereceipt-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-top: 1px solid #edf0f3;
+        }
+
+        .ereceipt-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        @media (max-width: 1480px) {
+            .panel-filters {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 1080px) {
+            .ereceipt-body {
+                grid-template-columns: 1fr;
+                background: #ffffff;
+            }
+
+            .ereceipt-preview-pane {
+                border-left: none;
+                border-top: 1px solid #edf0f3;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .page-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                min-height: auto;
+            }
+
+            .panel-footer {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-pagination,
+            .footer-summary {
+                justify-self: start;
+            }
+        }
+
         @media (max-width: 720px) {
             .top-header {
                 flex-direction: column;
@@ -849,7 +1930,13 @@
                 padding: 16px;
             }
 
-            .page-actions {
+            .panel-filters {
+                grid-template-columns: 1fr;
+            }
+
+            .page-actions,
+            .footer-pagination,
+            .footer-summary {
                 width: 100%;
                 justify-content: flex-start;
             }
@@ -861,6 +1948,48 @@
             .store-card {
                 margin: 16px 12px;
             }
+
+            .modal-overlay {
+                padding: 12px;
+                align-items: flex-end;
+            }
+
+            .ereceipt-modal {
+                max-height: calc(100vh - 12px);
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+            .ereceipt-header,
+            .ereceipt-config,
+            .ereceipt-preview-pane,
+            .ereceipt-footer {
+                padding: 20px;
+            }
+
+            .logo-upload,
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .language-switch {
+                width: 100%;
+            }
+
+            .ereceipt-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ereceipt-actions {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .ereceipt-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -868,16 +1997,8 @@
     <div class="page-shell">
         <aside class="sidebar">
             <div class="brand">
-                <div class="brand-left">
-                    <div class="mark" aria-hidden="true"></div>
-                    <div class="brand-text">
-                        <div class="brand-name">PAYwizard</div>
-                        <div class="brand-sub">menu</div>
-                    </div>
-                </div>
-                <button class="close-btn" type="button" aria-label="Close menu">
-                    <span></span>
-                </button>
+                <div class="brand-name">PAYwizard</div>
+                <div class="brand-sub">SANDBOX</div>
             </div>
 
             <div class="menu">
@@ -901,23 +2022,9 @@
                             <svg viewBox="0 0 24 24">
                                 <rect x="3" y="6" width="18" height="12" rx="2"></rect>
                                 <path d="M3 10h18"></path>
-                                <path d="M8 14h4"></path>
                             </svg>
                         </span>
                         <span class="label">Transactions</span>
-                    </div>
-                </div>
-
-                <div class="menu-item" data-key="batches">
-                    <div class="menu-main">
-                        <span class="icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M6 7h12l1 3H5z"></path>
-                                <path d="M7 10v7h10v-7"></path>
-                                <path d="M9 14h6"></path>
-                            </svg>
-                        </span>
-                        <span class="label">Batches</span>
                     </div>
                 </div>
 
@@ -925,23 +2032,24 @@
                     <div class="menu-main">
                         <span class="icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
-                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
-                                <path d="M4 20a4 4 0 018 0"></path>
-                                <path d="M12 17a4 4 0 018 0"></path>
+                                <path d="M7.5 13a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                                <path d="M16.5 13a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                                <path d="M4 20a4 4 0 0 1 8 0"></path>
+                                <path d="M12 17a4 4 0 0 1 8 0"></path>
                             </svg>
                         </span>
                         <span class="label">Agents</span>
                     </div>
-                    <span class="chevron" aria-hidden="true">&#9654;</span>
+                    <span class="chevron" aria-hidden="true">&#9660;</span>
                 </div>
 
                 <div class="menu-item active" data-key="merchants">
                     <div class="menu-main">
                         <span class="icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path>
-                                <path d="M9 21V12h6v9"></path>
+                                <path d="M4 8h16v10H4z"></path>
+                                <path d="M7 12h10"></path>
+                                <path d="M7 16h6"></path>
                             </svg>
                         </span>
                         <span class="label">Merchants</span>
@@ -949,16 +2057,20 @@
                     <span class="chevron" aria-hidden="true">&#9660;</span>
                 </div>
                 <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item">Contact</div>
                     <div class="sub-item">Leads</div>
                     <div class="sub-item">Onboarding</div>
                     <div class="sub-item active">Merchant List</div>
                     <div class="sub-item">Analytics</div>
                 </div>
+
                 <div class="menu-item" data-key="partners">
                     <div class="menu-main">
                         <span class="icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path>
+                                <path d="M12 4v16"></path>
+                                <path d="M8 8.5A3.5 3.5 0 0 1 12 5a3.5 3.5 0 0 1 4 3.5c0 1.7-.9 2.8-1.8 3.6"></path>
+                                <path d="M7 20h10"></path>
                             </svg>
                         </span>
                         <span class="label">Partners</span>
@@ -979,18 +2091,16 @@
                     </div>
                 </div>
 
-                <div class="menu-item" data-key="remote-diagnostic">
+                <div class="menu-item" data-key="app-management">
                     <div class="menu-main">
                         <span class="icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M12 3v3"></path>
-                                <path d="M12 18v3"></path>
-                                <path d="M3 12h3"></path>
-                                <path d="M18 12h3"></path>
+                                <rect x="4" y="5" width="16" height="14" rx="2"></rect>
+                                <path d="M9 9h6"></path>
+                                <path d="M9 13h6"></path>
                             </svg>
                         </span>
-                        <span class="label">Remote Diagnostic</span>
+                        <span class="label">APP Management</span>
                     </div>
                 </div>
 
@@ -998,8 +2108,10 @@
                     <div class="menu-main">
                         <span class="icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <rect x="5" y="4" width="14" height="16" rx="2"></rect>
-                                <path d="M9 9h6M9 13h6M9 17h6"></path>
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="10" cy="7" r="4"></circle>
+                                <path d="M20 8v6"></path>
+                                <path d="M17 11h6"></path>
                             </svg>
                         </span>
                         <span class="label">User Management</span>
@@ -1012,37 +2124,12 @@
                         <span class="icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 15z"></path>
                             </svg>
                         </span>
                         <span class="label">Settings</span>
                     </div>
                     <span class="chevron" aria-hidden="true">&#9654;</span>
-                </div>
-
-                <div class="menu-item" data-key="tickets">
-                    <div class="menu-main">
-                        <span class="icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M4 7h16v4a2 2 0 010 4v4H4v-4a2 2 0 010-4z"></path>
-                                <circle cx="9" cy="12" r="1.2"></circle>
-                            </svg>
-                        </span>
-                        <span class="label">Tickets</span>
-                    </div>
-                </div>
-
-                <div class="menu-item" data-key="developer-center">
-                    <div class="menu-main">
-                        <span class="icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M8 8l-4 4 4 4"></path>
-                                <path d="M16 8l4 4-4 4"></path>
-                                <path d="M12 6l-2 12"></path>
-                            </svg>
-                        </span>
-                        <span class="label">Developer Center</span>
-                    </div>
                 </div>
             </div>
         </aside>
@@ -1050,7 +2137,11 @@
         <div class="main-container">
             <header class="top-header">
                 <div class="breadcrumbs">
-                    MERCHANTS &gt; <span>Merchant List</span>
+                    <span>MERCHANTS</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 6l6 6-6 6"></path>
+                    </svg>
+                    <span>MERCHANT LIST</span>
                 </div>
                 <div class="user-controls">
                     <div class="icon-circle" aria-label="Notifications">
@@ -1058,7 +2149,6 @@
                             <path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path>
                             <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
                         </svg>
-                        <div class="notification-badge">5</div>
                     </div>
                     <div class="icon-circle" aria-label="User">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1071,167 +2161,165 @@
 
             <main class="content-area">
                 <div class="content-inner">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Merchant Management</h1>
-                            <p class="page-subtitle">Manage your merchant portfolio, stores, and equipment.</p>
-                        </div>
-                        <div class="page-actions">
-                            <button class="btn secondary" type="button">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
-                                </svg>
-                                Filters
-                            </button>
-                            <div class="action-dropdown">
-                                <button class="btn primary" type="button" id="addMerchantTrigger" aria-haspopup="menu" aria-expanded="false">
+                    <section class="merchant-panel">
+                        <div class="page-header">
+                            <div>
+                                <h1 class="page-title">Merchant List</h1>
+                            </div>
+                            <div class="page-actions">
+                                <a class="btn green" href="5.merchant_add_iso.html">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"></path>
+                                    </svg>
+                                    Onboard Wizard
+                                </a>
+                                <a class="btn primary" href="5.merchant_add_merchant_only_iso.html">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <path d="M12 5v14"></path>
-                                        <path d="M5 12h14"></path>
+                                        <path d="M14 3h-4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9z"></path>
+                                        <path d="M14 3v6h6"></path>
+                                        <path d="M12 11v6"></path>
+                                        <path d="M9 14h6"></path>
                                     </svg>
                                     Add Merchant
-                                    <span class="btn-caret" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M6 9l6 6 6-6"></path>
-                                        </svg>
-                                    </span>
-                                </button>
-                                <div class="action-menu" id="addMerchantMenu" role="menu" aria-hidden="true">
-                                    <a class="action-menu-item" role="menuitem" href="5.merchant_add_iso.html">Quick Onboard</a>
-                                    <a class="action-menu-item" role="menuitem" href="5.merchant_add_merchant_only_iso.html">Merchant Profile</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <section class="merchant-panel">
-                        <div class="panel-head">
-                            <div class="search-input">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <circle cx="11" cy="11" r="7"></circle>
-                                    <path d="M16.65 16.65L21 21"></path>
-                                </svg>
-                                <input type="text" placeholder="Search by DBA, Merchant ID, or Email" aria-label="Search merchants">
-                            </div>
-                            <div class="quick-filters">
-                                <span class="filter-chip active">All (108)</span>
-                                <span class="filter-chip">Active (86)</span>
-                                <span class="filter-chip">Pending (14)</span>
-                                <span class="filter-chip">On Hold (8)</span>
+                                </a>
                             </div>
                         </div>
 
-                        <div class="table-scroll">
-                            <div class="table-head">
-                                <div>DBA</div>
-                                <div>Name</div>
-                                <div>Boarded On</div>
-                                <div>Email</div>
-                                <div>Phone Number</div>
-                                <div>Owned By</div>
-                                <div>Stores</div>
-                                <div>Devices</div>
-                                <div>Status</div>
-                                <div>Actions</div>
-                            </div>
-
-                            <div class="table-row">
-                                <div>
-                                    <a href="5.merchant_detail_iso.html" class="table-link">Tasty Treats (NYC)</a>
-                                    <div class="cell-sub">ID: 82910293</div>
-                                </div>
-                                <div>Michael Valor</div>
-                                <div>09/01/23</div>
-                                <div>mg123@valor.com</div>
-                                <div>555-555-5555</div>
-                                <div>Valor Training ISO</div>
-                                <div><span class="count-pill">1</span></div>
-                                <div><span class="count-pill">1</span></div>
-                                <div class="status-indicator status-active">
-                                    <span class="status-dot"></span>
-                                    Active
-                                </div>
-                                <div>
-                                    <button class="icon-button" type="button" aria-label="More actions">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                            <circle cx="12" cy="5" r="1.6"></circle>
-                                            <circle cx="12" cy="12" r="1.6"></circle>
-                                            <circle cx="12" cy="19" r="1.6"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="table-row">
-                                <div>
-                                    <a href="5.merchant_detail_iso.html" class="table-link">Lumina Boutique</a>
-                                    <div class="cell-sub">ID: 77281920</div>
-                                </div>
-                                <div>Emily Style</div>
-                                <div>12/01/23</div>
-                                <div>emily@lumina.com</div>
-                                <div>+1 989-989-8989</div>
-                                <div>Payyou</div>
-                                <div><span class="count-pill">0</span></div>
-                                <div><span class="count-pill">0</span></div>
-                                <div class="status-indicator status-pending">
-                                    <span class="status-dot"></span>
-                                    Pending
-                                </div>
-                                <div>
-                                    <button class="icon-button" type="button" aria-label="More actions">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                            <circle cx="12" cy="5" r="1.6"></circle>
-                                            <circle cx="12" cy="12" r="1.6"></circle>
-                                            <circle cx="12" cy="19" r="1.6"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="table-row">
-                                <div>
-                                    <a href="5.merchant_detail_iso.html" class="table-link">Oswald</a>
-                                    <div class="cell-sub">ID: 55671245</div>
-                                </div>
-                                <div>M. Ashraf</div>
-                                <div>10/14/24</div>
-                                <div>fmohammedashraf@denovosystem.com</div>
-                                <div>+1 989-989-8988</div>
-                                <div>Payyou</div>
-                                <div><span class="count-pill">2</span></div>
-                                <div><span class="count-pill">3</span></div>
-                                <div class="status-indicator status-active">
-                                    <span class="status-dot"></span>
-                                    Active
-                                </div>
-                                <div>
-                                    <button class="icon-button" type="button" aria-label="More actions">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                            <circle cx="12" cy="5" r="1.6"></circle>
-                                            <circle cx="12" cy="12" r="1.6"></circle>
-                                            <circle cx="12" cy="19" r="1.6"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="panel-filters" aria-label="Merchant filters">
+                            <label class="filter-field"><input type="text" placeholder="Agent Name" aria-label="Agent Name"></label>
+                            <label class="filter-field"><input type="text" placeholder="Merchant Name" aria-label="Merchant Name"></label>
+                            <label class="filter-field"><input type="text" placeholder="PAYwizard ID" aria-label="PAYwizard ID"></label>
+                            <label class="filter-field"><input type="text" placeholder="Process ID" aria-label="Process ID"></label>
+                            <label class="filter-field select">
+                                <select aria-label="Status">
+                                    <option selected>Status</option>
+                                    <option>Active</option>
+                                    <option>Pending</option>
+                                    <option>Disabled</option>
+                                </select>
+                            </label>
+                            <label class="filter-field"><input type="text" placeholder="Date Range" aria-label="Date Range"></label>
                         </div>
 
-                        <div class="pagination">
-                            <div>Showing 1-10 of 108 merchants</div>
-                            <div class="page-controls">
-                                <button class="page-btn" type="button">Prev</button>
-                                <button class="page-btn active" type="button">1</button>
-                                <button class="page-btn" type="button">2</button>
-                                <button class="page-btn" type="button">3</button>
-                                <button class="page-btn" type="button">Next</button>
-                                <div class="page-size">
-                                    <select aria-label="Rows per page">
-                                        <option>10</option>
-                                        <option>20</option>
-                                        <option>50</option>
-                                    </select>
-                                </div>
+                        <div class="panel-toolbar">
+                            <button class="panel-tool" type="button" aria-label="Reset filters">
+                                <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
+                            </button>
+                            <button class="panel-tool dark" type="button" aria-label="Search merchants">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M16.65 16.65L21 21"></path></svg>
+                            </button>
+                        </div>
+
+                        <div class="merchant-table-wrap">
+                            <table class="merchant-table">
+                                <colgroup>
+                                    <col style="width:280px"><col style="width:140px"><col style="width:140px"><col style="width:180px"><col style="width:150px"><col style="width:220px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:90px"><col style="width:118px">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>DBA</th><th>PROCESS ID</th><th>AGENT NAME</th><th>CONTACT PERSON</th><th>LAST UPDATE</th><th>EMAIL</th><th>PHONE</th><th>STORES</th><th>DEVICES</th><th>CURR</th><th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><a href="5.merchant_detail_iso.html" class="merchant-link">tsytest</a><div class="merchant-meta">10000001116</div></td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td class="cell-two-line">2026-03-16<br>15:22:26</td>
+                                        <td>1030620884@qq.com</td>
+                                        <td></td>
+                                        <td class="align-center">2</td>
+                                        <td class="align-center">1</td>
+                                        <td>USD</td>
+                                        <td class="table-actions"><div class="action-group"><a class="table-action" href="5.merchant_detail_iso.html" aria-label="Open merchant detail"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></a><button class="table-action more" type="button" aria-label="More actions" aria-expanded="false" data-row-menu-trigger><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button></div><div class="row-action-menu" role="menu"><button class="row-action-item" type="button" role="menuitem">Disable Merchant</button><button class="row-action-item" type="button" role="menuitem">Developer Token</button><button class="row-action-item" type="button" role="menuitem">Reset Password</button><button class="row-action-item" type="button" role="menuitem" data-open-ereceipt>Custom eReceipt</button></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="5.merchant_detail_iso.html" class="merchant-link">Nuvei_Attended</a><div class="merchant-meta">10000001115</div></td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td class="cell-two-line">2026-03-11<br>14:45:14</td>
+                                        <td>111@wizarpos.com</td>
+                                        <td></td>
+                                        <td class="align-center">1</td>
+                                        <td class="align-center">0</td>
+                                        <td></td>
+                                        <td class="table-actions"><div class="action-group"><a class="table-action" href="5.merchant_detail_iso.html" aria-label="Open merchant detail"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></a><button class="table-action more" type="button" aria-label="More actions" aria-expanded="false" data-row-menu-trigger><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button></div><div class="row-action-menu" role="menu"><button class="row-action-item" type="button" role="menuitem">Disable Merchant</button><button class="row-action-item" type="button" role="menuitem">Developer Token</button><button class="row-action-item" type="button" role="menuitem">Reset Password</button><button class="row-action-item" type="button" role="menuitem" data-open-ereceipt>Custom eReceipt</button></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="5.merchant_detail_iso.html" class="merchant-link">lerke</a><div class="merchant-meta">10000001114</div></td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td class="cell-two-line">2026-03-11<br>11:23:00</td>
+                                        <td>yang.zhao@lerke.cn</td>
+                                        <td></td>
+                                        <td class="align-center">1</td>
+                                        <td class="align-center">2</td>
+                                        <td></td>
+                                        <td class="table-actions"><div class="action-group"><a class="table-action" href="5.merchant_detail_iso.html" aria-label="Open merchant detail"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></a><button class="table-action more" type="button" aria-label="More actions" aria-expanded="false" data-row-menu-trigger><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button></div><div class="row-action-menu" role="menu"><button class="row-action-item" type="button" role="menuitem">Disable Merchant</button><button class="row-action-item" type="button" role="menuitem">Developer Token</button><button class="row-action-item" type="button" role="menuitem">Reset Password</button><button class="row-action-item" type="button" role="menuitem" data-open-ereceipt>Custom eReceipt</button></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="5.merchant_detail_iso.html" class="merchant-link">SimonTest</a><div class="merchant-meta">10000001113</div></td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td class="cell-two-line">2026-03-06<br>04:42:08</td>
+                                        <td>16747049@qq.com</td>
+                                        <td></td>
+                                        <td class="align-center">1</td>
+                                        <td class="align-center">1</td>
+                                        <td>USD</td>
+                                        <td class="table-actions"><div class="action-group"><a class="table-action" href="5.merchant_detail_iso.html" aria-label="Open merchant detail"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></a><button class="table-action more" type="button" aria-label="More actions" aria-expanded="false" data-row-menu-trigger><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button></div><div class="row-action-menu" role="menu"><button class="row-action-item" type="button" role="menuitem">Disable Merchant</button><button class="row-action-item" type="button" role="menuitem">Developer Token</button><button class="row-action-item" type="button" role="menuitem">Reset Password</button><button class="row-action-item" type="button" role="menuitem" data-open-ereceipt>Custom eReceipt</button></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="5.merchant_detail_iso.html" class="merchant-link">support_test</a><div class="merchant-meta">10000001112</div></td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td class="cell-two-line">2026-03-05<br>15:51:39</td>
+                                        <td>1270019320@qq.com</td>
+                                        <td></td>
+                                        <td class="align-center">1</td>
+                                        <td class="align-center">1</td>
+                                        <td>CNY</td>
+                                        <td class="table-actions"><div class="action-group"><a class="table-action" href="5.merchant_detail_iso.html" aria-label="Open merchant detail"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></a><button class="table-action more" type="button" aria-label="More actions" aria-expanded="false" data-row-menu-trigger><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button></div><div class="row-action-menu" role="menu"><button class="row-action-item" type="button" role="menuitem">Disable Merchant</button><button class="row-action-item" type="button" role="menuitem">Developer Token</button><button class="row-action-item" type="button" role="menuitem">Reset Password</button><button class="row-action-item" type="button" role="menuitem" data-open-ereceipt>Custom eReceipt</button></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="5.merchant_detail_iso.html" class="merchant-link">globalpayment--test</a><div class="merchant-meta">10000001111</div></td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td class="cell-two-line">2026-03-05<br>15:01:32</td>
+                                        <td>1374928106@qq.com</td>
+                                        <td></td>
+                                        <td class="align-center">2</td>
+                                        <td class="align-center">2</td>
+                                        <td>USD</td>
+                                        <td class="table-actions"><div class="action-group"><a class="table-action" href="5.merchant_detail_iso.html" aria-label="Open merchant detail"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg></a><button class="table-action more" type="button" aria-label="More actions" aria-expanded="false" data-row-menu-trigger><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button></div><div class="row-action-menu" role="menu"><button class="row-action-item" type="button" role="menuitem">Disable Merchant</button><button class="row-action-item" type="button" role="menuitem">Developer Token</button><button class="row-action-item" type="button" role="menuitem">Reset Password</button><button class="row-action-item" type="button" role="menuitem" data-open-ereceipt>Custom eReceipt</button></div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="panel-footer">
+                            <div></div>
+                            <div class="footer-pagination">
+                                <button class="page-control" type="button" aria-label="First page">&laquo;</button>
+                                <button class="page-control" type="button" aria-label="Previous page">&lsaquo;</button>
+                                <button class="page-number active" type="button">1</button>
+                                <button class="page-number" type="button">2</button>
+                                <button class="page-number" type="button">3</button>
+                                <button class="page-number" type="button">4</button>
+                                <button class="page-number" type="button">5</button>
+                                <button class="page-control" type="button" aria-label="Next page">&rsaquo;</button>
+                                <button class="page-control" type="button" aria-label="Last page">&raquo;</button>
+                                <div class="page-size-box"><span>10</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></div>
+                            </div>
+                            <div class="footer-summary">
+                                <div class="page-index-box">1</div>
+                                <span>/ 111 (1101)</span>
                             </div>
                         </div>
                     </section>
@@ -1240,45 +2328,501 @@
             </main>
         </div>
     </div>
-    <script>
-        const addMerchantTrigger = document.getElementById('addMerchantTrigger');
-        const addMerchantMenu = document.getElementById('addMerchantMenu');
+    <div class="modal-overlay" id="ereceiptModal" aria-hidden="true">
+        <div class="ereceipt-modal" role="dialog" aria-modal="true" aria-labelledby="ereceiptTitle">
+            <div class="ereceipt-header">
+                <div>
+                    <h2 class="ereceipt-title" id="ereceiptTitle">Custom eReceipt</h2>
+                    <p class="ereceipt-subtitle"><strong id="ereceiptMerchantName">tsytest</strong></p>
+                </div>
+                <button class="ereceipt-close" type="button" id="closeEreceiptModal" aria-label="Close custom eReceipt dialog">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12"></path>
+                        <path d="M18 6L6 18"></path>
+                    </svg>
+                </button>
+            </div>
 
-        function closeAddMerchantMenu() {
-            if (!addMerchantMenu || !addMerchantTrigger) {
+            <div class="ereceipt-body">
+                <div class="ereceipt-config">
+                    <section class="ereceipt-section">
+                        <div class="section-head">
+                            <div class="section-title">Logo</div>
+                            <button class="ghost-btn" type="button" id="removeLogoBtn">Remove Logo</button>
+                        </div>
+
+                        <div class="logo-upload">
+                            <div class="logo-preview" id="settingsLogoPreview">
+                                <div class="logo-placeholder" id="settingsLogoPlaceholder">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                                        <path d="M8 15l3-3 2 2 3-4 2 3"></path>
+                                        <path d="M9 9h.01"></path>
+                                    </svg>
+                                    <div class="logo-initials" id="settingsLogoInitials">TS</div>
+                                    <div class="logo-caption">Logo Preview</div>
+                                </div>
+                                <img id="settingsLogoImage" alt="Merchant logo preview">
+                            </div>
+
+                            <div class="logo-copy">
+                                <div class="logo-actions">
+                                    <label class="btn secondary sm" for="ereceiptLogoInput">Upload Logo</label>
+                                </div>
+                                <input id="ereceiptLogoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="ereceipt-section">
+                        <div class="section-title">Receipt Language</div>
+                        <div class="language-switch" role="radiogroup" aria-label="Receipt language">
+                            <label class="language-option">
+                                <input type="radio" name="receiptLanguage" value="en" checked>
+                                <span>English</span>
+                            </label>
+                            <label class="language-option">
+                                <input type="radio" name="receiptLanguage" value="fr">
+                                <span>French</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="ereceipt-section">
+                        <div class="section-head">
+                            <div class="section-title">Header</div>
+                        </div>
+
+                        <div class="input-grid">
+                            <label class="line-field">
+                                <span class="field-label">Line 1</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 1" data-line-input data-group="header" data-index="0">
+                            </label>
+                            <label class="line-field">
+                                <span class="field-label">Line 2</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 2" data-line-input data-group="header" data-index="1">
+                            </label>
+                            <label class="line-field">
+                                <span class="field-label">Line 3</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 3" data-line-input data-group="header" data-index="2">
+                            </label>
+                            <label class="line-field">
+                                <span class="field-label">Line 4</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 4" data-line-input data-group="header" data-index="3">
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="ereceipt-section">
+                        <div class="section-head">
+                            <div class="section-title">Footer</div>
+                        </div>
+
+                        <div class="input-grid">
+                            <label class="line-field">
+                                <span class="field-label">Line 1</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 1" data-line-input data-group="footer" data-index="0">
+                            </label>
+                            <label class="line-field">
+                                <span class="field-label">Line 2</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 2" data-line-input data-group="footer" data-index="1">
+                            </label>
+                            <label class="line-field">
+                                <span class="field-label">Line 3</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 3" data-line-input data-group="footer" data-index="2">
+                            </label>
+                            <label class="line-field">
+                                <span class="field-label">Line 4</span>
+                                <input class="line-input" type="text" maxlength="42" placeholder="Line 4" data-line-input data-group="footer" data-index="3">
+                            </label>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="ereceipt-preview-pane">
+                    <div class="preview-head">
+                        <div class="preview-title">Preview</div>
+                    </div>
+
+                    <div class="receipt-card">
+                        <div class="receipt-top">
+                            <div class="receipt-logo" id="receiptLogoPreview">
+                                <div class="logo-placeholder" id="receiptLogoPlaceholder">
+                                    <div class="logo-initials" id="receiptLogoInitials">TS</div>
+                                    <div class="logo-caption">Merchant</div>
+                                </div>
+                                <img id="receiptLogoImage" alt="Receipt logo preview">
+                            </div>
+                            <div class="receipt-brand" id="receiptPreviewMerchantName">tsytest</div>
+                        </div>
+
+                        <div class="receipt-divider"></div>
+
+                        <div class="receipt-line-group">
+                            <div class="receipt-line empty" data-preview-line="header-0" data-placeholder="Header line 1"><span></span></div>
+                            <div class="receipt-line empty" data-preview-line="header-1" data-placeholder="Header line 2"><span></span></div>
+                            <div class="receipt-line empty" data-preview-line="header-2" data-placeholder="Header line 3"><span></span></div>
+                            <div class="receipt-line empty" data-preview-line="header-3" data-placeholder="Header line 4"><span></span></div>
+                        </div>
+
+                        <div class="receipt-divider"></div>
+
+                        <div class="receipt-transaction">
+                            <div class="receipt-row"><span id="receiptTxnLabel">Sale</span><strong id="receiptTxnStatus">Approved</strong></div>
+                            <div class="receipt-row"><span id="receiptTerminalLabel">Terminal</span><span>T81-0472</span></div>
+                            <div class="receipt-row"><span id="receiptCardLabel">Card</span><span>VISA **** 2814</span></div>
+                            <div class="receipt-row receipt-total"><span id="receiptTotalLabel">Total</span><strong id="receiptAmount">USD 128.50</strong></div>
+                        </div>
+
+                        <div class="receipt-divider"></div>
+
+                        <div class="receipt-line-group">
+                            <div class="receipt-line empty" data-preview-line="footer-0" data-placeholder="Footer line 1"><span></span></div>
+                            <div class="receipt-line empty" data-preview-line="footer-1" data-placeholder="Footer line 2"><span></span></div>
+                            <div class="receipt-line empty" data-preview-line="footer-2" data-placeholder="Footer line 3"><span></span></div>
+                            <div class="receipt-line empty" data-preview-line="footer-3" data-placeholder="Footer line 4"><span></span></div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="ereceipt-footer">
+                <div class="ereceipt-actions">
+                    <button class="btn secondary" type="button" id="cancelEreceiptBtn">Cancel</button>
+                    <button class="btn primary" type="button" id="saveEreceiptBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const rowMenuTriggers = document.querySelectorAll('[data-row-menu-trigger]');
+        const ereceiptButtons = document.querySelectorAll('[data-open-ereceipt]');
+        const ereceiptModal = document.getElementById('ereceiptModal');
+        const ereceiptMerchantName = document.getElementById('ereceiptMerchantName');
+        const closeEreceiptModalBtn = document.getElementById('closeEreceiptModal');
+        const cancelEreceiptBtn = document.getElementById('cancelEreceiptBtn');
+        const saveEreceiptBtn = document.getElementById('saveEreceiptBtn');
+        const removeLogoBtn = document.getElementById('removeLogoBtn');
+        const logoInput = document.getElementById('ereceiptLogoInput');
+        const settingsLogoPreview = document.getElementById('settingsLogoPreview');
+        const settingsLogoPlaceholder = document.getElementById('settingsLogoPlaceholder');
+        const settingsLogoImage = document.getElementById('settingsLogoImage');
+        const settingsLogoInitials = document.getElementById('settingsLogoInitials');
+        const receiptLogoPreview = document.getElementById('receiptLogoPreview');
+        const receiptLogoPlaceholder = document.getElementById('receiptLogoPlaceholder');
+        const receiptLogoImage = document.getElementById('receiptLogoImage');
+        const receiptLogoInitials = document.getElementById('receiptLogoInitials');
+        const receiptPreviewMerchantName = document.getElementById('receiptPreviewMerchantName');
+        const receiptTxnLabel = document.getElementById('receiptTxnLabel');
+        const receiptTxnStatus = document.getElementById('receiptTxnStatus');
+        const receiptTerminalLabel = document.getElementById('receiptTerminalLabel');
+        const receiptCardLabel = document.getElementById('receiptCardLabel');
+        const receiptTotalLabel = document.getElementById('receiptTotalLabel');
+        const receiptAmount = document.getElementById('receiptAmount');
+        const languageInputs = document.querySelectorAll('input[name="receiptLanguage"]');
+        const lineInputs = document.querySelectorAll('[data-line-input]');
+        const previewLines = document.querySelectorAll('[data-preview-line]');
+        const savedEreceiptStates = new Map();
+        const localeCopy = {
+            en: {
+                sale: 'Sale',
+                approved: 'Approved',
+                terminal: 'Terminal',
+                card: 'Card',
+                total: 'Total'
+            },
+            fr: {
+                sale: 'Vente',
+                approved: 'Approuve',
+                terminal: 'Terminal',
+                card: 'Carte',
+                total: 'Montant total'
+            }
+        };
+
+        let currentMerchantContext = {
+            name: 'tsytest',
+            id: '10000001116',
+            currency: 'USD'
+        };
+        let currentDraft = createEmptyReceiptState();
+
+        function closeRowMenus() {
+            document.querySelectorAll('.row-action-menu.show').forEach((menu) => {
+                menu.classList.remove('show');
+            });
+
+            rowMenuTriggers.forEach((trigger) => {
+                trigger.setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        rowMenuTriggers.forEach((trigger) => {
+            trigger.addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                const tableActions = trigger.closest('.table-actions');
+                const menu = tableActions ? tableActions.querySelector('.row-action-menu') : null;
+                const willOpen = menu && !menu.classList.contains('show');
+
+                closeRowMenus();
+
+                if (menu && willOpen) {
+                    menu.classList.add('show');
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+
+        function createEmptyReceiptState() {
+            return {
+                language: 'en',
+                headerLines: ['', '', '', ''],
+                footerLines: ['', '', '', ''],
+                logoDataUrl: ''
+            };
+        }
+
+        function cloneReceiptState(state) {
+            return {
+                language: state.language || 'en',
+                headerLines: Array.isArray(state.headerLines) ? [...state.headerLines] : ['', '', '', ''],
+                footerLines: Array.isArray(state.footerLines) ? [...state.footerLines] : ['', '', '', ''],
+                logoDataUrl: state.logoDataUrl || ''
+            };
+        }
+
+        function getMerchantInitials(name) {
+            const normalized = (name || '')
+                .replace(/[^a-zA-Z0-9]+/g, ' ')
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+            if (!normalized.length) {
+                return 'MR';
+            }
+
+            if (normalized.length === 1) {
+                return normalized[0].slice(0, 2).toUpperCase();
+            }
+
+            return `${normalized[0][0]}${normalized[1][0]}`.toUpperCase();
+        }
+
+        function getMerchantContextFromTrigger(trigger) {
+            const row = trigger.closest('tr');
+            const cells = row ? row.querySelectorAll('td') : [];
+
+            return {
+                name: row?.querySelector('.merchant-link')?.textContent.trim() || 'Merchant',
+                id: row?.querySelector('.merchant-meta')?.textContent.trim() || '',
+                currency: cells[9]?.textContent.trim() || 'USD'
+            };
+        }
+
+        function getMerchantStateKey(context) {
+            return context.id || context.name;
+        }
+
+        function readFormIntoDraft() {
+            const headerInputs = Array.from(document.querySelectorAll('[data-line-input][data-group="header"]'))
+                .sort((a, b) => Number(a.dataset.index) - Number(b.dataset.index));
+            const footerInputs = Array.from(document.querySelectorAll('[data-line-input][data-group="footer"]'))
+                .sort((a, b) => Number(a.dataset.index) - Number(b.dataset.index));
+
+            currentDraft = {
+                ...currentDraft,
+                language: document.querySelector('input[name="receiptLanguage"]:checked')?.value || 'en',
+                headerLines: headerInputs.map((input) => input.value),
+                footerLines: footerInputs.map((input) => input.value)
+            };
+        }
+
+        function writeDraftToForm() {
+            lineInputs.forEach((input) => {
+                const group = input.dataset.group;
+                const index = Number(input.dataset.index);
+                const sourceLines = group === 'footer' ? currentDraft.footerLines : currentDraft.headerLines;
+
+                input.value = sourceLines[index] || '';
+            });
+
+            languageInputs.forEach((input) => {
+                input.checked = input.value === currentDraft.language;
+            });
+        }
+
+        function setPreviewLine(group, index, value) {
+            const target = document.querySelector(`[data-preview-line="${group}-${index}"]`);
+            const span = target?.querySelector('span');
+            const cleanValue = value.trim();
+
+            if (!target || !span) {
                 return;
             }
-            addMerchantMenu.classList.remove('show');
-            addMerchantMenu.setAttribute('aria-hidden', 'true');
-            addMerchantTrigger.setAttribute('aria-expanded', 'false');
+
+            target.classList.toggle('empty', !cleanValue);
+            span.textContent = cleanValue;
         }
 
-        if (addMerchantTrigger && addMerchantMenu) {
-            addMerchantTrigger.addEventListener('click', (event) => {
+        function updateLogoViews() {
+            const initials = getMerchantInitials(currentMerchantContext.name);
+            const hasLogo = Boolean(currentDraft.logoDataUrl);
+
+            settingsLogoInitials.textContent = initials;
+            receiptLogoInitials.textContent = initials;
+            settingsLogoPreview.classList.toggle('has-image', hasLogo);
+            receiptLogoPreview.classList.toggle('has-image', hasLogo);
+            settingsLogoPlaceholder.style.display = hasLogo ? 'none' : 'flex';
+            receiptLogoPlaceholder.style.display = hasLogo ? 'none' : 'flex';
+            settingsLogoImage.style.display = hasLogo ? 'block' : 'none';
+            receiptLogoImage.style.display = hasLogo ? 'block' : 'none';
+
+            if (hasLogo) {
+                settingsLogoImage.src = currentDraft.logoDataUrl;
+                receiptLogoImage.src = currentDraft.logoDataUrl;
+                return;
+            }
+
+            settingsLogoImage.removeAttribute('src');
+            receiptLogoImage.removeAttribute('src');
+        }
+
+        function updatePreview() {
+            readFormIntoDraft();
+
+            const copy = localeCopy[currentDraft.language] || localeCopy.en;
+            const currency = currentMerchantContext.currency || 'USD';
+
+            ereceiptMerchantName.textContent = currentMerchantContext.name;
+            receiptPreviewMerchantName.textContent = currentMerchantContext.name;
+            receiptTxnLabel.textContent = copy.sale;
+            receiptTxnStatus.textContent = copy.approved;
+            receiptTerminalLabel.textContent = copy.terminal;
+            receiptCardLabel.textContent = copy.card;
+            receiptTotalLabel.textContent = copy.total;
+            receiptAmount.textContent = `${currency} 128.50`;
+
+            currentDraft.headerLines.forEach((value, index) => {
+                setPreviewLine('header', index, value);
+            });
+
+            currentDraft.footerLines.forEach((value, index) => {
+                setPreviewLine('footer', index, value);
+            });
+
+            updateLogoViews();
+        }
+
+        function openEreceiptModal(trigger) {
+            currentMerchantContext = getMerchantContextFromTrigger(trigger);
+            currentDraft = cloneReceiptState(
+                savedEreceiptStates.get(getMerchantStateKey(currentMerchantContext)) || createEmptyReceiptState()
+            );
+
+            writeDraftToForm();
+            updatePreview();
+            ereceiptModal.classList.add('show');
+            ereceiptModal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeEreceiptModal() {
+            ereceiptModal.classList.remove('show');
+            ereceiptModal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+            logoInput.value = '';
+        }
+
+        function saveEreceiptSettings() {
+            readFormIntoDraft();
+            savedEreceiptStates.set(getMerchantStateKey(currentMerchantContext), cloneReceiptState(currentDraft));
+            closeEreceiptModal();
+        }
+
+        document.querySelectorAll('.row-action-menu').forEach((menu) => {
+            menu.addEventListener('click', (event) => {
                 event.stopPropagation();
-                const willOpen = !addMerchantMenu.classList.contains('show');
-                if (willOpen) {
-                    addMerchantMenu.classList.add('show');
-                } else {
-                    addMerchantMenu.classList.remove('show');
+
+                if (event.target.closest('.row-action-item')) {
+                    closeRowMenus();
                 }
-                addMerchantMenu.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
-                addMerchantTrigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            });
+        });
+
+        ereceiptButtons.forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                closeRowMenus();
+                openEreceiptModal(button);
+            });
+        });
+
+        lineInputs.forEach((input) => {
+            input.addEventListener('input', () => {
+                updatePreview();
+            });
+        });
+
+        languageInputs.forEach((input) => {
+            input.addEventListener('change', updatePreview);
+        });
+
+        logoInput.addEventListener('change', () => {
+            const [file] = logoInput.files || [];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.addEventListener('load', () => {
+                currentDraft.logoDataUrl = typeof reader.result === 'string' ? reader.result : '';
+                updatePreview();
             });
 
-            addMerchantMenu.addEventListener('click', (event) => {
-                if (event.target.closest('.action-menu-item')) {
-                    closeAddMerchantMenu();
-                }
-            });
+            reader.readAsDataURL(file);
+        });
 
-            document.addEventListener('click', closeAddMerchantMenu);
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
-                    closeAddMerchantMenu();
+        removeLogoBtn.addEventListener('click', () => {
+            currentDraft.logoDataUrl = '';
+            logoInput.value = '';
+            updatePreview();
+        });
+
+        closeEreceiptModalBtn.addEventListener('click', closeEreceiptModal);
+        cancelEreceiptBtn.addEventListener('click', closeEreceiptModal);
+        saveEreceiptBtn.addEventListener('click', saveEreceiptSettings);
+
+        ereceiptModal.addEventListener('click', (event) => {
+            if (event.target === ereceiptModal) {
+                closeEreceiptModal();
+            }
+        });
+
+        document.addEventListener('click', closeRowMenus);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                if (ereceiptModal.classList.contains('show')) {
+                    closeEreceiptModal();
                 }
-            });
-        }
+
+                closeRowMenus();
+            }
+        });
+
+        previewLines.forEach((line) => {
+            const span = line.querySelector('span');
+
+            if (span) {
+                span.textContent = '';
+            }
+        });
+
+        writeDraftToForm();
+        updatePreview();
     </script>
 </body>
 </html>
