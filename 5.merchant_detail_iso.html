@@ -1290,6 +1290,46 @@
             height: 15px;
         }
 
+        .device-settings {
+            position: relative;
+        }
+
+        .device-settings-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 220px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            padding: 6px;
+            display: none;
+            z-index: 20;
+        }
+
+        .device-settings-menu.show {
+            display: grid;
+            gap: 2px;
+        }
+
+        .device-settings-item {
+            width: 100%;
+            text-align: left;
+            border: 1px solid transparent;
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #1f2937;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .device-settings-item:hover {
+            background: #f3f4f6;
+        }
+
         .device-empty-state {
             display: none;
             padding: 28px 20px;
@@ -1758,6 +1798,56 @@
         .field-hint code {
             font-family: "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
             font-size: 12px;
+        }
+
+        .validate-device-summary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .validate-device-summary .metric-chip {
+            padding: 9px 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .validate-warning {
+            display: block;
+            padding: 12px 16px;
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            background: #fff7e6;
+            color: #92400e;
+        }
+
+        .validate-warning-title {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .validate-warning-text {
+            margin: 6px 0 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .validate-actions-note {
+            margin-right: auto;
+            font-size: 12px;
+            color: #92400e;
+            font-weight: 600;
+        }
+
+        .validate-track-input {
+            font-family: "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
+            font-size: 14px;
+            letter-spacing: 0.01em;
         }
 
         .required {
@@ -2578,6 +2668,58 @@
             </form>
         </div>
     </div>
+    <div class="modal-overlay" id="device-validate-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="device-validate-title" style="max-width: 720px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="device-validate-title">Validate Device</h3>
+                </div>
+                <button class="modal-close" type="button" data-close="device-validate-modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="validate-device-summary">
+                    <span class="metric-chip" id="device-validate-store">Store: -</span>
+                    <span class="metric-chip" id="device-validate-terminal">Terminal: -</span>
+                    <span class="metric-chip" id="device-validate-sn">SN: -</span>
+                </div>
+                <div class="validate-warning">
+                    <p class="validate-warning-title">WARNING</p>
+                    <p class="validate-warning-text">Run this only after both the payment app and OPC app are fully configured. This validate flow creates a real production transaction and charges the selected amount.</p>
+                </div>
+                <div>
+                    <h4 class="modal-section-title">Validation Options</h4>
+                    <p class="modal-section-note">Choose the validation amount and which test card track2 data to use.</p>
+                </div>
+                <div class="form-grid two">
+                    <div class="field">
+                        <label for="device-validate-amount">TestPay</label>
+                        <select class="input-field" id="device-validate-amount">
+                            <option value="close" selected>CLOSE</option>
+                            <option value="1">PAY 1</option>
+                            <option value="100">PAY 100</option>
+                            <option value="500">PAY 500</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="device-validate-card">Validation Card</label>
+                        <select class="input-field" id="device-validate-card"></select>
+                        <span class="field-hint" id="device-validate-card-note"></span>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="device-validate-track2">Test Track2Data</label>
+                        <input class="input-field validate-track-input" id="device-validate-track2" type="text" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <span class="validate-actions-note">Validate will trigger a real production charge.</span>
+                <button class="btn secondary" type="button" data-close="device-validate-modal">Close</button>
+                <button class="btn primary" type="button" id="device-validate-submit">Validate</button>
+            </div>
+        </div>
+    </div>
     <div class="modal-overlay" id="store-payment-modal" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-payment-title" style="max-width: 720px;">
             <div class="modal-header">
@@ -3001,6 +3143,7 @@
 
         const storeModal = document.getElementById('store-modal');
         const deviceModal = document.getElementById('device-modal');
+        const validateModal = document.getElementById('device-validate-modal');
         const storePaymentModal = document.getElementById('store-payment-modal');
         const storePaymentEditModal = document.getElementById('store-payment-edit-modal');
         const storeScanModal = document.getElementById('store-scan-modal');
@@ -3039,10 +3182,32 @@
         const storeHuishuGateway = document.getElementById('store-huishu-gateway');
         const storeHuishuCountry = document.getElementById('store-huishu-country');
         const storeHuishuTerminal = document.getElementById('store-huishu-terminal');
+        const validateStoreChip = document.getElementById('device-validate-store');
+        const validateTerminalChip = document.getElementById('device-validate-terminal');
+        const validateSnText = document.getElementById('device-validate-sn');
+        const validateAmountSelect = document.getElementById('device-validate-amount');
+        const validateCardSelect = document.getElementById('device-validate-card');
+        const validateCardNote = document.getElementById('device-validate-card-note');
+        const validateTrackInput = document.getElementById('device-validate-track2');
+        const validateSubmitButton = document.getElementById('device-validate-submit');
 
         let activeStoreId = null;
         let scanFormMode = 'add';
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
+        const VALIDATE_TEST_CARDS = [
+            {
+                id: 'validate-card-1',
+                label: 'Card 1 / 4002210800344405',
+                pan: '4002210800344405',
+                track2: '4002210800344405=31092011000052900000'
+            },
+            {
+                id: 'validate-card-2',
+                label: 'Card 2 / 5191230236267739',
+                pan: '5191230236267739',
+                track2: '5191230236267739=29062011200000090201'
+            }
+        ];
         const deviceTableState = {
             searchTerm: '',
             currentPage: 1,
@@ -3255,6 +3420,51 @@
             return cell;
         };
 
+        const buildDeviceSettingsControl = () => {
+            const settingsWrap = document.createElement('div');
+            settingsWrap.className = 'device-settings';
+
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'device-settings-button device-settings-toggle';
+            toggleButton.type = 'button';
+            toggleButton.setAttribute('aria-haspopup', 'true');
+            toggleButton.setAttribute('aria-expanded', 'false');
+            toggleButton.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
+                </svg>
+                <span>Settings</span>
+            `;
+
+            const menu = document.createElement('div');
+            menu.className = 'device-settings-menu';
+            menu.setAttribute('role', 'menu');
+            menu.setAttribute('aria-hidden', 'true');
+
+            const makeItem = (label, action) => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'device-settings-item';
+                item.dataset.action = action;
+                item.textContent = label;
+                return item;
+            };
+
+            menu.appendChild(makeItem('Edit Params', 'edit-device-params'));
+            menu.appendChild(makeItem('Validate', 'validate-device'));
+
+            settingsWrap.appendChild(toggleButton);
+            settingsWrap.appendChild(menu);
+            return settingsWrap;
+        };
+
+        const enhanceExistingDeviceSettingsControls = () => {
+            document.querySelectorAll('.device-row-actions > .device-settings-button[data-action="device-settings"]').forEach((button) => {
+                button.replaceWith(buildDeviceSettingsControl());
+            });
+        };
+
         const buildDeviceActionsCell = () => {
             const cell = document.createElement('div');
             cell.className = 'device-actions-cell';
@@ -3271,14 +3481,8 @@
                         <path d="M14 11v5"></path>
                     </svg>
                 </button>
-                <button class="device-settings-button" type="button" data-action="device-settings">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
-                    </svg>
-                    <span>Settings</span>
-                </button>
             `;
+            actions.appendChild(buildDeviceSettingsControl());
             cell.appendChild(actions);
             return cell;
         };
@@ -3468,6 +3672,81 @@
             document.body.style.overflow = hasOpenModal ? 'hidden' : '';
         };
 
+        const populateValidateCardOptions = () => {
+            if (!validateCardSelect) return;
+            validateCardSelect.innerHTML = '';
+            VALIDATE_TEST_CARDS.forEach((card, index) => {
+                const option = document.createElement('option');
+                option.value = card.id;
+                option.textContent = card.label;
+                option.dataset.pan = card.pan;
+                option.dataset.track2 = card.track2;
+                if (index === 0) option.selected = true;
+                validateCardSelect.appendChild(option);
+            });
+        };
+
+        const syncValidateTrack2 = () => {
+            if (!validateCardSelect) return;
+            const selectedOption = validateCardSelect.options[validateCardSelect.selectedIndex];
+            const track2 = selectedOption?.dataset.track2 || '';
+            const pan = selectedOption?.dataset.pan || '';
+            if (validateTrackInput) validateTrackInput.value = track2;
+            if (validateCardNote) validateCardNote.textContent = pan ? `Selected PAN: ${pan}` : '';
+        };
+
+        const runValidateTransaction = () => {
+            const amount = validateAmountSelect?.value || 'close';
+            if (amount === 'close') {
+                alert('Please select PAY 1, PAY 100, or PAY 500 before starting validation.');
+                return;
+            }
+
+            const selectedOption = validateCardSelect?.options[validateCardSelect.selectedIndex];
+            const pan = selectedOption?.dataset.pan || '';
+            const track2 = selectedOption?.dataset.track2 || '';
+            const storeText = validateStoreChip?.textContent || '';
+            const terminalText = validateTerminalChip?.textContent || '';
+            const snText = validateSnText?.textContent || '';
+            const deviceInfo = [storeText, terminalText, snText].filter(Boolean).join(' / ');
+            const confirmMessage = [
+                'Production payment validation warning.',
+                '',
+                'This test should only be run after both the payment app and the OPC app are fully configured on the terminal.',
+                `A real production transaction will be created and PAY ${amount} will be charged.`,
+                pan ? `Card: ${pan}` : '',
+                deviceInfo ? `Device: ${deviceInfo}` : '',
+                '',
+                'Do you want to continue?'
+            ].filter(Boolean).join('\n');
+
+            if (!window.confirm(confirmMessage)) {
+                return;
+            }
+
+            alert([
+                'Validation transaction submitted (mock).',
+                `Amount: PAY ${amount}`,
+                pan ? `Card: ${pan}` : '',
+                track2 ? `Track2: ${track2}` : ''
+            ].filter(Boolean).join('\n'));
+        };
+
+        const openValidateModal = (row) => {
+            if (!validateModal || !row) return;
+            const storeName = row.dataset.storeName || 'Store';
+            const terminalName = getTerminalNameForRow(row) || row.dataset.sn || 'Device';
+            const sn = row.dataset.sn || '';
+
+            if (validateStoreChip) validateStoreChip.textContent = `Store: ${storeName}`;
+            if (validateTerminalChip) validateTerminalChip.textContent = `Terminal: ${terminalName}`;
+            if (validateSnText) validateSnText.textContent = `SN: ${sn || '-'}`;
+            if (validateAmountSelect) validateAmountSelect.value = 'close';
+            if (validateCardSelect) validateCardSelect.value = VALIDATE_TEST_CARDS[0]?.id || '';
+            syncValidateTrack2();
+            openModal(validateModal);
+        };
+
         const openPaymentEdit = (data) => {
             if (!storePaymentEditModal) return;
             const payload = Object.assign({
@@ -3564,11 +3843,52 @@
             if (!menu) return;
             const willOpen = !menu.classList.contains('show');
             closeStoreMenus();
+            closeDeviceMenus();
             if (willOpen) {
                 menu.classList.add('show');
                 menu.setAttribute('aria-hidden', 'false');
                 button.setAttribute('aria-expanded', 'true');
             }
+        };
+
+        const closeDeviceMenus = () => {
+            document.querySelectorAll('.device-settings-menu.show').forEach((menu) => {
+                menu.classList.remove('show');
+                menu.setAttribute('aria-hidden', 'true');
+            });
+            document.querySelectorAll('.device-settings-toggle[aria-expanded="true"]').forEach((btn) => {
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        };
+
+        const toggleDeviceMenu = (button) => {
+            if (!button) return;
+            const menu = button.closest('.device-settings')?.querySelector('.device-settings-menu');
+            if (!menu) return;
+            const willOpen = !menu.classList.contains('show');
+            closeStoreMenus();
+            closeDeviceMenus();
+            if (willOpen) {
+                menu.classList.add('show');
+                menu.setAttribute('aria-hidden', 'false');
+                button.setAttribute('aria-expanded', 'true');
+            }
+        };
+
+        const openDeviceSettingsPage = (row) => {
+            if (!row) return;
+            const params = new URLSearchParams({
+                storeId: row.dataset.storeId || '',
+                storeName: row.dataset.storeName || '',
+                sn: row.dataset.sn || '',
+                label: getTerminalNameForRow(row),
+                model: row.dataset.model || '',
+                processor: row.dataset.processor || '',
+                template: row.dataset.template || '',
+                paywizard: row.dataset.paywizard || '',
+                manufacturer: row.dataset.manufacturer || ''
+            });
+            window.location.href = `5.merchant_device_settings_iso.html?${params.toString()}`;
         };
 
         const setStoreDisabled = (row, disabled) => {
@@ -3729,18 +4049,27 @@
             });
         }
 
+        if (validateCardSelect) {
+            validateCardSelect.addEventListener('change', syncValidateTrack2);
+        }
+
+        if (validateSubmitButton) {
+            validateSubmitButton.addEventListener('click', runValidateTransaction);
+        }
+
         document.querySelectorAll('[data-close]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-close');
                 if (target === 'store-modal') closeModal(storeModal);
                 if (target === 'device-modal') closeModal(deviceModal);
+                if (target === 'device-validate-modal') closeModal(validateModal);
                 if (target === 'store-payment-modal') closeModal(storePaymentModal);
                 if (target === 'store-payment-edit-modal') closeModal(storePaymentEditModal);
                 if (target === 'store-scan-modal') closeModal(storeScanModal);
             });
         });
 
-        [storeModal, deviceModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
+        [storeModal, deviceModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
             if (!modal) return;
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
@@ -3753,10 +4082,12 @@
             if (event.key !== 'Escape') return;
             if (storeModal?.classList.contains('active')) closeModal(storeModal);
             if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
+            if (validateModal?.classList.contains('active')) closeModal(validateModal);
             if (storePaymentModal?.classList.contains('active')) closeModal(storePaymentModal);
             if (storePaymentEditModal?.classList.contains('active')) closeModal(storePaymentEditModal);
             if (storeScanModal?.classList.contains('active')) closeModal(storeScanModal);
             closeStoreMenus();
+            closeDeviceMenus();
         });
 
         if (storeGrid) {
@@ -3812,6 +4143,33 @@
 
         if (deviceGrid) {
             deviceGrid.addEventListener('click', (event) => {
+                const settingsToggle = event.target.closest('.device-settings-toggle');
+                if (settingsToggle) {
+                    event.stopPropagation();
+                    toggleDeviceMenu(settingsToggle);
+                    return;
+                }
+
+                const settingsItem = event.target.closest('.device-settings-item');
+                if (settingsItem) {
+                    event.stopPropagation();
+                    const row = settingsItem.closest('.device-grid-row');
+                    if (!row) return;
+                    const action = settingsItem.dataset.action;
+
+                    if (action === 'edit-device-params') {
+                        closeDeviceMenus();
+                        openDeviceSettingsPage(row);
+                        return;
+                    }
+
+                    if (action === 'validate-device') {
+                        closeDeviceMenus();
+                        openValidateModal(row);
+                        return;
+                    }
+                }
+
                 const actionButton = event.target.closest('[data-action]');
                 if (!actionButton) return;
                 event.stopPropagation();
@@ -3842,21 +4200,6 @@
                     refreshDeviceGrid();
                     return;
                 }
-
-                if (action === 'device-settings') {
-                    const params = new URLSearchParams({
-                        storeId: row.dataset.storeId || '',
-                        storeName: row.dataset.storeName || '',
-                        sn: row.dataset.sn || '',
-                        label: getTerminalNameForRow(row),
-                        model: row.dataset.model || '',
-                        processor: row.dataset.processor || '',
-                        template: row.dataset.template || '',
-                        paywizard: row.dataset.paywizard || '',
-                        manufacturer: row.dataset.manufacturer || ''
-                    });
-                    window.location.href = `5.merchant_device_settings_iso.html?${params.toString()}`;
-                }
             });
 
             deviceGrid.addEventListener('keydown', (event) => {
@@ -3877,8 +4220,12 @@
         }
 
         document.addEventListener('click', (event) => {
-            if (event.target.closest('.store-settings')) return;
-            closeStoreMenus();
+            if (!event.target.closest('.store-settings')) {
+                closeStoreMenus();
+            }
+            if (!event.target.closest('.device-settings')) {
+                closeDeviceMenus();
+            }
         });
 
         if (clearFilterButton) {
@@ -4097,6 +4444,9 @@
             });
         }
 
+        populateValidateCardOptions();
+        syncValidateTrack2();
+        enhanceExistingDeviceSettingsControls();
         getDeviceRows().forEach((row) => {
             applyTerminalNameToRow(row, getTerminalNameForRow(row));
         });
