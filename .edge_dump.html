@@ -1,0 +1,754 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Diagnostic</title>
+    <style>
+        :root {
+            --page-bg: #f4f5f7;
+            --surface: #ffffff;
+            --border: #e5e7eb;
+            --text: #111111;
+            --muted: #6b7280;
+            --hover: #f3f4f6;
+            --active: #0f0f10;
+            --accent: #2563eb;
+            --accent-soft: #eff6ff;
+            --ok: #16a34a;
+            --bad: #dc2626;
+            --shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            --soft: 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        body {
+            margin: 0;
+            font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
+        }
+        button, input, select { font: inherit; }
+
+        .page-shell { display: flex; gap: 20px; min-height: 100vh; padding: 20px; }
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            height: calc(100vh - 40px);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 18px 40px rgba(0,0,0,.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand-left { display: flex; align-items: center; gap: 10px; }
+        .mark { width: 32px; height: 22px; }
+        .mark svg { width: 100%; height: 100%; stroke: var(--active); }
+        .brand-name { display: block; font-size: 17px; font-weight: 700; color: var(--active); }
+        .brand-sub { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+        .close-btn {
+            width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--border); background: #f9fafb; cursor: pointer; position: relative;
+        }
+        .close-btn::before, .close-btn::after {
+            content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 1.6px; background: var(--active);
+        }
+        .close-btn::before { transform: translate(-50%, -50%) rotate(45deg); }
+        .close-btn::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+        .menu { padding: 10px 10px 16px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+        .menu-item, .sub-item {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer;
+            border-radius: 10px; transition: .18s ease;
+        }
+        .menu-item { padding: 8px 10px; color: var(--text); }
+        .menu-item:hover, .sub-item:hover { background: var(--hover); }
+        .menu-item.active { background: var(--active); color: #fff; }
+        .menu-main { display: flex; align-items: center; gap: 10px; }
+        .icon { width: 18px; height: 18px; display: inline-flex; color: currentColor; }
+        .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .label { font-size: 14px; font-weight: 600; }
+        .chevron { font-size: 11px; color: inherit; opacity: .7; }
+        .sub-menu { margin: 4px 0 10px; padding-left: 32px; display: flex; flex-direction: column; gap: 2px; }
+        .sub-item {
+            position: relative; padding: 4px 0 4px 14px; color: var(--muted); font-size: 13px; border-radius: 999px;
+        }
+        .sub-item::before {
+            content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; border: 1px solid #d1d5db; transform: translateY(-50%);
+        }
+
+        .main-container { flex: 1; min-width: 0; display: flex; flex-direction: column; height: calc(100vh - 40px); }
+        .top-header {
+            height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--soft);
+        }
+        .breadcrumbs { font-size: 13px; color: #667085; letter-spacing: .04em; text-transform: uppercase; }
+        .breadcrumbs span { color: var(--text); font-weight: 600; }
+        .user-controls { display: flex; align-items: center; gap: 12px; }
+        .icon-circle {
+            width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: #fff; color: #555;
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .icon-circle svg { width: 18px; height: 18px; }
+        .notification-badge {
+            position: absolute; right: -4px; top: -4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 10px;
+            background: #f5222d; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+        }
+
+        .content-area { flex: 1; padding: 20px 4px 0 0; overflow-y: auto; }
+        .content-inner { display: flex; flex-direction: column; gap: 20px; padding-right: 8px; }
+        .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .page-title { margin: 0; font-size: 28px; font-weight: 700; color: var(--active); }
+        .page-subtitle { margin: 6px 0 0; font-size: 14px; line-height: 1.6; color: #667085; max-width: 760px; }
+        .page-status {
+            padding: 10px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--border); box-shadow: var(--soft); font-size: 13px; color: #667085;
+        }
+        .page-status strong { color: var(--active); }
+
+        .layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; }
+        .card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;
+        }
+        .panel { padding: 18px; }
+        .hero { background: linear-gradient(180deg, rgba(37,99,235,.05), transparent 42%), #fff; }
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+            background: #f8fafc; border: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #475569;
+        }
+        .card-title { margin: 14px 0 6px; font-size: 20px; font-weight: 700; color: var(--active); }
+        .card-note { margin: 0; font-size: 13px; line-height: 1.6; color: #667085; }
+        .field-label { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: #334155; }
+        .section-divider {
+            display: flex; align-items: center; gap: 12px; margin: 18px 0;
+            color: #94a3b8; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+        }
+        .section-divider::before, .section-divider::after {
+            content: ""; flex: 1; height: 1px; background: var(--border);
+        }
+        .section-divider span { color: #64748b; }
+
+        .mode-switch {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 18px; padding: 6px;
+            background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; position: relative; z-index: 3;
+        }
+        .mode-btn {
+            width: 100%; border: none; background: transparent; color: #64748b; padding: 10px 12px; border-radius: 12px; font-weight: 600; cursor: pointer; position: relative; z-index: 4;
+        }
+        .mode-btn.active { background: #111; color: #fff; box-shadow: 0 8px 18px rgba(15,23,42,.16); }
+        .mode-panel { margin-top: 18px; }
+
+        .steps { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+        .step-head { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 8px; }
+        .step-index {
+            width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+            display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+        }
+        .input {
+            width: 100%; min-height: 46px; padding: 11px 14px; border-radius: 12px; border: 1px solid #d8dee8; background: #fff; color: var(--text); outline: none;
+        }
+        .input:focus { border-color: rgba(37,99,235,.5); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+        .input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+        .hint { font-size: 12px; line-height: 1.5; color: #667085; margin-top: 8px; }
+
+        .path { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; background: #f8fafc; border: 1px solid var(--border);
+            font-size: 12px; font-weight: 600; color: #334155;
+        }
+        .chip strong { color: var(--active); }
+
+        .terminal-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+        .terminal-option {
+            width: 100%; padding: 14px; border-radius: 16px; border: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; gap: 12px; text-align: left; cursor: pointer;
+        }
+        .terminal-option:hover { border-color: rgba(37,99,235,.35); box-shadow: 0 12px 24px rgba(15,23,42,.08); }
+        .terminal-option.active { border-color: rgba(37,99,235,.55); background: #f8fbff; }
+        .terminal-name { font-size: 14px; font-weight: 700; color: var(--active); }
+        .terminal-meta { margin-top: 5px; font-size: 12px; line-height: 1.5; color: #667085; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap;
+        }
+        .online { background: #ecfdf3; color: #15803d; }
+        .offline { background: #fef2f2; color: var(--bad); }
+
+        .lookup {
+            margin-top: 18px; padding: 14px; border-radius: 14px; background: #f8fafc; border: 1px solid var(--border); font-size: 13px; line-height: 1.6; color: #334155;
+        }
+        .lookup strong { color: var(--active); }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid transparent; font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; color: #1f2937;
+        }
+        .btn.primary { background: var(--active); border-color: var(--active); color: #fff; box-shadow: 0 10px 20px rgba(15,23,42,.14); }
+        .btn.secondary { border-color: var(--border); }
+        .btn:disabled { opacity: .48; cursor: not-allowed; box-shadow: none; }
+
+        .tips { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+        .tip { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.5; color: #475569; }
+        .tip-num {
+            width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; background: var(--accent-soft); color: var(--accent);
+            display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+        }
+
+        .session { min-height: calc(100vh - 140px); display: flex; flex-direction: column; }
+        .session-head {
+            padding: 20px 22px 16px; border-bottom: 1px solid var(--border);
+        }
+        .session-title { margin: 0; font-size: 24px; font-weight: 700; color: var(--active); }
+        .session-compact {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+        }
+        .compact-item {
+            display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px;
+            background: #f8fafc; border: 1px solid var(--border); color: #334155; font-size: 12px; font-weight: 600;
+        }
+        .compact-item.primary { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+        .compact-item strong { color: var(--active); }
+        .compact-item.empty { color: #667085; }
+        .frame-wrap { flex: 1; min-height: 0; padding: 22px; display: flex; }
+        .frame-shell {
+            position: relative; flex: 1; min-height: 640px; border-radius: 20px; overflow: hidden; border: 1px solid #dbe3ee;
+            background: linear-gradient(180deg, #edf3fc 0%, #dfe7f4 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+        }
+        .frame-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .frame-placeholder {
+            padding: 10px 18px; border-radius: 999px; background: rgba(255,255,255,.92); border: 1px solid rgba(255,255,255,.72);
+            color: #475569; font-size: 14px; font-weight: 600;
+        }
+        .remote-frame { width: 100%; height: 100%; min-height: 640px; border: none; display: block; background: transparent; }
+
+        @media (max-width: 1260px) {
+            .layout { grid-template-columns: 1fr; }
+            .session { min-height: auto; }
+        }
+        @media (max-width: 1024px) {
+            .page-shell { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; }
+            .main-container { height: auto; }
+        }
+        @media (max-width: 720px) {
+            .page-shell { padding: 14px; gap: 14px; }
+            .top-header { padding: 0 14px; }
+            .content-area { padding-top: 14px; }
+            .page-title { font-size: 24px; }
+            .session-title { font-size: 20px; }
+            .session-head, .frame-wrap, .panel { padding-left: 16px; padding-right: 16px; }
+            .frame-shell, .remote-frame { min-height: 520px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="mark" aria-hidden="true">
+                        <svg viewBox="0 0 48 32" fill="none">
+                            <path d="M4 26L14 6l10 20 10-20 10 20" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="brand-name">PAYwizard</span>
+                        <span class="brand-sub">Menu</span>
+                    </div>
+                </div>
+                <button class="close-btn" aria-label="Close menu"></button>
+            </div>
+
+            <div class="menu">
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></span><span class="label">Dashboard</span></div></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h4"></path></svg></span><span class="label">Transactions</span></div></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M6 7V5h12v2"></path><rect x="4" y="7" width="16" height="10" rx="2"></rect><path d="M9 12h6"></path></svg></span><span class="label">Batches</span></div></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><circle cx="17" cy="8" r="3"></circle><path d="M3.5 19c0-2.8 2.2-5 5-5h1"></path><path d="M14.5 14h1c2.8 0 5 2.2 5 5"></path></svg></span><span class="label">Agents</span></div><span class="chevron">▶</span></div>
+
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 9.5l8-5 8 5"></path><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"></path><path d="M10 20v-5h4v5"></path></svg></span><span class="label">Merchants</span></div><span class="chevron">▼</span></div>
+                <div class="sub-menu">
+                    <div class="sub-item">Leads</div>
+                    <div class="sub-item">Onboarding</div>
+                    <div class="sub-item">Merchant List</div>
+                    <div class="sub-item">Analytics</div>
+                </div>
+
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path></svg></span><span class="label">Partners</span></div><span class="chevron">▶</span></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg></span><span class="label">Device Management</span></div></div>
+                <div class="menu-item active"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3"></path><path d="M12 18v3"></path><path d="M3 12h3"></path><path d="M18 12h3"></path></svg></span><span class="label">Remote Diagnostic</span></div></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6M9 13h6M9 17h6"></path></svg></span><span class="label">User Management</span></div><span class="chevron">▶</span></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path></svg></span><span class="label">Settings</span></div><span class="chevron">▶</span></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 7h16v4a2 2 0 010 4v4H4v-4a2 2 0 010-4z"></path><circle cx="9" cy="12" r="1.2"></circle></svg></span><span class="label">Tickets</span></div></div>
+                <div class="menu-item"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4"></path><path d="M16 8l4 4-4 4"></path><path d="M12 6l-2 12"></path></svg></span><span class="label">Developer Center</span></div></div>
+            </div>
+        </aside>
+
+        <div class="main-container">
+            <header class="top-header">
+                <div class="breadcrumbs">REMOTE DIAGNOSTIC &gt; <span>Remote Diagnostic</span></div>
+                <div class="user-controls">
+                    <div class="icon-circle" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+                        <div class="notification-badge">3</div>
+                    </div>
+                    <div class="icon-circle" aria-label="User">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-area">
+                <div class="content-inner">
+                    <section class="page-header">
+                        <div>
+                            <h1 class="page-title">Remote Diagnostic</h1>
+                        </div>
+                    </section>
+
+                    <section class="layout">
+                        <div>
+                            <section class="card panel">
+                                <div class="mode-switch">
+                                    <button class="mode-btn active" type="button" data-mode="guided" onclick="window.pwRemoteSetMode &amp;&amp; window.pwRemoteSetMode('guided')">Select Terminal</button>
+                                    <button class="mode-btn" type="button" data-mode="sn" onclick="window.pwRemoteSetMode &amp;&amp; window.pwRemoteSetMode('sn')">Direct SN</button>
+                                </div>
+
+                                <div class="mode-panel" id="guidedPanel">
+                                    <div class="steps">
+                                        <div>
+                                            <div class="field-label">Service Provider</div>
+                                            <select class="input" id="providerSelect"><option value="">Select service provider</option><option value="sp-na">North America Ops</option><option value="sp-eu">Europe Direct</option><option value="sp-apac">APAC Service Hub</option></select>
+                                        </div>
+                                        <div>
+                                            <div class="field-label">Merchant</div>
+                                            <select class="input" id="merchantSelect"><option value="">Select merchant</option><option value="m-blue">Blue Harbor Cafe</option><option value="m-evergreen">Evergreen Market</option></select>
+                                        </div>
+                                        <div>
+                                            <div class="field-label">Store</div>
+                                            <select class="input" id="storeSelect"><option value="">Select store</option><option value="s-la">Downtown LA</option><option value="s-sm">Santa Monica Pier</option></select>
+                                        </div>
+                                        <div>
+                                            <div class="field-label">Terminal</div>
+                                            <select class="input" id="terminalSelect"><option value="">Select terminal</option><option value="t-front">Front Counter</option><option value="t-counter-69">Counter 2</option><option value="t-patio">Patio POS</option><option value="t-pickup">Pickup Station</option><option value="t-counter-80">Counter 3</option></select>
+                                        </div>
+                                    </div>
+
+                                    <div class="actions">
+                                        <button class="btn primary" type="button" id="connectSelectedButton">Start Monitoring</button>
+                                        <button class="btn secondary" type="button" id="resetButton">Reset</button>
+                                    </div>
+
+                                    <div class="terminal-list" id="terminalList"><button type="button" class="terminal-option active"><div><div class="terminal-name">Front Counter</div><div class="terminal-meta">SN: WP5151DQ33000097<br>WizarPOS Q2 | Last seen 2 min ago</div></div><span class="badge online">Online</span></button><button type="button" class="terminal-option"><div><div class="terminal-name">Counter 2</div><div class="terminal-meta">SN: WP5151DQ33000069<br>WizarPOS Q2 | Last seen 6 min ago</div></div><span class="badge online">Online</span></button><button type="button" class="terminal-option"><div><div class="terminal-name">Patio POS</div><div class="terminal-meta">SN: WP5151DQ33000112<br>WizarPOS Q2 | Last seen 7 min ago</div></div><span class="badge online">Online</span></button><button type="button" class="terminal-option"><div><div class="terminal-name">Pickup Station</div><div class="terminal-meta">SN: WP5151DQ33000451<br>WizarPOS Q3 | Last seen 35 min ago</div></div><span class="badge offline">Offline</span></button><button type="button" class="terminal-option"><div><div class="terminal-name">Counter 3</div><div class="terminal-meta">SN: WP5151DQ33000080<br>WizarPOS Q2 | Last seen 8 min ago</div></div><span class="badge online">Online</span></button></div>
+                                </div>
+
+                                <div class="mode-panel" id="snPanel" hidden="">
+                                    <div class="steps">
+                                        <div>
+                                            <div class="field-label">SN</div>
+                                            <input class="input" id="snInput" type="text" placeholder="e.g. WP5151DQ33000097" autocomplete="off">
+                                        </div>
+                                    </div>
+
+                                    <div class="lookup" id="snLookupResult" hidden=""></div>
+
+                                    <div class="actions">
+                                        <button class="btn primary" type="button" id="connectSnButton" disabled="">Start Monitoring</button>
+                                        <button class="btn secondary" type="button" id="resetButtonSn">Reset</button>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <section class="card session">
+                            <div class="session-head">
+                                <div>
+                                    <h2 class="session-title">Remote Control</h2>
+                                    <div class="session-compact" id="sessionCompact"><span class="compact-item empty">No device selected</span></div>
+                                </div>
+                            </div>
+
+                            <div class="frame-wrap">
+                                <div class="frame-shell">
+                                    <div class="frame-empty" id="frameEmpty">
+                                        <div class="frame-placeholder">No active device</div>
+                                    </div>
+                                    <iframe class="remote-frame" id="remoteFrame" title="Embedded remote control" hidden="" srcdoc=""></iframe>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        (function () {
+            const directory = [
+                { id: "sp-na", name: "North America Ops", merchants: [
+                    { id: "m-blue", name: "Blue Harbor Cafe", stores: [
+                        { id: "s-la", name: "Downtown LA", terminals: [
+                            { id: "t-front", name: "Front Counter", sn: "WP5151DQ33000097", model: "WizarPOS Q2", status: "online", lastSeen: "2 min ago" },
+                            { id: "t-counter-69", name: "Counter 2", sn: "WP5151DQ33000069", model: "WizarPOS Q2", status: "online", lastSeen: "6 min ago" },
+                            { id: "t-patio", name: "Patio POS", sn: "WP5151DQ33000112", model: "WizarPOS Q2", status: "online", lastSeen: "7 min ago" },
+                            { id: "t-pickup", name: "Pickup Station", sn: "WP5151DQ33000451", model: "WizarPOS Q3", status: "offline", lastSeen: "35 min ago" },
+                            { id: "t-counter-80", name: "Counter 3", sn: "WP5151DQ33000080", model: "WizarPOS Q2", status: "online", lastSeen: "8 min ago" }
+                        ]},
+                        { id: "s-sm", name: "Santa Monica Pier", terminals: [
+                            { id: "t-bar", name: "Main Bar", sn: "WP5199DQ33000083", model: "WizarPOS Q2", status: "online", lastSeen: "1 min ago" },
+                            { id: "t-kiosk", name: "Outdoor Kiosk", sn: "WP5199DQ33000084", model: "WizarPOS Q2", status: "online", lastSeen: "5 min ago" }
+                        ]}
+                    ]},
+                    { id: "m-evergreen", name: "Evergreen Market", stores: [
+                        { id: "s-sea", name: "Seattle Central", terminals: [
+                            { id: "t-lane1", name: "Checkout Lane 1", sn: "WP5300DQ33000891", model: "WizarPOS Q2", status: "online", lastSeen: "3 min ago" },
+                            { id: "t-lane2", name: "Checkout Lane 2", sn: "WP5300DQ33000892", model: "WizarPOS Q2", status: "online", lastSeen: "4 min ago" }
+                        ]}
+                    ]}
+                ]},
+                { id: "sp-eu", name: "Europe Direct", merchants: [
+                    { id: "m-nova", name: "Nova Bakery", stores: [
+                        { id: "s-berlin", name: "Berlin Mitte", terminals: [
+                            { id: "t-a", name: "Counter A", sn: "WP52205Q33000977", model: "WizarPOS Q2 Mini", status: "online", lastSeen: "2 min ago" },
+                            { id: "t-b", name: "Counter B", sn: "WP52205Q33000978", model: "WizarPOS Q2 Mini", status: "offline", lastSeen: "42 min ago" }
+                        ]}
+                    ]}
+                ]},
+                { id: "sp-apac", name: "APAC Service Hub", merchants: [
+                    { id: "m-orchid", name: "Orchid Retail", stores: [
+                        { id: "s-shanghai", name: "Shanghai Xuhui", terminals: [
+                            { id: "t-sh-1", name: "Cashier 1", sn: "WP2310PQ20000001", model: "WizarPOS P10", status: "online", lastSeen: "4 min ago" },
+                            { id: "t-sh-2", name: "Cashier 2", sn: "WP2310PQ20000003", model: "WizarPOS P10", status: "online", lastSeen: "9 min ago" },
+                            { id: "t-sh-3", name: "Cashier 3", sn: "WP2310PQ20000004", model: "WizarPOS P10", status: "offline", lastSeen: "51 min ago" }
+                        ]},
+                        { id: "s-shenzhen", name: "Shenzhen Nanshan", terminals: [
+                            { id: "t-sz-1", name: "Front Desk", sn: "WP5111CQ33000043", model: "WizarPOS C10", status: "online", lastSeen: "3 min ago" },
+                            { id: "t-sz-2", name: "Back Counter", sn: "WP22212Q33200444", model: "WizarPOS Q2 Pro", status: "online", lastSeen: "11 min ago" }
+                        ]}
+                    ]}
+                ]}
+            ];
+
+            const state = { mode: "guided", providerId: "", merchantId: "", storeId: "", terminalId: "" };
+            const el = {
+                modeButtons: Array.from(document.querySelectorAll("[data-mode]")),
+                guidedPanel: document.getElementById("guidedPanel"),
+                snPanel: document.getElementById("snPanel"),
+                provider: document.getElementById("providerSelect"),
+                merchant: document.getElementById("merchantSelect"),
+                store: document.getElementById("storeSelect"),
+                terminal: document.getElementById("terminalSelect"),
+                terminalList: document.getElementById("terminalList"),
+                snInput: document.getElementById("snInput"),
+                snLookup: document.getElementById("snLookupResult"),
+                connectSelected: document.getElementById("connectSelectedButton"),
+                connectSn: document.getElementById("connectSnButton"),
+                resetButtons: [
+                    document.getElementById("resetButton"),
+                    document.getElementById("resetButtonSn")
+                ].filter(Boolean),
+                sessionCompact: document.getElementById("sessionCompact"),
+                frameEmpty: document.getElementById("frameEmpty"),
+                frame: document.getElementById("remoteFrame")
+            };
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function fillSelect(select, items, placeholder) {
+                select.innerHTML = "";
+                const base = document.createElement("option");
+                base.value = "";
+                base.textContent = placeholder;
+                select.appendChild(base);
+                items.forEach(function (item) {
+                    const option = document.createElement("option");
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                });
+            }
+
+            function findFirstOnlineTerminal(store) {
+                if (!store || !store.terminals || !store.terminals.length) return null;
+                return store.terminals.find(function (item) { return item.status === "online"; }) || store.terminals[0];
+            }
+
+            function getProvider() {
+                return directory.find(function (item) { return item.id === state.providerId; }) || null;
+            }
+            function getMerchant() {
+                const provider = getProvider();
+                return provider ? provider.merchants.find(function (item) { return item.id === state.merchantId; }) || null : null;
+            }
+            function getStore() {
+                const merchant = getMerchant();
+                return merchant ? merchant.stores.find(function (item) { return item.id === state.storeId; }) || null : null;
+            }
+            function getTerminal() {
+                const store = getStore();
+                return store ? store.terminals.find(function (item) { return item.id === state.terminalId; }) || null : null;
+            }
+
+            function findBySn(sn) {
+                const value = (sn || "").trim().toUpperCase();
+                if (!value) return null;
+                for (const provider of directory) {
+                    for (const merchant of provider.merchants) {
+                        for (const store of merchant.stores) {
+                            for (const terminal of store.terminals) {
+                                if (terminal.sn.toUpperCase() === value) {
+                                    return { provider: provider, merchant: merchant, store: store, terminal: terminal };
+                                }
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+            function renderTerminalList() {
+                const store = getStore();
+                const activeTerminal = getTerminal();
+                el.terminalList.innerHTML = "";
+                if (!store || !store.terminals.length) {
+                    el.terminalList.hidden = true;
+                    return;
+                }
+                el.terminalList.hidden = false;
+                store.terminals.forEach(function (terminal) {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "terminal-option" + (activeTerminal && activeTerminal.id === terminal.id ? " active" : "");
+                    button.innerHTML =
+                        "<div><div class=\"terminal-name\">" + escapeHtml(terminal.name) + "</div>" +
+                        "<div class=\"terminal-meta\">SN: " + escapeHtml(terminal.sn) + "<br>" + escapeHtml(terminal.model) + " | Last seen " + escapeHtml(terminal.lastSeen) + "</div></div>" +
+                        "<span class=\"badge " + (terminal.status === "online" ? "online" : "offline") + "\">" + (terminal.status === "online" ? "Online" : "Offline") + "</span>";
+                    button.addEventListener("click", function () {
+                        state.terminalId = terminal.id;
+                        el.terminal.value = terminal.id;
+                        renderTerminalList();
+                        updateButtons();
+                    });
+                    el.terminalList.appendChild(button);
+                });
+            }
+
+            function updateSnLookup() {
+                const sn = (el.snInput.value || "").trim();
+                const match = findBySn(sn);
+                if (!sn) {
+                    el.snLookup.hidden = true;
+                    el.snLookup.innerHTML = "";
+                    return null;
+                }
+                el.snLookup.hidden = false;
+                if (!match) {
+                    el.snLookup.innerHTML = "<strong>SN not found in directory.</strong><br>You can still open the remote page with this serial number. Merchant and store context will remain manual.";
+                    return { provider: { name: "Manual lookup" }, merchant: { name: "Not linked" }, store: { name: "Not linked" }, terminal: { name: sn.toUpperCase(), sn: sn.toUpperCase(), model: "Unknown device", status: "online", lastSeen: "Not validated" } };
+                }
+                el.snLookup.innerHTML =
+                    "<strong>" + escapeHtml(match.terminal.name) + "</strong> " +
+                    "<span class=\"badge " + (match.terminal.status === "online" ? "online" : "offline") + "\" style=\"padding:4px 8px;vertical-align:middle;\">" + (match.terminal.status === "online" ? "Online" : "Offline") + "</span><br>" +
+                    escapeHtml(match.provider.name) + " / " + escapeHtml(match.merchant.name) + " / " + escapeHtml(match.store.name) + "<br>" +
+                    "SN: " + escapeHtml(match.terminal.sn) + " | " + escapeHtml(match.terminal.model) + " | Last seen " + escapeHtml(match.terminal.lastSeen);
+                return match;
+            }
+
+            function updateButtons() {
+                const terminal = getTerminal();
+                const sn = (el.snInput.value || "").trim();
+                const match = findBySn(sn);
+                el.connectSelected.disabled = !(terminal && terminal.status === "online");
+                el.connectSn.disabled = !sn || !!(match && match.terminal.status !== "online");
+            }
+
+            function setMode(mode) {
+                state.mode = mode;
+                el.modeButtons.forEach(function (button) {
+                    button.classList.toggle("active", button.dataset.mode === mode);
+                });
+                el.guidedPanel.hidden = mode !== "guided";
+                el.snPanel.hidden = mode !== "sn";
+            }
+
+            function applyGuidedSelection(providerId, merchantId, storeId, terminalId) {
+                state.providerId = providerId || "";
+                fillSelect(el.merchant, [], "Select merchant");
+                fillSelect(el.store, [], "Select store");
+                fillSelect(el.terminal, [], "Select terminal");
+                el.merchant.disabled = true;
+                el.store.disabled = true;
+                el.terminal.disabled = true;
+
+                if (!state.providerId) {
+                    el.provider.value = "";
+                    renderTerminalList();
+                    updateButtons();
+                    return;
+                }
+
+                el.provider.value = state.providerId;
+                const provider = getProvider();
+                fillSelect(el.merchant, provider ? provider.merchants : [], "Select merchant");
+                el.merchant.disabled = !provider;
+                state.merchantId = merchantId || ((provider && provider.merchants[0]) ? provider.merchants[0].id : "");
+                el.merchant.value = state.merchantId;
+
+                const merchant = getMerchant();
+                fillSelect(el.store, merchant ? merchant.stores : [], "Select store");
+                el.store.disabled = !merchant;
+                state.storeId = storeId || ((merchant && merchant.stores[0]) ? merchant.stores[0].id : "");
+                el.store.value = state.storeId;
+
+                const store = getStore();
+                fillSelect(el.terminal, store ? store.terminals : [], "Select terminal");
+                el.terminal.disabled = !store;
+                const fallbackTerminal = findFirstOnlineTerminal(store);
+                state.terminalId = terminalId || (fallbackTerminal ? fallbackTerminal.id : "");
+                el.terminal.value = state.terminalId;
+
+                renderTerminalList();
+                updateButtons();
+            }
+
+            function initializeDemoSelection() {
+                const provider = directory[0];
+                const merchant = provider && provider.merchants[0];
+                const store = merchant && merchant.stores[0];
+                const terminal = findFirstOnlineTerminal(store);
+                applyGuidedSelection(
+                    provider ? provider.id : "",
+                    merchant ? merchant.id : "",
+                    store ? store.id : "",
+                    terminal ? terminal.id : ""
+                );
+            }
+
+            function renderSessionCompact(session) {
+                if (!session) {
+                    el.sessionCompact.innerHTML = "<span class=\"compact-item empty\">No device selected</span>";
+                    return;
+                }
+
+                el.sessionCompact.innerHTML =
+                    "<span class=\"compact-item primary\">Controlling <strong>" + escapeHtml(session.terminalName) + "</strong></span>" +
+                    "<span class=\"compact-item\">SN <strong>" + escapeHtml(session.sn) + "</strong></span>" +
+                    "<span class=\"compact-item\">Store <strong>" + escapeHtml(session.storeName) + "</strong></span>" +
+                    "<span class=\"compact-item\">Merchant <strong>" + escapeHtml(session.merchantName) + "</strong></span>" +
+                    "<span class=\"compact-item\">Provider <strong>" + escapeHtml(session.providerName) + "</strong></span>" +
+                    "<span class=\"compact-item\">State <strong>" + escapeHtml(session.statusText) + "</strong></span>";
+            }
+
+            function buildFrame(session) {
+                const terminalName = escapeHtml(session.terminalName);
+                const sn = escapeHtml(session.sn);
+                return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><style>" +
+                    "html,body{margin:0;height:100%;font-family:Poppins,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#e9f0fb 0%,#dfe7f4 100%)}" +
+                    ".wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}" +
+                    ".card{width:min(360px,100%);background:#fff;border-radius:22px;border:1px solid rgba(226,232,240,.95);box-shadow:0 28px 44px rgba(148,163,184,.22);padding:34px 36px;text-align:center}" +
+                    "h1{margin:0;font-size:28px;font-weight:700;color:#1f2937}" +
+                    ".meta{margin-top:10px;font-size:14px;font-weight:600;color:#475569}" +
+                    ".meta strong{color:#0f172a}" +
+                    ".btn{margin-top:22px;width:100%;height:42px;border:none;border-radius:8px;background:#3487df;color:#fff;font-size:14px;font-weight:700;letter-spacing:.02em}" +
+                    "</style></head><body><div class=\"wrap\"><div class=\"card\"><h1>Remote Control</h1><div class=\"meta\"><strong>" + terminalName + "</strong><br>SN " + sn + "</div><button class=\"btn\" type=\"button\">CONNECT</button></div></div></body></html>";
+            }
+
+            function loadSession(session) {
+                document.title = "Remote Diagnostic";
+                renderSessionCompact(session);
+                el.frameEmpty.hidden = true;
+                el.frame.hidden = false;
+                el.frame.srcdoc = buildFrame(session);
+            }
+
+            function openGuided() {
+                const provider = getProvider();
+                const merchant = getMerchant();
+                const store = getStore();
+                const terminal = getTerminal();
+                if (!(provider && merchant && store && terminal && terminal.status === "online")) return;
+                loadSession({
+                    providerName: provider.name,
+                    merchantName: merchant.name,
+                    storeName: store.name,
+                    terminalName: terminal.name,
+                    sn: terminal.sn,
+                    statusText: "Online",
+                    lastSeenText: "Last seen " + terminal.lastSeen,
+                });
+            }
+
+            function openSn() {
+                const value = (el.snInput.value || "").trim().toUpperCase();
+                if (!value) return;
+                const match = updateSnLookup();
+                if (match && match.terminal.status !== "online") return;
+                loadSession({
+                    providerName: match.provider.name,
+                    merchantName: match.merchant.name,
+                    storeName: match.store.name,
+                    terminalName: match.terminal.name,
+                    sn: match.terminal.sn,
+                    statusText: match.terminal.lastSeen === "Not validated" ? "Availability unknown" : "Online",
+                    lastSeenText: match.terminal.lastSeen === "Not validated" ? "Proceeding with manual serial number" : "Last seen " + match.terminal.lastSeen
+                });
+            }
+
+            function reset() {
+                setMode("guided");
+                el.snInput.value = "";
+                el.snLookup.hidden = true;
+                el.snLookup.innerHTML = "";
+                document.title = "Remote Diagnostic";
+                renderSessionCompact(null);
+                el.frameEmpty.hidden = false;
+                el.frame.hidden = true;
+                el.frame.srcdoc = "";
+                initializeDemoSelection();
+            }
+            el.modeButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    setMode(button.dataset.mode);
+                });
+            });
+            el.provider.addEventListener("change", function () {
+                applyGuidedSelection(el.provider.value, "", "", "");
+            });
+            el.merchant.addEventListener("change", function () {
+                applyGuidedSelection(state.providerId, el.merchant.value, "", "");
+            });
+            el.store.addEventListener("change", function () {
+                applyGuidedSelection(state.providerId, state.merchantId, el.store.value, "");
+            });
+            el.terminal.addEventListener("change", function () {
+                state.terminalId = el.terminal.value;
+                renderTerminalList(); updateButtons();
+            });
+            el.snInput.addEventListener("input", function () {
+                updateSnLookup();
+                updateButtons();
+            });
+            el.connectSelected.addEventListener("click", openGuided);
+            el.connectSn.addEventListener("click", openSn);
+            el.resetButtons.forEach(function (button) {
+                button.addEventListener("click", reset);
+            });
+
+            fillSelect(el.provider, directory, "Select service provider");
+            window.pwRemoteSetMode = setMode;
+            reset();
+        })();
+    </script>
+
+
+</body></html>
