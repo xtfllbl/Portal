@@ -158,6 +158,37 @@
         .input:focus { border-color: rgba(37,99,235,.5); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
         .input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
         .hint { font-size: 12px; line-height: 1.5; color: #667085; margin-top: 8px; }
+        .combo { position: relative; z-index: 6; }
+        .combo.open { z-index: 40; }
+        .combo-input { padding-right: 46px; }
+        .combo-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px;
+            display: inline-flex; align-items: center; justify-content: center; border: none; background: transparent; color: #334155; cursor: pointer;
+        }
+        .combo-toggle:disabled { color: #94a3b8; cursor: not-allowed; }
+        .combo-toggle svg { width: 18px; height: 18px; transition: transform .18s ease; }
+        .combo.open .combo-toggle svg { transform: rotate(180deg); }
+        .search-results {
+            margin-top: 0; border-radius: 12px; border: 1px solid #cbd5e1; background: #fff;
+            display: flex; flex-direction: column; max-height: 220px; overflow-y: auto; box-shadow: 0 12px 24px rgba(15, 23, 42, .08);
+        }
+        .combo .search-results {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+        }
+        .search-result-item {
+            width: 100%; border: none; border-bottom: 1px solid #e5e7eb; background: #fff; color: var(--text);
+            padding: 12px 14px; text-align: left; cursor: pointer; display: flex; align-items: flex-start; justify-content: flex-start; gap: 10px;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: #f8fafc; }
+        .search-result-item.active { background: #2d6dcc; color: #fff; }
+        .search-result-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .search-result-title { font-size: 13px; font-weight: 700; color: currentColor; }
+        .search-result-subtitle { font-size: 12px; line-height: 1.5; color: #667085; }
+        .search-result-item.active .search-result-subtitle { color: rgba(255,255,255,.82); }
+        .search-result-empty {
+            padding: 12px 14px; color: #667085; font-size: 12px; line-height: 1.5;
+        }
 
         .path { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
         .chip {
@@ -315,13 +346,29 @@
                                                 <option value="sp-apac">APAC Service Hub</option>
                                             </select>
                                         </div>
-                                        <div>
+                                        <div id="merchantField">
                                             <div class="field-label">Merchant</div>
-                                            <select class="input" id="merchantSelect" disabled><option value="">Select merchant</option></select>
+                                            <div class="combo" id="merchantCombo">
+                                                <input class="input combo-input" id="merchantSearchInput" type="text" placeholder="Select or search merchant" autocomplete="off" disabled>
+                                                <button class="combo-toggle" type="button" id="merchantToggleButton" aria-label="Toggle merchant list" disabled>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M6 9l6 6 6-6"></path>
+                                                    </svg>
+                                                </button>
+                                                <div class="search-results" id="merchantResultList" hidden></div>
+                                            </div>
                                         </div>
-                                        <div>
+                                        <div id="storeField" hidden>
                                             <div class="field-label">Store</div>
-                                            <select class="input" id="storeSelect" disabled><option value="">Select store</option></select>
+                                            <div class="combo" id="storeCombo">
+                                                <input class="input combo-input" id="storeSearchInput" type="text" placeholder="Select or search store" autocomplete="off" disabled>
+                                                <button class="combo-toggle" type="button" id="storeToggleButton" aria-label="Toggle store list" disabled>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M6 9l6 6 6-6"></path>
+                                                    </svg>
+                                                </button>
+                                                <div class="search-results" id="storeResultList" hidden></div>
+                                            </div>
                                         </div>
                                         <div>
                                             <div class="field-label">Terminal</div>
@@ -424,14 +471,32 @@
                 ]}
             ];
 
-            const state = { mode: "guided", providerId: "", merchantId: "", storeId: "", terminalId: "" };
+            const state = {
+                mode: "guided",
+                providerId: "",
+                merchantKeyword: "",
+                merchantListOpen: false,
+                merchantId: "",
+                storeKeyword: "",
+                storeListOpen: false,
+                storeId: "",
+                terminalId: ""
+            };
             const el = {
                 modeButtons: Array.from(document.querySelectorAll("[data-mode]")),
                 guidedPanel: document.getElementById("guidedPanel"),
                 snPanel: document.getElementById("snPanel"),
                 provider: document.getElementById("providerSelect"),
-                merchant: document.getElementById("merchantSelect"),
-                store: document.getElementById("storeSelect"),
+                merchantField: document.getElementById("merchantField"),
+                merchantCombo: document.getElementById("merchantCombo"),
+                merchantSearch: document.getElementById("merchantSearchInput"),
+                merchantToggle: document.getElementById("merchantToggleButton"),
+                merchantResultList: document.getElementById("merchantResultList"),
+                storeField: document.getElementById("storeField"),
+                storeCombo: document.getElementById("storeCombo"),
+                storeSearch: document.getElementById("storeSearchInput"),
+                storeToggle: document.getElementById("storeToggleButton"),
+                storeResultList: document.getElementById("storeResultList"),
                 terminal: document.getElementById("terminalSelect"),
                 snInput: document.getElementById("snInput"),
                 snLookup: document.getElementById("snLookupResult"),
@@ -464,7 +529,7 @@
                 items.forEach(function (item) {
                     const option = document.createElement("option");
                     option.value = item.id;
-                    option.textContent = item.name;
+                    option.textContent = item.label || item.name;
                     select.appendChild(option);
                 });
             }
@@ -472,6 +537,10 @@
             function findFirstOnlineTerminal(store) {
                 if (!store || !store.terminals || !store.terminals.length) return null;
                 return store.terminals.find(function (item) { return item.status === "online"; }) || store.terminals[0];
+            }
+
+            function normalizeSearch(value) {
+                return String(value || "").trim().toLowerCase();
             }
 
             function getProvider() {
@@ -490,6 +559,60 @@
                 return store ? store.terminals.find(function (item) { return item.id === state.terminalId; }) || null : null;
             }
 
+            function getMerchantResults() {
+                const provider = getProvider();
+                const keyword = normalizeSearch(state.merchantKeyword);
+                const selectedMerchant = getMerchant();
+                const filterKeyword = state.merchantListOpen && selectedMerchant && keyword === normalizeSearch(selectedMerchant.name) ? "" : keyword;
+                if (!provider) return [];
+
+                return provider.merchants.filter(function (merchant) {
+                    return !filterKeyword || merchant.name.toLowerCase().includes(filterKeyword);
+                }).map(function (merchant) {
+                    return {
+                        id: merchant.id,
+                        name: merchant.name,
+                        subtitle: merchant.stores.length + " store" + (merchant.stores.length > 1 ? "s" : "") + " available"
+                    };
+                });
+            }
+
+            function getStoreResults() {
+                const merchant = getMerchant();
+                const keyword = normalizeSearch(state.storeKeyword);
+                const selectedStore = getStore();
+                const filterKeyword = state.storeListOpen && selectedStore && keyword === normalizeSearch(selectedStore.name) ? "" : keyword;
+                if (!merchant) return [];
+
+                return merchant.stores.filter(function (store) {
+                    return !filterKeyword || store.name.toLowerCase().includes(filterKeyword);
+                }).map(function (store) {
+                    return {
+                        id: store.id,
+                        name: store.name,
+                        subtitle: store.terminals.length + " terminal" + (store.terminals.length > 1 ? "s" : "") + " available"
+                    };
+                });
+            }
+
+            function renderSearchList(container, items, selectedId, emptyText) {
+                if (!items.length) {
+                    container.innerHTML = "<div class=\"search-result-empty\">" + escapeHtml(emptyText) + "</div>";
+                    return;
+                }
+
+                container.innerHTML = items.map(function (item) {
+                    const activeClass = item.id === selectedId ? " active" : "";
+                    const subtitle = item.subtitle ? "<span class=\"search-result-subtitle\">" + escapeHtml(item.subtitle) + "</span>" : "";
+                    return "<button class=\"search-result-item" + activeClass + "\" type=\"button\" data-result-id=\"" + escapeHtml(item.id) + "\">" +
+                        "<span class=\"search-result-copy\">" +
+                            "<span class=\"search-result-title\">" + escapeHtml(item.name) + "</span>" +
+                            subtitle +
+                        "</span>" +
+                    "</button>";
+                }).join("");
+            }
+
             function findBySn(sn) {
                 const value = (sn || "").trim().toUpperCase();
                 if (!value) return null;
@@ -505,6 +628,139 @@
                     }
                 }
                 return null;
+            }
+
+            function clearStoreAndTerminal() {
+                state.storeId = "";
+                state.storeKeyword = "";
+                state.storeListOpen = false;
+                state.terminalId = "";
+                el.storeSearch.value = "";
+                el.storeCombo.classList.remove("open");
+                el.storeResultList.hidden = true;
+                el.storeResultList.innerHTML = "";
+                fillSelect(el.terminal, [], "Select terminal");
+                el.terminal.disabled = true;
+            }
+
+            function refreshMerchantResults() {
+                const results = getMerchantResults();
+                el.merchantCombo.classList.toggle("open", !!state.merchantListOpen);
+                if (!state.providerId || !state.merchantListOpen) {
+                    el.merchantResultList.hidden = true;
+                    el.merchantResultList.innerHTML = "";
+                    return results;
+                }
+
+                el.merchantResultList.hidden = false;
+                renderSearchList(
+                    el.merchantResultList,
+                    results,
+                    state.merchantId,
+                    "No matched merchant under this service provider."
+                );
+                return results;
+            }
+
+            function refreshStoreResults() {
+                const results = getStoreResults();
+                el.storeCombo.classList.toggle("open", !!state.storeListOpen);
+                if (!state.merchantId || !state.storeListOpen) {
+                    el.storeResultList.hidden = true;
+                    el.storeResultList.innerHTML = "";
+                    return results;
+                }
+
+                el.storeResultList.hidden = false;
+                renderSearchList(
+                    el.storeResultList,
+                    results,
+                    state.storeId,
+                    "No matched store under the selected merchant."
+                );
+                return results;
+            }
+
+            function populateTerminalOptions(preferredTerminalId) {
+                const store = getStore();
+                const terminals = store ? store.terminals.map(function (terminal) {
+                    return {
+                        id: terminal.id,
+                        label: terminal.name + " | " + terminal.sn + " | " + (terminal.status === "online" ? "Online" : "Offline")
+                    };
+                }) : [];
+                fillSelect(el.terminal, terminals, "Select terminal");
+                el.terminal.disabled = !terminals.length;
+                if (preferredTerminalId && store && store.terminals.some(function (item) { return item.id === preferredTerminalId; })) {
+                    state.terminalId = preferredTerminalId;
+                } else {
+                    state.terminalId = "";
+                }
+                el.terminal.value = state.terminalId;
+            }
+
+            function selectStore(storeId, preferredTerminalId) {
+                state.storeId = storeId || "";
+                state.storeListOpen = false;
+                state.terminalId = "";
+                fillSelect(el.terminal, [], "Select terminal");
+                el.terminal.disabled = true;
+
+                if (state.storeId) {
+                    const store = getStore();
+                    state.storeKeyword = store ? store.name : "";
+                    el.storeSearch.value = state.storeKeyword;
+                    populateTerminalOptions(preferredTerminalId);
+                } else {
+                    state.storeKeyword = "";
+                    el.storeSearch.value = "";
+                }
+                refreshStoreResults();
+                updateButtons();
+            }
+
+            function selectMerchant(merchantId, preferredStoreId, preferredTerminalId) {
+                state.merchantId = merchantId || "";
+                state.merchantListOpen = false;
+                clearStoreAndTerminal();
+
+                if (!state.merchantId) {
+                    el.storeField.hidden = true;
+                    el.storeSearch.disabled = true;
+                    el.storeToggle.disabled = true;
+                    el.merchantSearch.value = state.merchantKeyword;
+                    refreshMerchantResults();
+                    updateButtons();
+                    return;
+                }
+
+                const merchant = getMerchant();
+                state.merchantKeyword = merchant ? merchant.name : "";
+                el.merchantSearch.value = state.merchantKeyword;
+                el.storeField.hidden = false;
+                el.storeSearch.disabled = false;
+                el.storeToggle.disabled = false;
+                el.storeSearch.value = "";
+                refreshMerchantResults();
+
+                if (preferredStoreId && merchant && merchant.stores.some(function (item) { return item.id === preferredStoreId; })) {
+                    selectStore(preferredStoreId, preferredTerminalId);
+                    return;
+                }
+
+                updateButtons();
+            }
+
+            function openMerchantList() {
+                if (!state.providerId) return;
+                state.merchantListOpen = true;
+                refreshMerchantResults();
+            }
+
+            function openStoreList() {
+                if (!state.merchantId) return;
+                state.storeListOpen = true;
+                refreshStoreResults();
             }
 
             function updateSnLookup() {
@@ -545,40 +801,46 @@
                 el.snPanel.hidden = mode !== "sn";
             }
 
-            function applyGuidedSelection(providerId, merchantId, storeId, terminalId) {
-                state.providerId = providerId || "";
-                fillSelect(el.merchant, [], "Select merchant");
-                fillSelect(el.store, [], "Select store");
-                fillSelect(el.terminal, [], "Select terminal");
-                el.merchant.disabled = true;
-                el.store.disabled = true;
-                el.terminal.disabled = true;
-
-                if (!state.providerId) {
-                    el.provider.value = "";
-                    updateButtons();
-                    return;
-                }
+            function applyGuidedSelection(config) {
+                const next = config || {};
+                state.providerId = next.providerId || "";
+                state.merchantKeyword = "";
+                state.merchantListOpen = false;
+                state.merchantId = next.merchantId || "";
+                state.storeKeyword = "";
+                state.storeListOpen = false;
+                state.storeId = next.storeId || "";
+                state.terminalId = "";
 
                 el.provider.value = state.providerId;
-                const provider = getProvider();
-                fillSelect(el.merchant, provider ? provider.merchants : [], "Select merchant");
-                el.merchant.disabled = !provider;
-                state.merchantId = merchantId || ((provider && provider.merchants[0]) ? provider.merchants[0].id : "");
-                el.merchant.value = state.merchantId;
+                el.merchantSearch.disabled = !state.providerId;
+                el.merchantToggle.disabled = !state.providerId;
+                el.merchantSearch.value = "";
+                el.merchantResultList.hidden = true;
+                el.merchantResultList.innerHTML = "";
+                el.merchantCombo.classList.remove("open");
+                el.storeField.hidden = !state.merchantId;
+                el.storeSearch.disabled = !state.merchantId;
+                el.storeToggle.disabled = !state.merchantId;
+                el.storeSearch.value = "";
+                el.storeResultList.hidden = true;
+                el.storeResultList.innerHTML = "";
+                el.storeCombo.classList.remove("open");
+                fillSelect(el.terminal, [], "Select terminal");
+                el.terminal.disabled = true;
 
-                const merchant = getMerchant();
-                fillSelect(el.store, merchant ? merchant.stores : [], "Select store");
-                el.store.disabled = !merchant;
-                state.storeId = storeId || ((merchant && merchant.stores[0]) ? merchant.stores[0].id : "");
-                el.store.value = state.storeId;
+                if (state.merchantId) {
+                    const merchant = getMerchant();
+                    state.merchantKeyword = merchant ? merchant.name : "";
+                    el.merchantSearch.value = state.merchantKeyword;
+                }
 
-                const store = getStore();
-                fillSelect(el.terminal, store ? store.terminals : [], "Select terminal");
-                el.terminal.disabled = !store;
-                const fallbackTerminal = findFirstOnlineTerminal(store);
-                state.terminalId = terminalId || (fallbackTerminal ? fallbackTerminal.id : "");
-                el.terminal.value = state.terminalId;
+                if (state.storeId) {
+                    const store = getStore();
+                    state.storeKeyword = store ? store.name : "";
+                    el.storeSearch.value = state.storeKeyword;
+                    populateTerminalOptions(next.terminalId || "");
+                }
 
                 updateButtons();
             }
@@ -589,10 +851,12 @@
                 const store = merchant && merchant.stores[0];
                 const terminal = findFirstOnlineTerminal(store);
                 applyGuidedSelection(
-                    provider ? provider.id : "",
-                    merchant ? merchant.id : "",
-                    store ? store.id : "",
-                    terminal ? terminal.id : ""
+                    {
+                        providerId: provider ? provider.id : "",
+                        merchantId: merchant ? merchant.id : "",
+                        storeId: store ? store.id : "",
+                        terminalId: terminal ? terminal.id : ""
+                    }
                 );
             }
 
@@ -682,13 +946,66 @@
                 });
             });
             el.provider.addEventListener("change", function () {
-                applyGuidedSelection(el.provider.value, "", "", "");
+                applyGuidedSelection({ providerId: el.provider.value });
             });
-            el.merchant.addEventListener("change", function () {
-                applyGuidedSelection(state.providerId, el.merchant.value, "", "");
+            el.merchantSearch.addEventListener("focus", openMerchantList);
+            el.merchantSearch.addEventListener("click", openMerchantList);
+            el.merchantToggle.addEventListener("click", function (event) {
+                event.stopPropagation();
+                if (state.merchantListOpen) {
+                    state.merchantListOpen = false;
+                    refreshMerchantResults();
+                    return;
+                }
+                openMerchantList();
             });
-            el.store.addEventListener("change", function () {
-                applyGuidedSelection(state.providerId, state.merchantId, el.store.value, "");
+            el.merchantSearch.addEventListener("input", function () {
+                const currentMerchant = getMerchant();
+                state.merchantKeyword = el.merchantSearch.value;
+                state.merchantListOpen = !!state.providerId;
+                if (!currentMerchant || normalizeSearch(el.merchantSearch.value) !== normalizeSearch(currentMerchant.name)) {
+                    state.merchantId = "";
+                    el.storeField.hidden = true;
+                    el.storeSearch.disabled = true;
+                    clearStoreAndTerminal();
+                }
+                refreshMerchantResults();
+                refreshStoreResults();
+                updateButtons();
+            });
+            el.merchantResultList.addEventListener("click", function (event) {
+                const trigger = event.target.closest("[data-result-id]");
+                if (!trigger) return;
+                selectMerchant(trigger.getAttribute("data-result-id"));
+            });
+            el.storeSearch.addEventListener("focus", openStoreList);
+            el.storeSearch.addEventListener("click", openStoreList);
+            el.storeToggle.addEventListener("click", function (event) {
+                event.stopPropagation();
+                if (state.storeListOpen) {
+                    state.storeListOpen = false;
+                    refreshStoreResults();
+                    return;
+                }
+                openStoreList();
+            });
+            el.storeSearch.addEventListener("input", function () {
+                const currentStore = getStore();
+                state.storeKeyword = el.storeSearch.value;
+                state.storeListOpen = !!state.merchantId;
+                if (!currentStore || normalizeSearch(el.storeSearch.value) !== normalizeSearch(currentStore.name)) {
+                    state.storeId = "";
+                    state.terminalId = "";
+                    fillSelect(el.terminal, [], "Select terminal");
+                    el.terminal.disabled = true;
+                }
+                refreshStoreResults();
+                updateButtons();
+            });
+            el.storeResultList.addEventListener("click", function (event) {
+                const trigger = event.target.closest("[data-result-id]");
+                if (!trigger) return;
+                selectStore(trigger.getAttribute("data-result-id"));
             });
             el.terminal.addEventListener("change", function () {
                 state.terminalId = el.terminal.value;
@@ -702,6 +1019,16 @@
             el.connectSn.addEventListener("click", openSn);
             el.resetButtons.forEach(function (button) {
                 button.addEventListener("click", reset);
+            });
+            document.addEventListener("click", function (event) {
+                if (!event.target.closest("#merchantField")) {
+                    state.merchantListOpen = false;
+                    refreshMerchantResults();
+                }
+                if (!event.target.closest("#storeField")) {
+                    state.storeListOpen = false;
+                    refreshStoreResults();
+                }
             });
 
             fillSelect(el.provider, directory, "Select service provider");

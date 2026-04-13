@@ -30,9 +30,41 @@
         .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); }
         .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; background: rgba(17,17,17,.75); color: #fff; border: 1px solid rgba(255,255,255,.15); }
         .sync-text { position: absolute; right: 18px; bottom: 8px; font-size: 11px; color: rgba(255,255,255,.8); }
-        .refresh-fab { position: absolute; right: 18px; bottom: -16px; width: 36px; height: 36px; border-radius: 50%; background: #fff; color: #111; border: 1px solid rgba(0,0,0,.12); box-shadow: 0 8px 14px rgba(0,0,0,.12); display: grid; place-items: center; font-weight: 800; cursor: pointer; }
         .card-banner .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12); color: #fff; }
         .card-banner .icon-btn:hover { background: rgba(255,255,255,.2); }
+        .terminal-action-wrap { position: relative; }
+        .terminal-action-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 190px;
+            padding: 6px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.28);
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 30;
+        }
+        .terminal-action-menu.open { display: flex; }
+        .terminal-action-item {
+            appearance: none;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .terminal-action-item:hover { background: #f8fafc; }
+        .terminal-action-item.danger { color: #b42318; }
+        .terminal-action-item.danger:hover { background: #fef2f2; }
 
         /* Primary tabs live inside the banner */
         .toolbar { display: none; }
@@ -327,6 +359,10 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+            .sync-text {
+                position: static;
+                margin-top: 10px;
+            }
             .push-app-modal-footer .action-buttons {
                 width: 100%;
                 justify-content: flex-end;
@@ -571,7 +607,6 @@
                     <button class="tab" data-tab="params" role="tab" aria-selected="false">Parameter Variables</button>
                 </div>
                 <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
-                <button class="refresh-fab" title="Sync">⟳</button>
             </div>
 
             
@@ -818,21 +853,10 @@
                         </div>
                     </div>
 
-                    <div class="filter-bar">
-                        <div class="filter-grid">
-                            <div class="field"><label>Name</label><input type="text" placeholder="Search name" /></div>
-                            <div class="field"><label>Version</label><input type="text" placeholder="e.g. 1.0.0" /></div>
-                            <div class="field"><label>Status</label><select><option>All</option><option>Active</option><option>Pending</option></select></div>
-                            <div class="field"><label>Channel</label><input type="text" placeholder="Optional" /></div>
-                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
-                        </div>
-                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
-                    </div>
-
                     <div id="table-app">
                         <div class="app-table-title">Subscribed APP List</div>
                         <div class="table-wrap">
-                            <table class="table app-para-table">
+                            <table id="subscribedAppTable" class="table app-para-table">
                                 <thead><tr><th>Name</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
                                 <tbody>
                                     <tr>
@@ -867,7 +891,7 @@
                     </div>
 
                     <div class="table-wrap hidden" id="table-para">
-                        <table class="table app-para-table">
+                        <table id="subscribedParaTable" class="table app-para-table">
                             <thead><tr><th>Name</th><th>Group</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
                             <tbody>
                                 <tr>
@@ -1295,10 +1319,37 @@
         const closeBtn = document.getElementById('closePushAppModal');
         const cancelBtn = document.getElementById('cancelPushAppModal');
         const confirmBtn = document.getElementById('confirmPushApp');
+        const bannerMoreBtn = document.querySelector('.banner-status .icon-btn[title="More"]');
+        if(bannerMoreBtn && !document.getElementById('terminalActionMenu')){
+            bannerMoreBtn.id = 'terminalActionBtn';
+            bannerMoreBtn.type = 'button';
+            bannerMoreBtn.textContent = '\u22EE';
+            bannerMoreBtn.setAttribute('aria-haspopup', 'true');
+            bannerMoreBtn.setAttribute('aria-expanded', 'false');
+
+            const actionWrap = document.createElement('div');
+            actionWrap.className = 'terminal-action-wrap';
+            bannerMoreBtn.parentNode.insertBefore(actionWrap, bannerMoreBtn);
+            actionWrap.appendChild(bannerMoreBtn);
+            actionWrap.insertAdjacentHTML('beforeend', `
+                <div id="terminalActionMenu" class="terminal-action-menu" aria-hidden="true">
+                    <button id="pushSubscribedAction" class="terminal-action-item" type="button">Push Subscription</button>
+                    <button id="restartTerminalAction" class="terminal-action-item danger" type="button">Reboot Terminal</button>
+                </div>
+            `);
+        }
+
+        const terminalActionBtn = document.getElementById('terminalActionBtn');
+        const terminalActionMenu = document.getElementById('terminalActionMenu');
+        const pushSubscribedAction = document.getElementById('pushSubscribedAction');
+        const restartTerminalAction = document.getElementById('restartTerminalAction');
+        const pushTabBtn = document.querySelector('#primaryTabs .tab[data-tab="push"]');
         const sourceTabs = document.querySelectorAll('#sourceTabs .source-tab');
         const searchInput = document.getElementById('sourceSearchInput');
         const rowsWrap = document.getElementById('selectAppRows');
         const pickedHint = document.getElementById('pickedAppHint');
+        const subscribedAppTable = document.getElementById('subscribedAppTable');
+        const subscribedParaTable = document.getElementById('subscribedParaTable');
 
         const activePushName = document.getElementById('activePushNameText');
         const activePushVersion = document.getElementById('activePushVersion');
@@ -1322,6 +1373,113 @@
             const hh = String(d.getHours()).padStart(2, '0');
             const min = String(d.getMinutes()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+        }
+
+        function cleanText(value){
+            return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+        }
+
+        function readSubscribedApps(){
+            if(!subscribedAppTable) return [];
+            return Array.from(subscribedAppTable.querySelectorAll('tbody tr')).map(row => {
+                const cells = row.cells;
+                const nameCell = cells[0] ? cells[0].cloneNode(true) : null;
+                if(nameCell) nameCell.querySelectorAll('.minor-code').forEach(node => node.remove());
+                return {
+                    name: cleanText(nameCell ? nameCell.textContent : ''),
+                    version: cleanText(cells[2] ? cells[2].textContent : '')
+                };
+            }).filter(item => item.name);
+        }
+
+        function readSubscribedParameters(){
+            if(!subscribedParaTable) return [];
+            return Array.from(subscribedParaTable.querySelectorAll('tbody tr')).map(row => {
+                const cells = row.cells;
+                return {
+                    name: cleanText(cells[0] ? cells[0].textContent : ''),
+                    version: cleanText(cells[3] ? cells[3].textContent : '')
+                };
+            }).filter(item => item.name);
+        }
+
+        function prependPushHistory(action, target, version, source, statusClass, statusText, time){
+            if(!pushHistoryBody) return;
+            const row = document.createElement('tr');
+            /*
+            row.innerHTML = `<td>${escapeHtml(action)}</td><td>${escapeHtml(target)}</td><td>${escapeHtml(version || '—')}</td><td>${escapeHtml(source)}</td><td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td><td>${escapeHtml(time)}</td>`;
+            */
+            row.innerHTML = `<td>${escapeHtml(action)}</td><td>${escapeHtml(target)}</td><td>${escapeHtml(version || '--')}</td><td>${escapeHtml(source)}</td><td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td><td>${escapeHtml(time)}</td>`;
+            pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
+        }
+
+        function openTerminalActionMenu(){
+            if(!terminalActionBtn || !terminalActionMenu) return;
+            terminalActionMenu.classList.add('open');
+            terminalActionMenu.setAttribute('aria-hidden', 'false');
+            terminalActionBtn.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeTerminalActionMenu(){
+            if(!terminalActionBtn || !terminalActionMenu) return;
+            terminalActionMenu.classList.remove('open');
+            terminalActionMenu.setAttribute('aria-hidden', 'true');
+            terminalActionBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        function toggleTerminalActionMenu(){
+            if(!terminalActionMenu) return;
+            if(terminalActionMenu.classList.contains('open')){
+                closeTerminalActionMenu();
+            } else {
+                openTerminalActionMenu();
+            }
+        }
+
+        function handlePushSubscribed(){
+            const apps = readSubscribedApps();
+            const parameters = readSubscribedParameters();
+            if(!apps.length && !parameters.length){
+                alert('No subscribed APP or parameter records found for this terminal.');
+                return;
+            }
+
+            const now = nowText();
+            const tasks = [
+                ...apps.map(item => ({
+                    action: 'Push App',
+                    target: item.name,
+                    version: item.version,
+                    source: 'Current Subscription'
+                })),
+                ...parameters.map(item => ({
+                    action: 'Push Parameter',
+                    target: item.name,
+                    version: item.version,
+                    source: 'Current Subscription'
+                }))
+            ];
+
+            tasks.slice().reverse().forEach(task => {
+                prependPushHistory(task.action, task.target, task.version, task.source, 'warn', 'Pending', now);
+            });
+
+            if(activePushName) activePushName.textContent = 'Current Terminal Subscription';
+            if(activePushVersion) activePushVersion.textContent = `${apps.length} APP + ${parameters.length} PARA`;
+            if(activePushType) activePushType.textContent = parameters.length ? 'Subscribed APP & Parameters' : 'Subscribed APP';
+            if(activePushSource) activePushSource.textContent = 'Current Subscription';
+            if(activePushEffectiveTime) activePushEffectiveTime.textContent = now;
+            if(activePushTime) activePushTime.textContent = now;
+
+            closeTerminalActionMenu();
+            if(pushTabBtn) pushTabBtn.click();
+        }
+
+        function handleTerminalRestart(){
+            const now = nowText();
+            prependPushHistory('Restart Terminal', 'IM30-01 41381', '--', 'Remote Command', 'warn', 'Pending', now);
+            closeTerminalActionMenu();
+            if(pushTabBtn) pushTabBtn.click();
         }
 
         function filteredApps(){
@@ -1426,6 +1584,27 @@
         });
         document.addEventListener('keydown', evt => {
             if(evt.key === 'Escape' && modal.classList.contains('open')) closeModal();
+            if(evt.key === 'Escape') closeTerminalActionMenu();
+        });
+        if(terminalActionBtn){
+            terminalActionBtn.addEventListener('click', evt => {
+                evt.stopPropagation();
+                toggleTerminalActionMenu();
+            });
+        }
+        if(terminalActionMenu){
+            terminalActionMenu.addEventListener('click', evt => evt.stopPropagation());
+        }
+        if(pushSubscribedAction){
+            pushSubscribedAction.addEventListener('click', handlePushSubscribed);
+        }
+        if(restartTerminalAction){
+            restartTerminalAction.addEventListener('click', handleTerminalRestart);
+        }
+        document.addEventListener('click', evt => {
+            if(!terminalActionMenu || !terminalActionBtn) return;
+            if(terminalActionMenu.contains(evt.target) || terminalActionBtn.contains(evt.target)) return;
+            closeTerminalActionMenu();
         });
 
         confirmBtn.addEventListener('click', () => {
