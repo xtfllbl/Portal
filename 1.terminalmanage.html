@@ -14,7 +14,14 @@
         }
         /* Page shell to match Paywizard Console look */
         body { background: var(--bg); margin: 0; }
-        .page-wrap { max-width: 1120px; margin: 24px auto; padding: 0 20px; }
+        .page-wrap { width: 100%; max-width: 1120px; margin: 24px auto; padding: 0 20px; }
+        .sidebar.is-collapsed + .workspace .page-wrap {
+            max-width: none;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 14px;
+            padding-right: 34px;
+        }
         .crumbs { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin: 6px 0 12px; text-transform: uppercase; }
         .crumbs span { color: #0f172a; }
 
@@ -925,33 +932,6 @@
                         <button id="openPushAppModal" class="btn-primary" type="button">+ Push App</button>
                     </div>
 
-                    <div class="filter-bar">
-                        <div class="filter-grid">
-                            <div class="field"><label>Action</label><input type="text" placeholder="Push / Install / Remove" /></div>
-                            <div class="field"><label>Target</label><input type="text" placeholder="App or Firmware" /></div>
-                            <div class="field"><label>Status</label><select><option>All</option><option>Pending</option><option>Success</option><option>Failed</option></select></div>
-                            <div class="field"><label>Operator</label><input type="text" placeholder="User or system" /></div>
-                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
-                        </div>
-                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
-                    </div>
-
-                    <div class="task-card">
-                        <div>
-                            <div class="task-title"><span id="activePushNameText">BroadPOS TransIT UPT</span> <span id="activePushVersion">V1.00.16E_20250606</span></div>
-                            <div class="task-meta">
-                                Type: <span id="activePushType">Parameter App</span><br>
-                                Source: <span id="activePushSource">WSTORE</span><br>
-                                Effective Time: <span id="activePushEffectiveTime">2025-06-27 03:00</span><br>
-                                App Push Time: <span id="activePushTime">2025-06-27 03:00</span>
-                            </div>
-                        </div>
-                        <div class="task-actions">
-                            <span class="badge success">Active</span>
-                            <button class="icon-btn" title="Delete">&times;</button>
-                        </div>
-                    </div>
-
                     <div class="section">
                         <div class="section-head">
                             <div class="section-title">Operation History</div>
@@ -1741,18 +1721,20 @@
                 return;
             }
             const now = nowText();
-            activePushName.textContent = selected.name;
-            activePushVersion.textContent = selected.version;
-            activePushType.textContent = selected.type;
-            activePushSource.textContent = activeSource === 'public' ? 'WSTORE' : 'APP Uploaded';
-            activePushEffectiveTime.textContent = now;
-            activePushTime.textContent = now;
+            if(activePushName) activePushName.textContent = selected.name;
+            if(activePushVersion) activePushVersion.textContent = selected.version;
+            if(activePushType) activePushType.textContent = selected.type;
+            if(activePushSource) activePushSource.textContent = activeSource === 'public' ? 'WSTORE' : 'APP Uploaded';
+            if(activePushEffectiveTime) activePushEffectiveTime.textContent = now;
+            if(activePushTime) activePushTime.textContent = now;
 
             const statusClass = activeSource === 'public' ? 'success' : 'warn';
             const statusText = activeSource === 'public' ? 'Success' : 'Pending';
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>Push App</td><td>${selected.name}</td><td>${selected.version}</td><td>${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>${now}</td>`;
-            pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
+            if(pushHistoryBody){
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>Push App</td><td>${selected.name}</td><td>${selected.version}</td><td>${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>${now}</td>`;
+                pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
+            }
             closeModal();
         });
 
