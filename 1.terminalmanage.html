@@ -166,6 +166,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: width 0.22s ease;
         }
         .sidebar .brand {
             display: flex;
@@ -178,21 +179,9 @@
         .sidebar .brand-text { display: flex; flex-direction: column; gap: 2px; }
         .sidebar .brand-name { font-weight: 700; font-size: 17px; color: #0f0f10; letter-spacing: 0.15px; }
         .sidebar .brand-sub { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-        .sidebar .close-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid #e5e7eb; background: #f9fafb; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
-        .sidebar .close-btn span { position: relative; width: 14px; height: 14px; }
-        .sidebar .close-btn span::before,
-        .sidebar .close-btn span::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 14px;
-            height: 1.6px;
-            background: #0f0f10;
-            transform-origin: center;
-        }
-        .sidebar .close-btn span::before { transform: translate(-50%, -50%) rotate(45deg); }
-        .sidebar .close-btn span::after { transform: translate(-50%, -50%) rotate(-45deg); }
+        .sidebar .close-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid #e5e7eb; background: #f9fafb; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: #111111; transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
+        .sidebar .close-btn:hover { background: #111111; border-color: #111111; color: #ffffff; }
+        .sidebar .close-btn .toggle-icon { font-size: 17px; line-height: 1; font-weight: 700; transform: translateY(-1px); }
         .sidebar .menu { padding: 10px 10px 16px; display: flex; flex-direction: column; gap: 2px; }
         .sidebar .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: #111111; transition: background-color 0.18s ease, color 0.18s ease; }
         .sidebar .menu-item:hover { background: #f3f4f6; }
@@ -211,6 +200,15 @@
         .sidebar .sub-item:hover { color: #111111; background: #f3f4f6; }
         .sidebar .sub-item.active { padding: 6px 10px 6px 24px; background: #111111; color: #ffffff; }
         .sidebar .sub-item.active::before { width: 7px; height: 7px; border: none; background: #ffffff; left: 10px; }
+        .sidebar.is-collapsed { width: 82px; }
+        .sidebar.is-collapsed .brand { justify-content: center; padding: 14px 8px; }
+        .sidebar.is-collapsed .brand-left { display: none; }
+        .sidebar.is-collapsed .menu { padding: 8px 8px 12px; }
+        .sidebar.is-collapsed .menu-item { justify-content: center; padding: 10px 8px; }
+        .sidebar.is-collapsed .menu-main { gap: 0; }
+        .sidebar.is-collapsed .label,
+        .sidebar.is-collapsed .chevron,
+        .sidebar.is-collapsed .sub-menu { display: none !important; }
 
         .source-chip {
             display: inline-flex;
@@ -349,6 +347,15 @@
         @media (max-width: 1160px) {
             .main-body { flex-direction: column; }
             .sidebar { width: 100%; }
+            .sidebar.is-collapsed { width: 100%; }
+            .sidebar.is-collapsed .brand { justify-content: space-between; padding: 18px 18px 14px; }
+            .sidebar.is-collapsed .brand-left { display: flex; }
+            .sidebar.is-collapsed .menu { padding: 10px 10px 16px; }
+            .sidebar.is-collapsed .menu-item { justify-content: space-between; padding: 8px 10px; }
+            .sidebar.is-collapsed .menu-main { gap: 10px; }
+            .sidebar.is-collapsed .label,
+            .sidebar.is-collapsed .chevron { display: inline-flex !important; }
+            .sidebar.is-collapsed .sub-menu.open { display: flex !important; }
         }
         @media (max-width: 900px) {
             .content-head,
@@ -399,8 +406,8 @@
                         <div class="brand-sub">menu</div>
                     </div>
                 </div>
-                <button class="close-btn" type="button" aria-label="Close menu">
-                    <span></span>
+                <button class="close-btn" type="button" aria-label="Collapse menu" title="Collapse menu">
+                    <span class="toggle-icon" aria-hidden="true">&lt;</span>
                 </button>
             </div>
 
@@ -1128,6 +1135,11 @@
         const rootMenuItems = sidebar.querySelectorAll('.menu-item');
         const submenuTriggers = sidebar.querySelectorAll('.menu-item[data-toggle="submenu"]');
         const subItems = sidebar.querySelectorAll('.sub-item');
+        const sidebarToggle = sidebar.querySelector('.close-btn');
+        const sidebarToggleIcon = sidebar.querySelector('.toggle-icon');
+        const compactBreakpoint = window.matchMedia('(max-width: 1160px)');
+        const sidebarStateKey = 'pw_terminal_sidebar_collapsed';
+        let savedOpenSubmenu = null;
 
         function setActiveRoot(target){
             rootMenuItems.forEach(item => item.classList.toggle('active', item === target));
@@ -1142,15 +1154,122 @@
             });
         }
 
-        submenuTriggers.forEach(trigger => {
-            const targetId = trigger.getAttribute('data-target');
-            const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
-            const ch = trigger.querySelector('.chevron');
-            if(ch) ch.textContent = submenu && submenu.classList.contains('open') ? 'v' : '>';
-        });
+        function getOpenSubmenuParent(){
+            const openMenu = sidebar.querySelector('.sub-menu.open');
+            return openMenu ? openMenu.getAttribute('data-parent') : null;
+        }
+
+        function getActiveSubmenuParent(){
+            const activeSub = sidebar.querySelector('.sub-item.active');
+            return activeSub && activeSub.parentElement ? activeSub.parentElement.getAttribute('data-parent') : null;
+        }
+
+        function openSubmenuByParent(parentId){
+            if(!parentId) return false;
+            const trigger = sidebar.querySelector('.menu-item[data-target="' + parentId + '"]');
+            const submenu = sidebar.querySelector('.sub-menu[data-parent="' + parentId + '"]');
+            if(!trigger || !submenu) return false;
+
+            closeAllSubmenus();
+            submenu.classList.add('open');
+            trigger.classList.add('expanded');
+            const chOpen = trigger.querySelector('.chevron');
+            if(chOpen) chOpen.textContent = 'v';
+            return true;
+        }
+
+        function syncSubmenuChevrons(){
+            submenuTriggers.forEach(trigger => {
+                const targetId = trigger.getAttribute('data-target');
+                const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+                const ch = trigger.querySelector('.chevron');
+                if(ch) ch.textContent = submenu && submenu.classList.contains('open') ? 'v' : '>';
+            });
+        }
+
+        function syncCollapsedTitles(){
+            rootMenuItems.forEach(item => {
+                const label = item.querySelector('.label');
+                if(!label) return;
+                let title = (label.textContent || '').trim();
+                const targetId = item.getAttribute('data-target');
+                if(targetId){
+                    const activeSub = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"] .sub-item.active');
+                    if(activeSub) title += ' / ' + (activeSub.textContent || '').trim();
+                }
+                if(title) item.setAttribute('title', title);
+            });
+        }
+
+        function getSavedSidebarCollapsed(){
+            try {
+                return localStorage.getItem(sidebarStateKey) === '1';
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function updateSidebarToggleState(){
+            const collapsed = sidebar.classList.contains('is-collapsed');
+            const nextAction = collapsed ? 'Expand menu' : 'Collapse menu';
+            if(sidebarToggle){
+                sidebarToggle.setAttribute('aria-label', nextAction);
+                sidebarToggle.setAttribute('title', nextAction);
+            }
+            if(sidebarToggleIcon) sidebarToggleIcon.textContent = collapsed ? '>' : '<';
+        }
+
+        function setSidebarCollapsed(collapsed, persist = true){
+            const shouldCollapse = !!collapsed && !compactBreakpoint.matches;
+            sidebar.classList.toggle('is-collapsed', shouldCollapse);
+
+            if(shouldCollapse){
+                savedOpenSubmenu = getOpenSubmenuParent() || getActiveSubmenuParent() || savedOpenSubmenu;
+                closeAllSubmenus();
+            } else {
+                const restored = openSubmenuByParent(savedOpenSubmenu) || openSubmenuByParent(getActiveSubmenuParent());
+                if(!restored) syncSubmenuChevrons();
+            }
+            updateSidebarToggleState();
+
+            if(persist){
+                try {
+                    localStorage.setItem(sidebarStateKey, shouldCollapse ? '1' : '0');
+                } catch (err) {}
+            }
+        }
+
+        syncSubmenuChevrons();
+        syncCollapsedTitles();
+
+        if(sidebarToggle){
+            sidebarToggle.addEventListener('click', evt => {
+                evt.stopPropagation();
+                const nextState = !sidebar.classList.contains('is-collapsed');
+                setSidebarCollapsed(nextState);
+            });
+        }
+
+        const handleCompactChange = () => {
+            if(compactBreakpoint.matches){
+                setSidebarCollapsed(false, false);
+            } else {
+                setSidebarCollapsed(getSavedSidebarCollapsed(), false);
+            }
+        };
+        if(typeof compactBreakpoint.addEventListener === 'function'){
+            compactBreakpoint.addEventListener('change', handleCompactChange);
+        } else if(typeof compactBreakpoint.addListener === 'function'){
+            compactBreakpoint.addListener(handleCompactChange);
+        }
+
+        setSidebarCollapsed(getSavedSidebarCollapsed(), false);
 
         submenuTriggers.forEach(item => {
             item.addEventListener('click', () => {
+                if(sidebar.classList.contains('is-collapsed')){
+                    setSidebarCollapsed(false);
+                }
                 const targetId = item.getAttribute('data-target');
                 const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
                 const isOpen = submenu && submenu.classList.contains('open');
@@ -1163,13 +1282,16 @@
                     item.classList.remove('expanded');
                     const chClose = item.querySelector('.chevron');
                     if(chClose) chClose.textContent = '>';
+                    savedOpenSubmenu = getActiveSubmenuParent();
                 } else {
                     closeAllSubmenus();
                     submenu.classList.add('open');
                     item.classList.add('expanded');
                     const chOpen = item.querySelector('.chevron');
                     if(chOpen) chOpen.textContent = 'v';
+                    savedOpenSubmenu = targetId;
                 }
+                syncCollapsedTitles();
             });
         });
 
@@ -1178,6 +1300,8 @@
             item.addEventListener('click', () => {
                 setActiveRoot(item);
                 closeAllSubmenus();
+                savedOpenSubmenu = null;
+                syncCollapsedTitles();
                 const link = item.getAttribute('data-link');
                 if(link) window.location.href = link;
             });
@@ -1192,7 +1316,9 @@
                 if(parent){
                     const trigger = sidebar.querySelector('.menu-item[data-target="' + parent + '"]');
                     if(trigger) setActiveRoot(trigger);
+                    savedOpenSubmenu = parent;
                 }
+                syncCollapsedTitles();
                 const link = sub.getAttribute('data-link');
                 if(link) window.location.href = link;
             });
