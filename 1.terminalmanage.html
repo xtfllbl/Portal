@@ -593,12 +593,12 @@
 
         <div class="workspace">
             <div class="page-wrap">
-        <div class="crumbs">Merchant Account > <span>Terminal Management</span> > IM30-01 41381</div>
+        <div class="crumbs">Merchant Account > <span>Terminal Management</span> > <span id="crumbTerminalLabel">IM30-01 41381</span></div>
 
         <div class="terminal-card">
             <div class="card-banner">
                 <div class="banner-top">
-                    <h1 class="title">IM30-01 41381</h1>
+                    <h1 class="title" id="terminalTitle">IM30-01 41381</h1>
                     <div class="banner-status">
                         <span>Utilization 0%</span>
                         <span>Offline 8M (2025-06-15 15:15:21)</span>
@@ -608,9 +608,9 @@
                 </div>
                 <div class="banner-meta">
                     <b>Reseller:</b> Universal Processing &nbsp;/&nbsp;
-                    <b>Merchant:</b> 1 of a Kind World Travel LLC 41381 &nbsp;/&nbsp;
-                    <b>SN:</b> 1640214640 &nbsp;/&nbsp;
-                    <b>TID:</b> UZN10E08 &nbsp;/&nbsp;
+                    <b>Merchant:</b> <span id="bannerMerchant">1 of a Kind World Travel LLC 41381</span> &nbsp;/&nbsp;
+                    <b>SN:</b> <span id="bannerSn">1640214640</span> &nbsp;/&nbsp;
+                    <b>TID:</b> <span id="bannerTid">UZN10E08</span> &nbsp;/&nbsp;
                     <b>Model Name:</b> IM30
                 </div>
                 <div class="banner-tabs" id="primaryTabs" role="tablist">
@@ -628,9 +628,9 @@
             <div class="info-strip">
                 <div class="kv">
                     <div><b>Reseller:</b> Universal Processing</div>
-                    <div><b>Merchant:</b> 1 of a Kind World Travel LLC 41381</div>
-                    <div><b>SN:</b> 1640214640</div>
-                    <div><b>TID:</b> UZN10E08</div>
+                    <div><b>Merchant:</b> <span id="infoMerchant">1 of a Kind World Travel LLC 41381</span></div>
+                    <div><b>SN:</b> <span id="infoSn">1640214640</span></div>
+                    <div><b>TID:</b> <span id="infoTid">UZN10E08</span></div>
                     <div><b>Model:</b> IM30</div>
                 </div>
                 <div class="status-line">
@@ -786,7 +786,7 @@
                                 <div class="panel-title">Terminal Details</div>
                                 <div class="details-grid">
                                     <dl class="kv-list">
-                                        <dt>SN</dt><dd>1640214640</dd>
+                                        <dt>SN</dt><dd id="detailsSn">1640214640</dd>
                                         <dt>Model</dt><dd>IM30</dd>
                                         <dt>PN</dt><dd>IM30-0AA-RD5-0JA0</dd>
                                         <dt>Type</dt><dd>Payment Device - Smart POS</dd>
@@ -1041,6 +1041,41 @@
         </div>
     </div>
 <script>
+    const terminalContext = (() => {
+        const defaults = {
+            terminalName: 'IM30-01 41381',
+            sn: '1640214640',
+            tid: 'UZN10E08',
+            merchantName: '1 of a Kind World Travel LLC 41381'
+        };
+        const params = new URLSearchParams(window.location.search);
+        const pick = key => {
+            const value = params.get(key);
+            return value ? value.trim() : '';
+        };
+        const context = {
+            terminalName: pick('terminalName') || defaults.terminalName,
+            sn: pick('sn') || defaults.sn,
+            tid: pick('tid') || defaults.tid,
+            merchantName: pick('merchantName') || defaults.merchantName
+        };
+        const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if(el) el.textContent = value;
+        };
+        setText('crumbTerminalLabel', context.terminalName);
+        setText('terminalTitle', context.terminalName);
+        setText('bannerMerchant', context.merchantName);
+        setText('bannerSn', context.sn);
+        setText('bannerTid', context.tid);
+        setText('infoMerchant', context.merchantName);
+        setText('infoSn', context.sn);
+        setText('infoTid', context.tid);
+        setText('detailsSn', context.sn);
+        document.title = `${context.terminalName} - Terminal Management`;
+        return context;
+    })();
+
     (function() {
         const tabs = document.querySelectorAll('#primaryTabs .tab');
         const sections = {
@@ -1583,7 +1618,7 @@
 
         function handleTerminalRestart(){
             const now = nowText();
-            prependPushHistory('Restart Terminal', 'IM30-01 41381', '--', 'Remote Command', 'warn', 'Pending', now);
+            prependPushHistory('Restart Terminal', terminalContext.terminalName, '--', 'Remote Command', 'warn', 'Pending', now);
             closeTerminalActionMenu();
             if(pushTabBtn) pushTabBtn.click();
         }

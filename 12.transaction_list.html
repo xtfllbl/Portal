@@ -145,6 +145,9 @@
     .pan{display:inline-flex;align-items:center;gap:10px}
     .chip{min-width:24px;height:16px;border-radius:3px;border:1px solid rgba(0,0,0,.08);display:inline-flex;align-items:center;justify-content:center;padding:0 4px;font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#fff;color:#1a4fb3}
     .chip.maestro{color:#fff;background:linear-gradient(90deg,#d93843 0 50%,#0671ce 50% 100%)}
+    .terminal-link{color:#1f4fbf;text-decoration:none;font-weight:500;border-bottom:1px solid transparent;transition:color .16s ease,border-color .16s ease}
+    .terminal-link:hover{color:#17398e;border-bottom-color:currentColor}
+    .terminal-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px;border-bottom-color:transparent;border-radius:4px}
     .more{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);background:#fafbfd;color:#768096;display:grid;place-items:center}
     .more svg{width:17px;height:17px}
     .scroll::-webkit-scrollbar,.nav::-webkit-scrollbar,.cols::-webkit-scrollbar{width:10px;height:10px}
@@ -385,6 +388,16 @@
       };
       const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;");
       const norm=s=>String(s||"").trim().toLowerCase();
+      const terminalManageHref=r=>{
+        const query=new URLSearchParams();
+        if(r.terminalName) query.set("terminalName",r.terminalName);
+        if(r.sn) query.set("sn",r.sn);
+        if(r.tid) query.set("tid",r.tid);
+        if(r.merchantName) query.set("merchantName",r.merchantName);
+        if(r.storeName) query.set("storeName",r.storeName);
+        if(r.storeId) query.set("storeId",r.storeId);
+        return `1.terminalmanage.html?${query.toString()}`;
+      };
       const colState=k=>state.columns.find(c=>c.key===k);
       const visible=()=>state.columns.filter(c=>c.visible);
       const persistViews=()=>{
@@ -519,6 +532,11 @@
       const cell=(k,r)=>{
         if(k==="cardPan") return `<span class="pan"><span class="chip ${esc(r.cardBrand)}">${esc(r.cardBrand)}</span><span>${esc(r.cardPanMasked)}</span></span>`;
         if(k==="type"){const c=r.type==="Refund"?"refund":r.type==="Failed"?"failed":"purchase"; return `<span class="pill ${c}">${esc(r.type)}</span>`;}
+        if(k==="terminalName"||k==="sn"){
+          const v=r[k];
+          if(v==="") return "&nbsp;";
+          return `<a class="terminal-link" href="${esc(terminalManageHref(r))}" title="Open terminal management">${esc(v??"-")}</a>`;
+        }
         const v=r[k];
         return v===""?"&nbsp;":esc(v??"-");
       };
