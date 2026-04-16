@@ -148,6 +148,21 @@
     .terminal-link{color:#1f4fbf;text-decoration:none;font-weight:500;border-bottom:1px solid transparent;transition:color .16s ease,border-color .16s ease}
     .terminal-link:hover{color:#17398e;border-bottom-color:currentColor}
     .terminal-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px;border-bottom-color:transparent;border-radius:4px}
+    td.sn-cell{white-space:normal}
+    .sn-link{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:10px;color:inherit;text-decoration:none;border:1px solid transparent;border-radius:11px;padding:5px 7px;margin:-5px -7px;transition:background .16s ease,border-color .16s ease}
+    .sn-link:hover{background:#f7faff;border-color:#d8e4ff}
+    .sn-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px}
+    .sn-icon{width:32px;height:32px;border-radius:9px;background:#edf3ff;color:#81a5dd;display:grid;place-items:center}
+    .sn-icon svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .sn-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+    .sn-value{font-size:14px;font-weight:700;line-height:1.2;color:#1f4fbf;word-break:break-all}
+    .sn-owner{font-size:12px;line-height:1.3;font-weight:600;color:#2f3440}
+    .sn-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;line-height:1.2;color:#6c7486}
+    .sn-tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;border:1px solid #d1d9ea;background:#f4f7fd;color:#506080;font-size:11px;font-weight:600}
+    .sn-tag.self-service{background:#e8f8ef;border-color:#b7e5ca;color:#1e7a43}
+    .sn-tag.pos-linked{background:#e9f0ff;border-color:#bfd2ff;color:#2856bc}
+    .sn-tag.standalone{background:#f2f4f8;border-color:#d6dbe8;color:#4a5872}
+    .sn-tag.staff-mobile{background:#fff5e9;border-color:#f2cf9e;color:#a35d00}
     .more{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);background:#fafbfd;color:#768096;display:grid;place-items:center}
     .more svg{width:17px;height:17px}
     .scroll::-webkit-scrollbar,.nav::-webkit-scrollbar,.cols::-webkit-scrollbar{width:10px;height:10px}
@@ -284,8 +299,8 @@
   </div>
   <script>
     (() => {
-      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","sn"];
-      const defaultOrder=["processorTime","timezone","cardPan","type","currency","tid","storeId","transLogId","batch","merchantName","terminalName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","paywizardId","transId","transIndexCode","trace","storeName","email","sn"];
+      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","sn","terminalName"];
+      const defaultOrder=["processorTime","timezone","sn","terminalName","cardPan","type","currency","tid","storeId","transLogId","batch","merchantName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","paywizardId","transId","transIndexCode","trace","storeName","email"];
       const defs={
         processorTime:["DATE & TIME (PROCESSOR)",220,"Date & Time (Processor)"],
         terminalTime:["DATE & TIME (TERMINAL)",220,"Date & Time (Terminal)"],
@@ -300,7 +315,7 @@
         tid:["TID",130,"TID"],
         merchantName:["MERCHANT NAME",168,"Merchant Name"],
         storeName:["STORE NAME",146,"Store Name"],
-        sn:["SN",180,"SN"],
+        sn:["SN",340,"SN"],
         paywizardId:["PAYwizard ID",170,"PAYwizard ID"],
         transId:["TRANS ID",146,"Trans ID"],
         transLogId:["TRANS LOG ID",170,"Trans Log ID"],
@@ -313,16 +328,18 @@
         storeId:["STORE ID",140,"Store ID"]
       };
       const rows=[
-        {status:"completed",processorTime:"2026-04-07 11:47:56",terminalTime:"-",timezone:"",invoiceNumber:"260407114756",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"16.98",currency:"GBP",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-114756",transId:"TRX-114756",transLogId:"LOG-20260407-114756",transIndexCode:"IDX-20260407-114756",batch:"B347",trace:"550321",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"completed",processorTime:"2026-04-07 11:22:19",terminalTime:"-",timezone:"",invoiceNumber:"260407112219",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Refund",amount:"6.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-112219",transId:"TRX-112219",transLogId:"LOG-20260407-112219",transIndexCode:"IDX-20260407-112219",batch:"B347",trace:"550322",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"completed",processorTime:"2026-04-07 11:21:14",terminalTime:"-",timezone:"",invoiceNumber:"260407112114",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Refund",amount:"7.23",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-112114",transId:"TRX-112114",transLogId:"LOG-20260407-112114",transIndexCode:"IDX-20260407-112114",batch:"B347",trace:"550323",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"completed",processorTime:"2026-04-07 11:19:01",terminalTime:"-",timezone:"",invoiceNumber:"260407111901",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"8.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111901",transId:"TRX-111901",transLogId:"LOG-20260407-111901",transIndexCode:"IDX-20260407-111901",batch:"B347",trace:"550324",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"completed",processorTime:"2026-04-07 11:18:41",terminalTime:"-",timezone:"",invoiceNumber:"260407111841",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"7.23",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111841",transId:"TRX-111841",transLogId:"LOG-20260407-111841",transIndexCode:"IDX-20260407-111841",batch:"B347",trace:"550325",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"completed",processorTime:"2026-04-07 11:18:22",terminalTime:"-",timezone:"",invoiceNumber:"260407111822",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"6.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111822",transId:"TRX-111822",transLogId:"LOG-20260407-111822",transIndexCode:"IDX-20260407-111822",batch:"B347",trace:"550326",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"completed",processorTime:"2026-04-07 10:46:02",terminalTime:"-",timezone:"",invoiceNumber:"260407104602",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"622397",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-104602",transId:"TRX-104602",transLogId:"LOG-20260407-104602",transIndexCode:"IDX-20260407-104602",batch:"B344",trace:"548901",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"},
-        {status:"completed",processorTime:"2026-04-07 10:39:16",terminalTime:"-",timezone:"",invoiceNumber:"260407103916",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"506708",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-103916",transId:"TRX-103916",transLogId:"LOG-20260407-103916",transIndexCode:"IDX-20260407-103916",batch:"B344",trace:"548902",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"},
-        {status:"failed",processorTime:"2026-04-07 09:58:11",terminalTime:"-",timezone:"",invoiceNumber:"260407095811",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"DECLINED",type:"Failed",amount:"12.50",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-095811",transId:"TRX-095811",transLogId:"LOG-20260407-095811",transIndexCode:"IDX-20260407-095811",batch:"B346",trace:"547220",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001"},
-        {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou POS 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004"}
+        {status:"completed",processorTime:"2026-04-07 11:47:56",terminalTime:"-",timezone:"",invoiceNumber:"260407114756",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"16.98",currency:"GBP",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-114756",transId:"TRX-114756",transLogId:"LOG-20260407-114756",transIndexCode:"IDX-20260407-114756",batch:"B347",trace:"550321",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"completed",processorTime:"2026-04-07 11:22:19",terminalTime:"-",timezone:"",invoiceNumber:"260407112219",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Refund",amount:"6.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-112219",transId:"TRX-112219",transLogId:"LOG-20260407-112219",transIndexCode:"IDX-20260407-112219",batch:"B347",trace:"550322",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"completed",processorTime:"2026-04-07 11:21:14",terminalTime:"-",timezone:"",invoiceNumber:"260407112114",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Refund",amount:"7.23",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-112114",transId:"TRX-112114",transLogId:"LOG-20260407-112114",transIndexCode:"IDX-20260407-112114",batch:"B347",trace:"550323",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"completed",processorTime:"2026-04-07 11:19:01",terminalTime:"-",timezone:"",invoiceNumber:"260407111901",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"8.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111901",transId:"TRX-111901",transLogId:"LOG-20260407-111901",transIndexCode:"IDX-20260407-111901",batch:"B347",trace:"550324",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"completed",processorTime:"2026-04-07 11:18:41",terminalTime:"-",timezone:"",invoiceNumber:"260407111841",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"7.23",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111841",transId:"TRX-111841",transLogId:"LOG-20260407-111841",transIndexCode:"IDX-20260407-111841",batch:"B347",trace:"550325",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"completed",processorTime:"2026-04-07 11:18:22",terminalTime:"-",timezone:"",invoiceNumber:"260407111822",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"-",type:"Purchase",amount:"6.03",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-111822",transId:"TRX-111822",transLogId:"LOG-20260407-111822",transIndexCode:"IDX-20260407-111822",batch:"B347",trace:"550326",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"completed",processorTime:"2026-04-07 10:46:02",terminalTime:"-",timezone:"",invoiceNumber:"260407104602",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"622397",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-104602",transId:"TRX-104602",transLogId:"LOG-20260407-104602",transIndexCode:"IDX-20260407-104602",batch:"B344",trace:"548901",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
+        {status:"completed",processorTime:"2026-04-07 10:39:16",terminalTime:"-",timezone:"",invoiceNumber:"260407103916",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"506708",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-103916",transId:"TRX-103916",transLogId:"LOG-20260407-103916",transIndexCode:"IDX-20260407-103916",batch:"B344",trace:"548902",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
+        {status:"completed",processorTime:"2026-04-07 10:21:51",terminalTime:"-",timezone:"",invoiceNumber:"260407102151",cardBrand:"visa",cardPanMasked:"414740****8821",cardPanPlain:"4147408821",approvalCode:"331890",type:"Purchase",amount:"4.50",currency:"CAD",mid:"202511040000901",tid:"Campus Kiosk 03",merchantName:"north campus group",storeName:"sfu dining commons",sn:"WP6127TX33009110",paywizardId:"PW-20260407-102151",transId:"TRX-102151",transLogId:"LOG-20260407-102151",transIndexCode:"IDX-20260407-102151",batch:"B211",trace:"547009",terminalName:"Beverage Kiosk 03",phoneNumber:"+1 604 555 7788",email:"vending.ops@campus.test",storeId:"STORE-3150",terminalUsage:"self_service",terminalScene:"Beverage Kiosk"},
+        {status:"failed",processorTime:"2026-04-07 09:58:11",terminalTime:"-",timezone:"",invoiceNumber:"260407095811",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"DECLINED",type:"Failed",amount:"12.50",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-095811",transId:"TRX-095811",transLogId:"LOG-20260407-095811",transIndexCode:"IDX-20260407-095811",batch:"B346",trace:"547220",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+        {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
+        {status:"failed",processorTime:"2026-04-07 09:31:40",terminalTime:"-",timezone:"",invoiceNumber:"260407093140",cardBrand:"visa",cardPanMasked:"471622****7019",cardPanPlain:"4716227019",approvalCode:"DECLINED",type:"Failed",amount:"29.80",currency:"USD",mid:"202511040001208",tid:"Waiter Handheld 02",merchantName:"urban bistro",storeName:"city center",sn:"WP6001MM33000109",paywizardId:"PW-20260407-093140",transId:"TRX-093140",transLogId:"LOG-20260407-093140",transIndexCode:"IDX-20260407-093140",batch:"B102",trace:"546812",terminalName:"Waiter Mobile 02",phoneNumber:"+1 212 555 4010",email:"shiftlead@urbanbistro.test",storeId:"STORE-4012",terminalUsage:"staff_mobile",terminalScene:"Staff Handheld"}
       ];
       const viewStoreKey="paywizard.transactionList.savedViews";
       const maxCustomViews=5;
@@ -397,6 +414,39 @@
         if(r.storeName) query.set("storeName",r.storeName);
         if(r.storeId) query.set("storeId",r.storeId);
         return `1.terminalmanage.html?${query.toString()}`;
+      };
+      const terminalUsageMap={
+        self_service:{
+          tag:"Self-service",
+          className:"self-service",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2"></rect><line x1="9" y1="7.5" x2="15" y2="7.5"></line><line x1="9" y1="11.5" x2="15" y2="11.5"></line><circle cx="12" cy="16.5" r="1"></circle></svg>'
+        },
+        pos_linked:{
+          tag:"POS linked",
+          className:"pos-linked",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="9" height="7" rx="1.5"></rect><rect x="14" y="9" width="7" height="10" rx="1.5"></rect><path d="M12 8h2"></path><path d="M10 12h4"></path><path d="M16 13h3"></path></svg>'
+        },
+        standalone:{
+          tag:"Standalone",
+          className:"standalone",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="12" rx="2"></rect><line x1="8" y1="20" x2="16" y2="20"></line><line x1="12" y1="16" x2="12" y2="20"></line></svg>'
+        },
+        staff_mobile:{
+          tag:"Staff mobile",
+          className:"staff-mobile",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="8" height="18" rx="2"></rect><circle cx="12" cy="17" r="1"></circle><path d="M3 10h4"></path><path d="M3 14h4"></path></svg>'
+        }
+      };
+      const resolveTerminalUsage=r=>terminalUsageMap[r.terminalUsage]||terminalUsageMap.standalone;
+      const terminalOwnerLine=r=>{
+        const owner=[r.merchantName,r.storeName].filter(Boolean).join(" - ");
+        return owner||"Unassigned Merchant - Store";
+      };
+      const renderSnCell=r=>{
+        if(r.sn==="") return "&nbsp;";
+        const usage=resolveTerminalUsage(r);
+        const scene=r.terminalScene||usage.tag;
+        return `<a class="sn-link" href="${esc(terminalManageHref(r))}" title="Open terminal management"><span class="sn-icon ${usage.className}" aria-hidden="true">${usage.icon}</span><span class="sn-copy"><span class="sn-value">${esc(r.sn??"-")}</span><span class="sn-owner">${esc(terminalOwnerLine(r))}</span><span class="sn-meta"><span class="sn-tag ${usage.className}">${esc(usage.tag)}</span><span>${esc(scene)}</span></span></span></a>`;
       };
       const colState=k=>state.columns.find(c=>c.key===k);
       const visible=()=>state.columns.filter(c=>c.visible);
@@ -532,7 +582,8 @@
       const cell=(k,r)=>{
         if(k==="cardPan") return `<span class="pan"><span class="chip ${esc(r.cardBrand)}">${esc(r.cardBrand)}</span><span>${esc(r.cardPanMasked)}</span></span>`;
         if(k==="type"){const c=r.type==="Refund"?"refund":r.type==="Failed"?"failed":"purchase"; return `<span class="pill ${c}">${esc(r.type)}</span>`;}
-        if(k==="terminalName"||k==="sn"){
+        if(k==="sn") return renderSnCell(r);
+        if(k==="terminalName"){
           const v=r[k];
           if(v==="") return "&nbsp;";
           return `<a class="terminal-link" href="${esc(terminalManageHref(r))}" title="Open terminal management">${esc(v??"-")}</a>`;
@@ -543,7 +594,7 @@
       const renderTable=()=>{
         const cols=visible(), data=rows.filter(matches);
         head.innerHTML=cols.map(c=>`<th style="min-width:${defs[c.key][1]}px">${defs[c.key][0]}</th>`).join("")+`<th style="min-width:82px">ACTIONS</th>`;
-        body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" aria-label="More actions"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
+        body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" aria-label="More actions"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
         updateFilterUi();
       };
       const renderCols=()=>{
