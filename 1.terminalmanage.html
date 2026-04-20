@@ -614,9 +614,9 @@
                     <b>Model Name:</b> IM30
                 </div>
                 <div class="banner-tabs" id="primaryTabs" role="tablist">
-                    <button class="tab" data-tab="basic" role="tab" aria-selected="false">Basic Information</button>
+                    <button class="tab active" data-tab="basic" role="tab" aria-selected="true">Basic Information</button>
                     <button class="tab" data-tab="appfw" role="tab" aria-selected="false">APP &amp; Parameters</button>
-                    <button class="tab active" data-tab="push" role="tab" aria-selected="true">Push Task</button>
+                    <button class="tab" data-tab="push" role="tab" aria-selected="false">Push Task</button>
                     <button class="tab" data-tab="settings" role="tab" aria-selected="false">Setting</button>
                     <button class="tab" data-tab="params" role="tab" aria-selected="false">Parameter Variables</button>
                 </div>
@@ -709,7 +709,7 @@
             <!-- New content with tabs and filters -->
             <div class="content" id="newContent">
                 <!-- Basic Information -->
-                <section id="tab-basic" class="hidden" role="tabpanel" aria-labelledby="basic">
+                <section id="tab-basic" role="tabpanel" aria-labelledby="basic">
                     <!-- Basic tab styles kept local to avoid changing global sheet -->
                     <style>
                         .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
@@ -737,13 +737,27 @@
                         .group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
                         .group-meta { color: #6b7280; font-size: 12px; }
                         .group-name { font-weight: 750; }
-                        .log-section { margin-top: 18px; }
-                        .log-tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-                        .log-tab { padding: 10px 2px; margin: 0; background: transparent; border: none; color: #334155; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; }
-                        .log-tab.active { color: #0b1220; border-bottom-color: #111; }
-                        .year-chips { display: flex; gap: 8px; margin: 10px 0; }
-                        .chip { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: #111; font-weight: 700; font-size: 12px; cursor: pointer; }
-                        .chip.active { background: #111; color: #fff; border-color: #111; }
+                        .txn-section { margin-top: 18px; }
+                        .txn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+                        .txn-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+                        .txn-kpi-card { display: grid; gap: 4px; }
+                        .txn-kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+                        .txn-kpi-value { font-size: 24px; font-weight: 800; color: #0b1220; line-height: 1.2; }
+                        .txn-kpi-note { color: #64748b; font-size: 12px; font-weight: 600; }
+                        .txn-table-wrap { overflow-x: auto; }
+                        .txn-table { min-width: 860px; }
+                        .txn-table thead th { text-align: center; white-space: nowrap; }
+                        .txn-table thead tr:last-child th:first-child { text-align: left; }
+                        .txn-table tbody td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+                        .txn-table tbody td:first-child { text-align: left; font-weight: 700; color: #0f172a; }
+                        .txn-footnote { margin-top: 8px; color: #64748b; font-size: 12px; font-weight: 600; }
+                        @media (max-width: 900px) {
+                            .txn-head { flex-direction: column; align-items: flex-start; }
+                            .txn-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                        }
+                        @media (max-width: 560px) {
+                            .txn-kpi-grid { grid-template-columns: 1fr; }
+                        }
                     </style>
 
                     <h2 class="section-title" style="margin-bottom:10px">Dashboard</h2>
@@ -808,53 +822,62 @@
                         </div>
                     </div>
 
-                    <!-- Logs -->
-                    <div class="log-section">
-                        <div class="log-tabs" id="basicLogTabs">
-                            <button class="log-tab active" data-log="op">Operation Log</button>
-                            <button class="log-tab" data-log="rep">Replacement Log</button>
-                            <button class="log-tab" data-log="dl">Download App Log</button>
+                    <!-- Terminal transaction statistics -->
+                    <div class="txn-section">
+                        <div class="txn-head">
+                            <div class="panel-title" style="margin:0">Terminal Transaction Statistics</div>
+                            <a id="viewTerminalTransactionsLink" class="btn-secondary" href="12.transaction_list.html">View Terminal Transactions</a>
                         </div>
-                        <div class="year-chips" id="yearChips">
-                            <button class="chip active">2025</button>
-                            <button class="chip">2024</button>
-                            <button class="chip">2023</button>
-                            <button class="chip">2022</button>
-                            <button class="chip">2021</button>
-                            <button class="chip">2020</button>
-                            <button class="chip">2019</button>
-                            <button class="chip">Earlier</button>
+                        <div class="txn-kpi-grid">
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Today Sales</div>
+                                <div class="txn-kpi-value">$38.71</div>
+                                <div class="txn-kpi-note">Credit Card + Prepaid Credit</div>
+                            </div>
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Today Transactions</div>
+                                <div class="txn-kpi-value">9</div>
+                                <div class="txn-kpi-note">Approved transactions</div>
+                            </div>
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Week Sales</div>
+                                <div class="txn-kpi-value">$241.44</div>
+                                <div class="txn-kpi-note">This week total amount</div>
+                            </div>
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Month Transactions</div>
+                                <div class="txn-kpi-value">130</div>
+                                <div class="txn-kpi-note">Current month total count</div>
+                            </div>
                         </div>
-
-                        <div id="log-op" class="table-wrap">
-                            <table class="table">
+                        <div class="table-wrap txn-table-wrap">
+                            <table class="table txn-table">
                                 <thead>
-                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Status</th><th>Time</th></tr>
+                                    <tr>
+                                        <th></th>
+                                        <th colspan="3">Sales</th>
+                                        <th colspan="3">Transactions</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Time Period</th>
+                                        <th>Credit Card</th>
+                                        <th>Prepaid Credit</th>
+                                        <th>Total</th>
+                                        <th>Credit Card</th>
+                                        <th>Prepaid Credit</th>
+                                        <th>Total</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
-                                    <tr><td>Sync</td><td>Device</td><td>—</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
+                                    <tr><td>Today</td><td>$38.71</td><td>$0.00</td><td>$38.71</td><td>9</td><td>0</td><td>9</td></tr>
+                                    <tr><td>Yesterday</td><td>$69.54</td><td>$0.00</td><td>$69.54</td><td>16</td><td>0</td><td>16</td></tr>
+                                    <tr><td>This Week</td><td>$241.44</td><td>$0.00</td><td>$241.44</td><td>57</td><td>0</td><td>57</td></tr>
+                                    <tr><td>Last Week</td><td>$472.66</td><td>$0.00</td><td>$472.66</td><td>113</td><td>0</td><td>113</td></tr>
+                                    <tr><td>This Month</td><td>$549.69</td><td>$0.00</td><td>$549.69</td><td>130</td><td>0</td><td>130</td></tr>
                                 </tbody>
                             </table>
                         </div>
-
-                        <div id="log-rep" class="table-wrap hidden">
-                            <table class="table">
-                                <thead><tr><th>Time</th><th>From</th><th>To</th><th>By</th></tr></thead>
-                                <tbody>
-                                    <tr><td>2025-03-02 10:25</td><td>Group A</td><td>Group B</td><td>System</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div id="log-dl" class="table-wrap hidden">
-                            <table class="table">
-                                <thead><tr><th>App</th><th>Version</th><th>Status</th><th>Time</th></tr></thead>
-                                <tbody>
-                                    <tr><td>PW Launcher</td><td>2.1.0</td><td><span class="badge success">Success</span></td><td>2025-06-12 13:42</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="txn-footnote">Last transaction sync: 2025-06-27 03:00</div>
                     </div>
                 </section>
 
@@ -921,7 +944,7 @@
                 </section>
 
                 <!-- Push Task (active by default) -->
-                <section id="tab-push" role="tabpanel" aria-labelledby="push">
+                <section id="tab-push" class="hidden" role="tabpanel" aria-labelledby="push">
                     <div class="content-head">
                         <div class="subtabs">
                             <button class="subtab active">App</button>
@@ -1072,6 +1095,16 @@
         setText('infoSn', context.sn);
         setText('infoTid', context.tid);
         setText('detailsSn', context.sn);
+        const viewTransactionsLink = document.getElementById('viewTerminalTransactionsLink');
+        if(viewTransactionsLink){
+            const query = new URLSearchParams({
+                sn: context.sn,
+                tid: context.tid,
+                merchantName: context.merchantName,
+                terminalName: context.terminalName
+            });
+            viewTransactionsLink.href = `12.transaction_list.html?${query.toString()}`;
+        }
         document.title = `${context.terminalName} - Terminal Management`;
         return context;
     })();
@@ -1099,7 +1132,7 @@
         }
 
         tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
-        showTab('push');
+        showTab('basic');
 
         const subTabs = document.querySelectorAll('#subTabs .subtab');
         const tables = {
@@ -1117,30 +1150,6 @@
 
         subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
         showSub('app');
-
-        const logTabs = document.querySelectorAll('#basicLogTabs .log-tab');
-        const logPanels = {
-            op: document.getElementById('log-op'),
-            rep: document.getElementById('log-rep'),
-            dl: document.getElementById('log-dl')
-        };
-
-        function showLog(key) {
-            Object.keys(logPanels).forEach(k => {
-                if (!logPanels[k]) return;
-                logPanels[k].classList.toggle('hidden', k !== key);
-            });
-            logTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.log === key));
-        }
-
-        logTabs.forEach(btn => btn.addEventListener('click', () => showLog(btn.dataset.log)));
-        showLog('op');
-
-        const yearChips = document.querySelectorAll('#yearChips .chip');
-        yearChips.forEach(chip => chip.addEventListener('click', () => {
-            yearChips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-        }));
     })();
 
     (function(){
