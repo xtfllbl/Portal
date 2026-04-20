@@ -149,20 +149,37 @@
     .terminal-link:hover{color:#17398e;border-bottom-color:currentColor}
     .terminal-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px;border-bottom-color:transparent;border-radius:4px}
     td.sn-cell{white-space:normal}
-    .sn-link{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:10px;color:inherit;text-decoration:none;border:1px solid transparent;border-radius:11px;padding:5px 7px;margin:-5px -7px;transition:background .16s ease,border-color .16s ease}
-    .sn-link:hover{background:#f7faff;border-color:#d8e4ff}
-    .sn-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px}
-    .sn-icon{width:32px;height:32px;border-radius:9px;background:#edf3ff;color:#81a5dd;display:grid;place-items:center}
-    .sn-icon svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .sn-entry{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:10px}
+    .sn-icon-btn{width:32px;height:32px;padding:0;border:none;background:transparent;border-radius:9px;display:grid;place-items:center;cursor:pointer}
+    .sn-icon-btn:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px}
+    .sn-main-link{display:flex;flex-direction:column;gap:2px;color:inherit;text-decoration:none;border:1px solid transparent;border-radius:11px;padding:5px 7px;margin:-5px -7px;transition:background .16s ease,border-color .16s ease}
+    .sn-main-link:hover{background:#f7faff;border-color:#d8e4ff}
+    .sn-main-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px}
+    .sn-icon,.sn-picker-icon{width:32px;height:32px;border-radius:9px;background:#edf3ff;color:#81a5dd;display:grid;place-items:center}
+    .sn-icon svg,.sn-picker-icon svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .sn-picker-icon{width:28px;height:28px;border-radius:8px}
+    .sn-icon.attended-standalone,.sn-picker-icon.attended-standalone{background:#e9f1ff;color:#2f67c8}
+    .sn-icon.attended-pos-linked,.sn-picker-icon.attended-pos-linked{background:#e2edff;color:#2458b5}
+    .sn-icon.unattended-vending,.sn-picker-icon.unattended-vending{background:#e7f7ef;color:#1f8650}
+    .sn-icon.unattended-ev,.sn-picker-icon.unattended-ev{background:#e3f4eb;color:#1e7c4a}
+    .sn-icon.unattended-arcade,.sn-picker-icon.unattended-arcade{background:#def1e6;color:#1a7544}
+    .sn-icon.unattended-coffee,.sn-picker-icon.unattended-coffee{background:#eaf8f0;color:#208452}
     .sn-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
     .sn-value{font-size:14px;font-weight:700;line-height:1.2;color:#1f4fbf;word-break:break-all}
     .sn-owner{font-size:12px;line-height:1.3;font-weight:600;color:#2f3440}
     .sn-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;line-height:1.2;color:#6c7486}
     .sn-tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;border:1px solid #d1d9ea;background:#f4f7fd;color:#506080;font-size:11px;font-weight:600}
-    .sn-tag.self-service{background:#e8f8ef;border-color:#b7e5ca;color:#1e7a43}
-    .sn-tag.pos-linked{background:#e9f0ff;border-color:#bfd2ff;color:#2856bc}
-    .sn-tag.standalone{background:#f2f4f8;border-color:#d6dbe8;color:#4a5872}
-    .sn-tag.staff-mobile{background:#fff5e9;border-color:#f2cf9e;color:#a35d00}
+    .sn-tag.attended{background:#eaf0ff;border-color:#bfd1ff;color:#2856bc}
+    .sn-tag.unattended{background:#e8f8ef;border-color:#b7e5ca;color:#1e7a43}
+    .sn-picker-pop{position:absolute;z-index:120;display:none;min-width:274px;max-width:304px;padding:12px;border:1px solid #d8deea;border-radius:14px;background:#fff;box-shadow:0 18px 36px rgba(23,30,47,.18)}
+    .sn-picker-pop.show{display:block}
+    .sn-picker-head{font-size:12px;font-weight:600;line-height:1.3;color:#5f6c84;margin-bottom:8px}
+    .sn-picker-group+.sn-picker-group{margin-top:8px;padding-top:8px;border-top:1px solid #edf1f6}
+    .sn-picker-title{font-size:11px;font-weight:600;line-height:1.2;color:#8d96a8;margin:0 2px 6px}
+    .sn-picker-item{width:100%;border:1px solid transparent;border-radius:10px;background:transparent;padding:6px 8px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;color:#2f3747;text-align:left}
+    .sn-picker-item:hover{background:#f6f9ff;border-color:#dbe5f8}
+    .sn-picker-item.active{background:#eef3ff;border-color:#c7d6fb}
+    .sn-picker-item strong{display:block;font-size:12px;line-height:1.35;font-weight:600}
     .more{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);background:#fafbfd;color:#768096;display:grid;place-items:center}
     .more svg{width:17px;height:17px}
     .scroll::-webkit-scrollbar,.nav::-webkit-scrollbar,.cols::-webkit-scrollbar{width:10px;height:10px}
@@ -415,38 +432,153 @@
         if(r.storeId) query.set("storeId",r.storeId);
         return `1.terminalmanage.html?${query.toString()}`;
       };
-      const terminalUsageMap={
-        self_service:{
-          tag:"Self-service",
-          className:"self-service",
+      const terminalModeGroups=[
+        {label:"Attended Scenarios",items:["attended_standalone","attended_pos_linked"]},
+        {label:"Unattended Scenarios",items:["unattended_vending","unattended_ev","unattended_arcade","unattended_coffee"]}
+      ];
+      const terminalModeMap={
+        attended_standalone:{
+          usageKey:"standalone",
+          label:"Standalone Terminal",
+          scene:"Standalone Terminal",
+          tag:"Attended",
+          tagClass:"attended",
+          className:"attended-standalone",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="10" height="17" rx="2"></rect><rect x="9.5" y="6" width="5" height="3.4" rx="0.7"></rect><circle cx="12" cy="16.3" r="1"></circle></svg>'
+        },
+        attended_pos_linked:{
+          usageKey:"pos_linked",
+          label:"Terminal + ECR",
+          scene:"Terminal + ECR",
+          tag:"Attended",
+          tagClass:"attended",
+          className:"attended-pos-linked",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="9" rx="1.8"></rect><path d="M6 9V6h8.5v3"></path><line x1="7.2" y1="12.2" x2="12.8" y2="12.2"></line></svg>'
+        },
+        unattended_vending:{
+          usageKey:"self_service",
+          label:"Vending Machine",
+          scene:"Vending Machine",
+          tag:"Unattended",
+          tagClass:"unattended",
+          className:"unattended-vending",
           icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2"></rect><line x1="9" y1="7.5" x2="15" y2="7.5"></line><line x1="9" y1="11.5" x2="15" y2="11.5"></line><circle cx="12" cy="16.5" r="1"></circle></svg>'
         },
-        pos_linked:{
-          tag:"POS linked",
-          className:"pos-linked",
-          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="9" height="7" rx="1.5"></rect><rect x="14" y="9" width="7" height="10" rx="1.5"></rect><path d="M12 8h2"></path><path d="M10 12h4"></path><path d="M16 13h3"></path></svg>'
+        unattended_ev:{
+          usageKey:"self_service",
+          label:"EV Charging",
+          scene:"EV Charging",
+          tag:"Unattended",
+          tagClass:"unattended",
+          className:"unattended-ev",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="4" width="10" height="15" rx="2"></rect><path d="M12 8l-2 3h2l-1 3 3-4h-2l1-2z"></path><path d="M17 9h2a1 1 0 0 1 1 1v5"></path></svg>'
         },
-        standalone:{
-          tag:"Standalone",
-          className:"standalone",
-          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="12" rx="2"></rect><line x1="8" y1="20" x2="16" y2="20"></line><line x1="12" y1="16" x2="12" y2="20"></line></svg>'
+        unattended_arcade:{
+          usageKey:"self_service",
+          label:"Arcade Machine",
+          scene:"Arcade Machine",
+          tag:"Unattended",
+          tagClass:"unattended",
+          className:"unattended-arcade",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h14l-1.6 8a2 2 0 0 1-2 1.6H8.6A2 2 0 0 1 6.6 18L5 10z"></path><circle cx="9" cy="13.5" r="1.2"></circle><circle cx="13.8" cy="13.5" r="1.2"></circle><line x1="12" y1="10" x2="12" y2="6"></line><circle cx="12" cy="5" r="1.4"></circle></svg>'
         },
-        staff_mobile:{
-          tag:"Staff mobile",
-          className:"staff-mobile",
-          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="3" width="8" height="18" rx="2"></rect><circle cx="12" cy="17" r="1"></circle><path d="M3 10h4"></path><path d="M3 14h4"></path></svg>'
+        unattended_coffee:{
+          usageKey:"self_service",
+          label:"Coffee Machine",
+          scene:"Coffee Machine",
+          tag:"Unattended",
+          tagClass:"unattended",
+          className:"unattended-coffee",
+          icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9h9v5a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4V9z"></path><path d="M15 10h2a2 2 0 0 1 0 4h-2"></path><line x1="8" y1="4" x2="8" y2="7"></line><line x1="12" y1="4" x2="12" y2="7"></line></svg>'
         }
       };
-      const resolveTerminalUsage=r=>terminalUsageMap[r.terminalUsage]||terminalUsageMap.standalone;
+      const fallbackTerminalModeKey="attended_standalone";
+      const inferTerminalModeKey=r=>{
+        if(r&&terminalModeMap[r.terminalMode]) return r.terminalMode;
+        const usage=norm(r?.terminalUsage);
+        const scene=norm(r?.terminalScene);
+        if(usage==="pos_linked"||scene.includes("counter pos")||scene.includes("cash register")||scene.includes("ecr")) return "attended_pos_linked";
+        if(scene.includes("ev")) return "unattended_ev";
+        if(scene.includes("coffee")) return "unattended_coffee";
+        if(scene.includes("arcade")) return "unattended_arcade";
+        if(usage==="self_service"||scene.includes("vending")||scene.includes("kiosk")) return "unattended_vending";
+        if(usage==="standalone"||usage==="staff_mobile") return "attended_standalone";
+        return fallbackTerminalModeKey;
+      };
+      const resolveTerminalMode=r=>terminalModeMap[inferTerminalModeKey(r)]||terminalModeMap[fallbackTerminalModeKey];
+      const applyTerminalModeForSn=(sn,modeKey)=>{
+        const mode=terminalModeMap[modeKey];
+        if(!mode||!sn) return;
+        rows.forEach(row=>{
+          if(String(row.sn||"")!==String(sn)) return;
+          row.terminalMode=modeKey;
+          row.terminalUsage=mode.usageKey;
+          row.terminalScene=mode.scene;
+        });
+      };
       const terminalOwnerLine=r=>{
         const owner=[r.merchantName,r.storeName].filter(Boolean).join(" - ");
         return owner||"Unassigned Merchant - Store";
       };
+      const snPicker=document.createElement("div");
+      snPicker.className="sn-picker-pop";
+      document.body.appendChild(snPicker);
+      const snPickerState={open:false,sn:"",anchor:null};
+      const closeSnPicker=()=>{
+        if(snPickerState.anchor) snPickerState.anchor.setAttribute("aria-expanded","false");
+        snPickerState.open=false;
+        snPickerState.sn="";
+        snPickerState.anchor=null;
+        snPicker.classList.remove("show");
+        snPicker.innerHTML="";
+      };
+      const renderSnPickerContent=(sn,activeModeKey)=>{
+        const groups=terminalModeGroups.map(group=>{
+          const items=group.items.map(modeKey=>{
+            const mode=terminalModeMap[modeKey];
+            if(!mode) return "";
+            return `<button class="sn-picker-item${modeKey===activeModeKey?" active":""}" type="button" data-mode-key="${modeKey}"><span class="sn-picker-icon ${mode.className}" aria-hidden="true">${mode.icon}</span><strong>${esc(mode.label)}</strong></button>`;
+          }).join("");
+          return `<div class="sn-picker-group"><div class="sn-picker-title">${esc(group.label)}</div>${items}</div>`;
+        }).join("");
+        return `<div class="sn-picker-head">Select terminal type for ${esc(sn)}</div>${groups}`;
+      };
+      const positionSnPicker=()=>{
+        if(!snPickerState.open||!snPickerState.anchor) return;
+        const anchorRect=snPickerState.anchor.getBoundingClientRect();
+        const pickerRect=snPicker.getBoundingClientRect();
+        const pad=12;
+        let left=anchorRect.left+window.scrollX;
+        let top=anchorRect.bottom+window.scrollY+8;
+        const maxLeft=window.scrollX+window.innerWidth-pickerRect.width-pad;
+        if(left>maxLeft) left=maxLeft;
+        if(top+pickerRect.height>window.scrollY+window.innerHeight-pad){
+          const above=anchorRect.top+window.scrollY-pickerRect.height-8;
+          if(above>=window.scrollY+pad) top=above;
+        }
+        snPicker.style.left=`${Math.max(window.scrollX+pad,left)}px`;
+        snPicker.style.top=`${Math.max(window.scrollY+pad,top)}px`;
+      };
+      const openSnPicker=(sn,anchor)=>{
+        if(!sn||!anchor) return;
+        if(snPickerState.open&&snPickerState.sn===sn&&snPickerState.anchor===anchor){closeSnPicker(); return;}
+        const currentRow=rows.find(row=>String(row.sn||"")===String(sn));
+        const activeModeKey=inferTerminalModeKey(currentRow);
+        if(snPickerState.anchor&&snPickerState.anchor!==anchor) snPickerState.anchor.setAttribute("aria-expanded","false");
+        snPickerState.open=true;
+        snPickerState.sn=sn;
+        snPickerState.anchor=anchor;
+        anchor.setAttribute("aria-expanded","true");
+        snPicker.innerHTML=renderSnPickerContent(sn,activeModeKey);
+        snPicker.classList.add("show");
+        positionSnPicker();
+      };
       const renderSnCell=r=>{
         if(r.sn==="") return "&nbsp;";
-        const usage=resolveTerminalUsage(r);
-        const scene=r.terminalScene||usage.tag;
-        return `<a class="sn-link" href="${esc(terminalManageHref(r))}" title="Open terminal management"><span class="sn-icon ${usage.className}" aria-hidden="true">${usage.icon}</span><span class="sn-copy"><span class="sn-value">${esc(r.sn??"-")}</span><span class="sn-owner">${esc(terminalOwnerLine(r))}</span><span class="sn-meta"><span class="sn-tag ${usage.className}">${esc(usage.tag)}</span><span>${esc(scene)}</span></span></span></a>`;
+        const mode=resolveTerminalMode(r);
+        const scene=r.terminalScene||mode.scene;
+        const snText=String(r.sn||"");
+        return `<div class="sn-entry"><button class="sn-icon-btn" type="button" data-sn="${esc(snText)}" aria-haspopup="dialog" aria-expanded="false" title="Quick terminal type selection"><span class="sn-icon ${mode.className}" aria-hidden="true">${mode.icon}</span></button><a class="sn-main-link" href="${esc(terminalManageHref(r))}" title="Open terminal management"><span class="sn-copy"><span class="sn-value">${esc(r.sn??"-")}</span><span class="sn-owner">${esc(terminalOwnerLine(r))}</span><span class="sn-meta"><span class="sn-tag ${mode.tagClass}">${esc(mode.tag)}</span><span>${esc(scene)}</span></span></span></a></div>`;
       };
       const colState=k=>state.columns.find(c=>c.key===k);
       const visible=()=>state.columns.filter(c=>c.visible);
@@ -548,7 +680,7 @@
         filterBadge.classList.toggle("show",count>0);
         filterState.textContent=`${count} Active`;
         filterState.classList.toggle("active",count>0);
-        filterResultLabel.textContent=count?`Showing filtered rows in the ${state.tab} tab.`:`Showing all rows in the current tab.`;
+        if(filterResultLabel) filterResultLabel.textContent=count?`Showing filtered rows in the ${state.tab} tab.`:`Showing all rows in the current tab.`;
         filterBtn.classList.toggle("active",filtersPanel.classList.contains("show"));
         filterBtn.setAttribute("aria-pressed",filtersPanel.classList.contains("show")?"true":"false");
       };
@@ -595,6 +727,7 @@
         const cols=visible(), data=rows.filter(matches);
         head.innerHTML=cols.map(c=>`<th style="min-width:${defs[c.key][1]}px">${defs[c.key][0]}</th>`).join("")+`<th style="min-width:82px">ACTIONS</th>`;
         body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" aria-label="More actions"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
+        closeSnPicker();
         updateFilterUi();
       };
       const renderCols=()=>{
@@ -635,16 +768,30 @@
         setPop("");
       };
       document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{state.tab=t.dataset.tab; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t)); renderTable();});
-      filterBtn.onclick=e=>{e.stopPropagation(); syncFilters(); setPop(""); toggleFilters();};
-      colsBtn.onclick=e=>{e.stopPropagation(); setPop(colsPop.classList.contains("show")?"":"cols");};
-      menuBtn.onclick=e=>{e.stopPropagation(); setPop(menuPop.classList.contains("show")?"":"menu");};
+      filterBtn.onclick=e=>{e.stopPropagation(); closeSnPicker(); syncFilters(); setPop(""); toggleFilters();};
+      colsBtn.onclick=e=>{e.stopPropagation(); closeSnPicker(); setPop(colsPop.classList.contains("show")?"":"cols");};
+      menuBtn.onclick=e=>{e.stopPropagation(); closeSnPicker(); setPop(menuPop.classList.contains("show")?"":"menu");};
       exportBtn.onclick=()=>exportRows("csv");
-      document.getElementById("searchBtn").onclick=()=>{applyFilters(); setPop("");};
+      document.getElementById("searchBtn").onclick=()=>{closeSnPicker(); applyFilters(); setPop("");};
       document.getElementById("resetFilters").onclick=resetFilters;
-      document.getElementById("openCols").onclick=e=>{e.stopPropagation(); applyFilters(); setPop("cols");};
+      document.getElementById("openCols").onclick=e=>{e.stopPropagation(); closeSnPicker(); applyFilters(); setPop("cols");};
       document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); markColumnsCustom(); renderCols(); renderTable();};
       document.getElementById("resetCols").onclick=resetCols;
       Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter") applyFilters();}));
+      body.addEventListener("click",e=>{
+        const btn=e.target.closest(".sn-icon-btn");
+        if(!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setPop("");
+        openSnPicker(btn.dataset.sn||"",btn);
+      });
+      snPicker.addEventListener("click",e=>{
+        const item=e.target.closest(".sn-picker-item");
+        if(!item||!snPickerState.sn) return;
+        applyTerminalModeForSn(snPickerState.sn,item.dataset.modeKey||"");
+        renderTable();
+      });
       colList.addEventListener("change",e=>{
         const input=e.target.closest('input[type="checkbox"]');
         if(!input) return;
@@ -713,8 +860,14 @@
         const btn=e.target.closest(".mitem");
         if(btn) exportRows(btn.dataset.format);
       });
-      document.addEventListener("click",e=>{if(e.target.closest(".anchor")) return; setPop("");});
-      document.addEventListener("keydown",e=>{if(e.key==="Escape"){setPop(""); toggleFilters(false);}});
+      document.addEventListener("click",e=>{
+        if(!e.target.closest(".sn-picker-pop")&&!e.target.closest(".sn-icon-btn")) closeSnPicker();
+        if(e.target.closest(".anchor")) return;
+        setPop("");
+      });
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSnPicker(); setPop(""); toggleFilters(false);}});
+      window.addEventListener("resize",()=>{if(snPickerState.open) positionSnPicker();});
+      document.addEventListener("scroll",()=>{if(snPickerState.open) closeSnPicker();},{capture:true,passive:true});
       renderCols();
       renderTable();
     })();
