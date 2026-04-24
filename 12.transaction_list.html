@@ -262,7 +262,7 @@
                   </div>
                 </div>
                 <div class="row head">
-                  <span>Show/Hide Columns</span>
+                  <span id="colEditorTitle">Show/Hide Columns (Completed)</span>
                   <div class="headtools">
                     <button class="ctl" id="selectAll">Select All</button>
                     <button class="ctl" id="resetCols">Reset</button>
@@ -424,6 +424,7 @@
       const head=document.getElementById("headRow"),body=document.getElementById("bodyRows"),colList=document.getElementById("colList");
       const filterBtn=document.getElementById("filterBtn"),colsBtn=document.getElementById("colsBtn"),menuBtn=document.getElementById("menuBtn"),exportBtn=document.getElementById("exportBtn");
       const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
+      const colEditorTitle=document.getElementById("colEditorTitle");
       const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
       const presetList=document.getElementById("presetList"),presetMeta=document.getElementById("presetMeta"),presetNote=document.getElementById("presetNote");
       const saveViewBtn=document.getElementById("saveViewBtn"),renameViewBtn=document.getElementById("renameViewBtn"),deleteViewBtn=document.getElementById("deleteViewBtn");
@@ -445,6 +446,12 @@
       };
       const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;");
       const norm=s=>String(s||"").trim().toLowerCase();
+      const tabLabelMap={completed:"Completed",failed:"Failed"};
+      const currentTabLabel=()=>tabLabelMap[state.tab]||state.tab;
+      const updateColumnEditorTitle=()=>{
+        if(!colEditorTitle) return;
+        colEditorTitle.textContent=`Show/Hide Columns (${currentTabLabel()})`;
+      };
       const terminalManageHref=r=>{
         const query=new URLSearchParams();
         if(r.terminalName) query.set("terminalName",r.terminalName);
@@ -846,6 +853,7 @@
         updateFilterUi();
       };
       const renderCols=()=>{
+        updateColumnEditorTitle();
         colList.innerHTML=state.columns.map((c,index)=>`<div class="citem" draggable="true" data-key="${c.key}"><button class="grip" type="button"><svg viewBox="0 0 24 24"><line x1="6" y1="7" x2="18" y2="7"></line><line x1="6" y1="12" x2="18" y2="12"></line><line x1="6" y1="17" x2="18" y2="17"></line></svg></button><span class="seq">${index+1}</span><label class="toggle"><input type="checkbox" data-key="${c.key}"${c.visible?" checked":""}><span class="box"></span><span>${esc(defs[c.key][2])}</span></label></div>`).join("");
         renderPresets();
       };
@@ -882,7 +890,7 @@
         a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
         setPop("");
       };
-      document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{state.tab=t.dataset.tab; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t)); renderTable();});
+      document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{state.tab=t.dataset.tab; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t)); updateColumnEditorTitle(); renderTable();});
       filterBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); syncFilters(); setPop(""); toggleFilters();};
       colsBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(colsPop.classList.contains("show")?"":"cols");};
       menuBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(menuPop.classList.contains("show")?"":"menu");};
