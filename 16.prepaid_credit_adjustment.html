@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prepaid Credit Adjustment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/prepaid-cards.css">
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-left"><div class="mark">PW</div><div><span class="brand-name">PAYwizard</span><span class="brand-sub">merchant portal</span></div></div>
+        <button class="close-btn" type="button" aria-label="Close">x</button>
+      </div>
+      <nav class="menu" aria-label="Main navigation">
+        <a class="menu-item" href="#"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7"></rect><rect x="13" y="4" width="7" height="7"></rect><rect x="4" y="13" width="7" height="7"></rect><rect x="13" y="13" width="7" height="7"></rect></svg></span><span class="label">Dashboard</span></span></a>
+        <a class="menu-item" href="12.transaction_list.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg></span><span class="label">Transactions</span></span></a>
+        <a class="menu-item active" href="14.prepaid_card_list.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M7 9h5"></path><path d="M7 13h3"></path><path d="M16 13.5a2.5 2.5 0 1 0 0-5"></path></svg></span><span class="label">Prepaid Cards</span></span><span class="chevron">v</span></a>
+        <div class="sub-menu">
+          <a class="sub-item" href="14.prepaid_card_list.html">Card List</a>
+          <a class="sub-item" href="15.prepaid_card_activation.html">Activation</a>
+          <a class="sub-item active" href="16.prepaid_credit_adjustment.html">Change Credit</a>
+          <a class="sub-item" href="17.prepaid_loss_replacement.html">Loss & Replacement</a>
+          <a class="sub-item" href="18.prepaid_terminal_activity.html">Terminal Activity</a>
+        </div>
+        <a class="menu-item" href="5.merchant_manage_iso.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M6 10V7a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"></path></svg></span><span class="label">Merchants</span></span></a>
+        <a class="menu-item" href="1.terminalmanage.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="2"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg></span><span class="label">Device Management</span></span></a>
+      </nav>
+    </aside>
+
+    <main class="main-container">
+      <header class="top-header">
+        <div class="breadcrumbs">Prepaid Cards / <span>Change Credit</span></div>
+        <div class="user-controls">
+          <button class="icon-circle" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="notification-badge">4</span></button>
+          <button class="icon-circle" type="button" aria-label="User"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <div class="content-inner">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Manual Credit Management</h1>
+              <p class="page-subtitle">Add credit, deduct balance, and create immutable credit history entries for audit and reconciliation.</p>
+            </div>
+            <div class="page-actions">
+              <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
+              <button class="btn primary" type="button" data-open-modal="creditConfirm">Change Credit</button>
+            </div>
+          </div>
+
+          <section class="split-layout">
+            <aside>
+              <div class="lookup-card">
+                <div class="field">
+                  <label for="cardLookup">Find Card</label>
+                  <input class="input" id="cardLookup" value="04A37C91B25F80">
+                </div>
+                <div class="page-actions" style="justify-content:flex-start;margin-top:12px">
+                  <button class="btn primary" type="button" data-toast="Card loaded.">Search</button>
+                </div>
+              </div>
+              <div class="lookup-card">
+                <div class="kv">
+                  <div class="kv-row"><span>Status</span><strong><span class="badge green">Active</span></strong></div>
+                  <div class="kv-row"><span>Card UID</span><strong class="mono">04A37C91B25F80</strong></div>
+                  <div class="kv-row"><span>Cardholder</span><strong>Olivia Chen</strong></div>
+                  <div class="kv-row"><span>Employee ID</span><strong>EMP-004218</strong></div>
+                  <div class="kv-row"><span>Current Credit</span><strong>$128.40</strong></div>
+                  <div class="kv-row"><span>Daily Used</span><strong>$12.60 / $50.00</strong></div>
+                  <div class="kv-row"><span>Last Transaction</span><strong>2026-04-27 10:18</strong></div>
+                </div>
+              </div>
+              <div class="lookup-card">
+                <div class="kv">
+                  <div class="kv-row"><span>Admin</span><strong>ops.manager@paywizard.io</strong></div>
+                  <div class="kv-row"><span>IP Address</span><strong class="mono">203.0.113.42</strong></div>
+                  <div class="kv-row"><span>Audit Mode</span><strong>Strict</strong></div>
+                </div>
+              </div>
+            </aside>
+
+            <div class="content-inner">
+              <section class="section">
+                <div class="section-head"><div><h2 class="section-title">Add / Deduct Credit</h2></div><span class="badge purple">Required Remark</span></div>
+                <div class="form-grid two">
+                  <div class="field"><label for="readonlyUid">Card Unique Identifier</label><input class="input mono" id="readonlyUid" value="04A37C91B25F80" readonly></div>
+                  <div class="field"><label for="changeAmount">Additional Credit Money</label><input class="input" id="changeAmount" value="-10.00"></div>
+                  <div class="field span-2"><label for="remark">Remark</label><textarea class="textarea" id="remark">Machine jam refund reversal after cash compensation.</textarea><span class="field-error">Remark must be more than 5 characters before submit.</span></div>
+                </div>
+                <div class="page-actions" style="margin-top:16px">
+                  <button class="btn" type="button" data-toast="Form cleared.">Clear</button>
+                  <button class="btn primary" type="button" data-open-modal="creditConfirm">Change Credit</button>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-head">
+                  <div><h2 class="section-title">Credit History</h2></div>
+                  <button class="btn small" type="button" data-toast="Credit history exported.">Export</button>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Date Time</th><th>Method</th><th>Before</th><th>After</th><th>Amount</th><th>Transaction ID</th><th>Operator</th><th>Remark</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>2026-04-27 10:18:34</td><td><span class="badge blue">VEND</span></td><td>$131.90</td><td>$128.40</td><td class="amount negative">-3.50</td><td><a class="link mono" href="18.prepaid_terminal_activity.html">PWV-260427-100183</a></td><td>System</td><td>Terminal sale</td></tr>
+                      <tr><td>2026-04-26 18:05:13</td><td><span class="badge green">Manual</span></td><td>$81.90</td><td>$131.90</td><td class="amount positive">+50.00</td><td>-</td><td>ops.manager@paywizard.io</td><td>Cash top-up at front desk</td></tr>
+                      <tr><td>2026-04-26 12:42:50</td><td><span class="badge blue">VEND</span></td><td>$86.10</td><td>$81.90</td><td class="amount negative">-4.20</td><td><a class="link mono" href="18.prepaid_terminal_activity.html">PWV-260426-124250</a></td><td>System</td><td>Terminal sale</td></tr>
+                      <tr><td>2026-04-25 09:00:00</td><td><span class="badge green">Manual</span></td><td>$0.00</td><td>$100.00</td><td class="amount positive">+100.00</td><td>-</td><td>hr.admin@merchant.com</td><td>Employee onboarding initial credit</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="creditConfirm" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="creditTitle">
+      <div class="modal-head"><h2 class="modal-title" id="creditTitle">Confirm Credit Change</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
+      <div class="modal-body">
+        <div class="kv">
+          <div class="kv-row"><span>Card UID</span><strong class="mono">04A37C91B25F80</strong></div>
+          <div class="kv-row"><span>Current Credit</span><strong>$128.40</strong></div>
+          <div class="kv-row"><span>Change Amount</span><strong class="amount negative">-$10.00</strong></div>
+          <div class="kv-row"><span>New Credit</span><strong>$118.40</strong></div>
+          <div class="kv-row"><span>Operator</span><strong>ops.manager@paywizard.io</strong></div>
+          <div class="kv-row"><span>IP Address</span><strong class="mono">203.0.113.42</strong></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn danger" type="button" data-close-modal data-toast="Credit changed and audit record created.">Confirm Deduction</button></div>
+    </section>
+  </div>
+  <div class="toast" data-toast-root>Saved</div>
+  <script src="scripts/prepaid-cards.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prepaid Loss & Replacement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/prepaid-cards.css">
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-left"><div class="mark">PW</div><div><span class="brand-name">PAYwizard</span><span class="brand-sub">merchant portal</span></div></div>
+        <button class="close-btn" type="button" aria-label="Close">x</button>
+      </div>
+      <nav class="menu" aria-label="Main navigation">
+        <a class="menu-item" href="#"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7"></rect><rect x="13" y="4" width="7" height="7"></rect><rect x="4" y="13" width="7" height="7"></rect><rect x="13" y="13" width="7" height="7"></rect></svg></span><span class="label">Dashboard</span></span></a>
+        <a class="menu-item" href="12.transaction_list.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg></span><span class="label">Transactions</span></span></a>
+        <a class="menu-item active" href="14.prepaid_card_list.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M7 9h5"></path><path d="M7 13h3"></path><path d="M16 13.5a2.5 2.5 0 1 0 0-5"></path></svg></span><span class="label">Prepaid Cards</span></span><span class="chevron">v</span></a>
+        <div class="sub-menu">
+          <a class="sub-item" href="14.prepaid_card_list.html">Card List</a>
+          <a class="sub-item" href="15.prepaid_card_activation.html">Activation</a>
+          <a class="sub-item" href="16.prepaid_credit_adjustment.html">Change Credit</a>
+          <a class="sub-item active" href="17.prepaid_loss_replacement.html">Loss & Replacement</a>
+          <a class="sub-item" href="18.prepaid_terminal_activity.html">Terminal Activity</a>
+        </div>
+        <a class="menu-item" href="5.merchant_manage_iso.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M6 10V7a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"></path></svg></span><span class="label">Merchants</span></span></a>
+        <a class="menu-item" href="1.terminalmanage.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="2"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg></span><span class="label">Device Management</span></span></a>
+      </nav>
+    </aside>
+
+    <main class="main-container">
+      <header class="top-header">
+        <div class="breadcrumbs">Prepaid Cards / <span>Loss & Replacement</span></div>
+        <div class="user-controls">
+          <button class="icon-circle" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="notification-badge">4</span></button>
+          <button class="icon-circle" type="button" aria-label="User"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <div class="content-inner">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Loss Reporting & Card Replacement</h1>
+              <p class="page-subtitle">Freeze a lost card in real time, then move balance and holder identity to a new M1 UID.</p>
+            </div>
+            <div class="page-actions">
+              <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
+              <button class="btn danger" type="button" data-toast="Old card status changed to Suspended.">Suspend Old Card</button>
+            </div>
+          </div>
+
+          <section class="summary-grid" aria-label="Replacement summary">
+            <div class="summary"><span>Old Card</span><strong class="mono" style="font-size:18px">0498AD3342FF09</strong><small><span class="badge red">Suspended</span></small></div>
+            <div class="summary"><span>Remaining Balance</span><strong>$42.75</strong><small>Ready to transfer</small></div>
+            <div class="summary"><span>New Card</span><strong class="mono" style="font-size:18px">04E8C19977A20C</strong><small>Blank M1 card read</small></div>
+            <div class="summary"><span>After Submit</span><strong>Replaced</strong><small>Old card will be voided</small></div>
+          </section>
+
+          <section class="split-layout">
+            <aside>
+              <div class="lookup-card">
+                <div class="field">
+                  <label for="lostLookup">Lost Card UID / Holder</label>
+                  <input class="input" id="lostLookup" value="Sarah Khan">
+                </div>
+                <div class="page-actions" style="justify-content:flex-start;margin-top:12px">
+                  <button class="btn primary" type="button" data-toast="Lost card loaded.">Search</button>
+                </div>
+              </div>
+              <div class="lookup-card">
+                <div class="kv">
+                  <div class="kv-row"><span>Status</span><strong><span class="badge red">Suspended</span></strong></div>
+                  <div class="kv-row"><span>Card UID</span><strong class="mono">0498AD3342FF09</strong></div>
+                  <div class="kv-row"><span>Holder</span><strong>Sarah Khan</strong></div>
+                  <div class="kv-row"><span>Employee ID</span><strong>EMP-001884</strong></div>
+                  <div class="kv-row"><span>Balance</span><strong>$42.75</strong></div>
+                  <div class="kv-row"><span>Last Sale</span><strong>2026-04-24 12:03</strong></div>
+                </div>
+              </div>
+            </aside>
+
+            <div class="content-inner">
+              <section class="section">
+                <div class="section-head">
+                  <div><h2 class="section-title">Replacement Workflow</h2></div>
+                  <button class="btn primary" type="button" data-open-modal="replaceConfirm">Transfer Balance</button>
+                </div>
+                <div class="step-list">
+                  <div class="step-item"><span class="step-no">1</span><span class="step-copy"><strong>Freeze Lost Card</strong><span>Card is Suspended and terminal sale requests are rejected with code 54.</span></span><span class="badge green">Done</span></div>
+                  <div class="step-item"><span class="step-no">2</span><span class="step-copy"><strong>Read New Blank Card</strong><span>External reader captured new M1 UID.</span></span><span class="badge purple">Current</span></div>
+                  <div class="step-item"><span class="step-no">3</span><span class="step-copy"><strong>Transfer Credit & Identity</strong><span>Move balance, cardholder details, limits, and history link to the new UID.</span></span><span class="badge neutral">Pending</span></div>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-head"><div><h2 class="section-title">New Card Details</h2></div><button class="btn small" type="button" data-toast="New card UID captured.">Read New UID</button></div>
+                <div class="form-grid">
+                  <div class="field"><label for="oldUid">Old Card UID</label><input class="input mono" id="oldUid" value="0498AD3342FF09" readonly></div>
+                  <div class="field"><label for="newUid">New Card UID</label><input class="input mono" id="newUid" value="04E8C19977A20C"></div>
+                  <div class="field"><label for="transferAmount">Transfer Balance</label><input class="input" id="transferAmount" value="42.75" readonly></div>
+                  <div class="field"><label for="newDisplay">New Display Card No.</label><input class="input" id="newDisplay" value="EMP-CARD-001884-R2"></div>
+                  <div class="field"><label for="newStatus">New Card Status</label><select class="select" id="newStatus"><option>Active</option><option>Not Active</option></select></div>
+                  <div class="field"><label for="oldStatus">Old Card Final Status</label><input class="input" id="oldStatus" value="Replaced" readonly></div>
+                  <div class="field span-3"><label for="replaceRemark">Remark</label><textarea class="textarea" id="replaceRemark">Cardholder reported physical card lost. Replacement card issued after identity check at front desk.</textarea></div>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-head"><div><h2 class="section-title">Transferred Data</h2></div><span class="badge purple">Preview</span></div>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Data Type</th><th>Old Card</th><th>New Card</th><th>Result</th></tr></thead>
+                    <tbody>
+                      <tr><td>Remaining Balance</td><td>$42.75</td><td>$42.75</td><td><span class="badge green">Move</span></td></tr>
+                      <tr><td>Cardholder</td><td>Sarah Khan / EMP-001884</td><td>Sarah Khan / EMP-001884</td><td><span class="badge green">Copy</span></td></tr>
+                      <tr><td>Usage Rules</td><td>All Stores / Monthly $300</td><td>All Stores / Monthly $300</td><td><span class="badge green">Copy</span></td></tr>
+                      <tr><td>History Link</td><td>119 credit entries</td><td>Linked as replacement chain</td><td><span class="badge green">Link</span></td></tr>
+                      <tr><td>Old Card Status</td><td>Suspended</td><td>Replaced after submit</td><td><span class="badge red">Void</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-head"><div><h2 class="section-title">Recent Replacement History</h2></div></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date Time</th><th>Old UID</th><th>New UID</th><th>Balance</th><th>Operator</th><th>Status</th><th>Remark</th></tr></thead>
+                <tbody>
+                  <tr><td>2026-04-12 15:22:09</td><td class="mono">044D779D8221F0</td><td class="mono">04B27190A9140D</td><td>$18.30</td><td>frontdesk@merchant.com</td><td><span class="badge green">Completed</span></td><td>Damaged card replaced</td></tr>
+                  <tr><td>2026-03-28 08:45:31</td><td class="mono">0431A0FF77BB12</td><td class="mono">04C1229BD90173</td><td>$9.10</td><td>ops.manager@paywizard.io</td><td><span class="badge green">Completed</span></td><td>Lost card transfer</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="replaceConfirm" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="replaceTitle">
+      <div class="modal-head"><h2 class="modal-title" id="replaceTitle">Confirm Card Replacement</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
+      <div class="modal-body">
+        <div class="kv">
+          <div class="kv-row"><span>Old Card UID</span><strong class="mono">0498AD3342FF09</strong></div>
+          <div class="kv-row"><span>New Card UID</span><strong class="mono">04E8C19977A20C</strong></div>
+          <div class="kv-row"><span>Balance Transfer</span><strong>$42.75</strong></div>
+          <div class="kv-row"><span>Old Card Final Status</span><strong>Replaced</strong></div>
+          <div class="kv-row"><span>New Card Status</span><strong>Active</strong></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-toast="Balance transferred and replacement chain recorded.">Confirm Replacement</button></div>
+    </section>
+  </div>
+  <div class="toast" data-toast-root>Saved</div>
+  <script src="scripts/prepaid-cards.js"></script>
+</body>
+</html>
