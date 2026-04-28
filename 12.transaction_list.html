@@ -179,17 +179,16 @@
     .sn-tag.unattended{background:#e8f8ef;border-color:#b7e5ca;color:#1e7a43}
     .sn-tag.no-control{background:#f3f4f6;border-color:#d9dde6;color:#667085}
     .sn-status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
-    .sn-detail-pop{position:absolute;z-index:125;display:none;pointer-events:none;width:330px;max-width:min(92vw,330px);padding:14px;border:1px solid #d7ddeb;border-radius:14px;background:#fff;box-shadow:0 18px 36px rgba(23,30,47,.18)}
+    .sn-detail-pop{position:absolute;z-index:125;display:none;pointer-events:none;width:420px;max-width:min(92vw,420px);padding:14px;border:1px solid #d7ddeb;border-radius:14px;background:#fff;box-shadow:0 18px 36px rgba(23,30,47,.18)}
     .sn-detail-pop.show{display:block}
     .sn-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
     .sn-detail-head strong{font-size:14px;line-height:1.3;color:#1f2735}
     .sn-detail-state{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;border:1px solid #c7e6d2;background:#ecfaf2;color:#1a7b47;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
     .sn-detail-state.offline{border-color:#ebb8b0;background:#fdeceb;color:#b63a30}
     .sn-detail-owner{margin-top:5px;font-size:12px;line-height:1.35;color:#566177}
-    .sn-detail-alert{margin-top:8px;padding:8px 10px;border-radius:10px;border:1px solid #edb7af;background:#fff2f0;color:#b03930;font-size:12px;font-weight:700}
-    .sn-detail-alert.online{border-color:#c5e5d1;background:#eefaf3;color:#1c7d49}
     .sn-detail-grid{margin-top:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
     .sn-detail-item{min-width:0}
+    .sn-detail-item.wide{grid-column:1 / -1}
     .sn-detail-item span{display:block;font-size:10px;line-height:1.2;font-weight:600;color:#7e889c;letter-spacing:.03em;text-transform:uppercase}
     .sn-detail-item b{display:block;margin-top:2px;font-size:12px;line-height:1.35;font-weight:700;color:#20293a;word-break:break-word}
     .sn-picker-pop{position:absolute;z-index:120;display:none;min-width:274px;max-width:304px;padding:12px;border:1px solid #d8deea;border-radius:14px;background:#fff;box-shadow:0 18px 36px rgba(23,30,47,.18)}
@@ -559,15 +558,21 @@
         return owner||"Unassigned Merchant - Store";
       };
       const terminalDetailDefaults={
-        reseller:"Universal Processing",
-        model:"IM30",
-        pn:"IM30-0AA-RD5-0JA0",
-        terminalType:"Payment Device - Smart POS",
-        lifecycle:"Active",
-        utilization:"0%",
-        syncTime:"2024-09-23 17:05",
-        network:"4G",
-        firmware:"1.26.7"
+        model:"Smart POS",
+        groupName:"-",
+        agent:"-",
+        network:"-",
+        ip:"-",
+        gps:"-",
+        appCount:"-",
+        battery:"-",
+        freeMemory:"-",
+        usedMemory:"-",
+        freeStorage:"-",
+        usedStorage:"-",
+        systemVersion:"-",
+        safeModuleVersion:"-",
+        pcba:"-"
       };
       const lostControlMode={
         tag:"No Control",
@@ -577,40 +582,85 @@
         icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="10" rx="1.8"></rect><path d="M6.5 8V6h8v2"></path><line x1="7.2" y1="12.2" x2="12.8" y2="12.2"></line><path d="M4.5 4.5l15 15"></path></svg>'
       };
       const terminalDetailBySn={
-        WP5151DQ33000097:{controlStatus:"lost",connectivity:"offline",downtime:"8M",lastSeen:"2025-06-15 15:15:21",syncTime:"2024-09-23 17:05",model:"IM30",pn:"IM30-0AA-RD5-0JA0",network:"Ethernet",firmware:"1.26.7",utilization:"0%"},
-        WP52205Q33000977:{connectivity:"online",lastSeen:"2026-04-07 10:46:48",syncTime:"2026-04-07 10:47:01",model:"Q2",pn:"Q2-0AA-RD2-0KA1",network:"Wi-Fi",firmware:"2.04.3",utilization:"64%"},
-        WP6127TX33009110:{connectivity:"online",lastSeen:"2026-04-07 10:22:01",syncTime:"2026-04-07 10:22:05",model:"Q3",pn:"Q3-0AA-RD9-0MA2",network:"4G",firmware:"3.01.2",utilization:"39%"},
-        WP6001MM33000109:{connectivity:"offline",downtime:"32M",lastSeen:"2026-04-07 08:59:34",syncTime:"2026-04-07 08:58:59",model:"IM25",pn:"IM25-0AA-RD3-0FA0",network:"Wi-Fi",firmware:"1.89.2",utilization:"12%"}
+        WP5151DQ33000097:{controlStatus:"lost",online:false,lastCommTime:"2025-06-15 15:15:21",model:"IM30",network:"Ethernet",systemVersion:"1.26.7",battery:"0%"},
+        WP5280VQ33200002:{id:1100049,online:false,terminalName:"WP5280VQ33200002",groupId:5422,groupName:"wstore-test",model:"posModel",modelAlias:"posModel",registerTime:1776670800000,systemVersion:"1.0.40-1137",kernelVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",bootloaderVersion:"1.0.40-1110",basebandVersion:"MPSS.HA.A14_H230_DRX_20251120",imei1:"866451070051501",imei2:"866451070051519",bluetoothMac:"02:56:14:01:28:B9",wifiMac:"00:56:14:01:28:b9",wifiSsid:"\"huiyin-ap\"",status:0,networkType:0,network:"Wi-Fi",ip:"192.168.202.97",gps:"31.2485 121.491",appCount:15,lastUpdateTime:1777017265000,agent:"54050",lastCommTime:"2026-04-24 15:54:25",lastBootTime:"2026-04-24 15:03:49",system:"1137",pcba:"TPHYCW1250614400128",freeMemory:"102.00MB",usedMemory:"1678.00MB",freeStorage:"16628.00MB",usedStorage:"2067.00MB",battery:"100%",runningTime:287189,productModel:"Q3mini",androidVersion:"14",manufacturer:"SHWP"},
+        WP52205Q33000977:{online:true,lastCommTime:"2026-04-07 10:46:48",lastBootTime:"2026-04-07 09:15:10",model:"Q2",groupName:"waou test merchant",agent:"54012",network:"Wi-Fi",wifiSsid:"Store-WiFi",ip:"10.10.20.41",gps:"-",appCount:12,battery:"86%",usedMemory:"1240.00MB",freeMemory:"480.00MB",usedStorage:"4120.00MB",freeStorage:"12880.00MB",runningTime:5478,systemVersion:"2.04.3",safeModuleVersion:"PCBB0008",pcba:"Q2PCBA220100812",imei1:"866451070041201"},
+        WP6127TX33009110:{online:true,lastCommTime:"2026-04-07 10:22:01",lastBootTime:"2026-04-07 07:40:18",model:"Q3",groupName:"north campus group",agent:"54018",network:"4G",ip:"100.92.14.22",gps:"49.278 122.919",appCount:9,battery:"72%",usedMemory:"1512.00MB",freeMemory:"266.00MB",usedStorage:"3304.00MB",freeStorage:"14812.00MB",runningTime:9703,systemVersion:"3.01.2",safeModuleVersion:"PCBB0010",pcba:"Q3PCBA240901447",imei1:"866451070047712"},
+        WP6001MM33000109:{online:false,lastCommTime:"2026-04-07 08:59:34",lastBootTime:"2026-04-07 08:10:22",model:"IM25",groupName:"urban bistro",agent:"54009",network:"Wi-Fi",wifiSsid:"Bistro-Staff",ip:"-",gps:"-",appCount:10,battery:"34%",usedMemory:"1388.00MB",freeMemory:"310.00MB",usedStorage:"5870.00MB",freeStorage:"11030.00MB",runningTime:6492,systemVersion:"1.89.2",safeModuleVersion:"PCBB0007",pcba:"IM25PCBA19020871",imei1:"866451070031099"}
       };
       const isTerminalUncontrolled=r=>{
         const sn=String(r?.sn||"");
         return r?.terminalControl==="lost"||terminalDetailBySn[sn]?.controlStatus==="lost";
       };
+      const cleanQuoted=value=>String(value??"").replace(/^"+|"+$/g,"").trim();
+      const formatTimestamp=value=>{
+        if(value===""||value===null||value===undefined) return "-";
+        if(typeof value==="number"){
+          const date=new Date(value);
+          const pad=n=>String(n).padStart(2,"0");
+          return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+        return String(value);
+      };
+      const formatRuntime=seconds=>{
+        const total=Number(seconds);
+        if(!Number.isFinite(total)||total<=0) return "-";
+        const days=Math.floor(total/86400);
+        const hours=Math.floor((total%86400)/3600);
+        const minutes=Math.floor((total%3600)/60);
+        return days?`${days}d ${hours}h ${minutes}m`:`${hours}h ${minutes}m`;
+      };
+      const combineUsage=(used,free)=>{
+        if(used&&free) return `Used: ${used} / Free: ${free}`;
+        if(used) return `Used: ${used}`;
+        if(free) return `Free: ${free}`;
+        return "-";
+      };
       const resolveTerminalDetail=(r,mode=resolveTerminalMode(r))=>{
         const sn=String(r?.sn||"");
         const source=terminalDetailBySn[sn]||{};
-        const offline=source.connectivity==="offline";
+        const online=typeof source.online==="boolean"?source.online:source.connectivity!=="offline";
+        const lastCommTime=formatTimestamp(source.lastCommTime||source.lastSeen);
+        const lastBootTime=formatTimestamp(source.lastBootTime);
+        const wifiSsid=cleanQuoted(source.wifiSsid);
+        const network=[source.network||"",wifiSsid].filter(Boolean).join(" / ")||(source.networkType!==undefined?`Type ${source.networkType}`:terminalDetailDefaults.network);
         return {
-          offline,
-          statusLabel:offline?"Offline":"Online",
-          statusText:offline
-            ?`Offline${source.downtime?` ${source.downtime}`:""}${source.lastSeen?` (${source.lastSeen})`:""}`
-            :`Online${source.lastSeen?` · Last heartbeat ${source.lastSeen}`:""}`,
-          reseller:source.reseller||terminalDetailDefaults.reseller,
-          lifecycle:source.lifecycle||terminalDetailDefaults.lifecycle,
-          utilization:source.utilization||terminalDetailDefaults.utilization,
-          syncTime:source.syncTime||terminalDetailDefaults.syncTime,
-          model:source.model||terminalDetailDefaults.model,
-          pn:source.pn||terminalDetailDefaults.pn,
-          terminalType:source.terminalType||terminalDetailDefaults.terminalType,
-          network:source.network||terminalDetailDefaults.network,
-          firmware:source.firmware||terminalDetailDefaults.firmware,
-          scene:r?.terminalScene||mode.scene
+          offline:!online,
+          statusLabel:online?"Online":"Offline",
+          terminalName:source.terminalName||r?.terminalName||"Terminal Detail",
+          model:source.productModel||source.modelAlias||source.model||terminalDetailDefaults.model,
+          agent:source.agent||terminalDetailDefaults.agent,
+          battery:source.battery||terminalDetailDefaults.battery,
+          runningTime:formatRuntime(source.runningTime),
+          lastCommTime,
+          lastBootTime,
+          memory:combineUsage(source.usedMemory,source.freeMemory),
+          storage:combineUsage(source.usedStorage,source.freeStorage),
+          network,
+          ip:source.ip||terminalDetailDefaults.ip,
+          gps:source.gps||terminalDetailDefaults.gps,
+          appCount:source.appCount??terminalDetailDefaults.appCount,
+          systemVersion:source.systemVersion||source.system||terminalDetailDefaults.systemVersion,
+          safeModuleVersion:source.safeModuleVersion||terminalDetailDefaults.safeModuleVersion,
+          androidVersion:source.androidVersion||"-",
+          pcba:source.pcba||terminalDetailDefaults.pcba,
+          imei:[source.imei1,source.imei2].filter(Boolean).join(" / ")||"-",
+          basebandVersion:source.basebandVersion||"-",
+          registerTime:formatTimestamp(source.registerTime),
+          lastUpdateTime:formatTimestamp(source.lastUpdateTime)
         };
       };
       const renderSnDetailContent=(r,mode=resolveTerminalMode(r))=>{
         const detail=resolveTerminalDetail(r,mode);
-        return `<div class="sn-detail-head"><strong>${esc(r.terminalName||"Terminal Detail")}</strong><span class="sn-detail-state${detail.offline?" offline":""}"><span class="sn-status-dot"></span>${esc(detail.statusLabel)}</span></div><div class="sn-detail-owner">${esc(terminalOwnerLine(r))}</div><div class="sn-detail-alert${detail.offline?"":" online"}">${esc(detail.statusText)}</div><div class="sn-detail-grid"><div class="sn-detail-item"><span>SN</span><b>${esc(r.sn||"-")}</b></div><div class="sn-detail-item"><span>TID</span><b>${esc(r.tid||"-")}</b></div><div class="sn-detail-item"><span>Model / PN</span><b>${esc(`${detail.model} / ${detail.pn}`)}</b></div><div class="sn-detail-item"><span>Type</span><b>${esc(detail.terminalType)}</b></div><div class="sn-detail-item"><span>Scenario</span><b>${esc(detail.scene)}</b></div><div class="sn-detail-item"><span>Lifecycle</span><b>${esc(detail.lifecycle)}</b></div><div class="sn-detail-item"><span>Utilization</span><b>${esc(detail.utilization)}</b></div><div class="sn-detail-item"><span>Network</span><b>${esc(detail.network)}</b></div><div class="sn-detail-item"><span>Firmware</span><b>${esc(detail.firmware)}</b></div><div class="sn-detail-item"><span>Sync Time</span><b>${esc(detail.syncTime)}</b></div></div>`;
+        const items=[
+          ["Model",detail.model],["Battery",detail.battery],["Runtime",detail.runningTime],["Last Comm",detail.lastCommTime],
+          ["Last Boot",detail.lastBootTime],["Memory",detail.memory],["Storage",detail.storage],
+          ["Network",detail.network],["IP",detail.ip],["GPS",detail.gps],["Apps",detail.appCount],
+          ["System",detail.systemVersion],["Secure Module",detail.safeModuleVersion],["Agent",detail.agent],
+          ["PCBA",detail.pcba,true],["IMEI",detail.imei,true],["Baseband",detail.basebandVersion,true]
+        ].filter(([,value])=>value!==""&&value!==null&&value!==undefined&&value!=="-");
+        const grid=items.map(([label,value,wide])=>`<div class="sn-detail-item${wide?" wide":""}"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("");
+        return `<div class="sn-detail-head"><strong>${esc(detail.terminalName)}</strong><span class="sn-detail-state${detail.offline?" offline":""}"><span class="sn-status-dot"></span>${esc(detail.statusLabel)}</span></div><div class="sn-detail-owner">${esc(terminalOwnerLine(r))}</div><div class="sn-detail-grid">${grid}</div>`;
       };
       const snDetailPop=document.createElement("div");
       snDetailPop.className="sn-detail-pop";
