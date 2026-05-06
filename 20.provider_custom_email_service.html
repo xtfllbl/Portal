@@ -353,11 +353,17 @@
     }
 
     .service-toolbar {
-      display: grid;
-      grid-template-columns: 410px auto minmax(0, 1fr);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
       gap: 14px;
-      align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .service-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .mode-toggle {
@@ -369,6 +375,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 4px;
+      width: 360px;
     }
 
     .mode-option {
@@ -402,71 +409,16 @@
       box-shadow: 0 6px 14px rgba(17, 18, 21, 0.14);
     }
 
-    .service-strip {
-      min-height: 42px;
-      padding: 0 12px;
-      border: 1px solid #e1e5ec;
-      border-radius: 11px;
-      background: #fbfcfd;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
+    /* saved indicator: checkmark appended when label carries [data-saved] */
+    .mode-option[data-saved] span::after {
+      content: "✓";
+      margin-left: 6px;
+      font-size: 11px;
+      opacity: 0.65;
     }
 
-    .service-copy {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .service-label {
-      color: #69707c;
-      font-size: 12px;
-      font-weight: 650;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .service-name {
-      color: #25272e;
-      font-size: 13px;
-      font-weight: 750;
-      white-space: nowrap;
-    }
-
-    .service-badge {
-      min-height: 24px;
-      padding: 0 9px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #eef2f7;
-      color: #4d5665;
-      font-size: 12px;
-      font-weight: 750;
-      white-space: nowrap;
-    }
-
-    .service-badge.custom {
-      background: #e8f0ff;
-      color: #2454b8;
-    }
-
-    .draft-badge {
-      min-height: 24px;
-      padding: 0 9px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff7ed;
-      color: #b45309;
-      font-size: 12px;
-      font-weight: 750;
-      white-space: nowrap;
+    .mode-option[data-saved] input:checked + span::after {
+      opacity: 1;
     }
 
     .platform-note {
@@ -645,17 +597,12 @@
       }
 
       .service-toolbar {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
       }
 
       .mode-toggle {
         width: 100%;
-      }
-
-      .service-strip {
-        align-items: center;
-        flex-direction: row;
-        padding: 10px 14px;
       }
     }
 
@@ -822,22 +769,17 @@
 
       <section class="settings-box" aria-label="Email settings">
         <div class="service-toolbar">
-          <div class="mode-toggle" role="radiogroup" aria-label="Email service mode">
-            <label class="mode-option">
-              <input type="radio" name="emailServiceMode" value="platform" checked>
-              <span>Paywizard Platform</span>
-            </label>
-            <label class="mode-option">
-              <input type="radio" name="emailServiceMode" value="custom">
-              <span>Custom SMTP</span>
-            </label>
-          </div>
-
-          <div class="service-strip" id="emailServiceStatus" data-service-mode="platform">
-            <span class="service-label">Current</span>
-            <strong class="service-name" data-service-name>Paywizard Platform</strong>
-            <span class="service-badge" data-service-badge>Default</span>
-            <span class="draft-badge" data-draft-badge hidden>Unsaved Draft</span>
+          <div class="service-selector">
+            <div class="mode-toggle" role="radiogroup" aria-label="Email service mode">
+              <label class="mode-option" data-saved data-value="platform">
+                <input type="radio" name="emailServiceMode" value="platform" checked>
+                <span>Paywizard Platform</span>
+              </label>
+              <label class="mode-option" data-value="custom">
+                <input type="radio" name="emailServiceMode" value="custom">
+                <span>Custom SMTP</span>
+              </label>
+            </div>
           </div>
 
           <div class="actions-row">
@@ -907,35 +849,30 @@
     (function () {
       var fields = Array.prototype.slice.call(document.querySelectorAll("[data-email-field]"));
       var modeInputs = Array.prototype.slice.call(document.querySelectorAll('input[name="emailServiceMode"]'));
-      var serviceStatus = document.getElementById("emailServiceStatus");
-      var serviceName = document.querySelector("[data-service-name]");
-      var serviceBadge = document.querySelector("[data-service-badge]");
-      var draftBadge = document.querySelector("[data-draft-badge]");
+      var modeLabels = Array.prototype.slice.call(document.querySelectorAll('.mode-option[data-value]'));
       var platformNote = document.querySelector("[data-platform-note]");
       var customConfig = document.querySelector("[data-custom-config]");
       var testEmailButton = document.querySelector("[data-test-email]");
       var saveButton = document.querySelector("[data-save-email]");
       var savedMode = "platform";
 
-      if (!fields.length || !modeInputs.length || !serviceStatus || !serviceName || !serviceBadge || !draftBadge || !platformNote || !customConfig || !testEmailButton || !saveButton) {
+      if (!fields.length || !modeInputs.length || !platformNote || !customConfig || !testEmailButton || !saveButton) {
         return;
       }
 
       function getSelectedMode() {
-        var checked = modeInputs.find(function (input) {
-          return input.checked;
-        });
+        var checked = modeInputs.find(function (input) { return input.checked; });
         return checked ? checked.value : "platform";
       }
 
-      function renderCurrentService(selectedMode) {
-        var savedIsCustom = savedMode === "custom";
-        var hasDraft = selectedMode !== savedMode;
-        serviceStatus.setAttribute("data-service-mode", savedIsCustom ? "custom" : "platform");
-        serviceName.textContent = savedIsCustom ? "Custom SMTP" : "Paywizard Platform";
-        serviceBadge.textContent = savedIsCustom ? "Custom" : "Default";
-        serviceBadge.classList.toggle("custom", savedIsCustom);
-        draftBadge.hidden = !hasDraft;
+      function markSaved() {
+        modeLabels.forEach(function (label) {
+          if (label.getAttribute("data-value") === savedMode) {
+            label.setAttribute("data-saved", "");
+          } else {
+            label.removeAttribute("data-saved");
+          }
+        });
       }
 
       function renderSelectedMode(mode) {
@@ -943,26 +880,22 @@
         platformNote.hidden = isCustom;
         customConfig.hidden = !isCustom;
         testEmailButton.hidden = !isCustom;
-        fields.forEach(function (field) {
-          field.disabled = !isCustom;
-        });
-        renderCurrentService(mode);
-      }
-
-      function syncServiceMode() {
-        renderSelectedMode(getSelectedMode());
+        fields.forEach(function (field) { field.disabled = !isCustom; });
       }
 
       modeInputs.forEach(function (input) {
-        input.addEventListener("change", syncServiceMode);
+        input.addEventListener("change", function () {
+          renderSelectedMode(getSelectedMode());
+        });
       });
 
       saveButton.addEventListener("click", function () {
         savedMode = getSelectedMode();
-        renderCurrentService(savedMode);
+        markSaved();
       });
 
-      syncServiceMode();
+      renderSelectedMode(savedMode);
+      markSaved();
     })();
   </script>
 </body>
