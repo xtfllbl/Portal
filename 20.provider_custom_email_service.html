@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Custom Email Service</title>
+  <style>
+    :root {
+      --page-bg: #f7f8fa;
+      --panel: #ffffff;
+      --line: #dfe3ea;
+      --line-soft: #e7e9ee;
+      --text: #2f3138;
+      --muted: #6f7480;
+      --dark: #2d2d30;
+      --black: #070707;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-width: 1180px;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      padding: 16px 16px 17px;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      grid-template-rows: 66px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .brand-area {
+      height: 65px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 17px;
+    }
+
+    .logo {
+      text-align: center;
+      color: #242427;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .logo-main {
+      font-size: 37px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      line-height: 0.92;
+    }
+
+    .logo-main .wiz {
+      font-weight: 700;
+      letter-spacing: -0.05em;
+    }
+
+    .logo-sub {
+      margin-top: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      color: #0f1013;
+    }
+
+    .sidebar {
+      grid-column: 1;
+      grid-row: 2;
+      min-height: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu-item,
+    .sub-item {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .menu-item {
+      min-height: 43px;
+      padding: 0 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #2f3036;
+    }
+
+    .menu-main {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .menu-icon {
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 14px;
+      color: currentColor;
+    }
+
+    .menu-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .menu-icon.fill svg {
+      fill: currentColor;
+      stroke: none;
+    }
+
+    .menu-label {
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .chevron {
+      font-size: 14px;
+      line-height: 1;
+      color: currentColor;
+    }
+
+    .menu-item.active {
+      background: var(--dark);
+      color: #ffffff;
+    }
+
+    .sub-menu {
+      padding: 2px 0 12px 29px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sub-item {
+      position: relative;
+      min-height: 42px;
+      padding: 0 12px 0 23px;
+      display: flex;
+      align-items: center;
+      border-radius: 22px;
+      color: #24262b;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.12;
+    }
+
+    .sub-item::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border: 2px solid #3b3d42;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+
+    .sub-item.active {
+      background: var(--dark);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .sub-item.active::before {
+      border-color: #ffffff;
+      background: #ffffff;
+    }
+
+    .top-header {
+      grid-column: 2;
+      grid-row: 1;
+      height: 66px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px 0 28px;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #767b86;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .breadcrumbs svg {
+      width: 15px;
+      height: 15px;
+      stroke: #8f949d;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .breadcrumbs strong {
+      color: #32343b;
+      font-weight: 800;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #51545d;
+      background: #f0f1f3;
+      padding: 0;
+    }
+
+    .header-icon.user {
+      background: #070707;
+      color: #ffffff;
+    }
+
+    .header-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .content-panel {
+      grid-column: 2;
+      grid-row: 2;
+      min-height: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      overflow: auto;
+    }
+
+    .page-title {
+      margin: 0;
+      color: #44454e;
+      font-size: 25px;
+      font-weight: 650;
+      line-height: 1.25;
+    }
+
+    .tabs {
+      margin-top: 18px;
+      height: 49px;
+      display: flex;
+      align-items: flex-end;
+      gap: 18px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .tab {
+      height: 41px;
+      padding: 0 18px;
+      border: 0;
+      border-bottom: 1px solid transparent;
+      background: transparent;
+      color: #707581;
+      font-size: 14px;
+      font-weight: 700;
+      position: relative;
+    }
+
+    .tab.active {
+      color: #1d1f25;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      background: #151515;
+    }
+
+    .settings-box {
+      margin: 16px 16px 0;
+      min-height: 178px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 18px 17px;
+    }
+
+    .service-toolbar {
+      display: grid;
+      grid-template-columns: 410px auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .mode-toggle {
+      min-height: 42px;
+      padding: 4px;
+      border: 1px solid #e1e5ec;
+      border-radius: 11px;
+      background: #f4f5f7;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .mode-option {
+      position: relative;
+      display: block;
+    }
+
+    .mode-option input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .mode-option span {
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #646b76;
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .mode-option input:checked + span {
+      background: #111215;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(17, 18, 21, 0.14);
+    }
+
+    .service-strip {
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid #e1e5ec;
+      border-radius: 11px;
+      background: #fbfcfd;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+
+    .service-copy {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .service-label {
+      color: #69707c;
+      font-size: 12px;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .service-name {
+      color: #25272e;
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .service-badge {
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef2f7;
+      color: #4d5665;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .service-badge.custom {
+      background: #e8f0ff;
+      color: #2454b8;
+    }
+
+    .draft-badge {
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff7ed;
+      color: #b45309;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .platform-note {
+      margin: 0;
+      padding: 4px 2px 0;
+      color: #5f6877;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .custom-config {
+      padding-top: 3px;
+    }
+
+    .custom-config-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 15px;
+      padding-top: 2px;
+    }
+
+    .custom-config-title {
+      color: #2d3038;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px 16px;
+    }
+
+    .field {
+      position: relative;
+    }
+
+    .field label {
+      position: absolute;
+      left: 12px;
+      top: -7px;
+      padding: 0 4px;
+      background: #ffffff;
+      color: #717681;
+      font-size: 12px;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 35px;
+      border: 1px solid #d3d8e0;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #30333a;
+      outline: none;
+      padding: 0 11px;
+      font-size: 14px;
+    }
+
+    .field select {
+      appearance: none;
+      padding-right: 34px;
+    }
+
+    .field.select::after {
+      content: "";
+      position: absolute;
+      right: 16px;
+      top: 13px;
+      width: 8px;
+      height: 8px;
+      border-right: 1.8px solid #9ba0aa;
+      border-bottom: 1.8px solid #9ba0aa;
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap input {
+      padding-right: 40px;
+    }
+
+    .eye-button {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 24px;
+      height: 24px;
+      border: 0;
+      background: transparent;
+      color: #9da2ad;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      transform: translateY(-50%);
+    }
+
+    .eye-button svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .field-note {
+      position: absolute;
+      left: 0;
+      top: 39px;
+      margin-top: 4px;
+      color: #7d828d;
+      font-size: 12px;
+    }
+
+    .actions-row {
+      margin-top: 0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      justify-self: end;
+    }
+
+    .action-btn {
+      height: 36px;
+      border: 0;
+      border-radius: 9px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #3f424a;
+      background: #f3f3f4;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .action-btn.primary {
+      background: #080808;
+      color: #ffffff;
+      padding: 0 13px 0 11px;
+      width: 75px;
+    }
+
+    .action-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 1320px) {
+      body {
+        min-width: 0;
+      }
+
+      .page-shell {
+        grid-template-columns: 248px minmax(0, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .service-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-toggle {
+        width: 100%;
+      }
+
+      .service-strip {
+        align-items: center;
+        flex-direction: row;
+        padding: 10px 14px;
+      }
+    }
+
+    @media (max-width: 880px) {
+      .page-shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+
+      .brand-area,
+      .sidebar,
+      .top-header,
+      .content-panel {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      .sidebar {
+        min-height: auto;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="brand-area" aria-label="Paywizard Sandbox">
+      <div class="logo">
+        <div class="logo-main">PAY<span class="wiz">wizard</span></div>
+        <div class="logo-sub">SANDBOX</div>
+      </div>
+    </div>
+
+    <aside class="sidebar" aria-label="Main navigation">
+      <nav class="menu">
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"></rect><rect x="14" y="4" width="6" height="6"></rect><rect x="4" y="14" width="6" height="6"></rect><rect x="14" y="14" width="6" height="6"></rect></svg>
+            </span>
+            <span class="menu-label">Dashboard</span>
+          </span>
+        </a>
+        <a class="menu-item" href="12.transaction_list.html">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="10" rx="1.8"></rect><path d="M4 11h16"></path></svg>
+            </span>
+            <span class="menu-label">Transactions</span>
+          </span>
+        </a>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><circle cx="16.5" cy="10" r="2.5"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path><path d="M13.5 18.5a4.5 4.5 0 0 1 7 0"></path></svg>
+            </span>
+            <span class="menu-label">Agents</span>
+          </span>
+          <span class="chevron" aria-hidden="true">⌄</span>
+        </a>
+        <a class="menu-item" href="5.merchant_manage_iso.html">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 8h16v10H4z"></path><path d="M7 12h10"></path><path d="M7 16h6"></path></svg>
+            </span>
+            <span class="menu-label">Merchants</span>
+          </span>
+          <span class="chevron" aria-hidden="true">⌄</span>
+        </a>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"></circle><path d="M12 11v9"></path><path d="M8 20h8"></path></svg>
+            </span>
+            <span class="menu-label">Partners</span>
+          </span>
+          <span class="chevron" aria-hidden="true">⌄</span>
+        </a>
+        <a class="menu-item" href="1.terminalmanage.html">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.8"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg>
+            </span>
+            <span class="menu-label">Device Management</span>
+          </span>
+        </a>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon fill" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="2"></circle><circle cx="17" cy="7" r="2"></circle><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><rect x="10" y="10" width="4" height="4" rx="1"></rect></svg>
+            </span>
+            <span class="menu-label">APP Management</span>
+          </span>
+        </a>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path><path d="M17 8v6"></path><path d="M14 11h6"></path></svg>
+            </span>
+            <span class="menu-label">User Management</span>
+          </span>
+          <span class="chevron" aria-hidden="true">⌄</span>
+        </a>
+        <a class="menu-item active" href="20.provider_custom_email_service.html">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V22h-4v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H2v-4h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H8a1.6 1.6 0 0 0 1-1.5V2h4v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.1a1.6 1.6 0 0 0 1.5 1H22v4h-.2a1.6 1.6 0 0 0-1.5 1z"></path></svg>
+            </span>
+            <span class="menu-label">Settings</span>
+          </span>
+          <span class="chevron" aria-hidden="true">⌃</span>
+        </a>
+        <div class="sub-menu">
+          <a class="sub-item active" href="20.provider_custom_email_service.html">Branding</a>
+          <a class="sub-item" href="#">Payment Channels</a>
+          <a class="sub-item" href="#">Parameter File<br>Management</a>
+        </div>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 8h16v4a2 2 0 1 0 0 4v4H4v-4a2 2 0 1 0 0-4z"></path><path d="M9 9v2"></path><path d="M9 15v2"></path><path d="M12 8h2"></path></svg>
+            </span>
+            <span class="menu-label">Tickets</span>
+          </span>
+        </a>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1.8"></rect><path d="M9 10l-2 2 2 2"></path><path d="M15 10l2 2-2 2"></path></svg>
+            </span>
+            <span class="menu-label">Developer Center</span>
+          </span>
+          <span class="chevron" aria-hidden="true">⌄</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="top-header">
+      <div class="breadcrumbs">
+        <span>Settings</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+        <strong>Branding</strong>
+      </div>
+      <div class="header-actions">
+        <button class="header-icon" type="button" aria-label="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+        </button>
+        <button class="header-icon user" type="button" aria-label="User">
+          <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-panel">
+      <h1 class="page-title">Branding</h1>
+      <div class="tabs" role="tablist" aria-label="Branding settings">
+        <button class="tab" type="button" role="tab" aria-selected="false">Logo Management</button>
+        <button class="tab active" type="button" role="tab" aria-selected="true">Email Service</button>
+        <button class="tab" type="button" role="tab" aria-selected="false">TMS Setting</button>
+      </div>
+
+      <section class="settings-box" aria-label="Email settings">
+        <div class="service-toolbar">
+          <div class="mode-toggle" role="radiogroup" aria-label="Email service mode">
+            <label class="mode-option">
+              <input type="radio" name="emailServiceMode" value="platform" checked>
+              <span>Paywizard Platform</span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="emailServiceMode" value="custom">
+              <span>Custom SMTP</span>
+            </label>
+          </div>
+
+          <div class="service-strip" id="emailServiceStatus" data-service-mode="platform">
+            <span class="service-label">Current</span>
+            <strong class="service-name" data-service-name>Paywizard Platform</strong>
+            <span class="service-badge" data-service-badge>Default</span>
+            <span class="draft-badge" data-draft-badge hidden>Unsaved Draft</span>
+          </div>
+
+          <div class="actions-row">
+            <button class="action-btn primary" type="button" data-save-email>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 17h8"></path><path d="M8 13h8"></path></svg>
+              <span>Save</span>
+            </button>
+            <button class="action-btn" type="button" data-test-email hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg>
+              <span>Send Test Email</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="platform-note" data-platform-note>
+          Managed by Paywizard.
+        </p>
+
+        <div class="custom-config" data-custom-config hidden>
+          <div class="custom-config-head">
+            <div class="custom-config-title">Customer SMTP Configuration</div>
+          </div>
+          <div class="form-grid">
+          <div class="field select">
+            <label for="transport">Transport Protocol</label>
+            <select id="transport" data-email-field>
+              <option>SMTPS</option>
+              <option>SMTP</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="host">Host</label>
+            <input id="host" type="text" placeholder="smtp.customer-domain.com" data-email-field>
+          </div>
+          <div class="field">
+            <label for="port">Port</label>
+            <input id="port" type="text" placeholder="465" data-email-field>
+          </div>
+          <div class="field">
+            <label for="emailUser">Email User</label>
+            <input id="emailUser" type="email" placeholder="smtp-user@customer-domain.com" data-email-field>
+          </div>
+          <div class="field">
+            <label for="authorization">Authorization Code</label>
+            <div class="password-wrap">
+              <input id="authorization" type="password" placeholder="Enter SMTP authorization code" data-email-field>
+              <button class="eye-button" type="button" aria-label="Hide authorization code">
+                <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.4 10.4 0 0 1 12 20c-7 0-11-8-11-8a20 20 0 0 1 5.06-5.94"></path><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c7 0 11 8 11 8a19.5 19.5 0 0 1-2.16 3.19"></path><path d="M14.12 14.12A3 3 0 0 1 9.88 9.88"></path><path d="M1 1l22 22"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="senderEmail">Sender Email Address</label>
+            <input id="senderEmail" type="email" placeholder="noreply@customer-domain.com" data-email-field>
+            <div class="field-note">e.g: user@host.domain</div>
+          </div>
+          <div class="field">
+            <label for="senderName">Sender Display Name</label>
+            <input id="senderName" type="text" placeholder="Customer brand name" data-email-field>
+          </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    (function () {
+      var fields = Array.prototype.slice.call(document.querySelectorAll("[data-email-field]"));
+      var modeInputs = Array.prototype.slice.call(document.querySelectorAll('input[name="emailServiceMode"]'));
+      var serviceStatus = document.getElementById("emailServiceStatus");
+      var serviceName = document.querySelector("[data-service-name]");
+      var serviceBadge = document.querySelector("[data-service-badge]");
+      var draftBadge = document.querySelector("[data-draft-badge]");
+      var platformNote = document.querySelector("[data-platform-note]");
+      var customConfig = document.querySelector("[data-custom-config]");
+      var testEmailButton = document.querySelector("[data-test-email]");
+      var saveButton = document.querySelector("[data-save-email]");
+      var savedMode = "platform";
+
+      if (!fields.length || !modeInputs.length || !serviceStatus || !serviceName || !serviceBadge || !draftBadge || !platformNote || !customConfig || !testEmailButton || !saveButton) {
+        return;
+      }
+
+      function getSelectedMode() {
+        var checked = modeInputs.find(function (input) {
+          return input.checked;
+        });
+        return checked ? checked.value : "platform";
+      }
+
+      function renderCurrentService(selectedMode) {
+        var savedIsCustom = savedMode === "custom";
+        var hasDraft = selectedMode !== savedMode;
+        serviceStatus.setAttribute("data-service-mode", savedIsCustom ? "custom" : "platform");
+        serviceName.textContent = savedIsCustom ? "Custom SMTP" : "Paywizard Platform";
+        serviceBadge.textContent = savedIsCustom ? "Custom" : "Default";
+        serviceBadge.classList.toggle("custom", savedIsCustom);
+        draftBadge.hidden = !hasDraft;
+      }
+
+      function renderSelectedMode(mode) {
+        var isCustom = mode === "custom";
+        platformNote.hidden = isCustom;
+        customConfig.hidden = !isCustom;
+        testEmailButton.hidden = !isCustom;
+        fields.forEach(function (field) {
+          field.disabled = !isCustom;
+        });
+        renderCurrentService(mode);
+      }
+
+      function syncServiceMode() {
+        renderSelectedMode(getSelectedMode());
+      }
+
+      modeInputs.forEach(function (input) {
+        input.addEventListener("change", syncServiceMode);
+      });
+
+      saveButton.addEventListener("click", function () {
+        savedMode = getSelectedMode();
+        renderCurrentService(savedMode);
+      });
+
+      syncServiceMode();
+    })();
+  </script>
+</body>
+</html>
