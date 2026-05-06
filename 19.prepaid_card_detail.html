@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prepaid Card Activation</title>
+  <title>Prepaid Card Details</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,7 +22,8 @@
         <a class="menu-item active" href="14.prepaid_card_list.html"><span class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M7 9h5"></path><path d="M7 13h3"></path><path d="M16 13.5a2.5 2.5 0 1 0 0-5"></path></svg></span><span class="label">Prepaid Cards</span></span><span class="chevron">v</span></a>
         <div class="sub-menu">
           <a class="sub-item" href="14.prepaid_card_list.html">Card List</a>
-          <a class="sub-item active" href="15.prepaid_card_activation.html">Activation</a>
+          <a class="sub-item" href="15.prepaid_card_activation.html">Activation</a>
+          <a class="sub-item active" href="19.prepaid_card_detail.html">Card Details</a>
           <a class="sub-item" href="16.prepaid_credit_adjustment.html">Change Credit</a>
           <a class="sub-item" href="17.prepaid_loss_replacement.html">Loss & Replacement</a>
           <a class="sub-item" href="18.prepaid_terminal_activity.html">Terminal Activity</a>
@@ -34,7 +35,7 @@
 
     <main class="main-container">
       <header class="top-header">
-        <div class="breadcrumbs">Prepaid Cards / <span>Activation</span></div>
+        <div class="breadcrumbs">Prepaid Cards / <span>Card Details</span></div>
         <div class="user-controls">
           <button class="icon-circle" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span class="notification-badge">4</span></button>
           <button class="icon-circle" type="button" aria-label="User"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
@@ -45,35 +46,41 @@
         <div class="content-inner">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Card Activation & Onboarding</h1>
+              <h1 class="page-title">Card Details</h1>
             </div>
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
-              <button class="btn primary" type="button" data-open-modal="activateConfirm">Activate Card</button>
+              <a class="btn" href="16.prepaid_credit_adjustment.html">Change Credit</a>
+              <button class="btn primary" type="button" data-toast="Card details saved.">Save</button>
             </div>
           </div>
 
+          <section class="summary-grid" aria-label="Card detail summary">
+            <div class="summary"><span>Card UID</span><strong class="mono" style="font-size:18px">04A37C91B25F80</strong><small>Physical identifier</small></div>
+            <div class="summary"><span>Display Card No.</span><strong class="mono" style="font-size:18px">EMP-CARD-004218</strong><small>Human-readable card number</small></div>
+            <div class="summary"><span>Current Credit</span><strong>$128.40</strong><small>USD inherited from merchant</small></div>
+            <div class="summary"><span>Status</span><strong><span class="badge green">Active</span></strong><small>Can be used on permitted terminals</small></div>
+          </section>
+
           <section class="section">
-            <div class="tabs" data-tabs="activation" role="tablist">
-              <button class="tab active" type="button" data-tab-target="singleActivation">Single Card</button>
-              <button class="tab" type="button" data-tab-target="batchImport">Batch Import</button>
+            <div class="tabs" data-tabs="cardDetail" role="tablist">
+              <button class="tab active" type="button" data-tab-target="generalTab">General</button>
+              <button class="tab" type="button" data-tab-target="creditHistoryTab">Credit History</button>
+              <button class="tab" type="button" data-tab-target="transactionsTab">Transactions</button>
             </div>
           </section>
 
-          <section class="tab-panel active" id="singleActivation" data-tab-panel-for="activation">
+          <section class="tab-panel active" id="generalTab" data-tab-panel-for="cardDetail">
             <div class="content-inner">
               <section class="section">
-                <div class="section-head">
-                  <div><h2 class="section-title">Card Details</h2></div>
-                  <button class="btn small" type="button" data-autofill-new-card>Read Card UID</button>
-                </div>
+                <div class="section-head"><div><h2 class="section-title">Card Details</h2></div></div>
                 <div class="form-grid">
                   <div class="field"><label for="cardType">Card Type</label><input class="input" id="cardType" value="PrePaid Card" readonly></div>
-                  <div class="field"><label for="physicalType">Physical Type</label><input class="input" id="physicalType" value="Contactless Card (M1 RFID)" readonly></div>
-                  <div class="field"><label for="newCardUid">Card Unique Identifier</label><input class="input mono" id="newCardUid" value="04A37C91B25F80"></div>
-                  <div class="field"><label for="displayCardNo">Display Card Number</label><input class="input" id="displayCardNo" value="EMP-CARD-004218"></div>
-                  <div class="field"><label for="newStatus">Status</label><select class="select" id="newStatus"><option>Active</option><option>Not Active</option></select></div>
-                  <div class="field"><label for="deposit">Deposit</label><input class="input" id="deposit" value="10.00"></div>
+                  <div class="field"><label for="physicalType">Card Physical Type</label><input class="input" id="physicalType" value="Contactless Card (M1 RFID)" readonly></div>
+                  <div class="field"><label for="cardUid">Card Unique Identifier</label><input class="input mono" id="cardUid" value="04A37C91B25F80" readonly></div>
+                  <div class="field"><label for="displayNumber">Display Card Number</label><input class="input mono" id="displayNumber" value="EMP-CARD-004218"></div>
+                  <div class="field"><label for="status">Status</label><select class="select" id="status"><option>Active</option><option>Not Active</option><option>Suspended</option><option>Expired</option><option>Replaced</option></select></div>
+                  <div class="field"><label for="cardId">Internal Card ID</label><input class="input mono" id="cardId" value="PCD-1004218" readonly></div>
                 </div>
               </section>
 
@@ -93,9 +100,9 @@
                 <div class="section-head"><div><h2 class="section-title">Card Credit Attributes</h2></div></div>
                 <div class="form-grid">
                   <div class="field"><label for="currency">Card Currency</label><input class="input" id="currency" value="USD - inherited from merchant" readonly></div>
-                  <div class="field"><label for="initialBalance">Initial Balance</label><input class="input" id="initialBalance" value="100.00"></div>
+                  <div class="field"><label for="currentCredit">Current Credit</label><input class="input" id="currentCredit" value="128.40" readonly></div>
                   <div class="field"><label for="monthlyLimit">Monthly Amount Limit</label><input class="input" id="monthlyLimit" value="300.00"></div>
-                  <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first sale</option></select></div>
+                  <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first successful sale</option></select></div>
                   <div class="field span-2"><label for="limitPreset">Daily Amount Limit</label><select class="select" id="limitPreset"><option>Weekdays 50.00 / Weekend blocked</option><option>Every day 30.00</option><option>No daily limit</option></select></div>
                 </div>
                 <div class="table-wrap" style="margin-top:14px">
@@ -117,7 +124,7 @@
               <section class="section">
                 <div class="section-head"><div><h2 class="section-title">Lifecycle & Location Limits</h2></div></div>
                 <div class="form-grid two">
-                  <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" value="2026-04-27 09:00"></div>
+                  <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" value="2026-04-25 09:00"></div>
                   <div class="field"><label for="expirationDate">Expiration Date</label><input class="input" id="expirationDate" placeholder="Permanent if empty"></div>
                 </div>
                 <div class="tree" style="margin-top:14px">
@@ -131,73 +138,39 @@
             </div>
           </section>
 
-          <section class="tab-panel" id="batchImport" data-tab-panel-for="activation">
-            <div class="content-inner" id="import">
-              <section class="section">
-                <div class="section-head">
-                  <div><h2 class="section-title">Import Prepaid Cards from Excel</h2></div>
-                  <div class="page-actions"><button class="btn" type="button" data-toast="CSV template downloaded.">Download CSV Template</button><button class="btn purple" type="button" data-import-step="2" data-toast="File parsed: 245 rows ready for validation.">Upload File</button></div>
-                </div>
-                <div class="step-list">
-                  <div class="step-item" data-import-state="1"><span class="step-no">1</span><span class="step-copy"><strong>Template</strong><span>UID, name, employee ID, mobile, initial balance, deposit, limits.</span></span><span class="badge green">Done</span></div>
-                  <div class="step-item" data-import-state="2"><span class="step-no">2</span><span class="step-copy"><strong>Upload & Parse</strong><span>Validate file format and duplicate UID rows.</span></span><span class="badge purple">Current</span></div>
-                  <div class="step-item" data-import-state="3"><span class="step-no">3</span><span class="step-copy"><strong>Review</strong><span>Confirm row-level warnings before activation.</span></span><span class="badge neutral">Pending</span></div>
-                  <div class="step-item" data-import-state="4"><span class="step-no">4</span><span class="step-copy"><strong>Activate</strong><span>Create cards and write audit records.</span></span><span class="badge neutral">Pending</span></div>
-                </div>
-              </section>
+          <section class="tab-panel" id="creditHistoryTab" data-tab-panel-for="cardDetail">
+            <section class="section">
+              <div class="section-head"><div><h2 class="section-title">Credit History</h2></div><a class="btn small" href="16.prepaid_credit_adjustment.html">Change Credit</a></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Date Time</th><th>Method</th><th>Before</th><th>After</th><th>Amount</th><th>Transaction ID</th><th>Operator</th><th>Remark</th></tr></thead>
+                  <tbody>
+                    <tr><td>2026-04-27 10:18:34</td><td><span class="badge blue">VEND</span></td><td>$131.90</td><td>$128.40</td><td class="amount negative">-3.50</td><td><a class="link mono" href="18.prepaid_terminal_activity.html">PWV-260427-100183</a></td><td>System</td><td>Terminal sale</td></tr>
+                    <tr><td>2026-04-26 18:05:13</td><td><span class="badge green">Manual</span></td><td>$81.90</td><td>$131.90</td><td class="amount positive">+50.00</td><td>-</td><td>ops.manager@paywizard.io</td><td>Cash top-up at front desk</td></tr>
+                    <tr><td>2026-04-25 09:00:00</td><td><span class="badge green">Manual</span></td><td>$0.00</td><td>$100.00</td><td class="amount positive">+100.00</td><td>-</td><td>hr.admin@merchant.com</td><td>Employee onboarding initial credit</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </section>
 
-              <section class="section">
-                <div class="section-head">
-                  <div><h2 class="section-title">Import Preview</h2></div>
-                  <div class="page-actions"><button class="btn" type="button" data-import-step="3" data-toast="Validation completed with 2 warnings.">Validate</button><button class="btn primary" type="button" data-open-modal="batchConfirm">Activate 243 Valid Cards</button></div>
-                </div>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>Row</th><th>Card UID</th><th>Cardholder</th><th>Employee ID</th><th>Initial Balance</th><th>Daily Limit</th><th>Status</th><th>Message</th></tr></thead>
-                    <tbody>
-                      <tr><td>2</td><td class="mono">04BB1C9221D088</td><td>Daniel Moore</td><td>EMP-004392</td><td>$80.00</td><td>$50.00</td><td><span class="badge green">Valid</span></td><td>Ready</td></tr>
-                      <tr><td>3</td><td class="mono">04AF18193BC002</td><td>Emma Li</td><td>EMP-004393</td><td>$80.00</td><td>$50.00</td><td><span class="badge green">Valid</span></td><td>Ready</td></tr>
-                      <tr><td>4</td><td class="mono">04A37C91B25F80</td><td>Olivia Chen</td><td>EMP-004218</td><td>$100.00</td><td>$50.00</td><td><span class="badge orange">Warning</span></td><td>UID already exists as Active</td></tr>
-                      <tr><td>5</td><td class="mono">04F10877D014E1</td><td>Noah Wilson</td><td>EMP-004394</td><td>$80.00</td><td>$50.00</td><td><span class="badge green">Valid</span></td><td>Ready</td></tr>
-                      <tr><td>6</td><td class="mono">04D9CC218B7771</td><td>Mia Zhang</td><td>EMP-004395</td><td>$0.00</td><td>$50.00</td><td><span class="badge orange">Warning</span></td><td>Initial balance is zero</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
+          <section class="tab-panel" id="transactionsTab" data-tab-panel-for="cardDetail">
+            <section class="section">
+              <div class="section-head"><div><h2 class="section-title">Transactions</h2></div><a class="btn small" href="18.prepaid_terminal_activity.html">Open Activity</a></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Date Time</th><th>Type</th><th>Amount</th><th>Terminal</th><th>Paywizard Trans ID</th><th>Approval</th><th>Remaining Balance</th></tr></thead>
+                  <tbody>
+                    <tr><td>2026-04-27 10:18:34</td><td><span class="badge blue">Sale</span></td><td class="amount negative">-$3.50</td><td>Coffee Kiosk 03</td><td><a class="link mono" href="11.transaction_detail_redesign.html">PWV-260427-100183</a></td><td class="mono">A93F2B</td><td>$128.40</td></tr>
+                    <tr><td>2026-04-26 12:42:50</td><td><span class="badge blue">Sale</span></td><td class="amount negative">-$4.20</td><td>Staff POS Counter</td><td><a class="link mono" href="11.transaction_detail_redesign.html">PWV-260426-124250</a></td><td class="mono">Q18K7R</td><td>$81.90</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </section>
         </div>
       </section>
     </main>
-  </div>
-
-  <div class="modal-backdrop" id="activateConfirm" aria-hidden="true">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="activateTitle">
-      <div class="modal-head"><h2 class="modal-title" id="activateTitle">Activate Prepaid Card</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
-      <div class="modal-body">
-        <div class="kv">
-          <div class="kv-row"><span>Card UID</span><strong class="mono">04A37C91B25F80</strong></div>
-          <div class="kv-row"><span>Cardholder</span><strong>Olivia Chen</strong></div>
-          <div class="kv-row"><span>Initial Balance</span><strong>$100.00</strong></div>
-          <div class="kv-row"><span>Status After Submit</span><strong>Active</strong></div>
-        </div>
-      </div>
-      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-toast="Prepaid card activated.">Confirm</button></div>
-    </section>
-  </div>
-
-  <div class="modal-backdrop" id="batchConfirm" aria-hidden="true">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="batchTitle">
-      <div class="modal-head"><h2 class="modal-title" id="batchTitle">Batch Activation</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
-      <div class="modal-body">
-        <div class="kv">
-          <div class="kv-row"><span>Valid Rows</span><strong>243</strong></div>
-          <div class="kv-row"><span>Warnings Skipped</span><strong>2</strong></div>
-          <div class="kv-row"><span>Default Status</span><strong>Active</strong></div>
-        </div>
-      </div>
-      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-import-step="4" data-toast="243 prepaid cards activated.">Confirm Import</button></div>
-    </section>
   </div>
   <div class="toast" data-toast-root>Saved</div>
   <script src="scripts/prepaid-cards.js"></script>
