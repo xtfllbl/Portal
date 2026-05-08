@@ -35,6 +35,12 @@
       }
     }
 
+    const guardedAction = event.target.closest("[data-requires-valid-dates]");
+    if (guardedAction && !validateLifecycleDates(true)) {
+      event.preventDefault();
+      return;
+    }
+
     const openModalButton = event.target.closest("[data-open-modal]");
     if (openModalButton) {
       const modal = document.getElementById(openModalButton.getAttribute("data-open-modal"));
@@ -139,6 +145,61 @@
     dailyLimitToggle.addEventListener("change", syncDailyLimitAmount);
     syncDailyLimitAmount();
   }
+
+  const expirationDate = document.querySelector("[data-expiration-date]");
+  const activationDate = document.querySelector("#activationDate");
+  const expirationError = document.querySelector("[data-expiration-error]");
+  function formatDateTimeLocal(date) {
+    const pad = function (value) { return String(value).padStart(2, "0"); };
+    return [
+      date.getFullYear(),
+      pad(date.getMonth() + 1),
+      pad(date.getDate())
+    ].join("-") + "T" + [pad(date.getHours()), pad(date.getMinutes())].join(":");
+  }
+  function getExpirationBaseDate() {
+    const raw = activationDate && activationDate.value ? activationDate.value : "";
+    const parsed = raw ? new Date(raw) : new Date();
+    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  }
+  function validateLifecycleDates(showMessage) {
+    if (!activationDate || !expirationDate) return true;
+    const hasExpiration = Boolean(expirationDate.value);
+    const start = activationDate.value ? new Date(activationDate.value) : null;
+    const end = hasExpiration ? new Date(expirationDate.value) : null;
+    const invalid = Boolean(
+      hasExpiration &&
+      start &&
+      end &&
+      !Number.isNaN(start.getTime()) &&
+      !Number.isNaN(end.getTime()) &&
+      end < start
+    );
+    expirationDate.classList.toggle("is-invalid", invalid);
+    if (expirationError) expirationError.hidden = !invalid;
+    if (invalid && showMessage) showToast("Expiration Date cannot be earlier than Activation Date.");
+    return !invalid;
+  }
+  document.querySelectorAll("[data-expiration-years]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      if (!expirationDate) return;
+      const years = Number(button.getAttribute("data-expiration-years"));
+      const next = getExpirationBaseDate();
+      next.setFullYear(next.getFullYear() + years);
+      expirationDate.value = formatDateTimeLocal(next);
+      validateLifecycleDates(false);
+    });
+  });
+  const clearExpiration = document.querySelector("[data-clear-expiration]");
+  if (clearExpiration) {
+    clearExpiration.addEventListener("click", function () {
+      if (expirationDate) expirationDate.value = "";
+      validateLifecycleDates(false);
+    });
+  }
+  if (activationDate) activationDate.addEventListener("change", function () { validateLifecycleDates(false); });
+  if (expirationDate) expirationDate.addEventListener("change", function () { validateLifecycleDates(false); });
+  validateLifecycleDates(false);
 
   const merchantSelectAll = document.querySelector("[data-merchant-select-all]");
   const merchantCheckboxes = Array.from(document.querySelectorAll("[data-merchant-checkbox]"));

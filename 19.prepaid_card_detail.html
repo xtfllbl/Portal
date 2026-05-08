@@ -51,15 +51,15 @@
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
               <a class="btn" href="16.prepaid_credit_adjustment.html">Change Credit</a>
-              <button class="btn primary" type="button" data-toast="Card details saved.">Save</button>
+              <button class="btn primary" type="button" data-toast="Card details saved." data-requires-valid-dates>Save</button>
             </div>
           </div>
 
-          <section class="summary-grid" aria-label="Card detail summary">
-            <div class="summary"><span>Card UID</span><strong class="mono" style="font-size:18px">04A37C91B25F80</strong><small>Physical identifier</small></div>
-            <div class="summary"><span>Display Card No.</span><strong class="mono" style="font-size:18px">EMP-CARD-004218</strong><small>Human-readable card number</small></div>
-            <div class="summary"><span>Current Credit</span><strong>$128.40</strong><small>USD inherited from merchant</small></div>
-            <div class="summary"><span>Status</span><strong><span class="badge green">Active</span></strong><small>Can be used on permitted terminals</small></div>
+          <section class="summary-grid detail-summary" aria-label="Card detail summary">
+            <div class="summary"><span>Card UID</span><strong class="mono">04A37C91B25F80</strong></div>
+            <div class="summary"><span>Display Card No.</span><strong class="mono">EMP-CARD-004218</strong></div>
+            <div class="summary"><span>Current Credit</span><strong>$128.40</strong></div>
+            <div class="summary"><span>Status</span><strong class="summary-status-value">Active</strong></div>
           </section>
 
           <section class="section">
@@ -76,11 +76,10 @@
                 <div class="section-head"><div><h2 class="section-title">Card Details</h2></div></div>
                 <div class="form-grid">
                   <div class="field"><label for="cardType">Card Type</label><input class="input" id="cardType" value="PrePaid Card" readonly></div>
-                  <div class="field"><label for="physicalType">Card Physical Type</label><input class="input" id="physicalType" value="Contactless Card (M1 RFID)" readonly></div>
+                  <div class="field"><label for="physicalType">Physical Type</label><input class="input" id="physicalType" value="Contactless Card (M1 RFID)" readonly></div>
                   <div class="field"><label for="cardUid">Card Unique Identifier</label><input class="input mono" id="cardUid" value="04A37C91B25F80" readonly></div>
                   <div class="field"><label for="displayNumber">Display Card Number</label><input class="input mono" id="displayNumber" value="EMP-CARD-004218"></div>
                   <div class="field"><label for="status">Status</label><select class="select" id="status"><option>Active</option><option>Not Active</option><option>Suspended</option><option>Expired</option><option>Replaced</option></select></div>
-                  <div class="field"><label for="cardId">Internal Card ID</label><input class="input mono" id="cardId" value="PCD-1004218" readonly></div>
                 </div>
               </section>
 
@@ -102,37 +101,90 @@
                   <div class="field"><label for="currency">Card Currency</label><input class="input" id="currency" value="USD - inherited from merchant" readonly></div>
                   <div class="field"><label for="currentCredit">Current Credit</label><input class="input" id="currentCredit" value="128.40" readonly></div>
                   <div class="field"><label for="monthlyLimit">Monthly Amount Limit</label><input class="input" id="monthlyLimit" value="300.00"></div>
-                  <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first successful sale</option></select></div>
-                  <div class="field span-2"><label for="limitPreset">Daily Amount Limit</label><select class="select" id="limitPreset"><option>Weekdays 50.00 / Weekend blocked</option><option>Every day 30.00</option><option>No daily limit</option></select></div>
-                </div>
-                <div class="table-wrap" style="margin-top:14px">
-                  <table>
-                    <thead><tr><th>Day</th><th>Status</th><th>Daily Limit</th><th>Allowed Time</th></tr></thead>
-                    <tbody>
-                      <tr><td>Monday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Tuesday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Wednesday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Thursday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Friday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Saturday</td><td><span class="badge red">Blocked</span></td><td>$0.00</td><td>-</td></tr>
-                      <tr><td>Sunday</td><td><span class="badge red">Blocked</span></td><td>$0.00</td><td>-</td></tr>
-                    </tbody>
-                  </table>
+                  <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first sale</option></select></div>
+                  <div class="field"><label for="dailyLimitEnabled">Enable Daily Amount Limit</label><select class="select" id="dailyLimitEnabled" data-daily-limit-toggle><option>No</option><option selected>Yes</option></select></div>
+                  <div class="field"><label for="dailyLimit">Daily Amount Limit</label><input class="input" id="dailyLimit" type="number" min="0" step="0.01" value="50.00" placeholder="Amount" data-daily-limit-amount></div>
                 </div>
               </section>
 
               <section class="section">
-                <div class="section-head"><div><h2 class="section-title">Lifecycle & Location Limits</h2></div></div>
-                <div class="form-grid two">
-                  <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" value="2026-04-25 09:00"></div>
-                  <div class="field"><label for="expirationDate">Expiration Date</label><input class="input" id="expirationDate" placeholder="Permanent if empty"></div>
+                <div class="section-head"><div><h2 class="section-title">Lifecycle Rules</h2></div></div>
+                <div class="lifecycle-grid">
+                  <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" type="datetime-local" value="2026-04-25T09:00"></div>
+                  <div class="field">
+                    <label for="expirationDate">Expiration Date</label>
+                    <input class="input" id="expirationDate" type="datetime-local" data-expiration-date>
+                    <small class="field-error" data-expiration-error hidden>Expiration Date cannot be earlier than Activation Date.</small>
+                  </div>
                 </div>
-                <div class="tree" style="margin-top:14px">
-                  <label class="tree-row"><input type="checkbox" checked> G & A Robot Inc</label>
-                  <label class="tree-row child"><input type="checkbox" checked> HQ Canteen</label>
-                  <label class="tree-row child"><input type="checkbox" checked> Staff POS Counter</label>
-                  <label class="tree-row child"><input type="checkbox"> Vending North</label>
-                  <label class="tree-row child"><input type="checkbox"> Coffee Corner</label>
+                <div class="lifecycle-actions">
+                  <span class="field-hint">Leave Expiration Date empty for no expiration.</span>
+                  <div class="quick-actions">
+                    <button class="btn small" type="button" data-expiration-years="1">1 Year</button>
+                    <button class="btn small" type="button" data-expiration-years="2">2 Years</button>
+                    <button class="btn small" type="button" data-expiration-years="3">3 Years</button>
+                    <button class="btn small" type="button" data-clear-expiration>Clear</button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-head">
+                  <div class="title-line">
+                    <h2 class="section-title">Merchant Usage Limits</h2>
+                    <span class="scope-pill"><span>Service Provider</span><strong>G & A Robot Inc</strong></span>
+                  </div>
+                  <span class="badge purple" data-merchant-selected-count>5 Selected</span>
+                </div>
+                <div class="table-wrap merchant-limit-wrap">
+                  <table class="merchant-limit-table">
+                    <thead>
+                      <tr>
+                        <th><input class="table-check" type="checkbox" checked aria-label="Select all merchants" data-merchant-select-all></th>
+                        <th>Agent</th>
+                        <th>Merchant</th>
+                        <th>Merchant ID</th>
+                        <th>Currency</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow HQ Canteen" data-merchant-checkbox></td>
+                        <td>Direct</td>
+                        <td>HQ Canteen</td>
+                        <td class="mono">MRC-HQ-001</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Staff POS Counter" data-merchant-checkbox></td>
+                        <td>Direct</td>
+                        <td>Staff POS Counter</td>
+                        <td class="mono">MRC-POS-002</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Vending North" data-merchant-checkbox></td>
+                        <td>North Region Agent</td>
+                        <td>Vending North</td>
+                        <td class="mono">MRC-VND-003</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Coffee Corner" data-merchant-checkbox></td>
+                        <td>North Region Agent</td>
+                        <td>Coffee Corner</td>
+                        <td class="mono">MRC-COF-004</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Campus Store" data-merchant-checkbox></td>
+                        <td>Campus Agent</td>
+                        <td>Campus Store</td>
+                        <td class="mono">MRC-CMP-005</td>
+                        <td>USD</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </section>
             </div>

@@ -49,7 +49,7 @@
             </div>
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
-              <button class="btn primary" type="button" data-open-modal="activateConfirm" data-visible-panel="singleActivation">Activate Card</button>
+              <button class="btn primary" type="button" data-open-modal="activateConfirm" data-visible-panel="singleActivation" data-requires-valid-dates>Activate Card</button>
             </div>
           </div>
 
@@ -101,9 +101,18 @@
 
               <section class="section">
                 <div class="section-head"><div><h2 class="section-title">Lifecycle Rules</h2></div></div>
-                <div class="form-grid two">
+                <div class="lifecycle-grid">
                   <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" type="datetime-local" value="2026-04-27T09:00"></div>
-                  <div class="field"><label for="expirationDate">Expiration Date</label><input class="input" id="expirationDate" type="datetime-local"></div>
+                  <div class="field"><label for="expirationDate">Expiration Date</label><input class="input" id="expirationDate" type="datetime-local" data-expiration-date><small class="field-error" data-expiration-error hidden>Expiration Date cannot be earlier than Activation Date.</small></div>
+                </div>
+                <div class="lifecycle-actions">
+                  <span class="field-hint">Leave Expiration Date empty for no expiration.</span>
+                  <div class="quick-actions">
+                    <button class="btn small" type="button" data-expiration-years="1">1 Year</button>
+                    <button class="btn small" type="button" data-expiration-years="2">2 Years</button>
+                    <button class="btn small" type="button" data-expiration-years="3">3 Years</button>
+                    <button class="btn small" type="button" data-clear-expiration>Clear</button>
+                  </div>
                 </div>
               </section>
 
