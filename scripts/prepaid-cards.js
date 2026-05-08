@@ -338,17 +338,18 @@
   const merchantSelectedCount = document.querySelector("[data-merchant-selected-count]");
   function syncMerchantSelection() {
     if (!merchantCheckboxes.length) return;
-    const selected = merchantCheckboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+    const enabledCheckboxes = merchantCheckboxes.filter(function (checkbox) { return !checkbox.disabled; });
+    const selected = enabledCheckboxes.filter(function (checkbox) { return checkbox.checked; }).length;
     if (merchantSelectedCount) merchantSelectedCount.textContent = selected + " Selected";
     if (merchantSelectAll) {
-      merchantSelectAll.checked = selected === merchantCheckboxes.length;
-      merchantSelectAll.indeterminate = selected > 0 && selected < merchantCheckboxes.length;
+      merchantSelectAll.checked = selected === enabledCheckboxes.length;
+      merchantSelectAll.indeterminate = selected > 0 && selected < enabledCheckboxes.length;
     }
   }
   if (merchantSelectAll && merchantCheckboxes.length) {
     merchantSelectAll.addEventListener("change", function () {
       merchantCheckboxes.forEach(function (checkbox) {
-        checkbox.checked = merchantSelectAll.checked;
+        if (!checkbox.disabled) checkbox.checked = merchantSelectAll.checked;
       });
       syncMerchantSelection();
     });
@@ -356,6 +357,18 @@
       checkbox.addEventListener("change", syncMerchantSelection);
     });
     syncMerchantSelection();
+  }
+
+  const cardCurrency = document.querySelector("[data-card-currency]");
+  function syncCardCurrencyLabel() {
+    if (!cardCurrency) return;
+    document.querySelectorAll("[data-card-currency-label]").forEach(function (item) {
+      item.textContent = cardCurrency.value + " only";
+    });
+  }
+  if (cardCurrency) {
+    cardCurrency.addEventListener("change", syncCardCurrencyLabel);
+    syncCardCurrencyLabel();
   }
 
   if (window.location.hash === "#import") {
