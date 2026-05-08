@@ -53,6 +53,7 @@
     .tool{width:52px;height:50px;border:1px solid var(--line);border-radius:12px;background:#fff;color:#6e788d;display:grid;place-items:center;position:relative}
     .tool.open,.tool:hover,.seg:hover{background:#f7f8fb;color:#434d61;border-color:#c8cfdb}
     .tool.active{background:#eef2f8;border-color:#b9c4d5;color:#2f3d56}
+    @keyframes spin{to{transform:rotate(360deg)}}
     .badge{position:absolute;right:-6px;top:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:600;line-height:20px;text-align:center;display:none}
     .badge.show{display:block}
     .split{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
@@ -92,9 +93,13 @@
     .presetmeta{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 12px;border-radius:999px;background:#eef2f8;color:#53627a;font-size:12px;font-weight:600;white-space:nowrap}
     .presetmeta.active{background:#111827;color:#fff}
     .presetlist{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
-    .presetchip{width:176px;min-height:84px;padding:12px 14px;border:1px solid #d7dce6;border-radius:14px;background:#fff;text-align:left;color:#2f3746;display:flex;flex-direction:column;gap:4px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;flex:0 0 176px}
+    .presetchip{width:176px;min-height:84px;padding:12px 14px;border:1px solid #d7dce6;border-radius:14px;background:#fff;text-align:left;color:#2f3746;display:flex;flex-direction:column;gap:4px;transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;flex:0 0 176px;position:relative;overflow:hidden}
     .presetchip:hover{border-color:#bfc9d8;box-shadow:0 8px 20px rgba(31,41,55,.06)}
     .presetchip.active{border-color:#111827;background:#111827;color:#fff}
+    .presetchip.loading{cursor:progress}
+    .presetchip.loading .presetname,.presetchip.loading .presetdesc{opacity:.28}
+    .presetchip.loading:after{content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:2px solid rgba(96,112,138,.32);border-top-color:#4594e6;animation:spin .72s linear infinite}
+    .presetchip.active.loading:after{border-color:rgba(255,255,255,.32);border-top-color:#fff}
     .presetchip.empty{opacity:.72}
     .presetchip.dirty{box-shadow:0 0 0 3px rgba(244,114,182,.14)}
     .presetchip.addview{border:2px dashed #cfd7e5;background:#fbfcff;align-items:center;justify-content:center;text-align:center;color:#60708a}
@@ -402,6 +407,7 @@
       ];
       const viewStoreKey="paywizard.transactionList.savedViews";
       const maxCustomViews=2;
+      const columnViewSwitchDelay=2000;
       const cloneColumns=cols=>cols.map(c=>({key:c.key,visible:c.visible}));
       const defaultColumns=()=>defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
       const unattdVisible=["processorTime","timezone","sn","terminalName","tid","storeId","mid","type","amount","currency","transLogId","batch","trace","merchantName","storeName"];
@@ -839,6 +845,14 @@
         if(systemView) return systemView.name;
         return savedView?.name||"Custom";
       };
+      const setColumnSwitching=(active,viewId)=>{
+        presetList.querySelectorAll(".presetchip").forEach(btn=>{
+          const isTarget=active&&btn.dataset.view===viewId;
+          btn.disabled=active;
+          btn.classList.toggle("loading",isTarget);
+          btn.setAttribute("aria-busy",isTarget?"true":"false");
+        });
+      };
       const setColumns=(cols,viewId,unsaved)=>{
         const normalized=normalizeColumns(cols);
         if(!normalized) return;
@@ -901,6 +915,19 @@
         if(!view) return false;
         setColumns(view.columns,view.id,false);
         return true;
+      };
+      const switchSavedView=viewId=>{
+        setColumnSwitching(true,viewId);
+        window.requestAnimationFrame(()=>{
+          window.setTimeout(()=>{
+            if(applySavedView(viewId)){
+              renderCols();
+              renderTable();
+            }
+            setColumnSwitching(false);
+            setPop("cols");
+          },columnViewSwitchDelay);
+        });
       };
       const renderPresets=()=>{
         const views=systemViews.map(view=>({id:view.id,name:view.name,desc:view.desc})).concat(state.savedViews.map(view=>({id:view.id,name:view.name,desc:`${view.columns.filter(c=>c.visible).length} columns shown`})));
@@ -1022,6 +1049,7 @@
       filterBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); syncFilters(); setPop(""); toggleFilters();};
       colsBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(colsPop.classList.contains("show")?"":"cols");};
       menuBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(menuPop.classList.contains("show")?"":"menu");};
+      colsPop.addEventListener("click",e=>e.stopPropagation());
       exportBtn.onclick=()=>exportRows("csv");
       document.getElementById("searchBtn").onclick=()=>{closeSnDetail(); closeSnPicker(); applyFilters(); setPop("");};
       document.getElementById("resetFilters").onclick=resetFilters;
@@ -1107,17 +1135,16 @@
         renderTable();
       });
       presetList.addEventListener("click",e=>{
+        e.stopPropagation();
         const btn=e.target.closest(".presetchip");
-        if(!btn) return;
+        if(!btn||btn.disabled) return;
         if(btn.dataset.action==="add-view"){
           createViewFromCurrent();
           renderCols();
           renderTable();
           return;
         }
-        if(!applySavedView(btn.dataset.view)) return;
-        renderCols();
-        renderTable();
+        switchSavedView(btn.dataset.view);
       });
       saveViewBtn.onclick=()=>{
         const view=currentSavedView();

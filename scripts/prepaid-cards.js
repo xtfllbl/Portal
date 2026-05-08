@@ -80,6 +80,46 @@
     });
   });
 
+  const dailyLimitToggle = document.querySelector("[data-daily-limit-toggle]");
+  const dailyLimitAmount = document.querySelector("[data-daily-limit-amount]");
+  function syncDailyLimitAmount() {
+    if (!dailyLimitToggle || !dailyLimitAmount) return;
+    const enabled = dailyLimitToggle.value === "Yes";
+    dailyLimitAmount.disabled = !enabled;
+    dailyLimitAmount.required = enabled;
+    if (!enabled) dailyLimitAmount.value = "";
+    if (enabled && !dailyLimitAmount.value) dailyLimitAmount.value = "50.00";
+  }
+  if (dailyLimitToggle && dailyLimitAmount) {
+    dailyLimitToggle.addEventListener("change", syncDailyLimitAmount);
+    syncDailyLimitAmount();
+  }
+
+  const merchantSelectAll = document.querySelector("[data-merchant-select-all]");
+  const merchantCheckboxes = Array.from(document.querySelectorAll("[data-merchant-checkbox]"));
+  const merchantSelectedCount = document.querySelector("[data-merchant-selected-count]");
+  function syncMerchantSelection() {
+    if (!merchantCheckboxes.length) return;
+    const selected = merchantCheckboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+    if (merchantSelectedCount) merchantSelectedCount.textContent = selected + " Selected";
+    if (merchantSelectAll) {
+      merchantSelectAll.checked = selected === merchantCheckboxes.length;
+      merchantSelectAll.indeterminate = selected > 0 && selected < merchantCheckboxes.length;
+    }
+  }
+  if (merchantSelectAll && merchantCheckboxes.length) {
+    merchantSelectAll.addEventListener("change", function () {
+      merchantCheckboxes.forEach(function (checkbox) {
+        checkbox.checked = merchantSelectAll.checked;
+      });
+      syncMerchantSelection();
+    });
+    merchantCheckboxes.forEach(function (checkbox) {
+      checkbox.addEventListener("change", syncMerchantSelection);
+    });
+    syncMerchantSelection();
+  }
+
   if (window.location.hash === "#import") {
     const importTab = document.querySelector('[data-tab-target="batchImport"]');
     if (importTab) importTab.click();

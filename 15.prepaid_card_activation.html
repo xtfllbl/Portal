@@ -94,36 +94,80 @@
                   <div class="field"><label for="initialBalance">Initial Balance</label><input class="input" id="initialBalance" value="100.00"></div>
                   <div class="field"><label for="monthlyLimit">Monthly Amount Limit</label><input class="input" id="monthlyLimit" value="300.00"></div>
                   <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first sale</option></select></div>
-                  <div class="field span-2"><label for="limitPreset">Daily Amount Limit</label><select class="select" id="limitPreset"><option>Weekdays 50.00 / Weekend blocked</option><option>Every day 30.00</option><option>No daily limit</option></select></div>
-                </div>
-                <div class="table-wrap" style="margin-top:14px">
-                  <table>
-                    <thead><tr><th>Day</th><th>Status</th><th>Daily Limit</th><th>Allowed Time</th></tr></thead>
-                    <tbody>
-                      <tr><td>Monday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Tuesday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Wednesday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Thursday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Friday</td><td><span class="badge green">Allowed</span></td><td>$50.00</td><td>06:00 - 22:00</td></tr>
-                      <tr><td>Saturday</td><td><span class="badge red">Blocked</span></td><td>$0.00</td><td>-</td></tr>
-                      <tr><td>Sunday</td><td><span class="badge red">Blocked</span></td><td>$0.00</td><td>-</td></tr>
-                    </tbody>
-                  </table>
+                  <div class="field"><label for="dailyLimitEnabled">Enable Daily Amount Limit</label><select class="select" id="dailyLimitEnabled" data-daily-limit-toggle><option>No</option><option>Yes</option></select></div>
+                  <div class="field"><label for="dailyLimit">Daily Amount Limit</label><input class="input" id="dailyLimit" type="number" min="0" step="0.01" placeholder="Amount" disabled data-daily-limit-amount></div>
                 </div>
               </section>
 
               <section class="section">
-                <div class="section-head"><div><h2 class="section-title">Lifecycle & Location Limits</h2></div></div>
+                <div class="section-head"><div><h2 class="section-title">Lifecycle Rules</h2></div></div>
                 <div class="form-grid two">
-                  <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" value="2026-04-27 09:00"></div>
-                  <div class="field"><label for="expirationDate">Expiration Date</label><input class="input" id="expirationDate" placeholder="Permanent if empty"></div>
+                  <div class="field"><label for="activationDate">Activation Date</label><input class="input" id="activationDate" type="datetime-local" value="2026-04-27T09:00"></div>
+                  <div class="field"><label for="expirationDate">Expiration Date</label><input class="input" id="expirationDate" type="datetime-local"></div>
                 </div>
-                <div class="tree" style="margin-top:14px">
-                  <label class="tree-row"><input type="checkbox" checked> G & A Robot Inc</label>
-                  <label class="tree-row child"><input type="checkbox" checked> HQ Canteen</label>
-                  <label class="tree-row child"><input type="checkbox" checked> Staff POS Counter</label>
-                  <label class="tree-row child"><input type="checkbox"> Vending North</label>
-                  <label class="tree-row child"><input type="checkbox"> Coffee Corner</label>
+              </section>
+
+              <section class="section">
+                <div class="section-head">
+                  <div>
+                    <h2 class="section-title">Merchant Usage Limits</h2>
+                    <p class="section-note">All merchants under this service provider are selected by default. Clear any merchant that should not accept this prepaid card.</p>
+                  </div>
+                  <span class="badge purple" data-merchant-selected-count>5 Selected</span>
+                </div>
+                <div class="scope-summary">
+                  <div class="scope-item"><span>Service Provider</span><strong>G & A Robot Inc</strong></div>
+                  <div class="scope-item"><span>Merchant Scope</span><strong>All merchants selected</strong></div>
+                </div>
+                <div class="table-wrap merchant-limit-wrap">
+                  <table class="merchant-limit-table">
+                    <thead>
+                      <tr>
+                        <th><input class="table-check" type="checkbox" checked aria-label="Select all merchants" data-merchant-select-all></th>
+                        <th>Agent</th>
+                        <th>Merchant</th>
+                        <th>Merchant ID</th>
+                        <th>Currency</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow HQ Canteen" data-merchant-checkbox></td>
+                        <td>Direct</td>
+                        <td>HQ Canteen</td>
+                        <td class="mono">MRC-HQ-001</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Staff POS Counter" data-merchant-checkbox></td>
+                        <td>Direct</td>
+                        <td>Staff POS Counter</td>
+                        <td class="mono">MRC-POS-002</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Vending North" data-merchant-checkbox></td>
+                        <td>North Region Agent</td>
+                        <td>Vending North</td>
+                        <td class="mono">MRC-VND-003</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Coffee Corner" data-merchant-checkbox></td>
+                        <td>North Region Agent</td>
+                        <td>Coffee Corner</td>
+                        <td class="mono">MRC-COF-004</td>
+                        <td>USD</td>
+                      </tr>
+                      <tr>
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow Campus Store" data-merchant-checkbox></td>
+                        <td>Campus Agent</td>
+                        <td>Campus Store</td>
+                        <td class="mono">MRC-CMP-005</td>
+                        <td>USD</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </section>
             </div>
@@ -137,7 +181,7 @@
                   <div class="page-actions"><button class="btn" type="button" data-toast="CSV template downloaded.">Download CSV Template</button><button class="btn purple" type="button" data-import-step="2" data-toast="File parsed: 245 rows ready for validation.">Upload File</button></div>
                 </div>
                 <div class="step-list">
-                  <div class="step-item" data-import-state="1"><span class="step-no">1</span><span class="step-copy"><strong>Template</strong><span>UID, name, employee ID, mobile, initial balance, deposit, limits.</span></span><span class="badge green">Done</span></div>
+                  <div class="step-item" data-import-state="1"><span class="step-no">1</span><span class="step-copy"><strong>Template</strong><span>UID, name, employee ID, mobile, initial balance, daily limit, merchant scope.</span></span><span class="badge green">Done</span></div>
                   <div class="step-item" data-import-state="2"><span class="step-no">2</span><span class="step-copy"><strong>Upload & Parse</strong><span>Validate file format and duplicate UID rows.</span></span><span class="badge purple">Current</span></div>
                   <div class="step-item" data-import-state="3"><span class="step-no">3</span><span class="step-copy"><strong>Review</strong><span>Confirm row-level warnings before activation.</span></span><span class="badge neutral">Pending</span></div>
                   <div class="step-item" data-import-state="4"><span class="step-no">4</span><span class="step-copy"><strong>Activate</strong><span>Create cards and write audit records.</span></span><span class="badge neutral">Pending</span></div>

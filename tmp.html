@@ -1,71 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表格文本链接测试</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 0; color: #333; }
-        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 4px; overflow: hidden; border: 1px solid #e1e4e8; }
-        .header { background: #2563eb; padding: 35px 20px; text-align: center; color: white; }
-        .header h1 { margin: 0; font-size: 26px; font-weight: 600; }
-        .version-badge { background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 4px; font-size: 13px; margin-top: 12px; display: inline-block; border: 1px solid rgba(255,255,255,0.3); }
-        .content { padding: 30px; line-height: 1.6; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f9fafb;
+            padding: 40px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        th { font-weight: 600; color: #666; background: #fafafa; }
         
-        /* 标题样式：去除了 Emoji，改用更粗的字体和深色 */
-        .section-title { font-size: 18px; font-weight: 700; color: #111827; margin: 25px 0 15px 0; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f3f4f6; padding-bottom: 5px; }
-        
-        /* 功能卡片样式 */
-        .feature-card { background: #f8fafc; border-left: 4px solid #2563eb; padding: 18px; margin-bottom: 20px; }
-        .feature-card h3 { margin: 0 0 6px 0; font-size: 16px; color: #2563eb; font-weight: 600; }
-        .feature-card p { margin: 0; font-size: 14px; color: #4b5563; }
-        
-        /* 列表样式 */
-        .list-container { padding-left: 5px; }
-        .list-item { margin-bottom: 12px; font-size: 14px; list-style-type: none; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
-        .list-label { color: #2563eb; font-weight: 600; margin-right: 5px; }
-        
-        .footer { background: #f9fafb; padding: 25px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #eee; }
-        .button { display: inline-block; padding: 12px 28px; background: #2563eb; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px; }
+        /* 方案 A: 经典企业蓝 (推荐) */
+        .link-blue {
+            color: #1677FF;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .link-blue:hover {
+            color: #0958D9;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* 方案 B: 克制深青色 */
+        .link-teal {
+            color: #007D8C;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .link-teal:hover {
+            color: #005A65;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* 方案 C: 纯黑白（靠下划线区分） */
+        .link-bw {
+            color: #111;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: #ccc;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .link-bw:hover {
+            text-decoration-color: #111;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Product Update</h1>
-            <div class="version-badge">Version 2.4.0</div>
-        </div>
 
-        <div class="content">
-            <p style="font-size: 15px;">Hello, we’ve introduced several updates to [Platform Name] to enhance your email marketing performance and workflow efficiency.</p>
-            
-            <div class="section-title">New Features</div>
-            <div class="feature-card">
-                <h3>AI Content Composer</h3>
-                <p>Leverage our built-in AI assistant to generate high-converting email copy and subject lines instantly.</p>
-            </div>
-            <div class="feature-card">
-                <h3>Visual Automation Builder</h3>
-                <p>A new drag-and-drop interface designed for building complex, multi-step customer journeys with ease.</p>
-            </div>
+    <h3>数据表格文本链接方案对比</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>商户名称 (DBA)</th>
+                <th>终端编号 (Terminal SN)</th>
+                <th>状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>方案A：企业蓝 (Ant Design)</td>
+                <td><a class="link-blue" href="#">WP22212Q33200444</a></td>
+                <td>Completed</td>
+            </tr>
+            <tr>
+                <td>方案B：高级深青色</td>
+                <td><a class="link-teal" href="#">Test-merchant-71b4</a></td>
+                <td>Completed</td>
+            </tr>
+            <tr>
+                <td>方案C：纯黑白极简</td>
+                <td><a class="link-bw" href="#">123453</a></td>
+                <td>Completed</td>
+            </tr>
+            <tr>
+                <td>普通不可点文本</td>
+                <td>88931284712</td>
+                <td>Failed</td>
+            </tr>
+        </tbody>
+    </table>
 
-            <div class="section-title">Improvements & Fixes</div>
-            <div class="list-container">
-                <div class="list-item"><span class="list-label">[Optimized]</span> Delivery engine performance increased by 25%.</div>
-                <div class="list-item"><span class="list-label">[Enhanced]</span> Advanced click-map analytics for better user insights.</div>
-                <div class="list-item"><span class="list-label">[Fixed]</span> Resolved CSS rendering issues for mobile Outlook clients.</div>
-                <div class="list-item"><span class="list-label">[Fixed]</span> Corrected data synchronization delays in Audience Manager.</div>
-            </div>
-
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="https://yourlink.com" class="button">Log in to Explore</a>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>You received this email because you are a registered user of [Your Company].</p>
-            <p>© 2026 [Your Company Name] | <a href="#" style="color: #6b7280;">Unsubscribe</a></p>
-        </div>
-    </div>
 </body>
 </html>
