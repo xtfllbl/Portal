@@ -12,6 +12,12 @@
     }, 1800);
   }
 
+  function syncPanelScopedActions(panelId) {
+    document.querySelectorAll("[data-visible-panel]").forEach(function (item) {
+      item.hidden = item.getAttribute("data-visible-panel") !== panelId;
+    });
+  }
+
   document.addEventListener("click", function (event) {
     const tab = event.target.closest("[data-tab-target]");
     if (tab) {
@@ -25,6 +31,7 @@
         document.querySelectorAll('[data-tab-panel-for="' + groupName + '"]').forEach(function (panel) {
           panel.classList.toggle("active", panel.id === panelId);
         });
+        syncPanelScopedActions(panelId);
       }
     }
 
@@ -68,17 +75,55 @@
     });
   });
 
+  function setImportStep(target) {
+    document.querySelectorAll("[data-import-state]").forEach(function (item) {
+      const index = Number(item.getAttribute("data-import-state"));
+      item.querySelector(".badge").className = "badge " + (index < target ? "green" : index === target ? "purple" : "neutral");
+      item.querySelector(".badge").textContent = index < target ? "Done" : index === target ? "Current" : "Pending";
+    });
+  }
+
   document.querySelectorAll("[data-import-step]").forEach(function (button) {
     button.addEventListener("click", function () {
       const target = Number(button.getAttribute("data-import-step"));
-      document.querySelectorAll("[data-import-state]").forEach(function (item) {
-        const index = Number(item.getAttribute("data-import-state"));
-        item.querySelector(".badge").className = "badge " + (index < target ? "green" : index === target ? "purple" : "neutral");
-        item.querySelector(".badge").textContent = index < target ? "Done" : index === target ? "Current" : "Pending";
-      });
+      setImportStep(target);
       showToast(button.getAttribute("data-toast") || "Import step updated.");
     });
   });
+
+  const validateImportButton = document.querySelector("[data-validate-import]");
+  const batchActivateButton = document.querySelector("[data-batch-activate]");
+  if (validateImportButton) {
+    validateImportButton.addEventListener("click", function () {
+      let readyCount = 0;
+      let errorCount = 0;
+      const statusMap = {
+        valid: { label: "Valid", className: "badge green" },
+        warning: { label: "Warning", className: "badge orange" },
+        error: { label: "Error", className: "badge red" }
+      };
+      document.querySelectorAll("[data-validation-status]").forEach(function (row) {
+        const status = row.getAttribute("data-validation-status");
+        const badge = row.querySelector(".badge");
+        const messageCell = row.lastElementChild;
+        const display = statusMap[status] || statusMap.error;
+        if (badge) {
+          badge.className = display.className;
+          badge.textContent = display.label;
+        }
+        if (messageCell) messageCell.textContent = row.getAttribute("data-validation-message") || "";
+        if (status === "error") errorCount += 1;
+        else readyCount += 1;
+      });
+      if (batchActivateButton) {
+        batchActivateButton.disabled = readyCount === 0;
+        batchActivateButton.textContent = readyCount > 0 ? "Activate " + readyCount + " Ready Cards" : "No Valid Cards";
+      }
+      validateImportButton.textContent = "Re-validate";
+      setImportStep(3);
+      showToast("Validation completed. " + readyCount + " rows ready, " + errorCount + " error row skipped.");
+    });
+  }
 
   const dailyLimitToggle = document.querySelector("[data-daily-limit-toggle]");
   const dailyLimitAmount = document.querySelector("[data-daily-limit-amount]");
@@ -124,4 +169,7 @@
     const importTab = document.querySelector('[data-tab-target="batchImport"]');
     if (importTab) importTab.click();
   }
+
+  const activePanel = document.querySelector(".tab-panel.active");
+  if (activePanel) syncPanelScopedActions(activePanel.id);
 })();

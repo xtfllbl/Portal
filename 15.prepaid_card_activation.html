@@ -49,7 +49,7 @@
             </div>
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
-              <button class="btn primary" type="button" data-open-modal="activateConfirm">Activate Card</button>
+              <button class="btn primary" type="button" data-open-modal="activateConfirm" data-visible-panel="singleActivation">Activate Card</button>
             </div>
           </div>
 
@@ -174,30 +174,30 @@
               <section class="section">
                 <div class="section-head">
                   <div><h2 class="section-title">Import Prepaid Cards from Excel</h2></div>
-                  <div class="page-actions"><button class="btn" type="button" data-toast="CSV template downloaded.">Download CSV Template</button><button class="btn purple" type="button" data-import-step="2" data-toast="File parsed: 245 rows ready for validation.">Upload File</button></div>
+                  <div class="page-actions"><a class="btn" href="prepaid_card_import_template.csv" download data-toast="CSV template downloaded.">Download CSV Template</a><button class="btn purple" type="button" data-import-step="2" data-toast="File parsed. Review the rows below before validation.">Upload File</button></div>
                 </div>
                 <div class="step-list">
                   <div class="step-item" data-import-state="1"><span class="step-no">1</span><span class="step-copy"><strong>Template</strong><span>UID, name, employee ID, mobile, initial balance, daily limit, merchant scope.</span></span><span class="badge green">Done</span></div>
-                  <div class="step-item" data-import-state="2"><span class="step-no">2</span><span class="step-copy"><strong>Upload & Parse</strong><span>Validate file format and duplicate UID rows.</span></span><span class="badge purple">Current</span></div>
-                  <div class="step-item" data-import-state="3"><span class="step-no">3</span><span class="step-copy"><strong>Review</strong><span>Confirm row-level warnings before activation.</span></span><span class="badge neutral">Pending</span></div>
+                  <div class="step-item" data-import-state="2"><span class="step-no">2</span><span class="step-copy"><strong>Upload & Parse</strong><span>Parse CSV rows and show the upload preview.</span></span><span class="badge purple">Current</span></div>
+                  <div class="step-item" data-import-state="3"><span class="step-no">3</span><span class="step-copy"><strong>Review & Validate</strong><span>Check required fields, duplicates, merchants, limits, and existing card records.</span></span><span class="badge neutral">Pending</span></div>
                   <div class="step-item" data-import-state="4"><span class="step-no">4</span><span class="step-copy"><strong>Activate</strong><span>Create cards and write audit records.</span></span><span class="badge neutral">Pending</span></div>
                 </div>
               </section>
 
               <section class="section">
                 <div class="section-head">
-                  <div><h2 class="section-title">Import Preview</h2></div>
-                  <div class="page-actions"><button class="btn" type="button" data-import-step="3" data-toast="Validation completed with 2 warnings.">Validate</button><button class="btn primary" type="button" data-open-modal="batchConfirm">Activate 243 Valid Cards</button></div>
+                  <div><h2 class="section-title">Import Review</h2><p class="section-note">Rows are parsed after upload. Run validation before activation to check duplicates and system rules.</p></div>
+                  <div class="page-actions"><button class="btn" type="button" data-validate-import>Validate</button><button class="btn primary" type="button" data-open-modal="batchConfirm" data-batch-activate disabled>Validate First</button></div>
                 </div>
                 <div class="table-wrap">
                   <table>
                     <thead><tr><th>Row</th><th>Card UID</th><th>Cardholder</th><th>Employee ID</th><th>Initial Balance</th><th>Daily Limit</th><th>Status</th><th>Message</th></tr></thead>
                     <tbody>
-                      <tr><td>2</td><td class="mono">04BB1C9221D088</td><td>Daniel Moore</td><td>EMP-004392</td><td>$80.00</td><td>$50.00</td><td><span class="badge green">Valid</span></td><td>Ready</td></tr>
-                      <tr><td>3</td><td class="mono">04AF18193BC002</td><td>Emma Li</td><td>EMP-004393</td><td>$80.00</td><td>$50.00</td><td><span class="badge green">Valid</span></td><td>Ready</td></tr>
-                      <tr><td>4</td><td class="mono">04A37C91B25F80</td><td>Olivia Chen</td><td>EMP-004218</td><td>$100.00</td><td>$50.00</td><td><span class="badge orange">Warning</span></td><td>UID already exists as Active</td></tr>
-                      <tr><td>5</td><td class="mono">04F10877D014E1</td><td>Noah Wilson</td><td>EMP-004394</td><td>$80.00</td><td>$50.00</td><td><span class="badge green">Valid</span></td><td>Ready</td></tr>
-                      <tr><td>6</td><td class="mono">04D9CC218B7771</td><td>Mia Zhang</td><td>EMP-004395</td><td>$0.00</td><td>$50.00</td><td><span class="badge orange">Warning</span></td><td>Initial balance is zero</td></tr>
+                      <tr data-validation-status="valid" data-validation-message="Ready"><td>2</td><td class="mono">04BB1C9221D088</td><td>Daniel Moore</td><td>EMP-004392</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Not Checked</span></td><td>Waiting for validation</td></tr>
+                      <tr data-validation-status="valid" data-validation-message="Ready"><td>3</td><td class="mono">04AF18193BC002</td><td>Emma Li</td><td>EMP-004393</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Not Checked</span></td><td>Waiting for validation</td></tr>
+                      <tr data-validation-status="error" data-validation-message="Card UID already exists as Active in Paywizard. This row will be skipped."><td>4</td><td class="mono">04A37C91B25F80</td><td>Olivia Chen</td><td>EMP-004218</td><td>$100.00</td><td>$50.00</td><td><span class="badge neutral">Not Checked</span></td><td>Waiting for validation</td></tr>
+                      <tr data-validation-status="valid" data-validation-message="Ready"><td>5</td><td class="mono">04F10877D014E1</td><td>Noah Wilson</td><td>EMP-004394</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Not Checked</span></td><td>Waiting for validation</td></tr>
+                      <tr data-validation-status="valid" data-validation-message="Ready"><td>6</td><td class="mono">04D9CC218B7771</td><td>Mia Zhang</td><td>EMP-004395</td><td>$0.00</td><td>$50.00</td><td><span class="badge neutral">Not Checked</span></td><td>Waiting for validation</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -229,12 +229,13 @@
       <div class="modal-head"><h2 class="modal-title" id="batchTitle">Batch Activation</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
       <div class="modal-body">
         <div class="kv">
-          <div class="kv-row"><span>Valid Rows</span><strong>243</strong></div>
-          <div class="kv-row"><span>Warnings Skipped</span><strong>2</strong></div>
+          <div class="kv-row"><span>Ready Rows</span><strong>5</strong></div>
+          <div class="kv-row"><span>Rows With Errors</span><strong>1 skipped</strong></div>
+          <div class="kv-row"><span>Rows With Warnings</span><strong>0</strong></div>
           <div class="kv-row"><span>Default Status</span><strong>Active</strong></div>
         </div>
       </div>
-      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-import-step="4" data-toast="243 prepaid cards activated.">Confirm Import</button></div>
+      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-import-step="4" data-toast="5 prepaid cards activated. 1 error row skipped.">Confirm Import</button></div>
     </section>
   </div>
   <div class="toast" data-toast-root>Saved</div>
