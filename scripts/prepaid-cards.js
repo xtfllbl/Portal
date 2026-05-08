@@ -12,6 +12,125 @@
     }, 1800);
   }
 
+  function formatMoney(value) {
+    return "$" + value.toFixed(2);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function formatSignedAmount(value, isTopUp) {
+    return (isTopUp ? "+" : "-") + value.toFixed(2);
+  }
+
+  function formatDateTime(date) {
+    const pad = function (value) { return String(value).padStart(2, "0"); };
+    return [
+      date.getFullYear(),
+      pad(date.getMonth() + 1),
+      pad(date.getDate())
+    ].join("-") + " " + [pad(date.getHours()), pad(date.getMinutes()), pad(date.getSeconds())].join(":");
+  }
+
+  function getDefaultBalanceRemark(type) {
+    return type === "Top-up" ? "System remark: manual top-up." : "System remark: manual deduction.";
+  }
+
+  function syncBalanceRemarkForType() {
+    const typeSelect = document.querySelector("#balanceChangeType");
+    const remark = document.querySelector("#remark");
+    if (!typeSelect || !remark) return;
+
+    const current = remark.value.trim();
+    const isSystemDefault = current === "" || current === getDefaultBalanceRemark("Top-up") || current === getDefaultBalanceRemark("Deduct");
+    if (isSystemDefault) remark.value = getDefaultBalanceRemark(typeSelect.value);
+  }
+
+  function syncBalanceConfirmModal() {
+    const modal = document.getElementById("balanceConfirm");
+    const typeSelect = document.querySelector("#balanceChangeType");
+    const amountInput = document.querySelector("#changeAmount");
+    if (!modal || !typeSelect || !amountInput) return true;
+
+    const currentNode = modal.querySelector("[data-balance-current]");
+    const typeNode = modal.querySelector("[data-balance-confirm-type]");
+    const amountNode = modal.querySelector("[data-balance-confirm-amount]");
+    const newBalanceNode = modal.querySelector("[data-balance-confirm-new]");
+    const submitButton = modal.querySelector("[data-balance-confirm-submit]");
+    const current = Number(currentNode ? currentNode.getAttribute("data-balance-current") : 0);
+    const amount = Number(amountInput.value);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast("Amount must be greater than 0.");
+      amountInput.classList.add("is-invalid");
+      amountInput.focus();
+      return false;
+    }
+
+    amountInput.classList.remove("is-invalid");
+    const isTopUp = typeSelect.value === "Top-up";
+    const nextBalance = isTopUp ? current + amount : current - amount;
+    if (typeNode) typeNode.textContent = typeSelect.value;
+    if (amountNode) {
+      amountNode.textContent = formatMoney(amount);
+      amountNode.classList.toggle("positive", isTopUp);
+      amountNode.classList.toggle("negative", !isTopUp);
+    }
+    if (newBalanceNode) newBalanceNode.textContent = formatMoney(nextBalance);
+    if (submitButton) {
+      submitButton.textContent = isTopUp ? "Confirm Top-up" : "Confirm Deduction";
+      submitButton.classList.toggle("primary", isTopUp);
+      submitButton.classList.toggle("danger", !isTopUp);
+      submitButton.setAttribute("data-toast", isTopUp ? "Balance topped up." : "Balance deducted.");
+    }
+    return true;
+  }
+
+  function applyBalanceAdjustment() {
+    const modal = document.getElementById("balanceConfirm");
+    const typeSelect = document.querySelector("#balanceChangeType");
+    const amountInput = document.querySelector("#changeAmount");
+    const remark = document.querySelector("#remark");
+    const historyBody = document.querySelector("[data-adjustment-history]");
+    if (!modal || !typeSelect || !amountInput || !historyBody) return;
+
+    const currentNode = modal.querySelector("[data-balance-current]");
+    const current = Number(currentNode ? currentNode.getAttribute("data-balance-current") : 0);
+    const amount = Number(amountInput.value);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+
+    const isTopUp = typeSelect.value === "Top-up";
+    const nextBalance = isTopUp ? current + amount : current - amount;
+    const now = new Date();
+    const row = document.createElement("tr");
+    row.innerHTML = [
+      "<td>" + formatDateTime(now) + "</td>",
+      '<td><span class="badge ' + (isTopUp ? "green" : "red") + '">' + escapeHtml(typeSelect.value) + "</span></td>",
+      "<td>" + formatMoney(current) + "</td>",
+      "<td>" + formatMoney(nextBalance) + "</td>",
+      '<td class="amount ' + (isTopUp ? "positive" : "negative") + '">' + formatSignedAmount(amount, isTopUp) + "</td>",
+      "<td>ops.manager@paywizard.io</td>",
+      "<td>" + escapeHtml((remark && remark.value.trim()) || getDefaultBalanceRemark(typeSelect.value)) + "</td>"
+    ].join("");
+    historyBody.prepend(row);
+
+    if (currentNode) {
+      currentNode.setAttribute("data-balance-current", nextBalance.toFixed(2));
+      currentNode.textContent = formatMoney(nextBalance);
+    }
+    document.querySelectorAll("[data-balance-display]").forEach(function (item) {
+      item.textContent = formatMoney(nextBalance);
+    });
+    document.querySelectorAll("[data-last-adjustment-time]").forEach(function (item) {
+      item.textContent = formatDateTime(now).slice(0, 16);
+    });
+  }
+
   function syncPanelScopedActions(panelId) {
     document.querySelectorAll("[data-visible-panel]").forEach(function (item) {
       item.hidden = item.getAttribute("data-visible-panel") !== panelId;
@@ -43,11 +162,21 @@
 
     const openModalButton = event.target.closest("[data-open-modal]");
     if (openModalButton) {
-      const modal = document.getElementById(openModalButton.getAttribute("data-open-modal"));
+      const modalId = openModalButton.getAttribute("data-open-modal");
+      if (modalId === "balanceConfirm" && !syncBalanceConfirmModal()) {
+        event.preventDefault();
+        return;
+      }
+      const modal = document.getElementById(modalId);
       if (modal) {
         modal.classList.add("open");
         modal.setAttribute("aria-hidden", "false");
       }
+    }
+
+    const balanceConfirmSubmit = event.target.closest("[data-balance-confirm-submit]");
+    if (balanceConfirmSubmit) {
+      applyBalanceAdjustment();
     }
 
     const closeModalButton = event.target.closest("[data-close-modal]");
@@ -70,6 +199,9 @@
       modal.setAttribute("aria-hidden", "true");
     });
   });
+
+  const balanceChangeType = document.querySelector("#balanceChangeType");
+  if (balanceChangeType) balanceChangeType.addEventListener("change", syncBalanceRemarkForType);
 
   document.querySelectorAll("[data-autofill-new-card]").forEach(function (button) {
     button.addEventListener("click", function () {

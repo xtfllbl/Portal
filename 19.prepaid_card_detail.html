@@ -24,7 +24,7 @@
           <a class="sub-item" href="14.prepaid_card_list.html">Card List</a>
           <a class="sub-item" href="15.prepaid_card_activation.html">Activation</a>
           <a class="sub-item active" href="19.prepaid_card_detail.html">Card Details</a>
-          <a class="sub-item" href="16.prepaid_credit_adjustment.html">Change Credit</a>
+          <a class="sub-item" href="16.prepaid_credit_adjustment.html">Balance Adjustment</a>
           <a class="sub-item" href="17.prepaid_loss_replacement.html">Loss & Replacement</a>
           <a class="sub-item" href="18.prepaid_terminal_activity.html">Terminal Activity</a>
         </div>
@@ -50,7 +50,7 @@
             </div>
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
-              <a class="btn" href="16.prepaid_credit_adjustment.html">Change Credit</a>
+              <a class="btn" href="16.prepaid_credit_adjustment.html">Balance Adjustment</a>
               <button class="btn primary" type="button" data-toast="Card details saved." data-requires-valid-dates>Save</button>
             </div>
           </div>
@@ -58,14 +58,14 @@
           <section class="summary-grid detail-summary" aria-label="Card detail summary">
             <div class="summary"><span>Card UID</span><strong class="mono">04A37C91B25F80</strong></div>
             <div class="summary"><span>Display Card No.</span><strong class="mono">EMP-CARD-004218</strong></div>
-            <div class="summary"><span>Current Credit</span><strong>$128.40</strong></div>
+            <div class="summary"><span>Current Balance</span><strong>$128.40</strong></div>
             <div class="summary"><span>Status</span><strong class="summary-status-value">Active</strong></div>
           </section>
 
           <section class="section">
             <div class="tabs" data-tabs="cardDetail" role="tablist">
               <button class="tab active" type="button" data-tab-target="generalTab">General</button>
-              <button class="tab" type="button" data-tab-target="creditHistoryTab">Credit History</button>
+              <button class="tab" type="button" data-tab-target="balanceHistoryTab">Adjustments</button>
               <button class="tab" type="button" data-tab-target="transactionsTab">Transactions</button>
             </div>
           </section>
@@ -96,10 +96,10 @@
               </section>
 
               <section class="section">
-                <div class="section-head"><div><h2 class="section-title">Card Credit Attributes</h2></div></div>
+                <div class="section-head"><div><h2 class="section-title">Card Balance Attributes</h2></div></div>
                 <div class="form-grid">
                   <div class="field"><label for="currency">Card Currency</label><input class="input" id="currency" value="USD - inherited from merchant" readonly></div>
-                  <div class="field"><label for="currentCredit">Current Credit</label><input class="input" id="currentCredit" value="128.40" readonly></div>
+                  <div class="field"><label for="currentBalance">Current Balance</label><input class="input" id="currentBalance" value="128.40" readonly></div>
                   <div class="field"><label for="monthlyLimit">Monthly Amount Limit</label><input class="input" id="monthlyLimit" value="300.00"></div>
                   <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first sale</option></select></div>
                   <div class="field"><label for="dailyLimitEnabled">Enable Daily Amount Limit</label><select class="select" id="dailyLimitEnabled" data-daily-limit-toggle><option>No</option><option selected>Yes</option></select></div>
@@ -190,16 +190,15 @@
             </div>
           </section>
 
-          <section class="tab-panel" id="creditHistoryTab" data-tab-panel-for="cardDetail">
+          <section class="tab-panel" id="balanceHistoryTab" data-tab-panel-for="cardDetail">
             <section class="section">
-              <div class="section-head"><div><h2 class="section-title">Credit History</h2></div><a class="btn small" href="16.prepaid_credit_adjustment.html">Change Credit</a></div>
+              <div class="section-head"><div><h2 class="section-title">Adjustments</h2></div><a class="btn small" href="16.prepaid_credit_adjustment.html">New Adjustment</a></div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Date Time</th><th>Method</th><th>Before</th><th>After</th><th>Amount</th><th>Transaction ID</th><th>Operator</th><th>Remark</th></tr></thead>
+                  <thead><tr><th>Date Time</th><th>Type</th><th>Before</th><th>After</th><th>Amount</th><th>Operator</th><th>Remark</th></tr></thead>
                   <tbody>
-                    <tr><td>2026-04-27 10:18:34</td><td><span class="badge blue">VEND</span></td><td>$131.90</td><td>$128.40</td><td class="amount negative">-3.50</td><td><a class="link mono" href="18.prepaid_terminal_activity.html">PWV-260427-100183</a></td><td>System</td><td>Terminal sale</td></tr>
-                    <tr><td>2026-04-26 18:05:13</td><td><span class="badge green">Manual</span></td><td>$81.90</td><td>$131.90</td><td class="amount positive">+50.00</td><td>-</td><td>ops.manager@paywizard.io</td><td>Cash top-up at front desk</td></tr>
-                    <tr><td>2026-04-25 09:00:00</td><td><span class="badge green">Manual</span></td><td>$0.00</td><td>$100.00</td><td class="amount positive">+100.00</td><td>-</td><td>hr.admin@merchant.com</td><td>Employee onboarding initial credit</td></tr>
+                    <tr><td>2026-04-26 18:05:13</td><td><span class="badge green">Top-up</span></td><td>$81.90</td><td>$131.90</td><td class="amount positive">+50.00</td><td>ops.manager@paywizard.io</td><td>System remark: manual top-up.</td></tr>
+                    <tr><td>2026-04-25 09:00:00</td><td><span class="badge green">Top-up</span></td><td>$0.00</td><td>$100.00</td><td class="amount positive">+100.00</td><td>hr.admin@merchant.com</td><td>System remark: initial balance top-up.</td></tr>
                   </tbody>
                 </table>
               </div>
