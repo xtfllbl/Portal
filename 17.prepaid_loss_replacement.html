@@ -44,39 +44,40 @@
         <div class="content-inner">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Loss Reporting & Card Replacement</h1>
+              <h1 class="page-title">Loss & Replacement</h1>
             </div>
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
-              <button class="btn danger" type="button" data-toast="Old card status changed to Suspended.">Suspend Old Card</button>
             </div>
           </div>
 
-          <section class="summary-grid" aria-label="Replacement summary">
-            <div class="summary"><span>Old Card</span><strong class="mono" style="font-size:18px">0498AD3342FF09</strong><small><span class="badge red">Suspended</span></small></div>
-            <div class="summary"><span>Remaining Balance</span><strong>$42.75</strong><small>Ready to transfer</small></div>
-            <div class="summary"><span>New Card</span><strong class="mono" style="font-size:18px">04E8C19977A20C</strong><small>Blank M1 card read</small></div>
-            <div class="summary"><span>After Submit</span><strong>Replaced</strong><small>Old card will be voided</small></div>
+          <section class="section">
+            <div class="tabs" data-tabs="replacement" role="tablist" aria-label="Loss and replacement views">
+              <button class="tab active" type="button" data-tab-target="replaceCardTab">Replace Card</button>
+              <button class="tab" type="button" data-tab-target="replacementRecordsTab">Records</button>
+            </div>
           </section>
 
+          <section class="tab-panel active" id="replaceCardTab" data-tab-panel-for="replacement">
           <section class="split-layout">
             <aside>
               <div class="lookup-card">
                 <div class="field">
-                  <label for="lostLookup">Lost Card UID / Holder</label>
+                  <label for="lostLookup">Find Card</label>
                   <input class="input" id="lostLookup" value="Sarah Khan">
                 </div>
                 <div class="page-actions" style="justify-content:flex-start;margin-top:12px">
-                  <button class="btn primary" type="button" data-toast="Lost card loaded.">Search</button>
+                  <button class="btn primary" type="button" data-toast="Card loaded.">Search</button>
                 </div>
               </div>
               <div class="lookup-card">
                 <div class="kv">
-                  <div class="kv-row"><span>Status</span><strong><span class="badge red">Suspended</span></strong></div>
+                  <div class="kv-row"><span>Status</span><strong><span class="badge green">Active</span></strong></div>
                   <div class="kv-row"><span>Card UID</span><strong class="mono">0498AD3342FF09</strong></div>
-                  <div class="kv-row"><span>Holder</span><strong>Sarah Khan</strong></div>
+                  <div class="kv-row"><span>Cardholder</span><strong>Sarah Khan</strong></div>
                   <div class="kv-row"><span>Employee ID</span><strong>EMP-001884</strong></div>
-                  <div class="kv-row"><span>Balance</span><strong>$42.75</strong></div>
+                  <div class="kv-row"><span>Current Balance</span><strong>$42.75</strong></div>
+                  <div class="kv-row"><span>Currency</span><strong>USD</strong></div>
                   <div class="kv-row"><span>Last Sale</span><strong>2026-04-24 12:03</strong></div>
                 </div>
               </div>
@@ -85,58 +86,44 @@
             <div class="content-inner">
               <section class="section">
                 <div class="section-head">
-                  <div><h2 class="section-title">Replacement Workflow</h2></div>
-                  <button class="btn primary" type="button" data-open-modal="replaceConfirm">Transfer Balance</button>
+                  <div><h2 class="section-title">Replacement Details</h2></div>
+                  <button class="btn primary" type="button" data-build-replacement-confirm>Replace</button>
                 </div>
-                <div class="step-list">
-                  <div class="step-item"><span class="step-no">1</span><span class="step-copy"><strong>Freeze Lost Card</strong><span>Card is Suspended and terminal sale requests are rejected with code 54.</span></span><span class="badge green">Done</span></div>
-                  <div class="step-item"><span class="step-no">2</span><span class="step-copy"><strong>Read New Blank Card</strong><span>External reader captured new M1 UID.</span></span><span class="badge purple">Current</span></div>
-                  <div class="step-item"><span class="step-no">3</span><span class="step-copy"><strong>Transfer Balance & Identity</strong><span>Move balance, cardholder details, limits, and history link to the new UID.</span></span><span class="badge neutral">Pending</span></div>
-                </div>
-              </section>
-
-              <section class="section">
-                <div class="section-head"><div><h2 class="section-title">New Card Details</h2></div><button class="btn small" type="button" data-toast="New card UID captured.">Read New UID</button></div>
-                <div class="form-grid">
-                  <div class="field"><label for="oldUid">Old Card UID</label><input class="input mono" id="oldUid" value="0498AD3342FF09" readonly></div>
-                  <div class="field"><label for="newUid">New Card UID</label><input class="input mono" id="newUid" value="04E8C19977A20C"></div>
-                  <div class="field"><label for="transferAmount">Transfer Balance</label><input class="input" id="transferAmount" value="42.75" readonly></div>
-                  <div class="field"><label for="newDisplay">New Display Card No.</label><input class="input" id="newDisplay" value="EMP-CARD-001884-R2"></div>
-                  <div class="field"><label for="newStatus">New Card Status</label><select class="select" id="newStatus"><option>Active</option><option>Not Active</option></select></div>
-                  <div class="field"><label for="oldStatus">Old Card Final Status</label><input class="input" id="oldStatus" value="Replaced" readonly></div>
-                  <div class="field span-3"><label for="replaceRemark">Remark</label><textarea class="textarea" id="replaceRemark">Cardholder reported physical card lost. Replacement card issued after identity check at front desk.</textarea></div>
+                <div class="replacement-form">
+                  <div class="replacement-column">
+                    <h3 class="column-title">Old Card</h3>
+                    <div class="field"><label for="oldUid">Card UID / Display No.</label><div class="stacked-inputs"><input class="input mono" id="oldUid" value="0498AD3342FF09" readonly><input class="input mono" id="oldDisplay" value="EMP-CARD-001884" readonly></div></div>
+                    <div class="field"><label for="transferAmount">Transfer Balance</label><input class="input" id="transferAmount" value="42.75" readonly></div>
+                    <div class="field"><label for="oldStatus">Final Status</label><input class="input" id="oldStatus" value="Replaced" readonly></div>
+                    <div class="field"><label for="replacementCurrency">Currency</label><input class="input" id="replacementCurrency" value="USD" readonly></div>
+                  </div>
+                  <div class="replacement-column">
+                    <h3 class="column-title">New Card</h3>
+                    <div class="field"><label for="newUid">Card UID / Display No.</label><div class="stacked-inputs"><input class="input mono" id="newUid" value="04E8C19977A20C"><input class="input mono" id="newDisplay" value="EMP-CARD-001884-R2"></div></div>
+                    <div class="field"><label for="newStatus">Card Status</label><select class="select" id="newStatus"><option>Active</option><option>Not Active</option></select></div>
+                    <div class="field"><label for="replacementReason">Reason</label><select class="select" id="replacementReason"><option>Lost Card</option><option>Damaged Card</option><option>UID unreadable</option></select></div>
+                  </div>
+                  <div class="field replacement-remark"><label for="replaceRemark">Remark</label><textarea class="textarea" id="replaceRemark">Cardholder reported physical card lost. Replacement card issued after identity check at front desk.</textarea></div>
                 </div>
               </section>
 
-              <section class="section">
-                <div class="section-head"><div><h2 class="section-title">Transferred Data</h2></div><span class="badge purple">Preview</span></div>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>Data Type</th><th>Old Card</th><th>New Card</th><th>Result</th></tr></thead>
-                    <tbody>
-                      <tr><td>Remaining Balance</td><td>$42.75</td><td>$42.75</td><td><span class="badge green">Move</span></td></tr>
-                      <tr><td>Cardholder</td><td>Sarah Khan / EMP-001884</td><td>Sarah Khan / EMP-001884</td><td><span class="badge green">Copy</span></td></tr>
-                      <tr><td>Usage Rules</td><td>All Stores / Monthly $300</td><td>All Stores / Monthly $300</td><td><span class="badge green">Copy</span></td></tr>
-                      <tr><td>History Link</td><td>119 balance entries</td><td>Linked as replacement chain</td><td><span class="badge green">Link</span></td></tr>
-                      <tr><td>Old Card Status</td><td>Suspended</td><td>Replaced after submit</td><td><span class="badge red">Void</span></td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </section>
             </div>
           </section>
+          </section>
 
+          <section class="tab-panel" id="replacementRecordsTab" data-tab-panel-for="replacement">
           <section class="section">
-            <div class="section-head"><div><h2 class="section-title">Recent Replacement History</h2></div></div>
+            <div class="section-head"><div><h2 class="section-title">Replacement Records</h2></div></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date Time</th><th>Old UID</th><th>New UID</th><th>Balance</th><th>Operator</th><th>Status</th><th>Remark</th></tr></thead>
+                <thead><tr><th>Date Time</th><th>Old Card</th><th>New Card</th><th>Balance</th><th>Operator</th><th>Status</th><th>Remark</th></tr></thead>
                 <tbody>
-                  <tr><td>2026-04-12 15:22:09</td><td class="mono">044D779D8221F0</td><td class="mono">04B27190A9140D</td><td>$18.30</td><td>frontdesk@merchant.com</td><td><span class="badge green">Completed</span></td><td>Damaged card replaced</td></tr>
-                  <tr><td>2026-03-28 08:45:31</td><td class="mono">0431A0FF77BB12</td><td class="mono">04C1229BD90173</td><td>$9.10</td><td>ops.manager@paywizard.io</td><td><span class="badge green">Completed</span></td><td>Lost card transfer</td></tr>
+                  <tr><td>2026-04-12 15:22:09</td><td><a class="link mono cell-main" href="19.prepaid_card_detail.html?cardUid=044D779D8221F0&amp;displayNo=EMP-CARD-000972-R1&amp;status=Replaced">044D779D8221F0</a><span class="cell-sub mono">EMP-CARD-000972-R1</span></td><td><a class="link mono cell-main" href="19.prepaid_card_detail.html?cardUid=04B27190A9140D&amp;displayNo=EMP-CARD-000972-R2&amp;status=Active">04B27190A9140D</a><span class="cell-sub mono">EMP-CARD-000972-R2</span></td><td>$18.30</td><td>frontdesk@merchant.com</td><td><span class="badge green">Completed</span></td><td>Damaged card replaced</td></tr>
+                  <tr><td>2026-03-28 08:45:31</td><td><a class="link mono cell-main" href="19.prepaid_card_detail.html?cardUid=0431A0FF77BB12&amp;displayNo=EMP-CARD-001203-R1&amp;status=Replaced">0431A0FF77BB12</a><span class="cell-sub mono">EMP-CARD-001203-R1</span></td><td><a class="link mono cell-main" href="19.prepaid_card_detail.html?cardUid=04C1229BD90173&amp;displayNo=EMP-CARD-001203-R2&amp;status=Active">04C1229BD90173</a><span class="cell-sub mono">EMP-CARD-001203-R2</span></td><td>$9.10</td><td>ops.manager@paywizard.io</td><td><span class="badge green">Completed</span></td><td>Lost card transfer</td></tr>
                 </tbody>
               </table>
             </div>
+          </section>
           </section>
         </div>
       </section>
@@ -144,18 +131,34 @@
   </div>
 
   <div class="modal-backdrop" id="replaceConfirm" aria-hidden="true">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="replaceTitle">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="replaceTitle">
       <div class="modal-head"><h2 class="modal-title" id="replaceTitle">Confirm Card Replacement</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
       <div class="modal-body">
-        <div class="kv">
-          <div class="kv-row"><span>Old Card UID</span><strong class="mono">0498AD3342FF09</strong></div>
-          <div class="kv-row"><span>New Card UID</span><strong class="mono">04E8C19977A20C</strong></div>
-          <div class="kv-row"><span>Balance Transfer</span><strong>$42.75</strong></div>
-          <div class="kv-row"><span>Old Card Final Status</span><strong>Replaced</strong></div>
-          <div class="kv-row"><span>New Card Status</span><strong>Active</strong></div>
+        <div class="replacement-confirm-grid">
+          <div class="confirm-head">Data Type</div>
+          <div class="confirm-head">Old Card</div>
+          <div class="confirm-head">New Card</div>
+          <div>Card UID / Display No.</div>
+          <div><span class="cell-main mono" data-preview-old-uid>0498AD3342FF09</span><span class="cell-sub mono" data-preview-old-display>EMP-CARD-001884</span></div>
+          <div><span class="cell-main mono" data-preview-new-uid>04E8C19977A20C</span><span class="cell-sub mono" data-preview-new-display>EMP-CARD-001884-R2</span></div>
+          <div>Remaining Balance</div>
+          <div data-preview-old-balance>$42.75</div>
+          <div data-preview-new-balance>$42.75</div>
+          <div>Currency</div>
+          <div data-preview-old-currency>USD</div>
+          <div data-preview-new-currency>USD</div>
+          <div>Cardholder</div>
+          <div data-preview-old-holder>Sarah Khan / EMP-001884</div>
+          <div data-preview-new-holder>Sarah Khan / EMP-001884</div>
+          <div>Usage Rules</div>
+          <div data-preview-old-rules>All Stores / Monthly $300</div>
+          <div data-preview-new-rules>All Stores / Monthly $300</div>
+          <div>Card Status</div>
+          <div data-preview-old-status><span class="badge neutral">Replaced</span></div>
+          <div data-preview-new-status><span class="badge green">Active</span></div>
         </div>
       </div>
-      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-toast="Balance transferred and replacement chain recorded.">Confirm Replacement</button></div>
+      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn primary" type="button" data-close-modal data-toast="Card replaced and balance transferred.">Replace Card</button></div>
     </section>
   </div>
   <div class="toast" data-toast-root>Saved</div>

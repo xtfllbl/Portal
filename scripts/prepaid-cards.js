@@ -131,6 +131,44 @@
     });
   }
 
+  function syncReplacementConfirm() {
+    const oldUid = document.querySelector("#oldUid");
+    const oldDisplay = document.querySelector("#oldDisplay");
+    const newUid = document.querySelector("#newUid");
+    const newDisplay = document.querySelector("#newDisplay");
+    const transferAmount = document.querySelector("#transferAmount");
+    const newStatus = document.querySelector("#newStatus");
+    const oldStatus = document.querySelector("#oldStatus");
+    const currency = document.querySelector("#replacementCurrency");
+    const amountValue = Number(transferAmount && transferAmount.value);
+    const balanceText = Number.isFinite(amountValue) ? formatMoney(amountValue) : "$0.00";
+    const oldStatusText = oldStatus && oldStatus.value ? oldStatus.value : "Replaced";
+    const newStatusText = newStatus && newStatus.value ? newStatus.value : "Active";
+    const oldUidText = oldUid && oldUid.value ? oldUid.value : "";
+    const oldDisplayText = oldDisplay && oldDisplay.value ? oldDisplay.value : "";
+    const newUidText = newUid && newUid.value ? newUid.value : "";
+    const newDisplayText = newDisplay && newDisplay.value ? newDisplay.value : "";
+    const currencyText = currency && currency.value ? currency.value : "";
+
+    const setDocumentText = function (selector, value) {
+      const node = document.querySelector(selector);
+      if (node) node.textContent = value;
+    };
+    setDocumentText("[data-preview-old-uid]", oldUidText);
+    setDocumentText("[data-preview-old-display]", oldDisplayText);
+    setDocumentText("[data-preview-new-uid]", newUidText);
+    setDocumentText("[data-preview-new-display]", newDisplayText);
+    setDocumentText("[data-preview-old-balance]", balanceText);
+    setDocumentText("[data-preview-new-balance]", balanceText);
+    setDocumentText("[data-preview-old-currency]", currencyText);
+    setDocumentText("[data-preview-new-currency]", currencyText);
+
+    const oldStatusNode = document.querySelector("[data-preview-old-status]");
+    if (oldStatusNode) oldStatusNode.innerHTML = '<span class="badge neutral">' + escapeHtml(oldStatusText) + "</span>";
+    const newStatusNode = document.querySelector("[data-preview-new-status]");
+    if (newStatusNode) newStatusNode.innerHTML = '<span class="badge ' + (newStatusText === "Active" ? "green" : "neutral") + '">' + escapeHtml(newStatusText) + "</span>";
+  }
+
   function syncPanelScopedActions(panelId) {
     document.querySelectorAll("[data-visible-panel]").forEach(function (item) {
       item.hidden = item.getAttribute("data-visible-panel") !== panelId;
@@ -157,6 +195,17 @@
     const guardedAction = event.target.closest("[data-requires-valid-dates]");
     if (guardedAction && !validateLifecycleDates(true)) {
       event.preventDefault();
+      return;
+    }
+
+    const replacementConfirmButton = event.target.closest("[data-build-replacement-confirm]");
+    if (replacementConfirmButton) {
+      syncReplacementConfirm();
+      const modal = document.getElementById("replaceConfirm");
+      if (modal) {
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
       return;
     }
 
@@ -370,6 +419,41 @@
     cardCurrency.addEventListener("change", syncCardCurrencyLabel);
     syncCardCurrencyLabel();
   }
+
+  function applyCardDetailQuery() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.size) return;
+
+    const cardUid = params.get("cardUid");
+    const displayNo = params.get("displayNo");
+    const status = params.get("status");
+    const cardUidInput = document.querySelector("#cardUid");
+    const displayNoInput = document.querySelector("#displayNumber");
+    const statusSelect = document.querySelector("#status");
+    const statusSummary = document.querySelector("[data-detail-status]");
+
+    if (cardUid) {
+      document.querySelectorAll("[data-detail-card-uid]").forEach(function (item) {
+        item.textContent = cardUid;
+      });
+      if (cardUidInput) cardUidInput.value = cardUid;
+    }
+    if (displayNo) {
+      document.querySelectorAll("[data-detail-display-no]").forEach(function (item) {
+        item.textContent = displayNo;
+      });
+      if (displayNoInput) displayNoInput.value = displayNo;
+    }
+    if (status) {
+      if (statusSummary) {
+        statusSummary.textContent = status;
+        statusSummary.classList.toggle("status-neutral", status === "Replaced" || status === "Expired");
+        statusSummary.classList.toggle("status-red", status === "Suspended");
+      }
+      if (statusSelect) statusSelect.value = status;
+    }
+  }
+  applyCardDetailQuery();
 
   if (window.location.hash === "#import") {
     const importTab = document.querySelector('[data-tab-target="batchImport"]');
