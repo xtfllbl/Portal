@@ -152,6 +152,11 @@
     .chip.maestro{color:#fff;background:linear-gradient(90deg,#d93843 0 50%,#0671ce 50% 100%)}
     .account-main{display:block;font-weight:600;color:#334155}
     .account-sub{display:block;margin-top:2px;color:#7a8293;font-size:12px;font-weight:500}
+    .account-link{display:inline-block;text-decoration:none;border-radius:8px;padding:4px 6px;margin:-4px -6px}
+    .account-link .account-main{color:#1f55d8;font-weight:700}
+    .account-link:hover{background:#f4f7ff}
+    .account-link:hover .account-main{text-decoration:underline}
+    .account-link:focus-visible{outline:2px solid #9fb8f9;outline-offset:2px}
     .method{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:700}
     .method.bank-card{background:#edf3ff;color:#2458b5}
     .method.qr{background:#eef2ff;color:#3548a4}
@@ -1005,7 +1010,10 @@
         if(k==="cardPan"){
           const brand=r.cardBrand||"visa";
           const account=r.cardDisplayNo?`<span><span class="account-main">${esc(r.cardPanMasked)}</span><span class="account-sub">${esc(r.cardDisplayNo)}</span></span>`:`<span>${esc(r.cardPanMasked)}</span>`;
-          if(brand==="prepaid"||brand==="qr") return account;
+          if(brand==="prepaid"){
+            return `<a class="account-link" href="19.prepaid_card_detail.html?cardUid=${encodeURIComponent(r.cardPanPlain||r.cardPanMasked)}" title="Open prepaid card details">${account}</a>`;
+          }
+          if(brand==="qr") return account;
           const label=brand;
           return `<span class="pan"><span class="chip ${esc(brand)}">${esc(label)}</span>${account}</span>`;
         }
