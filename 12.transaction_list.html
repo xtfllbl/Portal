@@ -150,8 +150,6 @@
     .pan{display:inline-flex;align-items:center;gap:10px}
     .chip{min-width:24px;height:16px;border-radius:3px;border:1px solid rgba(0,0,0,.08);display:inline-flex;align-items:center;justify-content:center;padding:0 4px;font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#fff;color:#1a4fb3}
     .chip.maestro{color:#fff;background:linear-gradient(90deg,#d93843 0 50%,#0671ce 50% 100%)}
-    .chip.prepaid{min-width:28px;height:20px;border-radius:6px;background:#e7f7ef;color:#167247;border-color:#bbe8cf;font-size:9px}
-    .chip.qr{min-width:24px;height:20px;border-radius:6px;background:#eef2ff;color:#3548a4;border-color:#d8defc;font-size:9px}
     .account-main{display:block;font-weight:600;color:#334155}
     .account-sub{display:block;margin-top:2px;color:#7a8293;font-size:12px;font-weight:500}
     .method{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:700}
@@ -1006,8 +1004,9 @@
         }
         if(k==="cardPan"){
           const brand=r.cardBrand||"visa";
-          const label=brand==="prepaid"?"SV":brand==="qr"?"QR":brand;
           const account=r.cardDisplayNo?`<span><span class="account-main">${esc(r.cardPanMasked)}</span><span class="account-sub">${esc(r.cardDisplayNo)}</span></span>`:`<span>${esc(r.cardPanMasked)}</span>`;
+          if(brand==="prepaid"||brand==="qr") return account;
+          const label=brand;
           return `<span class="pan"><span class="chip ${esc(brand)}">${esc(label)}</span>${account}</span>`;
         }
         if(k==="type"){const c=r.type==="Refund"?"refund":r.type==="Failed"?"failed":"purchase"; return `<span class="pill ${c}">${esc(r.type)}</span>`;}
