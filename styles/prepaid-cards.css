@@ -493,6 +493,56 @@ button { cursor: pointer; }
 
 .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
 table { width: 100%; min-width: 1040px; border-collapse: collapse; }
+.empty-state {
+  min-height: 160px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: #fbfcff;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  color: var(--muted);
+  text-align: center;
+}
+.empty-state strong {
+  color: var(--active);
+  font-size: 15px;
+}
+.empty-state span {
+  font-size: 13px;
+}
+.import-result-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.import-action-panel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.import-result-summary span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.import-result-summary .result-ready {
+  background: var(--green-soft);
+  color: #166534;
+}
+.import-result-summary .result-error {
+  background: var(--red-soft);
+  color: #991b1b;
+}
 th {
   position: sticky;
   top: 0;
@@ -520,6 +570,63 @@ tbody tr:hover td { background: #fcfcfd; }
 .link:hover { text-decoration: underline; }
 .cell-main { display: block; font-weight: 700; color: #1d4ed8; }
 .cell-sub { display: block; margin-top: 4px; color: #475569; font-size: 12px; font-weight: 700; }
+.icon-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.icon-action {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: #1f2937;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.icon-action:hover { background: #f8fafc; text-decoration: none; }
+.icon-action svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon-action svg circle { fill: currentColor; stroke: none; }
+.action-menu {
+  position: relative;
+  display: inline-flex;
+}
+.action-menu summary { list-style: none; cursor: pointer; }
+.action-menu summary::-webkit-details-marker { display: none; }
+.action-menu-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 8;
+  min-width: 128px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, .16);
+}
+.action-menu-popover a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #1f2937;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.action-menu-popover a:hover { background: #f8fafc; }
 .merchant-limit-wrap table { min-width: 760px; }
 .merchant-limit-table th:first-child,
 .merchant-limit-table td:first-child {
@@ -550,6 +657,10 @@ tbody tr:hover td { background: #fcfcfd; }
 .badge.neutral { background: #eef2f7; color: #334155; }
 .amount.positive { color: var(--green); font-weight: 800; }
 .amount.negative { color: var(--red); font-weight: 800; }
+.positive { color: var(--green); }
+.negative { color: var(--red); }
+.kv-row .positive { color: var(--green); }
+.kv-row .negative { color: var(--red); }
 
 .split-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 18px; align-items: start; }
 .split-layout > aside,
@@ -560,6 +671,7 @@ tbody tr:hover td { background: #fcfcfd; }
 .kv-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; font-size: 13px; line-height: 1.4; }
 .kv-row span { color: var(--muted); }
 .kv-row strong { text-align: right; color: var(--active); font-weight: 700; word-break: break-word; }
+.batch-activation-summary .kv-row span { color: var(--active); }
 
 .step-list { display: grid; gap: 12px; }
 .step-item {
@@ -666,6 +778,7 @@ tbody tr:hover td { background: #fcfcfd; }
   .top-header { height: auto; min-height: 56px; padding: 12px 14px; }
   .summary-grid, .toolbar, .panel-filters { grid-template-columns: 1fr; }
   .title-line { align-items: flex-start; }
+  .import-action-panel, .import-result-summary { justify-content: flex-start; }
   .lifecycle-actions { align-items: flex-start; justify-content: flex-start; }
   .page-actions, .row-actions { width: 100%; justify-content: flex-start; }
   .btn { width: 100%; }

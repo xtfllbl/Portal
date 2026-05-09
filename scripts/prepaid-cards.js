@@ -265,9 +265,40 @@
   function setImportStep(target) {
     document.querySelectorAll("[data-import-state]").forEach(function (item) {
       const index = Number(item.getAttribute("data-import-state"));
-      item.querySelector(".badge").className = "badge " + (index < target ? "green" : index === target ? "purple" : "neutral");
-      item.querySelector(".badge").textContent = index < target ? "Done" : index === target ? "Current" : "Pending";
+      const badge = item.querySelector(".badge");
+      if (!badge) return;
+      if (target > 3 && index === 3) {
+        badge.className = "badge green";
+        badge.textContent = "Done";
+        return;
+      }
+      badge.className = "badge " + (index < target ? "green" : index === target ? "purple" : "neutral");
+      badge.textContent = index < target ? "Done" : index === target ? "Current" : "Pending";
     });
+  }
+
+  function applyImportValidationResults() {
+    let readyCount = 0;
+    let errorCount = 0;
+    const statusMap = {
+      valid: { label: "Ready", className: "badge green" },
+      warning: { label: "Warning", className: "badge orange" },
+      error: { label: "Error", className: "badge red" }
+    };
+    document.querySelectorAll("[data-validation-status]").forEach(function (row) {
+      const status = row.getAttribute("data-validation-status");
+      const badge = row.querySelector(".badge");
+      const messageCell = row.lastElementChild;
+      const display = statusMap[status] || statusMap.error;
+      if (badge) {
+        badge.className = display.className;
+        badge.textContent = display.label;
+      }
+      if (messageCell) messageCell.textContent = row.getAttribute("data-validation-message") || "";
+      if (status === "error") errorCount += 1;
+      else readyCount += 1;
+    });
+    return { readyCount: readyCount, errorCount: errorCount };
   }
 
   document.querySelectorAll("[data-import-step]").forEach(function (button) {
@@ -278,37 +309,29 @@
     });
   });
 
-  const validateImportButton = document.querySelector("[data-validate-import]");
+  const importUploadButton = document.querySelector("[data-import-upload]");
   const batchActivateButton = document.querySelector("[data-batch-activate]");
-  if (validateImportButton) {
-    validateImportButton.addEventListener("click", function () {
-      let readyCount = 0;
-      let errorCount = 0;
-      const statusMap = {
-        valid: { label: "Valid", className: "badge green" },
-        warning: { label: "Warning", className: "badge orange" },
-        error: { label: "Error", className: "badge red" }
-      };
-      document.querySelectorAll("[data-validation-status]").forEach(function (row) {
-        const status = row.getAttribute("data-validation-status");
-        const badge = row.querySelector(".badge");
-        const messageCell = row.lastElementChild;
-        const display = statusMap[status] || statusMap.error;
-        if (badge) {
-          badge.className = display.className;
-          badge.textContent = display.label;
-        }
-        if (messageCell) messageCell.textContent = row.getAttribute("data-validation-message") || "";
-        if (status === "error") errorCount += 1;
-        else readyCount += 1;
-      });
+  if (importUploadButton) {
+    importUploadButton.addEventListener("click", function () {
+      const emptyState = document.querySelector("[data-import-empty]");
+      const reviewTable = document.querySelector("[data-import-review-table]");
+      const reviewNote = document.querySelector("[data-import-review-note]");
+      const resultSummary = document.querySelector("[data-import-result-summary]");
+      const readyCount = document.querySelector("[data-import-ready-count]");
+      const errorCount = document.querySelector("[data-import-error-count]");
+      const result = applyImportValidationResults();
+      if (emptyState) emptyState.hidden = true;
+      if (reviewTable) reviewTable.hidden = false;
+      if (resultSummary) resultSummary.hidden = false;
       if (batchActivateButton) {
-        batchActivateButton.disabled = readyCount === 0;
-        batchActivateButton.textContent = readyCount > 0 ? "Activate " + readyCount + " Ready Cards" : "No Valid Cards";
+        batchActivateButton.disabled = result.readyCount === 0;
+        batchActivateButton.textContent = result.readyCount > 0 ? "Activate Batch" : "No Valid Cards";
       }
-      validateImportButton.textContent = "Re-validate";
+      if (reviewNote) reviewNote.textContent = "Review the validated rows before activation.";
+      if (readyCount) readyCount.textContent = result.readyCount + " cards ready";
+      if (errorCount) errorCount.textContent = result.errorCount + " error card skipped";
       setImportStep(3);
-      showToast("Validation completed. " + readyCount + " rows ready, " + errorCount + " error row skipped.");
+      showToast(importUploadButton.getAttribute("data-toast") || "File uploaded and validated.");
     });
   }
 
