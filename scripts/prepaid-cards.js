@@ -175,6 +175,34 @@
     });
   }
 
+  let cardDetailInitialValues = null;
+
+  function getCardDetailGeneralFields() {
+    const generalTab = document.getElementById("generalTab");
+    if (!generalTab) return [];
+    return Array.from(generalTab.querySelectorAll("input, select, textarea")).filter(function (field) {
+      return !field.disabled && !field.readOnly;
+    });
+  }
+
+  function captureCardDetailGeneralValues() {
+    cardDetailInitialValues = getCardDetailGeneralFields().map(function (field) {
+      return field.value;
+    });
+  }
+
+  function syncCardDetailSaveButton() {
+    const saveButton = document.querySelector("[data-card-detail-save]");
+    if (!saveButton || !cardDetailInitialValues) return;
+    const generalTab = document.getElementById("generalTab");
+    const generalVisible = generalTab && generalTab.classList.contains("active");
+    const fields = getCardDetailGeneralFields();
+    const dirty = fields.some(function (field, index) {
+      return field.value !== cardDetailInitialValues[index];
+    });
+    saveButton.hidden = !generalVisible || !dirty;
+  }
+
   document.addEventListener("click", function (event) {
     const tab = event.target.closest("[data-tab-target]");
     if (tab) {
@@ -189,6 +217,7 @@
           panel.classList.toggle("active", panel.id === panelId);
         });
         syncPanelScopedActions(panelId);
+        syncCardDetailSaveButton();
       }
     }
 
@@ -239,6 +268,12 @@
 
     const toastButton = event.target.closest("[data-toast]");
     if (toastButton) showToast(toastButton.getAttribute("data-toast"));
+
+    const cardDetailSaveButton = event.target.closest("[data-card-detail-save]");
+    if (cardDetailSaveButton) {
+      captureCardDetailGeneralValues();
+      syncCardDetailSaveButton();
+    }
   });
 
   document.addEventListener("keydown", function (event) {
@@ -477,6 +512,14 @@
     }
   }
   applyCardDetailQuery();
+  if (document.getElementById("generalTab")) {
+    captureCardDetailGeneralValues();
+    getCardDetailGeneralFields().forEach(function (field) {
+      field.addEventListener("input", syncCardDetailSaveButton);
+      field.addEventListener("change", syncCardDetailSaveButton);
+    });
+    syncCardDetailSaveButton();
+  }
 
   if (window.location.hash === "#import") {
     const importTab = document.querySelector('[data-tab-target="batchImport"]');
