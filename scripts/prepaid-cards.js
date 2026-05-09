@@ -203,6 +203,21 @@
     saveButton.hidden = !generalVisible || !dirty;
   }
 
+  function syncCardDetailStatusSummary(status) {
+    const statusSummary = document.querySelector("[data-detail-status]");
+    if (!statusSummary) return;
+
+    const nextStatus = status || "Active";
+    statusSummary.textContent = nextStatus;
+    statusSummary.classList.toggle("status-neutral", nextStatus === "Not Active" || nextStatus === "Replaced" || nextStatus === "Expired");
+    statusSummary.classList.toggle("status-red", nextStatus === "Suspended");
+  }
+
+  function applyCardDetailSavedSummary() {
+    const statusSelect = document.querySelector("#status");
+    if (statusSelect) syncCardDetailStatusSummary(statusSelect.value);
+  }
+
   document.addEventListener("click", function (event) {
     const tab = event.target.closest("[data-tab-target]");
     if (tab) {
@@ -271,6 +286,7 @@
 
     const cardDetailSaveButton = event.target.closest("[data-card-detail-save]");
     if (cardDetailSaveButton) {
+      applyCardDetailSavedSummary();
       captureCardDetailGeneralValues();
       syncCardDetailSaveButton();
     }
@@ -503,11 +519,7 @@
       if (displayNoInput) displayNoInput.value = displayNo;
     }
     if (status) {
-      if (statusSummary) {
-        statusSummary.textContent = status;
-        statusSummary.classList.toggle("status-neutral", status === "Replaced" || status === "Expired");
-        statusSummary.classList.toggle("status-red", status === "Suspended");
-      }
+      if (statusSummary) syncCardDetailStatusSummary(status);
       if (statusSelect) statusSelect.value = status;
     }
   }
