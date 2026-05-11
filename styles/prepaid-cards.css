@@ -627,11 +627,79 @@ tbody tr:hover td { background: #fcfcfd; }
   text-decoration: none;
 }
 .action-menu-popover a:hover { background: #f8fafc; }
-.merchant-limit-wrap table { min-width: 760px; }
+.merchant-policy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.switch-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+.switch-line input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.merchant-count {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.merchant-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.merchant-summary strong {
+  color: var(--active);
+  font-weight: 800;
+}
+.merchant-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.5fr) minmax(150px, .8fr) minmax(150px, .8fr) minmax(150px, .8fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.merchant-search input { min-width: 0; }
+.merchant-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.merchant-limit-wrap {
+  max-height: 430px;
+}
+.merchant-limit-wrap table { min-width: 920px; }
 .merchant-limit-table th:first-child,
 .merchant-limit-table td:first-child {
   width: 46px;
   text-align: center;
+}
+.merchant-limit-table tr.is-unavailable td {
+  background: #fbfcff;
+  color: #64748b;
+}
+.merchant-status {
+  color: #166534;
+  font-weight: 700;
+}
+.merchant-status.muted {
+  color: #64748b;
 }
 .table-check {
   width: 16px;
@@ -760,6 +828,8 @@ tbody tr:hover td { background: #fcfcfd; }
 @media (max-width: 1280px) {
   .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .toolbar, .panel-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .merchant-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .merchant-actions { justify-content: flex-start; }
   .toolbar .page-actions { grid-column: 1 / -1; justify-content: flex-start; }
   .panel-filter-row { grid-template-columns: 1fr; }
   .panel-toolbar { justify-content: flex-start; }
@@ -776,7 +846,7 @@ tbody tr:hover td { background: #fcfcfd; }
 @media (max-width: 720px) {
   .page-shell { padding: 14px; gap: 14px; }
   .top-header { height: auto; min-height: 56px; padding: 12px 14px; }
-  .summary-grid, .toolbar, .panel-filters { grid-template-columns: 1fr; }
+  .summary-grid, .toolbar, .panel-filters, .merchant-toolbar { grid-template-columns: 1fr; }
   .title-line { align-items: flex-start; }
   .import-action-panel, .import-result-summary { justify-content: flex-start; }
   .lifecycle-actions { align-items: flex-start; justify-content: flex-start; }

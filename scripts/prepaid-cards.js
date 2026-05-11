@@ -181,13 +181,18 @@
     const generalTab = document.getElementById("generalTab");
     if (!generalTab) return [];
     return Array.from(generalTab.querySelectorAll("input, select, textarea")).filter(function (field) {
-      return !field.disabled && !field.readOnly;
+      return !field.disabled && !field.readOnly && !field.matches("[data-non-persistent]");
     });
+  }
+
+  function getFieldState(field) {
+    if (field.type === "checkbox" || field.type === "radio") return field.checked;
+    return field.value;
   }
 
   function captureCardDetailGeneralValues() {
     cardDetailInitialValues = getCardDetailGeneralFields().map(function (field) {
-      return field.value;
+      return getFieldState(field);
     });
   }
 
@@ -198,7 +203,7 @@
     const generalVisible = generalTab && generalTab.classList.contains("active");
     const fields = getCardDetailGeneralFields();
     const dirty = fields.some(function (field, index) {
-      return field.value !== cardDetailInitialValues[index];
+      return getFieldState(field) !== cardDetailInitialValues[index];
     });
     saveButton.hidden = !generalVisible || !dirty;
   }
@@ -456,31 +461,148 @@
   if (expirationDate) expirationDate.addEventListener("change", function () { validateLifecycleDates(false); });
   validateLifecycleDates(false);
 
-  const merchantSelectAll = document.querySelector("[data-merchant-select-all]");
-  const merchantCheckboxes = Array.from(document.querySelectorAll("[data-merchant-checkbox]"));
-  const merchantSelectedCount = document.querySelector("[data-merchant-selected-count]");
-  function syncMerchantSelection() {
-    if (!merchantCheckboxes.length) return;
-    const enabledCheckboxes = merchantCheckboxes.filter(function (checkbox) { return !checkbox.disabled; });
+  function getMerchantRowText(row) {
+    return [
+      row.getAttribute("data-agent"),
+      row.getAttribute("data-merchant-name"),
+      row.getAttribute("data-merchant-id"),
+      row.getAttribute("data-currency")
+    ].join(" ").toLowerCase();
+  }
+
+  function syncMerchantScope(scope, includeNewAvailable) {
+    const cardCurrencyField = document.querySelector("[data-card-currency]");
+    const cardCurrencyValue = cardCurrencyField && cardCurrencyField.value ? cardCurrencyField.value : "USD";
+    const rows = Array.from(scope.querySelectorAll("[data-merchant-row]"));
+    const search = scope.querySelector("[data-merchant-search]");
+    const agentFilter = scope.querySelector("[data-merchant-agent-filter]");
+    const availabilityFilter = scope.querySelector("[data-merchant-availability-filter]");
+    const selectionFilter = scope.querySelector("[data-merchant-selection-filter]");
+    const selectAll = scope.querySelector("[data-merchant-select-all]");
+    const selectedCount = scope.querySelector("[data-merchant-selected-count]");
+    const availableCount = scope.querySelector("[data-merchant-available-count]");
+    const unavailableCount = scope.querySelector("[data-merchant-unavailable-count]");
+    const visibleCount = scope.querySelector("[data-merchant-visible-count]");
+    const autoInclude = scope.querySelector("[data-merchant-auto-include]");
+    const query = search && search.value ? search.value.trim().toLowerCase() : "";
+    const selectedMode = selectionFilter && selectionFilter.value ? selectionFilter.value : "all";
+    const availabilityMode = availabilityFilter && availabilityFilter.value ? availabilityFilter.value : "available";
+    const agentValue = agentFilter && agentFilter.value ? agentFilter.value : "";
+    let available = 0;
+    let visible = 0;
+
+    rows.forEach(function (row) {
+      const checkbox = row.querySelector("[data-merchant-checkbox]");
+      const availability = row.querySelector("[data-merchant-availability]");
+      const rowCurrency = row.getAttribute("data-currency") || "";
+      const isAvailable = rowCurrency === cardCurrencyValue;
+      if (isAvailable) available += 1;
+
+      if (checkbox) {
+        checkbox.disabled = !isAvailable;
+        if (!isAvailable) checkbox.checked = false;
+        if (isAvailable && includeNewAvailable && autoInclude && autoInclude.checked) checkbox.checked = true;
+      }
+      row.classList.toggle("is-unavailable", !isAvailable);
+      if (availability) {
+        availability.textContent = isAvailable ? "Available" : "Currency mismatch";
+        availability.classList.toggle("muted", !isAvailable);
+      }
+
+      const matchesSearch = !query || getMerchantRowText(row).indexOf(query) !== -1;
+      const matchesAgent = !agentValue || row.getAttribute("data-agent") === agentValue;
+      const matchesAvailability =
+        availabilityMode === "all" ||
+        (availabilityMode === "available" && isAvailable) ||
+        (availabilityMode === "unavailable" && !isAvailable);
+      const currentSelected = !!(checkbox && checkbox.checked);
+      const matchesSelection =
+        selectedMode === "all" ||
+        (selectedMode === "selected" && currentSelected) ||
+        (selectedMode === "unselected" && isAvailable && !currentSelected);
+      const showRow = matchesSearch && matchesAgent && matchesAvailability && matchesSelection;
+      row.hidden = !showRow;
+      if (showRow) visible += 1;
+    });
+
+    const enabledCheckboxes = rows.map(function (row) {
+      return row.querySelector("[data-merchant-checkbox]");
+    }).filter(function (checkbox) {
+      return checkbox && !checkbox.disabled;
+    });
     const selected = enabledCheckboxes.filter(function (checkbox) { return checkbox.checked; }).length;
-    if (merchantSelectedCount) merchantSelectedCount.textContent = selected + " Selected";
-    if (merchantSelectAll) {
-      merchantSelectAll.checked = selected === enabledCheckboxes.length;
-      merchantSelectAll.indeterminate = selected > 0 && selected < enabledCheckboxes.length;
+    const visibleEnabledCheckboxes = rows.filter(function (row) {
+      return !row.hidden;
+    }).map(function (row) {
+      return row.querySelector("[data-merchant-checkbox]");
+    }).filter(function (checkbox) {
+      return checkbox && !checkbox.disabled;
+    });
+    const visibleSelected = visibleEnabledCheckboxes.filter(function (checkbox) { return checkbox.checked; }).length;
+
+    if (selectedCount) selectedCount.textContent = selected + " selected / " + available + " available";
+    if (availableCount) availableCount.textContent = String(available);
+    if (unavailableCount) unavailableCount.textContent = String(rows.length - available);
+    if (visibleCount) visibleCount.textContent = String(visible);
+    if (selectAll) {
+      selectAll.checked = visibleEnabledCheckboxes.length > 0 && visibleSelected === visibleEnabledCheckboxes.length;
+      selectAll.indeterminate = visibleSelected > 0 && visibleSelected < visibleEnabledCheckboxes.length;
+      selectAll.disabled = visibleEnabledCheckboxes.length === 0;
     }
   }
-  if (merchantSelectAll && merchantCheckboxes.length) {
-    merchantSelectAll.addEventListener("change", function () {
-      merchantCheckboxes.forEach(function (checkbox) {
-        if (!checkbox.disabled) checkbox.checked = merchantSelectAll.checked;
-      });
-      syncMerchantSelection();
+
+  function syncAllMerchantScopes(includeNewAvailable) {
+    document.querySelectorAll("[data-merchant-scope]").forEach(function (scope) {
+      syncMerchantScope(scope, includeNewAvailable);
     });
-    merchantCheckboxes.forEach(function (checkbox) {
-      checkbox.addEventListener("change", syncMerchantSelection);
-    });
-    syncMerchantSelection();
   }
+
+  document.querySelectorAll("[data-merchant-scope]").forEach(function (scope) {
+    const selectAll = scope.querySelector("[data-merchant-select-all]");
+    const controls = scope.querySelectorAll("[data-merchant-search], [data-merchant-agent-filter], [data-merchant-availability-filter], [data-merchant-selection-filter]");
+    controls.forEach(function (control) {
+      control.addEventListener("input", function () { syncMerchantScope(scope, false); });
+      control.addEventListener("change", function () { syncMerchantScope(scope, false); });
+    });
+    if (selectAll) {
+      selectAll.addEventListener("change", function () {
+        scope.querySelectorAll("[data-merchant-row]").forEach(function (row) {
+          const checkbox = row.querySelector("[data-merchant-checkbox]");
+          if (!row.hidden && checkbox && !checkbox.disabled) checkbox.checked = selectAll.checked;
+        });
+        syncMerchantScope(scope, false);
+        syncCardDetailSaveButton();
+      });
+    }
+    scope.querySelectorAll("[data-merchant-checkbox], [data-merchant-auto-include]").forEach(function (checkbox) {
+      checkbox.addEventListener("change", function () {
+        syncMerchantScope(scope, false);
+        syncCardDetailSaveButton();
+      });
+    });
+    const selectAvailable = scope.querySelector("[data-merchant-select-available]");
+    if (selectAvailable) {
+      selectAvailable.addEventListener("click", function () {
+        scope.querySelectorAll("[data-merchant-row]").forEach(function (row) {
+          const checkbox = row.querySelector("[data-merchant-checkbox]");
+          if (checkbox && !checkbox.disabled) checkbox.checked = true;
+        });
+        syncMerchantScope(scope, false);
+        syncCardDetailSaveButton();
+      });
+    }
+    const clearSelection = scope.querySelector("[data-merchant-clear-selection]");
+    if (clearSelection) {
+      clearSelection.addEventListener("click", function () {
+        scope.querySelectorAll("[data-merchant-checkbox]").forEach(function (checkbox) {
+          if (!checkbox.disabled) checkbox.checked = false;
+        });
+        syncMerchantScope(scope, false);
+        syncCardDetailSaveButton();
+      });
+    }
+    syncMerchantScope(scope, false);
+  });
 
   const cardCurrency = document.querySelector("[data-card-currency]");
   function syncCardCurrencyLabel() {
@@ -490,8 +612,12 @@
     });
   }
   if (cardCurrency) {
-    cardCurrency.addEventListener("change", syncCardCurrencyLabel);
+    cardCurrency.addEventListener("change", function () {
+      syncCardCurrencyLabel();
+      syncAllMerchantScopes(true);
+    });
     syncCardCurrencyLabel();
+    syncAllMerchantScopes(false);
   }
 
   function applyCardDetailQuery() {
