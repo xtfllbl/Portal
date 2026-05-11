@@ -336,12 +336,13 @@
   function applyImportValidationResults() {
     let readyCount = 0;
     let errorCount = 0;
+    let firstError = null;
     const statusMap = {
       valid: { label: "Ready", className: "badge green" },
       warning: { label: "Warning", className: "badge orange" },
       error: { label: "Error", className: "badge red" }
     };
-    document.querySelectorAll("[data-validation-status]").forEach(function (row) {
+    document.querySelectorAll("[data-import-row]").forEach(function (row) {
       const status = row.getAttribute("data-validation-status");
       const badge = row.querySelector(".badge");
       const messageCell = row.lastElementChild;
@@ -350,11 +351,98 @@
         badge.className = display.className;
         badge.textContent = display.label;
       }
-      if (messageCell) messageCell.textContent = row.getAttribute("data-validation-message") || "";
-      if (status === "error") errorCount += 1;
-      else readyCount += 1;
+      if (messageCell) {
+        messageCell.textContent = row.getAttribute("data-validation-message") || "";
+        messageCell.classList.toggle("validation-message", status === "error");
+      }
+      row.classList.toggle("is-error-row", status === "error");
+      row.classList.toggle("is-ready-row", status !== "error");
+      if (status === "error") {
+        errorCount += 1;
+        if (!firstError) firstError = row;
+      } else {
+        readyCount += 1;
+      }
     });
-    return { readyCount: readyCount, errorCount: errorCount };
+    return { readyCount: readyCount, errorCount: errorCount, firstError: firstError };
+  }
+
+  function getImportRowSearchText(row) {
+    return Array.from(row.children).map(function (cell) {
+      return cell.textContent || "";
+    }).join(" ").toLowerCase();
+  }
+
+  function syncImportReviewFilter() {
+    const activeFilter = document.querySelector("[data-import-filter].active");
+    const searchInput = document.querySelector("[data-import-review-search]");
+    const mode = activeFilter ? activeFilter.getAttribute("data-import-filter") : "all";
+    const query = searchInput && searchInput.value ? searchInput.value.trim().toLowerCase() : "";
+    document.querySelectorAll("[data-import-row]").forEach(function (row) {
+      const status = row.getAttribute("data-validation-status");
+      const matchesMode = mode !== "error" || status === "error";
+      const matchesSearch = !query || getImportRowSearchText(row).indexOf(query) !== -1;
+      row.hidden = !(matchesMode && matchesSearch);
+    });
+  }
+
+  function syncImportErrorCallout(result) {
+    const callout = document.querySelector("[data-import-error-callout]");
+    const title = document.querySelector("[data-import-error-title]");
+    const detail = document.querySelector("[data-import-error-detail]");
+    if (!callout) return;
+    callout.hidden = result.errorCount === 0;
+    if (!result.firstError) return;
+    const rowNumber = result.firstError.children[0] ? result.firstError.children[0].textContent : "";
+    const message = result.firstError.getAttribute("data-validation-message") || "";
+    if (title) title.textContent = result.errorCount + (result.errorCount === 1 ? " row needs correction" : " rows need correction");
+    if (detail) detail.textContent = "Row " + rowNumber + ": " + message;
+  }
+
+  function csvEscape(value) {
+    const text = String(value == null ? "" : value);
+    if (/[",\n]/.test(text)) return '"' + text.replace(/"/g, '""') + '"';
+    return text;
+  }
+
+  function exportImportResults() {
+    const rows = Array.from(document.querySelectorAll("[data-import-row]"));
+    if (!rows.length) return;
+    const headers = [
+      "row",
+      "card_uid",
+      "cardholder",
+      "employee_id",
+      "initial_balance",
+      "daily_limit",
+      "validate_result",
+      "validate_reason"
+    ];
+    const csvRows = [headers.join(",")].concat(rows.map(function (row) {
+      const cells = Array.from(row.children);
+      const hasError = row.getAttribute("data-validation-status") === "error";
+      const status = hasError ? "Error" : "Passed";
+      const reason = hasError ? (row.getAttribute("data-validation-message") || "") : "";
+      return [
+        cells[0],
+        cells[1],
+        cells[2],
+        cells[3],
+        cells[4],
+        cells[5]
+      ].map(function (cell) {
+        return csvEscape(cell ? cell.textContent.trim() : "");
+      }).concat([csvEscape(status), csvEscape(reason)]).join(",");
+    }));
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "prepaid_card_import_validation_result.csv";
+    document.body.appendChild(link);
+    link.click();
+    URL.revokeObjectURL(link.href);
+    link.remove();
+    showToast("Validation result CSV exported.");
   }
 
   document.querySelectorAll("[data-import-step]").forEach(function (button) {
@@ -373,23 +461,57 @@
       const reviewTable = document.querySelector("[data-import-review-table]");
       const reviewNote = document.querySelector("[data-import-review-note]");
       const resultSummary = document.querySelector("[data-import-result-summary]");
+      const reviewTools = document.querySelector("[data-import-review-tools]");
+      const exportButton = document.querySelector("[data-export-import-results]");
       const readyCount = document.querySelector("[data-import-ready-count]");
       const errorCount = document.querySelector("[data-import-error-count]");
       const result = applyImportValidationResults();
       if (emptyState) emptyState.hidden = true;
       if (reviewTable) reviewTable.hidden = false;
       if (resultSummary) resultSummary.hidden = false;
+      if (reviewTools) reviewTools.hidden = false;
+      if (exportButton) exportButton.hidden = false;
       if (batchActivateButton) {
         batchActivateButton.disabled = result.readyCount === 0;
         batchActivateButton.textContent = result.readyCount > 0 ? "Activate Batch" : "No Valid Cards";
       }
-      if (reviewNote) reviewNote.textContent = "Review the validated rows before activation.";
+      if (reviewNote) reviewNote.textContent = "Review validated rows, filter error rows, or export the result CSV for correction.";
       if (readyCount) readyCount.textContent = result.readyCount + " cards ready";
       if (errorCount) errorCount.textContent = result.errorCount + " error card skipped";
+      syncImportErrorCallout(result);
+      syncImportReviewFilter();
       setImportStep(3);
       showToast(importUploadButton.getAttribute("data-toast") || "File uploaded and validated.");
     });
   }
+
+  document.querySelectorAll("[data-import-filter]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      document.querySelectorAll("[data-import-filter]").forEach(function (item) {
+        item.classList.toggle("active", item === button);
+      });
+      syncImportReviewFilter();
+    });
+  });
+  const importReviewSearch = document.querySelector("[data-import-review-search]");
+  if (importReviewSearch) importReviewSearch.addEventListener("input", syncImportReviewFilter);
+
+  const importFirstErrorButton = document.querySelector("[data-import-first-error]");
+  if (importFirstErrorButton) {
+    importFirstErrorButton.addEventListener("click", function () {
+      const firstError = document.querySelector("[data-import-row].is-error-row");
+      if (!firstError) return;
+      firstError.hidden = false;
+      firstError.scrollIntoView({ block: "center", behavior: "smooth" });
+      firstError.classList.add("is-focused-error");
+      window.setTimeout(function () {
+        firstError.classList.remove("is-focused-error");
+      }, 1500);
+    });
+  }
+
+  const exportImportResultsButton = document.querySelector("[data-export-import-results]");
+  if (exportImportResultsButton) exportImportResultsButton.addEventListener("click", exportImportResults);
 
   const dailyLimitToggle = document.querySelector("[data-daily-limit-toggle]");
   const dailyLimitAmount = document.querySelector("[data-daily-limit-amount]");

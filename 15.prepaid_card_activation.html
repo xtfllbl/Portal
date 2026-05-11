@@ -251,21 +251,32 @@
               <section class="section">
                 <div class="section-head">
                   <div><h2 class="section-title">Import Review</h2><p class="section-note" data-import-review-note>Upload a file to import and validate rows automatically.</p></div>
-                  <div class="import-action-panel"><div class="import-result-summary" data-import-result-summary hidden><span class="result-ready" data-import-ready-count>0 cards ready</span><span class="result-error" data-import-error-count>0 error cards skipped</span></div><button class="btn primary" type="button" data-open-modal="batchConfirm" data-batch-activate disabled>Upload File First</button></div>
+                  <div class="import-action-panel"><div class="import-result-summary" data-import-result-summary hidden><span class="result-ready" data-import-ready-count>0 cards ready</span><span class="result-error" data-import-error-count>0 error cards skipped</span></div><button class="btn" type="button" data-export-import-results hidden>Export Result CSV</button><button class="btn primary" type="button" data-open-modal="batchConfirm" data-batch-activate disabled>Upload File First</button></div>
                 </div>
                 <div class="empty-state" data-import-empty>
                   <strong>No file uploaded</strong>
                   <span>Upload a CSV file to show validated rows for review.</span>
                 </div>
-                <div class="table-wrap" data-import-review-table hidden>
+                <div class="import-error-callout" data-import-error-callout hidden>
+                  <div><strong data-import-error-title>1 row needs correction</strong><span data-import-error-detail>Row 4: Card UID already exists as Active in Paywizard.</span></div>
+                  <button class="btn small" type="button" data-import-first-error>Go to first error</button>
+                </div>
+                <div class="import-review-tools" data-import-review-tools hidden>
+                  <div class="segmented-control" role="group" aria-label="Import result filter">
+                    <button class="active" type="button" data-import-filter="all">All rows</button>
+                    <button type="button" data-import-filter="error">Error rows</button>
+                  </div>
+                  <label class="filter-field import-result-search"><input type="search" placeholder="Search row, UID, cardholder, or reason" data-import-review-search></label>
+                </div>
+                <div class="table-wrap import-review-wrap" data-import-review-table hidden>
                   <table>
                     <thead><tr><th>Row</th><th>Card UID</th><th>Cardholder</th><th>Employee ID</th><th>Initial Balance</th><th>Daily Limit</th><th>Status</th><th>Message</th></tr></thead>
                     <tbody>
-                      <tr data-validation-status="valid" data-validation-message="Ready"><td>2</td><td class="mono">04BB1C9221D088</td><td>Daniel Moore</td><td>EMP-004392</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
-                      <tr data-validation-status="valid" data-validation-message="Ready"><td>3</td><td class="mono">04AF18193BC002</td><td>Emma Li</td><td>EMP-004393</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
-                      <tr data-validation-status="error" data-validation-message="Card UID already exists as Active in Paywizard. This row will be skipped."><td>4</td><td class="mono">04A37C91B25F80</td><td>Olivia Chen</td><td>EMP-004218</td><td>$100.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
-                      <tr data-validation-status="valid" data-validation-message="Ready"><td>5</td><td class="mono">04F10877D014E1</td><td>Noah Wilson</td><td>EMP-004394</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
-                      <tr data-validation-status="valid" data-validation-message="Ready"><td>6</td><td class="mono">04D9CC218B7771</td><td>Mia Zhang</td><td>EMP-004395</td><td>$0.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
+                      <tr data-import-row data-validation-status="valid" data-validation-message="Ready"><td>2</td><td class="mono">04BB1C9221D088</td><td>Daniel Moore</td><td>EMP-004392</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
+                      <tr data-import-row data-validation-status="valid" data-validation-message="Ready"><td>3</td><td class="mono">04AF18193BC002</td><td>Emma Li</td><td>EMP-004393</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
+                      <tr data-import-row data-validation-status="error" data-validation-message="Card UID already exists as Active in Paywizard. This row will be skipped."><td>4</td><td class="mono">04A37C91B25F80</td><td>Olivia Chen</td><td>EMP-004218</td><td>$100.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
+                      <tr data-import-row data-validation-status="valid" data-validation-message="Ready"><td>5</td><td class="mono">04F10877D014E1</td><td>Noah Wilson</td><td>EMP-004394</td><td>$80.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
+                      <tr data-import-row data-validation-status="valid" data-validation-message="Ready"><td>6</td><td class="mono">04D9CC218B7771</td><td>Mia Zhang</td><td>EMP-004395</td><td>$0.00</td><td>$50.00</td><td><span class="badge neutral">Queued</span></td><td>Waiting for upload</td></tr>
                     </tbody>
                   </table>
                 </div>
