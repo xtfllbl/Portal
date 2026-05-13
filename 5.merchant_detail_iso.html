@@ -843,8 +843,8 @@
 
         .store-grid-head,
         .store-grid-row {
-            grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.4fr) 120px 110px 110px minmax(120px, max-content);
-            min-width: 940px;
+            grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.35fr) minmax(140px, 0.85fr) 120px 110px 110px minmax(120px, max-content);
+            min-width: 1080px;
             column-gap: 10px;
         }
 
@@ -1073,18 +1073,18 @@
             justify-content: flex-end;
             align-items: center;
             gap: 12px;
-            padding: 18px 20px;
+            padding: 14px 20px;
         }
 
         .device-toolbar-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .device-search-field {
-            width: min(100%, 260px);
+            width: 260px;
             height: 38px;
             border: 1px solid #d7dbe2;
             border-radius: 10px;
@@ -1137,14 +1137,14 @@
 
         .device-grid-head,
         .device-grid-row {
-            grid-template-columns: minmax(160px, 1.15fr) minmax(220px, 1.7fr) minmax(110px, 0.9fr) minmax(240px, 1.7fr) 130px minmax(170px, max-content);
-            min-width: 1080px;
+            grid-template-columns: minmax(150px, 1.05fr) minmax(190px, 1.35fr) minmax(100px, 0.75fr) minmax(210px, 1.45fr) minmax(140px, 0.9fr) 120px minmax(170px, max-content);
+            min-width: 1220px;
             column-gap: 18px;
         }
 
         .device-grid-head {
-            background: #1f1f23;
-            color: #fff;
+            background: #f7f8fa;
+            color: var(--text-dim);
         }
 
         .device-grid-head > div {
@@ -1253,8 +1253,9 @@
 
         .device-actions-cell {
             display: flex;
-            justify-content: flex-start;
-            text-align: left;
+            justify-content: flex-end;
+            justify-self: end;
+            text-align: right;
             cursor: default;
         }
 
@@ -1265,29 +1266,26 @@
         }
 
         .device-settings-button {
-            height: 38px;
-            border-radius: 10px;
-            border: 1px solid #d7dbe2;
-            background: #fff;
-            color: #6b7280;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 0 14px;
-            font-size: 13px;
-            font-weight: 500;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1f2937;
             cursor: pointer;
         }
 
-        .device-settings-button:hover {
-            border-color: #c7ccd5;
-            color: #374151;
-            background: #f8fafc;
+        .device-settings-button:focus {
+            outline: 2px solid #9ca3af;
+            outline-offset: 2px;
         }
 
         .device-settings-button svg {
-            width: 15px;
-            height: 15px;
+            display: none;
         }
 
         .device-settings {
@@ -2219,6 +2217,7 @@
                             <div class="grid-head store-grid-head">
                                 <div>Store Name</div>
                                 <div>Address</div>
+                                <div>Created At</div>
                                 <div>MID</div>
                                 <div>Devices</div>
                                 <div>Status</div>
@@ -2230,6 +2229,7 @@
                                     <div class="cell-sub">ID: st_123</div>
                                 </div>
                                 <div>123 Main St, New York, NY</div>
+                                <div>2026-04-02 09:18</div>
                                 <div>888299100293</div>
                                 <div data-role="device-count">2 Active</div>
                                 <div><span class="status-badge active" data-role="store-status">Active</span></div>
@@ -2252,6 +2252,7 @@
                                     <div class="cell-sub">ID: st_204</div>
                                 </div>
                                 <div>55 Lexington Ave, New York, NY</div>
+                                <div>2026-04-12 14:36</div>
                                 <div>888299100294</div>
                                 <div data-role="device-count">1 Pending</div>
                                 <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
@@ -2306,6 +2307,7 @@
                                     <div>SN</div>
                                     <div>MODEL</div>
                                     <div>TERMINAL NAME</div>
+                                    <div>ADDED AT</div>
                                     <div>STATUS</div>
                                     <div>ACTIONS</div>
                                 </div>
@@ -2325,6 +2327,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div>2026-04-03 10:22</div>
                                     <div data-role="device-status"><span class="status-badge active">Active</span></div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -2363,6 +2366,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div>2026-04-05 16:08</div>
                                     <div data-role="device-status"><span class="status-badge active">Active</span></div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -2401,6 +2405,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div>2026-04-15 11:47</div>
                                     <div data-role="device-status"><span class="status-badge pending">Pending</span></div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -3235,6 +3240,15 @@
             return `${month}/${day}/${year.slice(-2)}`;
         };
 
+        const formatDateTime = (date = new Date()) => {
+            const pad = (value) => String(value).padStart(2, '0');
+            return [
+                date.getFullYear(),
+                pad(date.getMonth() + 1),
+                pad(date.getDate())
+            ].join('-') + ` ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        };
+
         const generateStoreId = () => `st_${Math.floor(100 + Math.random() * 900)}`;
         const generateMid = () => `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
 
@@ -3429,13 +3443,7 @@
             toggleButton.type = 'button';
             toggleButton.setAttribute('aria-haspopup', 'true');
             toggleButton.setAttribute('aria-expanded', 'false');
-            toggleButton.innerHTML = `
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
-                </svg>
-                <span>Settings</span>
-            `;
+            toggleButton.innerHTML = 'Settings <span aria-hidden="true">&#9662;</span>';
 
             const menu = document.createElement('div');
             menu.className = 'device-settings-menu';
@@ -4341,6 +4349,7 @@
 
                 row.appendChild(nameCell);
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: address }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: formatDateTime() }));
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: mid }));
 
                 const deviceCell = document.createElement('div');
@@ -4422,6 +4431,7 @@
                 row.appendChild(modelCell);
 
                 row.appendChild(createDeviceTerminalCell(label));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: formatDateTime() }));
 
                 const statusCell = document.createElement('div');
                 statusCell.setAttribute('data-role', 'device-status');

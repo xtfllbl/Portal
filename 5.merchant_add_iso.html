@@ -1904,7 +1904,7 @@
                                 </div>
 
                                 <div class="form-grid two">
-                        
+
                                     <div class="field">
                                         <label for="device-label">Terminal Name (Device Label)</label>
                                         <input class="input-field" id="device-label" type="text" placeholder="Front Counter">
@@ -1922,7 +1922,25 @@
                                 </div>
 
                                 <div class="form-grid two">
-                                  
+                                    <div class="field">
+                                        <label for="device-terminal-scenario">Terminal Scenario *</label>
+                                        <select class="input-field" id="device-terminal-scenario" required>
+                                            <optgroup label="Unattended Scenarios">
+                                                <option selected>Vending Machine</option>
+                                                <option>EV Charging</option>
+                                                <option>Arcade Machine</option>
+                                                <option>Coffee Machine</option>
+                                            </optgroup>
+                                            <optgroup label="Attended Scenarios">
+                                                <option>Standalone Terminal</option>
+                                                <option>Terminal + ECR</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-grid two">
+
                                     <div class="field">
                                         <label for="device-processor">Processor *</label>
                                         <select class="input-field" id="device-processor">
@@ -2695,6 +2713,10 @@
                                                 <span class="review-value" id="review-device-processor">Not provided</span>
                                             </div>
                                             <div class="review-item">
+                                                <span class="review-label">Terminal Scenario</span>
+                                                <span class="review-value" id="review-device-scenario">Not provided</span>
+                                            </div>
+                                            <div class="review-item">
                                                 <span class="review-label">Template Version</span>
                                                 <span class="review-value" id="review-processor-version">Not provided</span>
                                             </div>
@@ -2883,6 +2905,7 @@
 
             setReviewValue('review-device-tpn', getFieldValue('device-tpn'));
             setReviewValue('review-device-processor', getFieldValue('device-processor'));
+            setReviewValue('review-device-scenario', getFieldValue('device-terminal-scenario'));
             setReviewValue('review-processor-version', (document.getElementById('processor-version') || {}).value || '');
             const pw = document.getElementById('device-paywizard');
             setReviewValue('review-device-paywizard', pw ? (pw.value || '') : '');
@@ -2978,6 +3001,7 @@
             'store-email',
             'device-processor',
             'device-tpn',
+            'device-terminal-scenario',
             'device-paywizard'
         ];
 
