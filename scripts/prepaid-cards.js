@@ -610,6 +610,7 @@
     const merchantTable = scope.querySelector("[data-merchant-table]");
     const search = scope.querySelector("[data-merchant-search]");
     const agentFilter = scope.querySelector("[data-merchant-agent-filter]");
+    const merchantNameFilter = scope.querySelector("[data-merchant-name-filter]");
     const sceneFilter = scope.querySelector("[data-merchant-scene-filter]");
     const availabilityFilter = scope.querySelector("[data-merchant-availability-filter]");
     const selectionFilter = scope.querySelector("[data-merchant-selection-filter]");
@@ -624,10 +625,11 @@
     const selectedMode = selectionFilter && selectionFilter.value ? selectionFilter.value : "all";
     const availabilityMode = availabilityFilter && availabilityFilter.value ? availabilityFilter.value : "available";
     const agentValue = agentFilter && agentFilter.value && scopeMode !== "scene" ? agentFilter.value : "";
+    const merchantNameValue = merchantNameFilter && merchantNameFilter.value && scopeMode !== "scene" ? merchantNameFilter.value : "";
     const sceneValue = sceneFilter && sceneFilter.value && scopeMode !== "merchant" ? sceneFilter.value : "";
     const scopeGuidanceText = {
       merchant: {
-        future: "All current same-currency merchants and future same-currency merchants under this service provider will be included automatically.",
+        future: "All current and future same-currency merchants under this service provider will be included automatically.",
         current: "All current same-currency merchants are selected. Future merchants are not included automatically.",
         custom: "Only merchants matching the card currency can be selected."
       },
@@ -645,6 +647,7 @@
     if (merchantToolbar) merchantToolbar.hidden = scopeMode === "scene" || (scopeMode === "merchant" && merchantSelectionMode !== "custom");
     if (merchantTable) merchantTable.hidden = scopeMode === "scene" || (scopeMode === "merchant" && merchantSelectionMode !== "custom");
     if (agentFilter) agentFilter.disabled = scopeMode === "scene";
+    if (merchantNameFilter) merchantNameFilter.disabled = scopeMode === "scene";
     if (sceneFilter) sceneFilter.disabled = scopeMode === "merchant";
     if (scopeGuidance) {
       scopeGuidance.textContent = scopeMode === "merchant"
@@ -745,6 +748,7 @@
 
       const matchesSearch = !query || getMerchantRowText(row).indexOf(query) !== -1;
       const matchesAgent = !agentValue || row.getAttribute("data-agent") === agentValue;
+      const matchesMerchantName = !merchantNameValue || row.getAttribute("data-merchant-name") === merchantNameValue;
       const matchesScene = !sceneValue || row.getAttribute("data-terminal-scene") === sceneValue;
       const matchesAvailability =
         availabilityMode === "all" ||
@@ -755,7 +759,7 @@
         selectedMode === "all" ||
         (selectedMode === "selected" && currentSelected) ||
         (selectedMode === "unselected" && isAvailable && !currentSelected);
-      const showRow = matchesScope && matchesSearch && matchesAgent && matchesScene && matchesAvailability && matchesSelection;
+      const showRow = matchesScope && matchesSearch && matchesAgent && matchesMerchantName && matchesScene && matchesAvailability && matchesSelection;
       row.hidden = !showRow;
       if (showRow) visible += 1;
     });
@@ -794,7 +798,7 @@
 
   document.querySelectorAll("[data-merchant-scope]").forEach(function (scope) {
     const selectAll = scope.querySelector("[data-merchant-select-all]");
-    const controls = scope.querySelectorAll("[data-merchant-search], [data-merchant-agent-filter], [data-merchant-scene-filter], [data-merchant-availability-filter], [data-merchant-selection-filter], [data-merchant-scope-mode], [data-merchant-selection-mode], [data-scene-checkbox]");
+    const controls = scope.querySelectorAll("[data-merchant-search], [data-merchant-agent-filter], [data-merchant-name-filter], [data-merchant-scene-filter], [data-merchant-availability-filter], [data-merchant-selection-filter], [data-merchant-scope-mode], [data-merchant-selection-mode], [data-scene-checkbox]");
     controls.forEach(function (control) {
       control.addEventListener("input", function () { syncMerchantScope(scope, false); });
       control.addEventListener("change", function () { syncMerchantScope(scope, false); });
