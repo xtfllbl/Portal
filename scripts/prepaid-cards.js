@@ -265,6 +265,10 @@
         event.preventDefault();
         return;
       }
+      if (modalId === "batchConfirm") {
+        syncBatchConfirmModal();
+        setImportStep(4);
+      }
       const modal = document.getElementById(modalId);
       if (modal) {
         modal.classList.add("open");
@@ -323,11 +327,6 @@
       const index = Number(item.getAttribute("data-import-state"));
       const badge = item.querySelector(".badge");
       if (!badge) return;
-      if (target > 3 && index === 3) {
-        badge.className = "badge green";
-        badge.textContent = "Done";
-        return;
-      }
       badge.className = "badge " + (index < target ? "green" : index === target ? "purple" : "neutral");
       badge.textContent = index < target ? "Done" : index === target ? "Current" : "Pending";
     });
@@ -399,6 +398,32 @@
     if (detail) detail.textContent = "Row " + rowNumber + ": " + message;
   }
 
+  function getSelectedBatchUsageScopeSummary() {
+    const scope = document.querySelector("[data-batch-scope-mount] [data-merchant-scope]");
+    if (!scope) return "Not selected";
+    const selectedMode = scope.querySelector("[data-merchant-scope-mode]:checked");
+    const mode = selectedMode ? selectedMode.value : "";
+    const countText = scope.querySelector("[data-merchant-selected-count]")?.textContent?.trim() || "";
+    const selectedCount = countText.split("/")[0]?.trim() || "";
+    if (mode === "scene") {
+      const count = scope.querySelectorAll("[data-scene-checkbox]:checked").length;
+      return "Scene Level, " + count + (count === 1 ? " scene" : " scenes");
+    }
+    if (mode === "merchant") {
+      const merchantMode = scope.querySelector("[data-merchant-selection-mode]:checked")?.value || "future";
+      if (merchantMode === "future") return "Merchant Level, current & future merchants";
+      if (merchantMode === "current") return "Merchant Level, current merchants only";
+      return "Merchant Level, " + (selectedCount || "custom selection");
+    }
+    if (mode === "sn") return "SN Level, " + (selectedCount || "custom selection");
+    return "Not selected";
+  }
+
+  function syncBatchConfirmModal() {
+    const summary = document.querySelector("[data-batch-confirm-scope]");
+    if (summary) summary.textContent = getSelectedBatchUsageScopeSummary();
+  }
+
   function csvEscape(value) {
     const text = String(value == null ? "" : value);
     if (/[",\n]/.test(text)) return '"' + text.replace(/"/g, '""') + '"';
@@ -463,10 +488,12 @@
       const resultSummary = document.querySelector("[data-import-result-summary]");
       const reviewTools = document.querySelector("[data-import-review-tools]");
       const exportButton = document.querySelector("[data-export-import-results]");
+      const importScopeSection = document.querySelector("[data-import-scope-section]");
       const readyCount = document.querySelector("[data-import-ready-count]");
       const errorCount = document.querySelector("[data-import-error-count]");
       const result = applyImportValidationResults();
       if (emptyState) emptyState.hidden = true;
+      if (importScopeSection) importScopeSection.hidden = false;
       if (reviewTable) reviewTable.hidden = false;
       if (resultSummary) resultSummary.hidden = false;
       if (reviewTools) reviewTools.hidden = false;
@@ -475,7 +502,7 @@
         batchActivateButton.disabled = result.readyCount === 0;
         batchActivateButton.textContent = result.readyCount > 0 ? "Activate Batch" : "No Valid Cards";
       }
-      if (reviewNote) reviewNote.textContent = "Review validated rows, filter error rows, or export the result CSV for correction.";
+      if (reviewNote) reviewNote.textContent = "Choose usage scope limits for this batch, then review validated rows and activate valid cards.";
       if (readyCount) readyCount.textContent = result.readyCount + " cards ready";
       if (errorCount) errorCount.textContent = result.errorCount + " error card skipped";
       syncImportErrorCallout(result);
@@ -594,6 +621,32 @@
       row.getAttribute("data-terminal-sn")
     ].join(" ").toLowerCase();
   }
+
+  function mountBatchUsageScope() {
+    const mount = document.querySelector("[data-batch-scope-mount]");
+    const source = document.querySelector("#singleActivation [data-merchant-scope]");
+    if (!mount || !source || mount.querySelector("[data-merchant-scope]")) return;
+    const clone = source.cloneNode(true);
+    clone.setAttribute("data-batch-usage-scope", "");
+    clone.querySelectorAll('[name="usageScopeLevel"]').forEach(function (input) {
+      input.name = "batchUsageScopeLevel";
+    });
+    clone.querySelectorAll('[name="merchantSelectionMode"]').forEach(function (input) {
+      input.name = "batchMerchantSelectionMode";
+    });
+    const title = clone.querySelector(".section-title");
+    if (title) title.textContent = "Usage Scope Limits";
+    const titleWrap = clone.querySelector(".title-line > div");
+    if (titleWrap && !titleWrap.querySelector(".section-note")) {
+      const note = document.createElement("p");
+      note.className = "section-note";
+      note.textContent = "These limits apply to every valid card in this batch import.";
+      titleWrap.appendChild(note);
+    }
+    mount.appendChild(clone);
+  }
+
+  mountBatchUsageScope();
 
   function syncMerchantScope(scope, includeNewAvailable) {
     const cardCurrencyField = document.querySelector("[data-card-currency]");

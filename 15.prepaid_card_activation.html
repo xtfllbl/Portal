@@ -432,19 +432,22 @@
             <div class="content-inner" id="import">
               <section class="section">
                 <div class="section-head">
-                  <div><h2 class="section-title">Import Prepaid Cards from Excel</h2></div>
-                  <div class="page-actions"><a class="btn" href="prepaid_card_import_template.csv" download data-toast="CSV template downloaded.">Download CSV Template</a><button class="btn purple" type="button" data-import-upload data-toast="File uploaded and validated. Review the rows below.">Upload File</button></div>
+                  <div><h2 class="section-title">Import Prepaid Cards from CSV</h2></div>
+                  <div class="page-actions"><a class="btn" href="prepaid_card_import_template.csv" download data-toast="CSV template downloaded.">Download CSV Template</a><button class="btn purple" type="button" data-import-upload data-toast="File uploaded and validated. Choose usage scope limits for this batch.">Upload File</button></div>
                 </div>
                 <div class="step-list">
-                  <div class="step-item" data-import-state="1"><span class="step-no">1</span><span class="step-copy"><strong>Template</strong><span>UID, name, employee ID, mobile, initial balance, daily limit, merchant scope.</span></span><span class="badge green">Done</span></div>
-                  <div class="step-item" data-import-state="2"><span class="step-no">2</span><span class="step-copy"><strong>Upload & Auto Validate</strong><span>Import the file and check required fields, duplicates, merchants, and limits.</span></span><span class="badge purple">Current</span></div>
-                  <div class="step-item" data-import-state="3"><span class="step-no">3</span><span class="step-copy"><strong>Review & Activate</strong><span>Review validation results and activate valid cards.</span></span><span class="badge neutral">Pending</span></div>
+                  <div class="step-item" data-import-state="1"><span class="step-no">1</span><span class="step-copy"><strong>Template</strong><span>UID, name, employee ID, mobile, initial balance, and daily limit.</span></span><span class="badge green">Done</span></div>
+                  <div class="step-item" data-import-state="2"><span class="step-no">2</span><span class="step-copy"><strong>Upload & Auto Validate</strong><span>Import the file and check required fields, duplicate cards, and limits.</span></span><span class="badge purple">Current</span></div>
+                  <div class="step-item" data-import-state="3"><span class="step-no">3</span><span class="step-copy"><strong>Choose Usage Scope Limits</strong><span>Apply one usage scope to all valid cards in this import.</span></span><span class="badge neutral">Pending</span></div>
+                  <div class="step-item" data-import-state="4"><span class="step-no">4</span><span class="step-copy"><strong>Review & Activate</strong><span>Review validation results and activate valid cards.</span></span><span class="badge neutral">Pending</span></div>
                 </div>
               </section>
 
+              <div data-batch-scope-mount data-import-scope-section hidden></div>
+
               <section class="section">
                 <div class="section-head">
-                  <div><h2 class="section-title">Import Review</h2><p class="section-note" data-import-review-note>Upload a file to import and validate rows automatically.</p></div>
+                  <div><h2 class="section-title">Import Review</h2><p class="section-note" data-import-review-note>Upload a file to validate rows. Usage scope selection appears after validation.</p></div>
                   <div class="import-action-panel"><div class="import-result-summary" data-import-result-summary hidden><span class="result-ready" data-import-ready-count>0 cards ready</span><span class="result-error" data-import-error-count>0 error cards skipped</span></div><button class="btn" type="button" data-export-import-results hidden>Export Result CSV</button><button class="btn primary" type="button" data-open-modal="batchConfirm" data-batch-activate disabled>Upload File First</button></div>
                 </div>
                 <div class="empty-state" data-import-empty>
@@ -504,10 +507,11 @@
         <div class="kv batch-activation-summary">
           <div class="kv-row"><span>Ready Cards</span><strong>4</strong></div>
           <div class="kv-row"><span>Error Cards</span><strong class="negative">1</strong></div>
+          <div class="kv-row"><span>Usage Scope</span><strong data-batch-confirm-scope>Scene Level, 4 scenes</strong></div>
           <div class="kv-row"><span>Default Status</span><strong>Active</strong></div>
         </div>
       </div>
-      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-import-step="4" data-toast="4 prepaid cards activated. 1 error row skipped.">Activate Batch</button></div>
+      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Cancel</button><button class="btn purple" type="button" data-close-modal data-import-step="5" data-toast="4 prepaid cards activated. 1 error row skipped.">Activate Batch</button></div>
     </section>
   </div>
   <div class="toast" data-toast-root>Saved</div>
