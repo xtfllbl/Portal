@@ -117,27 +117,108 @@
               <section class="section" data-merchant-scope>
                 <div class="section-head">
                   <div class="title-line">
-                    <h2 class="section-title">Merchant Usage Limits</h2>
+                    <div>
+                      <h2 class="section-title">Usage Scope Limits</h2>
+                    </div>
                     <span class="scope-pill"><span>Service Provider</span><strong>G & A Robot Inc</strong></span>
                     <span class="scope-pill"><span>Currency</span><strong data-card-currency-label>USD only</strong></span>
                   </div>
-                  <span class="merchant-count" data-merchant-selected-count>5 selected / 5 available</span>
+                  <span class="merchant-count" data-merchant-selected-count>4 selected / 6 available</span>
+                </div>
+                <div class="usage-scope-options" role="radiogroup" aria-label="Usage scope level">
+                  <label class="usage-scope-card">
+                    <input type="radio" name="usageScopeLevel" value="scene" checked data-merchant-scope-mode>
+                    <span class="scope-card-main">
+                      <strong>Scene Level</strong>
+                      <small>Select terminal scenes across all eligible merchants under this service provider.</small>
+                    </span>
+                  </label>
+                  <label class="usage-scope-card">
+                    <input type="radio" name="usageScopeLevel" value="merchant" data-merchant-scope-mode>
+                    <span class="scope-card-main">
+                      <strong>Merchant Level</strong>
+                      <small>Select a merchant and automatically include every current terminal under it.</small>
+                    </span>
+                  </label>
+                  <label class="usage-scope-card">
+                    <input type="radio" name="usageScopeLevel" value="sn" data-merchant-scope-mode>
+                    <span class="scope-card-main">
+                      <strong>SN Level</strong>
+                      <small>Select exact terminals for the strictest control.</small>
+                    </span>
+                  </label>
                 </div>
                 <div class="merchant-policy">
-                  <label class="switch-line">
-                    <input type="checkbox" checked data-merchant-auto-include>
-                    <span>Auto include new available merchants under this service provider</span>
+                  <span class="field-hint scope-guidance" data-scope-guidance>Future same-currency merchants and terminals will be included automatically when they match selected scenes.</span>
+                </div>
+                <div class="merchant-selection-options" data-merchant-selection-options hidden>
+                  <label class="merchant-selection-card">
+                    <input type="radio" name="merchantSelectionMode" value="future" checked data-merchant-selection-mode>
+                    <span>
+                      <strong>All Merchants + Future</strong>
+                      <small>Include all current same-currency merchants and future same-currency merchants under this service provider.</small>
+                    </span>
                   </label>
-                  <span class="field-hint">Only merchants matching the card currency can be selected.</span>
+                  <label class="merchant-selection-card">
+                    <input type="radio" name="merchantSelectionMode" value="current" data-merchant-selection-mode>
+                    <span>
+                      <strong>All Current Merchants</strong>
+                      <small>Select every currently available same-currency merchant. Future merchants are not included automatically.</small>
+                    </span>
+                  </label>
+                  <label class="merchant-selection-card">
+                    <input type="radio" name="merchantSelectionMode" value="custom" data-merchant-selection-mode>
+                    <span>
+                      <strong>Custom Merchant List</strong>
+                      <small>Use filters and the table below to select merchants one by one.</small>
+                    </span>
+                  </label>
                 </div>
-                <div class="merchant-summary">
-                  <span><strong data-merchant-available-count>5</strong> available</span>
-                  <span><strong data-merchant-unavailable-count>1</strong> unavailable</span>
-                  <span><strong data-merchant-visible-count>6</strong> showing</span>
+                <div class="scene-scope-picker" data-scene-scope-picker>
+                  <div class="scene-picker-group">
+                    <h3>Unattended Scenarios</h3>
+                    <div class="scene-picker-grid">
+                      <label class="scene-option-card" data-scene-option data-currency="USD" data-terminal-scene="Vending Machine">
+                        <input type="checkbox" checked data-scene-checkbox>
+                        <span class="scene-option-icon unattended" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M10 8h4"></path><path d="M10 12h4"></path><path d="M10 16h4"></path></svg></span>
+                        <strong>Vending Machine</strong>
+                      </label>
+                      <label class="scene-option-card" data-scene-option data-currency="ANY" data-terminal-scene="EV Charging">
+                        <input type="checkbox" checked data-scene-checkbox>
+                        <span class="scene-option-icon unattended" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8v18H7z"></path><path d="M15 8h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2"></path><path d="M11 7v4"></path><path d="M9 9h4"></path></svg></span>
+                        <strong>EV Charging</strong>
+                      </label>
+                      <label class="scene-option-card" data-scene-option data-currency="USD" data-terminal-scene="Arcade Machine">
+                        <input type="checkbox" checked data-scene-checkbox>
+                        <span class="scene-option-icon unattended" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 10h10l1 9H6z"></path><path d="M9 10V7a3 3 0 0 1 6 0v3"></path><path d="M10 15h1"></path><path d="M14 15h1"></path></svg></span>
+                        <strong>Arcade Machine</strong>
+                      </label>
+                      <label class="scene-option-card" data-scene-option data-currency="USD" data-terminal-scene="Coffee Machine">
+                        <input type="checkbox" checked data-scene-checkbox>
+                        <span class="scene-option-icon unattended" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 8h8v6a4 4 0 0 1-4 4 4 4 0 0 1-4-4z"></path><path d="M16 10h2a2 2 0 0 1 0 4h-2"></path><path d="M6 21h12"></path><path d="M9 3v2"></path><path d="M12 3v2"></path><path d="M15 3v2"></path></svg></span>
+                        <strong>Coffee Machine</strong>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="scene-picker-group">
+                    <h3>Attended Scenarios</h3>
+                    <div class="scene-picker-grid">
+                      <label class="scene-option-card" data-scene-option data-currency="USD" data-terminal-scene="Standalone Terminal">
+                        <input type="checkbox" data-scene-checkbox>
+                        <span class="scene-option-icon attended" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M10 7h4"></path><path d="M11 17h2"></path></svg></span>
+                        <strong>Standalone Terminal</strong>
+                      </label>
+                      <label class="scene-option-card" data-scene-option data-currency="USD" data-terminal-scene="Terminal + ECR">
+                        <input type="checkbox" data-scene-checkbox>
+                        <span class="scene-option-icon attended" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="10" rx="2"></rect><path d="M9 7V5h6v2"></path><path d="M8 12h8"></path></svg></span>
+                        <strong>Terminal + ECR</strong>
+                      </label>
+                    </div>
+                  </div>
                 </div>
-                <div class="merchant-toolbar">
+                <div class="merchant-toolbar" data-merchant-toolbar hidden>
                   <label class="filter-field merchant-search">
-                    <input type="search" placeholder="Search merchant, ID, or agent" data-merchant-search data-non-persistent>
+                    <input type="search" placeholder="Search scope" data-merchant-search data-non-persistent>
                   </label>
                   <label class="filter-field select">
                     <select data-merchant-agent-filter data-non-persistent>
@@ -145,6 +226,17 @@
                       <option value="Direct">Direct</option>
                       <option value="North Region Agent">North Region Agent</option>
                       <option value="Campus Agent">Campus Agent</option>
+                    </select>
+                  </label>
+                  <label class="filter-field select">
+                    <select data-merchant-scene-filter data-non-persistent>
+                      <option value="">All scenes</option>
+                      <option value="Counter POS">Counter POS</option>
+                      <option value="Coffee Kiosk">Coffee Kiosk</option>
+                      <option value="Vending Machine">Vending Machine</option>
+                      <option value="EV Charging">EV Charging</option>
+                      <option value="Arcade Machine">Arcade Machine</option>
+                      <option value="Standalone Terminal">Standalone Terminal</option>
                     </select>
                   </label>
                   <label class="filter-field select">
@@ -166,63 +258,150 @@
                     <button class="btn small" type="button" data-merchant-clear-selection>Clear</button>
                   </div>
                 </div>
-                <div class="table-wrap merchant-limit-wrap">
+                <div class="table-wrap merchant-limit-wrap" data-merchant-table hidden>
                   <table class="merchant-limit-table">
                     <thead>
                       <tr>
                         <th><input class="table-check" type="checkbox" checked aria-label="Select all merchants" data-merchant-select-all></th>
+                        <th>Scope</th>
                         <th>Agent</th>
                         <th>Merchant</th>
+                        <th>Scene</th>
+                        <th>Terminal / SN</th>
                         <th>Merchant ID</th>
                         <th>Currency</th>
                         <th>Availability</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr data-merchant-row data-agent="Direct" data-merchant-name="HQ Canteen" data-merchant-id="MRC-HQ-001" data-currency="USD">
+                      <tr data-merchant-row data-scope-level="merchant" data-agent="Direct" data-merchant-name="HQ Canteen" data-merchant-id="MRC-HQ-001" data-currency="USD" data-terminal-scene="All scenes" data-terminal-sn="">
                         <td><input class="table-check" type="checkbox" checked aria-label="Allow HQ Canteen" data-merchant-checkbox></td>
-                        <td>Direct</td>
+                        <td><span class="scope-type-chip merchant">Merchant</span></td>
+                        <td>-</td>
                         <td>HQ Canteen</td>
+                        <td>All scenes</td>
+                        <td>All current terminals</td>
                         <td class="mono">MRC-HQ-001</td>
                         <td>USD</td>
                         <td><span class="merchant-status" data-merchant-availability>Available</span></td>
                       </tr>
-                      <tr data-merchant-row data-agent="Direct" data-merchant-name="Staff POS Counter" data-merchant-id="MRC-POS-002" data-currency="USD">
+                      <tr data-merchant-row data-scope-level="merchant" data-agent="Direct" data-merchant-name="Staff POS Counter" data-merchant-id="MRC-POS-002" data-currency="USD" data-terminal-scene="All scenes" data-terminal-sn="">
                         <td><input class="table-check" type="checkbox" checked aria-label="Allow Staff POS Counter" data-merchant-checkbox></td>
-                        <td>Direct</td>
+                        <td><span class="scope-type-chip merchant">Merchant</span></td>
+                        <td>-</td>
                         <td>Staff POS Counter</td>
+                        <td>All scenes</td>
+                        <td>All current terminals</td>
                         <td class="mono">MRC-POS-002</td>
                         <td>USD</td>
                         <td><span class="merchant-status" data-merchant-availability>Available</span></td>
                       </tr>
-                      <tr data-merchant-row data-agent="North Region Agent" data-merchant-name="Vending North" data-merchant-id="MRC-VND-003" data-currency="USD">
+                      <tr data-merchant-row data-scope-level="merchant" data-agent="North Region Agent" data-merchant-name="Vending North" data-merchant-id="MRC-VND-003" data-currency="USD" data-terminal-scene="All scenes" data-terminal-sn="">
                         <td><input class="table-check" type="checkbox" checked aria-label="Allow Vending North" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip merchant">Merchant</span></td>
                         <td>North Region Agent</td>
                         <td>Vending North</td>
+                        <td>All scenes</td>
+                        <td>All current terminals</td>
                         <td class="mono">MRC-VND-003</td>
                         <td>USD</td>
                         <td><span class="merchant-status" data-merchant-availability>Available</span></td>
                       </tr>
-                      <tr data-merchant-row data-agent="North Region Agent" data-merchant-name="Coffee Corner" data-merchant-id="MRC-COF-004" data-currency="USD">
+                      <tr data-merchant-row data-scope-level="merchant" data-agent="North Region Agent" data-merchant-name="Coffee Corner" data-merchant-id="MRC-COF-004" data-currency="USD" data-terminal-scene="All scenes" data-terminal-sn="">
                         <td><input class="table-check" type="checkbox" checked aria-label="Allow Coffee Corner" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip merchant">Merchant</span></td>
                         <td>North Region Agent</td>
                         <td>Coffee Corner</td>
+                        <td>All scenes</td>
+                        <td>All current terminals</td>
                         <td class="mono">MRC-COF-004</td>
                         <td>USD</td>
                         <td><span class="merchant-status" data-merchant-availability>Available</span></td>
                       </tr>
-                      <tr data-merchant-row data-agent="Campus Agent" data-merchant-name="Campus Store" data-merchant-id="MRC-CMP-005" data-currency="USD">
+                      <tr data-merchant-row data-scope-level="merchant" data-agent="Campus Agent" data-merchant-name="Campus Store" data-merchant-id="MRC-CMP-005" data-currency="USD" data-terminal-scene="All scenes" data-terminal-sn="">
                         <td><input class="table-check" type="checkbox" checked aria-label="Allow Campus Store" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip merchant">Merchant</span></td>
                         <td>Campus Agent</td>
                         <td>Campus Store</td>
+                        <td>All scenes</td>
+                        <td>All current terminals</td>
                         <td class="mono">MRC-CMP-005</td>
                         <td>USD</td>
                         <td><span class="merchant-status" data-merchant-availability>Available</span></td>
                       </tr>
-                      <tr data-merchant-row data-agent="Campus Agent" data-merchant-name="Campus Cafe" data-merchant-id="MRC-CAD-006" data-currency="CAD">
+                      <tr data-merchant-row data-scope-level="merchant" data-agent="Campus Agent" data-merchant-name="Campus Cafe" data-merchant-id="MRC-CAD-006" data-currency="CAD" data-terminal-scene="All scenes" data-terminal-sn="">
                         <td><input class="table-check" type="checkbox" disabled aria-label="Campus Cafe is unavailable because currency is CAD" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip merchant">Merchant</span></td>
                         <td>Campus Agent</td>
                         <td>Campus Cafe</td>
+                        <td>All scenes</td>
+                        <td>All current terminals</td>
+                        <td class="mono">MRC-CAD-006</td>
+                        <td>CAD</td>
+                        <td><span class="merchant-status muted" data-merchant-availability>Currency mismatch</span></td>
+                      </tr>
+                      <tr data-merchant-row data-scope-level="sn" data-agent="Direct" data-merchant-name="HQ Canteen" data-merchant-id="MRC-HQ-001" data-currency="USD" data-terminal-scene="Coffee Kiosk" data-terminal-sn="WP6203CQ36000057">
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow terminal WP6203CQ36000057" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip sn">SN</span></td>
+                        <td>-</td>
+                        <td>HQ Canteen</td>
+                        <td><span class="scene-badge">Coffee Kiosk</span></td>
+                        <td class="mono">WP6203CQ36000057</td>
+                        <td class="mono">MRC-HQ-001</td>
+                        <td>USD</td>
+                        <td><span class="merchant-status" data-merchant-availability>Available</span></td>
+                      </tr>
+                      <tr data-merchant-row data-scope-level="sn" data-agent="Direct" data-merchant-name="HQ Canteen" data-merchant-id="MRC-HQ-001" data-currency="USD" data-terminal-scene="Counter POS" data-terminal-sn="WP6203CQ36000055">
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow terminal WP6203CQ36000055" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip sn">SN</span></td>
+                        <td>-</td>
+                        <td>HQ Canteen</td>
+                        <td><span class="scene-badge">Counter POS</span></td>
+                        <td class="mono">WP6203CQ36000055</td>
+                        <td class="mono">MRC-HQ-001</td>
+                        <td>USD</td>
+                        <td><span class="merchant-status" data-merchant-availability>Available</span></td>
+                      </tr>
+                      <tr data-merchant-row data-scope-level="sn" data-agent="North Region Agent" data-merchant-name="Vending North" data-merchant-id="MRC-VND-003" data-currency="USD" data-terminal-scene="Vending Machine" data-terminal-sn="WP6203CQ36000024">
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow terminal WP6203CQ36000024" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip sn">SN</span></td>
+                        <td>North Region Agent</td>
+                        <td>Vending North</td>
+                        <td><span class="scene-badge">Vending Machine</span></td>
+                        <td class="mono">WP6203CQ36000024</td>
+                        <td class="mono">MRC-VND-003</td>
+                        <td>USD</td>
+                        <td><span class="merchant-status" data-merchant-availability>Available</span></td>
+                      </tr>
+                      <tr data-merchant-row data-scope-level="sn" data-agent="North Region Agent" data-merchant-name="Coffee Corner" data-merchant-id="MRC-COF-004" data-currency="USD" data-terminal-scene="Coffee Kiosk" data-terminal-sn="WP6203CQ36000102">
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow terminal WP6203CQ36000102" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip sn">SN</span></td>
+                        <td>North Region Agent</td>
+                        <td>Coffee Corner</td>
+                        <td><span class="scene-badge">Coffee Kiosk</span></td>
+                        <td class="mono">WP6203CQ36000102</td>
+                        <td class="mono">MRC-COF-004</td>
+                        <td>USD</td>
+                        <td><span class="merchant-status" data-merchant-availability>Available</span></td>
+                      </tr>
+                      <tr data-merchant-row data-scope-level="sn" data-agent="Campus Agent" data-merchant-name="Campus Store" data-merchant-id="MRC-CMP-005" data-currency="USD" data-terminal-scene="Arcade Machine" data-terminal-sn="WP6203CQ36000087">
+                        <td><input class="table-check" type="checkbox" checked aria-label="Allow terminal WP6203CQ36000087" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip sn">SN</span></td>
+                        <td>Campus Agent</td>
+                        <td>Campus Store</td>
+                        <td><span class="scene-badge">Arcade Machine</span></td>
+                        <td class="mono">WP6203CQ36000087</td>
+                        <td class="mono">MRC-CMP-005</td>
+                        <td>USD</td>
+                        <td><span class="merchant-status" data-merchant-availability>Available</span></td>
+                      </tr>
+                      <tr data-merchant-row data-scope-level="sn" data-agent="Campus Agent" data-merchant-name="Campus Cafe" data-merchant-id="MRC-CAD-006" data-currency="CAD" data-terminal-scene="Coffee Kiosk" data-terminal-sn="WP6203CQ36000085">
+                        <td><input class="table-check" type="checkbox" disabled aria-label="Terminal WP6203CQ36000085 is unavailable because currency is CAD" data-merchant-checkbox></td>
+                        <td><span class="scope-type-chip sn">SN</span></td>
+                        <td>Campus Agent</td>
+                        <td>Campus Cafe</td>
+                        <td><span class="scene-badge">Coffee Kiosk</span></td>
+                        <td class="mono">WP6203CQ36000085</td>
                         <td class="mono">MRC-CAD-006</td>
                         <td>CAD</td>
                         <td><span class="merchant-status muted" data-merchant-availability>Currency mismatch</span></td>
