@@ -49,7 +49,7 @@
             </div>
             <div class="page-actions">
               <a class="btn" href="14.prepaid_card_list.html">Back to List</a>
-              <button class="btn primary" type="button" data-toast="Card details saved." data-requires-valid-dates data-card-detail-save hidden>Save</button>
+              <button class="btn primary" type="button" data-requires-valid-dates data-card-detail-save hidden>Save</button>
             </div>
           </div>
 
@@ -125,7 +125,7 @@
                 </div>
               </section>
 
-              <section class="section" data-merchant-scope data-merchant-page-size="3">
+              <section class="section" data-merchant-scope data-merchant-page-size="10">
                 <div class="section-head">
                   <div class="title-line">
                     <div>
@@ -279,6 +279,13 @@
                       <option value="unselected">Unselected only</option>
                     </select>
                   </label>
+                </div>
+                <div class="merchant-selection-bar" data-merchant-selection-bar hidden>
+                  <span data-merchant-selection-summary>0 selected across all pages</span>
+                  <div class="merchant-selection-actions">
+                    <button class="btn small" type="button" data-view-selected-scope>View selected only</button>
+                    <button class="btn small" type="button" data-clear-selected-scope>Clear selected</button>
+                  </div>
                 </div>
                 <div class="table-wrap merchant-limit-wrap" data-merchant-table hidden>
                   <table class="merchant-limit-table">
@@ -479,6 +486,21 @@
         </div>
       </section>
     </main>
+  </div>
+  <div class="modal-backdrop" id="scopeConfirm" aria-hidden="true">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="scopeConfirmTitle">
+      <div class="modal-head"><h2 class="modal-title" id="scopeConfirmTitle">Confirm Usage Scope</h2><button class="modal-close" type="button" data-close-modal>x</button></div>
+      <div class="modal-body">
+        <div class="kv scope-confirm-summary" data-scope-confirm-summary></div>
+        <div class="table-wrap scope-confirm-table-wrap" data-scope-confirm-table hidden>
+          <table class="scope-confirm-table">
+            <thead><tr><th>Scope</th><th>Merchant</th><th>Scene</th><th>Terminal / SN</th><th>Merchant ID</th><th>Currency</th></tr></thead>
+            <tbody data-scope-confirm-rows></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn" type="button" data-close-modal>Back</button><button class="btn purple" type="button" data-close-modal data-card-detail-confirm-save data-toast="Card details saved.">Confirm Save</button></div>
+    </section>
   </div>
   <div class="toast" data-toast-root>Saved</div>
   <script src="scripts/prepaid-cards.js"></script>
