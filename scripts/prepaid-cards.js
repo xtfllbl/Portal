@@ -661,6 +661,11 @@
     const merchantSelectionMode = scopeMode === "merchant" && merchantSelectionModeInput ? merchantSelectionModeInput.value : "";
     const merchantToolbar = scope.querySelector("[data-merchant-toolbar]");
     const merchantTable = scope.querySelector("[data-merchant-table]");
+    const merchantPagination = scope.querySelector("[data-merchant-pagination]");
+    const pageSummary = scope.querySelector("[data-merchant-page-summary]");
+    const pageIndicator = scope.querySelector("[data-merchant-page-indicator]");
+    const prevPage = scope.querySelector("[data-merchant-page-prev]");
+    const nextPage = scope.querySelector("[data-merchant-page-next]");
     const search = scope.querySelector("[data-merchant-search]");
     const agentFilter = scope.querySelector("[data-merchant-agent-filter]");
     const merchantNameFilter = scope.querySelector("[data-merchant-name-filter]");
@@ -680,6 +685,7 @@
     const agentValue = agentFilter && agentFilter.value && scopeMode !== "scene" ? agentFilter.value : "";
     const merchantNameValue = merchantNameFilter && merchantNameFilter.value && scopeMode !== "scene" ? merchantNameFilter.value : "";
     const sceneValue = sceneFilter && sceneFilter.value && scopeMode !== "merchant" ? sceneFilter.value : "";
+    const pageSize = Math.max(1, Number(scope.getAttribute("data-merchant-page-size")) || 25);
     const scopeGuidanceText = {
       merchant: {
         future: "All current and future same-currency merchants under this service provider will be included automatically.",
@@ -694,11 +700,13 @@
     });
     let available = 0;
     let visible = 0;
+    let currentPage = Math.max(1, Number(scope.getAttribute("data-merchant-page")) || 1);
 
     if (scenePicker) scenePicker.hidden = scopeMode !== "scene";
     if (merchantSelectionOptions) merchantSelectionOptions.hidden = scopeMode !== "merchant";
     if (merchantToolbar) merchantToolbar.hidden = scopeMode === "scene" || (scopeMode === "merchant" && merchantSelectionMode !== "custom");
     if (merchantTable) merchantTable.hidden = scopeMode === "scene" || (scopeMode === "merchant" && merchantSelectionMode !== "custom");
+    if (merchantPagination) merchantPagination.hidden = scopeMode === "scene" || (scopeMode === "merchant" && merchantSelectionMode !== "custom");
     if (agentFilter) agentFilter.disabled = scopeMode === "scene";
     if (merchantNameFilter) merchantNameFilter.disabled = scopeMode === "scene";
     if (sceneFilter) sceneFilter.disabled = scopeMode === "merchant";
@@ -741,6 +749,7 @@
         selectAll.disabled = true;
       }
       rows.forEach(function (row) { row.hidden = true; });
+      if (merchantPagination) merchantPagination.hidden = true;
       return;
     }
 
@@ -776,9 +785,11 @@
         selectAll.indeterminate = false;
         selectAll.disabled = true;
       }
+      if (merchantPagination) merchantPagination.hidden = true;
       return;
     }
 
+    const filteredRows = [];
     rows.forEach(function (row) {
       const checkbox = row.querySelector("[data-merchant-checkbox]");
       const availability = row.querySelector("[data-merchant-availability]");
@@ -813,9 +824,20 @@
         (selectedMode === "selected" && currentSelected) ||
         (selectedMode === "unselected" && isAvailable && !currentSelected);
       const showRow = matchesScope && matchesSearch && matchesAgent && matchesMerchantName && matchesScene && matchesAvailability && matchesSelection;
-      row.hidden = !showRow;
-      if (showRow) visible += 1;
+      row.hidden = true;
+      if (showRow) filteredRows.push(row);
     });
+
+    const totalFiltered = filteredRows.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    scope.setAttribute("data-merchant-page", String(currentPage));
+    const pageStartIndex = totalFiltered === 0 ? 0 : (currentPage - 1) * pageSize;
+    const pageRows = filteredRows.slice(pageStartIndex, pageStartIndex + pageSize);
+    pageRows.forEach(function (row) {
+      row.hidden = false;
+    });
+    visible = pageRows.length;
 
     const enabledCheckboxes = activeRows.map(function (row) {
       return row.querySelector("[data-merchant-checkbox]");
@@ -836,6 +858,15 @@
     if (availableCount) availableCount.textContent = String(available);
     if (unavailableCount) unavailableCount.textContent = String(activeRows.length - available);
     if (visibleCount) visibleCount.textContent = String(visible);
+    if (pageSummary) {
+      const pageEnd = totalFiltered === 0 ? 0 : pageStartIndex + pageRows.length;
+      pageSummary.textContent = totalFiltered === 0
+        ? "No matching records · " + selected + " selected across all pages"
+        : "Showing " + (pageStartIndex + 1) + "-" + pageEnd + " of " + totalFiltered + " filtered · " + selected + " selected across all pages";
+    }
+    if (pageIndicator) pageIndicator.textContent = "Page " + currentPage + " of " + totalPages;
+    if (prevPage) prevPage.disabled = currentPage <= 1;
+    if (nextPage) nextPage.disabled = currentPage >= totalPages;
     if (selectAll) {
       selectAll.checked = visibleEnabledCheckboxes.length > 0 && visibleSelected === visibleEnabledCheckboxes.length;
       selectAll.indeterminate = visibleSelected > 0 && visibleSelected < visibleEnabledCheckboxes.length;
@@ -853,9 +884,31 @@
     const selectAll = scope.querySelector("[data-merchant-select-all]");
     const controls = scope.querySelectorAll("[data-merchant-search], [data-merchant-agent-filter], [data-merchant-name-filter], [data-merchant-scene-filter], [data-merchant-availability-filter], [data-merchant-selection-filter], [data-merchant-scope-mode], [data-merchant-selection-mode], [data-scene-checkbox]");
     controls.forEach(function (control) {
-      control.addEventListener("input", function () { syncMerchantScope(scope, false); });
-      control.addEventListener("change", function () { syncMerchantScope(scope, false); });
+      control.addEventListener("input", function () {
+        scope.setAttribute("data-merchant-page", "1");
+        syncMerchantScope(scope, false);
+      });
+      control.addEventListener("change", function () {
+        scope.setAttribute("data-merchant-page", "1");
+        syncMerchantScope(scope, false);
+      });
     });
+    const prevPage = scope.querySelector("[data-merchant-page-prev]");
+    const nextPage = scope.querySelector("[data-merchant-page-next]");
+    if (prevPage) {
+      prevPage.addEventListener("click", function () {
+        const currentPage = Math.max(1, Number(scope.getAttribute("data-merchant-page")) || 1);
+        scope.setAttribute("data-merchant-page", String(Math.max(1, currentPage - 1)));
+        syncMerchantScope(scope, false);
+      });
+    }
+    if (nextPage) {
+      nextPage.addEventListener("click", function () {
+        const currentPage = Math.max(1, Number(scope.getAttribute("data-merchant-page")) || 1);
+        scope.setAttribute("data-merchant-page", String(currentPage + 1));
+        syncMerchantScope(scope, false);
+      });
+    }
     if (selectAll) {
       selectAll.addEventListener("change", function () {
         scope.querySelectorAll("[data-merchant-row]").forEach(function (row) {
@@ -872,34 +925,6 @@
         syncCardDetailSaveButton();
       });
     });
-    const selectAvailable = scope.querySelector("[data-merchant-select-available]");
-    if (selectAvailable) {
-      selectAvailable.addEventListener("click", function () {
-        const scopeModeInput = scope.querySelector("[data-merchant-scope-mode]:checked");
-        const scopeMode = scopeModeInput ? scopeModeInput.value : "";
-        scope.querySelectorAll("[data-merchant-row]").forEach(function (row) {
-          const checkbox = row.querySelector("[data-merchant-checkbox]");
-          const matchesScope = !scopeMode || row.getAttribute("data-scope-level") === scopeMode;
-          if (matchesScope && checkbox && !checkbox.disabled) checkbox.checked = true;
-        });
-        syncMerchantScope(scope, false);
-        syncCardDetailSaveButton();
-      });
-    }
-    const clearSelection = scope.querySelector("[data-merchant-clear-selection]");
-    if (clearSelection) {
-      clearSelection.addEventListener("click", function () {
-        const scopeModeInput = scope.querySelector("[data-merchant-scope-mode]:checked");
-        const scopeMode = scopeModeInput ? scopeModeInput.value : "";
-        scope.querySelectorAll("[data-merchant-row]").forEach(function (row) {
-          const checkbox = row.querySelector("[data-merchant-checkbox]");
-          const matchesScope = !scopeMode || row.getAttribute("data-scope-level") === scopeMode;
-          if (matchesScope && checkbox && !checkbox.disabled) checkbox.checked = false;
-        });
-        syncMerchantScope(scope, false);
-        syncCardDetailSaveButton();
-      });
-    }
     syncMerchantScope(scope, false);
   });
 
