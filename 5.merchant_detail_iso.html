@@ -843,8 +843,8 @@
 
         .store-grid-head,
         .store-grid-row {
-            grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.35fr) minmax(140px, 0.85fr) 120px 110px 110px minmax(120px, max-content);
-            min-width: 1080px;
+            grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.35fr) minmax(140px, 0.85fr) 120px 110px 120px 110px minmax(120px, max-content);
+            min-width: 1200px;
             column-gap: 10px;
         }
 
@@ -1798,6 +1798,21 @@
             font-size: 12px;
         }
 
+        .checkline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .checkline input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
         .validate-device-summary {
             display: flex;
             align-items: center;
@@ -2176,6 +2191,7 @@
                                 <div class="info-value">Tasty Treats (NYC)</div>
                                 <div class="info-sub">Owner: Valor Training ISO</div>
                                 <div class="info-sub">Country: United States</div>
+                                <div class="info-sub">Prepaid Card: Enabled</div>
                             </div>
                             <div class="info-block">
                                 <div class="info-title">Primary Contact</div>
@@ -2220,10 +2236,11 @@
                                 <div>Created At</div>
                                 <div>MID</div>
                                 <div>Devices</div>
+                                <div>Prepaid Card</div>
                                 <div>Status</div>
                                 <div>Actions</div>
                             </div>
-                            <div class="grid-row store-grid-row" data-store-id="st_123" data-store-name="Downtown Location" role="button" tabindex="0" aria-pressed="false">
+                            <div class="grid-row store-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-stored-value="enabled" role="button" tabindex="0" aria-pressed="false">
                                 <div>
                                     Downtown Location
                                     <div class="cell-sub">ID: st_123</div>
@@ -2232,6 +2249,7 @@
                                 <div>2026-04-02 09:18</div>
                                 <div>888299100293</div>
                                 <div data-role="device-count">2 Active</div>
+                                <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
                                 <div><span class="status-badge active" data-role="store-status">Active</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
@@ -2246,7 +2264,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="grid-row store-grid-row" data-store-id="st_204" data-store-name="Midtown Location" role="button" tabindex="0" aria-pressed="false">
+                            <div class="grid-row store-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-stored-value="disabled" role="button" tabindex="0" aria-pressed="false">
                                 <div>
                                     Midtown Location
                                     <div class="cell-sub">ID: st_204</div>
@@ -2255,6 +2273,7 @@
                                 <div>2026-04-12 14:36</div>
                                 <div>888299100294</div>
                                 <div data-role="device-count">1 Pending</div>
+                                <div><span class="status-badge offline" data-role="store-stored-value">Disabled</span></div>
                                 <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
@@ -2466,6 +2485,13 @@
                     <div>
                         <h4 class="modal-section-title">Store Info</h4>
                         <p class="modal-section-note">Reference the onboarding step for store setup.</p>
+                    </div>
+                    <div class="field">
+                        <label class="checkline" for="store-stored-value-modal">
+                            <input id="store-stored-value-modal" type="checkbox" checked>
+                            Enable Prepaid Card at this store
+                        </label>
+                        <span class="field-hint">Merchant-level Prepaid Card is enabled. Use this setting only for locations that should accept prepaid card transactions.</span>
                     </div>
                     <div class="form-grid three">
                         <div class="field">
@@ -4316,6 +4342,7 @@
                 const storeZipInput = document.getElementById('store-zip-modal');
                 const storeCityInput = document.getElementById('store-city-modal');
                 const storeStateInput = document.getElementById('store-state-modal');
+                const storeStoredValueInput = document.getElementById('store-stored-value-modal');
 
                 const storeName = storeNameInput?.value.trim();
                 if (!storeName) return;
@@ -4327,6 +4354,7 @@
                 const city = storeCityInput?.value.trim();
                 const state = storeStateInput?.value.trim();
                 const zip = storeZipInput?.value.trim();
+                const storedValueEnabled = Boolean(storeStoredValueInput?.checked);
 
                 const cityState = [city, state].filter(Boolean).join(', ');
                 const addressParts = [addressLine1, addressLine2, cityState, zip].filter(Boolean);
@@ -4336,6 +4364,7 @@
                 row.className = 'grid-row store-grid-row';
                 row.dataset.storeId = storeId;
                 row.dataset.storeName = storeName;
+                row.dataset.storedValue = storedValueEnabled ? 'enabled' : 'disabled';
                 row.setAttribute('role', 'button');
                 row.setAttribute('tabindex', '0');
                 row.setAttribute('aria-pressed', 'false');
@@ -4356,6 +4385,14 @@
                 deviceCell.setAttribute('data-role', 'device-count');
                 deviceCell.textContent = '0 Devices';
                 row.appendChild(deviceCell);
+
+                const storedValueCell = document.createElement('div');
+                const storedValueBadge = document.createElement('span');
+                storedValueBadge.className = `status-badge ${storedValueEnabled ? 'active' : 'offline'}`;
+                storedValueBadge.setAttribute('data-role', 'store-stored-value');
+                storedValueBadge.textContent = storedValueEnabled ? 'Enabled' : 'Disabled';
+                storedValueCell.appendChild(storedValueBadge);
+                row.appendChild(storedValueCell);
 
                 const statusCell = document.createElement('div');
                 const statusBadge = document.createElement('span');
