@@ -4141,10 +4141,11 @@
                     const action = settingsItem.dataset.action;
                     const storeName = row.dataset.storeName || 'Store';
                     if (action === 'payment') {
-                        if (storePaymentSubtitle) {
-                            storePaymentSubtitle.textContent = `Store: ${storeName}`;
-                        }
-                        openModal(storePaymentModal);
+                        const params = new URLSearchParams({
+                            storeId: row.dataset.storeId || '',
+                            storeName: storeName
+                        });
+                        window.location.href = `23.payment_channel_setting.html?${params.toString()}`;
                     }
                     if (action === 'resend') {
                         alert(`Resent email for ${storeName} (mock).`);

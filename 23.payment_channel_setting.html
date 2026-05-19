@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Channel Setting</title>
+  <style>
+    :root {
+      --page-bg: #f7f8fa;
+      --panel: #ffffff;
+      --line: #dfe3ea;
+      --text: #33343b;
+      --muted: #707581;
+      --dark: #2d2d30;
+      --black: #070707;
+      --green: #22c55e;
+      --blue: #1ca8ff;
+      --red: #ff4242;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-width: 1280px;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      grid-template-rows: 76px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .brand-area {
+      height: 76px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 15px;
+    }
+
+    .logo {
+      text-align: center;
+      color: #242427;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .logo-main {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      line-height: 0.92;
+    }
+
+    .logo-main .wiz {
+      font-weight: 700;
+      letter-spacing: -0.05em;
+    }
+
+    .logo-sub {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: #0f1013;
+    }
+
+    .sidebar {
+      grid-column: 1;
+      grid-row: 2;
+      min-height: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 8px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu-item,
+    .sub-item {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .menu-item {
+      min-height: 43px;
+      padding: 0 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #2f3036;
+    }
+
+    .menu-main {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .menu-icon {
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 14px;
+      color: currentColor;
+    }
+
+    .menu-icon svg,
+    .header-icon svg,
+    .btn svg,
+    .section-filter svg,
+    .empty-state svg,
+    .mini-action svg {
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .menu-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.1;
+    }
+
+    .menu-label {
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .chevron {
+      color: currentColor;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .menu-item.active {
+      background: var(--dark);
+      color: #ffffff;
+    }
+
+    .sub-menu {
+      padding: 2px 0 12px 29px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sub-item {
+      position: relative;
+      min-height: 37px;
+      padding: 0 12px 0 23px;
+      display: flex;
+      align-items: center;
+      border-radius: 22px;
+      color: #24262b;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.12;
+    }
+
+    .sub-item::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border: 2px solid #3b3d42;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+
+    .sub-item.active {
+      background: var(--dark);
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .sub-item.active::before {
+      border-color: #ffffff;
+      background: #ffffff;
+    }
+
+    .top-header {
+      grid-column: 2;
+      grid-row: 1;
+      height: 76px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px 0 29px;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #767b86;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .breadcrumbs svg {
+      width: 15px;
+      height: 15px;
+      stroke: #8f949d;
+      stroke-width: 2;
+    }
+
+    .breadcrumbs strong {
+      color: #32343b;
+      font-weight: 800;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-icon {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #51545d;
+      background: #f0f1f3;
+      padding: 0;
+    }
+
+    .header-icon.user {
+      background: #070707;
+      color: #ffffff;
+    }
+
+    .header-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.6;
+    }
+
+    .badge {
+      position: absolute;
+      top: -7px;
+      right: -2px;
+      min-width: 23px;
+      height: 23px;
+      padding: 0 6px;
+      border-radius: 99px;
+      background: #ef4444;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .content-panel {
+      grid-column: 2;
+      grid-row: 2;
+      min-height: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 19px 18px;
+      overflow: auto;
+    }
+
+    .page-title {
+      margin: 0 0 14px;
+      color: #44454e;
+      font-size: 25px;
+      font-weight: 650;
+      line-height: 1.25;
+    }
+
+    .store-summary {
+      min-height: 84px;
+      margin-bottom: 24px;
+      border: 1px solid #dfe3ea;
+      border-radius: 8px;
+      padding: 20px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .store-name {
+      color: #616672;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .summary-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      height: 35px;
+      border-radius: 7px;
+      padding: 0 12px;
+      border: 1px solid #d8dce4;
+      background: #fff;
+      color: #343840;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      text-decoration: none;
+      font-weight: 650;
+    }
+
+    .btn.dark {
+      background: #070707;
+      border-color: #070707;
+      color: #fff;
+    }
+
+    .btn svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+    }
+
+    .channel-card {
+      margin-bottom: 24px;
+      border: 1px solid #dfe3ea;
+      border-radius: 8px;
+      padding: 22px;
+      background: #fff;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #edf0f4;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: #44454e;
+      font-size: 23px;
+      font-weight: 650;
+      line-height: 1.2;
+    }
+
+    .section-note {
+      margin-top: 5px;
+      color: #636875;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .section-filter {
+      height: 35px;
+      padding: 0 13px;
+      border: 1px solid #d8dce4;
+      border-radius: 8px;
+      background: #fff;
+      color: #686d78;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 650;
+    }
+
+    .section-filter svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 1.8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    thead th {
+      height: 31px;
+      padding: 0 8px;
+      background: #1d1d20;
+      color: #ffffff;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    thead th:first-child { border-top-left-radius: 3px; }
+    thead th:last-child { border-top-right-radius: 3px; text-align: center; }
+
+    tbody td {
+      height: 47px;
+      padding: 0 8px;
+      border-bottom: 1px solid #dfe2e7;
+      color: #3e4149;
+      vertical-align: middle;
+    }
+
+    .channel-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .channel-badge {
+      height: 32px;
+      padding: 0 13px;
+      border-radius: 99px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      border: 1px solid #91efb8;
+      background: #f0fff6;
+      font-weight: 700;
+    }
+
+    .actions-cell {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .mini-action {
+      width: 33px;
+      height: 33px;
+      border-radius: 7px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .mini-action.edit {
+      border: 1px solid #8bd6ff;
+      color: var(--blue);
+    }
+
+    .mini-action.delete {
+      border: 1px solid #ffb0b0;
+      color: var(--red);
+    }
+
+    .mini-action svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 1.8;
+    }
+
+    .empty-table {
+      position: relative;
+      min-height: 80px;
+      border-bottom: 1px solid #dfe2e7;
+    }
+
+    .empty-state {
+      min-height: 80px;
+      color: #b8bac0;
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: 7px;
+      font-size: 14px;
+    }
+
+    .empty-state svg {
+      width: 34px;
+      height: 34px;
+      stroke-width: 1.6;
+    }
+
+    .pagination-wrap {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      color: #9aa0aa;
+      font-size: 18px;
+    }
+
+    .page-dot {
+      width: 41px;
+      height: 41px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #08090c;
+      color: #fff;
+    }
+
+    .page-size {
+      width: 84px;
+      height: 43px;
+      border: 1px solid #d3d7df;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 13px;
+      color: #6b707b;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      font-size: 16px;
+    }
+
+    @media (max-width: 1400px) {
+      body { min-width: 0; }
+      .page-shell { grid-template-columns: 248px minmax(900px, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="brand-area" aria-label="Paywizard Maintain">
+      <div class="logo">
+        <div class="logo-main">PAY<span class="wiz">wizard</span></div>
+        <div class="logo-sub">MAINTAIN</div>
+      </div>
+    </div>
+
+    <aside class="sidebar" aria-label="Main navigation">
+      <nav class="menu">
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16v10H4z"></path><path d="M7 7V5h10v2"></path><path d="M8 12h8"></path></svg></span>
+            <span class="menu-label">Payment</span>
+          </span>
+          <span class="chevron">⌃</span>
+        </a>
+        <div class="sub-menu">
+          <a class="sub-item" href="#">Transactions</a>
+          <a class="sub-item" href="#">Settlement Info</a>
+          <a class="sub-item" href="#">Billing Overview</a>
+          <a class="sub-item" href="#">Payment Channel</a>
+          <a class="sub-item" href="#">Service Fee Log</a>
+          <a class="sub-item" href="#">Service Fee Report</a>
+          <a class="sub-item" href="#">Cached Transaction</a>
+        </div>
+        <a class="menu-item active" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path><circle cx="8" cy="7" r="2"></circle><circle cx="15" cy="12" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg></span>
+            <span class="menu-label">Operations</span>
+          </span>
+          <span class="chevron">⌃</span>
+        </a>
+        <div class="sub-menu">
+          <a class="sub-item" href="#">Leads</a>
+          <a class="sub-item active" href="21.service_provider.html">Service Provider</a>
+          <a class="sub-item" href="#">Developer Manage</a>
+          <a class="sub-item" href="#">Onboarding</a>
+          <a class="sub-item" href="#">Device Manage</a>
+          <a class="sub-item" href="#">Merchant List</a>
+          <a class="sub-item" href="#">Processor Template</a>
+        </div>
+        <a class="menu-item" href="#">
+          <span class="menu-main">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V22h-4v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H2v-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3 1.7 1.7 0 0 0 1-1.5V2h4v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1H22v4h-.2a1.7 1.7 0 0 0-1.5 1z"></path></svg></span>
+            <span class="menu-label">System</span>
+          </span>
+          <span class="chevron">⌄</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="top-header">
+      <div class="breadcrumbs">
+        <span>Operations</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+        <span>Service Provider</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+        <strong>Payment Channel Setting</strong>
+      </div>
+      <div class="header-actions">
+        <button class="header-icon" type="button" aria-label="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <span class="badge">3</span>
+        </button>
+        <button class="header-icon user" type="button" aria-label="User">
+          <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-panel">
+      <h1 class="page-title">Payment Channel Setting</h1>
+
+      <section class="store-summary" aria-label="Store context">
+        <div class="store-name">Store Name : <span id="storeNameText">CARTPOLAND-01</span></div>
+        <div class="summary-actions">
+          <a class="btn" href="5.merchant_detail_iso.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+            <span>Back</span>
+          </a>
+          <button class="btn dark" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="11" rx="1.8"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg>
+            <span>Add Terminal Channel</span>
+          </button>
+          <button class="btn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"></rect><rect x="14" y="4" width="6" height="6"></rect><rect x="4" y="14" width="6" height="6"></rect><rect x="14" y="14" width="6" height="6"></rect></svg>
+            <span>Add eCommerce Channel</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="channel-card" aria-label="Terminal channels">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Terminal Channels</h2>
+            <div class="section-note">Used to map terminal transactions to a merchant MID.</div>
+          </div>
+          <button class="section-filter" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v5l-4 2v-7z"></path></svg>
+            <span>Filter</span>
+          </button>
+        </div>
+
+        <table aria-label="Terminal channel list">
+          <colgroup>
+            <col style="width: 43%">
+            <col style="width: 21%">
+            <col style="width: 27%">
+            <col style="width: 9%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>TERMINAL CHANNEL</th>
+              <th>MID</th>
+              <th>DATE &amp; TIME</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span class="channel-name">
+                  <span class="channel-badge">Terminal</span>
+                  <span>Payment Emulator</span>
+                </span>
+              </td>
+              <td>TestDemoMID</td>
+              <td>2026-05-19 15:15:38</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="mini-action edit" type="button" aria-label="Edit terminal channel"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"></path></svg></button>
+                  <button class="mini-action delete" type="button" aria-label="Delete terminal channel"><svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pagination-wrap" aria-label="Terminal pagination">
+          <span>≪</span>
+          <span>‹</span>
+          <span class="page-dot">1</span>
+          <span>›</span>
+          <span>≫</span>
+          <span class="page-size">10 <span>⌄</span></span>
+        </div>
+      </section>
+
+      <section class="channel-card" aria-label="eCommerce channels">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">eCommerce Channels</h2>
+            <div class="section-note">eCommerce providers configured for this store.</div>
+          </div>
+          <button class="section-filter" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v5l-4 2v-7z"></path></svg>
+            <span>Filter</span>
+          </button>
+        </div>
+
+        <table aria-label="eCommerce channel list">
+          <colgroup>
+            <col style="width: 45%">
+            <col style="width: 15%">
+            <col style="width: 28%">
+            <col style="width: 12%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>TERMINAL CHANNEL</th>
+              <th>MID</th>
+              <th>DATE &amp; TIME</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty-table">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h3"></path><circle cx="18" cy="6" r="3"></circle><path d="M16.8 4.8l2.4 2.4"></path><path d="M19.2 4.8l-2.4 2.4"></path></svg>
+            <span>No Data Found</span>
+          </div>
+        </div>
+
+        <div class="pagination-wrap" aria-label="eCommerce pagination">
+          <span>≪</span>
+          <span>‹</span>
+          <span>›</span>
+          <span>≫</span>
+          <span class="page-size">10 <span>⌄</span></span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var storeName = params.get("storeName");
+      if (storeName) {
+        document.getElementById("storeNameText").textContent = storeName;
+      }
+    })();
+  </script>
+</body>
+</html>
