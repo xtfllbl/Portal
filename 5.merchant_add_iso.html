@@ -1787,17 +1787,6 @@
                                     </div>
                                 </div>
 
-                                <div class="form-grid two">
-                                    <div class="field">
-                                        <label for="merchant-stored-value">Prepaid Card</label>
-                                        <select class="input-field" id="merchant-stored-value">
-                                            <option value="disabled" selected>Disabled</option>
-                                            <option value="enabled">Enabled</option>
-                                        </select>
-                                        <span class="field-hint">Merchant-level capability. Enable it here before any store can accept prepaid card transactions.</span>
-                                    </div>
-                                </div>
-
                                 <div class="wizard-actions">
                                     <span class="helper-text">Fields marked * are required.</span>
                                     <button class="btn primary" type="button" data-goto="2">Next</button>
@@ -1817,10 +1806,9 @@
 
                                 <div class="field store-sync">
                                     <label class="checkline" for="store-stored-value">
-                                        <input id="store-stored-value" type="checkbox" disabled>
+                                        <input id="store-stored-value" type="checkbox">
                                         Enable Prepaid Card at this store
                                     </label>
-                                    <span class="field-hint" id="store-stored-value-hint">Enable Prepaid Card at the merchant level first.</span>
                                 </div>
 
                                 <div class="form-grid three">
@@ -2699,10 +2687,6 @@
                                                 <span class="review-label">Email</span>
                                                 <span class="review-value" id="review-merchant-email">Not provided</span>
                                             </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Prepaid Card</span>
-                                                <span class="review-value" id="review-merchant-stored-value">Not provided</span>
-                                            </div>
                                         </div>
                                     </div>
 
@@ -2942,7 +2926,6 @@
             setReviewValue('review-merchant-dba', getFieldValue('merchant-dba'));
             setReviewValue('review-merchant-owner', getFieldValue('merchant-owner'));
             setReviewValue('review-merchant-email', getFieldValue('merchant-email'));
-            setReviewValue('review-merchant-stored-value', getEnabledText('merchant-stored-value'));
 
             setReviewValue('review-store-name', getFieldValue('store-name'));
             setReviewValue('review-store-mcc', getFieldValue('store-mcc'));
@@ -3031,32 +3014,7 @@
             });
         }
 
-        const merchantStoredValue = document.getElementById('merchant-stored-value');
         const storeStoredValue = document.getElementById('store-stored-value');
-        const storeStoredValueHint = document.getElementById('store-stored-value-hint');
-
-        function syncStoredValueStoreState() {
-            const merchantEnabled = merchantStoredValue?.value === 'enabled';
-            if (storeStoredValue) {
-                storeStoredValue.disabled = !merchantEnabled;
-                if (!merchantEnabled) {
-                    storeStoredValue.checked = false;
-                }
-            }
-            if (storeStoredValueHint) {
-                storeStoredValueHint.textContent = merchantEnabled
-                    ? 'Store-level setting. Turn on only for locations that should accept prepaid card transactions.'
-                    : 'Enable Prepaid Card at the merchant level first.';
-            }
-            if (currentStep >= reviewStep) {
-                updateReview();
-            }
-        }
-
-        if (merchantStoredValue) {
-            merchantStoredValue.addEventListener('change', syncStoredValueStoreState);
-            merchantStoredValue.addEventListener('input', syncStoredValueStoreState);
-        }
 
         if (storeStoredValue) {
             storeStoredValue.addEventListener('change', () => {
@@ -3078,7 +3036,6 @@
         const reviewFieldIds = [
             'merchant-dba',
             'merchant-email',
-            'merchant-stored-value',
             'store-name',
             'store-email',
             'store-stored-value',
@@ -3104,8 +3061,6 @@
                 }
             });
         });
-
-        syncStoredValueStoreState();
 
         // Keep review in sync when version changes
         const processorVersionSelect = document.getElementById('processor-version');
