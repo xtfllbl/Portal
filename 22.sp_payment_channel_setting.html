@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ops Payment Channel Setting</title>
+  <title>SP Payment Channel Setting</title>
   <style>
     :root {
       --page-bg: #f7f8fa;
@@ -18,6 +18,10 @@
     }
 
     * { box-sizing: border-box; }
+
+    [hidden] {
+      display: none !important;
+    }
 
     html,
     body {
@@ -320,7 +324,7 @@
     .content-head {
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 34px;
+      margin-bottom: 18px;
     }
 
     .page-title {
@@ -362,10 +366,120 @@
       background: #fafffc;
     }
 
+    .btn.dark {
+      color: #fff;
+      border-color: #090a0d;
+      background: #090a0d;
+    }
+
+    .section-block {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      color: #3f4149;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .capability-panel {
+      width: min(640px, 100%);
+      border: 1px solid #dfe3ea;
+      border-radius: 8px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .capability-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .capability-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #f3f6fb;
+      color: #4b5563;
+      display: grid;
+      place-items: center;
+      flex: 0 0 36px;
+    }
+
+    .capability-icon svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .capability-name {
+      color: #30333b;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .capability-desc {
+      margin-top: 3px;
+      color: #737986;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .capability-meta {
+      margin-top: 6px;
+      color: #7a808b;
+      display: none;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .capability-panel.enabled .capability-meta {
+      display: block;
+    }
+
+    .capability-status {
+      min-width: 92px;
+      height: 27px;
+      padding: 0 12px;
+      border-radius: 99px;
+      background: #f1f3f6;
+      color: #626875;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .capability-panel.enabled .capability-status {
+      background: #d8f8e3;
+      color: #15803d;
+    }
+
+    .external-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin: 0 0 12px;
+    }
+
     .filters {
       justify-content: flex-end;
       gap: 15px;
-      margin-bottom: 16px;
+      margin-bottom: 0;
     }
 
     .filter-input {
@@ -411,7 +525,7 @@
 
     .table-area {
       position: relative;
-      min-height: calc(100vh - 310px);
+      min-height: calc(100vh - 430px);
       overflow: auto;
       padding-bottom: 10px;
     }
@@ -537,6 +651,15 @@
       overflow: hidden;
     }
 
+    .confirm-modal {
+      width: min(560px, calc(100vw - 48px));
+      background: #fff;
+      border: 1px solid #d0d2d6;
+      border-radius: 12px;
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+
     .modal-header {
       min-height: 78px;
       padding: 24px 28px 18px;
@@ -561,6 +684,24 @@
       line-height: 1.25;
       font-weight: 700;
       letter-spacing: 0;
+    }
+
+    .confirm-body {
+      padding: 22px 28px;
+      color: #4b505b;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .confirm-warning {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px solid #f5c2c2;
+      border-radius: 8px;
+      background: #fff7f7;
+      color: #b91c1c;
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     .modal-close {
@@ -841,7 +982,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
         <span>Service Provider</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
-        <strong>Ops Payment Channel Setting</strong>
+        <strong>SP Payment Channel Setting</strong>
       </div>
       <div class="header-actions">
         <button class="header-icon" type="button" aria-label="Notifications">
@@ -856,7 +997,7 @@
 
     <main class="content-panel">
       <div class="content-head">
-        <h1 class="page-title">Ops Payment Channel Setting</h1>
+        <h1 class="page-title">SP Payment Channel Setting</h1>
         <div class="content-actions">
           <a class="btn" href="21.service_provider.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8l-4 4 4 4"></path><path d="M16 12H8"></path></svg>
@@ -869,11 +1010,33 @@
         </div>
       </div>
 
-      <div class="filters" aria-label="Search filters">
-        <input class="filter-input" type="text" placeholder="Channel Name">
-        <button class="icon-btn" type="button" aria-label="Reset"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg></button>
-        <button class="icon-btn search" type="button" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></button>
-      </div>
+      <section class="section-block" aria-label="Platform capabilities">
+        <h2 class="section-title">Platform Capabilities</h2>
+        <div class="capability-panel" id="prepaidCapability">
+          <div class="capability-main">
+            <div class="capability-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h3"></path></svg>
+            </div>
+            <div>
+              <div class="capability-name">Prepaid Card</div>
+              <div class="capability-desc">System-level prepaid card support for this service provider.</div>
+              <div class="capability-meta" id="prepaidMeta">Enabled by Admin - 2026-05-19 15:30:00</div>
+            </div>
+          </div>
+          <span class="capability-status" id="prepaidStatus">Not Enabled</span>
+          <button class="btn dark" id="enablePrepaid" type="button">Enable</button>
+        </div>
+      </section>
+
+      <section class="section-block" aria-label="Payment channels">
+        <div class="external-head">
+          <h2 class="section-title">Payment Channels</h2>
+          <div class="filters" aria-label="Search filters">
+            <input class="filter-input" type="text" placeholder="Channel Name">
+            <button class="icon-btn" type="button" aria-label="Reset"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg></button>
+            <button class="icon-btn search" type="button" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></button>
+          </div>
+        </div>
 
       <div class="table-area">
         <table aria-label="Ops payment channel list">
@@ -916,13 +1079,33 @@
           <span>/ 0 (0)</span>
         </div>
       </div>
+      </section>
     </main>
+  </div>
+
+  <div class="modal-overlay" id="prepaidOverlay" aria-hidden="true">
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="prepaidModalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="prepaidModalTitle">Enable Prepaid Card</h2>
+        <button class="modal-close" id="closePrepaid" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="confirm-body">
+        <div>This enables system-level prepaid card support for this service provider.</div>
+        <div class="confirm-warning">Once enabled, prepaid card support cannot be removed directly. Disabling it should require admin approval or support handling.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelPrepaid" type="button">Cancel</button>
+        <button class="modal-btn save" id="confirmPrepaid" type="button">Enable</button>
+      </div>
+    </section>
   </div>
 
   <div class="modal-overlay" id="channelOverlay" aria-hidden="true">
     <section class="channel-modal" role="dialog" aria-modal="true" aria-labelledby="channelModalTitle">
       <div class="modal-header">
-        <h2 class="modal-title" id="channelModalTitle">Add Ops Payment Channel Setting</h2>
+        <h2 class="modal-title" id="channelModalTitle">Add SP Payment Channel Setting</h2>
         <button class="modal-close" id="closeChannel" type="button" aria-label="Close">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>
         </button>
@@ -982,6 +1165,13 @@
       var selectedChannel = document.getElementById("selectedChannel");
       var channelDropdown = document.getElementById("channelDropdown");
       var channelOptions = Array.prototype.slice.call(document.querySelectorAll(".channel-option"));
+      var prepaidOverlay = document.getElementById("prepaidOverlay");
+      var prepaidCapability = document.getElementById("prepaidCapability");
+      var prepaidStatus = document.getElementById("prepaidStatus");
+      var enablePrepaidButton = document.getElementById("enablePrepaid");
+      var closePrepaidButton = document.getElementById("closePrepaid");
+      var cancelPrepaidButton = document.getElementById("cancelPrepaid");
+      var confirmPrepaidButton = document.getElementById("confirmPrepaid");
 
       function openModal() {
         form.classList.remove("was-submitted");
@@ -999,6 +1189,16 @@
         overlay.setAttribute("aria-hidden", "true");
       }
 
+      function openPrepaidConfirm() {
+        prepaidOverlay.classList.add("open");
+        prepaidOverlay.setAttribute("aria-hidden", "false");
+      }
+
+      function closePrepaidConfirm() {
+        prepaidOverlay.classList.remove("open");
+        prepaidOverlay.setAttribute("aria-hidden", "true");
+      }
+
       function openDropdown() {
         channelDropdown.classList.add("open");
         paymentSelect.setAttribute("aria-expanded", "true");
@@ -1012,6 +1212,20 @@
       openButton.addEventListener("click", openModal);
       closeButton.addEventListener("click", closeModal);
       cancelButton.addEventListener("click", closeModal);
+      enablePrepaidButton.addEventListener("click", function () {
+        if (!prepaidCapability.classList.contains("enabled")) {
+          openPrepaidConfirm();
+        }
+      });
+      closePrepaidButton.addEventListener("click", closePrepaidConfirm);
+      cancelPrepaidButton.addEventListener("click", closePrepaidConfirm);
+      confirmPrepaidButton.addEventListener("click", function () {
+        prepaidCapability.classList.add("enabled");
+        prepaidStatus.textContent = "Enabled";
+        enablePrepaidButton.hidden = true;
+        enablePrepaidButton.style.display = "none";
+        closePrepaidConfirm();
+      });
 
       paymentSelect.addEventListener("click", function (event) {
         event.stopPropagation();
@@ -1044,6 +1258,12 @@
         }
       });
 
+      prepaidOverlay.addEventListener("click", function (event) {
+        if (event.target === prepaidOverlay) {
+          closePrepaidConfirm();
+        }
+      });
+
       document.addEventListener("click", function (event) {
         if (!channelDropdown.contains(event.target) && event.target !== paymentSelect) {
           closeDropdown();
@@ -1053,6 +1273,9 @@
       document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
           closeDropdown();
+          if (prepaidOverlay.classList.contains("open")) {
+            closePrepaidConfirm();
+          }
           if (overlay.classList.contains("open")) {
             closeModal();
           }
