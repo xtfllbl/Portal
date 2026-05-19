@@ -1,5 +1,31 @@
 const { test, expect } = require("@playwright/test");
 
+test("card list stored value and low balance currency selectors stay linked", async ({ page }) => {
+  await page.goto("/14.prepaid_card_list.html");
+
+  await expect(page.locator("[data-stored-value-summary] + [data-low-balance-summary]")).toHaveCount(1);
+  await expect(page.locator("[data-stored-value-currency]")).toHaveValue("USD");
+  await expect(page.locator("[data-low-balance-currency]")).toHaveValue("USD");
+  await expect(page.locator("[data-stored-value-total]")).toHaveText("$92,480.75 USD");
+  await expect(page.locator("[data-stored-value-note]")).toHaveText("Stored value for 1,164 USD prepaid cards");
+  await expect(page.locator("[data-low-balance-total]")).toHaveText("84");
+  await expect(page.locator("[data-low-balance-note]")).toHaveText("USD cards below $10.00 USD");
+
+  await page.locator("[data-stored-value-currency]").selectOption("EUR");
+  await expect(page.locator("[data-low-balance-currency]")).toHaveValue("EUR");
+  await expect(page.locator("[data-stored-value-total]")).toHaveText("€18,360.40 EUR");
+  await expect(page.locator("[data-stored-value-note]")).toHaveText("Stored value for 54 EUR prepaid cards");
+  await expect(page.locator("[data-low-balance-total]")).toHaveText("11");
+  await expect(page.locator("[data-low-balance-note]")).toHaveText("EUR cards below €10.00 EUR");
+
+  await page.locator("[data-low-balance-currency]").selectOption("CAD");
+  await expect(page.locator("[data-stored-value-currency]")).toHaveValue("CAD");
+  await expect(page.locator("[data-stored-value-total]")).toHaveText("$7,840.10 CAD");
+  await expect(page.locator("[data-stored-value-note]")).toHaveText("Stored value for 30 CAD prepaid cards");
+  await expect(page.locator("[data-low-balance-total]")).toHaveText("7");
+  await expect(page.locator("[data-low-balance-note]")).toHaveText("CAD cards below $10.00 CAD");
+});
+
 test("card detail status summary updates after saving status changes", async ({ page }) => {
   await page.goto("/19.prepaid_card_detail.html");
 

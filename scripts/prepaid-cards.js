@@ -16,6 +16,49 @@
     return "$" + value.toFixed(2);
   }
 
+  const storedValueTotalsByCurrency = {
+    USD: { amount: 92480.75, cardCount: 1164, label: "USD prepaid cards" },
+    EUR: { amount: 18360.40, cardCount: 54, label: "EUR prepaid cards" },
+    CAD: { amount: 7840.10, cardCount: 30, label: "CAD prepaid cards" }
+  };
+
+  const lowBalanceTotalsByCurrency = {
+    USD: { count: 84, threshold: 10 },
+    EUR: { count: 11, threshold: 10 },
+    CAD: { count: 7, threshold: 10 }
+  };
+
+  function formatStoredValueAmount(value, currency) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency,
+      currencyDisplay: "narrowSymbol",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value) + " " + currency;
+  }
+
+  function syncBalanceSummaryCurrency(currency) {
+    const storedValueCurrency = document.querySelector("[data-stored-value-currency]");
+    const lowBalanceCurrency = document.querySelector("[data-low-balance-currency]");
+    const storedValueTotal = document.querySelector("[data-stored-value-total]");
+    const storedValueNote = document.querySelector("[data-stored-value-note]");
+    const lowBalanceTotal = document.querySelector("[data-low-balance-total]");
+    const lowBalanceNote = document.querySelector("[data-low-balance-note]");
+    if (!storedValueCurrency || !lowBalanceCurrency || !storedValueTotal || !storedValueNote || !lowBalanceTotal || !lowBalanceNote) return;
+
+    const selectedCurrency = currency || storedValueCurrency.value || lowBalanceCurrency.value || "USD";
+    const storedSummary = storedValueTotalsByCurrency[selectedCurrency] || storedValueTotalsByCurrency.USD;
+    const lowBalanceSummary = lowBalanceTotalsByCurrency[selectedCurrency] || lowBalanceTotalsByCurrency.USD;
+
+    storedValueCurrency.value = selectedCurrency;
+    lowBalanceCurrency.value = selectedCurrency;
+    storedValueTotal.textContent = formatStoredValueAmount(storedSummary.amount, selectedCurrency);
+    storedValueNote.textContent = "Stored value for " + storedSummary.cardCount.toLocaleString("en-US") + " " + storedSummary.label;
+    lowBalanceTotal.textContent = lowBalanceSummary.count.toLocaleString("en-US");
+    lowBalanceNote.textContent = selectedCurrency + " cards below " + formatStoredValueAmount(lowBalanceSummary.threshold, selectedCurrency);
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")
@@ -330,6 +373,18 @@
 
   const balanceChangeType = document.querySelector("#balanceChangeType");
   if (balanceChangeType) balanceChangeType.addEventListener("change", syncBalanceRemarkForType);
+
+  const storedValueCurrency = document.querySelector("[data-stored-value-currency]");
+  const lowBalanceCurrency = document.querySelector("[data-low-balance-currency]");
+  if (storedValueCurrency && lowBalanceCurrency) {
+    storedValueCurrency.addEventListener("change", function () {
+      syncBalanceSummaryCurrency(storedValueCurrency.value);
+    });
+    lowBalanceCurrency.addEventListener("change", function () {
+      syncBalanceSummaryCurrency(lowBalanceCurrency.value);
+    });
+    syncBalanceSummaryCurrency(storedValueCurrency.value);
+  }
 
   document.querySelectorAll("[data-autofill-new-card]").forEach(function (button) {
     button.addEventListener("click", function () {
