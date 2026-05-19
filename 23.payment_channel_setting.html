@@ -20,6 +20,10 @@
 
     * { box-sizing: border-box; }
 
+    [hidden] {
+      display: none !important;
+    }
+
     html,
     body {
       margin: 0;
@@ -364,10 +368,71 @@
       color: #fff;
     }
 
+    .btn.soft {
+      background: #f3f4f6;
+      border-color: #d8dce4;
+      color: #4b505b;
+    }
+
     .btn svg {
       width: 15px;
       height: 15px;
       stroke-width: 2;
+    }
+
+    .capability-name {
+      color: #30333b;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .capability-desc {
+      margin-top: 3px;
+      color: #737986;
+      font-size: 12px;
+      line-height: 1.4;
+      max-width: 560px;
+    }
+
+    .capability-meta {
+      color: #7a808b;
+      display: none;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .capability-card.enabled .capability-meta {
+      display: block;
+    }
+
+    .capability-status {
+      min-width: 82px;
+      height: 27px;
+      padding: 0 12px;
+      border-radius: 99px;
+      background: #ffe8e8;
+      color: #b91c1c;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    tr.enabled .capability-status {
+      background: #d8f8e3;
+      color: #15803d;
+    }
+
+    tr.enabled .capability-meta {
+      display: block;
+    }
+
+    .capability-action-cell {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
     }
 
     .channel-card {
@@ -558,6 +623,116 @@
       font-size: 16px;
     }
 
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.38);
+      padding: 24px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .confirm-modal {
+      width: min(560px, calc(100vw - 48px));
+      background: #fff;
+      border: 1px solid #d0d2d6;
+      border-radius: 12px;
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      min-height: 78px;
+      padding: 24px 28px 18px;
+      border-bottom: 1px solid #edf0f4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .modal-title {
+      margin: 0;
+      color: #3d3e46;
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 8px;
+      background: #f4f5f7;
+      color: #6c717c;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .modal-close svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .confirm-body {
+      padding: 22px 28px;
+      color: #4b505b;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .confirm-warning {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px solid #f5c2c2;
+      border-radius: 8px;
+      background: #fff7f7;
+      color: #b91c1c;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .modal-footer {
+      min-height: 72px;
+      padding: 14px 28px;
+      background: #fff;
+      border-top: 1px solid #edf0f4;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      height: 40px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 16px;
+      color: #4c4d56;
+      background: #f3f3f5;
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .modal-btn.save {
+      min-width: 78px;
+      color: #fff;
+      background: #06070a;
+    }
+
     @media (max-width: 1400px) {
       body { min-width: 0; }
       .page-shell { grid-template-columns: 248px minmax(900px, 1fr); }
@@ -655,6 +830,55 @@
             <span>Add eCommerce Channel</span>
           </button>
         </div>
+      </section>
+
+      <section class="channel-card" aria-label="Store capabilities">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Store Capabilities</h2>
+          </div>
+        </div>
+
+        <table aria-label="Store capability list">
+          <colgroup>
+            <col style="width: 38%">
+            <col style="width: 18%">
+            <col style="width: 24%">
+            <col style="width: 10%">
+            <col style="width: 10%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>CAPABILITY</th>
+              <th>MID</th>
+              <th>DATE &amp; TIME</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="prepaidCapability">
+              <td>
+                <div class="capability-name">Prepaid Card</div>
+              </td>
+              <td>
+                <span class="capability-meta" id="prepaidMid">888299100295</span>
+                <span class="capability-desc" id="prepaidEmptyMid">--</span>
+              </td>
+              <td>
+                <span class="capability-meta" id="prepaidEnabledTime">2026-05-19 15:30:00</span>
+                <span class="capability-desc" id="prepaidEmptyTime">--</span>
+              </td>
+              <td><span class="capability-status" id="prepaidStatus">Disabled</span></td>
+              <td>
+                <div class="capability-action-cell">
+                  <button class="btn dark" id="enablePrepaid" type="button">Enable</button>
+                  <button class="btn soft" id="prepaidSettings" type="button" hidden>Settings</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section class="channel-card" aria-label="Terminal channels">
@@ -761,6 +985,25 @@
     </main>
   </div>
 
+  <div class="modal-overlay" id="prepaidOverlay" aria-hidden="true">
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="prepaidModalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="prepaidModalTitle">Enable Prepaid Card</h2>
+        <button class="modal-close" id="closePrepaid" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="confirm-body">
+        <div>This enables prepaid card acceptance and balance operations for this store.</div>
+        <div class="confirm-warning">Once enabled, prepaid card support should not be disabled directly. Disabling should require admin approval or support handling.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn" id="cancelPrepaid" type="button">Cancel</button>
+        <button class="modal-btn save" id="confirmPrepaid" type="button">Enable</button>
+      </div>
+    </section>
+  </div>
+
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
@@ -768,6 +1011,52 @@
       if (storeName) {
         document.getElementById("storeNameText").textContent = storeName;
       }
+
+      var prepaidOverlay = document.getElementById("prepaidOverlay");
+      var prepaidCapability = document.getElementById("prepaidCapability");
+      var prepaidStatus = document.getElementById("prepaidStatus");
+      var prepaidEmptyMid = document.getElementById("prepaidEmptyMid");
+      var prepaidEmptyTime = document.getElementById("prepaidEmptyTime");
+      var enablePrepaid = document.getElementById("enablePrepaid");
+      var prepaidSettings = document.getElementById("prepaidSettings");
+      var closePrepaid = document.getElementById("closePrepaid");
+      var cancelPrepaid = document.getElementById("cancelPrepaid");
+      var confirmPrepaid = document.getElementById("confirmPrepaid");
+
+      function openPrepaidConfirm() {
+        prepaidOverlay.classList.add("open");
+        prepaidOverlay.setAttribute("aria-hidden", "false");
+      }
+
+      function closePrepaidConfirm() {
+        prepaidOverlay.classList.remove("open");
+        prepaidOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      enablePrepaid.addEventListener("click", openPrepaidConfirm);
+      closePrepaid.addEventListener("click", closePrepaidConfirm);
+      cancelPrepaid.addEventListener("click", closePrepaidConfirm);
+      confirmPrepaid.addEventListener("click", function () {
+        prepaidCapability.classList.add("enabled");
+        prepaidStatus.textContent = "Enabled";
+        enablePrepaid.hidden = true;
+        prepaidEmptyMid.hidden = true;
+        prepaidEmptyTime.hidden = true;
+        prepaidSettings.hidden = false;
+        closePrepaidConfirm();
+      });
+
+      prepaidOverlay.addEventListener("click", function (event) {
+        if (event.target === prepaidOverlay) {
+          closePrepaidConfirm();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && prepaidOverlay.classList.contains("open")) {
+          closePrepaidConfirm();
+        }
+      });
     })();
   </script>
 </body>
