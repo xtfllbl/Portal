@@ -688,7 +688,7 @@
       row.getAttribute("data-scope-level"),
       row.getAttribute("data-agent"),
       row.getAttribute("data-merchant-name"),
-      row.getAttribute("data-merchant-id"),
+      row.getAttribute("data-store-name"),
       row.getAttribute("data-currency"),
       row.getAttribute("data-terminal-scene"),
       row.getAttribute("data-terminal-sn")
@@ -737,11 +737,11 @@
     }
 
     const merchantSamples = [
-      { agent: "Direct", merchantName: "HQ Canteen", merchantId: "MRC-HQ-001", scenes: ["Coffee Kiosk", "Counter POS", "Standalone Terminal"] },
-      { agent: "Direct", merchantName: "Staff POS Counter", merchantId: "MRC-POS-002", scenes: ["Counter POS", "Standalone Terminal"] },
-      { agent: "North Region Agent", merchantName: "Vending North", merchantId: "MRC-VND-003", scenes: ["Vending Machine", "EV Charging"] },
-      { agent: "North Region Agent", merchantName: "Coffee Corner", merchantId: "MRC-COF-004", scenes: ["Coffee Kiosk", "Standalone Terminal"] },
-      { agent: "Campus Agent", merchantName: "Campus Store", merchantId: "MRC-CMP-005", scenes: ["Arcade Machine", "Counter POS"] }
+      { agent: "Direct", merchantName: "HQ Canteen", merchantId: "MRC-HQ-001", storeName: "All stores with Prepaid Card enabled", scenes: ["Coffee Kiosk", "Counter POS", "Standalone Terminal"] },
+      { agent: "Direct", merchantName: "Staff POS Counter", merchantId: "MRC-POS-002", storeName: "All stores with Prepaid Card enabled", scenes: ["Counter POS", "Standalone Terminal"] },
+      { agent: "North Region Agent", merchantName: "Vending North", merchantId: "MRC-VND-003", storeName: "All stores with Prepaid Card enabled", scenes: ["Vending Machine", "EV Charging"] },
+      { agent: "North Region Agent", merchantName: "Coffee Corner", merchantId: "MRC-COF-004", storeName: "All stores with Prepaid Card enabled", scenes: ["Coffee Kiosk", "Standalone Terminal"] },
+      { agent: "Campus Agent", merchantName: "Campus Store", merchantId: "MRC-CMP-005", storeName: "All stores with Prepaid Card enabled", scenes: ["Arcade Machine", "Counter POS"] }
     ];
     const existingSnSet = new Set(existingSnRows.map(function (row) {
       return row.getAttribute("data-terminal-sn") || "";
@@ -765,6 +765,7 @@
       row.setAttribute("data-agent", sample.agent);
       row.setAttribute("data-merchant-name", sample.merchantName);
       row.setAttribute("data-merchant-id", sample.merchantId);
+      row.setAttribute("data-store-name", sample.storeName);
       row.setAttribute("data-currency", "USD");
       row.setAttribute("data-terminal-scene", scene);
       row.setAttribute("data-terminal-sn", sn);
@@ -773,9 +774,9 @@
         '<td><span class="scope-type-chip sn">SN</span></td>' +
         "<td>" + (sample.agent === "Direct" ? "-" : sample.agent) + "</td>" +
         "<td>" + sample.merchantName + "</td>" +
+        "<td>" + sample.storeName + "</td>" +
         '<td><span class="scene-badge">' + scene + "</span></td>" +
         '<td class="mono">' + sn + "</td>" +
-        '<td class="mono">' + sample.merchantId + "</td>" +
         "<td>USD</td>" +
         '<td><span class="merchant-status" data-merchant-availability>Available</span></td>';
 
@@ -847,9 +848,9 @@
     return [
       scope,
       row.getAttribute("data-merchant-name") || "-",
+      row.getAttribute("data-store-name") || "All stores with Prepaid Card enabled",
       scene,
       terminal,
-      row.getAttribute("data-merchant-id") || "-",
       row.getAttribute("data-currency") || "-"
     ];
   }

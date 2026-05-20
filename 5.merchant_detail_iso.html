@@ -843,8 +843,8 @@
 
         .store-grid-head,
         .store-grid-row {
-            grid-template-columns: minmax(170px, 1.1fr) minmax(220px, 1.35fr) minmax(140px, 0.85fr) 120px 110px 120px 110px minmax(120px, max-content);
-            min-width: 1200px;
+            grid-template-columns: minmax(170px, 1.1fr) minmax(240px, 1.45fr) minmax(140px, 0.9fr) 110px 120px 110px minmax(120px, max-content);
+            min-width: 1080px;
             column-gap: 10px;
         }
 
@@ -2239,7 +2239,6 @@
                                 <div>Store Name</div>
                                 <div>Address</div>
                                 <div>Created At</div>
-                                <div>MID</div>
                                 <div>Devices</div>
                                 <div>Prepaid Card</div>
                                 <div>Status</div>
@@ -2252,7 +2251,6 @@
                                 </div>
                                 <div>123 Main St, New York, NY</div>
                                 <div>2026-04-02 09:18</div>
-                                <div>888299100293</div>
                                 <div data-role="device-count">2 Active</div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
                                 <div><span class="status-badge active" data-role="store-status">Active</span></div>
@@ -2276,7 +2274,6 @@
                                 </div>
                                 <div>55 Lexington Ave, New York, NY</div>
                                 <div>2026-04-12 14:36</div>
-                                <div>888299100294</div>
                                 <div data-role="device-count">1 Pending</div>
                                 <div><span class="status-badge offline" data-role="store-stored-value">Disabled</span></div>
                                 <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
@@ -3280,7 +3277,6 @@
         };
 
         const generateStoreId = () => `st_${Math.floor(100 + Math.random() * 900)}`;
-        const generateMid = () => `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
 
         const loadDeviceTerminalNames = () => {
             try {
@@ -4341,7 +4337,6 @@
                 if (!storeGrid) return;
 
                 const storeNameInput = document.getElementById('store-name-modal');
-                const storeMidInput = document.getElementById('store-mid-modal');
                 const storeAddress1Input = document.getElementById('store-address1-modal');
                 const storeAddress2Input = document.getElementById('store-address2-modal');
                 const storeZipInput = document.getElementById('store-zip-modal');
@@ -4353,7 +4348,6 @@
                 if (!storeName) return;
 
                 const storeId = generateStoreId();
-                const mid = storeMidInput?.value.trim() || generateMid();
                 const addressLine1 = storeAddress1Input?.value.trim();
                 const addressLine2 = storeAddress2Input?.value.trim();
                 const city = storeCityInput?.value.trim();
@@ -4384,7 +4378,6 @@
                 row.appendChild(nameCell);
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: address }));
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: formatDateTime() }));
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: mid }));
 
                 const deviceCell = document.createElement('div');
                 deviceCell.setAttribute('data-role', 'device-count');
