@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal Log Maintenance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #fff;
+      --line: #d9dde7;
+      --ink: #272f3d;
+      --muted: #757d8f;
+      --dark: #1d1e23;
+      --shadow: 0 12px 30px rgba(23, 30, 47, .06);
+      --green: #119146;
+      --green-bg: #dcfae8;
+      --blue: #2458b5;
+      --blue-bg: #edf3ff;
+      --amber: #b56a10;
+      --amber-bg: #fff3d6;
+      --orange: #dc5b00;
+      --orange-bg: #ffe8cb;
+      --red: #c63e35;
+      --red-bg: #fde3de;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      gap: 22px;
+      padding: 22px;
+    }
+
+    .side {
+      width: 314px;
+      flex: 0 0 314px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand { padding: 20px 18px 6px 24px; }
+    .brand h1 {
+      margin: 0;
+      font-size: 48px;
+      line-height: .92;
+      letter-spacing: .03em;
+      color: #1a1719;
+    }
+    .brand h1 span { letter-spacing: .08em; }
+    .brand p {
+      margin: 10px 0 0;
+      padding-left: 154px;
+      font-size: 18px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #20252f;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .nav {
+      flex: 1;
+      min-height: 0;
+      padding: 14px 10px;
+      overflow: auto;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      border-radius: 16px;
+      color: #212837;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .item:hover { background: #f4f6fa; }
+    .item.active { background: #2b2b2f; color: #fff; }
+    .item b {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+    }
+    .item svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .caret { font-size: 14px; color: #81899b; }
+    .item.active .caret { color: #dde2ea; }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .top {
+      min-height: 96px;
+      padding: 18px 26px 18px 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .crumb {
+      font-size: 20px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .topr {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+    .circle.light { border: 1px solid #eceef3; background: #f7f7fa; color: #5c6678; }
+    .circle.dark { background: #0f1014; color: #fff; }
+    .circle svg, .tool svg, .primary svg, .ghost svg, .icon-action svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .panel {
+      flex: 1;
+      min-height: 0;
+      padding: 22px 24px 18px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    h2 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: #2a3240;
+    }
+    .bar {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 18px;
+      border: 1px solid #e3e7ef;
+      border-radius: 16px;
+      background: #fbfcff;
+    }
+    .filters {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 12px;
+    }
+    .field {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #cfd5e0;
+      border-radius: 12px;
+      padding: 0 16px;
+      background: #fff;
+      color: #2e3747;
+      font-size: 14px;
+      outline: none;
+    }
+    .field::placeholder { color: #7d8495; }
+    .field:focus {
+      border-color: #a9b3c4;
+      box-shadow: 0 0 0 4px rgba(113, 128, 150, .12);
+    }
+    .select { position: relative; }
+    .select:after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      margin-top: -7px;
+      border-right: 2px solid #8b93a5;
+      border-bottom: 2px solid #8b93a5;
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+    select.field {
+      appearance: none;
+      padding-right: 44px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .tool, .ghost, .primary {
+      height: 50px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .tool {
+      width: 52px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #6e788d;
+    }
+    .tool:hover, .ghost:hover { background: #f7f8fb; color: #434d61; border-color: #c8cfdb; }
+    .ghost {
+      min-width: 118px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #686f80;
+    }
+    .primary {
+      min-width: 124px;
+      padding: 0 18px;
+      border: 1px solid #0f1014;
+      background: #0f1014;
+      color: #fff;
+    }
+
+    .tablewrap {
+      margin-top: 16px;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .scroll { overflow: auto; padding-bottom: 2px; }
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--dark);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+      text-align: left;
+      padding: 14px;
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5e8ef;
+      color: #525a69;
+      font-size: 14px;
+      line-height: 1.35;
+      vertical-align: middle;
+      white-space: nowrap;
+      background: #fff;
+    }
+    tbody tr:hover td { background: #fcfcfe; }
+    .mono {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      letter-spacing: .01em;
+    }
+    .link {
+      color: #1f4fbf;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .link:hover { text-decoration: underline; }
+    .cell-main {
+      display: block;
+      color: #2f3747;
+      font-weight: 700;
+    }
+    .cell-sub {
+      display: block;
+      margin-top: 3px;
+      color: #7a8293;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 82px;
+      min-height: 30px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .badge.critical { color: var(--red); background: var(--red-bg); }
+    .badge.high { color: var(--orange); background: var(--orange-bg); }
+    .badge.medium { color: var(--amber); background: var(--amber-bg); }
+    .badge.low { color: var(--blue); background: var(--blue-bg); }
+    .badge.info { color: var(--green); background: var(--green-bg); }
+
+    .icon-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-action {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      color: #687286;
+      background: #fafbfd;
+      text-decoration: none;
+    }
+    .icon-action:hover {
+      background: #f3f6fb;
+      color: #2d3545;
+      border-color: #c8cfdb;
+    }
+    .icon-action svg { width: 18px; height: 18px; }
+
+    .empty {
+      display: none;
+      padding: 42px 18px;
+      text-align: center;
+      color: #8690a2;
+      font-size: 15px;
+      border-bottom: 1px solid #e5e8ef;
+      background: #fff;
+    }
+    .meta {
+      color: #6e7688;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .scroll::-webkit-scrollbar, .nav::-webkit-scrollbar { width: 10px; height: 10px; }
+    .scroll::-webkit-scrollbar-thumb, .nav::-webkit-scrollbar-thumb { background: #ccd1db; border-radius: 999px; }
+    .scroll::-webkit-scrollbar-track, .nav::-webkit-scrollbar-track { background: #eff2f7; border-radius: 999px; }
+
+    @media (max-width: 1320px) {
+      .app { flex-direction: column; }
+      .side { width: 100%; flex-basis: auto; }
+      .brand { padding-left: 6px; }
+      .brand p { padding-left: 158px; }
+    }
+    @media (max-width: 980px) {
+      .app { gap: 16px; padding: 16px; }
+      .top { padding: 16px 18px; }
+      .panel { padding: 20px 18px 16px; }
+      h2 { font-size: 28px; }
+      .filters { grid-template-columns: 1fr; }
+      .bar { align-items: stretch; }
+      .actions, .ghost, .primary { width: 100%; }
+    }
+    @media (max-width: 620px) {
+      .brand h1 { font-size: 40px; }
+      .brand p { padding-left: 130px; font-size: 15px; }
+      .topr { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand"><h1>PAY<span>wizard</span></h1><p>Sandbox</p></div>
+      <nav class="nav card" aria-label="Main navigation">
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7"></rect><rect x="13" y="4" width="7" height="7"></rect><rect x="4" y="13" width="7" height="7"></rect><rect x="13" y="13" width="7" height="7"></rect></svg>Dashboard</b></a>
+        <a class="item" href="12.transaction_list.html"><b><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>Transactions</b></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><circle cx="16.5" cy="9.5" r="2.5"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path></svg>Agents</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="5.merchant_manage_iso.html"><b><svg viewBox="0 0 24 24"><path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M6 10V7a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"></path></svg>Merchants</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><path d="M4.5 9.5A7.5 7.5 0 0 1 12 2a7.5 7.5 0 0 1 7.5 7.5c0 3.5-2.4 5.3-3.8 6l1.8 3H6.5l1.8-3c-1.5-.7-3.8-2.5-3.8-6z"></path></svg>Partners</b><span class="caret">&#9662;</span></a>
+        <a class="item active" href="24.maintain_terminal_log.html"><b><svg viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="12" rx="2"></rect><line x1="7" y1="20" x2="14" y2="20"></line><line x1="18" y1="8" x2="21" y2="8"></line><line x1="18" y1="13" x2="21" y2="13"></line></svg>Device Management</b></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19a5.5 5.5 0 0 1 11 0"></path><line x1="18" y1="7" x2="21" y2="7"></line><line x1="18" y1="12" x2="21" y2="12"></line></svg>User Management</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>Settings</b><span class="caret">&#9662;</span></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><path d="M4 7h13v10H4z"></path><path d="M17 10h3v7h-3"></path><path d="M8 7V5h5v2"></path></svg>Tickets</b></a>
+        <a class="item" href="#"><b><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M9 9l-2 3 2 3"></path><path d="M15 9l2 3-2 3"></path></svg>Developer Center</b><span class="caret">&#9662;</span></a>
+      </nav>
+    </aside>
+
+    <section class="main">
+      <header class="top card">
+        <div class="crumb">DEVICE MANAGEMENT / TERMINAL LOGS</div>
+        <div class="topr">
+          <div class="circle light"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></div>
+          <div class="circle dark"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+        </div>
+      </header>
+
+      <main class="panel card">
+        <div class="panel-head">
+          <div>
+            <h2>Terminal Log Maintenance</h2>
+          </div>
+        </div>
+
+        <div class="bar">
+          <div class="filters" aria-label="Log filters">
+            <input id="snSearch" class="field" type="text" placeholder="Terminal SN">
+            <div class="select">
+              <select id="severityFilter" class="field" aria-label="Exception level">
+                <option value="">Exception Level</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="info">Info</option>
+              </select>
+            </div>
+            <input id="titleSearch" class="field" type="text" placeholder="Title / Error Type">
+          </div>
+          <div class="actions">
+            <button id="resetFilters" class="ghost" type="button"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>Reset</button>
+            <button id="applyFilters" class="primary" type="button"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="20" y1="20" x2="16.65" y2="16.65"></line></svg>Search</button>
+          </div>
+        </div>
+
+        <div class="tablewrap">
+          <div class="scroll">
+            <table id="logTable">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Terminal SN</th>
+                  <th>Exception Level</th>
+                  <th>Title</th>
+                  <th>Source</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-sn="WP2013Q321000014" data-severity="critical" data-title="MDB ERROR">
+                  <td>2025-10-17 13:51:02</td>
+                  <td><span class="cell-main mono">WP2013Q321000014</span><span class="cell-sub">Vending Machine 04</span></td>
+                  <td><span class="badge critical">Critical</span></td>
+                  <td><a class="link" href="old/opc_log.html">MDB ERROR</a><span class="cell-sub">Cashless module communication failed</span></td>
+                  <td>Terminal Upload</td>
+                  <td><div class="icon-actions"><a class="icon-action" href="old/opc_log.html" title="View log" aria-label="View MDB ERROR log"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></a></div></td>
+                </tr>
+                <tr data-sn="WP2013Q321000014" data-severity="high" data-title="Serial ERROR">
+                  <td>2025-10-17 13:51:03</td>
+                  <td><span class="cell-main mono">WP2013Q321000014</span><span class="cell-sub">Vending Machine 04</span></td>
+                  <td><span class="badge high">High</span></td>
+                  <td><a class="link" href="old/opc_log.html">Serial ERROR</a><span class="cell-sub">Peripheral serial port timed out</span></td>
+                  <td>Device Driver</td>
+                  <td><div class="icon-actions"><a class="icon-action" href="old/opc_log.html" title="View log" aria-label="View Serial ERROR log"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></a></div></td>
+                </tr>
+                <tr data-sn="WP2013Q321000014" data-severity="medium" data-title="Socket ERROR">
+                  <td>2025-10-16 21:22:11</td>
+                  <td><span class="cell-main mono">WP2013Q321000014</span><span class="cell-sub">Vending Machine 04</span></td>
+                  <td><span class="badge medium">Medium</span></td>
+                  <td><a class="link" href="old/opc_log.html">Socket ERROR</a><span class="cell-sub">Network socket reconnected after retry</span></td>
+                  <td>Network Service</td>
+                  <td><div class="icon-actions"><a class="icon-action" href="old/opc_log.html" title="View log" aria-label="View Socket ERROR log"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></a></div></td>
+                </tr>
+                <tr data-sn="WP5280VQ33200002" data-severity="high" data-title="APP ERROR">
+                  <td>2025-10-16 21:22:15</td>
+                  <td><span class="cell-main mono">WP5280VQ33200002</span><span class="cell-sub">Q3mini Lab 02</span></td>
+                  <td><span class="badge high">High</span></td>
+                  <td><a class="link" href="old/opc_log.html">APP ERROR</a><span class="cell-sub">Payment app crashed during foreground check</span></td>
+                  <td>Application</td>
+                  <td><div class="icon-actions"><a class="icon-action" href="old/opc_log.html" title="View log" aria-label="View APP ERROR log"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></a></div></td>
+                </tr>
+                <tr data-sn="WP7300EV33001088" data-severity="low" data-title="Battery WARN">
+                  <td>2025-10-15 09:18:44</td>
+                  <td><span class="cell-main mono">WP7300EV33001088</span><span class="cell-sub">EV Charger Bay 07</span></td>
+                  <td><span class="badge low">Low</span></td>
+                  <td><a class="link" href="old/opc_log.html">Battery WARN</a><span class="cell-sub">External power state changed</span></td>
+                  <td>Power Monitor</td>
+                  <td><div class="icon-actions"><a class="icon-action" href="old/opc_log.html" title="View log" aria-label="View Battery WARN log"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></a></div></td>
+                </tr>
+                <tr data-sn="WP52205Q33000977" data-severity="info" data-title="Diagnostics">
+                  <td>2025-10-14 18:05:27</td>
+                  <td><span class="cell-main mono">WP52205Q33000977</span><span class="cell-sub">Waou Terminal 01</span></td>
+                  <td><span class="badge info">Info</span></td>
+                  <td><a class="link" href="old/opc_log.html">Diagnostics</a><span class="cell-sub">Scheduled terminal diagnostic package uploaded</span></td>
+                  <td>Health Check</td>
+                  <td><div class="icon-actions"><a class="icon-action" href="old/opc_log.html" title="View log" aria-label="View Diagnostics log"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></a></div></td>
+                </tr>
+              </tbody>
+            </table>
+            <div id="emptyState" class="empty">No terminal logs match the current filters.</div>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const snSearch = document.getElementById("snSearch");
+      const severityFilter = document.getElementById("severityFilter");
+      const titleSearch = document.getElementById("titleSearch");
+      const table = document.getElementById("logTable");
+      const rows = Array.from(table.querySelectorAll("tbody tr"));
+      const emptyState = document.getElementById("emptyState");
+      const resetFilters = document.getElementById("resetFilters");
+      const applyFilters = document.getElementById("applyFilters");
+
+      const norm = value => String(value || "").trim().toLowerCase();
+
+      function applyFilter() {
+        const snTerm = norm(snSearch.value);
+        const levelTerm = severityFilter.value;
+        const titleTerm = norm(titleSearch.value);
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+          const rowSn = norm(row.dataset.sn);
+          const rowLevel = row.dataset.severity || "";
+          const rowTitle = norm(row.dataset.title);
+          const show = (!snTerm || rowSn.includes(snTerm)) &&
+            (!levelTerm || rowLevel === levelTerm) &&
+            (!titleTerm || rowTitle.includes(titleTerm));
+          row.style.display = show ? "" : "none";
+          if (show) visibleCount += 1;
+        });
+
+        emptyState.style.display = visibleCount === 0 ? "block" : "none";
+      }
+
+      [snSearch, severityFilter, titleSearch].forEach(control => {
+        control.addEventListener("input", applyFilter);
+        control.addEventListener("change", applyFilter);
+      });
+      applyFilters.addEventListener("click", applyFilter);
+      resetFilters.addEventListener("click", () => {
+        snSearch.value = "";
+        severityFilter.value = "";
+        titleSearch.value = "";
+        applyFilter();
+      });
+
+      applyFilter();
+    })();
+  </script>
+</body>
+</html>
