@@ -332,6 +332,8 @@
           </div>
           <div class="grid">
             <input class="field" id="fTransLogId" placeholder="Trans Log ID">
+            <input class="field" id="fTransId" placeholder="Trans ID">
+            <input class="field" id="fTransIndexCode" placeholder="Trans Index Code">
             <input class="field" id="fPaywizardId" placeholder="PAYwizard ID">
             <input class="field" id="fTid" placeholder="TID">
             <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
@@ -464,7 +466,7 @@
       };
       const state={
         tab:"completed",
-        filters:{transLogId:"",paywizardId:"",tid:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
+        filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
         columns:defaultColumns(),
         savedViews:loadSavedViews(),
         selectedViewId:systemViews[0].id,
@@ -479,6 +481,8 @@
       const saveViewBtn=document.getElementById("saveViewBtn"),renameViewBtn=document.getElementById("renameViewBtn"),deleteViewBtn=document.getElementById("deleteViewBtn");
       const fields={
         transLogId:document.getElementById("fTransLogId"),
+        transId:document.getElementById("fTransId"),
+        transIndexCode:document.getElementById("fTransIndexCode"),
         paywizardId:document.getElementById("fPaywizardId"),
         tid:document.getElementById("fTid"),
         invoiceNumber:document.getElementById("fInvoiceNumber"),
@@ -987,6 +991,8 @@
       const matches=r=>{
         if(r.status!==state.tab) return false;
         return (!state.filters.transLogId||norm(r.transLogId).includes(norm(state.filters.transLogId))) &&
+          (!state.filters.transId||norm(r.transId).includes(norm(state.filters.transId))) &&
+          (!state.filters.transIndexCode||norm(r.transIndexCode).includes(norm(state.filters.transIndexCode))) &&
           (!state.filters.paywizardId||norm(r.paywizardId).includes(norm(state.filters.paywizardId))) &&
           (!state.filters.tid||norm(r.tid).includes(norm(state.filters.tid))) &&
           (!state.filters.invoiceNumber||norm(r.invoiceNumber).includes(norm(state.filters.invoiceNumber))) &&

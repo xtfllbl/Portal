@@ -141,19 +141,20 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
     }
 
     .page-card {
-      min-height: 250px;
-      padding: 18px;
+      min-height: 420px;
+      padding: 14px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--surface);
       display: grid;
       align-content: space-between;
-      gap: 18px;
+      gap: 14px;
+      overflow: hidden;
     }
 
     .page-card.primary {
@@ -162,8 +163,8 @@
     }
 
     .step {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 999px;
       display: grid;
       place-items: center;
@@ -171,6 +172,34 @@
       color: var(--accent);
       font-weight: 800;
       font-size: 14px;
+    }
+
+    .preview {
+      height: 168px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #eef2f7;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview iframe {
+      width: 1440px;
+      height: 900px;
+      border: 0;
+      pointer-events: none;
+      transform: scale(.265);
+      transform-origin: 0 0;
+      background: #fff;
+    }
+
+    .preview::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 -34px 46px rgba(15, 23, 42, .12);
+      pointer-events: none;
     }
 
     .card-copy {
@@ -259,6 +288,7 @@
     @media (max-width: 1180px) {
       .grid,
       .map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .preview iframe { transform: scale(.34); }
     }
 
     @media (max-width: 760px) {
@@ -268,6 +298,8 @@
       .grid,
       .map { grid-template-columns: 1fr; }
       .page-card { min-height: 0; }
+      .preview { height: 150px; }
+      .preview iframe { transform: scale(.24); }
     }
   </style>
 </head>
@@ -296,6 +328,7 @@
 
       <div class="grid">
         <article class="page-card primary">
+          <div class="preview" aria-hidden="true"><iframe src="14.prepaid_card_list.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">1</span>
             <h3>Card List</h3>
@@ -306,6 +339,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="15.prepaid_card_activation.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">2</span>
             <h3>Activation</h3>
@@ -316,6 +350,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="16.prepaid_credit_adjustment.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">3</span>
             <h3>Balance Adjustment</h3>
@@ -326,6 +361,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="17.prepaid_loss_replacement.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">4</span>
             <h3>Loss & Replacement</h3>
@@ -336,6 +372,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="19.prepaid_card_detail.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">5</span>
             <h3>Card Details</h3>
@@ -346,6 +383,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="12.transaction_list.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">6</span>
             <h3>Transactions</h3>
@@ -356,6 +394,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="5.merchant_detail_iso.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">7</span>
             <h3>Merchant Detail</h3>
@@ -366,6 +405,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="5.merchant_add_device_iso.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">8</span>
             <h3>Add Device</h3>
@@ -376,6 +416,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="21.service_provider.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">9</span>
             <h3>Service Provider</h3>
@@ -386,6 +427,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="22.sp_payment_channel_setting.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">10</span>
             <h3>SP Payment Channels</h3>
@@ -396,6 +438,7 @@
         </article>
 
         <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="23.payment_channel_setting.html" loading="lazy" tabindex="-1"></iframe></div>
           <div class="card-copy">
             <span class="step">11</span>
             <h3>Store Payment Channels</h3>
