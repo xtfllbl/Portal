@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Share Promotion - PAYwizard Portal</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #000;
+      --subtle: #71717a;
+      --muted: #52525b;
+      --line: #e4e4e7;
+      --input-line: #d4d4d8;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --primary: #0369a1;
+      --primary-hover: #075985;
+      --surface: #fff;
+      --control: #f4f4f5;
+      --shadow: 0 1px 2px rgba(18, 18, 23, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--surface);
+      font-family: -apple-system, BlinkMacSystemFont, Verdana, Helvetica, Arial, "Noto Sans", "Segoe UI", Tahoma, "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select {
+      color: inherit;
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    figure,
+    p,
+    fieldset {
+      margin: 0;
+    }
+
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      background: var(--surface);
+    }
+
+    .page-header {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      min-height: 2.4375rem;
+    }
+
+    .form-vendor-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      margin-bottom: 0.5rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8fafc;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #3f3f46;
+    }
+
+    .vinfo-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+
+    .vinfo-label {
+      flex: none;
+      font-weight: 600;
+      color: var(--subtle);
+    }
+
+    .vinfo-value {
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .lang-select {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+      background: var(--control);
+      transform: translateY(-50%);
+      user-select: none;
+    }
+
+    .lang-btn {
+      min-width: 4.4375rem;
+      height: 2rem;
+      padding: 0 0.875rem;
+      border-radius: 0.5rem;
+      background: transparent;
+      color: #71717a;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1;
+      transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .lang-btn.is-active {
+      background: #fff;
+      color: #18181b;
+      box-shadow: var(--shadow);
+    }
+
+    .page-main {
+      width: 100%;
+      max-width: 50rem;
+    }
+
+    .main-header img {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin-bottom: 2rem;
+    }
+
+    .main-header figcaption {
+      padding: 1rem;
+      font-size: 1.2em;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .main-body {
+      padding: 1rem;
+    }
+
+    .main-body p {
+      font-size: 1.1em;
+      line-height: 1.5;
+    }
+
+    .main-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      margin-top: 2em;
+    }
+
+    .form-fieldset {
+      margin-bottom: 2em;
+      padding: 0 1rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #3f3f46;
+    }
+
+    .form-fieldset:first-of-type {
+      padding-bottom: calc(1rem + 6px);
+    }
+
+    .form-fieldset:nth-of-type(2) {
+      padding-bottom: calc(1rem + 1px);
+    }
+
+    .form-fieldset legend {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: #fff;
+      color: #3f3f46;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .form-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem 1rem 1rem;
+    }
+
+    .field {
+      position: relative;
+    }
+
+    .control-wrap {
+      position: relative;
+    }
+
+    .field-label {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: 0.75rem;
+      max-width: calc(100% - 3rem);
+      transform: translateY(-50%);
+      color: var(--subtle);
+      font-weight: 600;
+      line-height: 1.12;
+      pointer-events: none;
+      transition: top 0.16s ease, transform 0.16s ease, font-size 0.16s ease, background 0.16s ease, padding 0.16s ease;
+    }
+
+    .field.has-value .field-label,
+    .field.is-focused .field-label {
+      top: 0;
+      transform: translateY(-50%);
+      padding: 0 0.25rem;
+      background: #fff;
+      font-size: 0.75rem;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 1px solid var(--input-line);
+      border-radius: 8px;
+      background: #fff;
+      color: #3f3f46;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      box-shadow: var(--shadow);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field select,
+    .sn-field input,
+    .date-field input {
+      min-height: 35px;
+      padding: 6px 10px;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .field select {
+      appearance: none;
+      padding-right: 40px;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary), transparent 55%), var(--shadow);
+    }
+
+    .field.is-invalid input,
+    .field.is-invalid select {
+      border-color: #ff6467;
+    }
+
+    .field.is-invalid .field-label,
+    .field.is-invalid .required {
+      color: var(--danger);
+    }
+
+    .field-desc {
+      margin-top: 1ex;
+      padding: 0 4px;
+      color: var(--subtle);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .field-error {
+      display: none;
+      margin: 0.25rem 0 0;
+      padding: 0 0.25rem;
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .field.is-invalid .field-error {
+      display: block;
+    }
+
+    .select-arrow,
+    .date-icon {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      right: 0.75rem;
+      width: 0.875rem;
+      height: 0.875rem;
+      transform: translateY(-50%);
+      color: #a1a1aa;
+      pointer-events: none;
+    }
+
+    .select-arrow::before {
+      content: "";
+      position: absolute;
+      inset: 0.1875rem 0.0625rem 0.3125rem;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    .date-field input {
+      padding-right: 40px;
+    }
+
+    .date-field:not(.has-value) input {
+      color: transparent;
+    }
+
+    .date-field input::-webkit-calendar-picker-indicator {
+      opacity: 0;
+    }
+
+    .date-icon {
+      border: 2px solid currentColor;
+      border-radius: 2px;
+    }
+
+    .date-icon::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      top: 3px;
+      border-top: 2px solid currentColor;
+    }
+
+    .date-icon::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 2px;
+      width: 6px;
+      height: 4px;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+    }
+
+    .form-action {
+      display: flex;
+      justify-content: center;
+    }
+
+    .p-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 35px;
+      padding: 6px 8px;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.25;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .p-button:hover {
+      border-color: var(--primary-hover);
+      background: var(--primary-hover);
+    }
+
+    .p-button.secondary {
+      border-color: #d4d4d8;
+      background: #fff;
+      color: #3f3f46;
+    }
+
+    .sn-panel {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 0.25rem);
+      left: 0;
+      right: 0;
+      display: none;
+      max-height: 13rem;
+      overflow: auto;
+      padding: 0.25rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(18, 18, 23, 0.12);
+    }
+
+    .sn-panel.is-open {
+      display: block;
+    }
+
+    .sn-option {
+      width: 100%;
+      padding: 0.5rem 0.625rem;
+      border-radius: 6px;
+      background: #fff;
+      color: #3f3f46;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    .sn-option:hover {
+      background: #f4f4f5;
+    }
+
+    .sn-option.is-empty {
+      color: var(--subtle);
+      cursor: default;
+    }
+
+    .sn-tags {
+      display: none;
+      flex-wrap: wrap;
+      gap: 1rem 0.5rem;
+      margin: 0.75rem 0 0;
+    }
+
+    .sn-tags.has-tags {
+      display: flex;
+    }
+
+    .sn-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      max-width: 100%;
+      padding: 0.25rem 0.625rem;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .sn-tag button {
+      display: inline-grid;
+      place-items: center;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 999px;
+      background: transparent;
+      color: inherit;
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      top: 50%;
+      display: none;
+      width: min(25rem, calc(100vw - 2rem));
+      transform: translate(-50%, -50%);
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      background: var(--danger-soft);
+      color: var(--danger);
+      box-shadow: 0 10px 28px rgba(239, 68, 68, 0.12);
+      font-weight: 700;
+    }
+
+    .toast.is-visible {
+      display: flex;
+    }
+
+    .toast-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid currentColor;
+      border-radius: 999px;
+      flex: none;
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+
+    .toast-close {
+      margin-left: auto;
+      background: transparent;
+      color: currentColor;
+      font-size: 1.65rem;
+      line-height: 1;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: none;
+      place-items: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .modal.is-open {
+      display: grid;
+    }
+
+    .dialog {
+      width: min(40rem, 95vw);
+      border-radius: 8px;
+      background: #fff;
+      color: #3f3f46;
+      box-shadow: 0 20px 48px rgba(18, 18, 23, 0.22);
+      overflow: hidden;
+    }
+
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1rem 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .dialog-body {
+      padding: 0.5rem 1rem;
+      font-size: 0.9375rem;
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding: 0.75rem 1rem 1rem;
+    }
+
+    .success-note {
+      display: none;
+      margin-top: 1rem;
+      color: #047857;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .success-note.is-visible {
+      display: block;
+    }
+
+    @media screen and (max-width: 640px) {
+      html {
+        font-size: 14px;
+      }
+
+      .page-container {
+        padding-top: 2rem;
+        padding-inline: 0.5rem;
+      }
+
+      .main-header img {
+        margin-bottom: 2rem;
+      }
+
+      .main-header figcaption {
+        padding: 1rem;
+        font-size: 1em;
+      }
+
+      .main-body p {
+        font-size: 0.95em;
+      }
+
+      .main-form {
+        gap: 0;
+      }
+
+      .form-content {
+        padding-top: 1rem;
+        padding-inline: 0;
+      }
+
+      .field input,
+      .field select {
+        min-height: 37px;
+        padding: 7px 10.5px;
+        font-size: 14px;
+        line-height: 21px;
+      }
+
+      .field select,
+      .sn-field input,
+      .date-field input {
+        min-height: 31px;
+        padding: 5px 10px;
+        font-size: 14px;
+        line-height: 19px;
+      }
+
+      .p-button {
+        min-height: 31px;
+        padding: 5px 8.75px;
+        font-size: 12.25px;
+      }
+    }
+
+    @media screen and (min-width: 641px) {
+      .main-body p {
+        max-width: 740px;
+      }
+
+      .form-action > .p-button {
+        min-width: 98px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="lang-select" role="group" aria-label="Language">
+        <button class="lang-btn is-active" type="button" data-lang="en">English</button>
+        <button class="lang-btn" type="button" data-lang="zh">简体中文</button>
+      </div>
+    </div>
+
+    <main class="page-main">
+      <section class="main-header">
+        <figure>
+          <img src="https://uat.paywizard.biz/portal/assets/Paywaizar-D6DiSRAm.png" alt="" />
+          <figcaption data-i18n="introStrong">
+            Thank you for choosing wizarPOS to streamline your payment processes! We're excited to support you at every step and ensure a smooth experience for your business.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="main-body">
+        <p data-i18n="introBody">
+          To begin the onboarding process, please fill out the information below. Our onboarding team will review your details and reach out to you as soon as possible to guide you through the next steps.
+        </p>
+      </section>
+
+      <form class="main-form" id="lead-form" novalidate>
+        <div class="form-vendor-info" id="vendor-info" aria-label="Vendor Information"></div>
+        <fieldset class="form-fieldset">
+          <legend data-i18n="basicLegend">1. Basic Information</legend>
+          <div class="form-content">
+            <div class="field" data-field="country">
+              <div class="control-wrap">
+                <select id="country" name="country" autocomplete="country-name" required>
+                  <option value=""></option>
+                  <option>United States</option>
+                  <option>China</option>
+                  <option>Canada</option>
+                  <option>United Kingdom</option>
+                  <option>Malaysia</option>
+                  <option>Philippines</option>
+                  <option>Singapore</option>
+                  <option>Australia</option>
+                </select>
+                <label class="field-label" for="country"><span data-i18n="countryLabel">Country or Region</span> <span class="required">*</span></label>
+                <span class="select-arrow" aria-hidden="true"></span>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="countryDesc">Enter the English letters of the shipping country, or select from the dropdown.</p>
+            </div>
+
+            <div class="field" data-field="region">
+              <div class="control-wrap">
+                <select id="region" name="region">
+                  <option value=""></option>
+                  <option>California</option>
+                  <option>New York</option>
+                  <option>Texas</option>
+                  <option>Shanghai</option>
+                  <option>Guangdong</option>
+                  <option>Kuala Lumpur</option>
+                </select>
+                <label class="field-label" for="region" data-i18n="regionLabel">State/Province/Region</label>
+                <span class="select-arrow" aria-hidden="true"></span>
+              </div>
+              <p class="field-desc" data-i18n="regionDesc">(Optional) Select the province where the merchant is located.</p>
+            </div>
+
+            <div class="field" data-field="merchant">
+              <div class="control-wrap">
+                <input id="merchant" name="merchant" maxlength="80" required />
+                <label class="field-label" for="merchant"><span data-i18n="merchantLabel">Merchant Name</span> <span class="required">*</span></label>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="merchantDesc">Fill in the merchant name.</p>
+            </div>
+
+            <div class="field" data-field="contact">
+              <div class="control-wrap">
+                <input id="contact" name="contact" maxlength="80" required />
+                <label class="field-label" for="contact"><span data-i18n="contactLabel">Contact Name</span> <span class="required">*</span></label>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="contactDesc">Fill in the merchant's contact name.</p>
+            </div>
+
+            <div class="field" data-field="email">
+              <div class="control-wrap">
+                <input id="email" name="email" type="email" maxlength="40" required />
+                <label class="field-label" for="email"><span data-i18n="emailLabel">Email</span> <span class="required">*</span></label>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="emailDesc">Enter the contact's email address. Make sure there are no spaces before or after the address.</p>
+            </div>
+
+            <div class="field" data-field="phone">
+              <div class="control-wrap">
+                <input id="phone" name="phone" type="tel" maxlength="18" required />
+                <label class="field-label" for="phone"><span data-i18n="phoneLabel">Phone</span> <span class="required">*</span></label>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="phoneDesc">Enter the contact's mobile number, e.g., +11234567890. Do not include spaces.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend data-i18n="detailLegend">2. Detailed Information</legend>
+          <div class="form-content">
+            <div class="field sn-field" data-field="sn">
+              <div class="control-wrap">
+                <input id="sn" name="sn" autocomplete="off" />
+                <label class="field-label" for="sn"><span data-i18n="snLabel">wizarPOS 16-digit Serial #</span> <span class="required">*</span></label>
+                <div class="sn-panel" id="sn-panel" role="listbox"></div>
+              </div>
+              <p class="field-desc" data-i18n="snDesc">Enter the serial number of the payment terminal. Multiple serial numbers are supported. After entering and selecting one, you can enter the next one.</p>
+              <div class="sn-tags" id="sn-tags" aria-live="polite"></div>
+            </div>
+
+            <div class="field date-field" data-field="dispatch">
+              <div class="control-wrap">
+                <input id="dispatch" name="dispatch" type="date" required />
+                <label class="field-label" for="dispatch"><span data-i18n="dispatchLabel">Vending machine dispatch time</span> <span class="required">*</span></label>
+                <span class="date-icon" aria-hidden="true"></span>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="dispatchDesc">Enter the dispatch time.</p>
+            </div>
+
+            <div class="field date-field" data-field="arrival">
+              <div class="control-wrap">
+                <input id="arrival" name="arrival" type="date" required />
+                <label class="field-label" for="arrival"><span data-i18n="arrivalLabel">Vending machine arrival time</span> <span class="required">*</span></label>
+                <span class="date-icon" aria-hidden="true"></span>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="arrivalDesc">Enter the expected arrival time.</p>
+            </div>
+
+            <div class="field" data-field="type">
+              <div class="control-wrap">
+                <select id="machine-type" name="machineType" required>
+                  <option value=""></option>
+                  <option value="0">Other (Please Specify)</option>
+                  <option value="5499">Vending Machine (Snacks, Popcorn, Coffee, Cotton Candy, etc.)</option>
+                  <option value="5552">Electric Vehicle Charging</option>
+                  <option value="5912">Vending Machine (Pharmaceuticals)</option>
+                  <option value="5977">Vending Machine (Cosmetics)</option>
+                  <option value="7211">Self-Service Laundromat</option>
+                  <option value="7993">Claw Machine</option>
+                </select>
+                <label class="field-label" for="machine-type"><span data-i18n="typeLabel">Type of vending machine</span> <span class="required">*</span></label>
+                <span class="select-arrow" aria-hidden="true"></span>
+              </div>
+              <p class="field-error" data-i18n="required">Required</p>
+              <p class="field-desc" data-i18n="typeDesc">Select the type of vending machine.</p>
+            </div>
+
+            <div class="field" data-field="outreach">
+              <div class="control-wrap">
+                <input id="outreach" name="outreach" maxlength="45" />
+                <label class="field-label" for="outreach" data-i18n="outreachLabel">Contact Information for Merchant Outreach (Optional)</label>
+              </div>
+              <p class="field-desc" data-i18n="outreachDesc">(Optional) Enter additional information such as notes.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="form-action">
+          <button class="p-button" type="submit" data-i18n="submit">Get Started</button>
+        </div>
+        <p class="success-note" id="success-note" data-i18n="saveSuccess">Saved Successfully</p>
+      </form>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="assertive">
+    <span class="toast-icon">!</span>
+    <span id="toast-message">Please enter the SN</span>
+    <button class="toast-close" type="button" aria-label="Close">×</button>
+  </div>
+
+  <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <section class="dialog">
+      <div class="dialog-header" id="dialog-title" data-i18n="tips">Tips</div>
+      <div class="dialog-body" data-i18n="confirmSubmission">Confirm submission?</div>
+      <div class="dialog-footer">
+        <button class="p-button secondary" type="button" id="cancel-submit" data-i18n="cancel">Cancel</button>
+        <button class="p-button" type="button" id="confirm-submit" data-i18n="confirm">Confirm</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var i18n = {
+        en: {
+          introStrong: "Thank you for choosing wizarPOS to streamline your payment processes! We're excited to support you at every step and ensure a smooth experience for your business.",
+          introBody: "To begin the onboarding process, please fill out the information below. Our onboarding team will review your details and reach out to you as soon as possible to guide you through the next steps.",
+          basicLegend: "1. Basic Information",
+          detailLegend: "2. Detailed Information",
+          countryLabel: "Country or Region",
+          countryDesc: "Enter the English letters of the shipping country, or select from the dropdown.",
+          regionLabel: "State/Province/Region",
+          regionDesc: "(Optional) Select the province where the merchant is located.",
+          merchantLabel: "Merchant Name",
+          merchantDesc: "Fill in the merchant name.",
+          contactLabel: "Contact Name",
+          contactDesc: "Fill in the merchant's contact name.",
+          emailLabel: "Email",
+          emailDesc: "Enter the contact's email address. Make sure there are no spaces before or after the address.",
+          phoneLabel: "Phone",
+          phoneDesc: "Enter the contact's mobile number, e.g., +11234567890. Do not include spaces.",
+          snLabel: "wizarPOS 16-digit Serial #",
+          snDesc: "Enter the serial number of the payment terminal. Multiple serial numbers are supported. After entering and selecting one, you can enter the next one.",
+          dispatchLabel: "Vending machine dispatch time",
+          dispatchDesc: "Enter the dispatch time.",
+          arrivalLabel: "Vending machine arrival time",
+          arrivalDesc: "Enter the expected arrival time.",
+          typeLabel: "Type of vending machine",
+          typeDesc: "Select the type of vending machine.",
+          outreachLabel: "Contact Information for Merchant Outreach (Optional)",
+          outreachDesc: "(Optional) Enter additional information such as notes.",
+          required: "Required",
+          phoneError: "Invalid Phone Format",
+          submit: "Get Started",
+          tips: "Tips",
+          confirmSubmission: "Confirm submission?",
+          cancel: "Cancel",
+          confirm: "Confirm",
+          snTip: "Please enter the SN",
+          snDuplication: "SN Duplication",
+          snAdded: "SN Added Successfully",
+          saveSuccess: "Saved Successfully",
+          noResults: "No results found"
+        },
+        zh: {
+          introStrong: "感谢您选择 wizarPOS 来简化您的支付流程！我们很高兴能在每一步为您提供支持，确保您的业务顺利进行。",
+          introBody: "要开始引导流程，请填写以下信息。我们的引导团队将审核您的详细信息，并尽快与您联系，指导您完成后续步骤。",
+          basicLegend: "1. 基本信息",
+          detailLegend: "2. 详细信息",
+          countryLabel: "国家或地区",
+          countryDesc: "请输入发货国家/地区的英文名称，或从下拉列表中选择。",
+          regionLabel: "省/州/行政区",
+          regionDesc: "请选择商户所在的省份（可选）。",
+          merchantLabel: "商户名称",
+          merchantDesc: "填写商户名称。",
+          contactLabel: "联系人姓名",
+          contactDesc: "填写商户联系人姓名。",
+          emailLabel: "电子邮箱",
+          emailDesc: "填写商户联系人电子邮件(前后不要有空格)。",
+          phoneLabel: "电话号码",
+          phoneDesc: "填写商户联系人手机号,比如+861234567890 (不要有空格)。",
+          snLabel: "wizarPOS 16位序列号(SN)",
+          snDesc: "输入发货的支付终端序列号,支持多个序列号,输入一个选择完成后,再输入下一个进行选择。",
+          dispatchLabel: "售货机发货时间",
+          dispatchDesc: "输入发货时间。",
+          arrivalLabel: "售货机到达时间",
+          arrivalDesc: "输入预期抵达时间。",
+          typeLabel: "售货机类型",
+          typeDesc: "选择售货机类型。",
+          outreachLabel: "商家拓展联系信息 (选填)",
+          outreachDesc: "填写补充信息，例如备注（可选）。",
+          required: "必填",
+          phoneError: "无效的电话格式",
+          submit: "开始",
+          tips: "提示",
+          confirmSubmission: "确认提交？",
+          cancel: "取消",
+          confirm: "确认",
+          snTip: "请输入SN",
+          snDuplication: "SN 已存在",
+          snAdded: "SN 添加成功",
+          saveSuccess: "成功保存",
+          noResults: "No results found"
+        }
+      };
+
+      var snOptions = [
+        "WP43807Q333883896",
+        "WP43807Q333883895",
+        "WP43807Q333883894",
+        "WP43807Q33256791",
+        "WP43807Q33256790",
+        "WP43807Q33256889",
+        "WP43807Q333787478",
+        "WP43807Q33256789",
+        "WP43807Q33203576",
+        "WP43807Q33203581",
+        "WP43807Q33203580",
+        "WP43807Q33203510",
+        "WP43807Q33203578",
+        "WP02502110005",
+        "WP02502110004"
+      ];
+
+      var state = {
+        lang: "en",
+        selectedSn: []
+      };
+
+      var form = document.getElementById("lead-form");
+      var toast = document.getElementById("toast");
+      var toastMessage = document.getElementById("toast-message");
+      var modal = document.getElementById("confirm-modal");
+      var successNote = document.getElementById("success-note");
+      var snInput = document.getElementById("sn");
+      var snPanel = document.getElementById("sn-panel");
+      var snTags = document.getElementById("sn-tags");
+      var requiredFields = ["country", "merchant", "contact", "email", "phone", "dispatch", "arrival", "type"];
+
+      function t(key) {
+        return i18n[state.lang][key] || i18n.en[key] || key;
+      }
+
+      function updateFloatingState(input) {
+        var field = input.closest(".field");
+        if (!field) return;
+        field.classList.toggle("has-value", Boolean(input.value));
+      }
+
+      function setLanguage(lang) {
+        state.lang = lang;
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        document.querySelectorAll("[data-lang]").forEach(function (button) {
+          button.classList.toggle("is-active", button.dataset.lang === lang);
+        });
+        document.querySelectorAll("[data-i18n]").forEach(function (node) {
+          node.textContent = t(node.dataset.i18n);
+        });
+        document.querySelectorAll(".field").forEach(function (field) {
+          var error = field.querySelector(".field-error");
+          if (error && field.classList.contains("is-invalid")) {
+            error.textContent = field.dataset.field === "phone" && field.dataset.error === "phone" ? t("phoneError") : t("required");
+          }
+        });
+        toastMessage.textContent = t("snTip");
+        renderSnPanel();
+      }
+
+      function setFieldInvalid(fieldName, message, kind) {
+        var field = document.querySelector('[data-field="' + fieldName + '"]');
+        if (!field) return;
+        field.classList.add("is-invalid");
+        field.dataset.error = kind || "required";
+        var error = field.querySelector(".field-error");
+        if (error) {
+          error.textContent = message || t("required");
+        }
+      }
+
+      function clearFieldInvalid(fieldName) {
+        var field = document.querySelector('[data-field="' + fieldName + '"]');
+        if (!field) return;
+        field.classList.remove("is-invalid");
+        delete field.dataset.error;
+      }
+
+      function showToast(message) {
+        toastMessage.textContent = message || t("snTip");
+        toast.classList.add("is-visible");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(function () {
+          toast.classList.remove("is-visible");
+        }, 3200);
+      }
+
+      function validateForm() {
+        var valid = true;
+        requiredFields.forEach(function (fieldName) {
+          var input = document.querySelector('[data-field="' + fieldName + '"] input, [data-field="' + fieldName + '"] select');
+          if (!input || input.value.trim()) {
+            clearFieldInvalid(fieldName);
+            return;
+          }
+          valid = false;
+          setFieldInvalid(fieldName, t("required"));
+        });
+
+        var email = document.getElementById("email");
+        if (email.value.trim() && !email.checkValidity()) {
+          valid = false;
+          setFieldInvalid("email", t("required"));
+        }
+
+        var phone = document.getElementById("phone");
+        if (phone.value.trim() && !/^\+?\d+$/.test(phone.value.trim())) {
+          valid = false;
+          setFieldInvalid("phone", t("phoneError"), "phone");
+        }
+
+        if (state.selectedSn.length === 0) {
+          valid = false;
+          showToast(t("snTip"));
+        }
+
+        return valid;
+      }
+
+      function filteredSnOptions() {
+        var query = snInput.value.trim().toLowerCase();
+        return snOptions.filter(function (sn) {
+          return state.selectedSn.indexOf(sn) === -1 && (!query || sn.toLowerCase().indexOf(query) >= 0);
+        });
+      }
+
+      function renderSnPanel() {
+        var options = filteredSnOptions();
+        snPanel.innerHTML = "";
+        if (!options.length) {
+          var empty = document.createElement("button");
+          empty.type = "button";
+          empty.className = "sn-option is-empty";
+          empty.textContent = t("noResults");
+          empty.tabIndex = -1;
+          snPanel.appendChild(empty);
+          return;
+        }
+        options.forEach(function (sn) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "sn-option";
+          button.textContent = sn;
+          button.addEventListener("mousedown", function (event) {
+            event.preventDefault();
+            addSn(sn);
+          });
+          snPanel.appendChild(button);
+        });
+      }
+
+      function renderSnTags() {
+        snTags.innerHTML = "";
+        snTags.classList.toggle("has-tags", state.selectedSn.length > 0);
+        state.selectedSn.forEach(function (sn, index) {
+          var tag = document.createElement("span");
+          tag.className = "sn-tag";
+          tag.textContent = sn;
+
+          var close = document.createElement("button");
+          close.type = "button";
+          close.setAttribute("aria-label", "Remove " + sn);
+          close.textContent = "×";
+          close.addEventListener("click", function () {
+            state.selectedSn.splice(index, 1);
+            renderSnTags();
+            renderSnPanel();
+          });
+
+          tag.appendChild(close);
+          snTags.appendChild(tag);
+        });
+      }
+
+      function addSn(sn) {
+        if (!sn) return;
+        if (state.selectedSn.indexOf(sn) >= 0) {
+          showToast(t("snDuplication"));
+          snInput.value = "";
+          updateFloatingState(snInput);
+          return;
+        }
+        state.selectedSn.push(sn);
+        snInput.value = "";
+        updateFloatingState(snInput);
+        clearFieldInvalid("sn");
+        renderSnTags();
+        renderSnPanel();
+        snPanel.classList.remove("is-open");
+      }
+
+      document.querySelectorAll("[data-lang]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          setLanguage(button.dataset.lang);
+        });
+      });
+
+      document.querySelectorAll("input, select").forEach(function (input) {
+        updateFloatingState(input);
+        input.addEventListener("focus", function () {
+          var field = input.closest(".field");
+          if (field) field.classList.add("is-focused");
+        });
+        input.addEventListener("blur", function () {
+          var field = input.closest(".field");
+          if (field) field.classList.remove("is-focused");
+          updateFloatingState(input);
+        });
+        input.addEventListener("input", function () {
+          updateFloatingState(input);
+          clearFieldInvalid(input.closest(".field").dataset.field);
+        });
+        input.addEventListener("change", function () {
+          updateFloatingState(input);
+          clearFieldInvalid(input.closest(".field").dataset.field);
+        });
+      });
+
+      snInput.addEventListener("focus", function () {
+        renderSnPanel();
+        snPanel.classList.add("is-open");
+      });
+
+      snInput.addEventListener("input", function () {
+        renderSnPanel();
+        snPanel.classList.add("is-open");
+      });
+
+      snInput.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        var value = snInput.value.trim();
+        if (value && snOptions.indexOf(value) >= 0) {
+          addSn(value);
+        } else if (filteredSnOptions().length === 1) {
+          addSn(filteredSnOptions()[0]);
+        } else {
+          showToast(t("snTip"));
+        }
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!snPanel.contains(event.target) && event.target !== snInput) {
+          snPanel.classList.remove("is-open");
+        }
+      });
+
+      toast.querySelector(".toast-close").addEventListener("click", function () {
+        toast.classList.remove("is-visible");
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        successNote.classList.remove("is-visible");
+        if (!validateForm()) return;
+        modal.classList.add("is-open");
+      });
+
+      document.getElementById("cancel-submit").addEventListener("click", function () {
+        modal.classList.remove("is-open");
+      });
+
+      document.getElementById("confirm-submit").addEventListener("click", function () {
+        modal.classList.remove("is-open");
+        successNote.classList.add("is-visible");
+      });
+
+      modal.addEventListener("click", function (event) {
+        if (event.target === modal) modal.classList.remove("is-open");
+      });
+
+      // --- Vendor / Agent info (simulated, always visible) ---
+      // chain: [厂商, 一级代理, 二级代理, ...]，email 为最末级联系邮箱
+      var vendorData = {
+        chain: ["wizarPOS Technology Co., Ltd.", "PAYwizard 一级代理 (示例)", "PAYwizard 二级代理 (示例)"],
+        email: "agent2@paywizard.biz"
+      };
+
+      function renderVendorInfo() {
+        var container = document.getElementById("vendor-info");
+        if (!container) return;
+        var labels = {
+          en: { vendor: "Vendor:", email: "Email:" },
+          zh: { vendor: "厂商/代理：", email: "邮箱：" }
+        };
+        function buildRows(lang) {
+          var l = labels[lang];
+          var chainStr = vendorData.chain.join(' / ');
+          var html = '<div class="vinfo-row">'
+            + '<span class="vinfo-label">' + l.vendor + '</span>'
+            + '<span class="vinfo-value">' + chainStr + '</span>'
+            + '</div>';
+          if (vendorData.email) {
+            html += '<div class="vinfo-row">'
+              + '<span class="vinfo-label">' + l.email + '</span>'
+              + '<span class="vinfo-value">' + vendorData.email + '</span>'
+              + '</div>';
+          }
+          return html;
+        }
+        var _origSetLang = setLanguage;
+        setLanguage = function(lang) {
+          _origSetLang(lang);
+          container.innerHTML = buildRows(lang);
+        };
+        container.innerHTML = buildRows(state.lang);
+      }
+      renderVendorInfo();
+
+      setLanguage("en");
+      renderSnPanel();
+    })();
+  </script>
+</body>
+</html>
