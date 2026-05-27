@@ -363,7 +363,7 @@
     }
 
     thead th:nth-child(4) {
-      width: 170px;
+      width: 154px;
     }
 
     thead th:nth-child(5) {
@@ -375,7 +375,7 @@
     }
 
     thead th:nth-child(7) {
-      width: 174px;
+      width: 190px;
     }
 
     thead th {
@@ -534,6 +534,11 @@
       border-color: #ddd6fe;
     }
 
+    .icon-btn.share {
+      color: #0ea5e9;
+      border-color: #bae6fd;
+    }
+
     .icon-btn.delete {
       color: #ef4444;
       border-color: #fecaca;
@@ -686,6 +691,63 @@
       box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.08);
     }
 
+    .modal-field[readonly] {
+      background: #e5e7eb;
+      color: #6b7280;
+      cursor: default;
+    }
+
+    .field-shell {
+      position: relative;
+    }
+
+    .field-shell .modal-field {
+      width: 100%;
+    }
+
+    .field-label {
+      position: absolute;
+      top: -11px;
+      left: 14px;
+      z-index: 1;
+      padding: 0 6px;
+      background: #fff;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .share-modal {
+      width: min(760px, calc(100vw - 32px));
+    }
+
+    .share-modal .modal-head {
+      padding-top: 32px;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+
+    .share-modal .modal-body {
+      padding-top: 48px;
+      gap: 28px;
+    }
+
+    .share-modal .modal-foot {
+      padding-top: 52px;
+    }
+
+    .modal-btn.share-save {
+      background: #0369a1;
+      color: #fff;
+      border-color: #0369a1;
+    }
+
+    .modal-btn.share-save:hover {
+      background: #075985;
+    }
+
     .modal-foot {
       padding: 12px 24px 20px;
       display: flex;
@@ -780,7 +842,7 @@
     <main class="main">
       <!-- Top Bar -->
       <header class="topbar">
-        <div class="breadcrumb">PARTNERS &nbsp;&gt;&nbsp; <b>PARTNER / AGENT LIST</b></div>
+        <div class="breadcrumb">PARTNERS &nbsp;&gt;&nbsp; <b>PARTNER LIST</b></div>
         <div class="topbar-right">
           <button class="notify-btn" aria-label="Notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -798,7 +860,7 @@
       <div class="content-area">
         <!-- Page Header -->
         <div class="page-header">
-          <h1 class="page-title">Partner / Agent List</h1>
+          <h1 class="page-title">Partner List</h1>
           <div class="header-actions">
             <button class="btn primary" id="addPartnerBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
@@ -806,7 +868,7 @@
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Add
+              Add Partner
             </button>
           </div>
         </div>
@@ -859,7 +921,8 @@
       <div class="modal-head" id="addModalTitle">Add</div>
       <form id="addPartnerForm">
         <div class="modal-body">
-          <select class="modal-field" id="addParentPartner"></select>
+          <input id="addParentPartner" type="hidden">
+          <input class="modal-field" id="addParentDisplay" type="text" readonly>
           <input class="modal-field" id="addPartnerLevel" type="text" placeholder="Level" readonly>
           <input class="modal-field" id="addPartnerName" type="text" placeholder="Partner / Agent Name" required>
           <input class="modal-field" id="addPartnerNameEn" type="text" placeholder="Name (EN)">
@@ -870,6 +933,33 @@
         <div class="modal-foot">
           <button class="modal-btn" type="button" id="cancelAdd">Cancel</button>
           <button class="modal-btn save" type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sharing Landing Page Modal -->
+  <div class="modal-mask" id="shareModal" aria-hidden="true">
+    <div class="modal share-modal" role="dialog" aria-modal="true">
+      <div class="modal-head">Sharing Landing Page</div>
+      <form id="shareLandingForm">
+        <div class="modal-body">
+          <div class="field-shell">
+            <span class="field-label">Partner Name</span>
+            <input class="modal-field" id="sharePartnerName" type="text" readonly>
+          </div>
+          <div class="field-shell">
+            <span class="field-label">Page Style</span>
+            <select class="modal-field" id="sharePageStyle">
+              <option value="UPT">UPT</option>
+              <option value="Standard">Standard</option>
+              <option value="Promotion">Promotion</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="modal-btn" type="button" id="cancelShare">Cancel</button>
+          <button class="modal-btn share-save" type="submit">Sharing Landing Page</button>
         </div>
       </form>
     </div>
@@ -1128,7 +1218,13 @@
       var addForm = document.getElementById("addPartnerForm");
       var cancelAddBtn = document.getElementById("cancelAdd");
       var addParentSelect = document.getElementById("addParentPartner");
+      var addParentDisplay = document.getElementById("addParentDisplay");
       var addPartnerLevel = document.getElementById("addPartnerLevel");
+      var shareModal = document.getElementById("shareModal");
+      var shareForm = document.getElementById("shareLandingForm");
+      var cancelShareBtn = document.getElementById("cancelShare");
+      var sharePartnerName = document.getElementById("sharePartnerName");
+      var sharePageStyle = document.getElementById("sharePageStyle");
 
       function escapeHtml(str) {
         return String(str == null ? "" : str)
@@ -1256,6 +1352,7 @@
           addAgentBtn +
           '<button class="icon-btn view" title="Detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></button>' +
           '<button class="icon-btn edit" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
+          '<button class="icon-btn share" title="Sharing Landing Page" data-share-id="' + escapeHtml(p.id) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="10.51" x2="15.42" y2="6.49"/><line x1="8.59" y1="13.49" x2="15.42" y2="17.51"/></svg></button>' +
           '<button class="icon-btn delete" title="Disable"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></button>' +
           '</div>';
       }
@@ -1403,34 +1500,30 @@
         var addChildBtn = e.target.closest("[data-add-child-id]");
         if (addChildBtn) {
           openAddModal(addChildBtn.getAttribute("data-add-child-id"));
+          return;
+        }
+
+        var shareBtn = e.target.closest("[data-share-id]");
+        if (shareBtn) {
+          openShareModal(shareBtn.getAttribute("data-share-id"));
         }
       });
 
-      function renderParentOptions(selectedParentId) {
-        var options = '<option value="">No parent - create L1 Vendor</option>';
-        flattenPartners({ ignoreCollapse: true }).forEach(function (p) {
-          if (p.level >= MAX_LEVEL) return;
-          var meta = getLevelMeta(p.level);
-          var indent = new Array((p.level - 1) * 4 + 1).join("&nbsp;");
-          options += '<option value="' + escapeHtml(p.id) + '">' + indent + meta.badge + ' ' + escapeHtml(p.name).replace(/\n/g, " ") + '</option>';
-        });
-        addParentSelect.innerHTML = options;
-        addParentSelect.value = selectedParentId || "";
-        if (selectedParentId && !addParentSelect.value) addParentSelect.value = "";
-      }
-
-      function syncAddModalLevel() {
+      function syncAddModalContext(parentId) {
+        addParentSelect.value = parentId || "";
         var parent = getPartnerById(addParentSelect.value);
         var nextLevel = parent ? parent.level + 1 : 1;
         var meta = getLevelMeta(nextLevel);
+        addParentDisplay.value = parent
+          ? getLevelMeta(parent.level).badge + " " + parent.name.replace(/\n/g, " ")
+          : "No parent - create L1 Vendor";
         addPartnerLevel.value = meta.badge + " " + meta.label;
         addModalTitle.textContent = parent ? "Add Agent" : "Add Vendor";
       }
 
       function openAddModal(parentId) {
         addForm.reset();
-        renderParentOptions(parentId || "");
-        syncAddModalLevel();
+        syncAddModalContext(parentId || "");
         addModal.classList.add("show");
         addModal.setAttribute("aria-hidden", "false");
         document.getElementById("addPartnerName").focus();
@@ -1441,7 +1534,6 @@
         addModal.setAttribute("aria-hidden", "true");
       }
 
-      addParentSelect.addEventListener("change", syncAddModalLevel);
       addBtn.addEventListener("click", function () {
         openAddModal("");
       });
@@ -1449,6 +1541,31 @@
 
       addModal.addEventListener("click", function (e) {
         if (e.target === addModal) closeAddModal();
+      });
+
+      function openShareModal(partnerId) {
+        var partner = getPartnerById(partnerId);
+        if (!partner) return;
+        sharePartnerName.value = partner.name.replace(/\n/g, " ");
+        sharePageStyle.value = "UPT";
+        shareModal.classList.add("show");
+        shareModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeShareModal() {
+        shareModal.classList.remove("show");
+        shareModal.setAttribute("aria-hidden", "true");
+      }
+
+      cancelShareBtn.addEventListener("click", closeShareModal);
+
+      shareModal.addEventListener("click", function (e) {
+        if (e.target === shareModal) closeShareModal();
+      });
+
+      shareForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        closeShareModal();
       });
 
       function buildPartnerId() {
