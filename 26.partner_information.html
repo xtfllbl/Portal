@@ -347,11 +347,11 @@
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      min-width: 1150px;
+      min-width: 1050px;
     }
 
     thead th:nth-child(1) {
-      width: 220px;
+      width: 230px;
     }
 
     thead th:nth-child(2) {
@@ -359,27 +359,23 @@
     }
 
     thead th:nth-child(3) {
-      width: 115px;
+      width: 120px;
     }
 
     thead th:nth-child(4) {
-      width: 145px;
-    }
-
-    thead th:nth-child(5) {
-      width: 90px;
-    }
-
-    thead th:nth-child(6) {
       width: 165px;
     }
 
-    thead th:nth-child(7) {
-      width: 140px;
+    thead th:nth-child(5) {
+      width: 165px;
     }
 
-    thead th:nth-child(8) {
-      width: 175px;
+    thead th:nth-child(6) {
+      width: 125px;
+    }
+
+    thead th:nth-child(7) {
+      width: 185px;
     }
 
     thead th {
@@ -538,28 +534,17 @@
     .device-summary {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
       max-width: 100%;
       min-height: 30px;
-      padding: 4px 8px;
+      min-width: 58px;
+      padding: 4px 10px;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       background: #f9fafb;
-      color: #6b7280;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .device-summary b {
       color: #111827;
       font-size: 13px;
-    }
-
-    .device-divider {
-      width: 1px;
-      height: 14px;
-      background: #d1d5db;
+      font-weight: 700;
     }
 
     .device-na {
@@ -1036,6 +1021,7 @@
           </div>
           <div class="search-actions">
             <input class="search-field" type="text" placeholder="Agent Name" id="searchPartnerName">
+            <input class="search-field" type="email" placeholder="Email" id="searchPartnerEmail">
             <button class="search-btn btn" id="resetSearchBtn" aria-label="Reset Search" title="Reset">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round">
@@ -1063,9 +1049,8 @@
                   <th>Agent Level</th>
                   <th>Agent Contacts</th>
                   <th>Agent Email</th>
-                  <th>Status</th>
                   <th>Date &amp; Time</th>
-                  <th>Devices</th>
+                  <th>Devices(INV/OUT)</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -1426,6 +1411,7 @@
         page: 1,
         pageSize: 20,
         searchName: "",
+        searchEmail: "",
         styleFilter: "ALL",
         collapsedIds: {}
       };
@@ -1433,6 +1419,7 @@
       var tableBody = document.getElementById("partnerTableBody");
       var paginationEl = document.getElementById("pagination");
       var searchNameInput = document.getElementById("searchPartnerName");
+      var searchEmailInput = document.getElementById("searchPartnerEmail");
       var styleFilterBtns = document.querySelectorAll("[data-style-filter]");
       var searchBtn = document.getElementById("searchBtn");
       var resetSearchBtn = document.getElementById("resetSearchBtn");
@@ -1535,20 +1522,21 @@
 
       function partnerMatches(p) {
         if (state.styleFilter !== "ALL" && getPartnerStyle(p) !== state.styleFilter) return false;
-        if (!state.searchName) return true;
-        var searchText = state.searchName.toLowerCase();
-        return [
+        var nameText = state.searchName.toLowerCase();
+        var emailText = state.searchEmail.toLowerCase();
+        var matchesName = !nameText || [
           p.name,
           p.nameEn,
           p.contacts,
-          p.email,
           getPartnerStyleShort(p),
           getPathText(p)
-        ].join(" ").toLowerCase().indexOf(searchText) >= 0;
+        ].join(" ").toLowerCase().indexOf(nameText) >= 0;
+        var matchesEmail = !emailText || String(p.email || "").toLowerCase().indexOf(emailText) >= 0;
+        return matchesName && matchesEmail;
       }
 
       function getFilteredIds() {
-        if (!state.searchName && state.styleFilter === "ALL") return null;
+        if (!state.searchName && !state.searchEmail && state.styleFilter === "ALL") return null;
         var includeIds = {};
         partners.forEach(function (p) {
           if (!partnerMatches(p)) return;
@@ -1637,20 +1625,14 @@
           '</td>';
       }
 
-      function renderStatusCell(p) {
-        var status = p.status || "Active";
-        var statusClass = status.toLowerCase() === "active" ? "active" : "inactive";
-        return '<td><span class="status-pill ' + statusClass + '">' + escapeHtml(status) + '</span></td>';
-      }
-
       function renderDeviceCell(p) {
         if (p.level !== 1) {
-          return '<td><span class="device-na">Partner only</span></td>';
+          return '<td><span class="device-na" title="No device data for agents">-</span></td>';
         }
-        return '<td><span class="device-summary" title="Inventory: ' + Number(p.inventoryCount || 0) + ', Outbound: ' + Number(p.outboundCount || 0) + '">' +
-          'Inv <b>' + Number(p.inventoryCount || 0) + '</b>' +
-          '<span class="device-divider"></span>' +
-          'Out <b>' + Number(p.outboundCount || 0) + '</b>' +
+        var inventoryCount = Number(p.inventoryCount || 0);
+        var outboundCount = Number(p.outboundCount || 0);
+        return '<td><span class="device-summary" title="Inventory: ' + inventoryCount + ', Outbound: ' + outboundCount + '">' +
+          inventoryCount + '/' + outboundCount +
           '</span></td>';
       }
 
@@ -1659,7 +1641,7 @@
         var rows = result.data;
 
         if (!rows.length) {
-          tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#9ca3af;">No agent found.</td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px; color:#9ca3af;">No agent found.</td></tr>';
           renderPagination(result.total);
           return;
         }
@@ -1671,7 +1653,6 @@
             renderLevelCell(p) +
             '<td>' + escapeHtml(p.contacts) + '</td>' +
             '<td>' + escapeHtml(p.email) + '</td>' +
-            renderStatusCell(p) +
             '<td>' + dtParts.map(function (s) { return escapeHtml(s); }).join(' ') + '</td>' +
             renderDeviceCell(p) +
             '<td>' + renderActionIcons(p) + '</td>' +
@@ -1740,13 +1721,16 @@
       // Search
       searchBtn.addEventListener("click", function () {
         state.searchName = searchNameInput.value.trim();
+        state.searchEmail = searchEmailInput.value.trim();
         state.page = 1;
         renderTable();
       });
 
       resetSearchBtn.addEventListener("click", function () {
         searchNameInput.value = "";
+        searchEmailInput.value = "";
         state.searchName = "";
+        state.searchEmail = "";
         state.page = 1;
         renderTable();
       });
@@ -1763,6 +1747,10 @@
       });
 
       searchNameInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") searchBtn.click();
+      });
+
+      searchEmailInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") searchBtn.click();
       });
 
