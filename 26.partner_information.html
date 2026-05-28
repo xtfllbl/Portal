@@ -472,11 +472,45 @@
       min-width: 0;
     }
 
+    .name-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      max-width: 100%;
+      flex-wrap: wrap;
+    }
+
     .name-text {
       font-weight: 500;
       color: #111827;
       white-space: normal;
       line-height: 1.35;
+    }
+
+    .style-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      padding: 0 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      flex: none;
+    }
+
+    .style-badge.upt {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .style-badge.attd {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #c2410c;
     }
 
     .status-pill {
@@ -608,9 +642,50 @@
 
     .filter-row {
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
+      justify-content: space-between;
       gap: 10px;
       margin: -4px 0 18px;
+    }
+
+    .partner-type-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 36px;
+      padding: 3px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .type-filter-btn {
+      height: 28px;
+      min-width: 54px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 10px;
+    }
+
+    .type-filter-btn:hover {
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    .type-filter-btn.active {
+      background: #111827;
+      color: #fff;
+    }
+
+    .search-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .page-controls {
@@ -748,6 +823,28 @@
       width: 100%;
     }
 
+    .add-context-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .add-context-grid.has-type {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .partner-config {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .partner-config.hidden,
+    .attendance-config.hidden,
+    .inherited-type.hidden {
+      display: none;
+    }
+
     .field-label {
       position: absolute;
       top: -11px;
@@ -844,6 +941,21 @@
       .header-actions {
         flex-wrap: wrap;
       }
+
+      .filter-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .partner-type-filter,
+      .search-actions {
+        align-self: flex-start;
+      }
+
+      .add-context-grid,
+      .add-context-grid.has-type {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -917,21 +1029,28 @@
         </div>
 
         <div class="filter-row">
-          <input class="search-field" type="text" placeholder="Agent Name" id="searchPartnerName">
-          <button class="search-btn btn" id="resetSearchBtn" aria-label="Reset Search" title="Reset">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M3 12a9 9 0 1 0 3-6.7" />
-              <path d="M3 4v6h6" />
-            </svg>
-          </button>
-          <button class="search-btn btn primary" id="searchBtn" aria-label="Search" title="Search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </button>
+          <div class="partner-type-filter" role="group" aria-label="Partner Type">
+            <button class="type-filter-btn active" type="button" data-style-filter="ALL">All</button>
+            <button class="type-filter-btn" type="button" data-style-filter="UPT">UPT</button>
+            <button class="type-filter-btn" type="button" data-style-filter="ATTENDANCE">ATTD</button>
+          </div>
+          <div class="search-actions">
+            <input class="search-field" type="text" placeholder="Agent Name" id="searchPartnerName">
+            <button class="search-btn btn" id="resetSearchBtn" aria-label="Reset Search" title="Reset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 3-6.7" />
+                <path d="M3 4v6h6" />
+              </svg>
+            </button>
+            <button class="search-btn btn primary" id="searchBtn" aria-label="Search" title="Search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- Table -->
@@ -966,8 +1085,29 @@
       <form id="addPartnerForm">
         <div class="modal-body">
           <input id="addParentPartner" type="hidden">
-          <input class="modal-field" id="addParentDisplay" type="text" readonly>
-          <input class="modal-field" id="addPartnerLevel" type="text" placeholder="Level" readonly>
+          <div class="add-context-grid" id="addContextGrid">
+            <div class="field-shell">
+              <span class="field-label">Parent</span>
+              <input class="modal-field" id="addParentDisplay" type="text" readonly>
+            </div>
+            <div class="field-shell">
+              <span class="field-label">New Level</span>
+              <input class="modal-field" id="addPartnerLevel" type="text" placeholder="Level" readonly>
+            </div>
+            <div class="field-shell inherited-type hidden" id="inheritedTypeField">
+              <span class="field-label">Type</span>
+              <input class="modal-field" id="addInheritedType" type="text" readonly>
+            </div>
+          </div>
+          <div class="partner-config" id="partnerConfig">
+            <select class="modal-field" id="addPartnerType">
+              <option value="UPT">UPT</option>
+              <option value="ATTENDANCE">ATTD</option>
+            </select>
+            <div class="attendance-config hidden" id="attendanceConfig">
+              <input class="modal-field" id="addClientCode" type="text" placeholder="Client Code">
+            </div>
+          </div>
           <input class="modal-field" id="addPartnerName" type="text" placeholder="Partner / Agent Name" required>
           <input class="modal-field" id="addPartnerNameEn" type="text" placeholder="Name (EN)">
           <input class="modal-field" id="addPartnerContacts" type="text" placeholder="Contacts">
@@ -996,8 +1136,7 @@
             <span class="field-label">Page Style</span>
             <select class="modal-field" id="sharePageStyle">
               <option value="UPT">UPT</option>
-              <option value="Standard">Standard</option>
-              <option value="Promotion">Promotion</option>
+              <option value="ATTENDANCE">ATTD</option>
             </select>
           </div>
         </div>
@@ -1013,7 +1152,7 @@
     (function () {
       var MAX_LEVEL = 4;
       var LEVEL_META = {
-        1: { badge: "L1", label: "Vendor", className: "l1" },
+        1: { badge: "L1", label: "Partner", className: "l1" },
         2: { badge: "L2", label: "Agent", className: "l2" },
         3: { badge: "L3", label: "Agent", className: "l3" },
         4: { badge: "L4", label: "Agent", className: "l4" }
@@ -1024,6 +1163,7 @@
           id: "p-huangjiaowan",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "黄角湾",
           nameEn: "黄角湾",
           contacts: "Dido",
@@ -1076,6 +1216,7 @@
           id: "p-taizhou-lianchuang",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "台州联创电子有限公司",
           nameEn: "AI-SUNBIRD CO., LTD",
           contacts: "孙维平",
@@ -1115,6 +1256,7 @@
           id: "p-guangzhou-ailer",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "广州艾尔",
           nameEn: "Playmeet",
           contacts: "西慕遥",
@@ -1128,6 +1270,8 @@
           id: "p-beijing-kaiwang",
           parentId: "",
           level: 1,
+          partnerType: "ATTENDANCE",
+          clientCode: "ATTD-BJ-001",
           name: "北京凯旺",
           nameEn: "Zhongxin Smart Device",
           contacts: "李小明",
@@ -1151,9 +1295,24 @@
           outboundCount: 1
         },
         {
+          id: "a-beijing-north-campus",
+          parentId: "a-beijing-north",
+          level: 3,
+          name: "北京凯旺校区代理",
+          nameEn: "Zhongxin Campus Agent",
+          contacts: "赵敏",
+          phone: "19866088184",
+          email: "campus.agent@example.com",
+          dateTime: "2026-04-15\n16:18:22",
+          inventoryCount: 0,
+          outboundCount: 0
+        },
+        {
           id: "p-ningyou-wanyitong",
           parentId: "",
           level: 1,
+          partnerType: "ATTENDANCE",
+          clientCode: "ATTD-NY-001",
           name: "宁友万益通",
           nameEn: "明正公",
           contacts: "伸中元",
@@ -1164,9 +1323,23 @@
           outboundCount: 0
         },
         {
+          id: "a-ningyou-campus",
+          parentId: "p-ningyou-wanyitong",
+          level: 2,
+          name: "宁友校园代理",
+          nameEn: "Ningyou Campus Agent",
+          contacts: "周雪",
+          phone: "13866063115",
+          email: "ny.campus.agent@example.com",
+          dateTime: "2026-04-05\n15:24:31",
+          inventoryCount: 0,
+          outboundCount: 0
+        },
+        {
           id: "p-guangzhou-xianghe",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "广州向赫莱达网络\n集点云",
           nameEn: "广州明亮千宇科技有限公司",
           contacts: "邢城",
@@ -1180,6 +1353,7 @@
           id: "p-shenzhen-gengxin",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "深圳更新",
           nameEn: "深圳期钱",
           contacts: "",
@@ -1193,6 +1367,7 @@
           id: "p-songjie-baxi",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "颂杰八禧",
           nameEn: "BAI旺",
           contacts: "Klown1",
@@ -1206,6 +1381,7 @@
           id: "p-shenzhen-bianya",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "深圳汴亚",
           nameEn: "6MTC1",
           contacts: "叶庆",
@@ -1219,6 +1395,7 @@
           id: "p-guangzhou-xiaorui",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "广州晓瑞翰依精密技术\n金昌",
           nameEn: "广州小瑞翰赛思技术开发公司",
           contacts: "杜余",
@@ -1232,6 +1409,7 @@
           id: "p-guangzhou-jiecheng",
           parentId: "",
           level: 1,
+          partnerType: "UPT",
           name: "广州杰成电子仪器仪表\n有限公司",
           nameEn: "光辉电子牛",
           contacts: "徐添",
@@ -1248,12 +1426,14 @@
         page: 1,
         pageSize: 20,
         searchName: "",
+        styleFilter: "ALL",
         collapsedIds: {}
       };
 
       var tableBody = document.getElementById("partnerTableBody");
       var paginationEl = document.getElementById("pagination");
       var searchNameInput = document.getElementById("searchPartnerName");
+      var styleFilterBtns = document.querySelectorAll("[data-style-filter]");
       var searchBtn = document.getElementById("searchBtn");
       var resetSearchBtn = document.getElementById("resetSearchBtn");
       var addBtn = document.getElementById("addPartnerBtn");
@@ -1262,8 +1442,15 @@
       var addForm = document.getElementById("addPartnerForm");
       var cancelAddBtn = document.getElementById("cancelAdd");
       var addParentSelect = document.getElementById("addParentPartner");
+      var addContextGrid = document.getElementById("addContextGrid");
       var addParentDisplay = document.getElementById("addParentDisplay");
       var addPartnerLevel = document.getElementById("addPartnerLevel");
+      var inheritedTypeField = document.getElementById("inheritedTypeField");
+      var addInheritedType = document.getElementById("addInheritedType");
+      var partnerConfig = document.getElementById("partnerConfig");
+      var attendanceConfig = document.getElementById("attendanceConfig");
+      var addPartnerType = document.getElementById("addPartnerType");
+      var addClientCode = document.getElementById("addClientCode");
       var shareModal = document.getElementById("shareModal");
       var shareForm = document.getElementById("shareLandingForm");
       var cancelShareBtn = document.getElementById("cancelShare");
@@ -1317,6 +1504,20 @@
         }).join(" > ");
       }
 
+      function getRootPartner(partner) {
+        var path = getPath(partner);
+        return path.length ? path[0] : partner;
+      }
+
+      function getPartnerStyle(partner) {
+        var root = getRootPartner(partner);
+        return root && root.partnerType === "ATTENDANCE" ? "ATTENDANCE" : "UPT";
+      }
+
+      function getPartnerStyleShort(partner) {
+        return getPartnerStyle(partner) === "ATTENDANCE" ? "ATTD" : "UPT";
+      }
+
       function hasChildren(id) {
         return partners.some(function (p) {
           return p.parentId === id;
@@ -1333,6 +1534,7 @@
       }
 
       function partnerMatches(p) {
+        if (state.styleFilter !== "ALL" && getPartnerStyle(p) !== state.styleFilter) return false;
         if (!state.searchName) return true;
         var searchText = state.searchName.toLowerCase();
         return [
@@ -1340,12 +1542,13 @@
           p.nameEn,
           p.contacts,
           p.email,
+          getPartnerStyleShort(p),
           getPathText(p)
         ].join(" ").toLowerCase().indexOf(searchText) >= 0;
       }
 
       function getFilteredIds() {
-        if (!state.searchName) return null;
+        if (!state.searchName && state.styleFilter === "ALL") return null;
         var includeIds = {};
         partners.forEach(function (p) {
           if (!partnerMatches(p)) return;
@@ -1407,6 +1610,12 @@
 
       function renderNameCell(p) {
         var childToggle = "";
+        var partnerStyle = getPartnerStyle(p);
+        var badgeClass = partnerStyle === "ATTENDANCE" ? "attd" : "upt";
+        var badgeText = getPartnerStyleShort(p);
+        var badgeHtml = p.level === 1
+          ? '<span class="style-badge ' + badgeClass + '" title="Page Style: ' + badgeText + '">' + badgeText + '</span>'
+          : "";
         if (hasChildren(p.id)) {
           childToggle = '<button type="button" class="tree-toggle" data-toggle-id="' + escapeHtml(p.id) + '" aria-label="' +
             (state.collapsedIds[p.id] ? "Expand " : "Collapse ") + escapeHtml(p.name) + '">' +
@@ -1419,7 +1628,10 @@
           '<div class="tree-name" style="--depth:' + Math.max(0, p.level - 1) + '">' +
           childToggle +
           '<div class="name-stack">' +
+          '<span class="name-line">' +
           '<span class="name-text">' + escapeHtml(p.name).replace(/\n/g, '<br>') + '</span>' +
+          badgeHtml +
+          '</span>' +
           '</div>' +
           '</div>' +
           '</td>';
@@ -1539,6 +1751,17 @@
         renderTable();
       });
 
+      styleFilterBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          state.styleFilter = btn.getAttribute("data-style-filter");
+          state.page = 1;
+          styleFilterBtns.forEach(function (item) {
+            item.classList.toggle("active", item === btn);
+          });
+          renderTable();
+        });
+      });
+
       searchNameInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") searchBtn.click();
       });
@@ -1572,9 +1795,25 @@
         var meta = getLevelMeta(nextLevel);
         addParentDisplay.value = parent
           ? getLevelMeta(parent.level).badge + " " + parent.name.replace(/\n/g, " ")
-          : "No parent - create L1 Vendor";
+          : "No parent";
         addPartnerLevel.value = meta.badge + " " + meta.label;
-        addModalTitle.textContent = parent ? "Add Agent" : "Add Vendor";
+        addModalTitle.textContent = parent ? "Add Agent" : "Add Partner";
+        addContextGrid.classList.toggle("has-type", !!parent);
+        inheritedTypeField.classList.toggle("hidden", !parent);
+        addInheritedType.value = parent ? getPartnerStyleShort(parent) : "";
+        partnerConfig.classList.toggle("hidden", !!parent);
+        if (parent) {
+          addPartnerType.value = "UPT";
+          addClientCode.value = "";
+        }
+        syncPartnerTypeFields();
+      }
+
+      function syncPartnerTypeFields() {
+        var isAttendancePartner = !addParentSelect.value && addPartnerType.value === "ATTENDANCE";
+        attendanceConfig.classList.toggle("hidden", !isAttendancePartner);
+        addClientCode.required = isAttendancePartner;
+        if (!isAttendancePartner) addClientCode.value = "";
       }
 
       function openAddModal(parentId) {
@@ -1593,6 +1832,7 @@
       addBtn.addEventListener("click", function () {
         openAddModal("");
       });
+      addPartnerType.addEventListener("change", syncPartnerTypeFields);
       cancelAddBtn.addEventListener("click", closeAddModal);
 
       addModal.addEventListener("click", function (e) {
@@ -1603,7 +1843,7 @@
         var partner = getPartnerById(partnerId);
         if (!partner) return;
         sharePartnerName.value = partner.name.replace(/\n/g, " ");
-        sharePageStyle.value = "UPT";
+        sharePageStyle.value = getPartnerStyle(partner);
         shareModal.classList.add("show");
         shareModal.setAttribute("aria-hidden", "false");
       }
@@ -1669,10 +1909,15 @@
           return;
         }
 
+        var partnerType = level === 1 ? addPartnerType.value : "";
+        var clientCode = level === 1 && partnerType === "ATTENDANCE" ? addClientCode.value.trim() : "";
+
         var newPartner = {
           id: buildPartnerId(),
           parentId: parent ? parent.id : "",
           level: level,
+          partnerType: partnerType,
+          clientCode: clientCode,
           name: document.getElementById("addPartnerName").value.trim(),
           nameEn: document.getElementById("addPartnerNameEn").value.trim(),
           contacts: document.getElementById("addPartnerContacts").value.trim(),
