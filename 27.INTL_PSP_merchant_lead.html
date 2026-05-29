@@ -97,6 +97,21 @@
       letter-spacing: 0;
     }
 
+    .sla-note {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid #b7d9d4;
+      border-radius: 999px;
+      background: var(--teal-soft);
+      color: #075f58;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
     .authority-inline {
       max-width: 920px;
       display: grid;
@@ -182,6 +197,10 @@
 
     .basic-panel .grid {
       grid-template-columns: 1fr;
+    }
+
+    #manual-fields {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .full {
@@ -351,6 +370,10 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
       margin-top: 16px;
+    }
+
+    .method-row[hidden] {
+      display: none;
     }
 
     .method-card {
@@ -569,6 +592,10 @@
       .option-grid {
         grid-template-columns: 1fr;
       }
+
+      #manual-fields {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -577,6 +604,7 @@
     <section class="intro">
       <div class="intro-copy">
         <h1>Submit merchant information for payment terminal activation.</h1>
+        <p class="sla-note">Activation SLA: within 24 business hours after complete and accurate information is submitted.</p>
         <div class="authority-inline" aria-labelledby="authority-title">
           <h2 id="authority-title">Authorization and compliance notice</h2>
           <p>
@@ -604,24 +632,23 @@
         <div class="panel-body">
           <div class="grid">
             <div>
-              <label for="device-sn"><span class="required">*</span>Activate Device SN</label>
-              <input id="device-sn" name="deviceSn" type="text" value="WP4420PQ29000020" readonly required />
-              <p class="hint">Auto-detected from the current device.</p>
+              <label for="device-sn"><span class="required">*</span>Active Device SN </label>
+              <input id="device-sn" name="deviceSn" type="text" maxlength="16" autocomplete="off" placeholder="Enter a 16-digit WizarPOS Serial Number starting with 'WP'" required />
+              <p class="hint">Enter the serial number of the payment terminal.</p>
             </div>
             <div>
-              <label for="submitter-name"><span class="required">*</span>Contact Name</label>
-              <input id="submitter-name" name="submitterName" type="text" maxlength="80" placeholder="Contact Name" required />
-              <p class="hint">Fill in the merchant's contact name.</p>
+              <label for="submitter-name"><span class="required">*</span>Submitter Name</label>
+              <input id="submitter-name" name="submitterName" type="text" maxlength="80" placeholder="Submitter Name" required />
             </div>
             <div>
-              <label for="submitter-email">Email<span class="optional">either email or phone</span></label>
+              <label for="submitter-email">Submitter Email<span class="optional">either email or phone</span></label>
               <input id="submitter-email" name="submitterEmail" type="email" maxlength="100" placeholder="name@company.com" />
-              <p class="hint">Enter the contact's email address. Make sure there are no spaces before or after the address.</p>
+              <p class="hint">Enter the submitter's email address. Make sure there are no spaces before or after the address.</p>
             </div>
             <div>
-              <label for="submitter-phone">Phone<span class="optional">either email or phone</span></label>
+              <label for="submitter-phone">Submitter Phone<span class="optional">either email or phone</span></label>
               <input id="submitter-phone" name="submitterPhone" type="tel" maxlength="30" placeholder="+11234567890" />
-              <p class="hint">Enter the contact's mobile number, e.g., +11234567890. Do not include spaces.</p>
+              <p class="hint">Enter the submitter's mobile number, e.g., +11234567890. Do not include spaces.</p>
             </div>
           </div>
         </div>
@@ -637,7 +664,7 @@
           </div>
         </div>
         <div class="panel-body">
-          <div class="field-label"><span class="required">*</span>Payment channel</div>
+          <div class="field-label"><span class="required">*</span>Please Select Payment channel</div>
           <div class="option-grid" role="radiogroup" aria-label="Payment channel">
             <label class="choice-card">
               <input type="radio" name="paymentChannel" value="TSYS" />
@@ -669,12 +696,12 @@
             </label>
           </div>
 
-          <div class="method-row" role="radiogroup" aria-label="Parameter submission method">
+          <div class="method-row" id="parameter-method-row" role="radiogroup" aria-label="Parameter submission method" hidden>
             <label class="method-card">
               <input type="radio" name="parameterMethod" value="upload" checked />
               <span>
-                <strong>Upload VAR sheet or screenshot</strong>
-                <span>Attach the channel VAR sheet, parameter screenshot, PDF, spreadsheet, or image.</span>
+                <strong>Upload onboarding or parameter file</strong>
+                <span>Attach onboarding information, a VAR sheet if applicable, parameter screenshot, PDF, spreadsheet, or image.</span>
               </span>
             </label>
             <label class="method-card">
@@ -686,13 +713,13 @@
             </label>
           </div>
 
-          <div class="setup-area" id="upload-area">
+          <div class="setup-area" id="upload-area" hidden>
             <div class="setup-head">
               <h3>Upload files for <span id="upload-channel-name">the selected channel</span></h3>
               <span class="selected-channel" id="upload-channel-pill">No channel selected</span>
             </div>
-            <label for="varsheet-file"><span class="required">*</span>VAR sheet / parameter screenshot</label>
-            <input id="varsheet-file" name="varsheetFiles" type="file" multiple accept=".pdf,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp" />
+            <label for="parameter-file"><span class="required">*</span>Onboarding / parameter information</label>
+            <input id="parameter-file" name="parameterFiles" type="file" multiple accept=".pdf,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp" />
             <p class="hint">Accepted examples: PDF, Excel, CSV, PNG, JPG, or WebP. Multiple files are allowed.</p>
             <p class="file-summary" id="file-summary">No file selected.</p>
           </div>
@@ -741,8 +768,8 @@
             <div class="consent-item">
               <input id="consent-sensitive" name="consentSensitive" type="checkbox" required />
               <label for="consent-sensitive">
-                I confirm that this submission does not include cardholder data, full card numbers,
-                track data, PINs, passwords, API secrets, encryption keys, or other restricted credentials.
+                I understand that submitting incorrect or incomplete information may delay terminal activation
+                and extend the activation timeline.
               </label>
             </div>
           </div>
@@ -763,36 +790,66 @@
     (function () {
       var channelFields = {
         "TSYS": [
-          { name: "mid", label: "Merchant ID (MID)", required: true },
-          { name: "tid", label: "Terminal ID (TID)", required: true },
-          { name: "acquirerBin", label: "Acquirer BIN / Bank ID", required: true },
-          { name: "storeNumber", label: "Store number", required: false },
-          { name: "chainNumber", label: "Chain / agent number", required: false },
-          { name: "currency", label: "Processing currency", required: true }
+          { name: "taUsername", label: "TA Username", required: true },
+          { name: "taPassword", label: "TA Password", required: true, type: "password" },
+          { name: "merchantId", label: "Merchant ID", required: true },
+          { name: "deviceId", label: "Device ID", required: true },
+          { name: "dbaName", label: "DBA Name", required: true },
+          { name: "merchantName", label: "Merchant Name", required: false },
+          { name: "dbaAddress", label: "DBA Addr", required: true },
+          { name: "city", label: "City", required: true },
+          { name: "state", label: "State", required: false },
+          { name: "postal", label: "Postal#", required: false },
+          { name: "country", label: "Country", required: true, value: "USA" },
+          { name: "countryCode", label: "Country Code", required: true, value: "840" },
+          { name: "currencyCode", label: "Currency Code", required: true, value: "840" },
+          { name: "dbaPhone", label: "DBA Phone#", required: true },
+          { name: "merchantEmail", label: "Merchant Email", required: false, type: "email" },
+          { name: "mcc", label: "MCC", required: true },
+          { name: "ebtFcsId", label: "EBT FCS ID", required: false }
         ],
         "Nuvei": [
-          { name: "merchantId", label: "Merchant ID", required: true },
-          { name: "siteId", label: "Site ID", required: true },
-          { name: "terminalId", label: "Terminal ID", required: true },
-          { name: "profile", label: "Integration / profile reference", required: false },
-          { name: "processingCountry", label: "Processing country", required: true },
-          { name: "currency", label: "Processing currency", required: true }
+          { name: "mid", label: "Merchant ID", required: true },
+          { name: "tid", label: "Terminal ID", required: true },
+          { name: "name", label: "Merchant Name", required: false },
+          { name: "address", label: "Address", required: false },
+          { name: "city", label: "City", required: false },
+          { name: "state", label: "State", required: false },
+          { name: "zip", label: "ZIP", required: false },
+          { name: "telephone", label: "Telephone", required: false },
+          { name: "currencyCode", label: "Currency Code", required: false , value: "124" },
+          { name: "countryCode", label: "Country Code", required: false , value: "124" },
+
         ],
         "Elavon EU": [
+
           { name: "merchantId", label: "Merchant ID", required: true },
           { name: "terminalId", label: "Terminal ID", required: true },
-          { name: "chainStore", label: "Chain / store number", required: false },
-          { name: "acquirerRegion", label: "Acquirer region", required: true },
-          { name: "profile", label: "ECR / POS profile reference", required: false },
-          { name: "currency", label: "Processing currency", required: true }
+          { name: "systemId", label: "System ID", required: false },
+          { name: "merchantName", label: "Merchant Name", required: false },
+          { name: "merchantAddress", label: "Merchant Address", required: false },
+          { name: "countryCode", label: "Country Code", required: false},
+          { name: "currencyCode", label: "Currency Code", required: false},
         ],
         "Fiserv": [
-          { name: "merchantId", label: "Merchant ID", required: true },
+             { name: "groupId", label: "Group ID", required: true, type: "select", value: "10001", options: [
+            { label: "Nashville (10001)", value: "10001" },
+            { label: "ByPass (20001)", value: "20001" }
+          ] },
+          { name: "merchantId", label: "Merchant ID", required: true},
           { name: "terminalId", label: "Terminal ID", required: true },
-          { name: "storeId", label: "Store ID", required: false },
-          { name: "hostProfile", label: "Platform / host reference", required: true },
-          { name: "settlementProfile", label: "Batch / settlement profile", required: false },
-          { name: "currency", label: "Processing currency", required: true }
+          { name: "datawireId", label: "Datawire ID(DID)", required: false},
+       
+          { name: "merchantName", label: "Merchant Name", required: false },
+          { name: "merchantAddress", label: "Merchant Address", required: false },
+          { name: "merchantCity", label: "Merchant City", required: false },
+          { name: "merchantPhone", label: "Merchant Phone", required: false },
+          { name: "merchantState", label: "Merchant State", required: false },
+          { name: "merchantCityCode", label: "Merchant City Code", required: false },
+          { name: "merchantEmail", label: "Merchant Email", required: false, type: "email" },
+          { name: "countryCode", label: "Country Code", required: true, value: "840" },
+          { name: "currencyCode", label: "Currency Code", required: true, value: "840" },
+          { name: "industryType", label: "Industry Type", required: false, type: "select", value: "Retail", options: ["Retail", "Restaurant", "Supermarket"] }
         ]
       };
 
@@ -801,12 +858,13 @@
       var phoneField = document.getElementById("submitter-phone");
       var uploadArea = document.getElementById("upload-area");
       var manualArea = document.getElementById("manual-area");
+      var methodRow = document.getElementById("parameter-method-row");
       var manualFields = document.getElementById("manual-fields");
       var manualTitle = document.getElementById("manual-title");
       var uploadChannelName = document.getElementById("upload-channel-name");
       var uploadChannelPill = document.getElementById("upload-channel-pill");
       var manualChannelPill = document.getElementById("manual-channel-pill");
-      var fileInput = document.getElementById("varsheet-file");
+      var fileInput = document.getElementById("parameter-file");
       var fileSummary = document.getElementById("file-summary");
       var formError = document.getElementById("form-error");
       var successNote = document.getElementById("success-note");
@@ -837,13 +895,27 @@
           label.setAttribute("for", inputId);
           label.innerHTML = (field.required ? '<span class="required">*</span>' : "") + field.label;
 
-          var input = document.createElement("input");
+          var input;
+          if (field.type === "select") {
+            input = document.createElement("select");
+            (field.options || []).forEach(function (option) {
+              var optionNode = document.createElement("option");
+              optionNode.value = typeof option === "string" ? option : option.value;
+              optionNode.textContent = typeof option === "string" ? option : option.label;
+              input.appendChild(optionNode);
+            });
+          } else {
+            input = document.createElement("input");
+            input.type = field.type || "text";
+            input.maxLength = 100;
+            input.placeholder = field.label;
+          }
           input.id = inputId;
           input.name = "manual_" + field.name;
-          input.type = "text";
-          input.maxLength = 100;
-          input.placeholder = field.label;
           input.required = selectedMethod() === "manual" && field.required;
+          if (field.value) {
+            input.value = field.value;
+          }
 
           wrap.appendChild(label);
           wrap.appendChild(input);
@@ -875,14 +947,26 @@
       }
 
       function updateMethodDisplay() {
+        var channel = selectedChannel();
         var method = selectedMethod();
         var isManual = method === "manual";
+        methodRow.hidden = !channel;
+
+        if (!channel) {
+          uploadArea.hidden = true;
+          manualArea.hidden = true;
+          fileInput.required = false;
+          manualFields.querySelectorAll("input, select").forEach(function (input) {
+            input.required = false;
+          });
+          return;
+        }
+
         uploadArea.hidden = isManual;
         manualArea.hidden = !isManual;
         fileInput.required = false;
-        manualFields.querySelectorAll("input").forEach(function (input) {
+        manualFields.querySelectorAll("input, select").forEach(function (input) {
           var fieldName = input.name.replace("manual_", "");
-          var channel = selectedChannel();
           var definition = (channelFields[channel] || []).find(function (field) {
             return field.name === fieldName;
           });
@@ -940,7 +1024,7 @@
         }
 
         if (selectedMethod() === "upload" && !fileInput.files.length) {
-          setError("Please upload a VAR sheet, parameter screenshot, or equivalent setup file.");
+          setError("Please upload onboarding information, a parameter screenshot, or an equivalent setup file.");
           fileInput.focus();
           return;
         }
