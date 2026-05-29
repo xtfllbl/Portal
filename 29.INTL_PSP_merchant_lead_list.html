@@ -1,0 +1,1397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leads - PAYwizard Portal</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: #f4f5f7;
+      --surface: #ffffff;
+      --text: #2f3037;
+      --muted: #6b7280;
+      --line: #e1e4ea;
+      --line-strong: #cfd4dc;
+      --black: #0f1014;
+      --hover: #f8f8f9;
+      --active: #2b2b2e;
+      --blue: #0ea5e9;
+      --blue-soft: #e0f2fe;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "Poppins", "Segoe UI", Arial, Helvetica, sans-serif;
+      line-height: 1.35;
+    }
+
+    button,
+    input,
+    select {
+      color: inherit;
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 264px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .sidebar,
+    .topbar,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .sidebar {
+      min-height: calc(100vh - 32px);
+      padding: 18px 16px;
+    }
+
+    .brand {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      margin-bottom: 18px;
+      color: #27272a;
+    }
+
+    .brand-name {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 4px;
+    }
+
+    .menu-item,
+    .sub-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 42px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: #303036;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .menu-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .icon {
+      display: inline-grid;
+      place-items: center;
+      width: 16px;
+      height: 16px;
+      flex: none;
+    }
+
+    .icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .menu-item.active,
+    .sub-item.active {
+      background: var(--active);
+      color: #fff;
+    }
+
+    .sub-menu {
+      display: grid;
+      gap: 2px;
+      margin: 3px 8px 12px 28px;
+    }
+
+    .sub-item {
+      position: relative;
+      min-height: 36px;
+      padding: 7px 12px 7px 24px;
+      color: #303036;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .sub-item::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      border: 2px solid currentColor;
+      border-radius: 999px;
+      transform: translateY(-50%);
+    }
+
+    .sub-item.active::before {
+      border-color: #fff;
+      background: #fff;
+    }
+
+    .workspace {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .topbar {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 28px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .breadcrumb strong {
+      color: #2f3037;
+    }
+
+    .top-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .round-btn {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: #f4f4f5;
+      color: #18181b;
+    }
+
+    .round-btn.dark {
+      background: #050507;
+      color: #fff;
+    }
+
+    .round-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .notice-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      min-width: 30px;
+      height: 19px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 19px;
+      text-align: center;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      margin: 0;
+      color: #3f3f46;
+      font-size: 25px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .header-actions,
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 7px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #18181b;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      border-color: #050507;
+      background: #050507;
+      color: #fff;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .lead-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      width: fit-content;
+      margin: -10px 0 16px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .tab-button {
+      min-height: 32px;
+      padding: 7px 13px;
+      border-radius: 7px;
+      background: transparent;
+      color: #52525b;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .tab-button:hover {
+      background: #f4f4f5;
+      color: #18181b;
+    }
+
+    .tab-button.active {
+      background: #18181b;
+      color: #fff;
+    }
+
+    .filter-field {
+      width: 180px;
+      height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      color: #4b5563;
+      font-size: 14px;
+      outline: none;
+    }
+
+    select.filter-field {
+      appearance: none;
+      padding-right: 34px;
+      background-image: linear-gradient(45deg, transparent 50%, #71717a 50%),
+        linear-gradient(135deg, #71717a 50%, transparent 50%);
+      background-position: calc(100% - 18px) 15px, calc(100% - 13px) 15px;
+      background-size: 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 6px;
+    }
+
+    .lead-table {
+      width: 100%;
+      min-width: 1600px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .lead-table[hidden] {
+      display: none;
+    }
+
+    .upt-table {
+      min-width: 1500px;
+    }
+
+    .intl-table {
+      min-width: 1600px;
+    }
+
+    .upt-table thead th:nth-child(1) { width: 90px; }
+    .upt-table thead th:nth-child(2) { width: 85px; }
+    .upt-table thead th:nth-child(3) { width: 125px; }
+    .upt-table thead th:nth-child(4) { width: 130px; }
+    .upt-table thead th:nth-child(5) { width: 135px; }
+    .upt-table thead th:nth-child(6) { width: 95px; }
+    .upt-table thead th:nth-child(7) { width: 125px; }
+    .upt-table thead th:nth-child(8) { width: 190px; }
+    .upt-table thead th:nth-child(9) { width: 105px; }
+    .upt-table thead th:nth-child(10) { width: 70px; }
+    .upt-table thead th:nth-child(11) { width: 85px; }
+    .upt-table thead th:nth-child(12) { width: 90px; }
+    .upt-table thead th:nth-child(13) { width: 132px; }
+
+    .intl-table thead th:nth-child(1) { width: 85px; }
+    .intl-table thead th:nth-child(2) { width: 70px; }
+    .intl-table thead th:nth-child(3) { width: 120px; }
+    .intl-table thead th:nth-child(4) { width: 100px; }
+    .intl-table thead th:nth-child(5) { width: 120px; }
+    .intl-table thead th:nth-child(6) { width: 135px; }
+    .intl-table thead th:nth-child(7) { width: 110px; }
+    .intl-table thead th:nth-child(8) { width: 110px; }
+    .intl-table thead th:nth-child(9) { width: 190px; }
+    .intl-table thead th:nth-child(10) { width: 110px; }
+    .intl-table thead th:nth-child(11) { width: 95px; }
+    .intl-table thead th:nth-child(12) { width: 70px; }
+    .intl-table thead th:nth-child(13) { width: 85px; }
+    .intl-table thead th:nth-child(14) { width: 90px; }
+    .intl-table thead th:nth-child(15) { width: 132px; }
+
+    thead th {
+      height: 31px;
+      padding: 8px 10px;
+      background: #18181b;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    tbody td {
+      min-height: 49px;
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      color: #3f3f46;
+      font-size: 13px;
+      line-height: 1.25;
+      vertical-align: middle;
+      overflow-wrap: anywhere;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    tbody tr:hover {
+      background: var(--hover);
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    .status {
+      color: #3f3f46;
+    }
+
+    .style {
+      color: #52525b;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .action-btn {
+      display: inline-grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #6b7280;
+    }
+
+    .action-btn.view {
+      color: #52525b;
+    }
+
+    .action-btn.edit {
+      border-color: #bae6fd;
+      color: #0ea5e9;
+      background: #f0f9ff;
+    }
+
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      color: #71717a;
+      font-size: 14px;
+    }
+
+    .page-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-btn {
+      display: inline-grid;
+      place-items: center;
+      min-width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: transparent;
+      color: #71717a;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .page-btn.active {
+      background: #050507;
+      color: #fff;
+    }
+
+    .page-size {
+      width: 84px;
+      height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      color: #3f3f46;
+    }
+
+    .page-total {
+      position: absolute;
+      right: 12px;
+      color: #a1a1aa;
+      font-size: 12px;
+    }
+
+    .footer-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      justify-content: center;
+      min-height: 68px;
+      padding: 0 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .empty-row td {
+      height: 110px;
+      color: #71717a;
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: auto;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .sub-menu {
+        margin-left: 16px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .layout {
+        padding: 8px;
+      }
+
+      .topbar,
+      .panel-header,
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .nav,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-field,
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-name">PAYwizard</div>
+        <div class="brand-sub">Portal</div>
+      </div>
+
+      <nav class="nav" aria-label="Main navigation">
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"></rect><rect x="14" y="4" width="6" height="6"></rect><rect x="4" y="14" width="6" height="6"></rect><rect x="14" y="14" width="6" height="6"></rect></svg></span>
+            Dashboard
+          </span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"></rect><path d="M3 10h18"></path></svg></span>
+            Transactions
+          </span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-8 0v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+            Agents
+          </span>
+          <span>v</span>
+        </div>
+        <div class="menu-item active">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20H4z"></path><path d="M9 20v-6h6v6"></path></svg></span>
+            Merchants
+          </span>
+          <span>^</span>
+        </div>
+        <div class="sub-menu">
+          <div class="sub-item">Contact</div>
+          <div class="sub-item active">Leads</div>
+          <div class="sub-item">Onboarding</div>
+          <div class="sub-item">Merchant List</div>
+          <div class="sub-item">Analytics</div>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s7-3.6 7-10A7 7 0 0 0 5 11c0 6.4 7 10 7 10z"></path><circle cx="12" cy="11" r="2"></circle></svg></span>
+            Partners
+          </span>
+          <span>v</span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg></span>
+            Device Management
+          </span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.8 5.6h5.9l-4.8 3.5 1.8 5.6-4.7-3.5-4.8 3.5 1.8-5.6-4.8-3.5h5.9z"></path></svg></span>
+            APP Management
+          </span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path><path d="M2 21a6 6 0 0 1 12 0"></path><path d="M17 8h4M19 6v4"></path></svg></span>
+            User Management
+          </span>
+          <span>v</span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 0 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"></path></svg></span>
+            Settings
+          </span>
+          <span>v</span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4z"></path><path d="M9 12h6"></path></svg></span>
+            Tickets
+          </span>
+        </div>
+        <div class="menu-item">
+          <span class="menu-main">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 8-4 4 4 4"></path><path d="m16 8 4 4-4 4"></path><path d="m13 5-2 14"></path></svg></span>
+            Developer Center
+          </span>
+          <span>v</span>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <span>Merchants</span>
+          <span>&gt;</span>
+          <strong>Leads</strong>
+        </div>
+        <div class="top-actions">
+          <button class="round-btn" type="button" aria-label="Notifications">
+            <span class="notice-count">99+</span>
+            <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>
+          </button>
+          <button class="round-btn dark" type="button" aria-label="Account">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="panel" aria-labelledby="page-title">
+        <div class="panel-header">
+          <h1 class="page-title" id="page-title">Leads</h1>
+          <div class="header-actions">
+            <button class="btn primary" type="button">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 11v6M9 14h6"></path></svg>
+              Add
+            </button>
+            <button class="btn" type="button">
+              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 10.5 15.4 6.5"></path><path d="M8.6 13.5 15.4 17.5"></path></svg>
+              Sharing Landing Page
+            </button>
+            <button class="btn" type="button">
+              <svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+              Export
+            </button>
+          </div>
+        </div>
+
+        <div class="lead-tabs" role="tablist" aria-label="Lead page style">
+          <button class="tab-button active" type="button" role="tab" aria-selected="true" data-lead-tab="upt">UPT Leads</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-lead-tab="intl">INTL PSP Activate</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="filters">
+            <input class="filter-field" id="partnerFilter" type="text" placeholder="Partner Name" aria-label="Partner Name">
+            <select class="filter-field" id="secondaryFilter" aria-label="Country Name">
+              <option value="">Country Name</option>
+              <option>United States of America</option>
+              <option>Mexico</option>
+              <option>Mongolia</option>
+              <option>Russian Federation</option>
+              <option>Indonesia</option>
+              <option>Singapore</option>
+            </select>
+            <input class="filter-field" id="snFilter" type="text" placeholder="SN" aria-label="SN">
+            <select class="filter-field" id="statusFilter" aria-label="Status">
+              <option value="">Status</option>
+              <option>-</option>
+              <option>Negotiation</option>
+              <option>Pending Activation</option>
+              <option>Activated</option>
+              <option>Rejected</option>
+            </select>
+            <button class="btn" id="filterButton" type="button">
+              <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"></path></svg>
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="lead-table upt-table" data-table-view="upt">
+            <thead>
+              <tr>
+                <th>Process ID</th>
+                <th>SP Name</th>
+                <th>Partner Name</th>
+                <th>Country Name</th>
+                <th>Merchant Name</th>
+                <th>Terminal Number</th>
+                <th>Contact Name</th>
+                <th>Merchant Email</th>
+                <th>Last Update</th>
+                <th>Past Days</th>
+                <th>Page Style</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="uptLeadRows">
+              <tr data-partner="广州新勇隆智能设备有限公司" data-secondary="United States of America" data-sn="" data-status="-">
+                <td class="mono">00000440</td>
+                <td>wizarpos</td>
+                <td>广州新勇隆智能设备有限公司</td>
+                <td>United States of America</td>
+                <td>Brittney Rodriguez</td>
+                <td>1</td>
+                <td>Brittney Rodriguez</td>
+                <td>therosebar@outlook.com</td>
+                <td>2026-05-29<br>14:25:04</td>
+                <td>1</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="上海比至" data-secondary="United States of America" data-sn="" data-status="-">
+                <td class="mono">00000439</td>
+                <td>wizarpos</td>
+                <td>上海比至</td>
+                <td>United States of America</td>
+                <td>Jeeves Vending</td>
+                <td>1</td>
+                <td>Gary Stryder</td>
+                <td>Gary@jeevesvending.com</td>
+                <td>2026-05-28<br>18:04:26</td>
+                <td>1</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="IMT" data-secondary="Mongolia" data-sn="" data-status="-">
+                <td class="mono">00000438</td>
+                <td>wizarpos</td>
+                <td>IMT</td>
+                <td>Mongolia</td>
+                <td>Steppe Arena LLC</td>
+                <td>2</td>
+                <td>Khaliun Maitsetseg</td>
+                <td>khaliun.m@steppeholding.mn</td>
+                <td>2026-05-28<br>15:34:29</td>
+                <td>2</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="苏州咔咔电子有限公司" data-secondary="Mexico" data-sn="" data-status="Negotiation">
+                <td class="mono">00000437</td>
+                <td>wizarpos</td>
+                <td>苏州咔咔电子有限公司</td>
+                <td>Mexico</td>
+                <td>Pasiflor</td>
+                <td>1</td>
+                <td>Angela Alanis</td>
+                <td>alanis.komi@gmail.com</td>
+                <td>2026-05-27<br>16:40:12</td>
+                <td>2</td>
+                <td class="style">UPT</td>
+                <td class="status">Negotiation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="星云开物" data-secondary="Russian Federation" data-sn="" data-status="-">
+                <td class="mono">00000436</td>
+                <td>wizarpos</td>
+                <td>星云开物</td>
+                <td>Russian Federation</td>
+                <td>OOO ДУН ТУ</td>
+                <td>2</td>
+                <td>Анна</td>
+                <td>sales1@ogawa-market.ru</td>
+                <td>2026-05-26<br>19:10:01</td>
+                <td>3</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="爆米发" data-secondary="Indonesia" data-sn="" data-status="-">
+                <td class="mono">00000434</td>
+                <td>wizarpos</td>
+                <td>爆米发</td>
+                <td>Indonesia</td>
+                <td>PNDW Station</td>
+                <td>1</td>
+                <td>Wahyu Yudhistira Tafrikun</td>
+                <td>cvlabmanusiawangi@gmail.com</td>
+                <td>2026-05-23<br>21:34:43</td>
+                <td>6</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="IMT" data-secondary="Russian Federation" data-sn="" data-status="-">
+                <td class="mono">00000433</td>
+                <td>wizarpos</td>
+                <td>IMT</td>
+                <td>Russian Federation</td>
+                <td>Mamian Diana</td>
+                <td>2</td>
+                <td>Mamian Diana</td>
+                <td>MD-1212@yandex.ru</td>
+                <td>2026-05-23<br>09:21:24</td>
+                <td>7</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="广州鼎乐" data-secondary="Russian Federation" data-sn="" data-status="Negotiation">
+                <td class="mono">00000432</td>
+                <td>wizarpos</td>
+                <td>广州鼎乐</td>
+                <td>Russian Federation</td>
+                <td>Cotton candy</td>
+                <td>1</td>
+                <td>Aleksandr Durmanenko</td>
+                <td>Rufu012@Gmail.com</td>
+                <td>2026-05-21<br>19:44:05</td>
+                <td>8</td>
+                <td class="style">UPT</td>
+                <td class="status">Negotiation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="上海比至" data-secondary="United States of America" data-sn="" data-status="-">
+                <td class="mono">00000431</td>
+                <td>wizarpos</td>
+                <td>上海比至</td>
+                <td>United States of America</td>
+                <td>Jeeves Vending</td>
+                <td>5</td>
+                <td>Gary Stryder</td>
+                <td>Gary@jeevesvending.com</td>
+                <td>2026-05-21<br>11:52:47</td>
+                <td>9</td>
+                <td class="style">UPT</td>
+                <td class="status">-</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="河北盛马" data-secondary="Singapore" data-sn="" data-status="Negotiation">
+                <td class="mono">00000430</td>
+                <td>wizarpos</td>
+                <td>河北盛马</td>
+                <td>Singapore</td>
+                <td>LUMINA VOYAGE TECH PTE. LTD</td>
+                <td>1</td>
+                <td>Guoqi Yu</td>
+                <td>yugq2022@gmail.com</td>
+                <td>2026-05-20<br>16:54:08</td>
+                <td>9</td>
+                <td class="style">UPT</td>
+                <td class="status">Negotiation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="lead-table intl-table" data-table-view="intl" hidden>
+            <thead>
+              <tr>
+                <th>Process ID</th>
+                <th>SP Name</th>
+                <th>Partner Name</th>
+                <th>Client Code</th>
+                <th>Merchant Name</th>
+                <th>Active Device SN</th>
+                <th>Payment Channel</th>
+                <th>Submitter Name</th>
+                <th>Submitter Email</th>
+                <th>Submission Method</th>
+                <th>Last Update</th>
+                <th>Past Days</th>
+                <th>Page Style</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="intlLeadRows">
+              <tr data-partner="AtlasPay Europe Ltd." data-channel="Fiserv" data-sn="WP43807Q333883896" data-status="Negotiation">
+                <td class="mono">00000452</td>
+                <td>wizarpos</td>
+                <td>AtlasPay Europe Ltd.</td>
+                <td class="mono">INTL-PSP-EU-001</td>
+                <td>AtlasPay Dublin Campus Cafe</td>
+                <td class="mono">WP43807Q333883896</td>
+                <td>Fiserv</td>
+                <td>Sarah Mitchell</td>
+                <td>sarah.mitchell@atlaspay-europe.com</td>
+                <td>Manual</td>
+                <td>2026-05-29<br>14:16:40</td>
+                <td>0</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Negotiation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail">
+                      <svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg>
+                    </a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit">
+                      <svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg>
+                    </button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy">
+                      <svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg>
+                    </button>
+                    <button class="action-btn" type="button" title="More" aria-label="More">
+                      <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="Pacific Gateway Payments Inc." data-channel="Nuvei" data-sn="WP6001MM33000109" data-status="Pending Activation">
+                <td class="mono">00000451</td>
+                <td>wizarpos</td>
+                <td>Pacific Gateway Payments Inc.</td>
+                <td class="mono">INTL-PSP-US-002</td>
+                <td>Pacific Gateway West Coast Store</td>
+                <td class="mono">WP6001MM33000109</td>
+                <td>Nuvei</td>
+                <td>Olivia Carter</td>
+                <td>olivia.carter@pacificgatewaypay.com</td>
+                <td>Upload</td>
+                <td>2026-05-29<br>09:44:18</td>
+                <td>0</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Pending Activation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="AtlasPay Europe Ltd." data-channel="Elavon EU" data-sn="WP5280VQ33200002" data-status="Activated">
+                <td class="mono">00000450</td>
+                <td>wizarpos</td>
+                <td>AtlasPay UK Channel</td>
+                <td class="mono">INTL-PSP-EU-001</td>
+                <td>AtlasPay London Market</td>
+                <td class="mono">WP5280VQ33200002</td>
+                <td>Elavon EU</td>
+                <td>Michael Turner</td>
+                <td>michael.turner@atlaspay-europe.com</td>
+                <td>Manual</td>
+                <td>2026-05-28<br>17:22:08</td>
+                <td>1</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Activated</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="Northstar PSP Services" data-channel="TSYS" data-sn="WP02502110005" data-status="Pending Activation">
+                <td class="mono">00000449</td>
+                <td>wizarpos</td>
+                <td>Northstar PSP Services</td>
+                <td class="mono">INTL-PSP-CA-003</td>
+                <td>Northstar Campus Store</td>
+                <td class="mono">WP02502110005</td>
+                <td>TSYS</td>
+                <td>Emma Wilson</td>
+                <td>emma.wilson@northstarpsp.com</td>
+                <td>Upload</td>
+                <td>2026-05-27<br>13:08:55</td>
+                <td>2</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Pending Activation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="OceanPay Global Ltd." data-channel="Fiserv" data-sn="WP43807Q33203580" data-status="Rejected">
+                <td class="mono">00000448</td>
+                <td>wizarpos</td>
+                <td>OceanPay Global Ltd.</td>
+                <td class="mono">INTL-PSP-SG-004</td>
+                <td>OceanPay Marina Kiosk</td>
+                <td class="mono">WP43807Q33203580</td>
+                <td>Fiserv</td>
+                <td>Daniel Lee</td>
+                <td>daniel.lee@oceanpayglobal.com</td>
+                <td>Manual</td>
+                <td>2026-05-26<br>16:41:21</td>
+                <td>3</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Rejected</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="Metro PSP Network" data-channel="Nuvei" data-sn="WP43807Q33256790" data-status="Negotiation">
+                <td class="mono">00000447</td>
+                <td>wizarpos</td>
+                <td>Metro PSP Network</td>
+                <td class="mono">INTL-PSP-AU-005</td>
+                <td>Metro North Retail</td>
+                <td class="mono">WP43807Q33256790</td>
+                <td>Nuvei</td>
+                <td>Ava Johnson</td>
+                <td>ava.johnson@metro-psp.com</td>
+                <td>Upload</td>
+                <td>2026-05-24<br>11:32:17</td>
+                <td>5</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Negotiation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="Harbor PSP Group" data-channel="Elavon EU" data-sn="WP43807Q33203576" data-status="Pending Activation">
+                <td class="mono">00000446</td>
+                <td>wizarpos</td>
+                <td>Harbor PSP Group</td>
+                <td class="mono">INTL-PSP-IE-006</td>
+                <td>Harbor Dublin Checkout</td>
+                <td class="mono">WP43807Q33203576</td>
+                <td>Elavon EU</td>
+                <td>Liam O'Brien</td>
+                <td>liam.obrien@harborpsp.com</td>
+                <td>Manual</td>
+                <td>2026-05-21<br>18:05:44</td>
+                <td>8</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Pending Activation</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-partner="Union PSP Operations" data-channel="TSYS" data-sn="WP43807Q33256889" data-status="Activated">
+                <td class="mono">00000445</td>
+                <td>wizarpos</td>
+                <td>Union PSP Operations</td>
+                <td class="mono">INTL-PSP-US-007</td>
+                <td>Union Airport Retail</td>
+                <td class="mono">WP43807Q33256889</td>
+                <td>TSYS</td>
+                <td>Noah Parker</td>
+                <td>noah.parker@unionpsp.com</td>
+                <td>Manual</td>
+                <td>2026-05-19<br>15:18:30</td>
+                <td>10</td>
+                <td class="style">INTL PSP</td>
+                <td class="status">Activated</td>
+                <td>
+                  <div class="actions">
+                    <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
+                    <button class="action-btn edit" type="button" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M4 17.5V21h3.5L19 9.5 15.5 6z"></path><path d="m14 7.5 2.5 2.5"></path></svg></button>
+                    <button class="action-btn" type="button" title="Copy" aria-label="Copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="13" rx="2"></rect><rect x="5" y="3" width="11" height="13" rx="2"></rect></svg></button>
+                    <button class="action-btn" type="button" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer-bar">
+          <div class="pagination" aria-label="Pagination">
+            <div class="page-controls">
+              <button class="page-btn" type="button" aria-label="First page">&laquo;</button>
+              <button class="page-btn" type="button" aria-label="Previous page">&lsaquo;</button>
+              <button class="page-btn active" type="button">1</button>
+              <button class="page-btn" type="button">2</button>
+              <button class="page-btn" type="button">3</button>
+              <button class="page-btn" type="button">4</button>
+              <button class="page-btn" type="button">5</button>
+              <button class="page-btn" type="button" aria-label="Next page">&rsaquo;</button>
+              <button class="page-btn" type="button" aria-label="Last page">&raquo;</button>
+            </div>
+            <select class="page-size" aria-label="Page size">
+              <option>20</option>
+              <option>50</option>
+              <option>100</option>
+            </select>
+          </div>
+          <div class="page-total" id="pageTotal">1 / 4 (78)</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+	  <script>
+	    (function () {
+	      var activeTab = "upt";
+	      var tabButtons = Array.prototype.slice.call(document.querySelectorAll("[data-lead-tab]"));
+	      var tableViews = Array.prototype.slice.call(document.querySelectorAll("[data-table-view]"));
+	      var partnerFilter = document.getElementById("partnerFilter");
+	      var secondaryFilter = document.getElementById("secondaryFilter");
+	      var snFilter = document.getElementById("snFilter");
+	      var statusFilter = document.getElementById("statusFilter");
+	      var filterButton = document.getElementById("filterButton");
+	      var pageTotal = document.getElementById("pageTotal");
+	      var tableWrap = document.querySelector(".table-wrap");
+	      var totals = {
+	        upt: "1 / 23 (441)",
+	        intl: "1 / 4 (78)"
+	      };
+	      var secondaryOptions = {
+	        upt: ["Country Name", "United States of America", "Mexico", "Mongolia", "Russian Federation", "Indonesia", "Singapore"],
+	        intl: ["Payment Channel", "TSYS", "Nuvei", "Elavon EU", "Fiserv"]
+	      };
+
+	      function normalize(value) {
+	        return String(value || "").trim().toLowerCase();
+	      }
+
+	      function getActiveRows() {
+	        return Array.prototype.slice.call(document.querySelectorAll('[data-table-view="' + activeTab + '"] tbody tr'));
+	      }
+
+	      function hasFilters() {
+	        return Boolean(partnerFilter.value.trim() || secondaryFilter.value || snFilter.value.trim() || statusFilter.value);
+	      }
+
+	      function renderSecondaryOptions() {
+	        var options = secondaryOptions[activeTab] || secondaryOptions.upt;
+	        secondaryFilter.innerHTML = "";
+	        options.forEach(function (label, index) {
+	          var option = document.createElement("option");
+	          option.value = index === 0 ? "" : label;
+	          option.textContent = label;
+	          secondaryFilter.appendChild(option);
+	        });
+	        secondaryFilter.setAttribute("aria-label", options[0]);
+	      }
+
+	      function clearFilters() {
+	        partnerFilter.value = "";
+	        secondaryFilter.value = "";
+	        snFilter.value = "";
+	        statusFilter.value = "";
+	      }
+
+	      function setActiveTab(tab) {
+	        activeTab = tab;
+	        tabButtons.forEach(function (button) {
+	          var selected = button.getAttribute("data-lead-tab") === activeTab;
+	          button.classList.toggle("active", selected);
+	          button.setAttribute("aria-selected", selected ? "true" : "false");
+	        });
+	        tableViews.forEach(function (table) {
+	          table.hidden = table.getAttribute("data-table-view") !== activeTab;
+	        });
+	        renderSecondaryOptions();
+	        clearFilters();
+	        if (tableWrap) tableWrap.scrollLeft = 0;
+	        applyFilters();
+	      }
+
+	      function applyFilters() {
+	        var partnerText = normalize(partnerFilter.value);
+	        var secondaryText = normalize(secondaryFilter.value);
+	        var snText = normalize(snFilter.value);
+	        var statusText = normalize(statusFilter.value);
+	        var rows = getActiveRows();
+	        var visible = 0;
+
+	        rows.forEach(function (row) {
+	          var secondaryValue = row.dataset.secondary || row.dataset.channel || "";
+	          var matches = (!partnerText || normalize(row.dataset.partner).indexOf(partnerText) >= 0)
+	            && (!secondaryText || normalize(secondaryValue) === secondaryText)
+	            && (!snText || normalize(row.dataset.sn).indexOf(snText) >= 0)
+	            && (!statusText || normalize(row.dataset.status) === statusText);
+	          row.hidden = !matches;
+	          if (matches) visible++;
+	        });
+
+	        pageTotal.textContent = hasFilters() ? "1 / 1 (" + visible + ")" : totals[activeTab];
+	      }
+
+	      tabButtons.forEach(function (button) {
+	        button.addEventListener("click", function () {
+	          var nextTab = button.getAttribute("data-lead-tab");
+	          if (window.history && window.history.replaceState) {
+	            window.history.replaceState(null, "", nextTab === "intl" ? "#intl" : window.location.pathname);
+	          }
+	          setActiveTab(nextTab);
+	        });
+	      });
+
+	      filterButton.addEventListener("click", applyFilters);
+	      [partnerFilter, secondaryFilter, snFilter, statusFilter].forEach(function (field) {
+	        field.addEventListener("keydown", function (event) {
+	          if (event.key === "Enter") applyFilters();
+	        });
+	        field.addEventListener("change", applyFilters);
+	      });
+
+	      setActiveTab(window.location.hash === "#intl" ? "intl" : "upt");
+	    })();
+	  </script>
+</body>
+</html>
