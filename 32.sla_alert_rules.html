@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SLA Alert Rules</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     :root {
       --page-bg: #f7f8fa;
@@ -157,7 +158,6 @@
     .menu-icon svg,
     .header-icon svg,
     .btn svg,
-    .icon-btn svg,
     .empty-state svg {
       stroke: currentColor;
       fill: none;
@@ -517,7 +517,7 @@
 
     table {
       width: 100%;
-      min-width: 1060px;
+      min-width: 1080px;
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 13px;
@@ -570,6 +570,7 @@
     }
 
     .status-pill,
+    .scope-pill,
     .alert-pill {
       display: inline-flex;
       align-items: center;
@@ -595,6 +596,64 @@
       color: #4b5563;
     }
 
+    .scope-pill {
+      border-color: #e5e7eb;
+      background: #f8fafc;
+      color: #374151;
+    }
+
+    .status-switch-cell {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .status-switch-cell .switch-track-mini {
+      width: 38px;
+      height: 22px;
+    }
+
+    .switch-track-mini {
+      position: relative;
+      display: inline-block;
+      border-radius: 999px;
+      background: #d1d5db;
+      transition: background 0.18s ease;
+    }
+
+    .switch-track-mini::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
+      transition: transform 0.18s ease;
+    }
+
+    .status-switch-cell.active {
+      color: #166534;
+    }
+
+    .status-switch-cell.active .switch-track-mini {
+      background: #16a34a;
+    }
+
+    .status-switch-cell.active .switch-track-mini::after {
+      transform: translateX(16px);
+    }
+
+    .status-switch-cell:focus-visible {
+      outline: 2px solid rgba(37, 99, 235, 0.35);
+      outline-offset: 3px;
+      border-radius: 999px;
+    }
+
     .alert-pill.warning {
       border-color: #fde68a;
       background: var(--amber-soft);
@@ -616,12 +675,12 @@
     .actions-cell {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
     .icon-btn {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #ffffff;
@@ -641,10 +700,9 @@
       color: #b91c1c;
     }
 
-    .icon-btn svg {
-      width: 15px;
-      height: 15px;
-      stroke-width: 2;
+    .icon-btn i {
+      font-size: 14px;
+      line-height: 1;
     }
 
     .empty-state {
@@ -684,7 +742,7 @@
     }
 
     .modal {
-      width: min(960px, 100%);
+      width: min(860px, 100%);
       max-height: calc(100vh - 48px);
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -712,26 +770,33 @@
       line-height: 1.2;
     }
 
-    .modal-close {
-      width: 34px;
-      height: 34px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #ffffff;
-      color: #111111;
-      font-size: 22px;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .modal-status-switch {
+      flex: 0 0 auto;
+    }
+
+    .log-modal {
+      width: min(760px, 100%);
+    }
+
+    .log-title-wrap {
+      min-width: 0;
+    }
+
+    .log-context {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .modal-body {
       padding: 18px 20px;
       overflow: auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-      gap: 20px;
+      display: block;
     }
 
     .form-grid {
@@ -812,203 +877,46 @@
       font-weight: 700;
     }
 
-    .preview-card {
+    .log-table-wrap {
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #f3f4f6;
       overflow: hidden;
-      align-self: start;
     }
 
-    .preview-head {
-      padding: 13px 15px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+    .log-table {
+      width: 100%;
+      min-width: 0;
+      table-layout: fixed;
     }
 
-    .preview-title {
-      color: #111827;
-      font-size: 14px;
-      font-weight: 800;
+    .log-table thead th {
+      padding: 11px 12px;
     }
 
-    .preview-body {
-      padding: 12px;
-      background: #f3f4f6;
+    .log-table tbody td {
+      padding: 13px 12px;
+      vertical-align: top;
     }
 
-    .email-shell {
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    .log-table .mono {
+      white-space: nowrap;
     }
 
-    .email-logo {
-      padding: 16px 18px;
-      border-bottom: 1px solid #e5e7eb;
-      color: #111827;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .email-content {
-      padding: 18px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .email-alert {
-      display: flex;
-      gap: 10px;
-      padding: 12px;
-      border-left: 4px solid #f59e0b;
-      background: #fef3c7;
+    .log-alert-content {
       color: #92400e;
-    }
-
-    .email-alert-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      background: #f59e0b;
-      color: #ffffff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    .email-alert-title {
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .email-alert-text {
-      margin-top: 3px;
-      font-size: 12px;
+      font-weight: 750;
       line-height: 1.45;
     }
 
-    .email-title {
-      color: #1f2937;
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1.25;
-    }
-
-    .email-copy {
-      color: #4b5563;
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    .email-details {
-      display: grid;
-      gap: 10px;
-      padding: 14px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      background: #f9fafb;
-    }
-
-    .preview-row {
-      display: grid;
-      grid-template-columns: 105px minmax(0, 1fr);
-      gap: 4px;
-      align-items: start;
-    }
-
-    .preview-label {
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .preview-value {
-      color: #111827;
-      font-size: 12px;
-      font-weight: 700;
+    .log-recipient-list {
+      color: #33343b;
       line-height: 1.45;
       word-break: break-word;
     }
 
-    .preview-value.alert {
-      color: #92400e;
-    }
-
-    .email-footer {
-      padding: 12px 18px;
-      border-top: 1px solid #e5e7eb;
-      background: #f9fafb;
-      color: #6b7280;
-      font-size: 11px;
-      line-height: 1.45;
-    }
-
-    .switch-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 40px;
-    }
-
-    .switch {
-      position: relative;
-      width: 48px;
-      height: 28px;
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    .switch input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .switch-track {
-      position: absolute;
-      inset: 0;
-      border-radius: 999px;
-      background: #d1d5db;
-      transition: background 0.18s ease;
-    }
-
-    .switch-track::after {
-      content: "";
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
-      transition: transform 0.18s ease;
-    }
-
-    .switch input:checked + .switch-track {
-      background: #111111;
-    }
-
-    .switch input:checked + .switch-track::after {
-      transform: translateX(20px);
-    }
-
-    .switch-label {
-      color: #24262b;
-      font-weight: 800;
+    .log-empty {
+      border: 1px solid var(--line);
+      border-radius: 8px;
     }
 
     .modal-actions {
@@ -1089,9 +997,7 @@
         justify-content: flex-start;
       }
 
-      .summary-grid,
       .filters,
-      .modal-body,
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -1184,8 +1090,8 @@
         <div class="toolbar">
           <div class="filters" aria-label="Rule filters">
             <div class="field">
-              <label for="merchantFilter">Merchant</label>
-              <input id="merchantFilter" type="text" placeholder="Merchant name">
+              <label for="merchantFilter">Merchant / Store</label>
+              <input id="merchantFilter" type="text" placeholder="Merchant or store name">
             </div>
             <div class="field">
               <label for="terminalFilter">Terminal SN</label>
@@ -1215,21 +1121,21 @@
         <div class="table-wrap">
             <table aria-label="SLA alert rule list">
             <colgroup>
+              <col style="width: 14%">
+              <col style="width: 8%">
               <col style="width: 12%">
-              <col style="width: 15%">
               <col style="width: 11%">
-              <col style="width: 11%">
-              <col style="width: 13%">
+              <col style="width: 12%">
               <col style="width: 12%">
               <col style="width: 7%">
-              <col style="width: 10%">
+              <col style="width: 11%">
               <col style="width: 9%">
             </colgroup>
             <thead>
               <tr>
-                <th>Merchant</th>
+                <th>Target</th>
+                <th>Scope</th>
                 <th>Terminal SN</th>
-                <th>Terminal Name</th>
                 <th>Offline Threshold</th>
                 <th>No Transaction Threshold</th>
                 <th>Recipients</th>
@@ -1253,11 +1159,34 @@
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="ruleModalTitle">
       <div class="modal-head">
         <h2 class="modal-title" id="ruleModalTitle">Add Rule</h2>
-        <button class="modal-close" id="closeModalButton" type="button" aria-label="Close">x</button>
+        <button class="status-switch-cell modal-status-switch active" id="modalStatusToggle" type="button" aria-label="Rule active" title="Active">
+          <span class="switch-track-mini" aria-hidden="true"></span>
+        </button>
       </div>
       <form id="ruleForm" novalidate>
         <div class="modal-body">
           <div class="form-grid">
+            <div class="field">
+              <label for="serviceProviderSelect">Service Provider</label>
+              <select id="serviceProviderSelect" required></select>
+              <div class="field-error" id="serviceProviderError" hidden>Select a service provider.</div>
+            </div>
+
+            <div class="field">
+              <label for="agentSelect">Agent</label>
+              <select id="agentSelect"></select>
+              <div class="field-error" id="agentError" hidden>Select an agent.</div>
+            </div>
+
+            <div class="field full">
+              <label for="scopeSelect">Monitor Scope</label>
+              <select id="scopeSelect">
+                <option value="terminal">Terminal</option>
+                <option value="store">Store</option>
+                <option value="merchant">Merchant</option>
+              </select>
+            </div>
+
             <div class="field">
               <label for="merchantSelect">Merchant</label>
               <select id="merchantSelect" required></select>
@@ -1265,6 +1194,12 @@
             </div>
 
             <div class="field">
+              <label for="storeSelect">Store</label>
+              <select id="storeSelect" required></select>
+              <div class="field-error" id="storeError" hidden>Select a store.</div>
+            </div>
+
+            <div class="field full">
               <label for="terminalSelect">Terminal</label>
               <select id="terminalSelect" required></select>
               <div class="field-error" id="terminalError" hidden>Select a terminal.</div>
@@ -1297,61 +1232,12 @@
             <div class="field full">
               <label for="recipientInput">Email Recipients</label>
               <div class="field-control recipient-box" id="recipientBox">
-                <input class="recipient-input" id="recipientInput" type="text" placeholder="Add email and press Enter">
+                <input class="recipient-input" id="recipientInput" type="text" placeholder="Add emails, separated by comma, semicolon, or Enter">
               </div>
-              <div class="field-hint">Use Enter or comma to add multiple recipients.</div>
+              <div class="field-hint">Use Enter, comma, semicolon, or paste a list to add multiple recipients.</div>
               <div class="field-error" id="recipientError" hidden>Enter at least one valid email address.</div>
             </div>
-
-            <div class="field full">
-              <span class="field-label">Status</span>
-              <div class="switch-row">
-                <label class="switch" for="statusToggle">
-                  <input id="statusToggle" type="checkbox" checked>
-                  <span class="switch-track"></span>
-                </label>
-                <span class="switch-label" id="statusText">Active</span>
-              </div>
-            </div>
           </div>
-
-          <aside class="preview-card" aria-label="Email preview">
-            <div class="preview-head">
-              <div class="preview-title">Email Preview</div>
-              <span class="alert-pill warning">Triggered</span>
-            </div>
-            <div class="preview-body">
-              <div class="email-shell">
-                <div class="email-logo">PAYwizard</div>
-                <div class="email-content">
-                  <div class="email-alert">
-                    <span class="email-alert-icon">!</span>
-                    <div>
-                      <div class="email-alert-title">SLA Alert Triggered</div>
-                      <div class="email-alert-text">A monitored terminal has exceeded its configured SLA threshold.</div>
-                    </div>
-                  </div>
-                  <div class="email-title">SLA Alert Notification</div>
-                  <div class="email-copy">The following terminal has reached the configured SLA alert condition.</div>
-                  <div class="email-details">
-                    <div class="preview-row">
-                      <div class="preview-label">Merchant Name</div>
-                      <div class="preview-value" id="previewMerchant">--</div>
-                    </div>
-                    <div class="preview-row">
-                      <div class="preview-label">Terminal SN</div>
-                      <div class="preview-value mono" id="previewTerminal">--</div>
-                    </div>
-                    <div class="preview-row">
-                      <div class="preview-label">Alert Content</div>
-                      <div class="preview-value alert" id="previewAlert">Offline exceeds 30 minutes; No transaction exceeds 2 hours</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="email-footer">This message was generated automatically by Paywizard SLA monitoring.</div>
-              </div>
-            </div>
-          </aside>
         </div>
         <div class="modal-actions">
           <button class="btn" id="cancelModalButton" type="button">Cancel</button>
@@ -1361,40 +1247,136 @@
     </section>
   </div>
 
+  <div class="modal-overlay" id="logModal" aria-hidden="true">
+    <section class="modal log-modal" role="dialog" aria-modal="true" aria-labelledby="logModalTitle">
+      <div class="modal-head">
+        <div class="log-title-wrap">
+          <h2 class="modal-title" id="logModalTitle">Trigger Log</h2>
+          <div class="log-context" id="logModalContext"></div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="log-table-wrap" id="logTableWrap">
+          <table class="log-table" aria-label="Trigger history">
+            <colgroup>
+              <col style="width: 23%">
+              <col style="width: 20%">
+              <col style="width: 30%">
+              <col style="width: 27%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Triggered At</th>
+                <th>Terminal SN</th>
+                <th>Alert Content</th>
+                <th>Recipients</th>
+              </tr>
+            </thead>
+            <tbody id="triggerLogBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state log-empty" id="logEmptyState">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg>
+          <span>No trigger history for this rule.</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" id="closeLogButton" type="button">Done</button>
+      </div>
+    </section>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     (function () {
-      const merchants = [
+      const serviceProviders = [
         {
-          id: "demo-cafe-berlin",
-          name: "Demo Cafe Berlin",
-          terminals: [
-            { sn: "WP44907Q33200398", name: "Retail shop T1" },
-            { sn: "WP44907Q33200412", name: "Retail shop T2" }
+          id: "sp-eu-direct",
+          name: "Europe Direct",
+          agents: [],
+          merchants: [
+            {
+              id: "demo-cafe-berlin",
+              name: "Demo Cafe Berlin",
+              stores: [
+                {
+                  id: "berlin-mitte",
+                  name: "Berlin Mitte",
+                  terminals: [
+                    { sn: "WP44907Q33200398", name: "Retail shop T1" },
+                    { sn: "WP44907Q33200412", name: "Retail shop T2" }
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
-          id: "cartpoland-01",
-          name: "CARTPOLAND-01",
-          terminals: [
-            { sn: "WP2013Q321000014", name: "Vending Machine 04" },
-            { sn: "WP2013Q321000018", name: "Vending Machine 08" }
-          ]
+          id: "sp-north-america",
+          name: "North America Ops",
+          agents: [
+            {
+              id: "agent-seattle",
+              name: "Seattle Field Agent",
+              merchants: [
+                {
+                  id: "seattle-central",
+                  name: "Seattle Central",
+                  stores: [
+                    {
+                      id: "ev-charger-hub",
+                      name: "EV Charger Hub",
+                      terminals: [
+                        { sn: "WP7300EV33001088", name: "EV Charger Bay 07" }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              id: "agent-waou",
+              name: "Waou Distribution",
+              merchants: [
+                {
+                  id: "waou-terminal",
+                  name: "Waou Terminal",
+                  stores: [
+                    {
+                      id: "waou-main",
+                      name: "Waou Main Store",
+                      terminals: [
+                        { sn: "WP52205Q33000977", name: "Waou Terminal 01" },
+                        { sn: "WP52205Q33000981", name: "Waou Terminal 05" }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          merchants: []
         },
         {
-          id: "waou-terminal",
-          name: "Waou Terminal",
-          terminals: [
-            { sn: "WP52205Q33000977", name: "Waou Terminal 01" },
-            { sn: "WP52205Q33000981", name: "Waou Terminal 05" }
-          ]
-        },
-        {
-          id: "seattle-central",
-          name: "Seattle Central",
-          terminals: [
-            { sn: "WP7300EV33001088", name: "EV Charger Bay 07" }
+          id: "sp-poland",
+          name: "Poland Service Hub",
+          agents: [],
+          merchants: [
+            {
+              id: "cartpoland-01",
+              name: "CARTPOLAND-01",
+              stores: [
+                {
+                  id: "warsaw-vending",
+                  name: "Warsaw Vending Area",
+                  terminals: [
+                    { sn: "WP2013Q321000014", name: "Vending Machine 04" },
+                    { sn: "WP2013Q321000018", name: "Vending Machine 08" }
+                  ]
+                }
+              ]
+            }
           ]
         }
       ];
@@ -1402,41 +1384,89 @@
       let rules = [
         {
           id: 1,
+          serviceProviderId: "sp-eu-direct",
+          agentId: "",
+          scope: "terminal",
           merchantId: "demo-cafe-berlin",
+          storeId: "berlin-mitte",
           terminalSn: "WP44907Q33200398",
           offline: { value: 30, unit: "minutes" },
           noTransaction: { value: 2, unit: "hours" },
           recipients: ["ops@demo-cafe.com", "sla@paywizard.com"],
           status: "Active",
           lastTriggered: "2026-05-31 22:14:09",
-          alertsToday: 2
+          alertsToday: 2,
+          triggerLogs: [
+            {
+              triggeredAt: "2026-05-31 22:14:09",
+              terminalSn: "WP44907Q33200398",
+              alertContent: "Offline exceeds 30 minutes; No transaction exceeds 2 hours",
+              recipients: ["ops@demo-cafe.com", "sla@paywizard.com"]
+            },
+            {
+              triggeredAt: "2026-05-31 19:42:36",
+              terminalSn: "WP44907Q33200398",
+              alertContent: "No transaction exceeds 2 hours",
+              recipients: ["ops@demo-cafe.com", "sla@paywizard.com"]
+            },
+            {
+              triggeredAt: "2026-05-30 23:08:51",
+              terminalSn: "WP44907Q33200398",
+              alertContent: "Offline exceeds 30 minutes",
+              recipients: ["ops@demo-cafe.com", "sla@paywizard.com"]
+            }
+          ]
         },
         {
           id: 2,
+          serviceProviderId: "sp-poland",
+          agentId: "",
+          scope: "store",
           merchantId: "cartpoland-01",
-          terminalSn: "WP2013Q321000014",
+          storeId: "warsaw-vending",
+          terminalSn: "",
           offline: { value: 45, unit: "minutes" },
           noTransaction: { value: 90, unit: "minutes" },
           recipients: ["support@cartpoland.com"],
           status: "Active",
           lastTriggered: "2026-06-01 09:18:27",
-          alertsToday: 1
+          alertsToday: 1,
+          triggerLogs: [
+            {
+              triggeredAt: "2026-06-01 09:18:27",
+              terminalSn: "WP2013Q321000014",
+              alertContent: "Offline exceeds 45 minutes",
+              recipients: ["support@cartpoland.com"]
+            },
+            {
+              triggeredAt: "2026-05-31 16:06:44",
+              terminalSn: "WP2013Q321000018",
+              alertContent: "No transaction exceeds 90 minutes",
+              recipients: ["support@cartpoland.com"]
+            }
+          ]
         },
         {
           id: 3,
+          serviceProviderId: "sp-north-america",
+          agentId: "agent-waou",
+          scope: "merchant",
           merchantId: "waou-terminal",
-          terminalSn: "WP52205Q33000977",
+          storeId: "",
+          terminalSn: "",
           offline: { value: 1, unit: "hours" },
           noTransaction: { value: 4, unit: "hours" },
           recipients: ["monitoring@waou.example", "merchant.ops@waou.example"],
           status: "Inactive",
           lastTriggered: "--",
-          alertsToday: 0
+          alertsToday: 0,
+          triggerLogs: []
         }
       ];
 
       let editingRuleId = null;
       let draftRecipients = [];
+      let draftStatus = "Active";
       let toastTimer = null;
 
       const elements = {
@@ -1450,10 +1480,20 @@
         addRuleButton: document.getElementById("addRuleButton"),
         modal: document.getElementById("ruleModal"),
         modalTitle: document.getElementById("ruleModalTitle"),
-        closeModalButton: document.getElementById("closeModalButton"),
+        modalStatusToggle: document.getElementById("modalStatusToggle"),
         cancelModalButton: document.getElementById("cancelModalButton"),
+        logModal: document.getElementById("logModal"),
+        logModalContext: document.getElementById("logModalContext"),
+        logTableWrap: document.getElementById("logTableWrap"),
+        triggerLogBody: document.getElementById("triggerLogBody"),
+        logEmptyState: document.getElementById("logEmptyState"),
+        closeLogButton: document.getElementById("closeLogButton"),
         form: document.getElementById("ruleForm"),
+        serviceProviderSelect: document.getElementById("serviceProviderSelect"),
+        agentSelect: document.getElementById("agentSelect"),
+        scopeSelect: document.getElementById("scopeSelect"),
         merchantSelect: document.getElementById("merchantSelect"),
+        storeSelect: document.getElementById("storeSelect"),
         terminalSelect: document.getElementById("terminalSelect"),
         offlineValue: document.getElementById("offlineThresholdValue"),
         offlineUnit: document.getElementById("offlineThresholdUnit"),
@@ -1461,12 +1501,10 @@
         transactionUnit: document.getElementById("transactionThresholdUnit"),
         recipientBox: document.getElementById("recipientBox"),
         recipientInput: document.getElementById("recipientInput"),
-        statusToggle: document.getElementById("statusToggle"),
-        statusText: document.getElementById("statusText"),
-        previewMerchant: document.getElementById("previewMerchant"),
-        previewTerminal: document.getElementById("previewTerminal"),
-        previewAlert: document.getElementById("previewAlert"),
+        serviceProviderError: document.getElementById("serviceProviderError"),
+        agentError: document.getElementById("agentError"),
         merchantError: document.getElementById("merchantError"),
+        storeError: document.getElementById("storeError"),
         terminalError: document.getElementById("terminalError"),
         offlineError: document.getElementById("offlineError"),
         transactionError: document.getElementById("transactionError"),
@@ -1487,13 +1525,82 @@
         return String(value || "").trim().toLowerCase();
       }
 
-      function getMerchant(merchantId) {
-        return merchants.find(merchant => merchant.id === merchantId) || merchants[0];
+      function getServiceProvider(serviceProviderId) {
+        return serviceProviders.find(provider => provider.id === serviceProviderId) || null;
       }
 
-      function getTerminal(merchantId, terminalSn) {
-        const merchant = getMerchant(merchantId);
-        return merchant.terminals.find(terminal => terminal.sn === terminalSn) || merchant.terminals[0];
+      function getAgent(serviceProviderId, agentId) {
+        const provider = getServiceProvider(serviceProviderId);
+        return provider?.agents.find(agent => agent.id === agentId) || null;
+      }
+
+      function getMerchantOptions(serviceProviderId, agentId) {
+        const provider = getServiceProvider(serviceProviderId);
+        if (!provider) return [];
+        if (provider.agents.length) {
+          return getAgent(serviceProviderId, agentId)?.merchants || [];
+        }
+        return provider.merchants || [];
+      }
+
+      function getMerchant(serviceProviderId, agentId, merchantId) {
+        return getMerchantOptions(serviceProviderId, agentId).find(merchant => merchant.id === merchantId) || null;
+      }
+
+      function getStore(serviceProviderId, agentId, merchantId, storeId) {
+        const merchant = getMerchant(serviceProviderId, agentId, merchantId);
+        return merchant?.stores.find(store => store.id === storeId) || null;
+      }
+
+      function getTerminal(serviceProviderId, agentId, merchantId, storeId, terminalSn) {
+        const store = getStore(serviceProviderId, agentId, merchantId, storeId);
+        return store?.terminals.find(terminal => terminal.sn === terminalSn) || null;
+      }
+
+      function getRuleContext(rule) {
+        const provider = getServiceProvider(rule.serviceProviderId);
+        const agent = getAgent(rule.serviceProviderId, rule.agentId);
+        const merchant = getMerchant(rule.serviceProviderId, rule.agentId, rule.merchantId);
+        const store = getStore(rule.serviceProviderId, rule.agentId, rule.merchantId, rule.storeId);
+        const terminal = getTerminal(rule.serviceProviderId, rule.agentId, rule.merchantId, rule.storeId, rule.terminalSn);
+        return { provider, agent, merchant, store, terminal };
+      }
+
+      function getRuleScope(rule) {
+        return ["merchant", "store", "terminal"].includes(rule.scope) ? rule.scope : "terminal";
+      }
+
+      function formatScope(scope) {
+        return {
+          merchant: "Merchant",
+          store: "Store",
+          terminal: "Terminal"
+        }[scope] || "Terminal";
+      }
+
+      function getTargetDisplay(rule, context = getRuleContext(rule)) {
+        const scope = getRuleScope(rule);
+        if (scope === "merchant") {
+          return {
+            targetMain: context.merchant?.name || "Unknown Merchant",
+            targetSub: "All stores",
+            terminalSn: "All terminals"
+          };
+        }
+
+        if (scope === "store") {
+          return {
+            targetMain: context.store?.name || "Selected Store",
+            targetSub: context.merchant?.name || "Unknown Merchant",
+            terminalSn: "All terminals"
+          };
+        }
+
+        return {
+          targetMain: context.merchant?.name || "Unknown Merchant",
+          targetSub: context.store?.name || context.merchant?.id || "--",
+          terminalSn: rule.terminalSn || "--"
+        };
       }
 
       function formatThreshold(threshold) {
@@ -1510,6 +1617,28 @@
         ].join("; ");
       }
 
+      function getTriggerLogs(rule) {
+        const logs = Array.isArray(rule.triggerLogs) ? rule.triggerLogs : [];
+        if (logs.length) {
+          return [...logs].sort((a, b) => String(b.triggeredAt).localeCompare(String(a.triggeredAt)));
+        }
+
+        if (rule.lastTriggered && rule.lastTriggered !== "--") {
+          return [{
+            triggeredAt: rule.lastTriggered,
+            terminalSn: rule.terminalSn || "All terminals",
+            alertContent: buildAlertContent(rule),
+            recipients: rule.recipients
+          }];
+        }
+
+        return [];
+      }
+
+      function getLastTriggered(rule) {
+        return getTriggerLogs(rule)[0]?.triggeredAt || "--";
+      }
+
       function validateEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       }
@@ -1523,22 +1652,82 @@
         }, 2200);
       }
 
-      function populateMerchantSelect() {
-        elements.merchantSelect.innerHTML = '<option value="">Select merchant</option>' + merchants
-          .map(merchant => `<option value="${escapeHtml(merchant.id)}">${escapeHtml(merchant.name)}</option>`)
+      function populateServiceProviderSelect(selectedProviderId = "") {
+        elements.serviceProviderSelect.innerHTML = '<option value="">Select service provider</option>' + serviceProviders
+          .map(provider => {
+            const selected = provider.id === selectedProviderId ? " selected" : "";
+            return `<option value="${escapeHtml(provider.id)}"${selected}>${escapeHtml(provider.name)}</option>`;
+          })
           .join("");
       }
 
-      function populateTerminalSelect(merchantId, selectedSn) {
-        const merchant = merchants.find(item => item.id === merchantId);
+      function populateAgentSelect(serviceProviderId, selectedAgentId = "") {
+        const provider = getServiceProvider(serviceProviderId);
+        if (!provider) {
+          elements.agentSelect.innerHTML = '<option value="">Select service provider first</option>';
+          elements.agentSelect.disabled = true;
+          return;
+        }
+
+        if (!provider.agents.length) {
+          elements.agentSelect.innerHTML = '<option value="">No agent</option>';
+          elements.agentSelect.disabled = true;
+          return;
+        }
+
+        elements.agentSelect.disabled = false;
+        elements.agentSelect.innerHTML = '<option value="">Select agent</option>' + provider.agents
+          .map(agent => {
+            const selected = agent.id === selectedAgentId ? " selected" : "";
+            return `<option value="${escapeHtml(agent.id)}"${selected}>${escapeHtml(agent.name)}</option>`;
+          })
+          .join("");
+      }
+
+      function populateMerchantSelect(serviceProviderId, agentId, selectedMerchantId = "") {
+        const merchants = getMerchantOptions(serviceProviderId, agentId);
+        if (!merchants.length) {
+          elements.merchantSelect.innerHTML = '<option value="">Select previous level first</option>';
+          elements.merchantSelect.disabled = true;
+          return;
+        }
+
+        elements.merchantSelect.disabled = false;
+        elements.merchantSelect.innerHTML = '<option value="">Select merchant</option>' + merchants
+          .map(merchant => {
+            const selected = merchant.id === selectedMerchantId ? " selected" : "";
+            return `<option value="${escapeHtml(merchant.id)}"${selected}>${escapeHtml(merchant.name)}</option>`;
+          })
+          .join("");
+      }
+
+      function populateStoreSelect(serviceProviderId, agentId, merchantId, selectedStoreId = "") {
+        const merchant = getMerchant(serviceProviderId, agentId, merchantId);
         if (!merchant) {
-          elements.terminalSelect.innerHTML = '<option value="">Select terminal</option>';
+          elements.storeSelect.innerHTML = '<option value="">Select merchant first</option>';
+          elements.storeSelect.disabled = true;
+          return;
+        }
+
+        elements.storeSelect.disabled = false;
+        elements.storeSelect.innerHTML = '<option value="">Select store</option>' + merchant.stores
+          .map(store => {
+            const selected = store.id === selectedStoreId ? " selected" : "";
+            return `<option value="${escapeHtml(store.id)}"${selected}>${escapeHtml(store.name)}</option>`;
+          })
+          .join("");
+      }
+
+      function populateTerminalSelect(serviceProviderId, agentId, merchantId, storeId, selectedSn = "") {
+        const store = getStore(serviceProviderId, agentId, merchantId, storeId);
+        if (!store) {
+          elements.terminalSelect.innerHTML = '<option value="">Select store first</option>';
           elements.terminalSelect.disabled = true;
           return;
         }
 
         elements.terminalSelect.disabled = false;
-        elements.terminalSelect.innerHTML = '<option value="">Select terminal</option>' + merchant.terminals
+        elements.terminalSelect.innerHTML = '<option value="">Select terminal</option>' + store.terminals
           .map(terminal => {
             const selected = terminal.sn === selectedSn ? " selected" : "";
             return `<option value="${escapeHtml(terminal.sn)}"${selected}>${escapeHtml(terminal.name)} / ${escapeHtml(terminal.sn)}</option>`;
@@ -1546,10 +1735,40 @@
           .join("");
       }
 
+      function syncScopeControls(selectedStoreId = "", selectedSn = "") {
+        const scope = elements.scopeSelect.value || "terminal";
+        const serviceProviderId = elements.serviceProviderSelect.value;
+        const agentId = elements.agentSelect.disabled ? "" : elements.agentSelect.value;
+        const merchantId = elements.merchantSelect.value;
+
+        if (scope === "merchant") {
+          elements.storeSelect.innerHTML = '<option value="">All stores</option>';
+          elements.storeSelect.disabled = true;
+          elements.terminalSelect.innerHTML = '<option value="">All terminals</option>';
+          elements.terminalSelect.disabled = true;
+          return;
+        }
+
+        populateStoreSelect(serviceProviderId, agentId, merchantId, selectedStoreId);
+
+        if (scope === "store") {
+          elements.terminalSelect.innerHTML = '<option value="">All terminals</option>';
+          elements.terminalSelect.disabled = true;
+          return;
+        }
+
+        populateTerminalSelect(serviceProviderId, agentId, merchantId, elements.storeSelect.value, selectedSn);
+      }
+
       function getCurrentRuleFromForm() {
+        const scope = elements.scopeSelect.value || "terminal";
         return {
+          serviceProviderId: elements.serviceProviderSelect.value,
+          agentId: elements.agentSelect.disabled ? "" : elements.agentSelect.value,
+          scope,
           merchantId: elements.merchantSelect.value,
-          terminalSn: elements.terminalSelect.value,
+          storeId: scope === "merchant" ? "" : elements.storeSelect.value,
+          terminalSn: scope === "terminal" ? elements.terminalSelect.value : "",
           offline: {
             value: Number(elements.offlineValue.value || 0),
             unit: elements.offlineUnit.value
@@ -1561,24 +1780,12 @@
         };
       }
 
-      function updateStatusText() {
-        elements.statusText.textContent = elements.statusToggle.checked ? "Active" : "Inactive";
-      }
-
-      function updatePreview() {
-        const rule = getCurrentRuleFromForm();
-        const merchant = merchants.find(item => item.id === rule.merchantId);
-        const terminal = merchant ? merchant.terminals.find(item => item.sn === rule.terminalSn) : null;
-        const offlineValue = rule.offline.value > 0 ? rule.offline.value : 30;
-        const transactionValue = rule.noTransaction.value > 0 ? rule.noTransaction.value : 2;
-        const previewRule = {
-          offline: { value: offlineValue, unit: rule.offline.unit || "minutes" },
-          noTransaction: { value: transactionValue, unit: rule.noTransaction.unit || "hours" }
-        };
-
-        elements.previewMerchant.textContent = merchant ? merchant.name : "--";
-        elements.previewTerminal.textContent = terminal ? terminal.sn : "--";
-        elements.previewAlert.textContent = buildAlertContent(previewRule);
+      function setDraftStatus(status) {
+        draftStatus = status === "Inactive" ? "Inactive" : "Active";
+        const isActive = draftStatus === "Active";
+        elements.modalStatusToggle.classList.toggle("active", isActive);
+        elements.modalStatusToggle.setAttribute("aria-label", isActive ? "Rule active" : "Rule inactive");
+        elements.modalStatusToggle.title = draftStatus;
       }
 
       function renderRecipients() {
@@ -1599,7 +1806,7 @@
 
       function addRecipient(rawValue) {
         const candidates = String(rawValue || "")
-          .split(",")
+          .split(/[,\n;]+/)
           .map(item => item.trim())
           .filter(Boolean);
 
@@ -1615,7 +1822,10 @@
 
       function clearErrors() {
         [
+          elements.serviceProviderError,
+          elements.agentError,
           elements.merchantError,
+          elements.storeError,
           elements.terminalError,
           elements.offlineError,
           elements.transactionError,
@@ -1628,15 +1838,23 @@
       function validateForm() {
         addRecipient(elements.recipientInput.value);
         const rule = getCurrentRuleFromForm();
+        const provider = getServiceProvider(rule.serviceProviderId);
+        const scope = getRuleScope(rule);
         const errors = {
+          serviceProvider: !rule.serviceProviderId,
+          agent: Boolean(provider?.agents.length) && !rule.agentId,
           merchant: !rule.merchantId,
-          terminal: !rule.terminalSn,
+          store: scope !== "merchant" && !rule.storeId,
+          terminal: scope === "terminal" && !rule.terminalSn,
           offline: !Number.isFinite(rule.offline.value) || rule.offline.value <= 0,
           transaction: !Number.isFinite(rule.noTransaction.value) || rule.noTransaction.value <= 0,
           recipients: draftRecipients.length === 0 || draftRecipients.some(email => !validateEmail(email))
         };
 
+        elements.serviceProviderError.hidden = !errors.serviceProvider;
+        elements.agentError.hidden = !errors.agent;
         elements.merchantError.hidden = !errors.merchant;
+        elements.storeError.hidden = !errors.store;
         elements.terminalError.hidden = !errors.terminal;
         elements.offlineError.hidden = !errors.offline;
         elements.transactionError.hidden = !errors.transaction;
@@ -1651,10 +1869,10 @@
         const statusTerm = elements.statusFilter.value;
 
         return rules.filter(rule => {
-          const merchant = getMerchant(rule.merchantId);
-          const terminal = getTerminal(rule.merchantId, rule.terminalSn);
-          return (!merchantTerm || normalize(merchant.name).includes(merchantTerm)) &&
-            (!terminalTerm || normalize(rule.terminalSn).includes(terminalTerm) || normalize(terminal.name).includes(terminalTerm)) &&
+          const { merchant, store, terminal } = getRuleContext(rule);
+          const target = getTargetDisplay(rule, { merchant, store, terminal });
+          return (!merchantTerm || normalize(target.targetMain).includes(merchantTerm) || normalize(target.targetSub).includes(merchantTerm) || normalize(merchant?.name).includes(merchantTerm) || normalize(store?.name).includes(merchantTerm)) &&
+            (!terminalTerm || normalize(target.terminalSn).includes(terminalTerm) || normalize(terminal?.name).includes(terminalTerm)) &&
             (!statusTerm || rule.status === statusTerm);
         });
       }
@@ -1662,24 +1880,25 @@
       function renderTable() {
         const filteredRules = getFilteredRules();
         elements.tableBody.innerHTML = filteredRules.map(rule => {
-          const merchant = getMerchant(rule.merchantId);
-          const terminal = getTerminal(rule.merchantId, rule.terminalSn);
+          const { merchant, store, terminal } = getRuleContext(rule);
+          const scope = getRuleScope(rule);
+          const target = getTargetDisplay(rule, { merchant, store, terminal });
           const statusClass = rule.status === "Active" ? "active" : "inactive";
           return `
             <tr data-rule-id="${rule.id}">
-              <td><span class="cell-main">${escapeHtml(merchant.name)}</span><span class="cell-sub">${escapeHtml(merchant.id)}</span></td>
-              <td class="mono">${escapeHtml(rule.terminalSn)}</td>
-              <td>${escapeHtml(terminal.name)}</td>
+              <td><span class="cell-main">${escapeHtml(target.targetMain)}</span><span class="cell-sub">${escapeHtml(target.targetSub)}</span></td>
+              <td><span class="scope-pill">${escapeHtml(formatScope(scope))}</span></td>
+              <td class="mono">${escapeHtml(target.terminalSn)}</td>
               <td><span class="alert-pill warning">${escapeHtml(formatThreshold(rule.offline))}</span></td>
               <td><span class="alert-pill info">${escapeHtml(formatThreshold(rule.noTransaction))}</span></td>
               <td><div class="recipients" title="${escapeHtml(rule.recipients.join(", "))}">${escapeHtml(rule.recipients.join(", "))}</div></td>
-              <td><span class="status-pill ${statusClass}">${escapeHtml(rule.status)}</span></td>
-              <td class="mono">${escapeHtml(rule.lastTriggered)}</td>
+              <td><button class="status-switch-cell ${statusClass}" type="button" data-action="toggle-status" aria-label="${rule.status === "Active" ? "Disable rule" : "Enable rule"}" title="${rule.status === "Active" ? "Disable" : "Enable"}"><span class="switch-track-mini" aria-hidden="true"></span></button></td>
+              <td class="mono">${escapeHtml(getLastTriggered(rule))}</td>
               <td>
                 <div class="actions-cell">
-                  <button class="icon-btn" type="button" data-action="edit" aria-label="Edit rule"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"></path></svg></button>
-                  <button class="icon-btn" type="button" data-action="toggle" aria-label="Toggle rule status"><svg viewBox="0 0 24 24"><path d="M7 7h10"></path><path d="M7 17h10"></path><path d="M5 7a2 2 0 1 0 0.1 0"></path><path d="M19 17a2 2 0 1 0 0.1 0"></path></svg></button>
-                  <button class="icon-btn danger" type="button" data-action="delete" aria-label="Delete rule"><svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button>
+                  <button class="icon-btn" type="button" data-action="logs" aria-label="View trigger log" title="Trigger Log"><i class="bi bi-clock-history" aria-hidden="true"></i></button>
+                  <button class="icon-btn" type="button" data-action="edit" aria-label="Edit rule" title="Edit"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+                  <button class="icon-btn danger" type="button" data-action="delete" aria-label="Delete rule" title="Delete"><i class="bi bi-trash3" aria-hidden="true"></i></button>
                 </div>
               </td>
             </tr>
@@ -1697,30 +1916,37 @@
         draftRecipients = rule ? [...rule.recipients] : [];
 
         if (rule) {
+          const scope = getRuleScope(rule);
+          elements.serviceProviderSelect.value = rule.serviceProviderId;
+          populateAgentSelect(rule.serviceProviderId, rule.agentId);
+          elements.agentSelect.value = rule.agentId || "";
+          populateMerchantSelect(rule.serviceProviderId, rule.agentId, rule.merchantId);
           elements.merchantSelect.value = rule.merchantId;
-          populateTerminalSelect(rule.merchantId, rule.terminalSn);
-          elements.terminalSelect.value = rule.terminalSn;
+          elements.scopeSelect.value = scope;
+          syncScopeControls(rule.storeId, rule.terminalSn);
           elements.offlineValue.value = rule.offline.value;
           elements.offlineUnit.value = rule.offline.unit;
           elements.transactionValue.value = rule.noTransaction.value;
           elements.transactionUnit.value = rule.noTransaction.unit;
-          elements.statusToggle.checked = rule.status === "Active";
+          setDraftStatus(rule.status);
         } else {
+          elements.serviceProviderSelect.value = "";
+          elements.scopeSelect.value = "terminal";
+          populateAgentSelect("", "");
           elements.merchantSelect.value = "";
-          populateTerminalSelect("", "");
+          populateMerchantSelect("", "", "");
+          syncScopeControls();
           elements.offlineValue.value = "30";
           elements.offlineUnit.value = "minutes";
           elements.transactionValue.value = "2";
           elements.transactionUnit.value = "hours";
-          elements.statusToggle.checked = true;
+          setDraftStatus("Active");
         }
 
-        updateStatusText();
         renderRecipients();
-        updatePreview();
         elements.modal.classList.add("active");
         elements.modal.setAttribute("aria-hidden", "false");
-        setTimeout(() => elements.merchantSelect.focus(), 0);
+        setTimeout(() => elements.serviceProviderSelect.focus(), 0);
       }
 
       function closeModal() {
@@ -1738,12 +1964,16 @@
 
         const formRule = getCurrentRuleFromForm();
         const payload = {
+          serviceProviderId: formRule.serviceProviderId,
+          agentId: formRule.agentId,
+          scope: formRule.scope,
           merchantId: formRule.merchantId,
+          storeId: formRule.storeId,
           terminalSn: formRule.terminalSn,
           offline: formRule.offline,
           noTransaction: formRule.noTransaction,
           recipients: [...draftRecipients],
-          status: elements.statusToggle.checked ? "Active" : "Inactive"
+          status: draftStatus
         };
 
         if (editingRuleId) {
@@ -1758,13 +1988,42 @@
             id: nextId,
             ...payload,
             lastTriggered: "--",
-            alertsToday: 0
+            alertsToday: 0,
+            triggerLogs: []
           });
           showToast("Rule added.");
         }
 
         closeModal();
         renderTable();
+      }
+
+      function openLogModal(rule) {
+        const { merchant, store, terminal } = getRuleContext(rule);
+        const scope = getRuleScope(rule);
+        const target = getTargetDisplay(rule, { merchant, store, terminal });
+        const logs = getTriggerLogs(rule);
+
+        elements.logModalContext.textContent = `${target.targetMain} / ${formatScope(scope)} / ${target.terminalSn}`;
+        elements.triggerLogBody.innerHTML = logs.map(log => `
+          <tr>
+            <td class="mono">${escapeHtml(log.triggeredAt)}</td>
+            <td class="mono">${escapeHtml(log.terminalSn || rule.terminalSn || "All terminals")}</td>
+            <td><div class="log-alert-content">${escapeHtml(log.alertContent || buildAlertContent(rule))}</div></td>
+            <td><div class="log-recipient-list">${escapeHtml((log.recipients || rule.recipients).join(", "))}</div></td>
+          </tr>
+        `).join("");
+
+        elements.logTableWrap.hidden = logs.length === 0;
+        elements.logEmptyState.classList.toggle("show", logs.length === 0);
+        elements.logModal.classList.add("active");
+        elements.logModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => elements.closeLogButton.focus(), 0);
+      }
+
+      function closeLogModal() {
+        elements.logModal.classList.remove("active");
+        elements.logModal.setAttribute("aria-hidden", "true");
       }
 
       function handleTableAction(event) {
@@ -1782,7 +2041,12 @@
           return;
         }
 
-        if (action === "toggle") {
+        if (action === "logs") {
+          openLogModal(rule);
+          return;
+        }
+
+        if (action === "toggle-status") {
           rule.status = rule.status === "Active" ? "Inactive" : "Active";
           showToast(`Rule set to ${rule.status}.`);
           renderTable();
@@ -1803,13 +2067,16 @@
         renderTable();
       }
 
-      populateMerchantSelect();
-      populateTerminalSelect("", "");
+      populateServiceProviderSelect();
+      populateAgentSelect("", "");
+      populateMerchantSelect("", "", "");
+      elements.scopeSelect.value = "terminal";
+      syncScopeControls();
       renderTable();
 
       elements.addRuleButton.addEventListener("click", () => openModal(null));
-      elements.closeModalButton.addEventListener("click", closeModal);
       elements.cancelModalButton.addEventListener("click", closeModal);
+      elements.closeLogButton.addEventListener("click", closeLogModal);
       elements.form.addEventListener("submit", saveRule);
       elements.tableBody.addEventListener("click", handleTableAction);
       elements.applyFiltersButton.addEventListener("click", renderTable);
@@ -1820,22 +2087,52 @@
       });
       elements.statusFilter.addEventListener("change", renderTable);
 
-      elements.merchantSelect.addEventListener("change", () => {
-        populateTerminalSelect(elements.merchantSelect.value, "");
-        updatePreview();
-      });
-      elements.terminalSelect.addEventListener("change", updatePreview);
-      [elements.offlineValue, elements.offlineUnit, elements.transactionValue, elements.transactionUnit].forEach(control => {
-        control.addEventListener("input", updatePreview);
-        control.addEventListener("change", updatePreview);
+      elements.serviceProviderSelect.addEventListener("change", () => {
+        const serviceProviderId = elements.serviceProviderSelect.value;
+        populateAgentSelect(serviceProviderId, "");
+        populateMerchantSelect(serviceProviderId, "", "");
+        syncScopeControls();
       });
 
-      elements.statusToggle.addEventListener("change", updateStatusText);
+      elements.agentSelect.addEventListener("change", () => {
+        const serviceProviderId = elements.serviceProviderSelect.value;
+        const agentId = elements.agentSelect.value;
+        populateMerchantSelect(serviceProviderId, agentId, "");
+        syncScopeControls();
+      });
+
+      elements.merchantSelect.addEventListener("change", () => {
+        syncScopeControls();
+      });
+
+      elements.scopeSelect.addEventListener("change", () => {
+        syncScopeControls(elements.storeSelect.value, elements.terminalSelect.value);
+      });
+
+      elements.storeSelect.addEventListener("change", () => {
+        const serviceProviderId = elements.serviceProviderSelect.value;
+        const agentId = elements.agentSelect.disabled ? "" : elements.agentSelect.value;
+        const merchantId = elements.merchantSelect.value;
+        if ((elements.scopeSelect.value || "terminal") === "terminal") {
+          populateTerminalSelect(serviceProviderId, agentId, merchantId, elements.storeSelect.value, "");
+        }
+      });
+
+      elements.modalStatusToggle.addEventListener("click", () => {
+        setDraftStatus(draftStatus === "Active" ? "Inactive" : "Active");
+      });
       elements.recipientBox.addEventListener("click", () => elements.recipientInput.focus());
       elements.recipientInput.addEventListener("keydown", event => {
-        if (event.key === "Enter" || event.key === ",") {
+        if (event.key === "Enter" || event.key === "," || event.key === ";") {
           event.preventDefault();
           addRecipient(elements.recipientInput.value);
+        }
+      });
+      elements.recipientInput.addEventListener("paste", event => {
+        const text = event.clipboardData?.getData("text") || "";
+        if (/[,\n;]/.test(text)) {
+          event.preventDefault();
+          addRecipient(text);
         }
       });
       elements.recipientInput.addEventListener("blur", () => addRecipient(elements.recipientInput.value));
@@ -1846,8 +2143,23 @@
         }
       });
 
+      elements.logModal.addEventListener("click", event => {
+        if (event.target === elements.logModal) {
+          closeLogModal();
+        }
+      });
+
       document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && elements.modal.classList.contains("active")) {
+        if (event.key !== "Escape") {
+          return;
+        }
+
+        if (elements.logModal.classList.contains("active")) {
+          closeLogModal();
+          return;
+        }
+
+        if (elements.modal.classList.contains("active")) {
           closeModal();
         }
       });
