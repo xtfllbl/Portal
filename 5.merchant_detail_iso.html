@@ -850,7 +850,8 @@
 
         .store-grid-row {
             cursor: pointer;
-            transition: background-color 0.18s ease;
+            position: relative;
+            transition: background-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
         }
 
         .store-grid-row:hover {
@@ -858,22 +859,21 @@
         }
 
         .store-grid-row.active {
-            background: #f1f1f1;
-            box-shadow: inset 5px 0 0 #111827, inset 0 0 0 1px rgba(17, 24, 39, 0.26);
+            background: #f2f6ff;
+            box-shadow: inset 4px 0 0 var(--accent), inset 0 0 0 1px rgba(29, 78, 216, 0.22);
+        }
+
+        .store-grid-row.active:hover {
+            background: #eef4ff;
         }
 
         .store-grid-row.active > div:first-child {
             font-weight: 600;
-            color: #111827;
-        }
-
-        .store-grid-row.active .cell-sub {
-            font-weight: 500;
-            color: #6b7280;
+            color: #0f172a;
         }
 
         .store-grid-row:focus {
-            outline: 2px solid #9ca3af;
+            outline: 2px solid rgba(29, 78, 216, 0.78);
             outline-offset: -2px;
         }
 
@@ -2245,10 +2245,7 @@
                                 <div>Actions</div>
                             </div>
                             <div class="grid-row store-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-stored-value="enabled" role="button" tabindex="0" aria-pressed="false">
-                                <div>
-                                    Downtown Location
-                                    <div class="cell-sub">ID: st_123</div>
-                                </div>
+                                <div>Downtown Location</div>
                                 <div>123 Main St, New York, NY</div>
                                 <div>2026-04-02 09:18</div>
                                 <div data-role="device-count">2 Active</div>
@@ -2268,10 +2265,7 @@
                                 </div>
                             </div>
                             <div class="grid-row store-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-stored-value="disabled" role="button" tabindex="0" aria-pressed="false">
-                                <div>
-                                    Midtown Location
-                                    <div class="cell-sub">ID: st_204</div>
-                                </div>
+                                <div>Midtown Location</div>
                                 <div>55 Lexington Ave, New York, NY</div>
                                 <div>2026-04-12 14:36</div>
                                 <div data-role="device-count">1 Pending</div>
@@ -4370,10 +4364,6 @@
 
                 const nameCell = document.createElement('div');
                 nameCell.textContent = storeName;
-                const idSub = document.createElement('div');
-                idSub.className = 'cell-sub';
-                idSub.textContent = `ID: ${storeId}`;
-                nameCell.appendChild(idSub);
 
                 row.appendChild(nameCell);
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: address }));
