@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paywizard Prepaid Card Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3f4f7;
+      --surface: #ffffff;
+      --soft: #f8fafc;
+      --text: #101114;
+      --muted: #667085;
+      --line: #dfe3ea;
+      --accent: #6d28d9;
+      --accent-soft: #f1e7ff;
+      --green: #16a34a;
+      --green-soft: #dcfce7;
+      --shadow: 0 18px 42px rgba(15, 23, 42, .09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Poppins", "Segoe UI", sans-serif;
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero,
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 26px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--text);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3,
+    p { margin: 0; }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .status {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+      min-width: 210px;
+    }
+
+    .pill {
+      min-height: 34px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .section { padding: 22px; }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    h2 {
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .note {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .page-card {
+      min-height: 420px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .page-card.primary {
+      border-color: rgba(109, 40, 217, .32);
+      background: linear-gradient(180deg, #fff 0%, #fbf8ff 100%);
+    }
+
+    .step {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .preview {
+      height: 168px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #eef2f7;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview iframe {
+      width: 1440px;
+      height: 900px;
+      border: 0;
+      pointer-events: none;
+      transform: scale(.265);
+      transform-origin: 0 0;
+      background: #fff;
+    }
+
+    .preview::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 -34px 46px rgba(15, 23, 42, .12);
+      pointer-events: none;
+    }
+
+    .card-copy {
+      display: grid;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .file {
+      color: #475569;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #1f2937;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      border-color: var(--text);
+      background: var(--text);
+      color: #fff;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, .12);
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .map-item {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .map-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    @media (max-width: 1180px) {
+      .grid,
+      .map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .preview iframe { transform: scale(.34); }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 16px; }
+      .hero { grid-template-columns: 1fr; padding: 22px; }
+      .status { justify-items: start; min-width: 0; }
+      .grid,
+      .map { grid-template-columns: 1fr; }
+      .page-card { min-height: 0; }
+      .preview { height: 150px; }
+      .preview iframe { transform: scale(.24); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="brand"><span class="mark">PW</span><strong>PAYwizard Merchant Portal</strong></div>
+        <h1>Prepaid Stored Value Card Prototype</h1>
+        <p class="subtitle">Prototype index for the latest prepaid card requirement. Start from the card list, then review activation, balance adjustment, loss replacement, card detail, and unified transaction flows.</p>
+      </div>
+      <div class="status">
+        <span class="pill">Latest prepaid card scope</span>
+        <span class="pill">11 prototype pages</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Prototype Pages</h2>
+          <p class="note">These links open the current HTML prototypes for the prepaid stored value card workflow.</p>
+        </div>
+        <a class="btn primary" href="14.prepaid_card_list.html">Open Card List</a>
+      </div>
+
+      <div class="grid">
+        <article class="page-card primary">
+          <div class="preview" aria-hidden="true"><iframe src="14.prepaid_card_list.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">1</span>
+            <h3>Card List</h3>
+            <p class="file">14.prepaid_card_list.html</p>
+            <p class="desc">Main prepaid card list with search, filters, balance, status, transaction entry, adjustment action, and replacement menu.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="14.prepaid_card_list.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="15.prepaid_card_activation.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">2</span>
+            <h3>Activation</h3>
+            <p class="file">15.prepaid_card_activation.html</p>
+            <p class="desc">Single card activation and batch import flow, including currency selection and automatic import validation review.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="15.prepaid_card_activation.html">Open</a><a class="btn" href="15.prepaid_card_activation.html#import">Batch Import</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="16.prepaid_credit_adjustment.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">3</span>
+            <h3>Balance Adjustment</h3>
+            <p class="file">16.prepaid_credit_adjustment.html</p>
+            <p class="desc">Manual top-up and deduction flow with transaction type, positive amount input, confirmation, and adjustment history.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="16.prepaid_credit_adjustment.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="17.prepaid_loss_replacement.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">4</span>
+            <h3>Loss & Replacement</h3>
+            <p class="file">17.prepaid_loss_replacement.html</p>
+            <p class="desc">Lost card replacement operation, old/new card review, confirmation modal, and replacement records tab.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="17.prepaid_loss_replacement.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="19.prepaid_card_detail.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">5</span>
+            <h3>Card Details</h3>
+            <p class="file">19.prepaid_card_detail.html</p>
+            <p class="desc">Card detail view with balance attributes, currency, lifecycle rules, adjustments, and transaction history tabs.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="19.prepaid_card_detail.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="12.transaction_list.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">6</span>
+            <h3>Transactions</h3>
+            <p class="file">12.transaction_list.html</p>
+            <p class="desc">Unified Paywizard transaction list with payment method, prepaid card UID links, QR records, and bank card transactions.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="12.transaction_list.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="5.merchant_detail_iso.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">7</span>
+            <h3>Merchant Detail</h3>
+            <p class="file">5.merchant_detail_iso.html</p>
+            <p class="desc">Merchant overview with stores, devices, creation/addition timestamps, store filtering, and terminal settings actions.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="5.merchant_detail_iso.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="5.merchant_add_device_iso.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">8</span>
+            <h3>Add Device</h3>
+            <p class="file">5.merchant_add_device_iso.html</p>
+            <p class="desc">Standalone add-device flow with terminal scenario selection, processor setup, template assignment, and Paywizard integration parameters.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="5.merchant_add_device_iso.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="21.service_provider.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">9</span>
+            <h3>Service Provider</h3>
+            <p class="file">21.service_provider.html</p>
+            <p class="desc">Service provider list with provider creation, validation states, row actions, and payment channel settings entry.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="21.service_provider.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="22.sp_payment_channel_setting.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">10</span>
+            <h3>SP Payment Channels</h3>
+            <p class="file">22.sp_payment_channel_setting.html</p>
+            <p class="desc">Service-provider payment channel settings with platform prepaid card capability and channel configuration modal.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="22.sp_payment_channel_setting.html">Open</a></div>
+        </article>
+
+        <article class="page-card">
+          <div class="preview" aria-hidden="true"><iframe src="23.payment_channel_setting.html" loading="lazy" tabindex="-1"></iframe></div>
+          <div class="card-copy">
+            <span class="step">11</span>
+            <h3>Store Payment Channels</h3>
+            <p class="file">23.payment_channel_setting.html</p>
+            <p class="desc">Store-level payment channel settings with terminal, eCommerce, and prepaid card enablement assigned at location level.</p>
+          </div>
+          <div class="actions"><a class="btn primary" href="23.payment_channel_setting.html">Open</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Flow Map</h2>
+          <p class="note">Suggested review path for product and engineering discussion.</p>
+        </div>
+      </div>
+      <div class="map">
+        <div class="map-item"><strong>1. Find cards</strong>Review search, filters, status, and row actions.</div>
+        <div class="map-item"><strong>2. Activate cards</strong>Check single activation and batch import review.</div>
+        <div class="map-item"><strong>3. Adjust balance</strong>Review top-up, deduction, confirmation, and history.</div>
+        <div class="map-item"><strong>4. Replace lost cards</strong>Review replacement operation and service provider records.</div>
+        <div class="map-item"><strong>5. Inspect details</strong>Verify card status, balance attributes, adjustments, and transaction tabs.</div>
+        <div class="map-item"><strong>6. Review transactions</strong>Confirm prepaid card payments appear in the unified Paywizard transaction list.</div>
+        <div class="map-item"><strong>7. Configure providers</strong>Open service provider records and review provider-level channel setup.</div>
+        <div class="map-item"><strong>8. Enable store channels</strong>Review terminal, eCommerce, and prepaid card settings assigned to each store.</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
