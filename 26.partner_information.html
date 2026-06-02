@@ -826,7 +826,8 @@
 
     .partner-config.hidden,
     .intl-psp-config.hidden,
-    .inherited-type.hidden {
+    .inherited-type.hidden,
+    .share-channel-field.hidden {
       display: none;
     }
 
@@ -1122,6 +1123,16 @@
             <select class="modal-field" id="sharePageStyle">
               <option value="UPT">UPT</option>
               <option value="INTL_PSP">INTL PSP</option>
+            </select>
+          </div>
+          <div class="field-shell share-channel-field hidden" id="sharePaymentChannelField">
+            <span class="field-label">Payment Channel</span>
+            <select class="modal-field" id="sharePaymentChannel">
+              <option value="">Customer selects payment channel</option>
+              <option value="TSYS">TSYS</option>
+              <option value="FISERV">FISERV</option>
+              <option value="ELAVON">ELAVON</option>
+              <option value="NUVEI">NUVEI</option>
             </select>
           </div>
         </div>
@@ -1443,6 +1454,8 @@
       var cancelShareBtn = document.getElementById("cancelShare");
       var sharePartnerName = document.getElementById("sharePartnerName");
       var sharePageStyle = document.getElementById("sharePageStyle");
+      var sharePaymentChannelField = document.getElementById("sharePaymentChannelField");
+      var sharePaymentChannel = document.getElementById("sharePaymentChannel");
 
       function escapeHtml(str) {
         return String(str == null ? "" : str)
@@ -1832,8 +1845,33 @@
         if (!partner) return;
         sharePartnerName.value = partner.name.replace(/\n/g, " ");
         sharePageStyle.value = getPartnerStyle(partner);
+        sharePaymentChannel.value = "";
+        syncSharePaymentChannelField();
         shareModal.classList.add("show");
         shareModal.setAttribute("aria-hidden", "false");
+      }
+
+      function syncSharePaymentChannelField() {
+        var isIntlPsp = sharePageStyle.value === "INTL_PSP";
+        sharePaymentChannelField.classList.toggle("hidden", !isIntlPsp);
+        sharePaymentChannel.disabled = !isIntlPsp;
+        if (!isIntlPsp) sharePaymentChannel.value = "";
+      }
+
+      function getShareLandingUrl() {
+        if (sharePageStyle.value !== "INTL_PSP") {
+          return "25.merchant_lead.html";
+        }
+
+        if (sharePaymentChannel.value === "ELAVON") {
+          return "33.INTL_PSP_merchant_lead_elavon.html";
+        }
+
+        if (sharePaymentChannel.value) {
+          return "27.INTL_PSP_merchant_lead.html?channel=" + encodeURIComponent(sharePaymentChannel.value);
+        }
+
+        return "27.INTL_PSP_merchant_lead.html";
       }
 
       function closeShareModal() {
@@ -1842,6 +1880,7 @@
       }
 
       cancelShareBtn.addEventListener("click", closeShareModal);
+      sharePageStyle.addEventListener("change", syncSharePaymentChannelField);
 
       shareModal.addEventListener("click", function (e) {
         if (e.target === shareModal) closeShareModal();
@@ -1849,7 +1888,9 @@
 
       shareForm.addEventListener("submit", function (e) {
         e.preventDefault();
+        var landingUrl = getShareLandingUrl();
         closeShareModal();
+        window.open(landingUrl, "_blank");
       });
 
       function buildPartnerId() {
