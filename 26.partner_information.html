@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partner Information - PAYwizard Portal</title>
+  <title>Partner List - PAYwizard Portal</title>
   <style>
     :root {
       --bg: #f2f3f5;
@@ -331,111 +331,196 @@
       color: currentColor;
     }
 
-    /* Table Panel */
-    .table-panel {
+    /* Partner hierarchy workspace */
+    .partner-console {
+      display: grid;
+      grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .hierarchy-panel,
+    .detail-panel {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
       overflow: hidden;
     }
 
-    .table-scroll {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      min-width: 1050px;
-    }
-
-    thead th:nth-child(1) {
-      width: 230px;
-    }
-
-    thead th:nth-child(2) {
-      width: 100px;
-    }
-
-    thead th:nth-child(3) {
-      width: 120px;
-    }
-
-    thead th:nth-child(4) {
-      width: 165px;
-    }
-
-    thead th:nth-child(5) {
-      width: 165px;
-    }
-
-    thead th:nth-child(6) {
-      width: 125px;
-    }
-
-    thead th:nth-child(7) {
-      width: 185px;
-    }
-
-    thead th {
-      background: var(--header-bg);
-      color: #fff;
-      text-align: left;
-      padding: 14px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    tbody td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 14px;
-      color: #374151;
-      vertical-align: middle;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    tbody tr:hover {
-      background: var(--hover-bg);
-    }
-
-    thead th:last-child,
-    tbody td:last-child {
-      padding-left: 8px;
-      padding-right: 8px;
-    }
-
-    .cell-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 1px;
-    }
-
-    .count-cell {
-      text-align: center;
-    }
-
-    .hierarchy-cell {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .partner-name-cell {
+    .hierarchy-panel {
+      position: sticky;
+      top: 0;
       min-width: 0;
     }
 
-    .tree-name {
+    .panel-head {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .panel-head-actions {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-      padding-left: calc(var(--depth, 0) * 24px);
+      flex: none;
+    }
+
+    .hierarchy-add-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #111827;
+      background: #111827;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .hierarchy-add-btn:hover {
+      background: #000;
+    }
+
+    .hierarchy-add-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .tree-toolbar {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfbfc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .partner-type-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 34px;
+      padding: 3px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .type-filter-btn {
+      height: 26px;
+      min-width: 50px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 9px;
+    }
+
+    .type-filter-btn:hover {
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    .type-filter-btn.active {
+      background: #111827;
+      color: #fff;
+    }
+
+    .search-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 36px;
+      gap: 8px;
+    }
+
+    .search-actions .search-field {
+      min-width: 0;
+      width: 100%;
+    }
+
+    #searchPartnerName {
+      grid-column: 1 / -1;
+    }
+
+    #searchPartnerEmail {
+      grid-column: 1 / 2;
+    }
+
+    .hierarchy-scroll {
+      max-height: calc(100vh - 274px);
+      min-height: 430px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .tree-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tree-node {
+      position: relative;
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 5px 8px 5px calc(8px + (var(--depth, 0) * 18px));
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .tree-node:hover {
+      background: #f4f5f7;
+    }
+
+    .tree-node.selected {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+
+    .tree-node.selected .style-badge {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #fff;
+    }
+
+    .tree-node.selected .tree-toggle {
+      border-color: rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
     }
 
     .tree-toggle {
@@ -462,26 +547,32 @@
       cursor: default;
     }
 
-    .name-stack {
+    .node-main {
+      min-width: 0;
       display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .name-line {
-      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      min-width: 0;
-      max-width: 100%;
-      flex-wrap: wrap;
+      gap: 0;
     }
 
-    .name-text {
-      font-weight: 500;
-      color: #111827;
-      white-space: normal;
-      line-height: 1.35;
+    .node-text {
+      min-width: 0;
+    }
+
+    .node-name {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .tree-empty {
+      padding: 44px 16px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 13px;
     }
 
     .style-badge {
@@ -507,6 +598,291 @@
       background: #fff7ed;
       border: 1px solid #fed7aa;
       color: #c2410c;
+    }
+
+    .tree-node .style-badge {
+      height: 20px;
+      min-width: 40px;
+    }
+
+    .tree-node .style-badge.placeholder {
+      visibility: hidden;
+    }
+
+    .detail-hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 22px 18px;
+      background: #111827;
+      color: #fff;
+    }
+
+    .detail-kicker {
+      margin-bottom: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .detail-title {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.18;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .detail-subtitle {
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .detail-hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      flex: none;
+    }
+
+    .detail-hero-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 14px;
+      flex: 0 0 auto;
+      max-width: 540px;
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .detail-body {
+      padding: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .summary-card {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 13px 14px;
+      background: #fff;
+    }
+
+    .summary-label {
+      color: #6b7280;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .summary-value {
+      margin-top: 7px;
+      color: #111827;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .detail-section {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin-top: 14px;
+    }
+
+    .detail-section-head {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fbfbfc;
+    }
+
+    .detail-section-title {
+      font-size: 14px;
+      color: #111827;
+      font-weight: 800;
+    }
+
+    .detail-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .detail-field {
+      min-height: 74px;
+      padding: 14px 16px;
+      border-right: 1px solid #f1f2f4;
+      border-bottom: 1px solid #f1f2f4;
+    }
+
+    .detail-field:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .detail-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .detail-label svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .detail-value {
+      margin-top: 8px;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 650;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .detail-value.muted {
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .path-line {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      color: #374151;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .path-node {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .path-separator {
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    .detail-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 16px 0 2px;
+    }
+
+    .detail-hero .detail-actions {
+      justify-content: flex-end;
+      padding: 0;
+      gap: 8px;
+    }
+
+    .detail-action-btn {
+      min-height: 38px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: #111827;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .detail-action-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .detail-action-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .detail-action-btn.primary {
+      background: #111827;
+      border-color: #111827;
+      color: #fff;
+    }
+
+    .detail-action-btn.primary:hover {
+      background: #000;
+    }
+
+    .detail-action-btn.danger {
+      color: var(--danger-text);
+      border-color: #fecaca;
+      background: #fff7f7;
+    }
+
+    .detail-action-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .detail-hero .detail-action-btn {
+      min-height: 34px;
+      border-radius: 999px;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: #fff;
+      color: #111827;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    .detail-hero .detail-action-btn:hover {
+      background: #f8fafc;
+    }
+
+    .detail-hero .detail-action-btn.primary {
+      background: #fff;
+      border-color: #fff;
+      color: #111827;
+    }
+
+    .detail-hero .detail-action-btn.danger {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(254, 202, 202, 0.55);
+      color: #fecaca;
+      box-shadow: none;
     }
 
     .status-pill {
@@ -613,121 +989,161 @@
       background: #f9fafb;
     }
 
-    /* Pagination */
-    .pagination {
+    .detail-tabs {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-top: 1px solid #f0f0f0;
-      background: #fff;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .filter-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin: -4px 0 18px;
-    }
-
-    .partner-type-filter {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      height: 36px;
-      padding: 3px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
+      gap: 22px;
+      margin: -2px -18px 18px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
       background: #fff;
     }
 
-    .type-filter-btn {
-      height: 28px;
-      min-width: 54px;
+    .detail-tab {
+      position: relative;
+      height: 48px;
       border: 0;
-      border-radius: 7px;
       background: transparent;
-      color: #6b7280;
-      font-size: 12px;
-      font-weight: 700;
+      color: #8b8b8b;
+      font-size: 15px;
+      font-weight: 800;
       cursor: pointer;
-      padding: 0 10px;
+      font-family: inherit;
+      padding: 0;
     }
 
-    .type-filter-btn:hover {
-      color: #111827;
-      background: #f3f4f6;
+    .detail-tab.active {
+      color: #111;
     }
 
-    .type-filter-btn.active {
-      background: #111827;
-      color: #fff;
+    .detail-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 3px;
+      border-radius: 999px 999px 0 0;
+      background: #111;
     }
 
-    .search-actions {
+    .terminal-tab-panel {
+      background: transparent;
+      padding: 0;
+      overflow: visible;
+    }
+
+    .terminal-tab-title {
+      color: #3f3f46;
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .terminal-tab-actions {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
     }
 
-    .page-controls {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .page-btn {
-      min-width: 30px;
-      height: 30px;
-      border: 1px solid #d9d9d9;
+    .terminal-outline-btn {
+      min-height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
       background: #fff;
-      border-radius: 6px;
-      padding: 0 8px;
+      color: #6b7280;
+      padding: 0 12px;
       font-size: 12px;
-      cursor: pointer;
+      font-weight: 800;
+      font-family: inherit;
+    }
+
+    .terminal-outline-btn.blue {
+      color: #0284c7;
+      border-color: #bae6fd;
+    }
+
+    .terminal-outline-btn.orange {
+      color: #ea580c;
+      border-color: #fed7aa;
+    }
+
+    .terminal-tab-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .terminal-filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-left: auto;
+    }
+
+    .terminal-filter-field {
+      width: 170px;
+      min-height: 34px;
+      border: 1px solid #d4d4d8;
+      border-radius: 8px;
+      padding: 7px 10px;
+      color: #374151;
+      background: #fff;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .terminal-search-btn {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #111;
+      border-radius: 8px;
+      background: #111;
+      color: #fff;
       display: grid;
       place-items: center;
-      color: #374151;
-      transition: background 0.15s;
+      cursor: pointer;
     }
 
-    .page-btn:hover {
-      background: #f3f4f6;
+    .terminal-search-btn.light {
+      border-color: var(--border);
+      background: #fff;
+      color: #6b7280;
     }
 
-    .page-btn.active {
-      background: var(--black);
-      border-color: var(--black);
-      color: #fff;
+    .terminal-search-btn svg {
+      width: 15px;
+      height: 15px;
     }
 
-    .page-btn.nav-btn {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .page-size {
+    .terminal-pager {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 4px 0;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 700;
     }
 
-    .page-size select {
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 12px;
-      background: #fff;
-      cursor: pointer;
-      outline: none;
+    .terminal-page-dot {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .page-info {
-      font-size: 12px;
-      color: var(--muted);
+    .terminal-page-dot.active {
+      background: #111;
+      color: #fff;
     }
 
     /* ===== Modal ===== */
@@ -864,6 +1280,81 @@
       padding-top: 52px;
     }
 
+    .terminal-list-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .terminal-list-wrap {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      max-height: 460px;
+      background: #fff;
+    }
+
+    .terminal-list-table {
+      width: 100%;
+      min-width: 1120px;
+      border-collapse: collapse;
+    }
+
+    .terminal-list-table th {
+      padding: 11px 12px;
+      background: #f4f6f8;
+      color: #374151;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .terminal-list-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f1f2f4;
+      color: #3f3f46;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .terminal-list-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .terminal-status {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #027a48;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .terminal-status.outbound {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .terminal-empty {
+      padding: 40px 18px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
     .modal-btn.share-save {
       background: #0369a1;
       color: #fff;
@@ -928,6 +1419,19 @@
         flex-wrap: wrap;
       }
 
+      .partner-console {
+        grid-template-columns: 1fr;
+      }
+
+      .hierarchy-panel {
+        position: static;
+      }
+
+      .hierarchy-scroll {
+        max-height: 420px;
+        min-height: 280px;
+      }
+
       .filter-row {
         align-items: stretch;
         flex-direction: column;
@@ -935,12 +1439,104 @@
 
       .partner-type-filter,
       .search-actions {
-        align-self: flex-start;
+        align-self: stretch;
+      }
+
+      .search-actions {
+        grid-template-columns: minmax(0, 1fr) 36px;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-field,
+      .detail-field:nth-child(2n) {
+        border-right: 0;
+      }
+
+      .detail-hero {
+        flex-direction: column;
+      }
+
+      .detail-hero-meta {
+        justify-content: flex-start;
+        max-width: none;
+      }
+
+      .detail-hero-side {
+        align-items: flex-start;
+        max-width: none;
+      }
+
+      .detail-hero .detail-actions {
+        justify-content: flex-start;
       }
 
       .add-context-grid,
       .add-context-grid.has-type {
         grid-template-columns: 1fr;
+      }
+
+      .terminal-tab-toolbar {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .terminal-filter-group {
+        justify-content: flex-start;
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .content-area {
+        padding: 16px;
+      }
+
+      .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .search-actions,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #searchPartnerName,
+      #searchPartnerEmail {
+        grid-column: auto;
+      }
+
+      .search-btn {
+        width: 100%;
+      }
+
+      .detail-tabs {
+        overflow-x: auto;
+      }
+
+      .terminal-filter-field {
+        width: 100%;
+      }
+
+      .terminal-tab-actions,
+      .terminal-filter-group {
+        width: 100%;
+      }
+
+      .terminal-outline-btn {
+        flex: 1 1 150px;
+      }
+
+      .terminal-search-btn {
+        flex: 1 0 44px;
       }
     }
   </style>
@@ -968,7 +1564,7 @@
         </div>
         <div class="menu-item active">Partners <span class="chevron">▾</span></div>
         <div class="sub-menu">
-          <div class="sub-item active">Partner Information</div>
+          <div class="sub-item active">Partner List</div>
         </div>
         <div class="menu-item">Hardware</div>
         <div class="menu-item">Device Management</div>
@@ -1002,63 +1598,55 @@
         <!-- Page Header -->
         <div class="page-header">
           <h1 class="page-title">Partner List</h1>
-          <div class="header-actions">
-            <button class="btn primary" id="addPartnerBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Add Partner
-            </button>
-          </div>
         </div>
 
-        <div class="filter-row">
-          <div class="partner-type-filter" role="group" aria-label="Partner Type">
-            <button class="type-filter-btn active" type="button" data-style-filter="ALL">All</button>
-            <button class="type-filter-btn" type="button" data-style-filter="UPT">UPT</button>
-            <button class="type-filter-btn" type="button" data-style-filter="INTL_PSP">INTL PSP</button>
-          </div>
-          <div class="search-actions">
-            <input class="search-field" type="text" placeholder="Agent Name" id="searchPartnerName">
-            <input class="search-field" type="email" placeholder="Email" id="searchPartnerEmail">
-            <button class="search-btn btn" id="resetSearchBtn" aria-label="Reset Search" title="Reset">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M3 12a9 9 0 1 0 3-6.7" />
-                <path d="M3 4v6h6" />
-              </svg>
-            </button>
-            <button class="search-btn btn primary" id="searchBtn" aria-label="Search" title="Search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <div class="partner-console">
+          <section class="hierarchy-panel" aria-label="Partner Hierarchy">
+            <div class="panel-head">
+              <div class="panel-title-row">
+                <div class="panel-title">
+                  Hierarchy
+                </div>
+                <div class="panel-head-actions">
+                  <button class="hierarchy-add-btn" id="addPartnerBtn" type="button" aria-label="Add Partner"
+                    title="Add Partner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="tree-toolbar">
+              <div class="filter-row">
+                <div class="partner-type-filter" role="group" aria-label="Partner Type">
+                  <button class="type-filter-btn active" type="button" data-style-filter="ALL">All</button>
+                  <button class="type-filter-btn" type="button" data-style-filter="UPT">UPT</button>
+                  <button class="type-filter-btn" type="button" data-style-filter="INTL_PSP">INTL PSP</button>
+                </div>
+              </div>
+              <div class="search-actions">
+                <input class="search-field" type="text" placeholder="Partner / Agent" id="searchPartnerName">
+                <input class="search-field" type="email" placeholder="Email" id="searchPartnerEmail">
+                <button class="search-btn btn primary" id="searchBtn" aria-label="Search" title="Search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="hierarchy-scroll">
+              <ul class="tree-list" id="partnerTree"></ul>
+            </div>
+          </section>
 
-        <!-- Table -->
-        <div class="table-panel">
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Agent Name</th>
-                  <th>Agent Level</th>
-                  <th>Agent Contacts</th>
-                  <th>Agent Email</th>
-                  <th>Date &amp; Time</th>
-                  <th>Devices(INV/OUT)</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="partnerTableBody"></tbody>
-            </table>
-          </div>
-          <div class="pagination" id="pagination"></div>
+          <section class="detail-panel" aria-label="Partner Detail">
+            <div id="partnerDetail"></div>
+          </section>
         </div>
       </div>
     </main>
@@ -1120,10 +1708,7 @@
           </div>
           <div class="field-shell">
             <span class="field-label">Page Style</span>
-            <select class="modal-field" id="sharePageStyle">
-              <option value="UPT">UPT</option>
-              <option value="INTL_PSP">INTL PSP</option>
-            </select>
+            <input class="modal-field" id="sharePageStyle" type="text" value="INTL PSP" readonly>
           </div>
           <div class="field-shell share-channel-field hidden" id="sharePaymentChannelField">
             <span class="field-label">Payment Channel</span>
@@ -1417,23 +2002,21 @@
         }
       ];
 
-      var PAGE_SIZE_OPTIONS = [20, 50, 100];
       var state = {
-        page: 1,
-        pageSize: 20,
         searchName: "",
         searchEmail: "",
         styleFilter: "ALL",
+        detailTab: "profile",
+        selectedId: partners[0] ? partners[0].id : "",
         collapsedIds: {}
       };
 
-      var tableBody = document.getElementById("partnerTableBody");
-      var paginationEl = document.getElementById("pagination");
+      var treeEl = document.getElementById("partnerTree");
+      var detailEl = document.getElementById("partnerDetail");
       var searchNameInput = document.getElementById("searchPartnerName");
       var searchEmailInput = document.getElementById("searchPartnerEmail");
       var styleFilterBtns = document.querySelectorAll("[data-style-filter]");
       var searchBtn = document.getElementById("searchBtn");
-      var resetSearchBtn = document.getElementById("resetSearchBtn");
       var addBtn = document.getElementById("addPartnerBtn");
       var addModal = document.getElementById("addModal");
       var addModalTitle = document.getElementById("addModalTitle");
@@ -1579,183 +2162,248 @@
         return rows;
       }
 
-      function getPagedData() {
-        var filtered = flattenPartners({ filtered: true });
-        var totalPages = Math.ceil(filtered.length / state.pageSize) || 1;
-        if (state.page > totalPages) state.page = totalPages;
-        var start = (state.page - 1) * state.pageSize;
-        var end = start + state.pageSize;
-        return {
-          data: filtered.slice(start, end),
-          total: filtered.length
+      function iconSvg(name) {
+        var icons = {
+          org: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M12 9v3"/><path d="M6 15v-3h12v3"/></svg>',
+          building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h1"/><path d="M14 8h1"/><path d="M9 13h1"/><path d="M14 13h1"/><path d="M10 21v-3h4v3"/></svg>',
+          briefcase: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>',
+          users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+          user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>',
+          plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
+          share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 10.51 6.83-4.02"/><path d="m8.59 13.49 6.83 4.02"/></svg>',
+          edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+          terminal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/><path d="M8 8h8"/></svg>',
+          search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+          refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12A9 9 0 0 1 18.5 5.8"/><path d="M3 17v5h5"/><path d="M21 7V2h-5"/></svg>',
+          ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
+          trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>',
+          tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><path d="M7.5 7.5h.01"/></svg>',
+          mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+          phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6.4 6.4l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg>',
+          calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>',
+          map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18 3 21V6l6-3 6 3 6-3v15l-6 3Z"/><path d="M9 3v15"/><path d="M15 6v15"/></svg>'
         };
+        return icons[name] || icons.tag;
       }
 
-      function renderActionIcons(p) {
-        var canAddChild = p.level < MAX_LEVEL;
-        var addAgentBtn = '<button class="icon-btn add-child" title="' + (canAddChild ? 'Add Agent' : 'L4 Agent cannot add child agent') + '"' +
-          (canAddChild ? ' data-add-child-id="' + escapeHtml(p.id) + '"' : ' disabled') + '>' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
-        return '<div class="actions">' +
-          addAgentBtn +
-          '<button class="icon-btn view" title="Detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></button>' +
-          '<button class="icon-btn edit" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
-          '<button class="icon-btn share" title="Sharing Landing Page" data-share-id="' + escapeHtml(p.id) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="10.51" x2="15.42" y2="6.49"/><line x1="8.59" y1="13.49" x2="15.42" y2="17.51"/></svg></button>' +
-          '<button class="icon-btn delete" title="Disable"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></button>' +
+      function formatName(name) {
+        return escapeHtml(name).replace(/\n/g, " ");
+      }
+
+      function formatDateTime(dateTime) {
+        return String(dateTime || "").split("\n").map(function (part) {
+          return escapeHtml(part);
+        }).join(" · ");
+      }
+
+      function emptyValue(value) {
+        return value == null || String(value).trim() === "";
+      }
+
+      function detailField(label, value, iconName) {
+        var isEmpty = emptyValue(value);
+        return '<div class="detail-field">' +
+          '<div class="detail-label">' + iconSvg(iconName) + escapeHtml(label) + '</div>' +
+          '<div class="detail-value' + (isEmpty ? ' muted' : '') + '">' + (isEmpty ? 'Not set' : value) + '</div>' +
           '</div>';
       }
 
-      function renderLevelCell(p) {
-        return '<td>' + p.level + '</td>';
-      }
-
-      function renderNameCell(p) {
-        var childToggle = "";
-        var partnerStyle = getPartnerStyle(p);
+      function renderStyleBadge(partner) {
+        var partnerStyle = getPartnerStyle(partner);
         var badgeClass = partnerStyle === "INTL_PSP" ? "intl-psp" : "upt";
-        var badgeText = getPartnerStyleShort(p);
-        var badgeHtml = p.level === 1
-          ? '<span class="style-badge ' + badgeClass + '" title="Page Style: ' + badgeText + '">' + badgeText + '</span>'
-          : "";
-        if (hasChildren(p.id)) {
-          childToggle = '<button type="button" class="tree-toggle" data-toggle-id="' + escapeHtml(p.id) + '" aria-label="' +
-            (state.collapsedIds[p.id] ? "Expand " : "Collapse ") + escapeHtml(p.name) + '">' +
-            (state.collapsedIds[p.id] ? "▸" : "▾") + '</button>';
-        } else {
-          childToggle = '<span class="tree-toggle placeholder"></span>';
-        }
-
-        return '<td class="partner-name-cell">' +
-          '<div class="tree-name" style="--depth:' + Math.max(0, p.level - 1) + '">' +
-          childToggle +
-          '<div class="name-stack">' +
-          '<span class="name-line">' +
-          '<span class="name-text">' + escapeHtml(p.name).replace(/\n/g, '<br>') + '</span>' +
-          badgeHtml +
-          '</span>' +
-          '</div>' +
-          '</div>' +
-          '</td>';
+        return '<span class="style-badge ' + badgeClass + '">' + getPartnerStyleShort(partner) + '</span>';
       }
 
-      function renderDeviceCell(p) {
-        if (p.level !== 1) {
-          return '<td><span class="device-na" title="No device data for agents">-</span></td>';
-        }
-        var inventoryCount = Number(p.inventoryCount || 0);
-        var outboundCount = Number(p.outboundCount || 0);
-        return '<td><span class="device-summary" title="Inventory: ' + inventoryCount + ', Outbound: ' + outboundCount + '">' +
-          inventoryCount + '/' + outboundCount +
-          '</span></td>';
+      function renderTreeNode(partner, filteredIds) {
+        var hasKids = hasChildren(partner.id);
+        var collapsed = hasKids && !filteredIds && !!state.collapsedIds[partner.id];
+        var selected = state.selectedId === partner.id;
+        var toggle = hasKids
+          ? '<button type="button" class="tree-toggle' + (collapsed ? ' collapsed' : '') + '" data-toggle-id="' + escapeHtml(partner.id) + '" aria-label="' +
+          (collapsed ? 'Expand ' : 'Collapse ') + formatName(partner.name) + '">' + (collapsed ? '▸' : '▾') + '</button>'
+          : '<span class="tree-toggle placeholder"></span>';
+        return '<li class="tree-node' + (selected ? ' selected' : '') + '" data-select-id="' + escapeHtml(partner.id) + '" style="--depth:' + Math.max(0, partner.level - 1) + '" title="' + escapeHtml(getPathText(partner)) + '">' +
+          toggle +
+          '<div class="node-main">' +
+          '<div class="node-text">' +
+          '<span class="node-name">' + formatName(partner.name) + '</span>' +
+          '</div>' +
+          '</div>' +
+          (partner.level === 1 ? renderStyleBadge(partner) : '<span class="style-badge placeholder"></span>') +
+          '</li>';
       }
 
-      function renderTable() {
-        var result = getPagedData();
-        var rows = result.data;
+      function ensureSelected(rows) {
+        var visible = rows.some(function (partner) {
+          return partner.id === state.selectedId;
+        });
+        if (!visible) {
+          state.selectedId = rows.length ? rows[0].id : "";
+        }
+      }
 
+      function renderTree() {
+        var filteredIds = getFilteredIds();
+        var rows = flattenPartners({ filtered: true });
+        ensureSelected(rows);
         if (!rows.length) {
-          tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:40px; color:#9ca3af;">No agent found.</td></tr>';
-          renderPagination(result.total);
+          treeEl.innerHTML = '<li class="tree-empty">No agent found.</li>';
+          renderDetail();
+          return;
+        }
+        treeEl.innerHTML = rows.map(function (partner) {
+          return renderTreeNode(partner, filteredIds);
+        }).join("");
+        renderDetail();
+      }
+
+      function renderDetailActions(partner) {
+        var canAddChild = partner.level < MAX_LEVEL;
+        return '<div class="detail-actions">' +
+          '<button class="detail-action-btn primary" type="button" data-add-child-id="' + escapeHtml(partner.id) + '"' + (canAddChild ? '' : ' disabled title="L4 Agent cannot add child agent"') + '>' +
+          iconSvg("plus") + 'Add Agent</button>' +
+          '<button class="detail-action-btn" type="button" data-share-id="' + escapeHtml(partner.id) + '" title="Sharing Landing Page">' + iconSvg("share") + 'Share Page</button>' +
+          '<button class="detail-action-btn" type="button" data-edit-id="' + escapeHtml(partner.id) + '" title="Edit Profile">' + iconSvg("edit") + 'Edit</button>' +
+          '<button class="detail-action-btn danger" type="button" data-delete-id="' + escapeHtml(partner.id) + '">' + iconSvg("trash") + 'Delete</button>' +
+          '</div>';
+      }
+
+      function canShowTerminalListTab(partner) {
+        return partner.level === 1 && getPartnerStyle(partner) === "UPT";
+      }
+
+      function getActiveDetailTab(partner) {
+        return canShowTerminalListTab(partner) && state.detailTab === "terminal-list" ? "terminal-list" : "profile";
+      }
+
+      function renderDetailTabs(partner, activeTab) {
+        if (!canShowTerminalListTab(partner)) return "";
+        return '<div class="detail-tabs" role="tablist">' +
+          '<button class="detail-tab' + (activeTab === "profile" ? ' active' : '') + '" type="button" data-detail-tab="profile" role="tab">Partner Profile</button>' +
+          '<button class="detail-tab' + (activeTab === "terminal-list" ? ' active' : '') + '" type="button" data-detail-tab="terminal-list" role="tab">Terminal List</button>' +
+          '</div>';
+      }
+
+      function renderProfilePanel(partner) {
+        var meta = getLevelMeta(partner.level);
+        var parent = getParent(partner);
+        var directChildren = getChildren(partner.id).length;
+        var subAgentCount = getSubAgentCount(partner.id);
+        var inventoryCount = Number(partner.inventoryCount || 0);
+        var outboundCount = Number(partner.outboundCount || 0);
+        var isIntlPsp = getPartnerStyle(partner) === "INTL_PSP";
+        var metricLabel = isIntlPsp ? "Activate Devices" : "Devices INV/OUT";
+        var metricValue = isIntlPsp ? String(outboundCount) : (partner.level === 1 ? inventoryCount + "/" + outboundCount : "-");
+        var clientCodeField = partner.level === 1 && isIntlPsp
+          ? detailField("Client Code", escapeHtml(partner.clientCode || ""), "tag")
+          : "";
+
+        return '<div class="summary-grid">' +
+          '<div class="summary-card"><div class="summary-label">Direct Agents</div><div class="summary-value">' + directChildren + '</div></div>' +
+          '<div class="summary-card"><div class="summary-label">All Sub Agents</div><div class="summary-value">' + subAgentCount + '</div></div>' +
+          '<div class="summary-card"><div class="summary-label">' + metricLabel + '</div><div class="summary-value">' + escapeHtml(metricValue) + '</div></div>' +
+          '<div class="summary-card"><div class="summary-label">Created</div><div class="summary-value">' + escapeHtml(String(partner.dateTime || "").split("\n")[0] || "-") + '</div></div>' +
+          '</div>' +
+          '<div class="detail-section">' +
+          '<div class="detail-section-head"><div class="detail-section-title">Profile</div></div>' +
+          '<div class="detail-fields">' +
+          detailField("Partner Name", formatName(partner.name), "tag") +
+          detailField("English Name", escapeHtml(partner.nameEn || ""), "tag") +
+          detailField("Level", escapeHtml(meta.badge + " " + meta.label), "org") +
+          detailField("Parent", parent ? formatName(parent.name) : "No parent", "org") +
+          detailField("Contacts", escapeHtml(partner.contacts || ""), "user") +
+          detailField("Phone", escapeHtml(partner.phone || ""), "phone") +
+          detailField("Email", escapeHtml(partner.email || ""), "mail") +
+          detailField("Date & Time", formatDateTime(partner.dateTime), "calendar") +
+          detailField("Page Style", escapeHtml(getPartnerStyleShort(partner)), "tag") +
+          clientCodeField +
+          '</div>' +
+          '</div>';
+      }
+
+      function renderTerminalListPanel(partner) {
+        var rows = buildTerminalInventoryRows(partner);
+        var pageCount = Math.max(1, Math.ceil(rows.length / 20));
+        var tableHtml = rows.length
+          ? '<div class="terminal-list-wrap"><table class="terminal-list-table">' +
+          '<thead><tr><th>SN</th><th>Partner Name</th><th>Stock Type</th><th>Inbound Date</th><th>Outbound Date</th><th>Initial Contact Date</th><th>Onboarding Date</th><th>Activation Date</th></tr></thead>' +
+          '<tbody>' + rows.map(function (row) {
+            return '<tr>' +
+              '<td>' + escapeHtml(row.sn) + '</td>' +
+              '<td>' + escapeHtml(row.partnerName) + '</td>' +
+              '<td><span class="terminal-status' + (row.stockType === "Outbound" ? ' outbound' : '') + '">' + escapeHtml(row.stockType) + '</span></td>' +
+              '<td>' + escapeHtml(row.inboundDate) + '</td>' +
+              '<td>' + escapeHtml(row.outboundDate) + '</td>' +
+              '<td>' + escapeHtml(row.initialContactDate) + '</td>' +
+              '<td>' + escapeHtml(row.onboardingDate) + '</td>' +
+              '<td>' + escapeHtml(row.activationDate) + '</td>' +
+              '</tr>';
+          }).join("") + '</tbody></table></div>'
+          : '<div class="terminal-empty">No terminal records for this partner.</div>';
+
+        return '<div class="terminal-tab-panel">' +
+          '<div class="terminal-tab-toolbar">' +
+          '<div class="terminal-tab-actions">' +
+          '<button class="terminal-outline-btn blue" type="button">Bulk Upload</button>' +
+          '<button class="terminal-outline-btn orange" type="button">Bulk Upload Results</button>' +
+          '</div>' +
+          '<div class="terminal-filter-group">' +
+          '<input class="terminal-filter-field" type="text" placeholder="SN">' +
+          '<select class="terminal-filter-field"><option>Stock Type</option><option>Inbound</option><option>Outbound</option></select>' +
+          '<button class="terminal-search-btn light" type="button" title="Clear">' + iconSvg("refresh") + '</button>' +
+          '<button class="terminal-search-btn" type="button" title="Search">' + iconSvg("search") + '</button>' +
+          '</div>' +
+          '</div>' +
+          tableHtml +
+          (rows.length ? '<div class="terminal-pager"><span>«</span><span>‹</span><span class="terminal-page-dot active">1</span><span>›</span><span>»</span><span style="margin-left: 12px;">20 / ' + pageCount + ' (' + rows.length + ')</span></div>' : '') +
+          '</div>';
+      }
+
+      function renderDetail() {
+        var partner = getPartnerById(state.selectedId);
+        if (!partner) {
+          detailEl.innerHTML = '<div class="detail-hero"><div><div class="detail-kicker">Partner Detail</div><h2 class="detail-title">No partner selected</h2><div class="detail-subtitle">Use the hierarchy tree to select a partner or agent.</div></div></div>';
           return;
         }
 
-        tableBody.innerHTML = rows.map(function (p) {
-          var dtParts = p.dateTime.split("\n");
-          return '<tr>' +
-            renderNameCell(p) +
-            renderLevelCell(p) +
-            '<td>' + escapeHtml(p.contacts) + '</td>' +
-            '<td>' + escapeHtml(p.email) + '</td>' +
-            '<td>' + dtParts.map(function (s) { return escapeHtml(s); }).join(' ') + '</td>' +
-            renderDeviceCell(p) +
-            '<td>' + renderActionIcons(p) + '</td>' +
-            '</tr>';
-        }).join("");
+        var meta = getLevelMeta(partner.level);
+        var activeTab = getActiveDetailTab(partner);
 
-        renderPagination(result.total);
-      }
-
-      function renderPagination(total) {
-        var totalPages = Math.ceil(total / state.pageSize) || 1;
-
-        var controlsHtml = '<div class="page-controls">';
-        controlsHtml += '<button class="page-btn nav-btn" data-action="first" title="First">«</button>';
-        controlsHtml += '<button class="page-btn nav-btn" data-action="prev" title="Previous">‹</button>';
-
-        for (var i = 1; i <= totalPages; i++) {
-          controlsHtml += '<button class="page-btn' + (i === state.page ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
-        }
-
-        controlsHtml += '<button class="page-btn nav-btn" data-action="next" title="Next">›</button>';
-        controlsHtml += '<button class="page-btn nav-btn" data-action="last" title="Last">»</button>';
-
-        controlsHtml += '<div class="page-size">';
-        controlsHtml += '<select id="pageSizeSelect">';
-        PAGE_SIZE_OPTIONS.forEach(function (size) {
-          controlsHtml += '<option value="' + size + '"' + (size === state.pageSize ? ' selected' : '') + '>' + size + '</option>';
-        });
-        controlsHtml += '</select>';
-        controlsHtml += '</div>';
-        controlsHtml += '</div>';
-
-        var infoHtml = '<div class="page-info">/ ' + totalPages + ' 页</div>';
-
-        paginationEl.innerHTML = controlsHtml + infoHtml;
-
-        // Bind pagination events
-        paginationEl.querySelectorAll("[data-page]").forEach(function (btn) {
-          btn.addEventListener("click", function () {
-            state.page = parseInt(btn.dataset.page, 10);
-            renderTable();
-          });
-        });
-
-        paginationEl.querySelectorAll("[data-action]").forEach(function (btn) {
-          btn.addEventListener("click", function () {
-            var action = btn.dataset.action;
-            if (action === "first") state.page = 1;
-            else if (action === "prev") state.page = Math.max(1, state.page - 1);
-            else if (action === "next") state.page = Math.min(totalPages, state.page + 1);
-            else if (action === "last") state.page = totalPages;
-            renderTable();
-          });
-        });
-
-        var pageSizeSelect = document.getElementById("pageSizeSelect");
-        if (pageSizeSelect) {
-          pageSizeSelect.addEventListener("change", function () {
-            state.pageSize = parseInt(pageSizeSelect.value, 10);
-            state.page = 1;
-            renderTable();
-          });
-        }
+        detailEl.innerHTML =
+          '<div class="detail-hero">' +
+          '<div>' +
+          '<div class="detail-kicker">' + escapeHtml(meta.badge + " " + meta.label) + '</div>' +
+          '<h2 class="detail-title">' + formatName(partner.name) + '</h2>' +
+          '<div class="detail-subtitle">' + escapeHtml(getPathText(partner)) + '</div>' +
+          '</div>' +
+          '<div class="detail-hero-side">' +
+          '<div class="detail-hero-meta">' +
+          '<span class="hero-chip">' + escapeHtml(getPartnerStyleShort(partner)) + '</span>' +
+          '<span class="hero-chip">Level ' + escapeHtml(String(partner.level)) + '</span>' +
+          '</div>' +
+          renderDetailActions(partner) +
+          '</div>' +
+          '</div>' +
+          '<div class="detail-body">' +
+          renderDetailTabs(partner, activeTab) +
+          (activeTab === "terminal-list" ? renderTerminalListPanel(partner) : renderProfilePanel(partner)) +
+          '</div>';
       }
 
       // Search
       searchBtn.addEventListener("click", function () {
         state.searchName = searchNameInput.value.trim();
         state.searchEmail = searchEmailInput.value.trim();
-        state.page = 1;
-        renderTable();
-      });
-
-      resetSearchBtn.addEventListener("click", function () {
-        searchNameInput.value = "";
-        searchEmailInput.value = "";
-        state.searchName = "";
-        state.searchEmail = "";
-        state.page = 1;
-        renderTable();
+        renderTree();
       });
 
       styleFilterBtns.forEach(function (btn) {
         btn.addEventListener("click", function () {
           state.styleFilter = btn.getAttribute("data-style-filter");
-          state.page = 1;
           styleFilterBtns.forEach(function (item) {
             item.classList.toggle("active", item === btn);
           });
-          renderTable();
+          renderTree();
         });
       });
 
@@ -1767,13 +2415,33 @@
         if (e.key === "Enter") searchBtn.click();
       });
 
-      tableBody.addEventListener("click", function (e) {
+      treeEl.addEventListener("click", function (e) {
         var toggleBtn = e.target.closest("[data-toggle-id]");
         if (toggleBtn) {
           var toggleId = toggleBtn.getAttribute("data-toggle-id");
           if (state.collapsedIds[toggleId]) delete state.collapsedIds[toggleId];
           else state.collapsedIds[toggleId] = true;
-          renderTable();
+          if (state.selectedId && getPath(getPartnerById(state.selectedId)).some(function (node) { return node.id === toggleId; })) {
+            state.selectedId = toggleId;
+            state.detailTab = "profile";
+          }
+          renderTree();
+          return;
+        }
+
+        var node = e.target.closest("[data-select-id]");
+        if (node) {
+          state.selectedId = node.getAttribute("data-select-id");
+          state.detailTab = "profile";
+          renderTree();
+        }
+      });
+
+      detailEl.addEventListener("click", function (e) {
+        var detailTabBtn = e.target.closest("[data-detail-tab]");
+        if (detailTabBtn) {
+          state.detailTab = detailTabBtn.getAttribute("data-detail-tab");
+          renderDetail();
           return;
         }
 
@@ -1786,8 +2454,45 @@
         var shareBtn = e.target.closest("[data-share-id]");
         if (shareBtn) {
           openShareModal(shareBtn.getAttribute("data-share-id"));
+          return;
+        }
+
+        var editBtn = e.target.closest("[data-edit-id]");
+        if (editBtn) {
+          alert("Edit profile flow remains unchanged (mock).");
+          return;
+        }
+
+        var deleteBtn = e.target.closest("[data-delete-id]");
+        if (deleteBtn) {
+          alert("Delete flow remains unchanged (mock).");
         }
       });
+
+      function buildTerminalInventoryRows(partner) {
+        var inventoryCount = Number(partner.inventoryCount || 0);
+        var outboundCount = Number(partner.outboundCount || 0);
+        var count = inventoryCount + outboundCount;
+        var prefix = partner.id.replace(/[^a-z0-9]/gi, "").slice(-4).toUpperCase() || "UPT";
+        var rows = [];
+        for (var i = 0; i < count; i++) {
+          var seq = String(i + 1).padStart(2, "0");
+          var isOutbound = i < outboundCount;
+          var day = String(10 + (i % 18)).padStart(2, "0");
+          var inboundDate = "2026-05-" + day + " 09:" + String(20 + (i % 30)).padStart(2, "0") + ":10";
+          rows.push({
+            sn: "WP" + prefix + "Q" + String(33200000 + i * 11 + count),
+            partnerName: partner.name.replace(/\n/g, " "),
+            inboundDate: inboundDate,
+            outboundDate: isOutbound ? "2026-05-" + String(18 + (i % 9)).padStart(2, "0") + " 13:" + String(10 + (i % 40)).padStart(2, "0") + ":27" : "-",
+            initialContactDate: "-",
+            onboardingDate: "-",
+            activationDate: "-",
+            stockType: isOutbound ? "Outbound" : "Inbound"
+          });
+        }
+        return rows;
+      }
 
       function syncAddModalContext(parentId) {
         addParentSelect.value = parentId || "";
@@ -1843,8 +2548,12 @@
       function openShareModal(partnerId) {
         var partner = getPartnerById(partnerId);
         if (!partner) return;
+        if (getPartnerStyle(partner) !== "INTL_PSP") {
+          window.open("25.merchant_lead.html", "_blank");
+          return;
+        }
         sharePartnerName.value = partner.name.replace(/\n/g, " ");
-        sharePageStyle.value = getPartnerStyle(partner);
+        sharePageStyle.value = "INTL PSP";
         sharePaymentChannel.value = "";
         syncSharePaymentChannelField();
         shareModal.classList.add("show");
@@ -1852,17 +2561,11 @@
       }
 
       function syncSharePaymentChannelField() {
-        var isIntlPsp = sharePageStyle.value === "INTL_PSP";
-        sharePaymentChannelField.classList.toggle("hidden", !isIntlPsp);
-        sharePaymentChannel.disabled = !isIntlPsp;
-        if (!isIntlPsp) sharePaymentChannel.value = "";
+        sharePaymentChannelField.classList.remove("hidden");
+        sharePaymentChannel.disabled = false;
       }
 
       function getShareLandingUrl() {
-        if (sharePageStyle.value !== "INTL_PSP") {
-          return "25.merchant_lead.html";
-        }
-
         if (sharePaymentChannel.value === "ELAVON") {
           return "33.INTL_PSP_merchant_lead_elavon.html";
         }
@@ -1880,7 +2583,6 @@
       }
 
       cancelShareBtn.addEventListener("click", closeShareModal);
-      sharePageStyle.addEventListener("change", syncSharePaymentChannelField);
 
       shareModal.addEventListener("click", function (e) {
         if (e.target === shareModal) closeShareModal();
@@ -1963,15 +2665,15 @@
           expandAncestors(parent);
         } else {
           partners.unshift(newPartner);
-          state.page = 1;
         }
 
+        state.selectedId = newPartner.id;
         closeAddModal();
-        renderTable();
+        renderTree();
       });
 
       // Initial render
-      renderTable();
+      renderTree();
     })();
   </script>
 </body>
