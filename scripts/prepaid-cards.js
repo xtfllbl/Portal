@@ -613,17 +613,33 @@
   const exportImportResultsButton = document.querySelector("[data-export-import-results]");
   if (exportImportResultsButton) exportImportResultsButton.addEventListener("click", exportImportResults);
 
+  function syncLimitAmount(toggle) {
+    if (!toggle) return;
+    const amount = document.getElementById(toggle.getAttribute("data-limit-target"));
+    if (!amount) return;
+    const enabled = toggle.type === "checkbox" ? toggle.checked : toggle.value === "Yes";
+    const text = toggle.closest(".switch-control") ? toggle.closest(".switch-control").querySelector(".switch-text") : null;
+    amount.disabled = !enabled;
+    amount.required = enabled;
+    if (!enabled) amount.value = "";
+    if (enabled && !amount.value) amount.value = toggle.getAttribute("data-limit-default") || "";
+    if (text) text.textContent = enabled ? "Enabled" : "Disabled";
+  }
+  document.querySelectorAll("[data-limit-toggle]").forEach(function (toggle) {
+    toggle.addEventListener("change", function () { syncLimitAmount(toggle); });
+    syncLimitAmount(toggle);
+  });
+
   const dailyLimitToggle = document.querySelector("[data-daily-limit-toggle]");
   const dailyLimitAmount = document.querySelector("[data-daily-limit-amount]");
-  function syncDailyLimitAmount() {
-    if (!dailyLimitToggle || !dailyLimitAmount) return;
-    const enabled = dailyLimitToggle.value === "Yes";
-    dailyLimitAmount.disabled = !enabled;
-    dailyLimitAmount.required = enabled;
-    if (!enabled) dailyLimitAmount.value = "";
-    if (enabled && !dailyLimitAmount.value) dailyLimitAmount.value = "50.00";
-  }
-  if (dailyLimitToggle && dailyLimitAmount) {
+  if (dailyLimitToggle && dailyLimitAmount && !dailyLimitToggle.hasAttribute("data-limit-toggle")) {
+    function syncDailyLimitAmount() {
+      const enabled = dailyLimitToggle.value === "Yes";
+      dailyLimitAmount.disabled = !enabled;
+      dailyLimitAmount.required = enabled;
+      if (!enabled) dailyLimitAmount.value = "";
+      if (enabled && !dailyLimitAmount.value) dailyLimitAmount.value = "50.00";
+    }
     dailyLimitToggle.addEventListener("change", syncDailyLimitAmount);
     syncDailyLimitAmount();
   }

@@ -90,10 +90,31 @@
                 <div class="form-grid">
                   <div class="field"><label for="currency">Card Currency</label><select class="select" id="currency" data-card-currency><option selected>USD</option><option>CAD</option><option>EUR</option><option>GBP</option></select></div>
                   <div class="field"><label for="initialBalance">Initial Balance</label><input class="input" id="initialBalance" value="100.00"></div>
-                  <div class="field"><label for="monthlyLimit">Monthly Amount Limit</label><input class="input" id="monthlyLimit" value="300.00"></div>
                   <div class="field"><label for="singleUse">Single Use</label><select class="select" id="singleUse"><option>No</option><option>Yes - expire after first sale</option></select></div>
-                  <div class="field"><label for="dailyLimitEnabled">Enable Daily Amount Limit</label><select class="select" id="dailyLimitEnabled" data-daily-limit-toggle><option>No</option><option>Yes</option></select></div>
-                  <div class="field"><label for="dailyLimit">Daily Amount Limit</label><input class="input" id="dailyLimit" type="number" min="0" step="0.01" placeholder="Amount" disabled data-daily-limit-amount></div>
+                  <div class="limit-settings span-3">
+                    <div class="limit-card">
+                      <div class="limit-card-head">
+                        <label for="monthlyLimit">Monthly Amount Limit</label>
+                        <label class="switch-control" for="monthlyLimitEnabled">
+                          <input id="monthlyLimitEnabled" type="checkbox" checked data-limit-toggle data-limit-target="monthlyLimit" data-limit-default="300.00">
+                          <span class="switch-track" aria-hidden="true"></span>
+                          <span class="switch-text">Enabled</span>
+                        </label>
+                      </div>
+                      <input class="input" id="monthlyLimit" type="number" min="0" step="0.01" value="300.00" placeholder="Amount" data-limit-amount>
+                    </div>
+                    <div class="limit-card">
+                      <div class="limit-card-head">
+                        <label for="dailyLimit">Daily Amount Limit</label>
+                        <label class="switch-control" for="dailyLimitEnabled">
+                          <input id="dailyLimitEnabled" type="checkbox" data-limit-toggle data-limit-target="dailyLimit" data-limit-default="50.00" data-daily-limit-toggle>
+                          <span class="switch-track" aria-hidden="true"></span>
+                          <span class="switch-text">Disabled</span>
+                        </label>
+                      </div>
+                      <input class="input" id="dailyLimit" type="number" min="0" step="0.01" placeholder="Amount" disabled data-limit-amount data-daily-limit-amount>
+                    </div>
+                  </div>
                 </div>
               </section>
 
