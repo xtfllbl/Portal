@@ -676,7 +676,11 @@
     }
 
     .detail-body {
-      padding: 18px;
+      padding: 0 18px 18px;
+    }
+
+    .detail-body.no-tabs {
+      padding-top: 18px;
     }
 
     .summary-grid {
@@ -993,7 +997,7 @@
       display: flex;
       align-items: center;
       gap: 22px;
-      margin: -2px -18px 18px;
+      margin: 0 -18px 18px;
       padding: 0 18px;
       border-bottom: 1px solid var(--border);
       background: #fff;
@@ -1746,7 +1750,7 @@
           level: 1,
           partnerType: "UPT",
           name: "黄角湾",
-          nameEn: "黄角湾",
+          nameEn: "Huangjiaowan",
           contacts: "Dido",
           phone: "19865995734",
           email: "fansheng67998182.com",
@@ -2285,8 +2289,6 @@
       }
 
       function renderProfilePanel(partner) {
-        var meta = getLevelMeta(partner.level);
-        var parent = getParent(partner);
         var directChildren = getChildren(partner.id).length;
         var subAgentCount = getSubAgentCount(partner.id);
         var inventoryCount = Number(partner.inventoryCount || 0);
@@ -2309,13 +2311,10 @@
           '<div class="detail-fields">' +
           detailField("Partner Name", formatName(partner.name), "tag") +
           detailField("English Name", escapeHtml(partner.nameEn || ""), "tag") +
-          detailField("Level", escapeHtml(meta.badge + " " + meta.label), "org") +
-          detailField("Parent", parent ? formatName(parent.name) : "No parent", "org") +
           detailField("Contacts", escapeHtml(partner.contacts || ""), "user") +
           detailField("Phone", escapeHtml(partner.phone || ""), "phone") +
           detailField("Email", escapeHtml(partner.email || ""), "mail") +
           detailField("Date & Time", formatDateTime(partner.dateTime), "calendar") +
-          detailField("Page Style", escapeHtml(getPartnerStyleShort(partner)), "tag") +
           clientCodeField +
           '</div>' +
           '</div>';
@@ -2368,6 +2367,7 @@
 
         var meta = getLevelMeta(partner.level);
         var activeTab = getActiveDetailTab(partner);
+        var tabsHtml = renderDetailTabs(partner, activeTab);
 
         detailEl.innerHTML =
           '<div class="detail-hero">' +
@@ -2384,8 +2384,8 @@
           renderDetailActions(partner) +
           '</div>' +
           '</div>' +
-          '<div class="detail-body">' +
-          renderDetailTabs(partner, activeTab) +
+          '<div class="detail-body' + (tabsHtml ? '' : ' no-tabs') + '">' +
+          tabsHtml +
           (activeTab === "terminal-list" ? renderTerminalListPanel(partner) : renderProfilePanel(partner)) +
           '</div>';
       }
