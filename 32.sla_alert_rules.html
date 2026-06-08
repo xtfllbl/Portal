@@ -517,7 +517,7 @@
 
     table {
       width: 100%;
-      min-width: 1080px;
+      min-width: 1200px;
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 13px;
@@ -571,7 +571,9 @@
 
     .status-pill,
     .scope-pill,
-    .alert-pill {
+    .alert-pill,
+    .policy-pill,
+    .incident-status {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -600,6 +602,30 @@
       border-color: #e5e7eb;
       background: #f8fafc;
       color: #374151;
+    }
+
+    .policy-pill {
+      border-color: #c7d2fe;
+      background: #eef2ff;
+      color: #3730a3;
+    }
+
+    .incident-status.open {
+      border-color: #fde68a;
+      background: var(--amber-soft);
+      color: #92400e;
+    }
+
+    .incident-status.pending-recovery {
+      border-color: #bfdbfe;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+    }
+
+    .incident-status.resolved {
+      border-color: #bbf7d0;
+      background: var(--green-soft);
+      color: #166534;
     }
 
     .status-switch-cell {
@@ -749,7 +775,7 @@
 
     .modal {
       width: min(860px, 100%);
-      max-height: calc(100vh - 48px);
+      max-height: calc(100dvh - 48px);
       border: 1px solid var(--line);
       border-radius: 10px;
       background: #ffffff;
@@ -759,7 +785,19 @@
       overflow: hidden;
     }
 
+    #ruleModal .modal {
+      height: min(900px, calc(100dvh - 48px));
+    }
+
+    #ruleForm {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
     .modal-head {
+      flex: 0 0 auto;
       padding: 18px 20px;
       border-bottom: 1px solid var(--line-soft);
       display: flex;
@@ -777,7 +815,7 @@
     }
 
     .log-modal {
-      width: min(760px, 100%);
+      width: min(980px, 100%);
     }
 
     .log-title-wrap {
@@ -796,6 +834,8 @@
     }
 
     .modal-body {
+      flex: 1 1 auto;
+      min-height: 0;
       padding: 18px 20px;
       overflow: auto;
       display: block;
@@ -978,7 +1018,7 @@
 
     .log-table {
       width: 100%;
-      min-width: 0;
+      min-width: 920px;
       table-layout: fixed;
     }
 
@@ -1013,6 +1053,7 @@
     }
 
     .modal-actions {
+      flex: 0 0 auto;
       padding: 14px 20px;
       border-top: 1px solid var(--line-soft);
       background: #fafafa;
@@ -1218,14 +1259,15 @@
         <div class="table-wrap">
             <table aria-label="SLA alert rule list">
             <colgroup>
-              <col style="width: 14%">
+              <col style="width: 13%">
               <col style="width: 8%">
-              <col style="width: 12%">
               <col style="width: 11%">
-              <col style="width: 12%">
-              <col style="width: 12%">
+              <col style="width: 10%">
+              <col style="width: 11%">
+              <col style="width: 11%">
+              <col style="width: 11%">
               <col style="width: 7%">
-              <col style="width: 11%">
+              <col style="width: 10%">
               <col style="width: 9%">
             </colgroup>
             <thead>
@@ -1236,6 +1278,7 @@
                 <th>Offline Threshold</th>
                 <th>No Transaction Threshold</th>
                 <th>Recipients</th>
+                <th>Notification Policy</th>
                 <th>Status</th>
                 <th>Last Triggered</th>
                 <th>Actions</th>
@@ -1349,12 +1392,38 @@
 
                 <div class="field-error full" id="thresholdRuleError" hidden>Enable at least one threshold rule.</div>
 
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-title">Notification Policy</div>
+              <div class="section-grid">
+                <div class="field">
+                  <label for="notificationPolicySelect">Repeat Suppression</label>
+                  <select id="notificationPolicySelect">
+                    <option value="once_per_incident">Send once per incident</option>
+                    <option value="repeat_by_hours">Notify every few hours</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label id="repeatPolicyValueLabel" for="recoveryChecksInput">Recovery Checks</label>
+                  <input id="recoveryChecksInput" type="number" min="1" step="1" inputmode="numeric" value="2">
+                  <select id="repeatIntervalSelect" hidden>
+                    <option value="2">2 Hours</option>
+                    <option value="4">4 Hours</option>
+                    <option value="6">6 Hours</option>
+                    <option value="12">12 Hours</option>
+                    <option value="24">24 Hours</option>
+                  </select>
+                  <div class="field-error" id="recoveryChecksError" hidden>Enter a positive recovery check count.</div>
+                </div>
+
                 <div class="field full">
                   <label for="recipientInput">Email Recipients</label>
                   <div class="field-control recipient-box" id="recipientBox">
                     <input class="recipient-input" id="recipientInput" type="text" placeholder="Add emails, separated by comma, semicolon, or Enter">
                   </div>
-                  <div class="field-hint">Use Enter, comma, semicolon, or paste a list to add multiple recipients.</div>
                   <div class="field-error" id="recipientError" hidden>Enter at least one valid email address.</div>
                 </div>
               </div>
@@ -1381,16 +1450,22 @@
         <div class="log-table-wrap" id="logTableWrap">
           <table class="log-table" aria-label="Trigger history">
             <colgroup>
-              <col style="width: 23%">
-              <col style="width: 20%">
-              <col style="width: 30%">
-              <col style="width: 27%">
+              <col style="width: 15%">
+              <col style="width: 15%">
+              <col style="width: 14%">
+              <col style="width: 18%">
+              <col style="width: 12%">
+              <col style="width: 13%">
+              <col style="width: 13%">
             </colgroup>
             <thead>
               <tr>
-                <th>Triggered At</th>
+                <th>First Triggered</th>
+                <th>Last Checked</th>
                 <th>Terminal SN</th>
-                <th>Alert Content</th>
+                <th>Condition</th>
+                <th>Status</th>
+                <th>Resolved At</th>
                 <th>Recipients</th>
               </tr>
             </thead>
@@ -1515,26 +1590,43 @@
           offline: { value: 30, unit: "minutes" },
           noTransaction: { value: 2, unit: "hours" },
           recipients: ["ops@demo-cafe.com", "sla@paywizard.com"],
+          notificationPolicy: "once_per_incident",
+          recoveryChecksRequired: 2,
           status: "Active",
           lastTriggered: "2026-05-31 22:14:09",
           alertsToday: 2,
           triggerLogs: [
             {
-              triggeredAt: "2026-05-31 22:14:09",
+              firstTriggeredAt: "2026-05-31 22:14:09",
+              lastCheckedAt: "2026-05-31 22:29:09",
               terminalSn: "WP44907Q33200398",
+              conditionType: "Offline + No Transaction",
               alertContent: "Offline exceeds 30 minutes; No transaction exceeds 2 hours",
+              status: "open",
+              recoveryHitCount: 0,
+              resolvedAt: "",
               recipients: ["ops@demo-cafe.com", "sla@paywizard.com"]
             },
             {
-              triggeredAt: "2026-05-31 19:42:36",
+              firstTriggeredAt: "2026-05-31 19:42:36",
+              lastCheckedAt: "2026-05-31 20:12:36",
               terminalSn: "WP44907Q33200398",
+              conditionType: "No Transaction",
               alertContent: "No transaction exceeds 2 hours",
+              status: "resolved",
+              recoveryHitCount: 2,
+              resolvedAt: "2026-05-31 20:12:36",
               recipients: ["ops@demo-cafe.com", "sla@paywizard.com"]
             },
             {
-              triggeredAt: "2026-05-30 23:08:51",
+              firstTriggeredAt: "2026-05-30 23:08:51",
+              lastCheckedAt: "2026-05-30 23:38:51",
               terminalSn: "WP44907Q33200398",
+              conditionType: "Offline",
               alertContent: "Offline exceeds 30 minutes",
+              status: "resolved",
+              recoveryHitCount: 2,
+              resolvedAt: "2026-05-30 23:38:51",
               recipients: ["ops@demo-cafe.com", "sla@paywizard.com"]
             }
           ]
@@ -1550,20 +1642,32 @@
           offline: { value: 45, unit: "minutes" },
           noTransaction: { value: 90, unit: "minutes" },
           recipients: ["support@cartpoland.com"],
+          notificationPolicy: "once_per_incident",
+          recoveryChecksRequired: 2,
           status: "Active",
           lastTriggered: "2026-06-01 09:18:27",
           alertsToday: 1,
           triggerLogs: [
             {
-              triggeredAt: "2026-06-01 09:18:27",
+              firstTriggeredAt: "2026-06-01 09:18:27",
+              lastCheckedAt: "2026-06-01 09:33:27",
               terminalSn: "WP2013Q321000014",
+              conditionType: "Offline",
               alertContent: "Offline exceeds 45 minutes",
+              status: "pending_recovery",
+              recoveryHitCount: 1,
+              resolvedAt: "",
               recipients: ["support@cartpoland.com"]
             },
             {
-              triggeredAt: "2026-05-31 16:06:44",
+              firstTriggeredAt: "2026-05-31 16:06:44",
+              lastCheckedAt: "2026-05-31 16:36:44",
               terminalSn: "WP2013Q321000018",
+              conditionType: "No Transaction",
               alertContent: "No transaction exceeds 90 minutes",
+              status: "resolved",
+              recoveryHitCount: 2,
+              resolvedAt: "2026-05-31 16:36:44",
               recipients: ["support@cartpoland.com"]
             }
           ]
@@ -1579,6 +1683,8 @@
           offline: { value: 1, unit: "hours" },
           noTransaction: { value: 4, unit: "hours" },
           recipients: ["monitoring@waou.example", "merchant.ops@waou.example"],
+          notificationPolicy: "once_per_incident",
+          recoveryChecksRequired: 2,
           status: "Inactive",
           lastTriggered: "--",
           alertsToday: 0,
@@ -1628,6 +1734,10 @@
         transactionUnit: document.getElementById("transactionThresholdUnit"),
         recipientBox: document.getElementById("recipientBox"),
         recipientInput: document.getElementById("recipientInput"),
+        notificationPolicySelect: document.getElementById("notificationPolicySelect"),
+        repeatPolicyValueLabel: document.getElementById("repeatPolicyValueLabel"),
+        recoveryChecksInput: document.getElementById("recoveryChecksInput"),
+        repeatIntervalSelect: document.getElementById("repeatIntervalSelect"),
         serviceProviderError: document.getElementById("serviceProviderError"),
         agentError: document.getElementById("agentError"),
         merchantError: document.getElementById("merchantError"),
@@ -1637,6 +1747,7 @@
         transactionError: document.getElementById("transactionError"),
         thresholdRuleError: document.getElementById("thresholdRuleError"),
         recipientError: document.getElementById("recipientError"),
+        recoveryChecksError: document.getElementById("recoveryChecksError"),
         toast: document.getElementById("toast")
       };
 
@@ -1706,6 +1817,33 @@
         }[scope] || "Terminal";
       }
 
+      function getNotificationPolicy(rule) {
+        return rule.notificationPolicy === "once_per_terminal_per_day" ? "repeat_by_hours" : (rule.notificationPolicy || "once_per_incident");
+      }
+
+      function formatNotificationPolicy(rule) {
+        const policy = getNotificationPolicy(rule);
+        if (policy === "once_per_incident") {
+          return "Once per incident";
+        }
+        if (policy === "repeat_by_hours") {
+          return `Every ${rule.repeatIntervalHours || 2} hours`;
+        }
+        return "Once per incident";
+      }
+
+      function formatIncidentStatus(status) {
+        return {
+          open: "Open",
+          pending_recovery: "Pending recovery",
+          resolved: "Resolved"
+        }[status] || "Open";
+      }
+
+      function getIncidentStatusClass(status) {
+        return status === "pending_recovery" ? "pending-recovery" : (status || "open");
+      }
+
       function getTargetDisplay(rule, context = getRuleContext(rule)) {
         const scope = getRuleScope(rule);
         if (scope === "merchant") {
@@ -1764,14 +1902,19 @@
       function getTriggerLogs(rule) {
         const logs = Array.isArray(rule.triggerLogs) ? rule.triggerLogs : [];
         if (logs.length) {
-          return [...logs].sort((a, b) => String(b.triggeredAt).localeCompare(String(a.triggeredAt)));
+          return [...logs].sort((a, b) => String(b.firstTriggeredAt || b.triggeredAt).localeCompare(String(a.firstTriggeredAt || a.triggeredAt)));
         }
 
         if (rule.lastTriggered && rule.lastTriggered !== "--") {
           return [{
-            triggeredAt: rule.lastTriggered,
+            firstTriggeredAt: rule.lastTriggered,
+            lastCheckedAt: rule.lastTriggered,
             terminalSn: rule.terminalSn || "All terminals",
+            conditionType: buildAlertContent(rule),
             alertContent: buildAlertContent(rule),
+            status: "open",
+            recoveryHitCount: 0,
+            resolvedAt: "",
             recipients: rule.recipients
           }];
         }
@@ -1780,7 +1923,8 @@
       }
 
       function getLastTriggered(rule) {
-        return getTriggerLogs(rule)[0]?.triggeredAt || "--";
+        const latestLog = getTriggerLogs(rule)[0];
+        return latestLog?.firstTriggeredAt || latestLog?.triggeredAt || "--";
       }
 
       function validateEmail(email) {
@@ -1922,8 +2066,21 @@
             enabled: elements.transactionToggle.classList.contains("active"),
             value: Number(elements.transactionValue.value || 0),
             unit: elements.transactionUnit.value
-          }
+          },
+          notificationPolicy: elements.notificationPolicySelect.value || "once_per_incident",
+          recoveryChecksRequired: Number(elements.recoveryChecksInput.value || 0),
+          repeatIntervalHours: Number(elements.repeatIntervalSelect.value || 2)
         };
+      }
+
+      function syncNotificationPolicyFields() {
+        const isHourlyRepeat = elements.notificationPolicySelect.value === "repeat_by_hours";
+        elements.repeatPolicyValueLabel.textContent = isHourlyRepeat ? "Notify Interval" : "Recovery Checks";
+        elements.repeatPolicyValueLabel.setAttribute("for", isHourlyRepeat ? "repeatIntervalSelect" : "recoveryChecksInput");
+        elements.recoveryChecksInput.hidden = isHourlyRepeat;
+        elements.repeatIntervalSelect.hidden = !isHourlyRepeat;
+        elements.recoveryChecksError.textContent = isHourlyRepeat ? "Select a notification interval." : "Enter a positive recovery check count.";
+        elements.recoveryChecksError.hidden = true;
       }
 
       function setDraftStatus(status) {
@@ -1993,7 +2150,8 @@
           elements.offlineError,
           elements.transactionError,
           elements.thresholdRuleError,
-          elements.recipientError
+          elements.recipientError,
+          elements.recoveryChecksError
         ].forEach(error => {
           error.hidden = true;
         });
@@ -2006,6 +2164,8 @@
         const scope = getRuleScope(rule);
         const offlineEnabled = isThresholdEnabled(rule.offline);
         const transactionEnabled = isThresholdEnabled(rule.noTransaction);
+        const isHourlyRepeat = rule.notificationPolicy === "repeat_by_hours";
+        const validRepeatIntervals = [2, 4, 6, 12, 24];
         const errors = {
           serviceProvider: !rule.serviceProviderId,
           agent: Boolean(provider?.agents.length) && !rule.agentId,
@@ -2015,7 +2175,8 @@
           offline: offlineEnabled && (!Number.isFinite(rule.offline.value) || rule.offline.value <= 0),
           transaction: transactionEnabled && (!Number.isFinite(rule.noTransaction.value) || rule.noTransaction.value <= 0),
           thresholdRule: !offlineEnabled && !transactionEnabled,
-          recipients: draftRecipients.length === 0 || draftRecipients.some(email => !validateEmail(email))
+          recipients: draftRecipients.length === 0 || draftRecipients.some(email => !validateEmail(email)),
+          recoveryChecks: isHourlyRepeat ? !validRepeatIntervals.includes(rule.repeatIntervalHours) : (!Number.isFinite(rule.recoveryChecksRequired) || rule.recoveryChecksRequired <= 0)
         };
 
         elements.serviceProviderError.hidden = !errors.serviceProvider;
@@ -2027,6 +2188,7 @@
         elements.transactionError.hidden = !errors.transaction;
         elements.thresholdRuleError.hidden = !errors.thresholdRule;
         elements.recipientError.hidden = !errors.recipients;
+        elements.recoveryChecksError.hidden = !errors.recoveryChecks;
 
         return !Object.values(errors).some(Boolean);
       }
@@ -2060,6 +2222,7 @@
               <td>${formatThresholdPill(rule.offline, "warning")}</td>
               <td>${formatThresholdPill(rule.noTransaction, "info")}</td>
               <td><div class="recipients" title="${escapeHtml(rule.recipients.join(", "))}">${escapeHtml(rule.recipients.join(", "))}</div></td>
+              <td><span class="policy-pill">${escapeHtml(formatNotificationPolicy(rule))}</span></td>
               <td><button class="status-switch-cell ${statusClass}" type="button" data-action="toggle-status" aria-label="${rule.status === "Active" ? "Disable rule" : "Enable rule"}" title="${rule.status === "Active" ? "Disable" : "Enable"}"><span class="switch-track-mini" aria-hidden="true"></span></button></td>
               <td class="mono">${escapeHtml(getLastTriggered(rule))}</td>
               <td>
@@ -2096,6 +2259,10 @@
           elements.offlineUnit.value = rule.offline.unit;
           elements.transactionValue.value = rule.noTransaction.value;
           elements.transactionUnit.value = rule.noTransaction.unit;
+          elements.notificationPolicySelect.value = getNotificationPolicy(rule);
+          elements.recoveryChecksInput.value = rule.recoveryChecksRequired || 2;
+          elements.repeatIntervalSelect.value = String(rule.repeatIntervalHours || 2);
+          syncNotificationPolicyFields();
           setThresholdEnabled("offline", isThresholdEnabled(rule.offline));
           setThresholdEnabled("transaction", isThresholdEnabled(rule.noTransaction));
           setDraftStatus(rule.status);
@@ -2110,6 +2277,10 @@
           elements.offlineUnit.value = "minutes";
           elements.transactionValue.value = "2";
           elements.transactionUnit.value = "hours";
+          elements.notificationPolicySelect.value = "once_per_incident";
+          elements.recoveryChecksInput.value = "2";
+          elements.repeatIntervalSelect.value = "2";
+          syncNotificationPolicyFields();
           setThresholdEnabled("offline", true);
           setThresholdEnabled("transaction", true);
           setDraftStatus("Active");
@@ -2145,6 +2316,9 @@
           offline: formRule.offline,
           noTransaction: formRule.noTransaction,
           recipients: [...draftRecipients],
+          notificationPolicy: formRule.notificationPolicy,
+          recoveryChecksRequired: formRule.recoveryChecksRequired,
+          repeatIntervalHours: formRule.repeatIntervalHours,
           status: draftStatus
         };
 
@@ -2179,9 +2353,12 @@
         elements.logModalContext.textContent = `${target.targetMain} / ${formatScope(scope)} / ${target.terminalSn}`;
         elements.triggerLogBody.innerHTML = logs.map(log => `
           <tr>
-            <td class="mono">${escapeHtml(log.triggeredAt)}</td>
+            <td class="mono">${escapeHtml(log.firstTriggeredAt || log.triggeredAt || "--")}</td>
+            <td class="mono">${escapeHtml(log.lastCheckedAt || log.firstTriggeredAt || log.triggeredAt || "--")}</td>
             <td class="mono">${escapeHtml(log.terminalSn || rule.terminalSn || "All terminals")}</td>
-            <td><div class="log-alert-content">${escapeHtml(log.alertContent || buildAlertContent(rule))}</div></td>
+            <td><div class="log-alert-content">${escapeHtml(log.conditionType || log.alertContent || buildAlertContent(rule))}</div></td>
+            <td><span class="incident-status ${escapeHtml(getIncidentStatusClass(log.status))}">${escapeHtml(formatIncidentStatus(log.status))}</span></td>
+            <td class="mono">${escapeHtml(log.resolvedAt || "--")}</td>
             <td><div class="log-recipient-list">${escapeHtml((log.recipients || rule.recipients).join(", "))}</div></td>
           </tr>
         `).join("");
@@ -2244,6 +2421,7 @@
       populateMerchantSelect("", "", "");
       elements.scopeSelect.value = "terminal";
       syncScopeControls();
+      syncNotificationPolicyFields();
       renderTable();
 
       elements.addRuleButton.addEventListener("click", () => openModal(null));
@@ -2258,6 +2436,7 @@
         input.addEventListener("input", renderTable);
       });
       elements.statusFilter.addEventListener("change", renderTable);
+      elements.notificationPolicySelect.addEventListener("change", syncNotificationPolicyFields);
 
       elements.serviceProviderSelect.addEventListener("change", () => {
         const serviceProviderId = elements.serviceProviderSelect.value;
