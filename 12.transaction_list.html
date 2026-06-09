@@ -197,11 +197,16 @@
     .sn-status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
     .sn-detail-pop{position:absolute;z-index:125;display:none;pointer-events:none;width:420px;max-width:min(92vw,420px);padding:14px;border:1px solid #d7ddeb;border-radius:14px;background:#fff;box-shadow:0 18px 36px rgba(23,30,47,.18)}
     .sn-detail-pop.show{display:block}
-    .sn-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .sn-detail-head{display:block}
+    .sn-detail-title{min-width:0}
     .sn-detail-head strong{font-size:14px;line-height:1.3;color:#1f2735}
-    .sn-detail-state{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;border:1px solid #c7e6d2;background:#ecfaf2;color:#1a7b47;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
-    .sn-detail-state.offline{border-color:#ebb8b0;background:#fdeceb;color:#b63a30}
-    .sn-detail-owner{margin-top:5px;font-size:12px;line-height:1.35;color:#566177}
+    .sn-detail-owner{margin-top:6px;font-size:12px;line-height:1.35;color:#566177}
+    .sn-service-status{margin-top:10px;padding:9px 0;border-top:1px solid #edf1f6;border-bottom:1px solid #edf1f6}
+    .sn-service-list{display:grid;gap:7px}
+    .sn-service-row{min-width:0;display:grid;grid-template-columns:74px minmax(0,1fr);align-items:center;gap:14px}
+    .sn-service-name{font-size:10px;line-height:1.2;font-weight:800;color:#7e889c;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+    .sn-service-value{display:inline-flex;align-items:center;gap:6px;justify-self:start;font-size:12px;line-height:1.2;font-weight:800;color:#1a7b47;white-space:nowrap}
+    .sn-service-value.offline{color:#b63a30}
     .sn-detail-grid{margin-top:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
     .sn-detail-item{min-width:0}
     .sn-detail-item.wide{grid-column:1 / -1}
@@ -242,7 +247,7 @@
     @media (max-width:1600px){.brand h1{font-size:48px}.brand p{padding-left:154px;font-size:18px}.side{width:314px;flex-basis:314px}.cols{right:-50px}}
     @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
     @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}
-    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
+    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.sn-detail-head{flex-direction:column}.sn-service-status{width:100%;flex-basis:auto}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
   </style>
 </head>
 <body>
@@ -632,12 +637,12 @@
       };
       const terminalDetailBySn={
         WP5151DQ33000097:{controlStatus:"lost",online:false,lastCommTime:"2025-06-15 15:15:21",model:"IM30",network:"Ethernet",systemVersion:"1.26.7",battery:"0%"},
-        WP5280VQ33200002:{id:1100049,online:false,terminalName:"WP5280VQ33200002",groupId:5422,groupName:"wstore-test",model:"posModel",modelAlias:"posModel",registerTime:1776670800000,systemVersion:"1.0.40-1137",kernelVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",bootloaderVersion:"1.0.40-1110",basebandVersion:"MPSS.HA.A14_H230_DRX_20251120",imei1:"866451070051501",imei2:"866451070051519",bluetoothMac:"02:56:14:01:28:B9",wifiMac:"00:56:14:01:28:b9",wifiSsid:"\"huiyin-ap\"",status:0,networkType:0,network:"Wi-Fi",ip:"192.168.202.97",gps:"31.2485 121.491",appCount:15,lastUpdateTime:1777017265000,agent:"54050",lastCommTime:"2026-04-24 15:54:25",lastBootTime:"2026-04-24 15:03:49",system:"1137",pcba:"TPHYCW1250614400128",freeMemory:"102.00MB",usedMemory:"1678.00MB",freeStorage:"16628.00MB",usedStorage:"2067.00MB",battery:"100%",runningTime:287189,productModel:"Q3mini",androidVersion:"14",manufacturer:"SHWP"},
+        WP5280VQ33200002:{id:1100049,online:false,paymentServiceOnline:true,deviceOfflineDuration:"2d 4h",terminalName:"WP5280VQ33200002",groupId:5422,groupName:"wstore-test",model:"posModel",modelAlias:"posModel",registerTime:1776670800000,systemVersion:"1.0.40-1137",kernelVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",bootloaderVersion:"1.0.40-1110",basebandVersion:"MPSS.HA.A14_H230_DRX_20251120",imei1:"866451070051501",imei2:"866451070051519",bluetoothMac:"02:56:14:01:28:B9",wifiMac:"00:56:14:01:28:b9",wifiSsid:"\"huiyin-ap\"",status:0,networkType:0,network:"Wi-Fi",ip:"192.168.202.97",gps:"31.2485 121.491",appCount:15,lastUpdateTime:1777017265000,agent:"54050",lastCommTime:"2026-04-24 15:54:25",lastBootTime:"2026-04-24 15:03:49",system:"1137",pcba:"TPHYCW1250614400128",freeMemory:"102.00MB",usedMemory:"1678.00MB",freeStorage:"16628.00MB",usedStorage:"2067.00MB",battery:"100%",runningTime:287189,productModel:"Q3mini",androidVersion:"14",manufacturer:"SHWP"},
         WP52205Q33000977:{online:true,lastCommTime:"2026-04-07 10:46:48",lastBootTime:"2026-04-07 09:15:10",model:"Q2",groupName:"waou test merchant",agent:"54012",network:"Wi-Fi",wifiSsid:"Store-WiFi",ip:"10.10.20.41",gps:"-",appCount:12,battery:"86%",usedMemory:"1240.00MB",freeMemory:"480.00MB",usedStorage:"4120.00MB",freeStorage:"12880.00MB",runningTime:5478,systemVersion:"2.04.3",safeModuleVersion:"PCBB0008",pcba:"Q2PCBA220100812",imei1:"866451070041201"},
         WP6127TX33009110:{online:true,lastCommTime:"2026-04-07 10:22:01",lastBootTime:"2026-04-07 07:40:18",model:"Q3",groupName:"north campus group",agent:"54018",network:"4G",ip:"100.92.14.22",gps:"49.278 122.919",appCount:9,battery:"72%",usedMemory:"1512.00MB",freeMemory:"266.00MB",usedStorage:"3304.00MB",freeStorage:"14812.00MB",runningTime:9703,systemVersion:"3.01.2",safeModuleVersion:"PCBB0010",pcba:"Q3PCBA240901447",imei1:"866451070047712"},
-        WP6001MM33000109:{online:false,lastCommTime:"2026-04-07 08:59:34",lastBootTime:"2026-04-07 08:10:22",model:"IM25",groupName:"urban bistro",agent:"54009",network:"Wi-Fi",wifiSsid:"Bistro-Staff",ip:"-",gps:"-",appCount:10,battery:"34%",usedMemory:"1388.00MB",freeMemory:"310.00MB",usedStorage:"5870.00MB",freeStorage:"11030.00MB",runningTime:6492,systemVersion:"1.89.2",safeModuleVersion:"PCBB0007",pcba:"IM25PCBA19020871",imei1:"866451070031099"},
+        WP6001MM33000109:{online:false,paymentServiceOnline:false,deviceOfflineDuration:"3h 8m",paymentOfflineDuration:"3h 8m",lastCommTime:"2026-04-07 08:59:34",lastBootTime:"2026-04-07 08:10:22",model:"IM25",groupName:"urban bistro",agent:"54009",network:"Wi-Fi",wifiSsid:"Bistro-Staff",ip:"-",gps:"-",appCount:10,battery:"34%",usedMemory:"1388.00MB",freeMemory:"310.00MB",usedStorage:"5870.00MB",freeStorage:"11030.00MB",runningTime:6492,systemVersion:"1.89.2",safeModuleVersion:"PCBB0007",pcba:"IM25PCBA19020871",imei1:"866451070031099"},
         WP7300EV33001088:{online:true,lastCommTime:"2026-04-07 12:03:50",lastBootTime:"2026-04-06 23:18:02",model:"Q3",terminalName:"EV Charger Bay 07",groupName:"green charge network",agent:"54077",network:"4G",ip:"100.78.44.19",gps:"52.366 13.503",appCount:8,battery:"External Power",usedMemory:"1496.00MB",freeMemory:"372.00MB",usedStorage:"4820.00MB",freeStorage:"15008.00MB",runningTime:45948,systemVersion:"3.02.0",safeModuleVersion:"PCBB0010",pcba:"Q3EVPCBA26010088",imei1:"866451070061088"},
-        WP7400AC33002019:{online:false,lastCommTime:"2026-04-07 11:49:02",lastBootTime:"2026-04-07 09:02:12",model:"Q2 Mini",terminalName:"Arcade Cabinet 19",groupName:"playbox arcade",agent:"54088",network:"Ethernet",ip:"-",gps:"-",appCount:6,battery:"12%",usedMemory:"1580.00MB",freeMemory:"84.00MB",usedStorage:"9120.00MB",freeStorage:"2210.00MB",runningTime:9986,systemVersion:"2.08.1",safeModuleVersion:"PCBB0008",pcba:"Q2ACPCBA25002019",imei1:"-"}
+        WP7400AC33002019:{online:false,paymentServiceOnline:false,deviceOfflineDuration:"6m",paymentOfflineDuration:"6m",lastCommTime:"2026-04-07 11:49:02",lastBootTime:"2026-04-07 09:02:12",model:"Q2 Mini",terminalName:"Arcade Cabinet 19",groupName:"playbox arcade",agent:"54088",network:"Ethernet",ip:"-",gps:"-",appCount:6,battery:"12%",usedMemory:"1580.00MB",freeMemory:"84.00MB",usedStorage:"9120.00MB",freeStorage:"2210.00MB",runningTime:9986,systemVersion:"2.08.1",safeModuleVersion:"PCBB0008",pcba:"Q2ACPCBA25002019",imei1:"-"}
       };
       const isTerminalUncontrolled=r=>{
         const sn=String(r?.sn||"");
@@ -667,17 +672,22 @@
         if(free) return `Free: ${free}`;
         return "-";
       };
+      const statusText=(online,duration)=>online?"Online":(duration?`Offline ${duration}`:"Offline");
+      const statusClass=online=>online?"":" offline";
       const resolveTerminalDetail=(r,mode=resolveTerminalMode(r))=>{
         const sn=String(r?.sn||"");
         const source=terminalDetailBySn[sn]||{};
-        const online=typeof source.online==="boolean"?source.online:source.connectivity!=="offline";
+        const deviceOnline=typeof source.deviceServiceOnline==="boolean"?source.deviceServiceOnline:(typeof source.online==="boolean"?source.online:source.connectivity!=="offline");
+        const paymentOnline=typeof source.paymentServiceOnline==="boolean"?source.paymentServiceOnline:(typeof source.opcOnline==="boolean"?source.opcOnline:deviceOnline);
         const lastCommTime=formatTimestamp(source.lastCommTime||source.lastSeen);
         const lastBootTime=formatTimestamp(source.lastBootTime);
         const wifiSsid=cleanQuoted(source.wifiSsid);
         const network=[source.network||"",wifiSsid].filter(Boolean).join(" / ")||(source.networkType!==undefined?`Type ${source.networkType}`:terminalDetailDefaults.network);
         return {
-          offline:!online,
-          statusLabel:online?"Online":"Offline",
+          deviceOnline,
+          paymentOnline,
+          deviceStatusLabel:statusText(deviceOnline,source.deviceOfflineDuration),
+          paymentStatusLabel:statusText(paymentOnline,source.paymentOfflineDuration),
           terminalName:source.terminalName||r?.terminalName||"Terminal Detail",
           model:source.productModel||source.modelAlias||source.model||terminalDetailDefaults.model,
           agent:source.agent||terminalDetailDefaults.agent,
@@ -701,6 +711,9 @@
           lastUpdateTime:formatTimestamp(source.lastUpdateTime)
         };
       };
+      const renderServiceStatus=detail=>{
+        return `<div class="sn-service-status" aria-label="Service status"><div class="sn-service-list"><div class="sn-service-row"><span class="sn-service-name">Device</span><span class="sn-service-value${statusClass(detail.deviceOnline)}"><span class="sn-status-dot"></span>${esc(detail.deviceStatusLabel)}</span></div><div class="sn-service-row"><span class="sn-service-name">Payment</span><span class="sn-service-value${statusClass(detail.paymentOnline)}"><span class="sn-status-dot"></span>${esc(detail.paymentStatusLabel)}</span></div></div></div>`;
+      };
       const renderSnDetailContent=(r,mode=resolveTerminalMode(r))=>{
         const detail=resolveTerminalDetail(r,mode);
         const items=[
@@ -711,7 +724,7 @@
           ["PCBA",detail.pcba,true],["IMEI",detail.imei,true],["Baseband",detail.basebandVersion,true]
         ].filter(([,value])=>value!==""&&value!==null&&value!==undefined&&value!=="-");
         const grid=items.map(([label,value,wide])=>`<div class="sn-detail-item${wide?" wide":""}"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("");
-        return `<div class="sn-detail-head"><strong>${esc(detail.terminalName)}</strong><span class="sn-detail-state${detail.offline?" offline":""}"><span class="sn-status-dot"></span>${esc(detail.statusLabel)}</span></div><div class="sn-detail-owner">${esc(terminalOwnerLine(r))}</div><div class="sn-detail-grid">${grid}</div>`;
+        return `<div class="sn-detail-head"><div class="sn-detail-title"><strong>${esc(detail.terminalName)}</strong><div class="sn-detail-owner">${esc(terminalOwnerLine(r))}</div></div></div>${renderServiceStatus(detail)}<div class="sn-detail-grid">${grid}</div>`;
       };
       const snDetailPop=document.createElement("div");
       snDetailPop.className="sn-detail-pop";
