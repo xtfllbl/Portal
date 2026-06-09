@@ -134,6 +134,116 @@
         #tab-appfw .app-table-title:first-child { margin-top: 0; }
         .app-para-table .minor-code { margin-left: 10px; color: #2563eb; font-size: 12px; text-decoration: none; }
         .app-para-table .minor-code:hover { text-decoration: underline; }
+        .installed-app-table { min-width: 1160px; }
+        .installed-app-table th:last-child,
+        .installed-app-table td:last-child {
+            width: 72px;
+            text-align: center;
+        }
+        .installed-delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #dedfe3;
+            background: #ffffff;
+            color: #b42318;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .installed-delete-btn:hover { background: #fff1f0; border-color: #f0b8b2; }
+        .installed-delete-btn:disabled {
+            color: #a1a1aa;
+            background: #f4f4f5;
+            border-color: #e4e4e7;
+            cursor: not-allowed;
+        }
+        .installed-delete-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        #table-para.parameter-panel {
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+            overflow: visible;
+        }
+        #table-para .table-wrap { overflow-x: auto; }
+        .param-history-table {
+            min-width: 1000px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .param-history-table thead th {
+            background: #1e1e21;
+            color: #ffffff;
+            padding: 10px 12px;
+            border-bottom: 0;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+        .param-history-table thead th:first-child { border-top-left-radius: 6px; }
+        .param-history-table thead th:last-child { border-top-right-radius: 6px; }
+        .param-history-table tbody tr:nth-child(even) { background: #fafafa; }
+        .param-history-table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #3f3f46;
+            font-size: 14px;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+        .param-history-table th:nth-child(1) { width: 39%; }
+        .param-history-table th:nth-child(2) { width: 22%; }
+        .param-history-table th:nth-child(3) { width: 13%; }
+        .param-history-table th:nth-child(4) { width: 9%; }
+        .param-history-table th:nth-child(5) { width: 11%; }
+        .param-history-table th:nth-child(6) { width: 6%; }
+        .param-name-link {
+            color: #006fd6;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .param-name-link:hover { text-decoration: underline; }
+        .param-status-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .param-status-badge.applied { background: #d7f5e2; color: #10823b; }
+        .param-status-badge.created { background: #f2f2f3; color: #3f3f46; }
+        .param-action-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #dedfe3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #111111;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .param-action-btn:hover { background: #f5f5f6; border-color: #c9cbd1; }
+        .param-action-btn svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
         .hidden { display: none; }
         .old { display: none; }
 
@@ -449,6 +559,158 @@
             min-width: 96px;
         }
 
+        .param-preview-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.46);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1250;
+            padding: 22px;
+        }
+        .param-preview-overlay.open { display: flex; }
+        .param-preview-modal {
+            width: min(1540px, 96vw);
+            max-height: calc(100vh - 44px);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 24px 58px rgba(0, 0, 0, 0.28);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .param-preview-head {
+            padding: 22px 28px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+        .param-preview-title {
+            margin: 0;
+            color: #3f414a;
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+        .param-preview-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #d8dbe2;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #3f414a;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .param-preview-body {
+            padding: 0 28px 24px;
+            overflow: auto;
+        }
+        .param-preview-tabs {
+            display: flex;
+            align-items: flex-end;
+            gap: 26px;
+            border-bottom: 1px solid #dedfe3;
+            margin-top: 18px;
+            overflow-x: auto;
+        }
+        .param-preview-tab {
+            border: 0;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: #737782;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 14px 0 16px;
+            white-space: nowrap;
+        }
+        .param-preview-tab.active {
+            color: #15171d;
+            border-bottom-color: #15171d;
+        }
+        .param-preview-panel {
+            padding: 28px 0 6px;
+        }
+        .param-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px 24px;
+        }
+        .param-readonly-field {
+            min-width: 0;
+        }
+        .param-field-label {
+            color: #444750;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.35;
+            margin-bottom: 8px;
+        }
+        .param-readonly-control {
+            min-height: 42px;
+            border: 0;
+            border-bottom: 1px solid #cfd3da;
+            background: #ffffff;
+            color: #454751;
+            display: flex;
+            align-items: center;
+            padding: 0 12px 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.35;
+            cursor: default;
+        }
+        .param-readonly-value {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+        .param-readonly-value.empty {
+            min-height: 20px;
+            color: transparent;
+        }
+        .param-unmatched {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .param-unmatched-item {
+            border: 1px solid #e2e5ea;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+        .param-unmatched-key {
+            color: #111827;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .param-unmatched-value {
+            color: #4b5563;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+        .param-preview-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 16px 28px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .param-preview-footer .btn-secondary {
+            width: auto;
+            min-width: 92px;
+            border-radius: 10px;
+        }
+
         @media (max-width: 1160px) {
             .main-body { flex-direction: column; }
             .sidebar { width: 100%; overflow: hidden; }
@@ -503,6 +765,16 @@
                 justify-content: flex-end;
             }
             .source-search { width: 100%; }
+            .param-form-grid,
+            .param-unmatched {
+                grid-template-columns: 1fr;
+            }
+            .param-preview-head,
+            .param-preview-body,
+            .param-preview-footer {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
         }
     </style>
 </head>
@@ -1017,6 +1289,20 @@
                     </div>
 
                     <div id="table-app">
+                        <div class="app-table-title">Installed APP List</div>
+                        <div class="table-wrap">
+                            <table id="installedAppTable" class="table app-para-table installed-app-table">
+                                <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Installed Time</th><th>Cert DN</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete PayWizard" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.113</td><td>2026-02-12 16:54:11</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete TsysPay" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.7</td><td>2026-02-11 14:12:33</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete aidIdemo" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.2_2601271</td><td>2026-02-02 16:43:19</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete Payment Emulator" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>InitConnectionMode</td><td>com.wizarpos.setusbattrs</td><td>1.0</td><td>2024-05-21 10:31:50</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete InitConnectionMode" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
                         <div class="app-table-title">Subscribed APP List</div>
                         <div class="table-wrap">
                             <table id="subscribedAppTable" class="table app-para-table">
@@ -1037,35 +1323,73 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
 
-                        <div class="app-table-title">Installed APP List</div>
+                    <div class="parameter-panel hidden" id="table-para">
                         <div class="table-wrap">
-                            <table class="table app-para-table">
-                                <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Installed Time</th><th>Cert DN</th></tr></thead>
+                            <table id="subscribedParaTable" class="table app-para-table param-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Package Name</th>
+                                        <th>Version</th>
+                                        <th>Status</th>
+                                        <th>Applied Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
-                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td>EMAILADDRESS=support...</td></tr>
-                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.113</td><td>2026-02-12 16:54:11</td><td>EMAILADDRESS=support...</td></tr>
-                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.7</td><td>2026-02-11 14:12:33</td><td>EMAILADDRESS=support...</td></tr>
-                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.2_2601271</td><td>2026-02-02 16:43:19</td><td>EMAILADDRESS=support...</td></tr>
-                                    <tr><td>InitConnectionMode</td><td>com.wizarpos.setusbattrs</td><td>1.0</td><td>2024-05-21 10:31:50</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr data-param-record="demo-short">
+                                        <td><a href="#" class="param-name-link">appParam-WP5401DQ33000030-1650</a></td>
+                                        <td>com.wizarpos.paywizard.demo</td>
+                                        <td>20260603200011</td>
+                                        <td><span class="param-status-badge applied">Applied</span></td>
+                                        <td>2026-06-03 20:00:41</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="demo-short" aria-label="View parameters for appParam-WP5401DQ33000030-1650" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr data-param-record="opc-full">
+                                        <td><a href="#" class="param-name-link">appParam-WP5401DQ33000030-1356</a></td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>20260602030122</td>
+                                        <td><span class="param-status-badge applied">Applied</span></td>
+                                        <td>2026-06-02 03:02:11</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="opc-full" aria-label="View parameters for appParam-WP5401DQ33000030-1356" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr data-param-record="tsys-created">
+                                        <td><a href="#" class="param-name-link">APPPARAM_WP5401DQ33000030_com.smartpos.paywizard.tsys.smartpay</a></td>
+                                        <td>com.smartpos.paywizard.tsys.smartpay</td>
+                                        <td>0.0.2</td>
+                                        <td><span class="param-status-badge created">Created</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="tsys-created" aria-label="View parameters for APPPARAM_WP5401DQ33000030_com.smartpos.paywizard.tsys.smartpay" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr data-param-record="opc-created">
+                                        <td><a href="#" class="param-name-link">APPPARAM_WP5401DQ33000030_com.wizarpos.opc</a></td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>0.0.2</td>
+                                        <td><span class="param-status-badge created">Created</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="opc-created" aria-label="View parameters for APPPARAM_WP5401DQ33000030_com.wizarpos.opc" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <div class="table-wrap hidden" id="table-para">
-                        <table id="subscribedParaTable" class="table app-para-table">
-                            <thead><tr><th>Name</th><th>Group</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
-                            <tbody>
-                                <tr>
-                                    <td>appParam-WP4130PQ23203182-1364</td>
-                                    <td>Root</td>
-                                    <td>com.wizarpos.opc</td>
-                                    <td>20260211111347</td>
-                                    <td>2026-02-11 11:13:47</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </section>
 
@@ -1189,6 +1513,23 @@
             </div>
         </div>
     </div>
+    <div id="paramPreviewModal" class="param-preview-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="paramPreviewTitle">
+        <div class="param-preview-modal">
+            <div class="param-preview-head">
+                <div>
+                    <h2 id="paramPreviewTitle" class="param-preview-title">Parameter Details</h2>
+                </div>
+                <button id="closeParamPreview" class="param-preview-close" type="button" aria-label="Close">&times;</button>
+            </div>
+            <div class="param-preview-body">
+                <div id="paramPreviewTabs" class="param-preview-tabs" role="tablist" aria-label="Parameter fieldsets"></div>
+                <div id="paramPreviewPanel" class="param-preview-panel"></div>
+            </div>
+            <div class="param-preview-footer">
+                <button id="closeParamPreviewFooter" class="btn-secondary" type="button">Close</button>
+            </div>
+        </div>
+    </div>
 <script>
     const terminalContext = (() => {
         const defaults = {
@@ -1258,7 +1599,8 @@
         }
 
         tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
-        showTab('basic');
+        const requestedTab = new URLSearchParams(window.location.search).get('tab');
+        showTab(sections[requestedTab] ? requestedTab : 'appfw');
 
         const subTabs = document.querySelectorAll('#subTabs .subtab');
         const tables = {
@@ -1275,7 +1617,318 @@
         }
 
         subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
-        showSub('app');
+        showSub('para');
+    })();
+
+    (function(){
+        const PAYWIZARD_TEMPLATE_FIELDSETS = [{"name":"OPERTAION MODE","fields":[{"key":"OperatingMode","label":"Operating Mode","options":[["0","UPT"],["1","BIZHI"],["2","ATTENDANCE"],["3","SenseTime"],["4","SERIAL_MODE"],["5","YinXiang"],["6","OpenableLocker"],["7","MultiPrice"],["8","FixedPrice"]]},{"key":"ProtocolType","label":"Protocol Type","options":[["0","SERIAL HOST"],["1","MDB"],["2","PAX-ECR"],["3","SERIAL SLAVE"],["4","SERIAL EXT"],["5","SOCKET SERVER"],["6","SERIAL CDC"],["7","SERIAL VENDOR"],["8","PULSE MODE"],["9","SERIAL EXT2"],["10","USB ACCESSORY"],["11","CLOUD MODE"],["12","DEFAULT"],["13","BLUETOOTH SPP"]]},{"key":"UrlType","label":"Paywizard Server","options":[["0","DEBUG"],["1","UAT"],["2","RELEASE"],["3","TEST"],["4","DEV"]]},{"key":"UiRunMode","label":"OPC UI Run Mode","options":[["0","Follow ProtocolType"],["1","Foreground"],["2","Background"]]}]},
+            {"name":"PAYMENT APP","fields":[{"key":"EnableDebugMode","label":"Debug Mode","options":[["1","Enable"],["0","Disable"]]},{"key":"HomePaymentIcons","label":"Home Payment Icons","options":[]},{"key":"AidlPackageName","label":"Payment App","options":[]},{"key":"CurrencyCode","label":"Currency Code","options":[]},{"key":"NeedCheckParam","label":"Check Param","options":[["1","Enable"],["0","Disable"]]},{"key":"KeyState","label":"Check KeyState","options":[["1","Enable"],["0","Disable"]]},{"key":"paymentTimeout","label":"Payment Timeout(s)","options":[]},{"key":"IsSimplify","label":"JSON parameters","options":[["1","Simplify"],["0","All parameters"]]},{"key":"CustomerServiceHotline","label":"Customer Hotline","options":[]},{"key":"ClientId","label":"ClientId","options":[]},{"key":"ClientSecret","label":"ClientSecret","options":[]},{"key":"JwtToken","label":"JwtToken","options":[]},{"key":"EnableOpcTakeoverUi","label":"Enable OPC Takeover UI","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableWhiteBin","label":"Enable White Bin","options":[["1","Enable"],["0","Disable"]]},{"key":"WhiteBinVersion","label":"White Bin Version","options":[]},{"key":"WhiteBinList","label":"White Bin List","options":[]}]},
+            {"name":"ATTENDANCE MODE","fields":[{"key":"CreditCards","label":"CreditCards","options":[["1","Enable"],["0","Disable"]]},{"key":"DigitalWallets","label":"DigitalWallets","options":[["1","Enable"],["0","Disable"]]},{"key":"Loyalty","label":"Loyalty","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableReaderHeadTapUi","label":"Enable Reader Head Tap UI","options":[["1","Enable"],["0","Disable"]]}]},
+            {"name":"UPT MODE","fields":[{"key":"AdminPass","label":"Admin Password","options":[]},{"key":"operationPass","label":"Operation Password","options":[]},{"key":"AllowOfflineMode","label":"AllowOfflineMode","options":[["0","Disable"],["1","Enable"]]},{"key":"AmountScale","label":"AmountScale","options":[["0","DEFAULT"],["10","Multiply 10"],["100","Multiply 100"],["-10","Divide 10"],["-100","Divide 100"]]},{"key":"QrMid","label":"QrMid","options":[]},{"key":"QrScanChannel","label":"Qr Scan Channel","options":[["M_PAY","MPAY"],["PIX","PIX"],["MMG","MMG"],["PAY_DATA_CLOUD","\u6c47\u6570\u4e91"],["PAYWIZARD_APM","Paywizard APM"],["OX_PAY","OXPAY"],["PROMPT_PAY","PromptPay"]]},{"key":"EnableVoicePlayback","label":"Enable Voice Playback","options":[["1","Enable"],["0","Disable"]]},{"key":"SystemVolume","label":"System Volume","options":[]},{"key":"BaudRate","label":"Set Baud Rate","options":[]},{"key":"SocketPort","label":"SocketPort","options":[]},{"key":"EnableDataSplit","label":"Enable Data Split","options":[["1","Enable"],["0","Disable"]]},{"key":"ConcurrentRequests","label":"ConcurrentRequests","options":[["1","Enable"],["0","Disable"]]},{"key":"SplitLength","label":"Split Length","options":[]},{"key":"SplitDelay","label":"Split Delay","options":[]},{"key":"ShowPaymentResult","label":"Show Payment Result","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableExitDirectly","label":"Allowed Exit","options":[["1","Enable"],["0","Disable"]]},{"key":"LogoUrl","label":"Logo Url","options":[]},{"key":"EnableManualBeginSession","label":"Manual Begin Session","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableSilent","label":"Silent","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableConvertJodAmt","label":"Convert JOD Amt","options":[["1","Enable"],["0","Disable"]]},{"key":"KsnetMberCode","label":"KSNET Mber Code","options":[]},{"key":"KsnetCrtftCode","label":"KSNET Crtft Code","options":[]},{"key":"TSMTerminalCode","label":"TSM Terminal Code","options":[]},{"key":"TSMMerchantCode","label":"TSM Merchant Code","options":[]},{"key":"TSMConnType","label":"TSM Conn Type","options":[["0","PROC"],["1","TEST"]]},{"key":"BtSppUuid","label":"Bluetooth SPP UUID","options":[]}]},
+            {"name":"MDB PARA","fields":[{"key":"EnableManualCancel","label":"MDB Manual Cancel","options":[["1","Enable"],["0","Disable"]]},{"key":"ScalingFactor","label":"MDB Scaling Factor","options":[]},{"key":"DecimalPlaces","label":"MDB Decimal Places","options":[]},{"key":"FoundAvailable","label":"MDB Found Available","options":[]},{"key":"MdbAutoReversal","label":"MDB Auto Reversal","options":[["1","Enable"],["0","Disable"]]},{"key":"Mdb3Support32BitAmount","label":"Mdb3Support32BitAmount","options":[["1","Enable"],["0","Disable"]]},{"key":"ManualMdbBegin","label":"ManualMdbBegin","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableGenTransCode","label":"Enable Gen Trans Code","options":[["1","Enable"],["0","Disable"]]}]},
+            {"name":"PULSE PARA","fields":[{"key":"PulsePortNum","label":"Pulse Port Num","options":[["0","Channel 1"],["1","Channel 2"]]},{"key":"PulseDeviceVoltage","label":"Pulse Device Voltage","options":[["0","Low Level"],["1","High Level"]]},{"key":"PulseDuration","label":"Pulse Duration","options":[]},{"key":"PulseInterval","label":"Pulse Interval","options":[]},{"key":"PulseAmount","label":"PulseAmount P1","options":[]},{"key":"PulseVoltage","label":"PulseNumber P1","options":[]},{"key":"PulseAmount2","label":"PulseAmount P2","options":[]},{"key":"PulseVoltage2","label":"PulseNumber P2","options":[]},{"key":"PulseAmount3","label":"PulseAmount P3","options":[]},{"key":"PulseVoltage3","label":"PulseNumber P3","options":[]},{"key":"PulseAmount4","label":"PulseAmount P4","options":[]},{"key":"PulseVoltage4","label":"PulseNumber P4","options":[]},{"key":"PulseText","label":"PulseText","options":[]}]},
+            {"name":"BIZHI MODE","fields":[{"key":"bzUrlType","label":"BIZHI UrlType","options":[["0","SINGAPORE_IOTSONG"],["1","AMERICA_BTOZ_TECH"],["2","UAT"]]}]},
+            {"name":"SenseTime MODE","fields":[{"key":"senseTimeUrlType","label":"senseTimeUrlType","options":[["0","SENSE_TIME_RELEASE"],["1","SENSE_TIME_UAT"]]},{"key":"senseTimeAccessKey","label":"senseTimeAccessKey","options":[]},{"key":"senseTimeSecretKey","label":"senseTimeSecretKey","options":[]}]},
+            {"name":"MULTI PRICE","fields":[{"key":"MultiPricingAmount1","label":"MultiPricing Amount 1","options":[]},{"key":"MultiPricingAmount2","label":"MultiPricing Amount 2","options":[]},{"key":"MultiPricingAmount3","label":"MultiPricing Amount 3","options":[]},{"key":"MultiPricingAmount4","label":"MultiPricing Amount 4","options":[]},{"key":"EReceiptRequired","label":"E-Receipt Required","options":[["1","Enable"],["0","Disable"]]}]},
+            {"name":"FIXED PRICE","fields":[{"key":"FixedPricingAmount","label":"FixedPricing Amount","options":[]}]}];
+
+        const PARAMETER_RECORDS = {
+            "demo-short": {
+                name: "appParam-WP5401DQ33000030-1650",
+                raw: `#
+#Tue Jun 02 03:01:37 CST 2026
+AdminPass=99999999
+AidlPackageName=com.wizarpos.paywizard.demo
+AllowOfflineMode=0
+AmountScale=0
+BaudRate=115200
+CurrencyCode=840
+EnableDebugMode=1
+EnableExitDirectly=1
+LogoUrl=
+ProtocolType=11
+ShowPaymentResult=1
+SocketPort=6031
+UrlType=1
+keepDebugModeTime=240
+TemplateRevision=PAYwizard_Template-2.10.4
+RemoteProfileId=demo-release-uqt-20260603
+OperatorMemo=Configured from merchant selected template before backend key translation
+PartnerTraceId=PWZ-OPS-20260603-0001650
+LegacyTipMode=auto
+DeviceLocale=en_US
+ParameterSource=Template Selection
+LastTemplateEditor=ops.demo.user
+RawTemplateFileName=PAYwizard_Template-2.10.4.xml
+LongUnmatchedValue=https://parameter-preview.example.com/releases/paywizard/demo/profile/appParam-WP5401DQ33000030-1650
+EmptyUnmatchedValue=
+paymentTimeout=180`
+            },
+            "opc-full": {
+                name: "appParam-WP5401DQ33000030-1356",
+                raw: `#
+#Mon Jun 08 07:06:29 UTC 2026
+AllowOfflineMode=0
+EnableConvertJodAmt=0
+EnableSilent=0
+WhiteBinList=
+LogoUrl=
+EnableDataSplit=0
+SplitLength=150
+TSMConnType=0
+KsnetMberCode=0000
+IsSimplify=0
+CurrencyCode=840
+ShowPaymentResult=0
+KsnetCrtftCode=0000
+QrScanChannel=PAY_DATA_CLOUD
+UiRunMode=0
+SystemVolume=70
+CustomerServiceHotline=
+ConcurrentRequests=0
+EnableDebugMode=0
+ClientId=
+EnableWhiteBin=0
+SocketPort=6031
+TSMTerminalCode=00000000
+KeyState=0
+AdminPass=99999999
+AidlPackageName=com.wizarpos.opc
+ProtocolType=11
+UrlType=2
+paymentTimeout=180`
+            },
+            "tsys-created": {
+                name: "APPPARAM_WP5401DQ33000030_com.smartpos.paywizard.tsys.smartpay",
+                raw: `#
+TsysHostUrl=https://gateway.tsys.example.com
+TsysMerchantId=7000003021
+TsysTerminalId=TSYS000030
+TsysDeviceId=WP5401DQ33000030
+TsysMarketCode=retail
+TsysBatchCloseTime=23:30
+TsysEnableDebit=true
+TsysEnableEbt=false
+TsysTipPromptMode=receipt
+TsysTokenizationProfile=smartpay-token-v2
+TsysReceiptHeader=PAYwizard TSYS SmartPay
+TsysSupportPhone=1-800-555-0199`
+            },
+            "opc-created": {
+                name: "APPPARAM_WP5401DQ33000030_com.wizarpos.opc",
+                raw: `#
+OperatingMode=0
+ProtocolType=11
+UrlType=2
+EnableDebugMode=0
+AidlPackageName=com.wizarpos.opc
+CurrencyCode=840
+EnableOpcTakeoverUi=1
+paymentTimeout=180`
+            }
+        };
+
+        const modal = document.getElementById('paramPreviewModal');
+        const closeTop = document.getElementById('closeParamPreview');
+        const closeFooter = document.getElementById('closeParamPreviewFooter');
+        const tabsWrap = document.getElementById('paramPreviewTabs');
+        const panel = document.getElementById('paramPreviewPanel');
+        if(!modal || !tabsWrap || !panel) return;
+
+        let activeGroupIndex = 0;
+        let currentGroups = [];
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function normalizeFieldsetName(name){
+            return name === 'OPERTAION MODE' ? 'OPERATION MODE' : name;
+        }
+
+        function parseParamContent(raw){
+            return String(raw || '').split(/\r?\n/).map(line => line.trim()).filter(line => line && !line.startsWith('#')).map(line => {
+                const splitIndex = line.indexOf('=');
+                if(splitIndex < 0) return null;
+                const key = line.slice(0, splitIndex).trim();
+                const value = line.slice(splitIndex + 1).trim();
+                return key ? { key, value } : null;
+            }).filter(Boolean);
+        }
+
+        function optionDisplay(field, value){
+            const match = (field.options || []).find(option => String(option[0]) === String(value));
+            return match ? match[1] : value;
+        }
+
+        function groupEntries(entries){
+            const byKey = new Map(entries.map(entry => [entry.key.toLowerCase(), entry]));
+            const consumedKeys = new Set();
+            const groups = PAYWIZARD_TEMPLATE_FIELDSETS.map(fieldset => {
+                const items = fieldset.fields.map(field => {
+                    const entry = byKey.get(field.key.toLowerCase());
+                    if(!entry) return null;
+                    consumedKeys.add(entry.key.toLowerCase());
+                    return {
+                        key: entry.key,
+                        label: field.label || entry.key,
+                        value: entry.value,
+                        displayValue: optionDisplay(field, entry.value),
+                        isSelect: (field.options || []).length > 0
+                    };
+                }).filter(Boolean);
+                return items.length ? { name: normalizeFieldsetName(fieldset.name), items } : null;
+            }).filter(Boolean);
+
+            const unmatched = entries.filter(entry => !consumedKeys.has(entry.key.toLowerCase()));
+            if(unmatched.length){
+                const hasTemplateMatches = groups.length > 0;
+                groups.push({
+                    name: hasTemplateMatches ? 'OTHER PARAMETERS' : 'PARAMETERS',
+                    unmatched: true,
+                    items: unmatched.map(entry => ({ key: entry.key, value: entry.value }))
+                });
+            }
+
+            return groups;
+        }
+
+        function renderTabs(){
+            tabsWrap.innerHTML = currentGroups.map((group, index) => `
+                <button class="param-preview-tab ${index === activeGroupIndex ? 'active' : ''}" type="button" role="tab" aria-selected="${index === activeGroupIndex}" data-param-group="${index}">
+                    ${escapeHtml(group.name)}
+                </button>
+            `).join('');
+            tabsWrap.querySelectorAll('[data-param-group]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    activeGroupIndex = Number(tab.getAttribute('data-param-group')) || 0;
+                    render();
+                });
+            });
+        }
+
+        function renderField(item){
+            const value = item.displayValue == null ? '' : String(item.displayValue);
+            return `
+                <div class="param-readonly-field">
+                    <div class="param-field-label">${escapeHtml(item.label)}</div>
+                    <div class="param-readonly-control" aria-readonly="true" title="${escapeHtml(item.key)}">
+                        <span class="param-readonly-value ${value ? '' : 'empty'}">${escapeHtml(value || ' ')}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPanel(){
+            const group = currentGroups[activeGroupIndex];
+            if(!group){
+                panel.innerHTML = '<div class="empty-row"><div>No parameters found.</div></div>';
+                return;
+            }
+
+            if(group.unmatched){
+                panel.innerHTML = `
+                    <div class="param-unmatched">
+                        ${group.items.map(item => `
+                            <div class="param-unmatched-item">
+                                <div class="param-unmatched-key">${escapeHtml(item.key)}</div>
+                                <div class="param-unmatched-value">${escapeHtml(item.value || '')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                return;
+            }
+
+            panel.innerHTML = `<div class="param-form-grid">${group.items.map(renderField).join('')}</div>`;
+        }
+
+        function render(){
+            renderTabs();
+            renderPanel();
+        }
+
+        function openPreview(recordId){
+            const record = PARAMETER_RECORDS[recordId];
+            if(!record) return;
+            currentGroups = groupEntries(parseParamContent(record.raw));
+            activeGroupIndex = 0;
+            render();
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closePreview(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        document.querySelectorAll('[data-param-view]').forEach(button => {
+            button.addEventListener('click', () => openPreview(button.getAttribute('data-param-view')));
+        });
+        document.querySelectorAll('#subscribedParaTable .param-name-link').forEach(link => {
+            link.addEventListener('click', evt => {
+                evt.preventDefault();
+                const row = link.closest('[data-param-record]');
+                if(row) openPreview(row.getAttribute('data-param-record'));
+            });
+        });
+        closeTop.addEventListener('click', closePreview);
+        closeFooter.addEventListener('click', closePreview);
+        modal.addEventListener('click', evt => {
+            if(evt.target === modal) closePreview();
+        });
+        document.addEventListener('keydown', evt => {
+            if(evt.key === 'Escape' && modal.classList.contains('open')) closePreview();
+        });
+    })();
+
+    (function(){
+        const installedAppTable = document.getElementById('installedAppTable');
+        if(!installedAppTable) return;
+
+        function getForcedOnlineState(){
+            const params = new URLSearchParams(window.location.search);
+            const value = params.get('online') || params.get('terminalOnline');
+            if(value == null) return null;
+            return /^(1|true|yes|online)$/i.test(value);
+        }
+
+        function isTerminalOnline(){
+            const forced = getForcedOnlineState();
+            if(forced !== null) return forced;
+            const statusText = (document.querySelector('.banner-status')?.textContent || '').toLowerCase();
+            return statusText.includes('online') && !statusText.includes('offline');
+        }
+
+        function appNameFromRow(row){
+            return (row && row.cells[0] ? row.cells[0].textContent : 'this APP').trim() || 'this APP';
+        }
+
+        function syncDeleteButtons(){
+            const online = isTerminalOnline();
+            installedAppTable.querySelectorAll('[data-installed-delete]').forEach(button => {
+                button.disabled = !online;
+                button.title = online ? 'Delete installed APP' : 'Terminal must be online to delete installed APP';
+                button.setAttribute('aria-disabled', String(!online));
+            });
+        }
+
+        installedAppTable.querySelectorAll('[data-installed-delete]').forEach(button => {
+            button.addEventListener('click', () => {
+                if(!isTerminalOnline()) return;
+                const row = button.closest('tr');
+                const appName = appNameFromRow(row);
+                if(!window.confirm(`Delete ${appName} from this terminal?`)) return;
+                row.remove();
+                const tbody = installedAppTable.querySelector('tbody');
+                if(tbody && !tbody.querySelector('tr')){
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No installed APP records.</td></tr>';
+                }
+            });
+        });
+
+        syncDeleteButtons();
     })();
 
     (function(){
@@ -1674,7 +2327,7 @@
                 const cells = row.cells;
                 return {
                     name: cleanText(cells[0] ? cells[0].textContent : ''),
-                    version: cleanText(cells[3] ? cells[3].textContent : '')
+                    version: cleanText(cells[2] ? cells[2].textContent : '')
                 };
             }).filter(item => item.name);
         }
