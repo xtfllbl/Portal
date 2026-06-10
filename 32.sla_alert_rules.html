@@ -572,8 +572,7 @@
     .status-pill,
     .scope-pill,
     .alert-pill,
-    .policy-pill,
-    .incident-status {
+    .policy-pill {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -608,24 +607,6 @@
       border-color: #c7d2fe;
       background: #eef2ff;
       color: #3730a3;
-    }
-
-    .incident-status.open {
-      border-color: #fde68a;
-      background: var(--amber-soft);
-      color: #92400e;
-    }
-
-    .incident-status.pending-recovery {
-      border-color: #bfdbfe;
-      background: var(--blue-soft);
-      color: #1d4ed8;
-    }
-
-    .incident-status.resolved {
-      border-color: #bbf7d0;
-      background: var(--green-soft);
-      color: #166534;
     }
 
     .status-switch-cell {
@@ -1018,7 +999,7 @@
 
     .log-table {
       width: 100%;
-      min-width: 920px;
+      min-width: 760px;
       table-layout: fixed;
     }
 
@@ -1450,22 +1431,16 @@
         <div class="log-table-wrap" id="logTableWrap">
           <table class="log-table" aria-label="Trigger history">
             <colgroup>
-              <col style="width: 15%">
-              <col style="width: 15%">
-              <col style="width: 14%">
-              <col style="width: 18%">
-              <col style="width: 12%">
-              <col style="width: 13%">
-              <col style="width: 13%">
+              <col style="width: 22%">
+              <col style="width: 22%">
+              <col style="width: 26%">
+              <col style="width: 30%">
             </colgroup>
             <thead>
               <tr>
                 <th>First Triggered</th>
-                <th>Last Checked</th>
                 <th>Terminal SN</th>
                 <th>Condition</th>
-                <th>Status</th>
-                <th>Resolved At</th>
                 <th>Recipients</th>
               </tr>
             </thead>
@@ -1830,18 +1805,6 @@
           return `Every ${rule.repeatIntervalHours || 2} hours`;
         }
         return "Once per incident";
-      }
-
-      function formatIncidentStatus(status) {
-        return {
-          open: "Open",
-          pending_recovery: "Pending recovery",
-          resolved: "Resolved"
-        }[status] || "Open";
-      }
-
-      function getIncidentStatusClass(status) {
-        return status === "pending_recovery" ? "pending-recovery" : (status || "open");
       }
 
       function getTargetDisplay(rule, context = getRuleContext(rule)) {
@@ -2354,11 +2317,8 @@
         elements.triggerLogBody.innerHTML = logs.map(log => `
           <tr>
             <td class="mono">${escapeHtml(log.firstTriggeredAt || log.triggeredAt || "--")}</td>
-            <td class="mono">${escapeHtml(log.lastCheckedAt || log.firstTriggeredAt || log.triggeredAt || "--")}</td>
             <td class="mono">${escapeHtml(log.terminalSn || rule.terminalSn || "All terminals")}</td>
             <td><div class="log-alert-content">${escapeHtml(log.conditionType || log.alertContent || buildAlertContent(rule))}</div></td>
-            <td><span class="incident-status ${escapeHtml(getIncidentStatusClass(log.status))}">${escapeHtml(formatIncidentStatus(log.status))}</span></td>
-            <td class="mono">${escapeHtml(log.resolvedAt || "--")}</td>
             <td><div class="log-recipient-list">${escapeHtml((log.recipients || rule.recipients).join(", "))}</div></td>
           </tr>
         `).join("");
