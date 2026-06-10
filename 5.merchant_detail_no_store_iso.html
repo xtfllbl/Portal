@@ -980,6 +980,20 @@
             background: #f3f4f6;
         }
 
+        .store-empty-state {
+            display: none;
+            padding: 28px 20px;
+            border-top: 1px solid #f0f0f0;
+            background: #fff;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .store-empty-state.show {
+            display: block;
+        }
+
         .table-wrapper {
             overflow-x: auto;
         }
@@ -2251,11 +2265,11 @@
                                 <div class="info-title">Portfolio Stats</div>
                                 <div class="stat-row">
                                     <div>
-                                        <div class="stat-number" id="store-count">2</div>
+                                        <div class="stat-number" id="store-count">0</div>
                                         <div class="stat-label">Stores</div>
                                     </div>
                                     <div>
-                                        <div class="stat-number" id="device-count">3</div>
+                                        <div class="stat-number" id="device-count">0</div>
                                         <div class="stat-label">Devices</div>
                                     </div>
                                 </div>
@@ -2267,7 +2281,7 @@
                         <div class="section-head">
                             <div>
                                 <h3 class="section-title">Stores (Locations)</h3>
-                                <div class="section-subtitle" id="store-summary-subtitle">2 stores, 3 devices. Click a store to filter devices.</div>
+                                <div class="section-subtitle" id="store-summary-subtitle">0 stores, 0 devices. Add a store to begin onboarding.</div>
                             </div>
                   
                         </div>
@@ -2281,56 +2295,15 @@
                                 <div>Status</div>
                                 <div>Actions</div>
                             </div>
-                            <div class="grid-row store-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-store-mcc="5812" data-store-timezone="Eastern Standard Time (EST)" data-store-manager="Michael Valor" data-store-phone="555-555-5555" data-store-email="downtown@tastytreats.com" data-store-address1="123 Main St" data-store-address2="" data-store-city="New York" data-store-state="NY" data-store-zip="" data-stored-value="enabled" role="button" tabindex="0" aria-pressed="false">
-                                <div>Downtown Location</div>
-                                <div>123 Main St, New York, NY</div>
-                                <div>2026-04-02 09:18</div>
-                                <div data-role="device-count">2 Active</div>
-                                <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
-                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
-                                <div class="store-actions-cell">
-                                    <div class="store-settings">
-                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                                            Settings <span aria-hidden="true">&#9662;</span>
-                                        </button>
-                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
-                                            <button class="store-settings-item" type="button" data-action="edit-store">Edit Store Info</button>
-                                            <button class="store-settings-item" type="button" data-action="payment">Payment Parameter Setting</button>
-                                            <button class="store-settings-item" type="button" data-action="toggle-status">Disable Merchant</button>
-                                            <button class="store-settings-item" type="button" data-action="resend">Resend Email</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="grid-row store-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-store-mcc="5812" data-store-timezone="Eastern Standard Time (EST)" data-store-manager="" data-store-phone="555-555-5556" data-store-email="midtown@tastytreats.com" data-store-address1="55 Lexington Ave" data-store-address2="" data-store-city="New York" data-store-state="NY" data-store-zip="" data-stored-value="disabled" role="button" tabindex="0" aria-pressed="false">
-                                <div>Midtown Location</div>
-                                <div>55 Lexington Ave, New York, NY</div>
-                                <div>2026-04-12 14:36</div>
-                                <div data-role="device-count">1 Pending</div>
-                                <div><span class="status-badge offline" data-role="store-stored-value">Disabled</span></div>
-                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
-                                <div class="store-actions-cell">
-                                    <div class="store-settings">
-                                        <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                                            Settings <span aria-hidden="true">&#9662;</span>
-                                        </button>
-                                        <div class="store-settings-menu" role="menu" aria-hidden="true">
-                                            <button class="store-settings-item" type="button" data-action="edit-store">Edit Store Info</button>
-                                            <button class="store-settings-item" type="button" data-action="payment">Payment Parameter Setting</button>
-                                            <button class="store-settings-item" type="button" data-action="toggle-status">Disable Merchant</button>
-                                            <button class="store-settings-item" type="button" data-action="resend">Resend Email</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+                        <div class="store-empty-state" id="store-empty-state">No stores added yet.</div>
                     </section>
 
                     <section class="section-card">
                         <div class="section-head">
                             <div>
                                 <h3 class="section-title" id="device-section-title">Devices</h3>
-                                <div class="section-subtitle" id="device-filter-subtitle">All stores, 3 devices total.</div>
+                                <div class="section-subtitle" id="device-filter-subtitle">All Stores, 0 Devices Total.</div>
                             </div>
                             <div class="section-actions">
                                 <button class="btn secondary sm" type="button" id="clear-store-filter" hidden>All Stores</button>
@@ -2364,123 +2337,6 @@
                                     <div>ADDED AT</div>
                                     <div>STATUS</div>
                                     <div>ACTIONS</div>
-                                </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="Enable">
-                                    <div data-role="store-name">Downtown Location</div>
-                                    <div class="device-cell-mono" data-role="device-sn">156724348539</div>
-                                    <div data-role="device-model">P3</div>
-                                    <div class="device-terminal-cell" data-role="device-terminal">
-                                        <span class="device-terminal-text" data-role="terminal-text">Front Counter</span>
-                                        <input class="device-terminal-input" data-role="terminal-input" type="text" value="Front Counter" maxlength="64">
-                                        <div class="device-terminal-tools">
-                                            <button class="device-terminal-tool" type="button" data-action="edit-terminal" aria-label="Edit terminal name" title="Edit">
-                                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                            </button>
-                                            <button class="device-terminal-tool" type="button" data-action="sync-terminal" aria-label="Sync terminal name" title="Sync">
-                                                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>2026-04-03 10:22</div>
-                                    <div data-role="device-status"><span class="status-badge active">Active</span></div>
-                                    <div class="device-actions-cell">
-                                        <div class="device-row-actions">
-                                            <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M3 6h18"></path>
-                                                    <path d="M8 6V4h8v2"></path>
-                                                    <path d="M19 6l-1 14H6L5 6"></path>
-                                                    <path d="M10 11v5"></path>
-                                                    <path d="M14 11v5"></path>
-                                                </svg>
-                                            </button>
-                                            <button class="device-settings-button" type="button" data-action="device-settings">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                    <circle cx="12" cy="12" r="3"></circle>
-                                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
-                                                </svg>
-                                                <span>Settings</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348540" data-model="P2" data-processor="FISERV" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="Enable">
-                                    <div data-role="store-name">Downtown Location</div>
-                                    <div class="device-cell-mono" data-role="device-sn">156724348540</div>
-                                    <div data-role="device-model">P2</div>
-                                    <div class="device-terminal-cell" data-role="device-terminal">
-                                        <span class="device-terminal-text" data-role="terminal-text">Side Bar</span>
-                                        <input class="device-terminal-input" data-role="terminal-input" type="text" value="Side Bar" maxlength="64">
-                                        <div class="device-terminal-tools">
-                                            <button class="device-terminal-tool" type="button" data-action="edit-terminal" aria-label="Edit terminal name" title="Edit">
-                                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                            </button>
-                                            <button class="device-terminal-tool" type="button" data-action="sync-terminal" aria-label="Sync terminal name" title="Sync">
-                                                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>2026-04-05 16:08</div>
-                                    <div data-role="device-status"><span class="status-badge active">Active</span></div>
-                                    <div class="device-actions-cell">
-                                        <div class="device-row-actions">
-                                            <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M3 6h18"></path>
-                                                    <path d="M8 6V4h8v2"></path>
-                                                    <path d="M19 6l-1 14H6L5 6"></path>
-                                                    <path d="M10 11v5"></path>
-                                                    <path d="M14 11v5"></path>
-                                                </svg>
-                                            </button>
-                                            <button class="device-settings-button" type="button" data-action="device-settings">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                    <circle cx="12" cy="12" r="3"></circle>
-                                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
-                                                </svg>
-                                                <span>Settings</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-sn="156724348541" data-model="VT #1" data-processor="Worldpay" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="Enable">
-                                    <div data-role="store-name">Midtown Location</div>
-                                    <div class="device-cell-mono" data-role="device-sn">156724348541</div>
-                                    <div data-role="device-model">VT #1</div>
-                                    <div class="device-terminal-cell" data-role="device-terminal">
-                                        <span class="device-terminal-text" data-role="terminal-text">Register 1</span>
-                                        <input class="device-terminal-input" data-role="terminal-input" type="text" value="Register 1" maxlength="64">
-                                        <div class="device-terminal-tools">
-                                            <button class="device-terminal-tool" type="button" data-action="edit-terminal" aria-label="Edit terminal name" title="Edit">
-                                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                            </button>
-                                            <button class="device-terminal-tool" type="button" data-action="sync-terminal" aria-label="Sync terminal name" title="Sync">
-                                                <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>2026-04-15 11:47</div>
-                                    <div data-role="device-status"><span class="status-badge pending">Pending</span></div>
-                                    <div class="device-actions-cell">
-                                        <div class="device-row-actions">
-                                            <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M3 6h18"></path>
-                                                    <path d="M8 6V4h8v2"></path>
-                                                    <path d="M19 6l-1 14H6L5 6"></path>
-                                                    <path d="M10 11v5"></path>
-                                                    <path d="M14 11v5"></path>
-                                                </svg>
-                                            </button>
-                                            <button class="device-settings-button" type="button" data-action="device-settings">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                    <circle cx="12" cy="12" r="3"></circle>
-                                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c0 .66.39 1.26 1 1.52.18.08.37.12.56.13H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.05z"></path>
-                                                </svg>
-                                                <span>Settings</span>
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="device-empty-state" id="device-empty-state">No devices match the current filter.</div>
@@ -3327,6 +3183,7 @@
         const deviceSearchInput = document.getElementById('device-search-input');
         const deviceSearchSubmit = document.getElementById('device-search-submit');
         const deviceSearchReset = document.getElementById('device-search-reset');
+        const storeEmptyState = document.getElementById('store-empty-state');
         const deviceEmptyState = document.getElementById('device-empty-state');
         const devicePageSize = document.getElementById('device-page-size');
         const devicePageIndicator = document.getElementById('device-page-indicator');
@@ -3927,7 +3784,12 @@
             if (storeCountEl) storeCountEl.textContent = storeTotal;
             if (deviceCountEl) deviceCountEl.textContent = deviceTotal;
             if (storeSummarySubtitle) {
-                storeSummarySubtitle.textContent = `${storeTotal} stores, ${deviceTotal} devices. Click a store to filter devices.`;
+                storeSummarySubtitle.textContent = storeTotal === 0
+                    ? '0 stores, 0 devices. Add a store to begin onboarding.'
+                    : `${storeTotal} stores, ${deviceTotal} devices. Click a store to filter devices.`;
+            }
+            if (storeEmptyState) {
+                storeEmptyState.classList.toggle('show', storeTotal === 0);
             }
             updateStoreDeviceSummaries();
         };
