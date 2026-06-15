@@ -333,6 +333,7 @@
         .btn-primary:hover{ background-color: var(--primary-hover); transform: translateY(-1px); }
         .btn-ghost{ background:#fff; color:#111827; border-color: var(--border-color); }
         .btn-ghost:hover{ background:#f9fafb; border-color: #d1d5db; }
+        .btn[disabled]{ opacity:.45; cursor:not-allowed; transform:none; }
         .btn-sm{ padding:6px 12px; font-size:12px; }
 
         .table-container {
@@ -381,6 +382,7 @@
         .icon-btn:hover{ background:#f3f4f6; color:var(--text-primary); }
         .icon-btn.danger:hover { background: #fef2f2; color: #ef4444; }
         .icon-16{ width:16px; height:16px; }
+        .icon-18{ width:18px; height:18px; }
 
         .version-link {
             color: #0f172a;
@@ -424,18 +426,43 @@
         
         .badge-master { background: #eff6ff; color: #1e40af; }
 
-        /* Modal */
-        .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.2); backdrop-filter: blur(2px); display:none; align-items:center; justify-content:center; padding:24px; z-index:50; }
-        .modal{ background:#fff; border:1px solid var(--border-color); border-radius:16px; max-width:500px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,.1); overflow:hidden; display:flex; flex-direction:column; }
-        .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid var(--border-color); }
-        .modal-title{ margin:0; font-size:16px; font-weight:700; }
-        .modal-body{ padding:24px; display: flex; flex-direction: column; gap: 16px; }
-        .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid var(--border-color); background: #fcfcfd; }
-        
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-        .input-text, .input-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-family: inherit; }
-        .input-text:focus, .input-select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(17,24,39,0.05); }
+        .is-hidden{ display:none !important; }
+
+        /* Modal for creating push template */
+        .modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.35); display:none; align-items:center; justify-content:center; padding:24px; z-index:50; }
+        .modal{ background:#fff; border:1px solid var(--border-color); border-radius:16px; max-width:900px; width:100%; max-height:calc(100vh - 48px); box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden; display:flex; flex-direction:column; }
+        .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border-color); }
+        .modal-title{ margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; }
+        .modal-close{ border:none; background:#fff; cursor:pointer; color:var(--text-secondary); }
+        .modal-body{ display:flex; flex-direction:column; gap:12px; padding:14px; flex:1 1 auto; min-height:0; }
+        .section{ border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+        .section h5{ margin:0 0 10px 0; font-size:13px; letter-spacing:-.005em; }
+        .section-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+        .section-title-group{ display:flex; flex-direction:column; gap:2px; }
+        .section-note{ margin:0; font-size:12px; color:var(--text-secondary); }
+        .section-head h5{ margin:0; }
+        .app-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; overflow:auto; flex:1 1 auto; min-height:0; }
+        .app-item{ display:flex; align-items:center; justify-content:flex-start; gap:12px; border:1px solid var(--border-color); border-radius:12px; padding:12px; background:#fff; cursor:pointer; }
+        .app-item.selected{ border-color:#111827; box-shadow:0 0 0 2px rgba(17,24,39,.08); background:#f9fafb; }
+        .app-left{ display:flex; align-items:center; gap:10px; }
+        .app-name{ font-weight:600; font-size:13px; }
+        .app-sub{ color:var(--text-secondary); font-size:12px; }
+        .modal-footer{ display:flex; justify-content:flex-end; gap:8px; padding:10px 14px; border-top:1px solid var(--border-color); }
+        .selected-app-row, .template-name-row, .version-row, .param-template-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-top:1px solid var(--border-color); background:#fff; }
+        .row-label{ min-width:130px; color:var(--text-secondary); font-weight:600; font-size:12.5px; }
+        .selected-app-chip{ padding:10px 14px; background:#f3f4f6; border-radius:999px; font-weight:700; letter-spacing:-.005em; }
+        .input-lg{ flex:1; width:100%; padding:14px 16px; border:1px solid var(--border-color); border-radius:14px; font-size:14px; }
+        .input-lg:focus{ outline:none; border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.10); }
+        .radio{ width:16px; height:16px; }
+        .sync-apps-btn{ min-width:92px; justify-content:center; letter-spacing:.04em; }
+        .muted{ color: var(--text-secondary); font-size:12px; }
+        @media (max-width: 720px){
+            .section-head{ flex-direction:column; align-items:stretch; }
+            .sync-apps-btn{ align-self:flex-start; }
+        }
+        @media (max-width: 640px){
+            .app-grid{ grid-template-columns:1fr; }
+        }
 
     </style>
 </head>
@@ -475,33 +502,44 @@
             <div class="template-list-container">
                 <div class="template-list-header">
                     <h4 style="margin:0;font-size:14px;font-weight:700;">Applications</h4>
-                    <!-- 'Add APP' button as requested -->
-                    <button class="btn-dark-sm" onclick="alert('Add New App')">
+                    <button class="btn-dark-sm" id="pushTemplateBtn" title="Create a push template">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         APP
                     </button>
                 </div>
                 <ul class="template-list" id="appList">
                     <!-- Javascript will populate active state -->
-                    <li onclick="selectApp(this, 'TSYS EV', 'WizarPOS')">
-                        <span class="template-name">TSYS EV</span>
-                        <span class="template-info">WizarPOS</span>
+                    <li onclick="selectApp(this, 'Nuvei ATTD', 'com.smartpos.attd.nuvei.ca.smartpay')">
+                        <span class="template-name">Nuvei ATTD</span>
+                        <span class="template-info">com.smartpos.attd.nuvei.ca.smartpay</span>
                     </li>
-                    <li onclick="selectApp(this, 'Fiserv VM', 'WizarPOS')">
-                        <span class="template-name">Fiserv VM</span>
-                        <span class="template-info">WizarPOS</span>
+                    <li onclick="selectApp(this, 'EPX', 'com.wizarpos.epx')">
+                        <span class="template-name">EPX</span>
+                        <span class="template-info">com.wizarpos.epx</span>
                     </li>
-                    <li class="active" onclick="selectApp(this, 'TSYS UPT', 'WizarPOS Q2')">
-                        <span class="template-name">TSYS UPT</span>
-                        <span class="template-info">WizarPOS Q2</span>
+                    <li onclick="selectApp(this, 'ELAVON EU', 'com.smartpos.elavon.payment')">
+                        <span class="template-name">ELAVON EU</span>
+                        <span class="template-info">com.smartpos.elavon.payment</span>
                     </li>
-                    <li onclick="selectApp(this, 'Fiserv Retail UPT', 'WizarPOS Q3V')">
-                        <span class="template-name">Fiserv Retail UPT</span>
-                        <span class="template-info">WizarPOS Q3V</span>
+                    <li onclick="selectApp(this, 'Nuvei_Unattend', 'com.smartpos.nuvei.smartpay')">
+                        <span class="template-name">Nuvei_Unattend</span>
+                        <span class="template-info">com.smartpos.nuvei.smartpay</span>
                     </li>
-                    <li onclick="selectApp(this, 'Global Payments', 'PAX A920')">
-                        <span class="template-name">Global Payments</span>
-                        <span class="template-info">PAX A920</span>
+                    <li onclick="selectApp(this, 'PAYwizard', 'com.wizarpos.opc')">
+                        <span class="template-name">PAYwizard</span>
+                        <span class="template-info">com.wizarpos.opc</span>
+                    </li>
+                    <li onclick="selectApp(this, 'Payment Emulator', 'com.wizarpos.paywizard.demo')">
+                        <span class="template-name">Payment Emulator</span>
+                        <span class="template-info">com.wizarpos.paywizard.demo</span>
+                    </li>
+                    <li onclick="selectApp(this, 'Fiserv_Attended', 'com.smartpos.firstdata.wizarpos.smartpay')">
+                        <span class="template-name">Fiserv_Attended</span>
+                        <span class="template-info">com.smartpos.firstdata.wizarpos.smartpay</span>
+                    </li>
+                    <li class="active" onclick="selectApp(this, 'TSYS_Transit', 'com.smartpos.paywizard.tsys.smartpay')">
+                        <span class="template-name">TSYS_Transit</span>
+                        <span class="template-info">com.smartpos.paywizard.tsys.smartpay</span>
                     </li>
                 </ul>
             </div>
@@ -510,7 +548,7 @@
             <div class="main-panel">
                 <div class="panel-header">
                     <div>
-                        <h1 id="appTitle">TSYS UPT</h1>
+                        <h1 id="appTitle">TSYS_Transit</h1>
                     </div>
                 </div>
 
@@ -519,14 +557,14 @@
                 <div class="master-config-card">
                     <div class="master-info">
                         <h3>Param Configuration</h3>
-                        <p>This is the initial parameter template for this application.<br>All sub-templates are derived from this structure.</p>
+                        <p id="masterDescription">This is the initial parameter template for this application.<br>Application versions are released from this structure.</p>
                     </div>
                     <div class="master-actions">
                         <button class="btn btn-ghost" onclick="alert('Opening Master Parameter Editor...')">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-16"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                            Edit Default Para
+                            Default Para
                         </button>
-                        <button id="createTemplateBtn" class="btn btn-primary">
+                        <button id="createTemplateBtn" class="btn btn-primary is-hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             New Sub Para
                         </button>
@@ -537,7 +575,7 @@
                 <div class="tabs-wrapper">
                     <div class="tabs">
                         <div class="tab-item active" data-tab="app-versions">Application Versions</div>
-                        <div class="tab-item" data-tab="sub-templates">Sub-Templates</div>
+                        <div class="tab-item is-hidden" id="subTemplatesTab" data-tab="sub-templates">Sub-Templates</div>
                     </div>
                     <!-- Right aligned Action for Tabs -->
                     <div class="tab-actions">
@@ -555,7 +593,7 @@
                                     <th style="width: 40px;"><input type="checkbox" class="checkbox"></th>
                                     <th>#</th>
                                     <th>Application Version</th>
-                                    <th>Default Parameter Template</th>
+                                    <th>Version Name</th>
                                     <th>Created Time</th>
                                     <th>Updated Time</th>
                                     <th>Last Used Time</th>
@@ -581,7 +619,7 @@
                                     <!-- Removed Type Column -->
                                     <th>Last Updated</th>
                                     <th>Status</th>
-                                    <th style="width: 80px; text-align: right;">Action</th>
+                                    <th style="width: 180px; text-align: right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="templateTableBody">
@@ -595,89 +633,166 @@
         </main>
     </div>
 
-    <!-- Create Template Modal -->
-    <div class="modal-overlay" id="createModal">
-        <div class="modal">
+    <!-- Create Push Template Modal -->
+    <div class="modal-overlay" id="createTemplateModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <div class="modal-header">
-                <h3 class="modal-title">Create Sub-Template</h3>
-                <button class="icon-btn" onclick="closeModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <h3 class="modal-title" id="modalTitle">Create Push Template</h3>
+                <button class="icon-btn modal-close" id="closeModalBtn" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-18"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Application</label>
-                    <input type="text" class="input-text" id="modalAppName" value="TSYS UPT" disabled style="background:#f9fafb; color:#6b7280;">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Base Configuration</label>
-                    <select class="input-select">
-                        <option value="master">Master Configuration (Default)</option>
-                        <option value="retail">Retail Default</option>
-                        <option value="restaurant">Restaurant Full</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">New Template Name</label>
-                    <input type="text" class="input-text" placeholder="e.g., Gas Station Lite">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <input type="text" class="input-text" placeholder="Brief description of usage">
-                </div>
+                <section class="section">
+                    <div class="section-head">
+                        <div class="section-title-group">
+                            <h5>Supported Apps</h5>
+                            <p class="section-note">Choose a payment app to start.</p>
+                        </div>
+                        <button type="button" id="syncAppsBtn" class="btn btn-ghost btn-sm sync-apps-btn">SYNC</button>
+                    </div>
+                    <div class="app-grid" id="allApps"></div>
+                </section>
+            </div>
+            <div class="selected-app-row">
+                <div class="row-label">Selected App</div>
+                <div class="selected-app-chip" id="selectedAppLabel">&mdash;</div>
+            </div>
+            <div class="version-row">
+                <div class="row-label">App Version</div>
+                <select id="appVersionSelect" class="input-lg" disabled>
+                    <option value="">Select version</option>
+                </select>
+            </div>
+            <div class="param-template-row">
+                <div class="row-label">Parameter Template</div>
+                <select id="paramTemplateSelect" class="input-lg" disabled>
+                    <option value="">Select template</option>
+                </select>
+            </div>
+            <div class="template-name-row">
+                <div class="row-label">Template Name</div>
+                <input type="text" id="templateNameInput" class="input-lg" placeholder="Enter a template name" disabled maxlength="64" />
             </div>
             <div class="modal-footer">
-                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="closeModal()">Create Template</button>
+                <button class="btn btn-ghost" id="cancelCreate">Cancel</button>
+                <button class="btn btn-primary" id="continueCreate" disabled>Continue</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Data for interaction simulation
         const appData = {
-            "TSYS EV": { 
-                subtitle: "WizarPOS", 
-                templates: [
-                    { name: "EV Standard", desc: "Standard charging station", type: "Standard", date: "2025-08-01 09:00", status: "Active" },
-                    { name: "EV Fast Charge", desc: "High power units", type: "Advanced", date: "2025-08-02 14:30", status: "Active" }
-                ],
-                versions: []
-            },
-            "TSYS UPT": { 
-                subtitle: "WizarPOS Q2", 
-                templates: [
-                    { name: "Retail Default", desc: "Base for standard retail", type: "Standard", date: "2025-07-15 11:00", status: "Active" },
-                    { name: "Restaurant Full", desc: "Includes tip & tab logic", type: "Advanced", date: "2025-06-30 15:20", status: "Active" },
-                    { name: "Convenience Express", desc: "Simplified flow for speed", type: "Lite", date: "2025-06-30 13:19", status: "Active" },
-                    { name: "Legacy Default", desc: "Backward compatibility", type: "Legacy", date: "2025-06-23 11:06", status: "Archived" }
-                ],
+            "Nuvei ATTD": {
+                subtitle: "com.smartpos.attd.nuvei.ca.smartpay",
+                hasSubTemplates: false,
                 versions: [
-                    { id: 1, ver: "V1.00.16E_20250606", template: "Retail Default", created: "2025-07-15 11:00", updated: "2025-07-15 11:00", used: "2025-09-28 14:30" },
-                    { id: 2, ver: "V1.00.15A_20250312", template: "Restaurant Full", created: "2025-06-30 15:20", updated: "2025-06-30 15:20", used: "2025-09-27 14:04" },
-                    { id: 3, ver: "V1.00.14D_20250105", template: "Convenience Express", created: "2025-06-30 13:19", updated: "2025-06-30 13:19", used: "2025-09-30 10:24" },
-                    { id: 4, ver: "V1.00.13B_20241018", template: "Retail Lite", created: "2025-06-25 10:38", updated: "2025-06-25 10:38", used: "2025-09-08 10:42" },
-                    { id: 5, ver: "V1.00.12F_20240809", template: "Legacy Default", created: "2025-06-23 11:06", updated: "2025-08-04 16:54", used: "2025-08-04 10:52" },
-                    { id: 6, ver: "V1.00.11C_20240521", template: "Legacy Default", created: "2025-06-23 10:33", updated: "2025-07-02 10:19", used: "2025-07-09 10:33" }
+                    { id: 1, ver: "1.0.41", name: "Nuvei_ATTD_1.0.41_202606101030", created: "2026-06-10 10:30:11", updated: "2026-06-10 10:30:11", used: "-" },
+                    { id: 2, ver: "1.0.37", name: "Nuvei_ATTD_1.0.37_202605221515", created: "2026-05-22 15:15:40", updated: "2026-05-22 15:15:40", used: "-" }
+                ],
+                templates: []
+            },
+            "EPX": {
+                subtitle: "com.wizarpos.epx",
+                hasSubTemplates: false,
+                versions: [
+                    { id: 1, ver: "2.4.8", name: "EPX_2.4.8_202606041100", created: "2026-06-04 11:00:12", updated: "2026-06-04 11:00:12", used: "-" }
+                ],
+                templates: []
+            },
+            "ELAVON EU": {
+                subtitle: "com.smartpos.elavon.payment",
+                hasSubTemplates: false,
+                versions: [
+                    { id: 1, ver: "3.2.19", name: "ELAVON_EU_3.2.19_202606071645", created: "2026-06-07 16:45:22", updated: "2026-06-07 16:45:22", used: "-" }
+                ],
+                templates: []
+            },
+            "Nuvei_Unattend": {
+                subtitle: "com.smartpos.nuvei.smartpay",
+                hasSubTemplates: false,
+                versions: [
+                    { id: 1, ver: "1.8.11", name: "Nuvei_Unattend_1.8.11_202605301120", created: "2026-05-30 11:20:09", updated: "2026-05-30 11:20:09", used: "-" }
+                ],
+                templates: []
+            },
+            "PAYwizard": {
+                subtitle: "com.wizarpos.opc",
+                hasSubTemplates: true,
+                versions: [
+                    { id: 1, ver: "2.1.12-global(214)", name: "PAYwizard_2.1.12_202606091530", created: "2026-06-09 15:30:18", updated: "2026-06-09 15:30:18", used: "-" },
+                    { id: 2, ver: "2.1.10-global(209)", name: "PAYwizard_2.1.10_202605151625", created: "2026-05-15 16:25:02", updated: "2026-05-15 16:25:02", used: "-" }
+                ],
+                templates: [
+                    { name: "AS5840_CLOUD_TSYS", desc: "Cloud processor profile", date: "2026-06-10 16:16:09", status: "Active" },
+                    { name: "MYZL1156_MDB_OXPAY", desc: "MDB OXPAY profile", date: "2026-06-05 18:08:08", status: "Active" },
+                    { name: "MYZL1156_MDB_Nuvei", desc: "MDB Nuvei profile", date: "2026-06-05 18:05:44", status: "Active" },
+                    { name: "MYZL1156_MDB_Elavon", desc: "MDB Elavon profile", date: "2026-06-05 18:03:54", status: "Active" },
+                    { name: "MYZL1156_MDB_TSYS", desc: "MDB TSYS profile", date: "2026-06-05 17:59:41", status: "Active" },
+                    { name: "UPT_EXT_FISERV_USA", desc: "Fiserv external UPT profile", date: "2026-06-05 15:41:32", status: "Active" }
                 ]
             },
-            "Fiserv VM": { subtitle: "WizarPOS", templates: [
-                { name: "Vending Standard", desc: "MDB interface", type: "Standard", date: "2025-05-10 10:00", status: "Active" }
-            ], versions: [] },
-            "Fiserv Retail UPT": { subtitle: "WizarPOS Q3V", templates: [], versions: [] },
-            "Global Payments": { subtitle: "PAX A920", templates: [], versions: [] }
+            "Payment Emulator": {
+                subtitle: "com.wizarpos.paywizard.demo",
+                hasSubTemplates: false,
+                versions: [
+                    { id: 1, ver: "0.9.8", name: "Payment_Emulator_0.9.8_202605201020", created: "2026-05-20 10:20:00", updated: "2026-05-20 10:20:00", used: "-" }
+                ],
+                templates: []
+            },
+            "Fiserv_Attended": {
+                subtitle: "com.smartpos.firstdata.wizarpos.smartpay",
+                hasSubTemplates: false,
+                versions: [
+                    { id: 1, ver: "4.5.3", name: "Fiserv_Attended_4.5.3_202606031407", created: "2026-06-03 14:07:13", updated: "2026-06-03 14:07:13", used: "-" }
+                ],
+                templates: []
+            },
+            "TSYS_Transit": {
+                subtitle: "com.smartpos.paywizard.tsys.smartpay",
+                hasSubTemplates: false,
+                versions: [
+                    { id: 1, ver: "1.3.163", name: "TSYS_Transit_1.3.163_202606151406", created: "2026-06-15 14:06:11", updated: "2026-06-15 14:06:11", used: "-" },
+                    { id: 2, ver: "1.3.161", name: "TSYS_Transit_1.3.161_202606021604", created: "2026-06-02 16:04:23", updated: "2026-06-02 16:04:23", used: "-" },
+                    { id: 3, ver: "1.3.142", name: "TSYS_Transit_1.3.142_202604210930", created: "2026-04-21 09:30:24", updated: "2026-04-21 09:30:24", used: "-" },
+                    { id: 4, ver: "1.3.132", name: "TSYS_Transit_1.3.132_202603251417", created: "2026-03-25 14:17:15", updated: "2026-03-25 14:17:15", used: "-" },
+                    { id: 5, ver: "1.3.100", name: "TSYS_Transit_1.3.100_202602261522", created: "2026-02-26 15:22:03", updated: "2026-02-26 15:22:03", used: "-" }
+                ],
+                templates: []
+            }
         };
 
         const appList = document.getElementById('appList');
         const appTitle = document.getElementById('appTitle');
-        const appSubtitle = document.getElementById('appSubtitle');
+        const masterDescription = document.getElementById('masterDescription');
         const templateTableBody = document.getElementById('templateTableBody');
         const versionTableBody = document.getElementById('versionTableBody');
-        const modal = document.getElementById('createModal');
-        const createBtn = document.getElementById('createTemplateBtn');
-        const modalAppName = document.getElementById('modalAppName');
-        
-        let currentAppName = 'TSYS UPT';
+        const createTemplateBtn = document.getElementById('createTemplateBtn');
+        const subTemplatesTab = document.getElementById('subTemplatesTab');
+        const tabs = document.querySelectorAll('.tab-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        const pushBtn = document.getElementById('pushTemplateBtn');
+        const pushModal = document.getElementById('createTemplateModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelCreate = document.getElementById('cancelCreate');
+        const continueCreate = document.getElementById('continueCreate');
+        const allApps = document.getElementById('allApps');
+        const syncAppsBtn = document.getElementById('syncAppsBtn');
+        const templateNameInput = document.getElementById('templateNameInput');
+        const selectedAppLabel = document.getElementById('selectedAppLabel');
+        const appVersionSelect = document.getElementById('appVersionSelect');
+        const paramTemplateSelect = document.getElementById('paramTemplateSelect');
+
+        let currentAppName = 'TSYS_Transit';
+        let selectedAppName = '';
+        let selectedAppVersion = '';
+        let selectedParamTemplate = '';
+        let appCatalog = buildAppCatalog();
+
+        function appSupportsSubTemplates(appName) {
+            return Boolean(appData[appName] && appData[appName].hasSubTemplates);
+        }
 
         function buildAssignProviderUrl(appName, version, templateName) {
             const params = new URLSearchParams({
@@ -688,86 +803,97 @@
             return `3.version_provider_assign.html?${params.toString()}`;
         }
 
+        function setActiveTab(tabId) {
+            const targetTab = document.querySelector(`.tab-item[data-tab="${tabId}"]`);
+            if (!targetTab || targetTab.classList.contains('is-hidden')) return;
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            targetTab.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
         function activateAppByName(name) {
             if (!appData[name]) return;
             currentAppName = name;
 
-            const items = appList.querySelectorAll('li');
-            items.forEach(i => {
-                const itemName = i.querySelector('.template-name')?.textContent?.trim();
-                i.classList.toggle('active', itemName === name);
+            appList.querySelectorAll('li').forEach(item => {
+                const itemName = item.querySelector('.template-name')?.textContent?.trim();
+                item.classList.toggle('active', itemName === name);
             });
 
+            const showSubTemplates = appSupportsSubTemplates(name);
             appTitle.textContent = name;
-            if (appSubtitle) {
-                appSubtitle.textContent = `Manage parameter definitions and templates for ${appData[name].subtitle}`;
-            }
-            modalAppName.value = name;
+            masterDescription.innerHTML = showSubTemplates
+                ? 'This is the initial parameter template for this application.<br>All sub-templates are derived from this structure.'
+                : 'This is the initial parameter template for this application.<br>Application versions are released from this structure.';
+
+            createTemplateBtn.classList.toggle('is-hidden', !showSubTemplates);
+            subTemplatesTab.classList.toggle('is-hidden', !showSubTemplates);
+
             renderTables(name);
+            setActiveTab(showSubTemplates ? 'sub-templates' : 'app-versions');
         }
 
-        // Logic to switch Apps (Left sidebar click)
         function selectApp(element, name, subtitle) {
             activateAppByName(name);
         }
-
-        const queryApp = new URLSearchParams(window.location.search).get('app');
-        if (queryApp && appData[queryApp]) {
-            currentAppName = queryApp;
-        }
-        activateAppByName(currentAppName);
 
         function renderTables(appName) {
             const data = appData[appName];
             templateTableBody.innerHTML = '';
             versionTableBody.innerHTML = '';
 
-            // Render Templates
-            if(data && data.templates.length > 0) {
-                data.templates.forEach(t => {
+            if (data && data.hasSubTemplates && data.templates.length > 0) {
+                data.templates.forEach((template, index) => {
+                    const assignUrl = buildAssignProviderUrl(appName, 'sub-template', template.name);
                     const row = `
                         <tr>
                             <td><input type="checkbox" class="checkbox"></td>
                             <td>
-                                <div style="font-weight: 500;">${t.name}</div>
-                                <div style="font-size: 11px; color: var(--text-secondary);">${t.desc}</div>
+                                <div style="font-weight: 500;">${template.name}</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">${template.desc}</div>
                             </td>
-                            <!-- Type Column Removed -->
-                            <td>${t.date}</td>
-                            <td>${t.status}</td>
+                            <td>${template.date}</td>
+                            <td>${template.status}</td>
                             <td style="text-align: right;">
-                                <button class="icon-btn" title="Edit Template Parameters">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </button>
+                                <div class="version-actions">
+                                    <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
+                                    <button class="icon-btn" title="Edit Template Parameters">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    </button>
+                                    <button class="icon-btn danger" title="Delete Sub-Template" onclick="deleteTemplate(${index})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
                     templateTableBody.insertAdjacentHTML('beforeend', row);
                 });
             } else {
-                templateTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 32px; color:var(--text-secondary);">No sub-templates found. Create one based on the Master Configuration.</td></tr>`;
+                templateTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 32px; color:var(--text-secondary);">No sub-templates found.</td></tr>`;
             }
 
-            // Render Versions (If available)
-            if(data && data.versions && data.versions.length > 0) {
-                data.versions.forEach(v => {
-                    const assignUrl = buildAssignProviderUrl(appName, v.ver, v.template);
+            if (data && data.versions && data.versions.length > 0) {
+                data.versions.forEach(version => {
+                    const assignUrl = buildAssignProviderUrl(appName, version.ver, version.name);
                     const row = `
                          <tr>
                             <td><input type="checkbox" class="checkbox"></td>
-                            <td>${v.id}</td>
+                            <td>${version.id}</td>
                             <td style="font-weight:500;">
-                                <a class="version-link" href="${assignUrl}" title="Assign service providers">${v.ver}</a>
+                                <a class="version-link" href="${assignUrl}" title="Assign service providers">${version.ver}</a>
                             </td>
-                            <td>${v.template}</td>
-                            <td>${v.created}</td>
-                            <td>${v.updated}</td>
-                            <td>${v.used}</td>
+                            <td>${version.name}</td>
+                            <td>${version.created}</td>
+                            <td>${version.updated}</td>
+                            <td>${version.used}</td>
                             <td style="text-align: right;">
                                 <div class="version-actions">
                                     <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
                                     <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                     </button>
                                 </div>
                             </td>
@@ -776,69 +902,268 @@
                     versionTableBody.insertAdjacentHTML('beforeend', row);
                 });
             } else {
-                 versionTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 32px; color:var(--text-secondary);">No versions released yet.</td></tr>`;
+                versionTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 32px; color:var(--text-secondary);">No versions released yet.</td></tr>`;
             }
         }
 
         function deleteVersion(btn) {
-            if(confirm("Are you sure you want to delete this version?")) {
-                const row = btn.closest('tr');
-                row.remove();
+            if (confirm("Are you sure you want to delete this version?")) {
+                btn.closest('tr').remove();
             }
         }
 
-        function getBadgeStyle(type) {
-            if (type === 'Legacy') return 'background:#fef3c7; color:#92400e';
-            if (type === 'Lite') return 'background:#f0fdf4; color:#166534';
-            if (type === 'Advanced') return 'background:#f3e8ff; color:#6b21a8';
-            return ''; // default
+        function deleteTemplate(index) {
+            if (!appSupportsSubTemplates(currentAppName)) return;
+            if (!confirm("Are you sure you want to delete this sub-template?")) return;
+            appData[currentAppName].templates.splice(index, 1);
+            renderTables(currentAppName);
         }
-
-        // Tab Switching Logic
-        const tabs = document.querySelectorAll('.tab-item');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const createTemplateBtn = document.getElementById('createTemplateBtn');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                // Remove active class from all tabs
-                tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Show corresponding content
                 const targetId = tab.getAttribute('data-tab');
-                document.getElementById(targetId).classList.add('active');
-
-                // Toggle "New Template" button visibility based on tab
-                // REMOVED: Button is now always visible in Master Actions
+                if (targetId === 'sub-templates' && !appSupportsSubTemplates(currentAppName)) return;
+                setActiveTab(targetId);
             });
         });
 
-        // Modal Logic
-        function openModal() {
-            modal.style.display = 'flex';
-        }
-        function closeModal() {
-            modal.style.display = 'none';
+        createTemplateBtn.addEventListener('click', () => {
+            if (!appSupportsSubTemplates(currentAppName)) return;
+            const templateName = prompt('Template Name', `PAYwizard_Sub_${Date.now()}`);
+            if (!templateName) return;
+            const now = formatDateTime(new Date());
+            appData[currentAppName].templates.unshift({
+                name: templateName.trim(),
+                desc: "Custom PAYwizard sub-template",
+                date: now,
+                status: "Active"
+            });
+            renderTables(currentAppName);
+            setActiveTab('sub-templates');
+        });
+
+        function formatDateTime(date) {
+            const pad = value => String(value).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
         }
 
-        createBtn.addEventListener('click', openModal);
+        function buildAppCatalog() {
+            return Object.fromEntries(Object.entries(appData).map(([appName, data]) => {
+                const versions = data.versions.length ? data.versions.map(version => version.ver) : ["New Version"];
+                const templates = data.hasSubTemplates && data.templates.length
+                    ? data.templates.map(template => template.name)
+                    : ["Default Para"];
+                return [
+                    appName,
+                    {
+                        versions,
+                        templates: Object.fromEntries(versions.map(version => [version, templates]))
+                    }
+                ];
+            }));
+        }
 
-        // Select All Checkbox Logic
-        const selectAll = document.getElementById('selectAll');
-        if(selectAll) {
-            selectAll.addEventListener('change', (e) => {
-                // Only select checkboxes in the visible tab
-                const visibleTab = document.querySelector('.tab-content.active');
-                if(visibleTab) {
-                    const checkboxes = visibleTab.querySelectorAll('.checkbox');
-                    checkboxes.forEach(cb => cb.checked = e.target.checked);
-                }
+        function renderAppCards(appNames) {
+            allApps.innerHTML = "";
+            const fragment = document.createDocumentFragment();
+            appNames.forEach(appName => {
+                const item = document.createElement("label");
+                item.className = "app-item";
+
+                const left = document.createElement("div");
+                left.className = "app-left";
+
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.name = "chooseApp";
+                input.className = "radio";
+                input.value = appName;
+
+                const textWrap = document.createElement("div");
+                const nameEl = document.createElement("div");
+                nameEl.className = "app-name";
+                nameEl.textContent = appName;
+
+                const subEl = document.createElement("div");
+                subEl.className = "app-sub";
+                subEl.textContent = appData[appName]?.subtitle || "Parameter App";
+
+                textWrap.appendChild(nameEl);
+                textWrap.appendChild(subEl);
+                left.appendChild(input);
+                left.appendChild(textWrap);
+                item.appendChild(left);
+                fragment.appendChild(item);
+            });
+            allApps.appendChild(fragment);
+        }
+
+        function syncAppCardSelection() {
+            allApps.querySelectorAll(".app-item").forEach(item => {
+                const input = item.querySelector("input[type=radio]");
+                item.classList.toggle("selected", Boolean(input && input.checked));
             });
         }
+
+        function resetSelect(selectEl, placeholder) {
+            selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+            selectEl.disabled = true;
+        }
+
+        function populateSelect(selectEl, options, placeholder) {
+            selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+            options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                selectEl.appendChild(option);
+            });
+            selectEl.disabled = false;
+        }
+
+        function clearChoice() {
+            allApps.querySelectorAll("input[type=radio]").forEach(input => input.checked = false);
+            syncAppCardSelection();
+            selectedAppName = "";
+            selectedAppVersion = "";
+            selectedParamTemplate = "";
+            selectedAppLabel.innerHTML = "&mdash;";
+            resetSelect(appVersionSelect, "Select version");
+            resetSelect(paramTemplateSelect, "Select template");
+            templateNameInput.value = "";
+            templateNameInput.disabled = true;
+            continueCreate.disabled = true;
+        }
+
+        function updateContinueState() {
+            const hasName = templateNameInput.value.trim().length > 0;
+            continueCreate.disabled = !(selectedAppName && selectedAppVersion && selectedParamTemplate && hasName);
+        }
+
+        function generateDefaultName(app, version, template) {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, "0");
+            const base = [app, version, template].filter(Boolean).join("_").replace(/\s+/g, "_");
+            return `${base}_${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}`;
+        }
+
+        function setSelectedApp(app) {
+            selectedAppName = app || "";
+            selectedAppVersion = "";
+            selectedParamTemplate = "";
+            if (selectedAppName) {
+                selectedAppLabel.textContent = selectedAppName;
+            } else {
+                selectedAppLabel.innerHTML = "&mdash;";
+            }
+            syncAppCardSelection();
+
+            const catalog = appCatalog[selectedAppName];
+            if (catalog && catalog.versions) {
+                populateSelect(appVersionSelect, catalog.versions, "Select version");
+            } else {
+                resetSelect(appVersionSelect, "Select version");
+            }
+            resetSelect(paramTemplateSelect, "Select template");
+            templateNameInput.value = "";
+            templateNameInput.disabled = true;
+            updateContinueState();
+        }
+
+        function setSelectedVersion(version) {
+            selectedAppVersion = version || "";
+            selectedParamTemplate = "";
+            const catalog = appCatalog[selectedAppName];
+            if (catalog && catalog.templates && catalog.templates[selectedAppVersion]) {
+                populateSelect(paramTemplateSelect, catalog.templates[selectedAppVersion], "Select template");
+            } else {
+                resetSelect(paramTemplateSelect, "Select template");
+            }
+            templateNameInput.value = "";
+            templateNameInput.disabled = true;
+            updateContinueState();
+        }
+
+        function setSelectedTemplate(template) {
+            selectedParamTemplate = template || "";
+            if (selectedParamTemplate) {
+                templateNameInput.disabled = false;
+                if (!templateNameInput.value.trim()) {
+                    templateNameInput.value = generateDefaultName(selectedAppName, selectedAppVersion, selectedParamTemplate);
+                }
+                templateNameInput.focus();
+            } else {
+                templateNameInput.value = "";
+                templateNameInput.disabled = true;
+            }
+            updateContinueState();
+        }
+
+        function openPushModal() {
+            pushModal.style.display = "flex";
+            pushModal.setAttribute("aria-hidden", "false");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closePushModal() {
+            pushModal.style.display = "none";
+            pushModal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = "auto";
+            clearChoice();
+        }
+
+        function syncAppList() {
+            appCatalog = buildAppCatalog();
+            renderAppCards(Object.keys(appCatalog));
+            if (selectedAppName && appCatalog[selectedAppName]) {
+                const selectedRadio = Array.from(allApps.querySelectorAll("input[type=radio]")).find(input => input.value === selectedAppName);
+                if (selectedRadio) selectedRadio.checked = true;
+                syncAppCardSelection();
+            } else {
+                clearChoice();
+            }
+        }
+
+        pushBtn.addEventListener("click", openPushModal);
+        closeModalBtn.addEventListener("click", closePushModal);
+        cancelCreate.addEventListener("click", closePushModal);
+        pushModal.addEventListener("click", event => {
+            if (event.target === pushModal) closePushModal();
+        });
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape" && pushModal.style.display === "flex") closePushModal();
+        });
+
+        allApps.addEventListener("change", () => {
+            const selected = allApps.querySelector("input[type=radio]:checked");
+            setSelectedApp(selected ? selected.value : "");
+        });
+        appVersionSelect.addEventListener("change", () => setSelectedVersion(appVersionSelect.value));
+        paramTemplateSelect.addEventListener("change", () => setSelectedTemplate(paramTemplateSelect.value));
+        templateNameInput.addEventListener("input", updateContinueState);
+        syncAppsBtn.addEventListener("click", syncAppList);
+        continueCreate.addEventListener("click", () => {
+            if (continueCreate.disabled) return;
+            const name = templateNameInput.value.trim();
+            const url = `6.edit_application_parameters.html?template=${encodeURIComponent(name)}&app=${encodeURIComponent(selectedAppName)}&version=${encodeURIComponent(selectedAppVersion)}&paramTemplate=${encodeURIComponent(selectedParamTemplate)}`;
+            window.location.href = url;
+        });
+
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) {
+            selectAll.addEventListener('change', event => {
+                const visibleTab = document.querySelector('.tab-content.active');
+                if (!visibleTab) return;
+                visibleTab.querySelectorAll('.checkbox').forEach(cb => cb.checked = event.target.checked);
+            });
+        }
+
+        const queryApp = new URLSearchParams(window.location.search).get('app');
+        if (queryApp && appData[queryApp]) {
+            currentAppName = queryApp;
+        }
+        renderAppCards(Object.keys(appCatalog));
+        activateAppByName(currentAppName);
     </script>
 </body>
 </html>
