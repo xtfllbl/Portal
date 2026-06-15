@@ -948,41 +948,50 @@
         .store-filter-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 10px;
+            flex-wrap: nowrap;
         }
 
         .store-mid-search {
             width: 260px;
-            height: 36px;
-            border: 1px solid var(--border);
-            border-radius: 999px;
+            height: 38px;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
             padding: 0 14px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #111827;
+            font-size: 14px;
+            color: #374151;
             background: #fff;
+            outline: none;
         }
 
         .store-mid-search:focus {
-            outline: 2px solid rgba(29, 78, 216, 0.22);
-            border-color: rgba(29, 78, 216, 0.55);
+            border-color: #9ca3af;
+            box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
         }
 
-        .store-mid-reset {
-            height: 36px;
-            padding: 0 12px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: #fff;
-            color: #374151;
-            font-size: 12px;
-            font-weight: 700;
+        .store-mid-submit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 10px;
+            border: 1px solid #111111;
+            background: #111111;
+            color: #ffffff;
             cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
 
-        .store-mid-reset:hover {
-            background: #f9fafb;
+        .store-mid-submit:hover {
+            background: #242424;
+            border-color: #242424;
+        }
+
+        .store-mid-submit svg {
+            width: 18px;
+            height: 18px;
         }
 
         .mid-summary-cell {
@@ -991,49 +1000,39 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 5px;
+            padding: 4px 0;
             min-width: 0;
             max-width: 100%;
             line-height: 1.2;
+            cursor: pointer;
         }
 
-        .mid-overview {
+        .mid-channel-line {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             max-width: 100%;
-        }
-
-        .mid-count-badge {
-            display: inline-flex;
-            align-items: center;
-            height: 24px;
-            padding: 0 9px;
-            border-radius: 999px;
-            border: 1px solid #bbf7d0;
-            background: #ecfdf3;
-            color: #166534;
-            font-size: 11px;
-            font-weight: 800;
-            white-space: nowrap;
-        }
-
-        .mid-channel-summary {
             min-width: 0;
-            color: var(--text-muted);
+        }
+
+        .mid-channel-name {
+            min-width: 0;
+            max-width: 150px;
+            color: #374151;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        .mid-count-badge.warning {
-            background: #fffbeb;
-            color: #92400e;
-            border-color: #fde68a;
+        .mid-channel-separator {
+            flex: 0 0 auto;
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 800;
         }
 
-        .mid-primary-line,
         .mid-match-line {
             display: flex;
             align-items: center;
@@ -1045,18 +1044,16 @@
             color: var(--text-muted);
         }
 
-        .mid-type {
-            flex: 0 0 auto;
-            color: var(--text-muted);
-        }
-
         .mid-match-line {
             color: #1d4ed8;
         }
 
-        .mid-caption {
-            flex: 0 0 auto;
+        .mid-count-text {
+            max-width: 100%;
             color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .mid-mono {
@@ -1073,41 +1070,31 @@
 
         .mid-empty {
             max-width: 100%;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .mid-summary-action {
-            border: 0;
-            background: transparent;
-            padding: 0;
-            color: var(--accent);
+            color: #6b7280;
             font-size: 12px;
             font-weight: 700;
-            line-height: 1.2;
-            cursor: pointer;
         }
 
-        .mid-summary-action:hover {
-            text-decoration: underline;
+        .mid-summary-cell:hover .mid-channel-name,
+        .mid-summary-cell:hover .mid-mono,
+        .mid-summary-cell:focus .mid-channel-name,
+        .mid-summary-cell:focus .mid-mono {
+            color: var(--accent);
+        }
+
+        .mid-summary-cell:focus {
+            outline: 2px solid rgba(29, 78, 216, 0.42);
+            outline-offset: 2px;
+            border-radius: 6px;
         }
 
         .store-grid-row.active .mid-empty,
-        .store-grid-row.active .mid-summary-action,
-        .store-grid-row.active .mid-primary-line,
         .store-grid-row.active .mid-match-line,
-        .store-grid-row.active .mid-caption,
-        .store-grid-row.active .mid-type,
-        .store-grid-row.active .mid-channel-summary,
+        .store-grid-row.active .mid-count-text,
+        .store-grid-row.active .mid-channel-name,
+        .store-grid-row.active .mid-channel-separator,
         .store-grid-row.active .mid-mono {
             color: #e5e7eb;
-        }
-
-        .store-grid-row.active .mid-count-badge {
-            background: rgba(248, 250, 252, 0.12);
-            border-color: rgba(248, 250, 252, 0.28);
-            color: #ffffff;
         }
 
         .mid-floating-popover {
@@ -2548,7 +2535,12 @@
                             </div>
                             <div class="store-filter-actions">
                                 <input class="store-mid-search" id="store-mid-search" type="text" placeholder="Search MID">
-                                <button class="store-mid-reset" id="store-mid-reset" type="button">Clear</button>
+                                <button class="store-mid-submit" id="store-mid-submit" type="button" aria-label="Search MID">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="11" cy="11" r="7"></circle>
+                                        <path d="M20 20l-3.5-3.5"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                         <div class="grid-scroll">
@@ -2557,7 +2549,7 @@
                                 <div>Address</div>
                                 <div>Created At</div>
                                 <div>Devices</div>
-                                <div>MIDs</div>
+                                <div>Channel / MID</div>
                                 <div>Prepaid Card</div>
                                 <div>Status</div>
                                 <div>Actions</div>
@@ -2567,16 +2559,13 @@
                                 <div>123 Main St, New York, NY</div>
                                 <div>2026-04-02 09:18</div>
                                 <div data-role="device-count">2 Active</div>
-                                <div class="mid-summary-cell" tabindex="0">
-                                    <div class="mid-overview">
-                                        <span class="mid-count-badge">5 MIDs</span>
-                                        <button class="mid-summary-action" type="button" data-action="payment">View / Edit</button>
-                                    </div>
-                                    <div class="mid-primary-line">
-                                        <span class="mid-caption">Primary</span>
-                                        <span class="mid-type">payWizardDemo</span>
+                                <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Downtown Location">
+                                    <div class="mid-channel-line">
+                                        <span class="mid-channel-name">payWizardDemo</span>
+                                        <span class="mid-channel-separator">/</span>
                                         <span class="mid-mono">2025121500000001</span>
                                     </div>
+                                    <div class="mid-count-text">5 configured</div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
@@ -2600,12 +2589,8 @@
                                 <div>55 Lexington Ave, New York, NY</div>
                                 <div>2026-04-12 14:36</div>
                                 <div data-role="device-count">1 Pending</div>
-                                <div class="mid-summary-cell" tabindex="0">
-                                    <div class="mid-overview">
-                                        <span class="mid-count-badge warning">MID missing</span>
-                                        <button class="mid-summary-action" type="button" data-action="payment">Set up</button>
-                                    </div>
-                                    <div class="mid-empty">No MID configured</div>
+                                <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Midtown Location">
+                                    <div class="mid-empty">Not configured</div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge offline" data-role="store-stored-value">Disabled</span></div>
@@ -2629,14 +2614,10 @@
                                 <div>88 Broadway, New York, NY</div>
                                 <div>2026-04-18 11:05</div>
                                 <div data-role="device-count">0 Devices</div>
-                                <div class="mid-summary-cell" tabindex="0">
-                                    <div class="mid-overview">
-                                        <span class="mid-count-badge">1 MID</span>
-                                        <button class="mid-summary-action" type="button" data-action="payment">View / Edit</button>
-                                    </div>
-                                    <div class="mid-primary-line">
-                                        <span class="mid-caption">Primary</span>
-                                        <span class="mid-type">Fiserv Retail</span>
+                                <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Uptown Cafe">
+                                    <div class="mid-channel-line">
+                                        <span class="mid-channel-name">Fiserv Retail</span>
+                                        <span class="mid-channel-separator">/</span>
                                         <span class="mid-mono">71000000010001</span>
                                     </div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
@@ -2662,16 +2643,13 @@
                                 <div>41-20 Main St, Queens, NY</div>
                                 <div>2026-04-21 16:42</div>
                                 <div data-role="device-count">0 Devices</div>
-                                <div class="mid-summary-cell" tabindex="0">
-                                    <div class="mid-overview">
-                                        <span class="mid-count-badge">2 MIDs</span>
-                                        <button class="mid-summary-action" type="button" data-action="payment">View / Edit</button>
-                                    </div>
-                                    <div class="mid-primary-line">
-                                        <span class="mid-caption">Primary</span>
-                                        <span class="mid-type">Alipay Global</span>
+                                <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Queens Online Pickup">
+                                    <div class="mid-channel-line">
+                                        <span class="mid-channel-name">Alipay Global</span>
+                                        <span class="mid-channel-separator">/</span>
                                         <span class="mid-mono">2088102123499999</span>
                                     </div>
+                                    <div class="mid-count-text">2 configured</div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
@@ -2695,16 +2673,13 @@
                                 <div>210 Bedford Ave, Brooklyn, NY</div>
                                 <div>2026-05-01 10:12</div>
                                 <div data-role="device-count">0 Devices</div>
-                                <div class="mid-summary-cell" tabindex="0">
-                                    <div class="mid-overview">
-                                        <span class="mid-count-badge">8 MIDs</span>
-                                        <button class="mid-summary-action" type="button" data-action="payment">View / Edit</button>
-                                    </div>
-                                    <div class="mid-primary-line">
-                                        <span class="mid-caption">Primary</span>
-                                        <span class="mid-type">Elavon CP</span>
+                                <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Brooklyn Market">
+                                    <div class="mid-channel-line">
+                                        <span class="mid-channel-name">Elavon CP</span>
+                                        <span class="mid-channel-separator">/</span>
                                         <span class="mid-mono">90010000000001</span>
                                     </div>
+                                    <div class="mid-count-text">8 configured</div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
@@ -2728,16 +2703,13 @@
                                 <div>JFK Terminal 4, Concourse B, Queens, NY</div>
                                 <div>2026-05-09 08:27</div>
                                 <div data-role="device-count">0 Devices</div>
-                                <div class="mid-summary-cell" tabindex="0">
-                                    <div class="mid-overview">
-                                        <span class="mid-count-badge">20 MIDs</span>
-                                        <button class="mid-summary-action" type="button" data-action="payment">View / Edit</button>
-                                    </div>
-                                    <div class="mid-primary-line">
-                                        <span class="mid-caption">Primary</span>
-                                        <span class="mid-type">Terminal Gate A</span>
+                                <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Airport Concourse">
+                                    <div class="mid-channel-line">
+                                        <span class="mid-channel-name">Terminal Gate A</span>
+                                        <span class="mid-channel-separator">/</span>
                                         <span class="mid-mono">APTTERM0001</span>
                                     </div>
+                                    <div class="mid-count-text">20 configured</div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
@@ -2774,12 +2746,6 @@
                             <div class="device-toolbar">
                                 <div class="device-toolbar-group">
                                     <input class="device-search-field" id="device-search-input" type="text" placeholder="Terminal Name">
-                                    <button class="device-toolbar-button" type="button" id="device-search-reset" aria-label="Reset terminal name search">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M20 11a8 8 0 1 1-2.34-5.66"></path>
-                                            <path d="M20 4v7h-7"></path>
-                                        </svg>
-                                    </button>
                                     <button class="device-toolbar-button primary" type="button" id="device-search-submit" aria-label="Search devices">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="11" cy="11" r="7"></circle>
@@ -3766,9 +3732,8 @@
         const clearFilterButton = document.getElementById('clear-store-filter');
         const deviceSearchInput = document.getElementById('device-search-input');
         const deviceSearchSubmit = document.getElementById('device-search-submit');
-        const deviceSearchReset = document.getElementById('device-search-reset');
         const storeMidSearchInput = document.getElementById('store-mid-search');
-        const storeMidSearchReset = document.getElementById('store-mid-reset');
+        const storeMidSearchSubmit = document.getElementById('store-mid-submit');
         const deviceEmptyState = document.getElementById('device-empty-state');
         const devicePageSize = document.getElementById('device-page-size');
         const devicePageIndicator = document.getElementById('device-page-indicator');
@@ -4008,6 +3973,10 @@
             const cells = row.children;
             if (cells[0]) cells[0].textContent = storeName;
             if (cells[1]) cells[1].textContent = formatStoreAddress(payload);
+            const midSummaryCell = row.querySelector('.mid-summary-cell');
+            if (midSummaryCell) {
+                midSummaryCell.setAttribute('aria-label', `Open payment channel settings for ${storeName}`);
+            }
 
             const storedValueBadge = row.querySelector('[data-role="store-stored-value"]');
             if (storedValueBadge) {
@@ -4253,43 +4222,36 @@
             const cell = document.createElement('div');
             cell.className = 'mid-summary-cell';
             cell.tabIndex = 0;
-
-            const overview = document.createElement('div');
-            overview.className = 'mid-overview';
-
-            const count = document.createElement('span');
-            count.className = mids.length ? 'mid-count-badge' : 'mid-count-badge warning';
-            count.textContent = mids.length ? `${mids.length} MID${mids.length === 1 ? '' : 's'}` : 'MID missing';
-            overview.appendChild(count);
-
-            const action = document.createElement('button');
-            action.className = 'mid-summary-action';
-            action.type = 'button';
-            action.dataset.action = 'payment';
-            action.textContent = mids.length ? 'View / Edit' : 'Set up';
-            overview.appendChild(action);
-            cell.appendChild(overview);
+            cell.setAttribute('role', 'link');
+            cell.setAttribute('aria-label', 'Open payment channel settings');
 
             if (mids.length) {
-                const primaryLine = document.createElement('div');
-                primaryLine.className = 'mid-primary-line';
-                const caption = document.createElement('span');
-                caption.className = 'mid-caption';
-                caption.textContent = 'Primary';
-                const type = document.createElement('span');
-                type.className = 'mid-type';
-                type.textContent = mids[0].channel || mids[0].label || 'MID';
+                const channelLine = document.createElement('div');
+                channelLine.className = 'mid-channel-line';
+                const channel = document.createElement('span');
+                channel.className = 'mid-channel-name';
+                channel.textContent = mids[0].channel || mids[0].label || 'Channel';
+                const separator = document.createElement('span');
+                separator.className = 'mid-channel-separator';
+                separator.textContent = '/';
                 const value = document.createElement('span');
                 value.className = 'mid-mono';
                 value.textContent = mids[0].mid || mids[0].value || '';
-                primaryLine.appendChild(caption);
-                primaryLine.appendChild(type);
-                primaryLine.appendChild(value);
-                cell.appendChild(primaryLine);
+                channelLine.appendChild(channel);
+                channelLine.appendChild(separator);
+                channelLine.appendChild(value);
+                cell.appendChild(channelLine);
+
+                if (mids.length > 1) {
+                    const count = document.createElement('div');
+                    count.className = 'mid-count-text';
+                    count.textContent = `${mids.length} configured`;
+                    cell.appendChild(count);
+                }
             } else {
                 const empty = document.createElement('div');
                 empty.className = 'mid-empty';
-                empty.textContent = 'No MID configured';
+                empty.textContent = 'Not configured';
                 cell.appendChild(empty);
             }
 
@@ -4357,7 +4319,7 @@
             title.textContent = storeName;
             const count = document.createElement('div');
             count.className = 'mid-popover-count';
-            count.textContent = details.length ? `${details.length} MID${details.length === 1 ? '' : 's'}` : 'No MID';
+            count.textContent = details.length ? `${details.length} MID${details.length === 1 ? '' : 's'}` : 'Not configured';
             head.appendChild(title);
             head.appendChild(count);
             popover.appendChild(head);
@@ -4365,7 +4327,7 @@
             if (!details.length) {
                 const empty = document.createElement('div');
                 empty.className = 'mid-popover-empty';
-                empty.textContent = 'No payment channel MID configured.';
+                empty.textContent = 'No payment channel configured.';
                 popover.appendChild(empty);
             } else {
                 const list = document.createElement('div');
@@ -5171,10 +5133,10 @@
             });
 
             storeGrid.addEventListener('click', (event) => {
-                const paymentSummaryAction = event.target.closest('.mid-summary-action[data-action="payment"]');
-                if (paymentSummaryAction) {
+                const midSummaryCell = event.target.closest('.mid-summary-cell');
+                if (midSummaryCell) {
                     event.stopPropagation();
-                    const row = paymentSummaryAction.closest('.store-grid-row[data-store-id]');
+                    const row = midSummaryCell.closest('.store-grid-row[data-store-id]');
                     navigateToStorePayment(row);
                     return;
                 }
@@ -5223,7 +5185,14 @@
             storeGrid.addEventListener('keydown', (event) => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 if (event.target.closest('.store-settings')) return;
-                if (event.target.closest('.mid-summary-action')) return;
+                const midSummaryCell = event.target.closest('.mid-summary-cell');
+                if (midSummaryCell) {
+                    event.preventDefault();
+                    closeStoreMenus();
+                    const row = midSummaryCell.closest('.store-grid-row[data-store-id]');
+                    navigateToStorePayment(row);
+                    return;
+                }
                 const row = event.target.closest('.store-grid-row[data-store-id]');
                 if (!row) return;
                 event.preventDefault();
@@ -5341,22 +5310,12 @@
             });
         }
 
-        if (deviceSearchReset) {
-            deviceSearchReset.addEventListener('click', () => {
-                deviceTableState.searchTerm = '';
-                deviceTableState.currentPage = 1;
-                if (deviceSearchInput) deviceSearchInput.value = '';
-                refreshDeviceGrid();
-            });
-        }
-
         if (storeMidSearchInput) {
             storeMidSearchInput.addEventListener('input', refreshStoreGrid);
         }
 
-        if (storeMidSearchReset) {
-            storeMidSearchReset.addEventListener('click', () => {
-                if (storeMidSearchInput) storeMidSearchInput.value = '';
+        if (storeMidSearchSubmit) {
+            storeMidSearchSubmit.addEventListener('click', () => {
                 refreshStoreGrid();
             });
         }
