@@ -843,8 +843,8 @@
 
         .store-grid-head,
         .store-grid-row {
-            grid-template-columns: minmax(170px, 1.1fr) minmax(240px, 1.45fr) minmax(140px, 0.9fr) 110px 120px 110px minmax(120px, max-content);
-            min-width: 1080px;
+            grid-template-columns: minmax(160px, 1fr) minmax(210px, 1.2fr) minmax(132px, 0.75fr) 96px minmax(300px, 1.6fr) 110px 100px minmax(120px, max-content);
+            min-width: 1380px;
             column-gap: 10px;
         }
 
@@ -943,6 +943,283 @@
             border-color: rgba(248, 250, 252, 0.55);
             background: #f8fafc;
             color: #111827;
+        }
+
+        .store-filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .store-mid-search {
+            width: 260px;
+            height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+            background: #fff;
+        }
+
+        .store-mid-search:focus {
+            outline: 2px solid rgba(29, 78, 216, 0.22);
+            border-color: rgba(29, 78, 216, 0.55);
+        }
+
+        .store-mid-reset {
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .store-mid-reset:hover {
+            background: #f9fafb;
+        }
+
+        .mid-summary-cell {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            min-width: 0;
+            max-width: 100%;
+            line-height: 1.2;
+        }
+
+        .mid-overview {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 100%;
+        }
+
+        .mid-count-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 9px;
+            border-radius: 999px;
+            border: 1px solid #bbf7d0;
+            background: #ecfdf3;
+            color: #166534;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .mid-channel-summary {
+            min-width: 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .mid-count-badge.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .mid-primary-line,
+        .mid-match-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 100%;
+            min-width: 0;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .mid-type {
+            flex: 0 0 auto;
+            color: var(--text-muted);
+        }
+
+        .mid-match-line {
+            color: #1d4ed8;
+        }
+
+        .mid-caption {
+            flex: 0 0 auto;
+            color: var(--text-muted);
+        }
+
+        .mid-mono {
+            min-width: 0;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            color: #111827;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .mid-empty {
+            max-width: 100%;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mid-summary-action {
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+
+        .mid-summary-action:hover {
+            text-decoration: underline;
+        }
+
+        .store-grid-row.active .mid-empty,
+        .store-grid-row.active .mid-summary-action,
+        .store-grid-row.active .mid-primary-line,
+        .store-grid-row.active .mid-match-line,
+        .store-grid-row.active .mid-caption,
+        .store-grid-row.active .mid-type,
+        .store-grid-row.active .mid-channel-summary,
+        .store-grid-row.active .mid-mono {
+            color: #e5e7eb;
+        }
+
+        .store-grid-row.active .mid-count-badge {
+            background: rgba(248, 250, 252, 0.12);
+            border-color: rgba(248, 250, 252, 0.28);
+            color: #ffffff;
+        }
+
+        .mid-floating-popover {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: min(520px, calc(100vw - 32px));
+            max-height: 340px;
+            display: none;
+            z-index: 140;
+            padding: 12px;
+            border: 1px solid #d8dee8;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #111827;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
+            cursor: default;
+        }
+
+        .mid-floating-popover.show {
+            display: block;
+        }
+
+        .mid-popover-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef0f4;
+        }
+
+        .mid-popover-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .mid-popover-count {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .mid-popover-list {
+            max-height: 252px;
+            overflow-y: auto;
+            margin-top: 10px;
+            display: grid;
+            gap: 6px;
+            padding-right: 2px;
+        }
+
+        .mid-popover-row {
+            display: grid;
+            grid-template-columns: 76px minmax(120px, 0.8fr) minmax(170px, 1fr);
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            padding: 8px;
+            border: 1px solid #eef0f4;
+            border-radius: 8px;
+            background: #fafbfc;
+        }
+
+        .mid-popover-type {
+            justify-self: start;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid #e5e7eb;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .mid-popover-type.ecommerce {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .mid-popover-channel {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .mid-popover-mid {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #111827;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .mid-popover-empty {
+            padding: 10px;
+            border-radius: 8px;
+            background: #fffbeb;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: 800;
         }
 
         .store-settings-menu {
@@ -2283,7 +2560,10 @@
                                 <h3 class="section-title">Stores (Locations)</h3>
                                 <div class="section-subtitle" id="store-summary-subtitle">0 stores, 0 devices. Add a store to begin onboarding.</div>
                             </div>
-                  
+                            <div class="store-filter-actions">
+                                <input class="store-mid-search" id="store-mid-search" type="text" placeholder="Search MID">
+                                <button class="store-mid-reset" id="store-mid-reset" type="button">Clear</button>
+                            </div>
                         </div>
                         <div class="grid-scroll">
                             <div class="grid-head store-grid-head">
@@ -2291,6 +2571,7 @@
                                 <div>Address</div>
                                 <div>Created At</div>
                                 <div>Devices</div>
+                                <div>MIDs</div>
                                 <div>Prepaid Card</div>
                                 <div>Status</div>
                                 <div>Actions</div>
@@ -2771,7 +3052,7 @@
         </div>
     </div>
     <div class="modal-overlay" id="store-payment-modal" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-payment-title" style="max-width: 720px;">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-payment-title" style="max-width: 860px;">
             <div class="modal-header">
                 <div>
                     <h3 class="modal-title" id="store-payment-title">Payment Parameter Setting</h3>
@@ -2812,6 +3093,7 @@
                             <thead>
                                 <tr>
                                     <th>Terminal Channel</th>
+                                    <th>MID</th>
                                     <th>Channel Cost</th>
                                     <th>Date &amp; Time</th>
                                     <th class="cell-actions">Actions</th>
@@ -2825,6 +3107,7 @@
                                             <span>payWizardDemo</span>
                                         </div>
                                     </td>
+                                    <td>2025121500000001</td>
                                     <td>0%, Capping 100 Per Transaction</td>
                                     <td>2025-12-15 10:19:04</td>
                                     <td class="cell-actions">
@@ -2854,6 +3137,7 @@
                                             <span>SmartCommerce</span>
                                         </div>
                                     </td>
+                                    <td>2025121500000022</td>
                                     <td>2.4% + 0.10, Capping 75</td>
                                     <td>2025-12-09 09:02:18</td>
                                     <td class="cell-actions">
@@ -2890,6 +3174,7 @@
                             <thead>
                                 <tr>
                                     <th>eCommerce Channel</th>
+                                    <th>MID / Partner ID</th>
                                     <th>Channel Cost</th>
                                     <th>Date &amp; Time</th>
                                     <th class="cell-actions">Actions</th>
@@ -2903,6 +3188,7 @@
                                             <span>Alipay Global</span>
                                         </div>
                                     </td>
+                                    <td>2088102123456789</td>
                                     <td>1.2% Flat Rate</td>
                                     <td>2026-01-12 14:20:00</td>
                                     <td class="cell-actions">
@@ -2932,6 +3218,7 @@
                                             <span>WeChat Pay</span>
                                         </div>
                                     </td>
+                                    <td>wx_partner_651023</td>
                                     <td>1.0% + 0.05</td>
                                     <td>2026-01-10 08:12:45</td>
                                     <td class="cell-actions">
@@ -2961,6 +3248,7 @@
                                             <span>HUISHU</span>
                                         </div>
                                     </td>
+                                    <td>888000012345</td>
                                     <td>Custom rate per region</td>
                                     <td>2026-02-03 11:05:12</td>
                                     <td class="cell-actions">
@@ -3183,6 +3471,8 @@
         const deviceSearchInput = document.getElementById('device-search-input');
         const deviceSearchSubmit = document.getElementById('device-search-submit');
         const deviceSearchReset = document.getElementById('device-search-reset');
+        const storeMidSearchInput = document.getElementById('store-mid-search');
+        const storeMidSearchReset = document.getElementById('store-mid-reset');
         const storeEmptyState = document.getElementById('store-empty-state');
         const deviceEmptyState = document.getElementById('device-empty-state');
         const devicePageSize = document.getElementById('device-page-size');
@@ -3664,6 +3954,171 @@
             return cell;
         };
 
+        const buildMidSummaryCell = ({ mids = [] } = {}) => {
+            const cell = document.createElement('div');
+            cell.className = 'mid-summary-cell';
+            cell.tabIndex = 0;
+
+            const overview = document.createElement('div');
+            overview.className = 'mid-overview';
+
+            const count = document.createElement('span');
+            count.className = mids.length ? 'mid-count-badge' : 'mid-count-badge warning';
+            count.textContent = mids.length ? `${mids.length} MID${mids.length === 1 ? '' : 's'}` : 'MID missing';
+            overview.appendChild(count);
+
+            const action = document.createElement('button');
+            action.className = 'mid-summary-action';
+            action.type = 'button';
+            action.dataset.action = 'payment';
+            action.textContent = mids.length ? 'View / Edit' : 'Set up';
+            overview.appendChild(action);
+            cell.appendChild(overview);
+
+            if (mids.length) {
+                const primaryLine = document.createElement('div');
+                primaryLine.className = 'mid-primary-line';
+                const caption = document.createElement('span');
+                caption.className = 'mid-caption';
+                caption.textContent = 'Primary';
+                const type = document.createElement('span');
+                type.className = 'mid-type';
+                type.textContent = mids[0].channel || mids[0].label || 'MID';
+                const value = document.createElement('span');
+                value.className = 'mid-mono';
+                value.textContent = mids[0].mid || mids[0].value || '';
+                primaryLine.appendChild(caption);
+                primaryLine.appendChild(type);
+                primaryLine.appendChild(value);
+                cell.appendChild(primaryLine);
+            } else {
+                const empty = document.createElement('div');
+                empty.className = 'mid-empty';
+                empty.textContent = 'No MID configured';
+                cell.appendChild(empty);
+            }
+
+            const match = document.createElement('div');
+            match.className = 'mid-match-line';
+            match.dataset.role = 'mid-match';
+            match.hidden = true;
+            cell.appendChild(match);
+
+            return cell;
+        };
+
+        const getStoreMidDetails = (row) => {
+            if (!row) return [];
+            try {
+                const details = JSON.parse(row.dataset.storeMidDetails || '[]');
+                return Array.isArray(details) ? details : [];
+            } catch {
+                return [];
+            }
+        };
+
+        const getMatchingMidDetail = (row, term) => {
+            if (!term) return null;
+            return getStoreMidDetails(row).find((item) => (item.mid || '').toLowerCase().includes(term)) || null;
+        };
+
+        const getMidPopover = () => {
+            let popover = document.getElementById('mid-floating-popover');
+            if (popover) return popover;
+            popover = document.createElement('div');
+            popover.id = 'mid-floating-popover';
+            popover.className = 'mid-floating-popover';
+            popover.addEventListener('mouseenter', () => window.clearTimeout(midPopoverHideTimer));
+            popover.addEventListener('mouseleave', scheduleHideMidPopover);
+            document.body.appendChild(popover);
+            return popover;
+        };
+
+        let midPopoverHideTimer = null;
+
+        const hideMidPopover = () => {
+            const popover = getMidPopover();
+            popover.classList.remove('show');
+            popover.removeAttribute('data-source-store-id');
+        };
+
+        const scheduleHideMidPopover = () => {
+            window.clearTimeout(midPopoverHideTimer);
+            midPopoverHideTimer = window.setTimeout(hideMidPopover, 120);
+        };
+
+        const renderMidPopover = (cell) => {
+            const row = cell?.closest('.store-grid-row[data-store-id]');
+            if (!row) return;
+            const details = getStoreMidDetails(row);
+            const popover = getMidPopover();
+            const storeName = row.dataset.storeName || 'Store';
+
+            popover.innerHTML = '';
+            const head = document.createElement('div');
+            head.className = 'mid-popover-head';
+            const title = document.createElement('div');
+            title.className = 'mid-popover-title';
+            title.textContent = storeName;
+            const count = document.createElement('div');
+            count.className = 'mid-popover-count';
+            count.textContent = details.length ? `${details.length} MID${details.length === 1 ? '' : 's'}` : 'No MID';
+            head.appendChild(title);
+            head.appendChild(count);
+            popover.appendChild(head);
+
+            if (!details.length) {
+                const empty = document.createElement('div');
+                empty.className = 'mid-popover-empty';
+                empty.textContent = 'No payment channel MID configured.';
+                popover.appendChild(empty);
+            } else {
+                const list = document.createElement('div');
+                list.className = 'mid-popover-list';
+                details.forEach((item) => {
+                    const detailRow = document.createElement('div');
+                    detailRow.className = 'mid-popover-row';
+
+                    const type = document.createElement('div');
+                    const isEcommerce = (item.type || '').toLowerCase().includes('commerce');
+                    type.className = `mid-popover-type${isEcommerce ? ' ecommerce' : ''}`;
+                    type.textContent = item.type || 'Channel';
+
+                    const channel = document.createElement('div');
+                    channel.className = 'mid-popover-channel';
+                    channel.textContent = item.channel || '-';
+
+                    const mid = document.createElement('div');
+                    mid.className = 'mid-popover-mid';
+                    mid.textContent = item.mid || '-';
+
+                    detailRow.appendChild(type);
+                    detailRow.appendChild(channel);
+                    detailRow.appendChild(mid);
+                    list.appendChild(detailRow);
+                });
+                popover.appendChild(list);
+            }
+
+            const rect = cell.getBoundingClientRect();
+            const popoverWidth = Math.min(520, window.innerWidth - 32);
+            const left = Math.max(16, Math.min(rect.left, window.innerWidth - popoverWidth - 16));
+            const top = Math.max(16, Math.min(rect.bottom + 8, window.innerHeight - 356));
+            popover.style.left = `${left}px`;
+            popover.style.top = `${top}px`;
+            popover.dataset.sourceStoreId = row.dataset.storeId || '';
+            popover.classList.add('show');
+        };
+
+        const navigateToStorePayment = (row) => {
+            if (!row) return;
+            const params = new URLSearchParams({
+                storeId: row.dataset.storeId || '',
+                storeName: row.dataset.storeName || 'Store'
+            });
+            window.location.href = `23.payment_channel_setting.html?${params.toString()}`;
+        };
+
         const buildDeviceSettingsControl = () => {
             const settingsWrap = document.createElement('div');
             settingsWrap.className = 'device-settings';
@@ -3792,6 +4247,47 @@
                 storeEmptyState.classList.toggle('show', storeTotal === 0);
             }
             updateStoreDeviceSummaries();
+            refreshStoreGrid();
+        };
+
+        const getStoreMidFilterTerm = () => (storeMidSearchInput?.value || '').trim().toLowerCase();
+
+        const refreshStoreGrid = () => {
+            const rows = getStoreRows();
+            const term = getStoreMidFilterTerm();
+            let visibleCount = 0;
+            let activeStoreVisible = !activeStoreId;
+
+            rows.forEach((row) => {
+                const matchingDetail = getMatchingMidDetail(row, term);
+                const isVisible = !term || Boolean(matchingDetail);
+                const matchLine = row.querySelector('[data-role="mid-match"]');
+                if (matchLine) {
+                    matchLine.hidden = !matchingDetail;
+                    matchLine.textContent = matchingDetail ? `Matched ${matchingDetail.channel || 'MID'}: ${matchingDetail.mid}` : '';
+                }
+                row.style.display = isVisible ? 'grid' : 'none';
+                if (isVisible) visibleCount += 1;
+                if (isVisible && row.dataset.storeId === activeStoreId) activeStoreVisible = true;
+            });
+
+            if (!activeStoreVisible) {
+                setActiveStore(null);
+                return;
+            }
+
+            if (storeSummarySubtitle) {
+                const storeTotal = rows.length;
+                const deviceTotal = getDeviceRows().length;
+                const rawTerm = storeMidSearchInput?.value.trim() || '';
+                if (term) {
+                    storeSummarySubtitle.textContent = `${visibleCount} of ${storeTotal} stores match MID "${rawTerm}".`;
+                } else {
+                    storeSummarySubtitle.textContent = storeTotal === 0
+                        ? '0 stores, 0 devices. Add a store to begin onboarding.'
+                        : `${storeTotal} stores, ${deviceTotal} devices. Click a store to filter devices.`;
+                }
+            }
         };
 
         const getFilteredDeviceRows = () => {
@@ -4360,7 +4856,43 @@
         });
 
         if (storeGrid) {
+            storeGrid.addEventListener('mouseover', (event) => {
+                const cell = event.target.closest('.mid-summary-cell');
+                if (!cell || cell.contains(event.relatedTarget)) return;
+                window.clearTimeout(midPopoverHideTimer);
+                renderMidPopover(cell);
+            });
+
+            storeGrid.addEventListener('mouseout', (event) => {
+                const cell = event.target.closest('.mid-summary-cell');
+                const popover = document.getElementById('mid-floating-popover');
+                if (!cell || cell.contains(event.relatedTarget) || popover?.contains(event.relatedTarget)) return;
+                scheduleHideMidPopover();
+            });
+
+            storeGrid.addEventListener('focusin', (event) => {
+                const cell = event.target.closest('.mid-summary-cell');
+                if (!cell) return;
+                window.clearTimeout(midPopoverHideTimer);
+                renderMidPopover(cell);
+            });
+
+            storeGrid.addEventListener('focusout', (event) => {
+                const cell = event.target.closest('.mid-summary-cell');
+                const popover = document.getElementById('mid-floating-popover');
+                if (!cell || cell.contains(event.relatedTarget) || popover?.contains(event.relatedTarget)) return;
+                scheduleHideMidPopover();
+            });
+
             storeGrid.addEventListener('click', (event) => {
+                const paymentSummaryAction = event.target.closest('.mid-summary-action[data-action="payment"]');
+                if (paymentSummaryAction) {
+                    event.stopPropagation();
+                    const row = paymentSummaryAction.closest('.store-grid-row[data-store-id]');
+                    navigateToStorePayment(row);
+                    return;
+                }
+
                 const settingsToggle = event.target.closest('.store-settings-toggle');
                 if (settingsToggle) {
                     event.stopPropagation();
@@ -4381,11 +4913,8 @@
                         return;
                     }
                     if (action === 'payment') {
-                        const params = new URLSearchParams({
-                            storeId: row.dataset.storeId || '',
-                            storeName: storeName
-                        });
-                        window.location.href = `23.payment_channel_setting.html?${params.toString()}`;
+                        navigateToStorePayment(row);
+                        return;
                     }
                     if (action === 'resend') {
                         alert(`Resent email for ${storeName} (mock).`);
@@ -4408,6 +4937,7 @@
             storeGrid.addEventListener('keydown', (event) => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 if (event.target.closest('.store-settings')) return;
+                if (event.target.closest('.mid-summary-action')) return;
                 const row = event.target.closest('.store-grid-row[data-store-id]');
                 if (!row) return;
                 event.preventDefault();
@@ -4534,6 +5064,17 @@
             });
         }
 
+        if (storeMidSearchInput) {
+            storeMidSearchInput.addEventListener('input', refreshStoreGrid);
+        }
+
+        if (storeMidSearchReset) {
+            storeMidSearchReset.addEventListener('click', () => {
+                if (storeMidSearchInput) storeMidSearchInput.value = '';
+                refreshStoreGrid();
+            });
+        }
+
         if (devicePageSize) {
             devicePageSize.addEventListener('change', () => {
                 deviceTableState.pageSize = Number(devicePageSize.value || 10);
@@ -4618,6 +5159,11 @@
                 const row = document.createElement('div');
                 row.className = 'grid-row store-grid-row';
                 row.dataset.storeId = storeId;
+                row.dataset.storeMids = '';
+                row.dataset.storeMidDetails = '[]';
+                row.dataset.storeMidCount = '0';
+                row.dataset.storePrimaryMid = '';
+                row.dataset.storePrimaryChannel = '';
                 row.setAttribute('role', 'button');
                 row.setAttribute('tabindex', '0');
                 row.setAttribute('aria-pressed', 'false');
@@ -4633,6 +5179,7 @@
                 deviceCell.setAttribute('data-role', 'device-count');
                 deviceCell.textContent = '0 Devices';
                 row.appendChild(deviceCell);
+                row.appendChild(buildMidSummaryCell());
 
                 const storedValueCell = document.createElement('div');
                 const storedValueBadge = document.createElement('span');
