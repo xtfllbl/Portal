@@ -1050,6 +1050,114 @@
             margin: 6px 0 2px;
         }
 
+        .payment-config {
+            margin: 18px 0 10px;
+            padding: 18px 18px 20px;
+            border: 1px solid #edf0f5;
+            border-radius: 12px;
+            background: #fbfcfe;
+        }
+
+        .payment-config .form-grid {
+            margin-top: 20px;
+            gap: 22px 28px;
+        }
+
+        .deployment-options.is-hidden {
+            display: none;
+        }
+
+        .payment-config-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .payment-config-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .payment-config-note {
+            margin: 3px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+            padding-top: 1px;
+        }
+
+        .switchline {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            color: var(--text-main);
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .switchline input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .switch-track {
+            position: relative;
+            width: 38px;
+            height: 22px;
+            border-radius: 999px;
+            background: #cbd5e1;
+            transition: background-color 0.18s ease;
+            flex-shrink: 0;
+            pointer-events: none;
+        }
+
+        .switch-track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
+            transition: transform 0.18s ease;
+        }
+
+        .switchline input:checked + .switch-track {
+            background: var(--text-strong);
+        }
+
+        .switchline input:checked + .switch-track::after {
+            transform: translateX(16px);
+        }
+
+        .switchline input:focus-visible + .switch-track {
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.14);
+        }
+
+        .switchline input:disabled + .switch-track,
+        .switchline input:disabled ~ span:last-child {
+            opacity: 0.55;
+        }
+
+        .key-download.is-hidden {
+            display: none;
+        }
+
         .wizard-actions {
             display: flex;
             justify-content: space-between;
@@ -1123,6 +1231,11 @@
             margin: 4px 0 0;
             font-size: 12px;
             color: var(--text-muted);
+        }
+
+        .processor-template-row {
+            margin-top: 16px;
+            max-width: 520px;
         }
 
         .processor-pill {
@@ -1689,54 +1802,56 @@
                                     </div>
                                 </div>
 
-                                <div class="form-divider"></div>
+                                <div class="payment-config">
+                                    <div class="payment-config-head">
+                                        <div>
+                                            <h4 class="payment-config-title">Payment app deployment</h4>
+                                            <p class="payment-config-note">Choose whether to push the payment app, parameters, and keys to this device.</p>
+                                        </div>
+                                        <div class="switch-group">
+                                            <label class="switchline" for="device-provision-toggle">
+                                                <input type="checkbox" id="device-provision-toggle" checked>
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                                <span>Deploy app &amp; parameters</span>
+                                            </label>
+                                            <label class="switchline key-download is-hidden" id="keyDownloadOption" for="processor-key-download">
+                                                <input type="checkbox" id="processor-key-download" checked>
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                                <span>Inject key</span>
+                                            </label>
+                                        </div>
+                                    </div>
 
-                                <div class="form-grid two">
-                                    <div class="field full">
-                                        <label class="checkline" for="device-provision-toggle">
-                                            <input type="checkbox" id="device-provision-toggle" checked>
-                                            Deploy Payment app & Parameters
-                                        </label>
+                                    <div class="deployment-options" id="deploymentOptions">
+                                    <div class="form-grid two">
+                                        <div class="field">
+                                            <label for="device-processor">1. Processor / Acquirer *</label>
+                                            <select class="input-field" id="device-processor">
+                                                <option value="">Select Processor</option>
+                                                <option value="TSYS">TSYS</option>
+                                                <option value="FISERV">FISERV</option>
+                                                <option value="Worldpay">Worldpay</option>
+                                            </select>
+                                        </div>
+                                        <div class="field">
+                                            <label for="processor-version">2. Payment App Version *</label>
+                                            <select class="input-field" id="processor-version" disabled>
+                                                <option value="">Select Version</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-grid two">
-                                  
-                                    <div class="field">
-                                        <label for="device-processor">Processor *</label>
-                                        <select class="input-field" id="device-processor">
-                                            <option value="">Select Processor</option>
-                                            <option value="TSYS">TSYS</option>
-                                            <option value="FISERV">FISERV</option>
-                                            <option value="Worldpay">Worldpay</option>
-                                        </select>
+                                    <div class="form-grid two">
+                                        <div class="field">
+                                            <label for="device-paywizard">3. Integration Mode</label>
+                                            <select class="input-field" id="device-paywizard">
+                                                <option value="Disable" selected>Disable</option>
+                                                <option value="OPC_VENDING_STANDARD">PAYwizard OPC Vending Standard</option>
+                                                <option value="OPC_ATTENDED_TCP">PAYwizard OPC Attended TCP</option>
+                                                <option value="OPC_UNATTENDED_SERIAL">PAYwizard OPC Unattended Serial</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="field">
-                                        <label for="processor-version">Template Version</label>
-                                        <select class="input-field" id="processor-version" disabled>
-                                            <option value="">Select Version</option>
-                                        </select>
-                                    </div>
-                                
-                                </div>
-
-                                <div class="form-grid two">
-                                    <div class="field">
-                                        <label for="device-template">Assign Template</label>
-                                        <select class="input-field" id="device-template">
-                                            <option value="">Select Template</option>
-                                            <option>Retail - Quick Start</option>
-                                            <option>Restaurant - Full Service</option>
-                                            <option>Convenience - Express</option>
-                                        </select>
-                                    </div>
-                
-                                    <div class="field">
-                                        <label for="device-paywizard">Paywizard Integration</label>
-                                        <select class="input-field" id="device-paywizard">
-                                            <option value="Disable" selected>Disable</option>
-                                            <option value="Enable">Enable</option>
-                                        </select>
                                     </div>
                                 </div>
 
@@ -1744,9 +1859,17 @@
                                     <div class="processor-params-head">
                                         <div>
                                             <h4>Processor Parameters</h4>
-                                            <p>Fill in the parameter file groups for the selected processor.</p>
+                                            <p>Fill in the payment app parameter groups for the selected processor.</p>
                                         </div>
                                         <div class="processor-pill" id="processorParamName">Processor</div>
+                                    </div>
+                                    <div class="processor-template-row">
+                                        <div class="field">
+                                            <label for="device-template">Payment App Para Template (Optional)</label>
+                                            <select class="input-field" id="device-template">
+                                                <option value="">Select Template</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="param-set" data-processor="TSYS">
                                         <div class="param-tabs">
@@ -2302,14 +2425,14 @@
                                 <div class="processor-params paywizard-params is-hidden" id="paywizardParams">
                                     <div class="processor-params-head">
                                         <div>
-                                            <h4>Paywizard Integration Parameters</h4>
-                                            <p>Provide the Paywizard integration settings for this device.</p>
+                                            <h4>OPC Configuration Parameters</h4>
+                                            <p>Review the PAYwizard OPC configuration values for the selected profile.</p>
                                         </div>
-                                        <div class="processor-pill">Paywizard</div>
+                                        <div class="processor-pill">OPC Profile</div>
                                     </div>
                                     <div class="param-group">
                                         <div class="group-header">
-                                            <div class="group-title">Paywizard Integration Parameters</div>
+                                            <div class="group-title">OPC Configuration Parameters</div>
                                         </div>
                                         <div class="group-grid">
                                             <div class="field">
@@ -2430,6 +2553,9 @@
         const assignTemplateEl = document.getElementById('device-template');
         const paywizardSelect = document.getElementById('device-paywizard');
         const paywizardParams = document.getElementById('paywizardParams');
+        const keyDownloadOption = document.getElementById('keyDownloadOption');
+        const keyDownloadCheckbox = document.getElementById('processor-key-download');
+        const deploymentOptions = document.getElementById('deploymentOptions');
 
         function isProvisionEnabled() {
             return !provisionToggle || provisionToggle.checked;
@@ -2457,9 +2583,33 @@
                 'V1.00.12F_20240809',
                 'V1.00.11C_20240521'
             ],
-            FISERV: [],
-            Worldpay: []
+            FISERV: [
+                'V2.04.03_20250520',
+                'V2.04.01_20250308',
+                'V2.03.09_20241216'
+            ],
+            Worldpay: [
+                'V3.12.08_20250601',
+                'V3.11.05_20250219',
+                'V3.10.14_20241104'
+            ]
         };
+        const processorsWithKeyDownload = new Set(['TSYS', 'FISERV']);
+
+        function syncKeyDownloadOption() {
+            if (!keyDownloadOption || !processorSelect) {
+                return;
+            }
+            const enabled = isProvisionEnabled();
+            const hasKeyDownload = enabled && processorsWithKeyDownload.has(processorSelect.value);
+            keyDownloadOption.classList.toggle('is-hidden', !hasKeyDownload);
+            if (keyDownloadCheckbox) {
+                keyDownloadCheckbox.disabled = !hasKeyDownload;
+                if (hasKeyDownload) {
+                    keyDownloadCheckbox.checked = true;
+                }
+            }
+        }
 
         function populateProcessorVersions(processor) {
             if (!processorVersionSelect) return;
@@ -2489,6 +2639,7 @@
                 if (processorVersionSelect) {
                     processorVersionSelect.disabled = true;
                 }
+                syncKeyDownloadOption();
                 return;
             }
             const selected = processorSelect.value;
@@ -2508,6 +2659,7 @@
                     }
                 }
             });
+            syncKeyDownloadOption();
         }
 
         document.querySelectorAll('.param-tabs').forEach((tabs) => {
@@ -2533,7 +2685,7 @@
             if (!paywizardSelect || !paywizardParams) {
                 return;
             }
-            const isEnabled = isProvisionEnabled() && paywizardSelect.value === 'Enable';
+            const isEnabled = isProvisionEnabled() && paywizardSelect.value !== 'Disable';
             paywizardParams.classList.toggle('is-hidden', !isEnabled);
         }
 
@@ -2544,6 +2696,9 @@
 
         function setProvisionState() {
             const enabled = isProvisionEnabled();
+            if (deploymentOptions) {
+                deploymentOptions.classList.toggle('is-hidden', !enabled);
+            }
             if (processorSelect) {
                 processorSelect.disabled = !enabled;
             }
@@ -2552,6 +2707,9 @@
             }
             if (paywizardSelect) {
                 paywizardSelect.disabled = !enabled;
+            }
+            if (keyDownloadCheckbox) {
+                keyDownloadCheckbox.disabled = !enabled;
             }
             if (!enabled) {
                 if (processorVersionSelect) {
@@ -2563,6 +2721,7 @@
                 if (paywizardParams) {
                     paywizardParams.classList.add('is-hidden');
                 }
+                syncKeyDownloadOption();
                 return;
             }
             syncProcessorParams();

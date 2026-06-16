@@ -587,6 +587,138 @@
       text-align: center;
     }
 
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.36);
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .share-modal {
+      width: min(820px, calc(100vw - 48px));
+      min-height: 340px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 18px 44px rgba(15, 16, 20, 0.18);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .share-modal-head {
+      padding: 28px 30px 10px;
+      color: #3f3f46;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.15;
+    }
+
+    .share-modal-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      padding: 36px 30px 24px;
+    }
+
+    .share-field {
+      position: relative;
+    }
+
+    .share-field-label {
+      position: absolute;
+      top: -8px;
+      left: 13px;
+      z-index: 1;
+      padding: 0 6px;
+      background: #fff;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .share-select {
+      width: 100%;
+      height: 48px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      color: #3f3f46;
+      padding: 0 42px 0 14px;
+      font-size: 16px;
+      outline: none;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #9ca3af 50%),
+        linear-gradient(135deg, #9ca3af 50%, transparent 50%);
+      background-position: calc(100% - 26px) 20px, calc(100% - 18px) 20px;
+      background-size: 8px 8px;
+      background-repeat: no-repeat;
+    }
+
+    .share-select:focus {
+      border-color: #111;
+      box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.08);
+    }
+
+    .share-attendent-field.hidden {
+      display: none;
+    }
+
+    .share-modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 30px 24px;
+    }
+
+    .share-modal-btn {
+      min-width: 96px;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: #f4f4f5;
+      color: #52525b;
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .share-modal-btn.primary {
+      min-width: 140px;
+      background: #050507;
+      color: #fff;
+    }
+
+    .share-modal-btn.share {
+      min-width: 190px;
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .share-modal-btn:hover {
+      background: #e9eaee;
+    }
+
+    .share-modal-btn.primary:hover {
+      background: #27272a;
+    }
+
+    .share-modal-btn.share:hover {
+      background: #1d4ed8;
+    }
+
     @media (max-width: 1100px) {
       .layout {
         grid-template-columns: 1fr;
@@ -625,6 +757,33 @@
       .filter-field,
       .btn {
         width: 100%;
+      }
+
+      .share-modal {
+        min-height: 320px;
+      }
+
+      .share-modal-head {
+        font-size: 24px;
+      }
+
+      .share-modal-body {
+        gap: 28px;
+        padding-inline: 24px;
+      }
+
+      .share-modal-foot {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 12px;
+        padding-inline: 24px;
+      }
+
+      .share-modal-btn,
+      .share-modal-btn.primary,
+      .share-modal-btn.share {
+        width: 100%;
+        min-width: 0;
       }
     }
   </style>
@@ -746,7 +905,7 @@
               <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 11v6M9 14h6"></path></svg>
               Add
             </button>
-            <button class="btn" type="button">
+            <button class="btn" type="button" id="openShareLanding">
               <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 10.5 15.4 6.5"></path><path d="M8.6 13.5 15.4 17.5"></path></svg>
               Sharing Landing Page
             </button>
@@ -759,7 +918,7 @@
 
         <div class="lead-tabs" role="tablist" aria-label="Lead page style">
           <button class="tab-button active" type="button" role="tab" aria-selected="true" data-lead-tab="upt">UPT Leads</button>
-          <button class="tab-button" type="button" role="tab" aria-selected="false" data-lead-tab="intl">INTL PSP Activate</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-lead-tab="intl">PSP Activate</button>
         </div>
 
         <div class="toolbar">
@@ -1058,7 +1217,7 @@
                 <td class="mono">00000452</td>
                 <td>wizarpos</td>
                 <td>AtlasPay Europe Ltd.</td>
-                <td class="mono">INTL-PSP-EU-001</td>
+                <td class="mono">PSP-EU-001</td>
                 <td>AtlasPay Dublin Campus Cafe</td>
                 <td class="mono">WP43807Q333883896</td>
                 <td>Fiserv</td>
@@ -1067,7 +1226,7 @@
                 <td>Manual</td>
                 <td>2026-05-29<br>14:16:40</td>
                 <td>0</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Negotiation</td>
                 <td>
                   <div class="actions">
@@ -1090,7 +1249,7 @@
                 <td class="mono">00000451</td>
                 <td>wizarpos</td>
                 <td>Pacific Gateway Payments Inc.</td>
-                <td class="mono">INTL-PSP-US-002</td>
+                <td class="mono">PSP-US-002</td>
                 <td>Pacific Gateway West Coast Store</td>
                 <td class="mono">WP6001MM33000109</td>
                 <td>Nuvei</td>
@@ -1099,7 +1258,7 @@
                 <td>Upload</td>
                 <td>2026-05-29<br>09:44:18</td>
                 <td>0</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Pending Activation</td>
                 <td>
                   <div class="actions">
@@ -1114,7 +1273,7 @@
                 <td class="mono">00000450</td>
                 <td>wizarpos</td>
                 <td>AtlasPay UK Channel</td>
-                <td class="mono">INTL-PSP-EU-001</td>
+                <td class="mono">PSP-EU-001</td>
                 <td>AtlasPay London Market</td>
                 <td class="mono">WP5280VQ33200002</td>
                 <td>Elavon EU</td>
@@ -1123,7 +1282,7 @@
                 <td>Manual</td>
                 <td>2026-05-28<br>17:22:08</td>
                 <td>1</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Activated</td>
                 <td>
                   <div class="actions">
@@ -1138,7 +1297,7 @@
                 <td class="mono">00000449</td>
                 <td>wizarpos</td>
                 <td>Northstar PSP Services</td>
-                <td class="mono">INTL-PSP-CA-003</td>
+                <td class="mono">PSP-CA-003</td>
                 <td>Northstar Campus Store</td>
                 <td class="mono">WP02502110005</td>
                 <td>TSYS</td>
@@ -1147,7 +1306,7 @@
                 <td>Upload</td>
                 <td>2026-05-27<br>13:08:55</td>
                 <td>2</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Pending Activation</td>
                 <td>
                   <div class="actions">
@@ -1162,7 +1321,7 @@
                 <td class="mono">00000448</td>
                 <td>wizarpos</td>
                 <td>OceanPay Global Ltd.</td>
-                <td class="mono">INTL-PSP-SG-004</td>
+                <td class="mono">PSP-SG-004</td>
                 <td>OceanPay Marina Kiosk</td>
                 <td class="mono">WP43807Q33203580</td>
                 <td>Fiserv</td>
@@ -1171,7 +1330,7 @@
                 <td>Manual</td>
                 <td>2026-05-26<br>16:41:21</td>
                 <td>3</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Rejected</td>
                 <td>
                   <div class="actions">
@@ -1186,7 +1345,7 @@
                 <td class="mono">00000447</td>
                 <td>wizarpos</td>
                 <td>Metro PSP Network</td>
-                <td class="mono">INTL-PSP-AU-005</td>
+                <td class="mono">PSP-AU-005</td>
                 <td>Metro North Retail</td>
                 <td class="mono">WP43807Q33256790</td>
                 <td>Nuvei</td>
@@ -1195,7 +1354,7 @@
                 <td>Upload</td>
                 <td>2026-05-24<br>11:32:17</td>
                 <td>5</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Negotiation</td>
                 <td>
                   <div class="actions">
@@ -1210,7 +1369,7 @@
                 <td class="mono">00000446</td>
                 <td>wizarpos</td>
                 <td>Harbor PSP Group</td>
-                <td class="mono">INTL-PSP-IE-006</td>
+                <td class="mono">PSP-IE-006</td>
                 <td>Harbor Dublin Checkout</td>
                 <td class="mono">WP43807Q33203576</td>
                 <td>Elavon EU</td>
@@ -1219,7 +1378,7 @@
                 <td>Manual</td>
                 <td>2026-05-21<br>18:05:44</td>
                 <td>8</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Pending Activation</td>
                 <td>
                   <div class="actions">
@@ -1234,7 +1393,7 @@
                 <td class="mono">00000445</td>
                 <td>wizarpos</td>
                 <td>Union PSP Operations</td>
-                <td class="mono">INTL-PSP-US-007</td>
+                <td class="mono">PSP-US-007</td>
                 <td>Union Airport Retail</td>
                 <td class="mono">WP43807Q33256889</td>
                 <td>TSYS</td>
@@ -1243,7 +1402,7 @@
                 <td>Manual</td>
                 <td>2026-05-19<br>15:18:30</td>
                 <td>10</td>
-                <td class="style">INTL PSP</td>
+                <td class="style">PSP</td>
                 <td class="status">Activated</td>
                 <td>
                   <div class="actions">
@@ -1283,6 +1442,38 @@
     </main>
   </div>
 
+  <div class="modal-mask" id="shareLandingModal" aria-hidden="true">
+    <div class="share-modal" role="dialog" aria-modal="true" aria-labelledby="shareLandingTitle">
+      <div class="share-modal-head" id="shareLandingTitle">Sharing Landing Page</div>
+      <div class="share-modal-body">
+        <div class="share-field">
+          <span class="share-field-label">Page Style</span>
+          <select class="share-select" id="sharePageStyle">
+            <option value="UPT">UPT</option>
+            <option value="ATTENDENT">Attendent</option>
+          </select>
+        </div>
+        <div class="share-field share-attendent-field hidden" id="attendentSpField">
+          <span class="share-field-label">SP Name</span>
+          <select class="share-select" id="attendentSpName">
+            <option value="">SP Name</option>
+            <option>paywizard-ops-test</option>
+            <option>NA Service Providers</option>
+            <option>wizarpos</option>
+            <option>Yapex</option>
+            <option>shoplaza</option>
+            <option>Credicard</option>
+          </select>
+        </div>
+      </div>
+      <div class="share-modal-foot">
+        <button class="share-modal-btn" type="button" id="cancelShareLanding">Cancel</button>
+        <button class="share-modal-btn primary" type="button" id="selectSharePartner">Select Partner</button>
+        <button class="share-modal-btn share" type="button" id="shareGenericLanding">Sharing Landing Page</button>
+      </div>
+    </div>
+  </div>
+
 	  <script>
 	    (function () {
 	      var activeTab = "upt";
@@ -1295,6 +1486,14 @@
 	      var filterButton = document.getElementById("filterButton");
 	      var pageTotal = document.getElementById("pageTotal");
 	      var tableWrap = document.querySelector(".table-wrap");
+	      var openShareLanding = document.getElementById("openShareLanding");
+	      var shareLandingModal = document.getElementById("shareLandingModal");
+	      var cancelShareLanding = document.getElementById("cancelShareLanding");
+	      var sharePageStyle = document.getElementById("sharePageStyle");
+	      var attendentSpField = document.getElementById("attendentSpField");
+	      var attendentSpName = document.getElementById("attendentSpName");
+	      var selectSharePartner = document.getElementById("selectSharePartner");
+	      var shareGenericLanding = document.getElementById("shareGenericLanding");
 	      var totals = {
 	        upt: "1 / 23 (441)",
 	        intl: "1 / 4 (78)"
@@ -1372,6 +1571,37 @@
 	        pageTotal.textContent = hasFilters() ? "1 / 1 (" + visible + ")" : totals[activeTab];
 	      }
 
+	      function isAttendentShare() {
+	        return sharePageStyle.value === "ATTENDENT";
+	      }
+
+	      function syncShareModal() {
+	        var attendant = isAttendentShare();
+	        attendentSpField.classList.toggle("hidden", !attendant);
+	        selectSharePartner.hidden = attendant;
+	      }
+
+	      function openShareModal() {
+	        sharePageStyle.value = "UPT";
+	        attendentSpName.value = "";
+	        syncShareModal();
+	        shareLandingModal.classList.add("show");
+	        shareLandingModal.setAttribute("aria-hidden", "false");
+	      }
+
+	      function closeShareModal() {
+	        shareLandingModal.classList.remove("show");
+	        shareLandingModal.setAttribute("aria-hidden", "true");
+	      }
+
+	      function getShareLandingUrl() {
+	        if (isAttendentShare()) {
+	          var spName = attendentSpName.value;
+	          return spName ? "27.INTL_PSP_merchant_lead.html?sp=" + encodeURIComponent(spName) : "27.INTL_PSP_merchant_lead.html";
+	        }
+	        return "25.merchant_lead.html";
+	      }
+
 	      tabButtons.forEach(function (button) {
 	        button.addEventListener("click", function () {
 	          var nextTab = button.getAttribute("data-lead-tab");
@@ -1388,6 +1618,21 @@
 	          if (event.key === "Enter") applyFilters();
 	        });
 	        field.addEventListener("change", applyFilters);
+	      });
+
+	      openShareLanding.addEventListener("click", openShareModal);
+	      cancelShareLanding.addEventListener("click", closeShareModal);
+	      sharePageStyle.addEventListener("change", syncShareModal);
+	      selectSharePartner.addEventListener("click", function () {
+	        closeShareModal();
+	        window.open("26.partner_information.html", "_blank");
+	      });
+	      shareGenericLanding.addEventListener("click", function () {
+	        closeShareModal();
+	        window.open(getShareLandingUrl(), "_blank");
+	      });
+	      shareLandingModal.addEventListener("click", function (event) {
+	        if (event.target === shareLandingModal) closeShareModal();
 	      });
 
 	      setActiveTab(window.location.hash === "#intl" ? "intl" : "upt");
