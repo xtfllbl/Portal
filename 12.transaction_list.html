@@ -147,6 +147,8 @@
     .purchase{color:var(--green);background:var(--greenbg)}
     .refund{color:var(--orange);background:var(--orangebg)}
     .failed{color:var(--red);background:var(--redbg)}
+    .auth{color:#2458b5;background:#e8f0ff}
+    .followup{color:#5b43a6;background:#eee9ff}
     .pan{display:inline-flex;align-items:center;gap:10px}
     .chip{min-width:24px;height:16px;border-radius:3px;border:1px solid rgba(0,0,0,.08);display:inline-flex;align-items:center;justify-content:center;padding:0 4px;font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#fff;color:#1a4fb3}
     .chip.maestro{color:#fff;background:linear-gradient(90deg,#d93843 0 50%,#0671ce 50% 100%)}
@@ -242,13 +244,57 @@
     .sn-switch-btn.primary{border-color:#111827;background:#111827;color:#fff}
     .more{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);background:#fafbfd;color:#768096;display:grid;place-items:center}
     .more svg{width:17px;height:17px}
+    .more:hover,.more[aria-expanded="true"]{border-color:#aeb8c8;background:#eef2f7;color:#354052}
+    .action-icon{width:20px;height:20px;display:block;opacity:.72}
+    .row-action-pop{position:fixed;z-index:220;width:258px;display:none;padding:6px;border:1px solid #d9dde7;border-radius:12px;background:#fff;box-shadow:0 14px 34px rgba(23,30,47,.18)}
+    .row-action-pop.show{display:block}
+    .row-action-section{padding:7px 12px 6px;border-radius:7px;background:#f2f2f4;color:#727886;font-size:12px;font-weight:600}
+    .row-action-section.terminal{margin-top:6px}
+    .row-action-item{width:100%;min-height:40px;padding:8px 11px;border:0;border-radius:8px;background:transparent;color:#41495a;display:flex;align-items:center;gap:10px;text-align:left;font-size:14px}
+    .row-action-item:hover,.row-action-item:focus-visible{background:#f2f3f5;color:#222936;outline:none}
+    .row-action-item .action-icon{flex:0 0 20px}
+    .row-action-empty{padding:10px 12px 9px;color:#9299a7;font-size:12px;line-height:1.45}
+    .followup-backdrop{position:fixed;inset:0;z-index:240;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(17,24,39,.38);backdrop-filter:blur(2px)}
+    .followup-backdrop.show{display:flex}
+    .followup-modal{width:min(680px,100%);max-height:calc(100vh - 48px);overflow:auto;border:1px solid #d9dde7;border-radius:18px;background:#fff;box-shadow:0 26px 70px rgba(23,30,47,.28)}
+    .followup-head{padding:20px 22px 17px;border-bottom:1px solid #e5e8ef;display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+    .followup-eyebrow{color:#7c8596;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .followup-title{margin:4px 0 0;font-size:23px;line-height:1.25;font-weight:600;color:#283141}
+    .followup-subtitle{margin:5px 0 0;color:#7a8293;font-size:13px}
+    .followup-close{width:38px;height:38px;flex:0 0 38px;border:1px solid #d9dde7;border-radius:10px;background:#fff;color:#687285;display:grid;place-items:center}
+    .followup-close:hover{background:#f5f6f8;color:#2f3746}
+    .followup-body{padding:20px 22px}
+    .followup-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .followup-summary-item{min-width:0;padding:11px 12px;border:1px solid #e3e7ee;border-radius:11px;background:#fafbfc}
+    .followup-summary-item span{display:block;color:#8790a1;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+    .followup-summary-item strong{display:block;margin-top:4px;overflow:hidden;color:#313a4a;font-size:13px;font-weight:600;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+    .followup-form{margin-top:18px;display:grid;gap:15px}
+    .followup-field{display:grid;gap:7px}
+    .followup-field label{color:#4b5567;font-size:12px;font-weight:600}
+    .amount-control{height:52px;border:1px solid #cfd5e0;border-radius:12px;background:#fff;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;overflow:hidden}
+    .amount-control:focus-within{border-color:#9dabbf;box-shadow:0 0 0 4px rgba(113,128,150,.12)}
+    .amount-currency{height:100%;padding:0 14px;border-right:1px solid #e0e4eb;background:#f7f8fa;color:#586275;display:flex;align-items:center;font-size:13px;font-weight:700}
+    .amount-control input{width:100%;height:100%;padding:0 15px;border:0;outline:0;color:#252d3b;font-size:18px;font-weight:600}
+    .followup-note{width:100%;min-height:76px;resize:vertical;padding:12px 14px;border:1px solid #cfd5e0;border-radius:12px;outline:0;color:#30394a;font:inherit;font-size:13px}
+    .followup-note:focus{border-color:#9dabbf;box-shadow:0 0 0 4px rgba(113,128,150,.12)}
+    .followup-help{margin:0;color:#7a8293;font-size:12px;line-height:1.5}
+    .followup-error{min-height:18px;margin:0;color:#b93c34;font-size:12px;font-weight:500}
+    .followup-actions{padding:16px 22px 20px;border-top:1px solid #e8ebf0;display:flex;justify-content:flex-end;gap:10px}
+    .followup-btn{min-width:108px;height:42px;padding:0 16px;border:1px solid #d4d9e2;border-radius:11px;background:#fff;color:#536073;font-size:13px;font-weight:600}
+    .followup-btn:hover{background:#f6f7f9;color:#30394a}
+    .followup-btn.primary{border-color:#17191e;background:#17191e;color:#fff}
+    .followup-btn.primary:hover{background:#2b2e35}
+    .followup-btn:disabled{cursor:wait;opacity:.62}
+    .action-toast{position:fixed;right:24px;bottom:24px;z-index:260;max-width:min(420px,calc(100vw - 48px));padding:13px 16px;border-radius:12px;background:#17191e;color:#fff;box-shadow:0 18px 42px rgba(23,30,47,.25);font-size:13px;font-weight:500;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .18s ease,transform .18s ease}
+    .action-toast.show{opacity:1;transform:translateY(0)}
     .scroll::-webkit-scrollbar,.nav::-webkit-scrollbar,.cols::-webkit-scrollbar{width:10px;height:10px}
     .scroll::-webkit-scrollbar-thumb,.nav::-webkit-scrollbar-thumb,.cols::-webkit-scrollbar-thumb{background:#ccd1db;border-radius:999px}
     .scroll::-webkit-scrollbar-track,.nav::-webkit-scrollbar-track,.cols::-webkit-scrollbar-track{background:#eff2f7;border-radius:999px}
     @media (max-width:1600px){.brand h1{font-size:48px}.brand p{padding-left:154px;font-size:18px}.side{width:314px;flex-basis:314px}.cols{right:-50px}}
     @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
     @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}
-    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
+    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}.followup-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:560px){.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
   </style>
 </head>
 <body>
@@ -344,7 +390,7 @@
             <input class="field" id="fTid" placeholder="TID">
             <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
             <input class="field" id="fApprovalCode" placeholder="Approval Code">
-            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Refund</option><option>Failed</option></select></div>
+            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Sale</option><option>Auth</option><option>Refund</option><option>Tip Adjust</option><option>Capture</option><option>Incremental</option><option>Failed</option></select></div>
             <input class="field" id="fSn" placeholder="SN">
             <input class="field" id="fStoreId" placeholder="Store ID">
             <input class="field" id="fTerminalName" placeholder="Terminal Name">
@@ -376,6 +422,44 @@
       </main>
     </section>
   </div>
+  <div class="row-action-pop" id="rowActionPop" role="menu" aria-hidden="true"></div>
+  <div class="followup-backdrop" id="followupBackdrop" aria-hidden="true">
+    <form class="followup-modal" id="followupForm" role="dialog" aria-modal="true" aria-labelledby="followupTitle" novalidate>
+      <div class="followup-head">
+        <div>
+          <div class="followup-eyebrow">Terminal Transaction</div>
+          <h3 class="followup-title" id="followupTitle">Create Follow-up Transaction</h3>
+          <p class="followup-subtitle" id="followupSubtitle"></p>
+        </div>
+        <button class="followup-close" id="followupClose" type="button" aria-label="Close">
+          <img class="action-icon" src="assets/icons/close.svg" alt="">
+        </button>
+      </div>
+      <div class="followup-body">
+        <div class="followup-summary" id="followupSummary"></div>
+        <div class="followup-form">
+          <div class="followup-field">
+            <label for="followupAmount" id="followupAmountLabel">Amount</label>
+            <div class="amount-control">
+              <span class="amount-currency" id="followupCurrency">USD</span>
+              <input id="followupAmount" type="number" min="0.01" step="0.01" inputmode="decimal" autocomplete="off" required>
+            </div>
+            <p class="followup-help" id="followupHelp"></p>
+          </div>
+          <div class="followup-field">
+            <label for="followupNote">Reference / Note (Optional)</label>
+            <textarea class="followup-note" id="followupNote" maxlength="120" placeholder="Add an internal reference for this transaction"></textarea>
+          </div>
+          <p class="followup-error" id="followupError" role="alert"></p>
+        </div>
+      </div>
+      <div class="followup-actions">
+        <button class="followup-btn" id="followupCancel" type="button">Cancel</button>
+        <button class="followup-btn primary" id="followupSubmit" type="submit">Confirm</button>
+      </div>
+    </form>
+  </div>
+  <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
   <script>
     (() => {
       const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","paymentMethod","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","sn","terminalName"];
@@ -424,6 +508,7 @@
         {status:"completed",processorTime:"2026-04-07 10:46:02",terminalTime:"-",timezone:"",invoiceNumber:"260407104602",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"622397",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-104602",transId:"TRX-104602",transLogId:"LOG-20260407-104602",transIndexCode:"IDX-20260407-104602",batch:"B344",trace:"548901",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
         {status:"completed",processorTime:"2026-04-07 10:39:16",terminalTime:"-",timezone:"",invoiceNumber:"260407103916",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"506708",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-103916",transId:"TRX-103916",transLogId:"LOG-20260407-103916",transIndexCode:"IDX-20260407-103916",batch:"B344",trace:"548902",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
         {status:"completed",processorTime:"2026-04-07 10:21:51",terminalTime:"-",timezone:"",invoiceNumber:"260407102151",cardBrand:"visa",cardPanMasked:"414740****8821",cardPanPlain:"4147408821",approvalCode:"331890",type:"Purchase",amount:"4.50",currency:"CAD",mid:"202511040000901",tid:"Campus Kiosk 03",merchantName:"north campus group",storeName:"sfu dining commons",sn:"WP6127TX33009110",paywizardId:"PW-20260407-102151",transId:"TRX-102151",transLogId:"LOG-20260407-102151",transIndexCode:"IDX-20260407-102151",batch:"B211",trace:"547009",terminalName:"Beverage Kiosk 03",phoneNumber:"+1 604 555 7788",email:"vending.ops@campus.test",storeId:"STORE-3150",terminalUsage:"self_service",terminalScene:"Beverage Kiosk"},
+        {status:"completed",processorTime:"2026-04-07 10:08:12",terminalTime:"-",timezone:"",invoiceNumber:"260407100812",cardBrand:"visa",cardPanMasked:"445952****1859",cardPanPlain:"4459521859",approvalCode:"AUTH82",type:"Auth",amount:"85.00",currency:"EUR",mid:"202604070000015",tid:"WSTORE-Q3-02",merchantName:"wstore-test",storeName:"Shanghai Lab Store",sn:"WP5280VQ33200002",paywizardId:"PWA-20260407-100812",transId:"TRX-AUTH-100812",transLogId:"LOG-20260407-100812",transIndexCode:"IDX-20260407-100812",batch:"B552",trace:"546980",terminalName:"Q3mini Lab 02",phoneNumber:"+86 21 5555 1200",email:"ops@wstore.test",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
         {status:"failed",processorTime:"2026-04-07 09:58:11",terminalTime:"-",timezone:"",invoiceNumber:"260407095811",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"DECLINED",type:"Failed",amount:"12.50",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-095811",transId:"TRX-095811",transLogId:"LOG-20260407-095811",transIndexCode:"IDX-20260407-095811",batch:"B346",trace:"547220",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
         {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
         {status:"failed",processorTime:"2026-04-07 09:31:40",terminalTime:"-",timezone:"",invoiceNumber:"260407093140",cardBrand:"visa",cardPanMasked:"471622****7019",cardPanPlain:"4716227019",approvalCode:"DECLINED",type:"Failed",amount:"29.80",currency:"USD",mid:"202511040001208",tid:"Waiter Handheld 02",merchantName:"urban bistro",storeName:"city center",sn:"WP6001MM33000109",paywizardId:"PW-20260407-093140",transId:"TRX-093140",transLogId:"LOG-20260407-093140",transIndexCode:"IDX-20260407-093140",batch:"B102",trace:"546812",terminalName:"Waiter Mobile 02",phoneNumber:"+1 212 555 4010",email:"shiftlead@urbanbistro.test",storeId:"STORE-4012",terminalUsage:"staff_mobile",terminalScene:"Staff Handheld"}
@@ -503,8 +588,176 @@
         merchantName:document.getElementById("fMerchantName"),
         storeName:document.getElementById("fStoreName")
       };
+      const rowActionPop=document.getElementById("rowActionPop");
+      const followupBackdrop=document.getElementById("followupBackdrop");
+      const followupForm=document.getElementById("followupForm");
+      const followupTitle=document.getElementById("followupTitle");
+      const followupSubtitle=document.getElementById("followupSubtitle");
+      const followupSummary=document.getElementById("followupSummary");
+      const followupAmountLabel=document.getElementById("followupAmountLabel");
+      const followupCurrency=document.getElementById("followupCurrency");
+      const followupAmount=document.getElementById("followupAmount");
+      const followupHelp=document.getElementById("followupHelp");
+      const followupNote=document.getElementById("followupNote");
+      const followupError=document.getElementById("followupError");
+      const followupSubmit=document.getElementById("followupSubmit");
+      const actionToast=document.getElementById("actionToast");
       const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;");
       const norm=s=>String(s||"").trim().toLowerCase();
+      const followupConfig={
+        refund:{label:"Refund",title:"Create Refund",amountLabel:"Refund Amount",icon:"undo",resultType:"Refund",maxOriginal:true,confirmLabel:"Initiate Refund"},
+        tip_adjust:{label:"Tip Adjust",title:"Create Tip Adjust",amountLabel:"Tip Adjustment Amount",icon:"add_card",resultType:"Tip Adjust",maxOriginal:false,confirmLabel:"Initiate Tip Adjust"},
+        capture:{label:"Capture",title:"Create Capture",amountLabel:"Capture Amount",icon:"task_alt",resultType:"Capture",maxOriginal:true,confirmLabel:"Initiate Capture"},
+        incremental:{label:"Incremental",title:"Create Incremental Authorization",amountLabel:"Incremental Amount",icon:"trending_up",resultType:"Incremental",maxOriginal:false,confirmLabel:"Initiate Incremental"}
+      };
+      const rowActionState={row:null,anchor:null};
+      const followupState={row:null,action:""};
+      let toastTimer=null;
+      const showActionToast=message=>{
+        actionToast.textContent=message;
+        actionToast.classList.add("show");
+        window.clearTimeout(toastTimer);
+        toastTimer=window.setTimeout(()=>actionToast.classList.remove("show"),2400);
+      };
+      const followupActionsFor=row=>{
+        const type=norm(row?.type).replace(/[^a-z]/g,"");
+        if(type==="sale"||type==="purchase") return ["refund","tip_adjust"];
+        if(type==="auth"||type==="authorization"||type==="preauth") return ["capture","incremental"];
+        return [];
+      };
+      const rowActionItem=(label,icon,attributes)=>`<button class="row-action-item" type="button" role="menuitem" ${attributes}><img class="action-icon" src="assets/icons/${esc(icon)}.svg" alt=""><span>${esc(label)}</span></button>`;
+      const closeRowActionMenu=()=>{
+        if(rowActionState.anchor) rowActionState.anchor.setAttribute("aria-expanded","false");
+        rowActionState.row=null;
+        rowActionState.anchor=null;
+        rowActionPop.classList.remove("show");
+        rowActionPop.setAttribute("aria-hidden","true");
+        rowActionPop.innerHTML="";
+      };
+      const positionRowActionMenu=()=>{
+        if(!rowActionState.anchor||!rowActionPop.classList.contains("show")) return;
+        const anchorRect=rowActionState.anchor.getBoundingClientRect();
+        const popRect=rowActionPop.getBoundingClientRect();
+        const pad=12;
+        let left=anchorRect.right-popRect.width;
+        let top=anchorRect.bottom+8;
+        if(left<pad) left=pad;
+        if(left+popRect.width>window.innerWidth-pad) left=window.innerWidth-popRect.width-pad;
+        if(top+popRect.height>window.innerHeight-pad){
+          const above=anchorRect.top-popRect.height-8;
+          if(above>=pad) top=above;
+        }
+        rowActionPop.style.left=`${Math.max(pad,left)}px`;
+        rowActionPop.style.top=`${Math.max(pad,top)}px`;
+      };
+      const openRowActionMenu=(row,anchor)=>{
+        if(rowActionState.row===row&&rowActionState.anchor===anchor&&rowActionPop.classList.contains("show")){
+          closeRowActionMenu();
+          return;
+        }
+        closeRowActionMenu();
+        const terminalActions=followupActionsFor(row);
+        const terminalHtml=terminalActions.length
+          ?terminalActions.map(action=>{
+            const config=followupConfig[action];
+            return rowActionItem(config.label,config.icon,`data-row-action="followup" data-followup-action="${action}"`);
+          }).join("")
+          :'<div class="row-action-empty">No follow-up transaction is available for this transaction type.</div>';
+        rowActionPop.innerHTML=`<div class="row-action-section">Action</div>${rowActionItem("Transaction Details","receipt_long",'data-row-action="details"')}${rowActionItem("Send Receipt","send",'data-row-action="receipt"')}<div class="row-action-section terminal">Terminal</div>${terminalHtml}`;
+        rowActionState.row=row;
+        rowActionState.anchor=anchor;
+        anchor.setAttribute("aria-expanded","true");
+        rowActionPop.classList.add("show");
+        rowActionPop.setAttribute("aria-hidden","false");
+        positionRowActionMenu();
+      };
+      const closeFollowupModal=()=>{
+        followupBackdrop.classList.remove("show");
+        followupBackdrop.setAttribute("aria-hidden","true");
+        followupState.row=null;
+        followupState.action="";
+        followupForm.reset();
+        followupError.textContent="";
+        followupSubmit.disabled=false;
+        document.body.style.overflow="";
+      };
+      const formatAmount=value=>Number(value||0).toFixed(2);
+      const followupBaseHelp=(row,action)=>{
+        const original=formatAmount(row.amount);
+        if(action==="refund") return `Maximum refundable amount: ${row.currency} ${original}.`;
+        if(action==="tip_adjust") return `Original sale amount: ${row.currency} ${original}.`;
+        if(action==="capture") return `Authorized amount available to capture: ${row.currency} ${original}.`;
+        return `Current authorized amount: ${row.currency} ${original}.`;
+      };
+      const updateFollowupHelp=()=>{
+        const row=followupState.row;
+        const action=followupState.action;
+        if(!row||!action) return;
+        const entered=Number(followupAmount.value);
+        let message=followupBaseHelp(row,action);
+        if(Number.isFinite(entered)&&entered>0&&(action==="tip_adjust"||action==="incremental")){
+          const total=Number(row.amount||0)+entered;
+          message+=` New total: ${row.currency} ${formatAmount(total)}.`;
+        }
+        followupHelp.textContent=message;
+      };
+      const summaryItem=(label,value)=>`<div class="followup-summary-item"><span>${esc(label)}</span><strong title="${esc(value)}">${esc(value)}</strong></div>`;
+      const openFollowupModal=(row,action)=>{
+        const config=followupConfig[action];
+        if(!row||!config) return;
+        closeRowActionMenu();
+        followupState.row=row;
+        followupState.action=action;
+        followupTitle.textContent=config.title;
+        followupSubtitle.textContent=`Create a ${config.label.toLowerCase()} from the selected ${row.type} transaction.`;
+        followupSummary.innerHTML=[
+          ["Original Type",row.type],
+          ["Original Amount",`${row.currency} ${formatAmount(row.amount)}`],
+          ["Transaction ID",row.transId],
+          ["Merchant",row.merchantName],
+          ["Terminal",row.terminalName],
+          ["Terminal SN",row.sn]
+        ].map(item=>summaryItem(item[0],item[1]||"-")).join("");
+        followupAmountLabel.textContent=config.amountLabel;
+        followupCurrency.textContent=row.currency;
+        followupAmount.value=(action==="refund"||action==="capture")?formatAmount(row.amount):"";
+        followupAmount.max=config.maxOriginal?formatAmount(row.amount):"";
+        followupNote.value="";
+        followupError.textContent="";
+        followupSubmit.textContent=config.confirmLabel;
+        followupSubmit.disabled=false;
+        updateFollowupHelp();
+        followupBackdrop.classList.add("show");
+        followupBackdrop.setAttribute("aria-hidden","false");
+        document.body.style.overflow="hidden";
+        window.setTimeout(()=>{followupAmount.focus();followupAmount.select();},0);
+      };
+      const currentTimestamp=()=>{
+        const date=new Date();
+        const pad=value=>String(value).padStart(2,"0");
+        return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+      };
+      const createFollowupRow=(row,action,amount)=>{
+        const config=followupConfig[action];
+        const stamp=String(Date.now());
+        return {
+          ...row,
+          status:"completed",
+          processorTime:currentTimestamp(),
+          terminalTime:"-",
+          invoiceNumber:stamp.slice(-12),
+          approvalCode:"PENDING",
+          type:config.resultType,
+          amount:formatAmount(amount),
+          paywizardId:`PWF-${stamp}`,
+          transId:`TRX-${config.resultType.toUpperCase().replace(/\s+/g,"-")}-${stamp.slice(-8)}`,
+          transLogId:`LOG-${stamp}`,
+          transIndexCode:`IDX-${stamp}`,
+          trace:stamp.slice(-6),
+          originalTransId:row.transId,
+          followupNote:followupNote.value.trim()
+        };
+      };
       const tabLabelMap={completed:"Completed",failed:"Failed"};
       const currentTabLabel=()=>tabLabelMap[state.tab]||state.tab;
       const updateColumnEditorTitle=()=>{
@@ -1037,7 +1290,11 @@
           const label=brand;
           return `<span class="pan"><span class="chip ${esc(brand)}">${esc(label)}</span>${account}</span>`;
         }
-        if(k==="type"){const c=r.type==="Refund"?"refund":r.type==="Failed"?"failed":"purchase"; return `<span class="pill ${c}">${esc(r.type)}</span>`;}
+        if(k==="type"){
+          const type=norm(r.type);
+          const c=type==="refund"?"refund":type==="failed"?"failed":type==="auth"?"auth":["tip adjust","capture","incremental"].includes(type)?"followup":"purchase";
+          return `<span class="pill ${c}">${esc(r.type)}</span>`;
+        }
         if(k==="sn") return renderSnCell(r);
         if(k==="terminalName"){
           const v=r[k];
@@ -1051,7 +1308,8 @@
       const renderTable=()=>{
         const cols=visible(), data=rows.filter(matches);
         head.innerHTML=cols.map(c=>`<th style="min-width:${defs[c.key][1]}px">${defs[c.key][0]}</th>`).join("")+`<th style="min-width:82px">ACTIONS</th>`;
-        body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" aria-label="More actions"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
+        body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" data-transaction-id="${esc(r.paywizardId)}" aria-label="More actions for ${esc(r.transId)}" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
+        closeRowActionMenu();
         closeSnDetail();
         closeSnPicker();
         updateFilterUi();
@@ -1125,6 +1383,17 @@
         if(link&&snDetailState.anchor===link) closeSnDetail();
       });
       body.addEventListener("click",e=>{
+        const actionButton=e.target.closest(".more[data-transaction-id]");
+        if(actionButton){
+          e.preventDefault();
+          e.stopPropagation();
+          closeSnDetail();
+          closeSnPicker();
+          setPop("");
+          const row=rows.find(item=>item.paywizardId===actionButton.dataset.transactionId);
+          if(row) openRowActionMenu(row,actionButton);
+          return;
+        }
         const btn=e.target.closest(".sn-icon-btn");
         if(!btn) return;
         e.preventDefault();
@@ -1132,6 +1401,57 @@
         closeSnDetail();
         setPop("");
         openSnPicker(btn.dataset.sn||"",btn);
+      });
+      rowActionPop.addEventListener("click",e=>{
+        const button=e.target.closest("[data-row-action]");
+        const row=rowActionState.row;
+        if(!button||!row) return;
+        e.stopPropagation();
+        const action=button.dataset.rowAction;
+        if(action==="details"){
+          window.location.href="11.transaction_detail_redesign.html";
+          return;
+        }
+        if(action==="receipt"){
+          closeRowActionMenu();
+          showActionToast(`Receipt has been queued to ${row.email||"the transaction email"}.`);
+          return;
+        }
+        if(action==="followup") openFollowupModal(row,button.dataset.followupAction||"");
+      });
+      followupAmount.addEventListener("input",()=>{
+        followupError.textContent="";
+        updateFollowupHelp();
+      });
+      document.getElementById("followupClose").addEventListener("click",closeFollowupModal);
+      document.getElementById("followupCancel").addEventListener("click",closeFollowupModal);
+      followupBackdrop.addEventListener("click",e=>{if(e.target===followupBackdrop) closeFollowupModal();});
+      followupForm.addEventListener("submit",e=>{
+        e.preventDefault();
+        const row=followupState.row;
+        const action=followupState.action;
+        const config=followupConfig[action];
+        const amount=Number(followupAmount.value);
+        if(!row||!config) return;
+        if(!Number.isFinite(amount)||amount<=0){
+          followupError.textContent="Enter an amount greater than 0.00.";
+          followupAmount.focus();
+          return;
+        }
+        if(config.maxOriginal&&amount>Number(row.amount)){
+          followupError.textContent=`Amount cannot exceed ${row.currency} ${formatAmount(row.amount)}.`;
+          followupAmount.focus();
+          return;
+        }
+        const newRow=createFollowupRow(row,action,amount);
+        followupSubmit.disabled=true;
+        followupSubmit.textContent="Processing...";
+        window.setTimeout(()=>{
+          rows.unshift(newRow);
+          closeFollowupModal();
+          renderTable();
+          showActionToast(`${config.label} transaction ${newRow.transId} has been initiated.`);
+        },650);
       });
       snPicker.addEventListener("click",e=>{
         const item=e.target.closest(".sn-picker-item");
@@ -1219,12 +1539,13 @@
       document.addEventListener("click",e=>{
         if(!e.target.closest(".sn-main-link")) closeSnDetail();
         if(!e.target.closest(".sn-picker-pop")&&!e.target.closest(".sn-icon-btn")) closeSnPicker();
+        if(!e.target.closest(".row-action-pop")&&!e.target.closest(".more[data-transaction-id]")) closeRowActionMenu();
         if(e.target.closest(".anchor")) return;
         setPop("");
       });
-      document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSnDetail(); closeSnPicker(); closeSnSwitchConfirm(); setPop(""); toggleFilters(false);}});
-      window.addEventListener("resize",()=>{if(snDetailState.open) positionSnDetail(); if(snPickerState.open) positionSnPicker();});
-      document.addEventListener("scroll",()=>{if(snDetailState.open) closeSnDetail(); if(snPickerState.open) positionSnPicker();},{capture:true,passive:true});
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(followupBackdrop.classList.contains("show")) closeFollowupModal(); closeRowActionMenu(); closeSnDetail(); closeSnPicker(); closeSnSwitchConfirm(); setPop(""); toggleFilters(false);}});
+      window.addEventListener("resize",()=>{if(rowActionPop.classList.contains("show")) positionRowActionMenu(); if(snDetailState.open) positionSnDetail(); if(snPickerState.open) positionSnPicker();});
+      document.addEventListener("scroll",()=>{closeRowActionMenu(); if(snDetailState.open) closeSnDetail(); if(snPickerState.open) positionSnPicker();},{capture:true,passive:true});
       renderCols();
       renderTable();
     })();

@@ -60,3 +60,57 @@
 - ELAVON System ID tooltip, Terminal ID tooltip, suffix extraction, automatic zero-padding, error states, and recovery after correction: passed.
 
 final result: passed
+
+---
+
+# Design QA — Transaction Actions
+
+- Source visual truth path: user-provided Paywizard Transactions / ACTIONS screenshot in the current conversation.
+- Implementation screenshots:
+  - `assets/qa/qa-transaction-list-initial.png`
+  - `assets/qa/qa-transaction-list-sale-menu.png`
+  - `assets/qa/qa-transaction-list-refund-modal.png`
+  - `assets/qa/qa-transaction-list-auth-menu.png`
+- Viewport: 2048 × 900 desktop.
+- States: default transaction list, Sale/Purchase ACTIONS menu, Refund form, Auth ACTIONS menu, validation error, successful follow-up transaction, and details navigation.
+
+**Full-view comparison evidence**
+
+- The ACTIONS popover is right-aligned to the row action button and uses the reference white card, subtle border/shadow, gray section headers, compact icon rows, and neutral typography.
+- The existing Paywizard page shell, table density, colors, and control styles remain unchanged outside the requested ACTIONS workflow.
+
+**Focused region comparison evidence**
+
+- The Sale/Purchase menu contains the Action group with Transaction Details and Send Receipt, followed by the Terminal group with Refund and Tip Adjust.
+- The Auth menu uses the same structure and replaces the terminal actions with Capture and Incremental.
+- The Refund modal shows original transaction type, amount, transaction ID, merchant, terminal, and terminal SN before the editable follow-up amount.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: existing Poppins hierarchy is preserved; menu and modal labels use existing weights and sizes.
+- Spacing and layout rhythm: menu rows, section headers, modal summary grid, amount control, and footer actions align consistently with the current prototype.
+- Colors and visual tokens: existing neutral, dark, green, orange, blue, and purple transaction tokens are reused.
+- Image quality and asset fidelity: local official Material Symbols SVG assets render sharply with no missing or fallback icon text.
+- Copy and content: Action, Terminal, Transaction Details, Send Receipt, Refund, Tip Adjust, Capture, and Incremental labels match the requested workflow.
+
+**Findings**
+
+- No actionable P0, P1, or P2 visual or interaction issues remain.
+
+**Patches made**
+
+- Replaced network-dependent icon font rendering with local SVG icon assets after the first visual pass exposed fallback icon names.
+- Added inline amount validation so Refund and Capture cannot exceed the original transaction amount.
+- Added an Auth mock transaction so Capture and Incremental are directly testable in the prototype.
+
+**Verification**
+
+- JavaScript syntax and `git diff --check`: passed.
+- Sale/Purchase action mapping: passed.
+- Auth action mapping: passed.
+- Refund, Tip Adjust, Capture, and Incremental modal titles, amount labels, currencies, and source summaries: passed.
+- Refund amount validation and successful follow-up row creation: passed.
+- Transaction Details navigation to `/11.transaction_detail_redesign.html`: passed.
+- Local icon loading: 0 broken assets.
+
+final result: passed
