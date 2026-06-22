@@ -1260,26 +1260,25 @@
         }
 
         .param-tabs {
-            margin-top: 12px;
+            margin-top: 20px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
+            gap: 30px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            overflow-x: auto;
+            scrollbar-width: thin;
         }
 
         .param-tab {
             border: none;
             background: transparent;
-            padding: 8px 2px;
-            font-size: 12px;
+            padding: 12px 2px 13px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-muted);
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: color 0.18s ease, border-color 0.18s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+            white-space: nowrap;
         }
 
         .param-tab:hover {
@@ -1293,7 +1292,7 @@
 
         .param-panel {
             display: none;
-            margin-top: 16px;
+            margin-top: 22px;
         }
 
         .param-panel.active {
@@ -1301,11 +1300,8 @@
         }
 
         .param-group {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 14px;
+            padding: 0 8px 8px;
             margin-bottom: 16px;
-            background: #f9fafb;
         }
 
         .group-header {
@@ -1322,8 +1318,9 @@
 
         .group-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            column-gap: 28px;
+            row-gap: 22px;
         }
 
         .field.full {
@@ -1337,7 +1334,150 @@
         .processor-params .field label {
             text-transform: none;
             letter-spacing: 0;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #454854;
+            line-height: 1.35;
+        }
+
+        .processor-params .required-mark {
+            margin-left: 3px;
+            color: #d92d20;
+        }
+
+        .param-label-line {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .param-info-button {
+            width: 17px;
+            height: 17px;
+            flex: 0 0 17px;
+            padding: 0;
+            border: 1px solid #737986;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #5f6572;
+            font: 700 11px/15px Arial, sans-serif;
+            text-align: center;
+            cursor: help;
+        }
+
+        .param-info-button:hover,
+        .param-info-button:focus-visible {
+            border-color: #111111;
+            color: #111111;
+            outline: none;
+        }
+
+        .param-tooltip {
+            position: absolute;
+            z-index: 20;
+            left: calc(100% + 8px);
+            top: 50%;
+            width: 310px;
+            padding: 10px 12px;
+            border: 1px solid #dfe2e8;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #4c5260;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 1.5;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(-4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        .param-info-button:hover + .param-tooltip,
+        .param-info-button:focus-visible + .param-tooltip {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .param-control {
+            margin-top: 6px;
+        }
+
+        .param-input {
+            width: 100%;
+            min-height: 38px;
+            padding: 7px 0 8px;
+            border: 0;
+            border-bottom: 1px solid #cfd3da;
+            border-radius: 0;
+            background: transparent;
+            color: #363843;
+            font: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .param-input:focus {
+            border-bottom-color: #111111;
+            box-shadow: 0 1px 0 #111111;
+        }
+
+        .field.has-error .param-input {
+            border-bottom-color: #d92d20;
+            box-shadow: 0 1px 0 #d92d20;
+        }
+
+        .param-error {
+            display: none;
+            margin-top: 6px;
+            color: #d92d20;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .param-error.is-visible {
+            display: block;
+        }
+
+        select.param-input {
+            cursor: pointer;
+        }
+
+        .param-segmented {
+            display: inline-flex;
+            gap: 2px;
+            padding: 3px;
+            border-radius: 8px;
+            background: #f3f3f5;
+        }
+
+        .param-segment {
+            min-width: 70px;
+            padding: 7px 12px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: #747783;
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .param-segment.is-selected {
+            background: #0b0b0d;
+            color: #ffffff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+        }
+
+        .param-empty {
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 13px;
         }
 
         .input {
@@ -1477,6 +1617,22 @@
                 grid-template-columns: 1fr;
             }
 
+            .group-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .param-tooltip {
+                left: 0;
+                top: calc(100% + 8px);
+                width: min(310px, calc(100vw - 48px));
+                transform: translateY(-4px);
+            }
+
+            .param-info-button:hover + .param-tooltip,
+            .param-info-button:focus-visible + .param-tooltip {
+                transform: translateY(0);
+            }
+
             .wizard-steps {
                 grid-template-columns: 1fr;
                 gap: 12px;
@@ -1519,6 +1675,10 @@
 
             .store-card {
                 margin: 16px 12px;
+            }
+
+            .group-grid {
+                grid-template-columns: 1fr;
             }
 
         }
@@ -1830,7 +1990,10 @@
                                                 <option value="">Select Processor</option>
                                                 <option value="TSYS">TSYS</option>
                                                 <option value="FISERV">FISERV</option>
-                                                <option value="Worldpay">Worldpay</option>
+                                                <option value="ELAVON">ELAVON</option>
+                                                <option value="NUVEI ATTD">NUVEI ATTD</option>
+                                                <option value="NUVEI UPT">NUVEI UPT</option>
+                                                <option value="OXPAY">OXPAY</option>
                                             </select>
                                         </div>
                                         <div class="field">
@@ -1859,7 +2022,7 @@
                                     <div class="processor-params-head">
                                         <div>
                                             <h4>Processor Parameters</h4>
-                                            <p>Fill in the payment app parameter groups for the selected processor.</p>
+                                            <p>Fill in the parameter file groups for the selected processor.</p>
                                         </div>
                                         <div class="processor-pill" id="processorParamName">Processor</div>
                                     </div>
@@ -1871,6 +2034,7 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <div id="processorParamSets" aria-live="polite"></div>
                                     <div class="param-set" data-processor="TSYS">
                                         <div class="param-tabs">
                                             <button type="button" class="param-tab active" data-tab="password">Password Information</button>
@@ -2531,6 +2695,7 @@
         </div>
     </div>
 
+    <script src="processor-parameter-data.js"></script>
     <script>
         const storeNameEl = document.getElementById('store-context-name');
         const params = new URLSearchParams(window.location.search);
@@ -2548,7 +2713,8 @@
         const processorVersionSelect = document.getElementById('processor-version');
         const processorParams = document.getElementById('processorParams');
         const processorParamName = document.getElementById('processorParamName');
-        const paramSets = Array.from(document.querySelectorAll('.param-set'));
+        const processorParamSets = document.getElementById('processorParamSets');
+        let paramSets = [];
         const provisionToggle = document.getElementById('device-provision-toggle');
         const assignTemplateEl = document.getElementById('device-template');
         const paywizardSelect = document.getElementById('device-paywizard');
@@ -2556,6 +2722,351 @@
         const keyDownloadOption = document.getElementById('keyDownloadOption');
         const keyDownloadCheckbox = document.getElementById('processor-key-download');
         const deploymentOptions = document.getElementById('deploymentOptions');
+        const requestedProcessor = params.get('processor');
+        const requestedParameterGroup = params.get('group');
+
+        if (processorSelect && Object.prototype.hasOwnProperty.call(PROCESSOR_PARAMETER_SCHEMA, requestedProcessor)) {
+            processorSelect.value = requestedProcessor;
+        }
+
+        function parameterSlug(value) {
+            return String(value)
+                .toLowerCase()
+                .replace(/&/g, 'and')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+        }
+
+        function resolveParameterOptions(optionSpec) {
+            if (Array.isArray(optionSpec)) {
+                return optionSpec;
+            }
+            if (optionSpec && optionSpec !== 'binary') {
+                return PROCESSOR_PARAMETER_OPTIONS[optionSpec] || [];
+            }
+            return [];
+        }
+
+        function syncSegmentedControl(input) {
+            if (!input) return;
+            const segmented = input.parentElement && input.parentElement.querySelector('.param-segmented');
+            if (!segmented) return;
+            segmented.querySelectorAll('.param-segment').forEach((button) => {
+                const isSelected = button.dataset.value === input.value;
+                button.classList.toggle('is-selected', isSelected);
+                button.setAttribute('aria-pressed', String(isSelected));
+            });
+        }
+
+        function createParameterField(processor, fieldData) {
+            const [key, labelText, , defaultValue, required, minLength, maxLength, rule, optionSpec] = fieldData;
+            const field = document.createElement('div');
+            field.className = 'field';
+
+            const inputId = `param-${parameterSlug(processor)}-${parameterSlug(key)}`;
+            const label = document.createElement('label');
+            label.htmlFor = inputId;
+            label.append(document.createTextNode(labelText));
+            if (required) {
+                const requiredMark = document.createElement('span');
+                requiredMark.className = 'required-mark';
+                requiredMark.textContent = '*';
+                label.appendChild(requiredMark);
+            }
+
+            const tooltipText = processor === 'ELAVON' && key === 'systemId'
+                ? 'TID maps to System ID. Enter ELAVON Terminal ID here. Example: MID 88888888 + suffix 01 = 8888888801.'
+                : processor === 'ELAVON' && key === 'tid'
+                    ? 'Terminal ID uses the suffix from System ID, left-padded with zeros to 8 characters. Example: suffix 12 = 00000012.'
+                    : '';
+
+            if (tooltipText) {
+                const labelLine = document.createElement('div');
+                labelLine.className = 'param-label-line';
+                const tooltipId = `${inputId}-tooltip`;
+                const infoButton = document.createElement('button');
+                infoButton.type = 'button';
+                infoButton.className = 'param-info-button';
+                infoButton.textContent = '!';
+                infoButton.setAttribute('aria-label', `About ${labelText}`);
+                infoButton.setAttribute('aria-describedby', tooltipId);
+
+                const tooltip = document.createElement('span');
+                tooltip.className = 'param-tooltip';
+                tooltip.id = tooltipId;
+                tooltip.setAttribute('role', 'tooltip');
+                tooltip.textContent = tooltipText;
+                labelLine.append(label, infoButton, tooltip);
+                field.appendChild(labelLine);
+            } else {
+                field.appendChild(label);
+            }
+
+            const control = document.createElement('div');
+            control.className = 'param-control';
+
+            if (optionSpec === 'binary') {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.id = inputId;
+                hiddenInput.name = `${processor}.${key}`;
+                hiddenInput.value = defaultValue;
+                hiddenInput.className = 'parameter-value';
+                hiddenInput.dataset.parameterKey = key;
+
+                const segmented = document.createElement('div');
+                segmented.className = 'param-segmented';
+                segmented.setAttribute('role', 'group');
+                segmented.setAttribute('aria-label', labelText);
+                [['1', 'Enable'], ['0', 'Disable']].forEach(([value, text]) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'param-segment';
+                    button.dataset.value = value;
+                    button.textContent = text;
+                    segmented.appendChild(button);
+                });
+
+                control.append(hiddenInput, segmented);
+                field.appendChild(control);
+                syncSegmentedControl(hiddenInput);
+            } else if (optionSpec) {
+                const select = document.createElement('select');
+                select.id = inputId;
+                select.name = `${processor}.${key}`;
+                select.className = 'param-input parameter-value';
+                select.dataset.parameterKey = key;
+                if (required) select.required = true;
+
+                const options = resolveParameterOptions(optionSpec);
+                if (!defaultValue || !options.some(([value]) => value === defaultValue)) {
+                    const emptyOption = document.createElement('option');
+                    emptyOption.value = '';
+                    emptyOption.textContent = `Select ${labelText}`;
+                    select.appendChild(emptyOption);
+                }
+                options.forEach(([value, text]) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = text;
+                    select.appendChild(option);
+                });
+                select.value = defaultValue;
+                control.appendChild(select);
+                field.appendChild(control);
+            } else {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = inputId;
+                input.name = `${processor}.${key}`;
+                input.value = defaultValue;
+                input.className = 'param-input parameter-value';
+                input.dataset.parameterKey = key;
+                if (required) input.required = true;
+                if (minLength && Number(minLength) > 0) input.minLength = Number(minLength);
+                if (maxLength) input.maxLength = Number(maxLength);
+                if (rule === 'N') {
+                    input.inputMode = 'numeric';
+                    input.pattern = '[0-9]*';
+                }
+                control.appendChild(input);
+                field.appendChild(control);
+            }
+
+            if (processor === 'ELAVON' && (key === 'systemId' || key === 'tid')) {
+                const error = document.createElement('div');
+                error.className = 'param-error';
+                error.id = `${inputId}-error`;
+                error.setAttribute('role', 'alert');
+                field.appendChild(error);
+            }
+            return field;
+        }
+
+        function setParameterError(input, message, visible) {
+            if (!input) return;
+            const field = input.closest('.field');
+            const error = document.getElementById(`${input.id}-error`);
+            input.setCustomValidity(message || '');
+            input.setAttribute('aria-invalid', String(Boolean(message)));
+            if (field) field.classList.toggle('has-error', Boolean(message) && visible);
+            if (error) {
+                error.textContent = message || '';
+                error.classList.toggle('is-visible', Boolean(message) && visible);
+            }
+        }
+
+        function setupElavonTerminalRules() {
+            const midInput = document.getElementById('param-elavon-mid');
+            const systemIdInput = document.getElementById('param-elavon-systemid');
+            const terminalIdInput = document.getElementById('param-elavon-tid');
+            if (!midInput || !systemIdInput || !terminalIdInput) return;
+
+            const systemError = 'System ID format is incorrect. It must be Merchant ID + Terminal Suffix.';
+            const terminalError = 'Terminal ID is incorrect. It must use the same suffix from System ID, padded with leading zeros to 8 characters.';
+
+            function getExpectedTerminalId() {
+                const mid = midInput.value.trim();
+                const systemId = systemIdInput.value.trim();
+                if (!mid || !systemId || !systemId.startsWith(mid)) return '';
+                const suffix = systemId.slice(mid.length);
+                if (!suffix || suffix.length > 8) return '';
+                return suffix.padStart(8, '0');
+            }
+
+            function validateSystemId(forceVisible = false) {
+                const mid = midInput.value.trim();
+                const systemId = systemIdInput.value.trim();
+                const expectedTerminalId = getExpectedTerminalId();
+                const hasEnoughInput = Boolean(mid && systemId);
+                const isValid = Boolean(expectedTerminalId);
+                const showError = forceVisible || systemIdInput.dataset.touched === 'true';
+
+                setParameterError(
+                    systemIdInput,
+                    hasEnoughInput && !isValid ? systemError : '',
+                    showError
+                );
+
+                if (isValid) {
+                    terminalIdInput.value = expectedTerminalId;
+                    terminalIdInput.dataset.autoGenerated = 'true';
+                    setParameterError(terminalIdInput, '', false);
+                } else if (terminalIdInput.dataset.autoGenerated === 'true') {
+                    terminalIdInput.value = '';
+                    terminalIdInput.dataset.autoGenerated = 'false';
+                    setParameterError(terminalIdInput, '', false);
+                }
+                return isValid || !hasEnoughInput;
+            }
+
+            function validateTerminalId(forceVisible = false) {
+                const expectedTerminalId = getExpectedTerminalId();
+                const terminalId = terminalIdInput.value.trim();
+                const isValid = !expectedTerminalId || terminalId === expectedTerminalId;
+                const showError = forceVisible || terminalIdInput.dataset.touched === 'true';
+                setParameterError(
+                    terminalIdInput,
+                    expectedTerminalId && !isValid ? terminalError : '',
+                    showError
+                );
+                return isValid;
+            }
+
+            [midInput, systemIdInput].forEach((input) => {
+                input.addEventListener('input', () => {
+                    validateSystemId(false);
+                    validateTerminalId(false);
+                });
+                input.addEventListener('blur', () => {
+                    input.dataset.touched = 'true';
+                    if (input === systemIdInput) systemIdInput.dataset.touched = 'true';
+                    validateSystemId(true);
+                    validateTerminalId(false);
+                });
+            });
+
+            terminalIdInput.addEventListener('input', () => {
+                terminalIdInput.dataset.autoGenerated = 'false';
+                validateTerminalId(false);
+            });
+            terminalIdInput.addEventListener('blur', () => {
+                terminalIdInput.dataset.touched = 'true';
+                validateTerminalId(true);
+            });
+
+            window.validateElavonTerminalFields = (forceVisible = false) => {
+                if (processorSelect && processorSelect.value !== 'ELAVON') return true;
+                if (forceVisible) {
+                    systemIdInput.dataset.touched = 'true';
+                    terminalIdInput.dataset.touched = 'true';
+                }
+                return validateSystemId(forceVisible) && validateTerminalId(forceVisible);
+            };
+        }
+
+        function renderProcessorParameterSchemas() {
+            if (!processorParams || !processorParamSets || typeof PROCESSOR_PARAMETER_SCHEMA === 'undefined') {
+                return;
+            }
+
+            Array.from(processorParams.children).forEach((child) => {
+                if (child.classList && child.classList.contains('param-set')) {
+                    child.remove();
+                }
+            });
+            processorParamSets.innerHTML = '';
+
+            Object.entries(PROCESSOR_PARAMETER_SCHEMA).forEach(([processor, groups]) => {
+                const set = document.createElement('div');
+                set.className = 'param-set';
+                set.dataset.processor = processor;
+                const requestedGroupIndex = groups.findIndex(([groupName]) => groupName === requestedParameterGroup);
+                const activeGroupIndex = requestedGroupIndex >= 0 ? requestedGroupIndex : 0;
+
+                const tabs = document.createElement('div');
+                tabs.className = 'param-tabs';
+                tabs.setAttribute('role', 'tablist');
+                tabs.setAttribute('aria-label', `${processor} parameter groups`);
+
+                groups.forEach(([groupName], groupIndex) => {
+                    const tabKey = `${parameterSlug(processor)}-${parameterSlug(groupName)}`;
+                    const isActive = groupIndex === activeGroupIndex;
+                    const tab = document.createElement('button');
+                    tab.type = 'button';
+                    tab.className = `param-tab${isActive ? ' active' : ''}`;
+                    tab.dataset.tab = tabKey;
+                    tab.id = `${tabKey}-tab`;
+                    tab.setAttribute('role', 'tab');
+                    tab.setAttribute('aria-controls', `${tabKey}-panel`);
+                    tab.setAttribute('aria-selected', String(isActive));
+                    tab.textContent = groupName;
+                    tabs.appendChild(tab);
+                });
+                set.appendChild(tabs);
+
+                groups.forEach(([groupName, fields], groupIndex) => {
+                    const tabKey = `${parameterSlug(processor)}-${parameterSlug(groupName)}`;
+                    const panel = document.createElement('div');
+                    panel.className = `param-panel${groupIndex === activeGroupIndex ? ' active' : ''}`;
+                    panel.dataset.panel = tabKey;
+                    panel.id = `${tabKey}-panel`;
+                    panel.setAttribute('role', 'tabpanel');
+                    panel.setAttribute('aria-labelledby', `${tabKey}-tab`);
+
+                    const group = document.createElement('div');
+                    group.className = 'param-group';
+                    const grid = document.createElement('div');
+                    grid.className = 'group-grid';
+                    fields.forEach((fieldData) => {
+                        grid.appendChild(createParameterField(processor, fieldData));
+                    });
+                    group.appendChild(grid);
+                    panel.appendChild(group);
+                    set.appendChild(panel);
+                });
+
+                processorParamSets.appendChild(set);
+            });
+
+            paramSets = Array.from(processorParamSets.querySelectorAll('.param-set'));
+        }
+
+        renderProcessorParameterSchemas();
+        setupElavonTerminalRules();
+
+        if (processorParamSets) {
+            processorParamSets.addEventListener('click', (event) => {
+                const segment = event.target.closest('.param-segment');
+                if (!segment) return;
+                const control = segment.closest('.param-control');
+                const input = control && control.querySelector('.parameter-value');
+                if (!input) return;
+                input.value = segment.dataset.value;
+                syncSegmentedControl(input);
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
 
         function isProvisionEnabled() {
             return !provisionToggle || provisionToggle.checked;
@@ -2568,6 +3079,7 @@
             }
             set.querySelectorAll('.param-tab').forEach((tab) => {
                 tab.classList.toggle('active', tab === button);
+                tab.setAttribute('aria-selected', String(tab === button));
             });
             set.querySelectorAll('.param-panel').forEach((panel) => {
                 panel.classList.toggle('active', panel.getAttribute('data-panel') === tabId);
@@ -2576,22 +3088,22 @@
 
         const templateVersions = {
             TSYS: [
-                'V1.00.16E_20250606',
-                'V1.00.15A_20250312',
-                'V1.00.14D_20250105',
-                'V1.00.13B_20241018',
-                'V1.00.12F_20240809',
-                'V1.00.11C_20240521'
+                'v1.3.121'
             ],
             FISERV: [
-                'V2.04.03_20250520',
-                'V2.04.01_20250308',
-                'V2.03.09_20241216'
+                '1.0.34_20260622'
             ],
-            Worldpay: [
-                'V3.12.08_20250601',
-                'V3.11.05_20250219',
-                'V3.10.14_20241104'
+            ELAVON: [
+                'v1.1.57'
+            ],
+            'NUVEI ATTD': [
+                '1.0.20_260622'
+            ],
+            'NUVEI UPT': [
+                '1.0.41_20260622'
+            ],
+            OXPAY: [
+                'v1.0.19_260609'
             ]
         };
         const processorsWithKeyDownload = new Set(['TSYS', 'FISERV']);
@@ -2735,6 +3247,7 @@
 
         const TEMPLATE_KEY = 'pw_device_param_templates';
         const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+        const saveDeviceBtn = document.getElementById('saveDeviceBtn');
 
         function loadTemplates() {
             try {
@@ -2750,7 +3263,7 @@
 
         function collectProcessorParams() {
             const data = {};
-            document.querySelectorAll('#processorParams .input, #processorParams .input-field').forEach((el) => {
+            document.querySelectorAll('#processorParamSets .param-set.active .parameter-value').forEach((el) => {
                 if (!el.id) return;
                 data[el.id] = el.value;
             });
@@ -2771,7 +3284,10 @@
             if (tpl.processor) {
                 Object.entries(tpl.processor).forEach(([id, val]) => {
                     const el = document.getElementById(id);
-                    if (el) el.value = val;
+                    if (el) {
+                        el.value = val;
+                        syncSegmentedControl(el);
+                    }
                 });
             }
             if (tpl.paywizard) {
@@ -2779,6 +3295,9 @@
                     const el = document.getElementById(id);
                     if (el) el.value = val;
                 });
+            }
+            if (typeof window.validateElavonTerminalFields === 'function') {
+                window.validateElavonTerminalFields(false);
             }
         }
 
@@ -2819,6 +3338,19 @@
                 saveTemplates(templates);
                 refreshAssignTemplateOptions();
                 alert('Template saved');
+            });
+        }
+
+        if (saveDeviceBtn) {
+            saveDeviceBtn.addEventListener('click', (event) => {
+                if (typeof window.validateElavonTerminalFields === 'function' &&
+                    !window.validateElavonTerminalFields(true)) {
+                    event.preventDefault();
+                    const firstError = document.querySelector(
+                        '#processorParamSets .param-set.active .field.has-error .param-input'
+                    );
+                    if (firstError) firstError.focus();
+                }
             });
         }
     </script>
