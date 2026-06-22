@@ -84,6 +84,7 @@ final result: passed
 - The Sale/Purchase menu contains the Action group with Transaction Details and Send Receipt, followed by the Terminal group with Refund and Tip Adjust.
 - The Auth menu uses the same structure and replaces the terminal actions with Capture and Incremental.
 - The Refund modal shows original transaction type, amount, transaction ID, merchant, terminal, and terminal SN before the editable follow-up amount.
+- Follow-up iteration uses a compact two-column key/value summary with no per-field cards; Terminal Name is replaced by TID.
 
 **Required fidelity surfaces**
 
@@ -102,6 +103,8 @@ final result: passed
 - Replaced network-dependent icon font rendering with local SVG icon assets after the first visual pass exposed fallback icon names.
 - Added inline amount validation so Refund and Capture cannot exceed the original transaction amount.
 - Added an Auth mock transaction so Capture and Incremental are directly testable in the prototype.
+- Removed the modal subtitle and optional reference/note field.
+- Replaced six boxed summary cards with a borderless, compact key/value layout.
 
 **Verification**
 
@@ -112,5 +115,15 @@ final result: passed
 - Refund amount validation and successful follow-up row creation: passed.
 - Transaction Details navigation to `/11.transaction_detail_redesign.html`: passed.
 - Local icon loading: 0 broken assets.
+- Compact Refund modal screenshot: `assets/qa/qa-transaction-list-refund-modal-compact.png`.
+- MID replaces Merchant in the original transaction summary.
+- Transaction Channel displays the configured processor channel (TSYS, FISERV, ELAVON, or NUVEI) and is inherited by follow-up transactions.
+- Capture modal channel screenshot: `assets/qa/qa-transaction-list-capture-channel.png`.
+- Summary order now places MID and TID on the same row; Transaction Channel is shortened to Channel.
+- Amount guidance uses a higher-contrast neutral callout with a left accent and semibold text.
+- Reordered Refund modal screenshot: `assets/qa/qa-transaction-list-refund-reordered.png`.
+- Replaced the amount callout card with a borderless inline calculation row using existing typography and divider tokens.
+- Tip Adjust now presents Original sale and New total as two compact values, with only the resulting total emphasized.
+- Redesigned Tip Adjust screenshot: `assets/qa/qa-transaction-list-tip-help-redesign.png`.
 
 final result: passed
