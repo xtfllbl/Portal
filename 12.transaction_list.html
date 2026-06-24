@@ -267,6 +267,30 @@
     .followup-summary-item{min-width:0;display:grid;grid-template-columns:108px minmax(0,1fr);align-items:baseline;gap:10px}
     .followup-summary-item span{color:#8790a1;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
     .followup-summary-item strong{min-width:0;overflow:hidden;color:#313a4a;font-size:13px;font-weight:600;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+    .followup-terminal{padding:14px 0 16px;border-bottom:1px solid #edf0f4;display:grid;gap:11px}
+    .followup-terminal:empty{display:none}
+    .routing-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .routing-title{color:#4b5567;font-size:12px;font-weight:700}
+    .routing-copy{margin:3px 0 0;color:#737c8f;font-size:12px;line-height:1.45}
+    .routing-status{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;background:#eef2f8;color:#596579;font-size:11px;font-weight:700;white-space:nowrap}
+    .routing-status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+    .routing-status.online{background:#e8f8ef;color:#1e7a43}
+    .routing-status.offline{background:#fdefec;color:#b63a30}
+    .routing-mode{width:max-content;display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid #dce2ec;border-radius:12px;background:#f8f9fb}
+    .routing-mode-btn{height:30px;padding:0 12px;border:0;border-radius:9px;background:transparent;color:#697386;font-size:12px;font-weight:700}
+    .routing-mode-btn.active{background:#17191e;color:#fff;box-shadow:0 3px 10px rgba(23,25,30,.16)}
+    .routing-selected{min-width:0;display:grid;gap:3px}
+    .routing-selected span{color:#8790a1;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+    .routing-selected strong{color:#313a4a;font-size:13px;font-weight:700;line-height:1.35}
+    .routing-selected small{color:#737c8f;font-size:11px;line-height:1.35}
+    .routing-list{border:1px solid #e1e6ef;border-radius:12px;overflow:hidden;background:#fff}
+    .routing-option{width:100%;min-height:52px;padding:9px 11px;border:0;border-bottom:1px solid #edf0f4;background:#fff;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;color:#333c4d}
+    .routing-option:last-child{border-bottom:0}
+    .routing-option:hover,.routing-option.active{background:#f6f8fc}
+    .routing-option.active{box-shadow:inset 3px 0 0 #17191e}
+    .routing-option strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}
+    .routing-option span{display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#70798b;font-size:11px}
+    .routing-option em{font-style:normal;color:#1e7a43;font-size:11px;font-weight:700;white-space:nowrap}
     .followup-form{margin-top:18px;display:grid;gap:15px}
     .followup-field{display:grid;gap:7px}
     .followup-field label{color:#4b5567;font-size:12px;font-weight:600}
@@ -297,7 +321,7 @@
     @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
     @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}
     @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
-    @media (max-width:560px){.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
+    @media (max-width:560px){.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.routing-head{display:grid}.routing-mode{width:100%;display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
   </style>
 </head>
 <body>
@@ -439,6 +463,7 @@
       </div>
       <div class="followup-body">
         <div class="followup-summary" id="followupSummary"></div>
+        <div class="followup-terminal" id="followupTerminal"></div>
         <div class="followup-form">
           <div class="followup-field">
             <label for="followupAmount" id="followupAmountLabel">Amount</label>
@@ -524,6 +549,19 @@
         "202511040000901":"ELAVON"
       };
       const transactionChannelForRow=row=>row?.transactionChannel||transactionChannelByMid[row?.mid]||"TSYS";
+      const additionalTerminalsByMid={
+        "202604270000183":[
+          {mid:"202604270000183",tid:"Coffee Kiosk 04",sn:"PWKIOSK04260427",terminalName:"Coffee Kiosk 04",merchantName:"HQ Canteen",storeName:"Coffee Kiosk 04",storeId:"STORE-HQ04",terminalUsage:"self_service",terminalScene:"Coffee Kiosk"},
+          {mid:"202604270000183",tid:"Coffee Kiosk 05",sn:"PWKIOSK05260427",terminalName:"Coffee Kiosk 05",merchantName:"HQ Canteen",storeName:"Coffee Kiosk 05",storeId:"STORE-HQ05",terminalUsage:"self_service",terminalScene:"Coffee Kiosk"}
+        ],
+        "202604070000015":[
+          {mid:"202604070000015",tid:"WSTORE-Q3-05",sn:"WP5280VQ33200005",terminalName:"Q3mini Lab 05",merchantName:"wstore-test",storeName:"Shanghai Lab Store",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
+          {mid:"202604070000015",tid:"WSTORE-Q3-06",sn:"WP5280VQ33200006",terminalName:"Q3mini Lab 06",merchantName:"wstore-test",storeName:"Shanghai Lab Store",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"}
+        ],
+        "202604070000016":[
+          {mid:"202604070000016",tid:"WSTORE-Q3-16",sn:"WP5280VQ33200016",terminalName:"Q3mini Lab 16",merchantName:"wstore-test",storeName:"Shanghai Lab Store",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"}
+        ]
+      };
       const viewStoreKey="paywizard.transactionList.savedViews";
       const maxCustomViews=2;
       const columnViewSwitchDelay=2000;
@@ -604,6 +642,7 @@
       const followupForm=document.getElementById("followupForm");
       const followupTitle=document.getElementById("followupTitle");
       const followupSummary=document.getElementById("followupSummary");
+      const followupTerminal=document.getElementById("followupTerminal");
       const followupAmountLabel=document.getElementById("followupAmountLabel");
       const followupCurrency=document.getElementById("followupCurrency");
       const followupAmount=document.getElementById("followupAmount");
@@ -620,7 +659,7 @@
         incremental:{label:"Incremental",title:"Create Incremental Authorization",amountLabel:"Incremental Amount",icon:"trending_up",resultType:"Incremental",maxOriginal:false,confirmLabel:"Initiate Incremental"}
       };
       const rowActionState={row:null,anchor:null};
-      const followupState={row:null,action:""};
+      const followupState={row:null,action:"",terminalMode:"current",selectedTerminal:null,terminalOptions:[],currentTerminalOnline:false};
       let toastTimer=null;
       const showActionToast=message=>{
         actionToast.textContent=message;
@@ -685,8 +724,13 @@
         followupBackdrop.setAttribute("aria-hidden","true");
         followupState.row=null;
         followupState.action="";
+        followupState.terminalMode="current";
+        followupState.selectedTerminal=null;
+        followupState.terminalOptions=[];
+        followupState.currentTerminalOnline=false;
         followupForm.reset();
         followupError.textContent="";
+        followupTerminal.innerHTML="";
         followupSubmit.disabled=false;
         document.body.style.overflow="";
       };
@@ -713,13 +757,80 @@
         }
         followupHelp.innerHTML=html;
       };
+      const terminalKey=terminal=>String(terminal?.sn||terminal?.tid||terminal?.terminalName||"");
+      const sameTerminal=(a,b)=>{
+        const aSn=String(a?.sn||""),bSn=String(b?.sn||"");
+        if(aSn&&bSn) return aSn===bSn;
+        return String(a?.tid||"")===String(b?.tid||"")&&String(a?.mid||"")===String(b?.mid||"");
+      };
+      const terminalLine=terminal=>{
+        const title=terminal?.tid||terminal?.terminalName||terminal?.sn||"-";
+        const sn=terminal?.sn?`SN ${terminal.sn}`:"SN -";
+        const name=terminal?.terminalName&&terminal.terminalName!==title?` · ${terminal.terminalName}`:"";
+        return {title,meta:`${sn}${name}`};
+      };
+      const followupTerminalReady=terminal=>{
+        if(!terminal||isTerminalUncontrolled(terminal)) return false;
+        const detail=resolveTerminalDetail(terminal);
+        return Boolean(detail.deviceOnline&&detail.paymentOnline);
+      };
+      const terminalsForMid=row=>{
+        const byKey=new Map();
+        [row,...(additionalTerminalsByMid[row?.mid]||[]),...rows.filter(item=>String(item.mid||"")===String(row?.mid||""))].forEach(item=>{
+          if(!item) return;
+          const key=terminalKey(item);
+          if(key&&!byKey.has(key)) byKey.set(key,item);
+        });
+        return [...byKey.values()];
+      };
+      const onlineAlternativeTerminals=row=>terminalsForMid(row).filter(terminal=>followupTerminalReady(terminal)&&!sameTerminal(terminal,row));
+      const selectedFollowupTerminal=()=>{
+        if(followupState.currentTerminalOnline) return followupState.row;
+        if(followupState.terminalMode==="auto") return followupState.terminalOptions[0]||null;
+        return followupState.selectedTerminal;
+      };
+      const renderFollowupTerminalRouting=()=>{
+        const row=followupState.row;
+        if(!row){followupTerminal.innerHTML=""; return;}
+        const original=terminalLine(row);
+        const currentOnline=followupState.currentTerminalOnline;
+        const selected=selectedFollowupTerminal();
+        const selectedLine=terminalLine(selected);
+        if(currentOnline){
+          followupTerminal.innerHTML="";
+          return;
+        }
+        const options=followupState.terminalOptions;
+        const mode=followupState.terminalMode;
+        const selectedBlock=mode==="auto"
+          ?`<div class="routing-selected"><span>System selected terminal</span><strong>${esc(selectedLine.title)}</strong><small>${esc(selectedLine.meta)}</small></div>`
+          :"";
+        const manualList=mode==="manual"
+          ?`<div class="routing-list">${options.map(option=>{
+            const line=terminalLine(option);
+            const active=sameTerminal(option,selected);
+            return `<button class="routing-option${active?" active":""}" type="button" data-terminal-key="${esc(terminalKey(option))}"><span><strong>${esc(line.title)}</strong><span>${esc(line.meta)}</span></span><em>Online</em></button>`;
+          }).join("")}</div>`
+          :"";
+        followupTerminal.innerHTML=`<div class="routing-head"><div><div class="routing-title">Terminal Routing</div><p class="routing-copy">Original terminal ${esc(original.title)} is offline. Use another online terminal under the same MID.</p></div><span class="routing-status offline">Offline</span></div><div class="routing-mode" aria-label="Terminal selection mode"><button class="routing-mode-btn${mode==="auto"?" active":""}" type="button" data-terminal-mode="auto">Auto Select</button><button class="routing-mode-btn${mode==="manual"?" active":""}" type="button" data-terminal-mode="manual">Manual Select</button></div>${selectedBlock}${manualList}`;
+      };
       const summaryItem=(label,value)=>`<div class="followup-summary-item"><span>${esc(label)}</span><strong title="${esc(value)}">${esc(value)}</strong></div>`;
       const openFollowupModal=(row,action)=>{
         const config=followupConfig[action];
         if(!row||!config) return;
         closeRowActionMenu();
+        const currentTerminalOnline=followupTerminalReady(row);
+        const terminalOptions=onlineAlternativeTerminals(row);
+        if(!currentTerminalOnline&&!terminalOptions.length){
+          showActionToast(`No online terminal is available under MID ${row.mid}. Follow-up transaction cannot be initiated.`);
+          return;
+        }
         followupState.row=row;
         followupState.action=action;
+        followupState.currentTerminalOnline=currentTerminalOnline;
+        followupState.terminalOptions=terminalOptions;
+        followupState.terminalMode=currentTerminalOnline?"current":"auto";
+        followupState.selectedTerminal=currentTerminalOnline?row:terminalOptions[0];
         followupTitle.textContent=config.title;
         followupSummary.innerHTML=[
           ["Original Type",row.type],
@@ -737,20 +848,22 @@
         followupError.textContent="";
         followupSubmit.textContent=config.confirmLabel;
         followupSubmit.disabled=false;
+        renderFollowupTerminalRouting();
         updateFollowupHelp();
         followupBackdrop.classList.add("show");
         followupBackdrop.setAttribute("aria-hidden","false");
         document.body.style.overflow="hidden";
-        window.setTimeout(()=>{followupAmount.focus();followupAmount.select();},0);
+        followupForm.scrollTop=0;
       };
       const currentTimestamp=()=>{
         const date=new Date();
         const pad=value=>String(value).padStart(2,"0");
         return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
       };
-      const createFollowupRow=(row,action,amount)=>{
+      const createFollowupRow=(row,action,amount,terminal,terminalMode)=>{
         const config=followupConfig[action];
         const stamp=String(Date.now());
+        const routeTerminal=terminal||row;
         return {
           ...row,
           status:"completed",
@@ -760,12 +873,23 @@
           approvalCode:"PENDING",
           type:config.resultType,
           amount:formatAmount(amount),
+          tid:routeTerminal.tid||row.tid,
+          sn:routeTerminal.sn||row.sn,
+          terminalName:routeTerminal.terminalName||row.terminalName,
+          storeName:routeTerminal.storeName||row.storeName,
+          storeId:routeTerminal.storeId||row.storeId,
+          terminalUsage:routeTerminal.terminalUsage||row.terminalUsage,
+          terminalScene:routeTerminal.terminalScene||row.terminalScene,
+          transactionChannel:transactionChannelForRow(row),
           paywizardId:`PWF-${stamp}`,
           transId:`TRX-${config.resultType.toUpperCase().replace(/\s+/g,"-")}-${stamp.slice(-8)}`,
           transLogId:`LOG-${stamp}`,
           transIndexCode:`IDX-${stamp}`,
           trace:stamp.slice(-6),
-          originalTransId:row.transId
+          originalTransId:row.transId,
+          originalTid:row.tid,
+          originalTerminalSn:row.sn,
+          terminalRouteMode:terminalMode||"current"
         };
       };
       const tabLabelMap={completed:"Completed",failed:"Failed"};
@@ -900,8 +1024,14 @@
         icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="10" rx="1.8"></rect><path d="M6.5 8V6h8v2"></path><line x1="7.2" y1="12.2" x2="12.8" y2="12.2"></line><path d="M4.5 4.5l15 15"></path></svg>'
       };
       const terminalDetailBySn={
+        PWKIOSK03260427:{online:false,paymentServiceOnline:false,deviceOfflineDuration:"18m",paymentOfflineDuration:"18m",lastCommTime:"2026-04-27 10:00:12",lastBootTime:"2026-04-27 07:18:02",model:"Q3mini",terminalName:"Coffee Kiosk 03",groupName:"HQ Canteen",agent:"54183",network:"Wi-Fi",wifiSsid:"HQ-Canteen",ip:"-",gps:"49.282 123.120",appCount:8,battery:"External Power",usedMemory:"1320.00MB",freeMemory:"388.00MB",usedStorage:"4208.00MB",freeStorage:"14120.00MB",runningTime:11892,systemVersion:"3.01.8",safeModuleVersion:"PCBB0010",pcba:"Q3MINIPCBA2604183",imei1:"866451070060183"},
+        PWKIOSK04260427:{online:true,paymentServiceOnline:true,lastCommTime:"2026-04-27 10:19:02",lastBootTime:"2026-04-27 08:04:21",model:"Q3mini",terminalName:"Coffee Kiosk 04",groupName:"HQ Canteen",agent:"54183",network:"Wi-Fi",wifiSsid:"HQ-Canteen",ip:"10.24.18.44",gps:"49.282 123.120",appCount:8,battery:"External Power",usedMemory:"1288.00MB",freeMemory:"420.00MB",usedStorage:"4120.00MB",freeStorage:"14208.00MB",runningTime:8121,systemVersion:"3.01.8",safeModuleVersion:"PCBB0010",pcba:"Q3MINIPCBA2604184",imei1:"866451070060184"},
+        PWKIOSK05260427:{online:true,paymentServiceOnline:true,lastCommTime:"2026-04-27 10:18:58",lastBootTime:"2026-04-27 08:02:19",model:"Q3mini",terminalName:"Coffee Kiosk 05",groupName:"HQ Canteen",agent:"54183",network:"Wi-Fi",wifiSsid:"HQ-Canteen",ip:"10.24.18.45",gps:"49.282 123.120",appCount:8,battery:"External Power",usedMemory:"1301.00MB",freeMemory:"407.00MB",usedStorage:"4198.00MB",freeStorage:"14130.00MB",runningTime:8223,systemVersion:"3.01.8",safeModuleVersion:"PCBB0010",pcba:"Q3MINIPCBA2604185",imei1:"866451070060185"},
         WP5151DQ33000097:{controlStatus:"lost",online:false,lastCommTime:"2025-06-15 15:15:21",model:"IM30",network:"Ethernet",systemVersion:"1.26.7",battery:"0%"},
         WP5280VQ33200002:{id:1100049,online:false,paymentServiceOnline:true,deviceOfflineDuration:"2d 4h",terminalName:"WP5280VQ33200002",groupId:5422,groupName:"wstore-test",model:"posModel",modelAlias:"posModel",registerTime:1776670800000,systemVersion:"1.0.40-1137",kernelVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",bootloaderVersion:"1.0.40-1110",basebandVersion:"MPSS.HA.A14_H230_DRX_20251120",imei1:"866451070051501",imei2:"866451070051519",bluetoothMac:"02:56:14:01:28:B9",wifiMac:"00:56:14:01:28:b9",wifiSsid:"\"huiyin-ap\"",status:0,networkType:0,network:"Wi-Fi",ip:"192.168.202.97",gps:"31.2485 121.491",appCount:15,lastUpdateTime:1777017265000,agent:"54050",lastCommTime:"2026-04-24 15:54:25",lastBootTime:"2026-04-24 15:03:49",system:"1137",pcba:"TPHYCW1250614400128",freeMemory:"102.00MB",usedMemory:"1678.00MB",freeStorage:"16628.00MB",usedStorage:"2067.00MB",battery:"100%",runningTime:287189,productModel:"Q3mini",androidVersion:"14",manufacturer:"SHWP"},
+        WP5280VQ33200005:{online:true,paymentServiceOnline:true,lastCommTime:"2026-04-07 12:18:19",lastBootTime:"2026-04-07 09:28:22",model:"Q3mini",terminalName:"Q3mini Lab 05",groupName:"wstore-test",agent:"54050",network:"Wi-Fi",wifiSsid:"huiyin-ap",ip:"192.168.202.105",gps:"31.2485 121.491",appCount:15,battery:"100%",usedMemory:"1510.00MB",freeMemory:"268.00MB",usedStorage:"3098.00MB",freeStorage:"15597.00MB",runningTime:10180,systemVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",pcba:"TPHYCW1250614400155",imei1:"866451070051505"},
+        WP5280VQ33200006:{online:true,paymentServiceOnline:true,lastCommTime:"2026-04-07 12:18:08",lastBootTime:"2026-04-07 09:31:45",model:"Q3mini",terminalName:"Q3mini Lab 06",groupName:"wstore-test",agent:"54050",network:"Wi-Fi",wifiSsid:"huiyin-ap",ip:"192.168.202.106",gps:"31.2485 121.491",appCount:15,battery:"100%",usedMemory:"1490.00MB",freeMemory:"288.00MB",usedStorage:"3112.00MB",freeStorage:"15583.00MB",runningTime:9994,systemVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",pcba:"TPHYCW1250614400156",imei1:"866451070051506"},
+        WP5280VQ33200016:{online:true,paymentServiceOnline:true,lastCommTime:"2026-04-07 12:25:39",lastBootTime:"2026-04-07 09:18:11",model:"Q3mini",terminalName:"Q3mini Lab 16",groupName:"wstore-test",agent:"54050",network:"Wi-Fi",wifiSsid:"huiyin-ap",ip:"192.168.202.116",gps:"31.2485 121.491",appCount:15,battery:"100%",usedMemory:"1478.00MB",freeMemory:"300.00MB",usedStorage:"3004.00MB",freeStorage:"15691.00MB",runningTime:11221,systemVersion:"1.0.40-1137",safeModuleVersion:"PCBB0009",pcba:"TPHYCW1250614400166",imei1:"866451070051516"},
         WP52205Q33000977:{online:true,lastCommTime:"2026-04-07 10:46:48",lastBootTime:"2026-04-07 09:15:10",model:"Q2",groupName:"waou test merchant",agent:"54012",network:"Wi-Fi",wifiSsid:"Store-WiFi",ip:"10.10.20.41",gps:"-",appCount:12,battery:"86%",usedMemory:"1240.00MB",freeMemory:"480.00MB",usedStorage:"4120.00MB",freeStorage:"12880.00MB",runningTime:5478,systemVersion:"2.04.3",safeModuleVersion:"PCBB0008",pcba:"Q2PCBA220100812",imei1:"866451070041201"},
         WP6127TX33009110:{online:true,lastCommTime:"2026-04-07 10:22:01",lastBootTime:"2026-04-07 07:40:18",model:"Q3",groupName:"north campus group",agent:"54018",network:"4G",ip:"100.92.14.22",gps:"49.278 122.919",appCount:9,battery:"72%",usedMemory:"1512.00MB",freeMemory:"266.00MB",usedStorage:"3304.00MB",freeStorage:"14812.00MB",runningTime:9703,systemVersion:"3.01.2",safeModuleVersion:"PCBB0010",pcba:"Q3PCBA240901447",imei1:"866451070047712"},
         WP6001MM33000109:{online:false,paymentServiceOnline:false,deviceOfflineDuration:"3h 8m",paymentOfflineDuration:"3h 8m",lastCommTime:"2026-04-07 08:59:34",lastBootTime:"2026-04-07 08:10:22",model:"IM25",groupName:"urban bistro",agent:"54009",network:"Wi-Fi",wifiSsid:"Bistro-Staff",ip:"-",gps:"-",appCount:10,battery:"34%",usedMemory:"1388.00MB",freeMemory:"310.00MB",usedStorage:"5870.00MB",freeStorage:"11030.00MB",runningTime:6492,systemVersion:"1.89.2",safeModuleVersion:"PCBB0007",pcba:"IM25PCBA19020871",imei1:"866451070031099"},
@@ -1433,6 +1563,26 @@
         followupError.textContent="";
         updateFollowupHelp();
       });
+      followupTerminal.addEventListener("click",e=>{
+        const modeButton=e.target.closest("[data-terminal-mode]");
+        if(modeButton&&!followupState.currentTerminalOnline){
+          const mode=modeButton.dataset.terminalMode;
+          followupState.terminalMode=mode==="manual"?"manual":"auto";
+          if(followupState.terminalMode==="auto") followupState.selectedTerminal=followupState.terminalOptions[0]||null;
+          if(followupState.terminalMode==="manual"&&!followupState.selectedTerminal) followupState.selectedTerminal=followupState.terminalOptions[0]||null;
+          followupError.textContent="";
+          renderFollowupTerminalRouting();
+          return;
+        }
+        const terminalButton=e.target.closest("[data-terminal-key]");
+        if(terminalButton&&!followupState.currentTerminalOnline){
+          const key=terminalButton.dataset.terminalKey;
+          followupState.terminalMode="manual";
+          followupState.selectedTerminal=followupState.terminalOptions.find(option=>terminalKey(option)===key)||followupState.selectedTerminal;
+          followupError.textContent="";
+          renderFollowupTerminalRouting();
+        }
+      });
       document.getElementById("followupClose").addEventListener("click",closeFollowupModal);
       document.getElementById("followupCancel").addEventListener("click",closeFollowupModal);
       followupBackdrop.addEventListener("click",e=>{if(e.target===followupBackdrop) closeFollowupModal();});
@@ -1453,14 +1603,19 @@
           followupAmount.focus();
           return;
         }
-        const newRow=createFollowupRow(row,action,amount);
+        const routeTerminal=selectedFollowupTerminal();
+        if(!routeTerminal){
+          followupError.textContent=`No online terminal is available under MID ${row.mid}.`;
+          return;
+        }
+        const newRow=createFollowupRow(row,action,amount,routeTerminal,followupState.terminalMode);
         followupSubmit.disabled=true;
         followupSubmit.textContent="Processing...";
         window.setTimeout(()=>{
           rows.unshift(newRow);
           closeFollowupModal();
           renderTable();
-          showActionToast(`${config.label} transaction ${newRow.transId} has been initiated.`);
+          showActionToast(`${config.label} transaction ${newRow.transId} has been initiated via ${newRow.tid}.`);
         },650);
       });
       snPicker.addEventListener("click",e=>{
