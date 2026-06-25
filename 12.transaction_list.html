@@ -265,8 +265,18 @@
     .followup-body{padding:20px 22px}
     .followup-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 30px;padding:2px 0 18px;border-bottom:1px solid #edf0f4}
     .followup-summary-item{min-width:0;display:grid;grid-template-columns:108px minmax(0,1fr);align-items:baseline;gap:10px}
-    .followup-summary-item span{color:#8790a1;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+    .followup-summary-item span{min-width:0;overflow:hidden;color:#8790a1;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;text-overflow:ellipsis;white-space:nowrap}
     .followup-summary-item strong{min-width:0;overflow:hidden;color:#313a4a;font-size:13px;font-weight:600;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+    .followup-ledger{display:none;padding:14px 0 16px;border-bottom:1px solid #edf0f4}
+    .followup-ledger.show{display:block}
+    .ledger-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+    .ledger-title{color:#4b5567;font-size:12px;font-weight:700}
+    .ledger-table{border:1px solid #e1e6ef;border-radius:12px;overflow:hidden;background:#fff}
+    .ledger-row{display:grid;grid-template-columns:1.35fr 1fr .9fr;gap:10px;align-items:center;min-height:38px;padding:8px 11px;border-bottom:1px solid #edf0f4;color:#333c4d;font-size:11px;line-height:1.35}
+    .ledger-row:last-child{border-bottom:0}
+    .ledger-row.head{min-height:32px;background:#f8f9fb;color:#7d8798;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    .ledger-row strong{font-size:12px;color:#2f3747}
+    .ledger-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .followup-terminal{padding:14px 0 16px;border-bottom:1px solid #edf0f4;display:grid;gap:11px}
     .followup-terminal:empty{display:none}
     .routing-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
@@ -321,7 +331,7 @@
     @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
     @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}
     @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
-    @media (max-width:560px){.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.routing-head{display:grid}.routing-mode{width:100%;display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
+    @media (max-width:560px){.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.ledger-head{display:grid}.ledger-table{overflow:auto}.ledger-row{min-width:420px}.routing-head{display:grid}.routing-mode{width:100%;display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
   </style>
 </head>
 <body>
@@ -463,6 +473,7 @@
       </div>
       <div class="followup-body">
         <div class="followup-summary" id="followupSummary"></div>
+        <div class="followup-ledger" id="followupLedger"></div>
         <div class="followup-terminal" id="followupTerminal"></div>
         <div class="followup-form">
           <div class="followup-field">
@@ -515,7 +526,8 @@
         storeId:["STORE ID",140,"Store ID"]
       };
       const rows=[
-        {status:"completed",processorTime:"2026-04-27 10:18:34",terminalTime:"-",timezone:"",invoiceNumber:"260427101834",paymentMethod:"Prepaid Card",cardBrand:"prepaid",cardPanMasked:"04A37C91B25F80",cardPanPlain:"04A37C91B25F80",cardDisplayNo:"EMP-CARD-004218",approvalCode:"A93F2B",type:"Purchase",amount:"3.50",currency:"USD",mid:"202604270000183",tid:"Coffee Kiosk 03",merchantName:"HQ Canteen",storeName:"Coffee Kiosk 03",sn:"PWKIOSK03260427",paywizardId:"PWV-260427-100183",transId:"TRX-100183",transLogId:"LOG-260427-100183",transIndexCode:"IDX-260427-100183",batch:"B918",trace:"100183",terminalName:"Coffee Kiosk 03",phoneNumber:"+1 604 555 0188",email:"ops@merchant.test",storeId:"STORE-HQ03",terminalUsage:"self_service",terminalScene:"Coffee Kiosk"},
+        {status:"completed",processorTime:"2026-04-27 10:18:34",terminalTime:"-",timezone:"",invoiceNumber:"260427101834",paymentMethod:"Prepaid Card",cardBrand:"prepaid",cardPanMasked:"04A37C91B25F80",cardPanPlain:"04A37C91B25F80",cardDisplayNo:"EMP-CARD-004218",approvalCode:"A93F2B",type:"Purchase",amount:"3.50",baseAmount:"3.00",tipAmount:"0.50",currency:"USD",mid:"202604270000183",tid:"Coffee Kiosk 03",merchantName:"HQ Canteen",storeName:"Coffee Kiosk 03",sn:"PWKIOSK03260427",paywizardId:"PWV-260427-100183",transId:"TRX-100183",transLogId:"LOG-260427-100183",transIndexCode:"IDX-260427-100183",batch:"B918",trace:"100183",terminalName:"Coffee Kiosk 03",phoneNumber:"+1 604 555 0188",email:"ops@merchant.test",storeId:"STORE-HQ03",terminalUsage:"self_service",terminalScene:"Coffee Kiosk"},
+        {status:"completed",processorTime:"2026-04-27 10:21:09",terminalTime:"-",timezone:"",invoiceNumber:"260427102109",paymentMethod:"Prepaid Card",cardBrand:"prepaid",cardPanMasked:"04A37C91B25F80",cardPanPlain:"04A37C91B25F80",cardDisplayNo:"EMP-CARD-004218",approvalCode:"T91P4C",type:"Tip Adjust",amount:"1.00",currency:"USD",mid:"202604270000183",tid:"Coffee Kiosk 04",merchantName:"HQ Canteen",storeName:"Coffee Kiosk 04",sn:"PWKIOSK04260427",paywizardId:"PWT-260427-100183",transId:"TRX-TIP-100183",transLogId:"LOG-260427-102109",transIndexCode:"IDX-260427-102109",batch:"B918",trace:"102109",terminalName:"Coffee Kiosk 04",phoneNumber:"+1 604 555 0188",email:"ops@merchant.test",storeId:"STORE-HQ04",terminalUsage:"self_service",terminalScene:"Coffee Kiosk",originalTransId:"TRX-100183",originalAmount:"3.50",tipAmount:"1.00"},
         {status:"completed",processorTime:"2026-04-27 09:42:21",terminalTime:"-",timezone:"",invoiceNumber:"260427094221",paymentMethod:"Prepaid Card",cardBrand:"prepaid",cardPanMasked:"0418E6AA923B11",cardPanPlain:"0418E6AA923B11",cardDisplayNo:"EMP-CARD-002106",approvalCode:"R71K8M",type:"Refund",amount:"4.20",currency:"USD",mid:"202604270000221",tid:"Staff POS Counter",merchantName:"HQ Canteen",storeName:"Staff POS Counter",sn:"PWPOS01260427",paywizardId:"PWR-260427-094221",transId:"TRX-094221",transLogId:"LOG-260427-094221",transIndexCode:"IDX-260427-094221",batch:"B918",trace:"094221",terminalName:"Staff POS Counter",phoneNumber:"+1 604 555 0188",email:"ops@merchant.test",storeId:"STORE-HQ01",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
         {status:"completed",processorTime:"2026-04-07 12:25:08",terminalTime:"-",timezone:"",invoiceNumber:"260407122508",paymentMethod:"QR",cardBrand:"qr",cardPanMasked:"QR-260407-122508",cardPanPlain:"QR-260407-122508",approvalCode:"QR8821",type:"Purchase",amount:"12.80",currency:"USD",mid:"202604070000016",tid:"WSTORE-Q3-02",merchantName:"wstore-test",storeName:"Shanghai Lab Store",sn:"WP5280VQ33200002",paywizardId:"PW-20260407-122508",transId:"TRX-122508",transLogId:"LOG-20260407-122508",transIndexCode:"IDX-20260407-122508",batch:"B552",trace:"560052",terminalName:"Q3mini Lab 02",phoneNumber:"+86 21 5555 1200",email:"ops@wstore.test",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
         {status:"completed",processorTime:"2026-04-07 12:16:42",terminalTime:"-",timezone:"",invoiceNumber:"260407121642",cardBrand:"visa",cardPanMasked:"445952****1859",cardPanPlain:"4459521859",approvalCode:"719204",type:"Purchase",amount:"21.40",currency:"USD",mid:"202604070000015",tid:"WSTORE-Q3-02",merchantName:"wstore-test",storeName:"Shanghai Lab Store",sn:"WP5280VQ33200002",paywizardId:"PW-20260407-121642",transId:"TRX-121642",transLogId:"LOG-20260407-121642",transIndexCode:"IDX-20260407-121642",batch:"B552",trace:"560041",terminalName:"Q3mini Lab 02",phoneNumber:"+86 21 5555 1200",email:"ops@wstore.test",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
@@ -531,6 +543,8 @@
         {status:"completed",processorTime:"2026-04-07 10:46:02",terminalTime:"-",timezone:"",invoiceNumber:"260407104602",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"622397",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-104602",transId:"TRX-104602",transLogId:"LOG-20260407-104602",transIndexCode:"IDX-20260407-104602",batch:"B344",trace:"548901",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
         {status:"completed",processorTime:"2026-04-07 10:39:16",terminalTime:"-",timezone:"",invoiceNumber:"260407103916",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"506708",type:"Purchase",amount:"0.01",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-103916",transId:"TRX-103916",transLogId:"LOG-20260407-103916",transIndexCode:"IDX-20260407-103916",batch:"B344",trace:"548902",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
         {status:"completed",processorTime:"2026-04-07 10:21:51",terminalTime:"-",timezone:"",invoiceNumber:"260407102151",cardBrand:"visa",cardPanMasked:"414740****8821",cardPanPlain:"4147408821",approvalCode:"331890",type:"Purchase",amount:"4.50",currency:"CAD",mid:"202511040000901",tid:"Campus Kiosk 03",merchantName:"north campus group",storeName:"sfu dining commons",sn:"WP6127TX33009110",paywizardId:"PW-20260407-102151",transId:"TRX-102151",transLogId:"LOG-20260407-102151",transIndexCode:"IDX-20260407-102151",batch:"B211",trace:"547009",terminalName:"Beverage Kiosk 03",phoneNumber:"+1 604 555 7788",email:"vending.ops@campus.test",storeId:"STORE-3150",terminalUsage:"self_service",terminalScene:"Beverage Kiosk"},
+        {status:"completed",processorTime:"2026-04-07 10:16:45",terminalTime:"-",timezone:"",invoiceNumber:"260407101645",cardBrand:"visa",cardPanMasked:"445952****1859",cardPanPlain:"4459521859",approvalCode:"INC45",type:"Incremental",amount:"10.00",currency:"EUR",mid:"202604070000015",tid:"WSTORE-Q3-05",merchantName:"wstore-test",storeName:"Shanghai Lab Store",sn:"WP5280VQ33200005",paywizardId:"PWI-20260407-101645",transId:"TRX-INC-101645",transLogId:"LOG-20260407-101645",transIndexCode:"IDX-20260407-101645",batch:"B552",trace:"547004",terminalName:"Q3mini Lab 05",phoneNumber:"+86 21 5555 1200",email:"ops@wstore.test",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS",originalTransId:"TRX-AUTH-100812",originalAmount:"85.00"},
+        {status:"completed",processorTime:"2026-04-07 10:12:28",terminalTime:"-",timezone:"",invoiceNumber:"260407101228",cardBrand:"visa",cardPanMasked:"445952****1859",cardPanPlain:"4459521859",approvalCode:"INC28",type:"Incremental",amount:"15.00",currency:"EUR",mid:"202604070000015",tid:"WSTORE-Q3-06",merchantName:"wstore-test",storeName:"Shanghai Lab Store",sn:"WP5280VQ33200006",paywizardId:"PWI-20260407-101228",transId:"TRX-INC-101228",transLogId:"LOG-20260407-101228",transIndexCode:"IDX-20260407-101228",batch:"B552",trace:"546998",terminalName:"Q3mini Lab 06",phoneNumber:"+86 21 5555 1200",email:"ops@wstore.test",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS",originalTransId:"TRX-AUTH-100812",originalAmount:"85.00"},
         {status:"completed",processorTime:"2026-04-07 10:08:12",terminalTime:"-",timezone:"",invoiceNumber:"260407100812",cardBrand:"visa",cardPanMasked:"445952****1859",cardPanPlain:"4459521859",approvalCode:"AUTH82",type:"Auth",amount:"85.00",currency:"EUR",mid:"202604070000015",tid:"WSTORE-Q3-02",merchantName:"wstore-test",storeName:"Shanghai Lab Store",sn:"WP5280VQ33200002",paywizardId:"PWA-20260407-100812",transId:"TRX-AUTH-100812",transLogId:"LOG-20260407-100812",transIndexCode:"IDX-20260407-100812",batch:"B552",trace:"546980",terminalName:"Q3mini Lab 02",phoneNumber:"+86 21 5555 1200",email:"ops@wstore.test",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
         {status:"failed",processorTime:"2026-04-07 09:58:11",terminalTime:"-",timezone:"",invoiceNumber:"260407095811",cardBrand:"visa",cardPanMasked:"474846****3001",cardPanPlain:"4748463001",approvalCode:"DECLINED",type:"Failed",amount:"12.50",currency:"USD",mid:"202511040000001",tid:"Test Demo",merchantName:"foodhub test",storeName:"foodhub test",sn:"WP5151DQ33000097",paywizardId:"PW-20260407-095811",transId:"TRX-095811",transLogId:"LOG-20260407-095811",transIndexCode:"IDX-20260407-095811",batch:"B346",trace:"547220",terminalName:"Foodhub Front Desk",phoneNumber:"+44 20 7946 1010",email:"ops@foodhub.test",storeId:"STORE-1001",terminalUsage:"pos_linked",terminalScene:"Counter POS"},
         {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
@@ -642,6 +656,7 @@
       const followupForm=document.getElementById("followupForm");
       const followupTitle=document.getElementById("followupTitle");
       const followupSummary=document.getElementById("followupSummary");
+      const followupLedger=document.getElementById("followupLedger");
       const followupTerminal=document.getElementById("followupTerminal");
       const followupAmountLabel=document.getElementById("followupAmountLabel");
       const followupCurrency=document.getElementById("followupCurrency");
@@ -654,7 +669,7 @@
       const norm=s=>String(s||"").trim().toLowerCase();
       const followupConfig={
         refund:{label:"Refund",title:"Create Refund",amountLabel:"Refund Amount",icon:"undo",resultType:"Refund",maxOriginal:true,confirmLabel:"Initiate Refund"},
-        tip_adjust:{label:"Tip Adjust",title:"Create Tip Adjust",amountLabel:"Tip Adjustment Amount",icon:"add_card",resultType:"Tip Adjust",maxOriginal:false,confirmLabel:"Initiate Tip Adjust"},
+        tip_adjust:{label:"Tip Adjust",title:"Create Tip Adjust",amountLabel:"New Tip Amount",icon:"add_card",resultType:"Tip Adjust",maxOriginal:false,confirmLabel:"Initiate Tip Adjust"},
         capture:{label:"Capture",title:"Create Capture",amountLabel:"Capture Amount",icon:"task_alt",resultType:"Capture",maxOriginal:true,confirmLabel:"Initiate Capture"},
         incremental:{label:"Incremental",title:"Create Incremental Authorization",amountLabel:"Incremental Amount",icon:"trending_up",resultType:"Incremental",maxOriginal:false,confirmLabel:"Initiate Incremental"}
       };
@@ -730,30 +745,107 @@
         followupState.currentTerminalOnline=false;
         followupForm.reset();
         followupError.textContent="";
+        followupLedger.innerHTML="";
+        followupLedger.classList.remove("show");
         followupTerminal.innerHTML="";
         followupSubmit.disabled=false;
         document.body.style.overflow="";
       };
       const formatAmount=value=>Number(value||0).toFixed(2);
+      const amountNumber=value=>{
+        const number=Number(value);
+        return Number.isFinite(number)?number:0;
+      };
+      const money=(currency,value)=>`${currency||"USD"} ${formatAmount(value)}`;
       const helpPart=(label,value,result=false)=>`<span class="help-part${result?" result":""}"><span class="help-label">${esc(label)}</span><strong class="help-value">${esc(value)}</strong></span>`;
+      const timestampValue=value=>{
+        const time=new Date(String(value||"").replace(" ","T")).getTime();
+        return Number.isFinite(time)?time:0;
+      };
+      const linkedTransactions=(row,type)=>rows
+        .filter(item=>String(item.originalTransId||"")===String(row?.transId||"")&&(!type||norm(item.type)===norm(type)))
+        .sort((a,b)=>timestampValue(a.processorTime)-timestampValue(b.processorTime));
+      const resolveRefundBreakdown=row=>{
+        const currency=row?.currency||"USD";
+        const saleAmount=amountNumber(row?.amount);
+        const hasTipAmount=row?.tipAmount!==undefined||row?.originalTipAmount!==undefined;
+        const originalTip=hasTipAmount?amountNumber(row.tipAmount??row.originalTipAmount):0;
+        const baseAmount=row?.baseAmount!==undefined?amountNumber(row.baseAmount):Math.max(0,saleAmount-originalTip);
+        let currentTip=originalTip;
+        const tipAdjustments=linkedTransactions(row,"tip adjust").map(adjustment=>{
+          const tipAmount=adjustment.tipAmount!==undefined?amountNumber(adjustment.tipAmount):amountNumber(adjustment.amount);
+          currentTip=tipAmount;
+          return {...adjustment,computedTipAmount:tipAmount};
+        });
+        const finalAmount=row?.finalAmount!==undefined?amountNumber(row.finalAmount):baseAmount+currentTip;
+        const refunds=linkedTransactions(row,"refund");
+        const refundedAmount=refunds.reduce((sum,refund)=>sum+amountNumber(refund.amount),0);
+        return {
+          currency,
+          saleAmount,
+          baseAmount,
+          originalTip,
+          currentTip,
+          finalAmount,
+          refundedAmount,
+          refundableAmount:Math.max(0,finalAmount-refundedAmount),
+          tipAdjustments,
+          refunds
+        };
+      };
+      const resolveAuthorizationBreakdown=row=>{
+        const currency=row?.currency||"USD";
+        const originalAmount=amountNumber(row?.amount);
+        const incrementals=linkedTransactions(row,"incremental").map(incremental=>({
+          ...incremental,
+          computedIncrementalAmount:amountNumber(incremental.amount)
+        }));
+        const incrementalAmount=incrementals.reduce((sum,incremental)=>sum+incremental.computedIncrementalAmount,0);
+        const captures=linkedTransactions(row,"capture");
+        const capturedAmount=captures.reduce((sum,capture)=>sum+amountNumber(capture.amount),0);
+        const authorizedAmount=originalAmount+incrementalAmount;
+        return {
+          currency,
+          originalAmount,
+          incrementalAmount,
+          authorizedAmount,
+          capturedAmount,
+          availableToCapture:Math.max(0,authorizedAmount-capturedAmount),
+          incrementals,
+          captures
+        };
+      };
+      const maxFollowupAmount=(row,action)=>{
+        if(action==="refund") return resolveRefundBreakdown(row).refundableAmount;
+        if(action==="capture") return resolveAuthorizationBreakdown(row).availableToCapture;
+        return null;
+      };
       const updateFollowupHelp=()=>{
         const row=followupState.row;
         const action=followupState.action;
         if(!row||!action) return;
-        const original=`${row.currency} ${formatAmount(row.amount)}`;
+        const original=money(row.currency,row.amount);
         const entered=Number(followupAmount.value);
         if(action==="refund"){
-          followupHelp.innerHTML=helpPart("Maximum refundable",original,true);
+          const breakdown=resolveRefundBreakdown(row);
+          let html=helpPart("Maximum refundable",money(breakdown.currency,breakdown.refundableAmount),true);
+          if(breakdown.refundedAmount>0) html+=helpPart("Refunded so far",money(breakdown.currency,breakdown.refundedAmount));
+          followupHelp.innerHTML=html;
           return;
         }
         if(action==="capture"){
-          followupHelp.innerHTML=helpPart("Available to capture",original,true);
+          const breakdown=resolveAuthorizationBreakdown(row);
+          let html=helpPart("Available to capture",money(breakdown.currency,breakdown.availableToCapture),true);
+          if(breakdown.capturedAmount>0) html+=helpPart("Captured so far",money(breakdown.currency,breakdown.capturedAmount));
+          followupHelp.innerHTML=html;
           return;
         }
-        let html=helpPart(action==="tip_adjust"?"Original sale":"Current authorized",original);
+        const breakdown=action==="incremental"?resolveAuthorizationBreakdown(row):resolveRefundBreakdown(row);
+        let html=helpPart(action==="tip_adjust"?"Original sale":"Current authorized",action==="incremental"?money(breakdown.currency,breakdown.authorizedAmount):original);
+        if(action==="tip_adjust"&&(breakdown.currentTip>0||breakdown.tipAdjustments.length)) html+=helpPart("Current tip",money(breakdown.currency,breakdown.currentTip));
         if(Number.isFinite(entered)&&entered>0){
-          const total=Number(row.amount||0)+entered;
-          html+=helpPart("New total",`${row.currency} ${formatAmount(total)}`,true);
+          const total=action==="tip_adjust"?breakdown.baseAmount+entered:action==="incremental"?breakdown.authorizedAmount+entered:Number(row.amount||0)+entered;
+          html+=helpPart("New total",money(row.currency,total),true);
         }
         followupHelp.innerHTML=html;
       };
@@ -815,6 +907,28 @@
         followupTerminal.innerHTML=`<div class="routing-head"><div><div class="routing-title">Terminal Routing</div><p class="routing-copy">Original terminal ${esc(original.title)} is offline. Use another online terminal under the same MID.</p></div><span class="routing-status offline">Offline</span></div><div class="routing-mode" aria-label="Terminal selection mode"><button class="routing-mode-btn${mode==="auto"?" active":""}" type="button" data-terminal-mode="auto">Auto Select</button><button class="routing-mode-btn${mode==="manual"?" active":""}" type="button" data-terminal-mode="manual">Manual Select</button></div>${selectedBlock}${manualList}`;
       };
       const summaryItem=(label,value)=>`<div class="followup-summary-item"><span>${esc(label)}</span><strong title="${esc(value)}">${esc(value)}</strong></div>`;
+      const renderRefundLedger=breakdown=>{
+        const adjustments=breakdown.tipAdjustments;
+        if(!adjustments.length){
+          followupLedger.innerHTML="";
+          followupLedger.classList.remove("show");
+          return;
+        }
+        const rowsHtml=adjustments.map(adjustment=>`<div class="ledger-row"><span title="${esc(adjustment.processorTime)}">${esc(adjustment.processorTime)}</span><strong title="${esc(adjustment.transId)}">${esc(adjustment.transId)}</strong><span>${esc(money(breakdown.currency,adjustment.computedTipAmount))}</span></div>`).join("");
+        followupLedger.innerHTML=`<div class="ledger-head"><div class="ledger-title">Tip adjustment history</div></div><div class="ledger-table"><div class="ledger-row head"><span>Date & Time</span><span>Transaction ID</span><span>Tip Amount</span></div>${rowsHtml}</div>`;
+        followupLedger.classList.add("show");
+      };
+      const renderAuthorizationLedger=breakdown=>{
+        const incrementals=breakdown.incrementals;
+        if(!incrementals.length){
+          followupLedger.innerHTML="";
+          followupLedger.classList.remove("show");
+          return;
+        }
+        const rowsHtml=incrementals.map(incremental=>`<div class="ledger-row"><span title="${esc(incremental.processorTime)}">${esc(incremental.processorTime)}</span><strong title="${esc(incremental.transId)}">${esc(incremental.transId)}</strong><span>${esc(money(breakdown.currency,incremental.computedIncrementalAmount))}</span></div>`).join("");
+        followupLedger.innerHTML=`<div class="ledger-head"><div class="ledger-title">Incremental authorization history</div></div><div class="ledger-table"><div class="ledger-row head"><span>Date & Time</span><span>Transaction ID</span><span>Incremental Amount</span></div>${rowsHtml}</div>`;
+        followupLedger.classList.add("show");
+      };
       const openFollowupModal=(row,action)=>{
         const config=followupConfig[action];
         if(!row||!config) return;
@@ -832,19 +946,45 @@
         followupState.terminalMode=currentTerminalOnline?"current":"auto";
         followupState.selectedTerminal=currentTerminalOnline?row:terminalOptions[0];
         followupTitle.textContent=config.title;
-        followupSummary.innerHTML=[
+        const refundBreakdown=action==="refund"?resolveRefundBreakdown(row):null;
+        const authorizationBreakdown=(action==="capture"||action==="incremental")?resolveAuthorizationBreakdown(row):null;
+        const summaryItems=[
           ["Original Type",row.type],
-          ["Original Amount",`${row.currency} ${formatAmount(row.amount)}`],
+          ["Original Amount",money(row.currency,row.amount)]
+        ];
+        if(refundBreakdown){
+          summaryItems.push(
+            ["Tip Amount",money(refundBreakdown.currency,refundBreakdown.currentTip)],
+            ["Final Amount",money(refundBreakdown.currency,refundBreakdown.finalAmount)]
+          );
+          if(refundBreakdown.refundedAmount>0) summaryItems.push(["Refunded",money(refundBreakdown.currency,refundBreakdown.refundedAmount)]);
+        }
+        if(authorizationBreakdown){
+          summaryItems.push(
+            ["Inc. Amount",money(authorizationBreakdown.currency,authorizationBreakdown.incrementalAmount)],
+            ["Auth Amount",money(authorizationBreakdown.currency,authorizationBreakdown.authorizedAmount)]
+          );
+          if(authorizationBreakdown.capturedAmount>0) summaryItems.push(["Captured",money(authorizationBreakdown.currency,authorizationBreakdown.capturedAmount)]);
+        }
+        summaryItems.push(
           ["Transaction ID",row.transId],
           ["Terminal SN",row.sn],
           ["MID",row.mid],
           ["TID",row.tid],
           ["Channel",transactionChannelForRow(row)]
-        ].map(item=>summaryItem(item[0],item[1]||"-")).join("");
+        );
+        followupSummary.innerHTML=summaryItems.map(item=>summaryItem(item[0],item[1]||"-")).join("");
+        if(refundBreakdown) renderRefundLedger(refundBreakdown);
+        else if(authorizationBreakdown) renderAuthorizationLedger(authorizationBreakdown);
+        else{
+          followupLedger.innerHTML="";
+          followupLedger.classList.remove("show");
+        }
         followupAmountLabel.textContent=config.amountLabel;
         followupCurrency.textContent=row.currency;
-        followupAmount.value=(action==="refund"||action==="capture")?formatAmount(row.amount):"";
-        followupAmount.max=config.maxOriginal?formatAmount(row.amount):"";
+        const followupMax=maxFollowupAmount(row,action);
+        followupAmount.value=(action==="refund"||action==="capture")?formatAmount(followupMax):"";
+        followupAmount.max=config.maxOriginal?formatAmount(followupMax):"";
         followupError.textContent="";
         followupSubmit.textContent=config.confirmLabel;
         followupSubmit.disabled=false;
@@ -864,6 +1004,12 @@
         const config=followupConfig[action];
         const stamp=String(Date.now());
         const routeTerminal=terminal||row;
+        const isTipAdjust=action==="tip_adjust";
+        const sourceBreakdown=isTipAdjust?resolveRefundBreakdown(row):null;
+        const tipFields=isTipAdjust?{
+          originalAmount:formatAmount(sourceBreakdown.saleAmount),
+          tipAmount:formatAmount(amount)
+        }:{};
         return {
           ...row,
           status:"completed",
@@ -873,6 +1019,7 @@
           approvalCode:"PENDING",
           type:config.resultType,
           amount:formatAmount(amount),
+          ...tipFields,
           tid:routeTerminal.tid||row.tid,
           sn:routeTerminal.sn||row.sn,
           terminalName:routeTerminal.terminalName||row.terminalName,
@@ -1598,8 +1745,9 @@
           followupAmount.focus();
           return;
         }
-        if(config.maxOriginal&&amount>Number(row.amount)){
-          followupError.textContent=`Amount cannot exceed ${row.currency} ${formatAmount(row.amount)}.`;
+        const followupMax=maxFollowupAmount(row,action);
+        if(config.maxOriginal&&amount>Number(followupMax)){
+          followupError.textContent=`Amount cannot exceed ${money(row.currency,followupMax)}.`;
           followupAmount.focus();
           return;
         }
