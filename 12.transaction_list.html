@@ -430,7 +430,7 @@
             <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
             <input class="field" id="fApprovalCode" placeholder="Approval Code">
             <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Sale</option><option>Auth</option><option>Refund</option><option>Tip Adjust</option><option>Capture</option><option>Incremental</option><option>Failed</option></select></div>
-            <input class="field" id="fSn" placeholder="SN">
+            <input class="field" id="fSn" placeholder="SN, comma list, or range">
             <input class="field" id="fStoreId" placeholder="Store ID">
             <input class="field" id="fTerminalName" placeholder="Terminal Name">
             <input class="field" id="fCardPan" placeholder="Card UID / PAN / Account">
@@ -1548,6 +1548,43 @@
         filtersPanel.classList.toggle("show",open);
         updateFilterUi();
       };
+      const expandSnRange=(prefix,startDigits,endDigits)=>{
+        if(endDigits.length>startDigits.length) return [];
+        const fixedDigits=startDigits.slice(0,startDigits.length-endDigits.length);
+        const startSerial=startDigits.slice(-endDigits.length);
+        const start=Number(startSerial),end=Number(endDigits);
+        if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||end<start) return [];
+        const width=endDigits.length;
+        return Array.from({length:end-start+1},(_,index)=>`${prefix}${fixedDigits}${String(start+index).padStart(width,"0")}`);
+      };
+      const parseSnFilter=value=>{
+        const raw=String(value||"").trim();
+        if(!raw) return {raw:"",values:new Set(),exact:false};
+        const parts=raw.split(/[,，\n]+/).map(part=>part.trim()).filter(Boolean);
+        const values=[];
+        let exact=parts.length>1;
+        parts.forEach(part=>{
+          const range=part.match(/^(.+?)(\d+)\s*-\s*(\d+)$/);
+          if(range){
+            const expanded=expandSnRange(range[1],range[2],range[3]);
+            if(expanded.length){
+              values.push(...expanded);
+              exact=true;
+              return;
+            }
+          }
+          values.push(part);
+        });
+        return {raw:norm(raw),values:new Set(values.map(norm)),exact};
+      };
+      const matchesSnFilter=(sn,value)=>{
+        const filter=parseSnFilter(value);
+        if(!filter.raw) return true;
+        const snValue=norm(sn);
+        if(filter.exact) return filter.values.has(snValue);
+        const firstValue=filter.values.values().next().value;
+        return firstValue?snValue.includes(firstValue):snValue.includes(filter.raw);
+      };
       const matches=r=>{
         if(r.status!==state.tab) return false;
         return (!state.filters.transLogId||norm(r.transLogId).includes(norm(state.filters.transLogId))) &&
@@ -1558,7 +1595,7 @@
           (!state.filters.invoiceNumber||norm(r.invoiceNumber).includes(norm(state.filters.invoiceNumber))) &&
           (!state.filters.approvalCode||norm(r.approvalCode).includes(norm(state.filters.approvalCode))) &&
           (!state.filters.type||norm(r.type)===norm(state.filters.type)) &&
-          (!state.filters.sn||norm(r.sn).includes(norm(state.filters.sn))) &&
+          matchesSnFilter(r.sn,state.filters.sn) &&
           (!state.filters.storeId||norm(r.storeId).includes(norm(state.filters.storeId))) &&
           (!state.filters.terminalName||norm(r.terminalName).includes(norm(state.filters.terminalName))) &&
           (!state.filters.cardPan||norm(r.cardPanMasked+" "+r.cardPanPlain+" "+(r.cardDisplayNo||"")).includes(norm(state.filters.cardPan))) &&

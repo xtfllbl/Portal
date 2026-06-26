@@ -552,6 +552,637 @@
             .cr-modal-body { padding: 14px; max-height: calc(100vh - 190px); }
             .cr-form-section { grid-template-columns: 1fr; }
         }
+
+        /* Terminal list page aligned with current production view */
+        body { background: #f3f4f6; color: #45464f; }
+        .top-header,
+        .sidebar,
+        .breadcrumb-bar,
+        .hero-meta,
+        .hero-actions,
+        .tab-bar .tab[data-target="profile"],
+        .tab-bar .tab[data-target="token"] { display: none !important; }
+        .main-body {
+            min-height: 100vh;
+            padding: 0;
+            display: block;
+            background: #ffffff;
+        }
+        .workspace {
+            min-height: 100vh;
+            padding: 20px 22px 22px;
+            gap: 16px;
+            background: #ffffff;
+        }
+        .workspace-title {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.2;
+            font-weight: 700;
+            color: #3f4048;
+        }
+        .content-layout {
+            display: grid;
+            grid-template-columns: 370px minmax(0, 1fr);
+            gap: 18px;
+            align-items: stretch;
+        }
+        .card {
+            border: 1px solid #e0e2e8;
+            border-radius: 8px;
+            box-shadow: none;
+        }
+        .hierarchy-card {
+            min-height: calc(100vh - 92px);
+            overflow: hidden;
+        }
+        .hierarchy-card header {
+            padding: 26px 24px 16px;
+            border-bottom: 0;
+            font-size: 24px;
+            color: #3f4048;
+        }
+        .hierarchy-card header > span { font-weight: 700; }
+        .hierarchy-actions .icon-btn {
+            width: 28px;
+            height: 28px;
+            border: 0;
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 400;
+            color: #3f4048;
+            background: transparent;
+        }
+        .hierarchy-tools {
+            padding: 6px 24px 14px;
+            border-bottom: 0;
+            display: block;
+        }
+        .hierarchy-search input {
+            height: 40px;
+            border-radius: 8px;
+            border-color: #d9dbe1;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .08);
+        }
+        .filter-select,
+        .hierarchy-count { display: none; }
+        .hierarchy-scroll {
+            max-height: calc(100vh - 210px);
+            padding: 0 24px 22px;
+        }
+        .hierarchy-list {
+            padding: 0;
+            gap: 4px;
+        }
+        .hierarchy-list li {
+            min-height: 30px;
+            padding: 2px 6px 2px calc(4px + (var(--depth, 0) * 20px));
+            grid-template-columns: 16px minmax(0, 1fr);
+            column-gap: 4px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .hierarchy-list .selected {
+            background: #dedee1;
+            font-weight: 700;
+        }
+        .hierarchy-list .selected::before { display: none; }
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            color: #737882;
+        }
+        .tree-toggle svg {
+            width: 12px;
+            height: 12px;
+        }
+        .hierarchy-node-name {
+            font-size: 14px;
+            color: #4a4b52;
+            font-weight: 500;
+        }
+        .hierarchy-list .selected .hierarchy-node-name { font-weight: 700; }
+        .hierarchy-node-badge {
+            font-size: 13px;
+            letter-spacing: .02em;
+            font-weight: 700;
+            opacity: .72;
+        }
+        .hierarchy-node-badge.kind-super-iso,
+        .hierarchy-node-badge.kind-iso,
+        .hierarchy-node-badge.kind-subiso { color: #9aa3b2; }
+        .hierarchy-node-glyph { display: none; }
+        .hierarchy-node-badge.kind-merchant { color: #45d97a; opacity: 1; }
+        .page-card {
+            min-width: 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .reseller-hero {
+            min-height: 108px;
+            padding: 20px 18px;
+            background: #17181d;
+            align-items: flex-start;
+        }
+        .hero-label {
+            font-size: 13px;
+            line-height: 1.2;
+            letter-spacing: .06em;
+            font-weight: 700;
+            color: #b9bac2;
+            opacity: 1;
+        }
+        .reseller-hero h1 {
+            margin: 14px 0 0;
+            font-size: 22px;
+            line-height: 1.15;
+            font-weight: 800;
+            color: #f5f5f6;
+        }
+        .hero-status-pill {
+            min-width: 72px;
+            height: 32px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7f7f8;
+            color: #46474e;
+            border: 1px solid #d9dbe1;
+            font-size: 15px;
+            font-weight: 800;
+        }
+        .tab-bar {
+            height: 52px;
+            padding: 0 20px;
+            align-items: stretch;
+            gap: 40px;
+            border-bottom: 1px solid #e0e2e8;
+        }
+        .tab {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            font-size: 16px;
+            font-weight: 800;
+            color: #5e6069;
+        }
+        .tab.active { color: #15161b; }
+        .tab.active::after {
+            bottom: -1px;
+            height: 3px;
+            border-radius: 0;
+        }
+        .tab-panel.active {
+            padding: 18px 24px 22px;
+            min-height: calc(100vh - 254px);
+        }
+        .terminal-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .terminal-stat-card {
+            min-height: 72px;
+            padding: 14px 16px;
+            border: 1px solid #e2e4ea;
+            border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease;
+        }
+        .terminal-stat-card:hover { background: #fafafa; border-color: #d4d7de; }
+        .terminal-stat-card.is-selected {
+            background: #f8f9fb;
+            border-color: #b8bdc8;
+            box-shadow: inset 0 0 0 1px #d9dce3;
+        }
+        .terminal-stat-card:focus-visible {
+            outline: 2px solid #a9b5c8;
+            outline-offset: 2px;
+        }
+        .terminal-stat-label {
+            font-size: 12px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: #7a7e89;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .terminal-stat-value {
+            margin-top: 10px;
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 800;
+            color: #17181d;
+        }
+        .terminal-stat-card.activated .terminal-stat-value { color: #168a45; }
+        .terminal-stat-card.unactivated .terminal-stat-value { color: #b45309; }
+        .model-summary {
+            padding: 6px 12px 12px;
+            margin-bottom: 14px;
+            border: 1px solid #e2e4ea;
+            border-radius: 8px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .model-context {
+            min-height: 26px;
+            padding: 0 0 4px;
+            display: flex;
+            align-items: center;
+            color: #737985;
+            font-size: 11px;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+        }
+        .model-context strong {
+            margin-left: 6px;
+            color: #30323a;
+            font-weight: 800;
+        }
+        .model-summary.model-mode-active .model-context strong,
+        .model-summary.model-mode-active .model-count {
+            color: #168a45;
+        }
+        .model-summary.model-mode-inactive .model-context strong,
+        .model-summary.model-mode-inactive .model-count {
+            color: #b45309;
+        }
+        .model-list {
+            max-height: 118px;
+            overflow: auto;
+            padding-top: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+            gap: 0 18px;
+        }
+        .model-item {
+            min-height: 34px;
+            padding: 6px 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #f0f1f4;
+        }
+        .model-main {
+            min-width: 0;
+        }
+        .model-name {
+            font-size: 12px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: #3f424c;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .model-count {
+            font-size: 14px;
+            line-height: 1;
+            font-weight: 800;
+            color: #30323a;
+        }
+        .terminal-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            min-height: 44px;
+            margin-bottom: 10px;
+        }
+        .terminal-toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .terminal-filter-shell {
+            position: relative;
+            display: inline-flex;
+        }
+        .terminal-sync-status {
+            color: #8a8f9b;
+            font-size: 12px;
+            line-height: 1.2;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .terminal-filter-button,
+        .terminal-refresh-button {
+            height: 40px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e0e2e8;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #666974;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .terminal-refresh-button.is-loading {
+            cursor: wait;
+            opacity: .72;
+        }
+        .terminal-refresh-button.is-loading svg {
+            animation: spin .8s linear infinite;
+        }
+        .terminal-filter-button svg,
+        .terminal-refresh-button svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .terminal-filter-popover {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            z-index: 20;
+            width: 560px;
+            padding: 18px;
+            display: none;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px 22px;
+            border: 1px solid #d9dce3;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, .14);
+        }
+        .terminal-filter-popover.is-open {
+            display: grid;
+        }
+        .terminal-filter-popover::before {
+            content: '';
+            position: absolute;
+            top: -9px;
+            right: 62px;
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border-left: 1px solid #d9dce3;
+            border-top: 1px solid #d9dce3;
+            transform: rotate(45deg);
+        }
+        .terminal-filter-field,
+        .terminal-filter-select {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border: 1px solid #d0d3da;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #555965;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .terminal-filter-field::placeholder {
+            color: #666a75;
+            opacity: 1;
+        }
+        .terminal-filter-select {
+            appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #8a8f9b 50%),
+                linear-gradient(135deg, #8a8f9b 50%, transparent 50%);
+            background-position:
+                calc(100% - 22px) 19px,
+                calc(100% - 14px) 19px;
+            background-size: 8px 8px, 8px 8px;
+            background-repeat: no-repeat;
+        }
+        .terminal-filter-actions {
+            grid-column: 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .terminal-filter-reset,
+        .terminal-filter-search {
+            height: 46px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .terminal-filter-reset {
+            color: #666a75;
+            border: 1px solid #dfe2e8;
+            background: #ffffff;
+        }
+        .terminal-filter-search {
+            color: #ffffff;
+            border: 1px solid #111216;
+            background: #111216;
+        }
+        .terminal-filter-reset svg,
+        .terminal-filter-search svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .table-wrapper {
+            overflow: auto;
+            padding-bottom: 10px;
+        }
+        .terminal-table {
+            min-width: 1500px;
+            table-layout: fixed;
+        }
+        .terminal-table thead th {
+            height: 36px;
+            padding: 0 10px;
+            background: #17181d;
+            color: #f1f1f2;
+            font-size: 13px;
+            letter-spacing: 0;
+            text-align: left;
+        }
+        .terminal-table thead th:first-child { border-top-left-radius: 4px; }
+        .terminal-table thead th:last-child { border-top-right-radius: 4px; text-align: center; }
+        .terminal-table tbody td {
+            height: 54px;
+            padding: 9px 10px;
+            color: #4d4f58;
+            font-size: 14px;
+            line-height: 1.35;
+            white-space: normal;
+            vertical-align: middle;
+            background: #ffffff;
+            border-bottom: 1px solid #e6e7eb;
+        }
+        .terminal-table tbody tr:nth-child(even) td { background: #fbfbfc; }
+        .terminal-table .sn-link {
+            color: #006fd6;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .terminal-table .sn-static {
+            color: #4d4f58;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .terminal-table .tid-cell { text-align: center; }
+        .terminal-table .actions-cell { text-align: center; white-space: nowrap; }
+        .status-tag {
+            min-width: 92px;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .status-tag.activated {
+            color: #15803d;
+            background: #dcfce7;
+            border: 1px solid #a7f3d0;
+        }
+        .status-tag.unactivated {
+            color: #b45309;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+        .terminal-table tr.inventory-only td {
+            color: #7a7e89;
+            background: #fffdf9;
+        }
+        .terminal-row-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .terminal-icon-button {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 8px;
+            background: #fff;
+            display: inline-grid;
+            place-items: center;
+        }
+        .terminal-icon-button svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .terminal-icon-button.delete {
+            color: #ff333d;
+            border: 1px solid #ffc8cb;
+        }
+        .terminal-icon-button.diagnostic {
+            color: #13a8f2;
+            border: 1px solid #b9e7ff;
+        }
+        .terminal-bind-button {
+            height: 34px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid #d6d9e1;
+            background: #ffffff;
+            color: #4f5665;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .terminal-pagination {
+            min-width: 1500px;
+            height: 68px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            border-bottom: 1px solid #e6e7eb;
+            color: #777b86;
+        }
+        .pager-center,
+        .pager-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .pager-right {
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .pager-btn,
+        .pager-page {
+            border: 0;
+            background: transparent;
+            color: #777b86;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .pager-page.active {
+            width: 46px;
+            height: 46px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #050509;
+            color: #ffffff;
+        }
+        .pager-size,
+        .pager-input {
+            height: 48px;
+            border: 1px solid #d9dce3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #565a64;
+            font-size: 16px;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .08);
+        }
+        .pager-size {
+            min-width: 100px;
+            padding: 0 36px 0 16px;
+        }
+        .pager-input {
+            width: 58px;
+            text-align: center;
+        }
+        @media (max-width: 1200px) {
+            .content-layout { grid-template-columns: 320px minmax(0, 1fr); }
+            .terminal-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 860px) {
+            .workspace { padding: 16px; }
+            .content-layout { grid-template-columns: 1fr; }
+            .hierarchy-card { min-height: 360px; }
+            .hierarchy-scroll { max-height: 280px; }
+            .terminal-summary { grid-template-columns: 1fr; }
+            .model-list { grid-template-columns: 1fr; }
+            .terminal-toolbar { align-items: flex-start; flex-direction: column; }
+        }
     </style>
 </head>
 <body>
@@ -762,6 +1393,7 @@
             </div>
         </aside>
         <div class="workspace">
+            <h1 class="workspace-title">Device Management</h1>
             <div class="breadcrumb-bar">
                 <span>AGENTS</span>
                 <span>&gt;</span>
@@ -769,7 +1401,7 @@
             </div>
             <div class="content-layout">
                 <section class="hierarchy-card card">
-                    <header><span>Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Create Reseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
+                    <header><span>Entity Hierarchy</span><div class="hierarchy-actions"><button class="icon-btn" id="hierAddBtn" title="Quick Add">+</button><div class="dropdown-menu" id="hierAddMenu" aria-hidden="true"><button class="dropdown-item" data-type="reseller">+ Create Reseller</button><button class="dropdown-item" data-type="merchant">+ Add Merchant</button></div></div></header>
                     <div class="hierarchy-tools">
                         <div class="hierarchy-search">
                             <input id="hierarchySearch" type="text" placeholder="Search">
@@ -796,11 +1428,11 @@
                     </div>
                     <div class="reseller-hero">
                         <div>
-                            <div class="hero-label">Merchant</div>
-                            <h1>Universal Processing</h1>
+                            <div class="hero-label">Service Provider</div>
+                            <h1>wizarpos</h1>
                             <div class="hero-meta">
-                                <span class="meta-item" id="heroParentMeta">Parent: Global Payments Inc.</span>
-                                <span class="meta-item" id="heroPathMeta">| Path: Apex Resellers &gt; NA Division</span>
+                                <span class="meta-item" id="heroParentMeta">Parent: Service Provider</span>
+                                <span class="meta-item" id="heroPathMeta">| Path: wizarpos</span>
                                 <span class="meta-item" id="heroLayerMeta">| Layer: Merchant</span>
                             </div>
                         </div>
@@ -821,7 +1453,7 @@
                             </div>
                         </div>
                     <ul class="tab-bar">
-                        <li class="tab" data-target="reseller-detail" id="detailTab">Reseller Detail</li>
+                        <li class="tab" data-target="reseller-detail" id="detailTab">Service Provider Details</li>
                         <li class="tab active" data-target="terminal-list">Terminal List</li>
                         <li class="tab" data-target="profile">Profile</li>
                         <li class="tab" data-target="token">Token</li>
@@ -833,26 +1465,26 @@
                                     <div class="detail-card">
                                         <h4>Reseller Summary</h4>
                                         <dl>
-                                            <dt>Name</dt><dd>Universal Processing</dd>
-                                            <dt>Parent</dt><dd>Global Payments Inc.</dd>
-                                            <dt>Region</dt><dd>North America</dd>
-                                            <dt>Created</dt><dd>2024-03-18 09:42</dd>
+                                            <dt>Name</dt><dd>wizarpos</dd>
+                                            <dt>Parent</dt><dd>Service Provider</dd>
+                                            <dt>Region</dt><dd>Global</dd>
+                                            <dt>Created</dt><dd>2026-06-20 19:55</dd>
                                         </dl>
                                     </div>
                                     <div class="detail-card">
                                         <h4>Contact</h4>
                                         <dl>
-                                            <dt>Owner</dt><dd>Caroline Moore</dd>
-                                            <dt>Email</dt><dd>partner@universalprocessing.com</dd>
-                                            <dt>Phone</dt><dd>+1 415 555 0147</dd>
+                                            <dt>Owner</dt><dd>wizarpos admin</dd>
+                                            <dt>Email</dt><dd>admin@wizarpos.com</dd>
+                                            <dt>Phone</dt><dd>-</dd>
                                             <dt>Status</dt><dd>Active</dd>
                                         </dl>
                                     </div>
                                     <div class="detail-card">
                                         <h4>Metrics</h4>
                                         <dl>
-                                            <dt>Merchants</dt><dd>52</dd>
-                                            <dt>Terminals</dt><dd>184</dd>
+                                            <dt>Merchants</dt><dd>340</dd>
+                                            <dt>Terminals</dt><dd>340</dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -863,15 +1495,15 @@
                                         <div class="provider-display">
                                             <div class="display-field">
                                                 <div class="display-label">SP Name</div>
-                                                <div class="display-value">Universal Processing</div>
+                                                <div class="display-value">wizarpos</div>
                                             </div>
                                             <div class="display-field">
                                                 <div class="display-label">Provider Phone Number</div>
-                                                <div class="display-value">+1 415 555 0147</div>
+                                                <div class="display-value">-</div>
                                             </div>
                                             <div class="display-field full">
                                                 <div class="display-label">Provider Address</div>
-                                                <div class="display-value">123 Market St, San Francisco, CA 94103</div>
+                                                <div class="display-value">-</div>
                                             </div>
                                             <div class="display-field">
                                                 <div class="display-label">Provider Application</div>
@@ -879,7 +1511,7 @@
                                             </div>
                                             <div class="display-field">
                                                 <div class="display-label">Provider Admin Email</div>
-                                                <div class="display-value">admin@provider.com</div>
+                                                <div class="display-value">admin@wizarpos.com</div>
                                             </div>
                                             <div class="display-field">
                                                 <div class="display-label">Expiration Date</div>
@@ -901,7 +1533,7 @@
                                             <div class="display-field full">
                                                 <div class="display-label">Provider Logo / Image</div>
                                                 <div class="display-value display-logo">
-                                                    <div class="logo-box">UP</div>
+                                                    <div class="logo-box">WP</div>
                                                     <div class="helper-text">Logo placeholder</div>
                                                 </div>
                                             </div>
@@ -948,63 +1580,271 @@
                                         </div>
                                         <div class="display-field">
                                             <div class="display-label">Reseller</div>
-                                            <div class="display-value">Universal Processing</div>
+                                            <div class="display-value">wizarpos</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </section>
                         <section class="tab-panel active" data-panel="terminal-list">
-                            <div class="card-toolbar">
-                                <div class="field"><label for="filter-name">Terminal</label><input id="filter-name" type="text" placeholder="Name"></div>
-                                <div class="field"><label for="filter-sn">SN</label><input id="filter-sn" type="text" placeholder="Serial"></div>
-                                <div class="field"><label for="filter-tid">TID</label><input id="filter-tid" type="text" placeholder="TID"></div>
-                                <div class="field"><label for="filter-status">Status</label><select id="filter-status"><option>All</option><option>Online</option><option>Offline</option><option>Disabled</option></select></div>
-                                <div class="field"><label for="filter-date">Date</label><input id="filter-date" type="text" placeholder="2025-09-01 - 2025-09-22"></div>
-                                <button class="search-button" aria-label="Search">Apply</button>
+                            <div class="terminal-summary" aria-label="Terminal inventory summary">
+                                <div class="terminal-stat-card is-selected" data-model-mode="total" role="button" tabindex="0" aria-pressed="true">
+                                    <div class="terminal-stat-label">Total</div>
+                                    <div class="terminal-stat-value">456</div>
+                                </div>
+                                <div class="terminal-stat-card activated" data-model-mode="active" role="button" tabindex="0" aria-pressed="false">
+                                    <div class="terminal-stat-label">Activated</div>
+                                    <div class="terminal-stat-value">340</div>
+                                </div>
+                                <div class="terminal-stat-card unactivated" data-model-mode="inactive" role="button" tabindex="0" aria-pressed="false">
+                                    <div class="terminal-stat-label">Unactivated</div>
+                                    <div class="terminal-stat-value">116</div>
+                                </div>
+                                <div class="terminal-stat-card" data-model-mode="rate" role="button" tabindex="0" aria-pressed="false">
+                                    <div class="terminal-stat-label">Activation Rate</div>
+                                    <div class="terminal-stat-value">74.6%</div>
+                                </div>
+                            </div>
+                            <div class="model-summary" aria-label="Terminal model summary">
+                                <div class="model-context">By model · <strong id="modelContextMetric">Total</strong></div>
+                                <div class="model-list">
+                                    <div class="model-item" data-total="142" data-active="105" data-inactive="37">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3VU</div>
+                                        </div>
+                                        <div class="model-count">142</div>
+                                    </div>
+                                    <div class="model-item" data-total="120" data-active="93" data-inactive="27">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3MINI-V</div>
+                                        </div>
+                                        <div class="model-count">120</div>
+                                    </div>
+                                    <div class="model-item" data-total="48" data-active="38" data-inactive="10">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3RU</div>
+                                        </div>
+                                        <div class="model-count">48</div>
+                                    </div>
+                                    <div class="model-item" data-total="36" data-active="27" data-inactive="9">
+                                        <div class="model-main">
+                                            <div class="model-name">Q1K</div>
+                                        </div>
+                                        <div class="model-count">36</div>
+                                    </div>
+                                    <div class="model-item" data-total="28" data-active="20" data-inactive="8">
+                                        <div class="model-main">
+                                            <div class="model-name">Q2</div>
+                                        </div>
+                                        <div class="model-count">28</div>
+                                    </div>
+                                    <div class="model-item" data-total="26" data-active="18" data-inactive="8">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3PDA</div>
+                                        </div>
+                                        <div class="model-count">26</div>
+                                    </div>
+                                    <div class="model-item" data-total="22" data-active="15" data-inactive="7">
+                                        <div class="model-main">
+                                            <div class="model-name">Q2PRO</div>
+                                        </div>
+                                        <div class="model-count">22</div>
+                                    </div>
+                                    <div class="model-item" data-total="14" data-active="10" data-inactive="4">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3MINI-C</div>
+                                        </div>
+                                        <div class="model-count">14</div>
+                                    </div>
+                                    <div class="model-item" data-total="12" data-active="8" data-inactive="4">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3AU</div>
+                                        </div>
+                                        <div class="model-count">12</div>
+                                    </div>
+                                    <div class="model-item" data-total="8" data-active="6" data-inactive="2">
+                                        <div class="model-main">
+                                            <div class="model-name">Q3 Nexus</div>
+                                        </div>
+                                        <div class="model-count">8</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="terminal-toolbar">
+                                <div class="terminal-toolbar-actions">
+                                    <span class="terminal-sync-status" id="terminalSyncStatus">Last sync: 2026-06-26 09:42</span>
+                                    <button class="terminal-refresh-button" id="refreshTmsBtn" type="button" aria-label="Sync TMS inventory">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M18.2 9A7 7 0 0 0 6.1 6.8L4 9"/><path d="M5.8 15a7 7 0 0 0 12.1 2.2L20 15"/></svg>
+                                        <span>Sync</span>
+                                    </button>
+                                    <div class="terminal-filter-shell">
+                                        <button class="terminal-filter-button" id="terminalFilterBtn" type="button" aria-label="Filter terminal list" aria-expanded="false" aria-controls="terminalFilterPopover">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7z"/></svg>
+                                            <span>Filter</span>
+                                        </button>
+                                        <div class="terminal-filter-popover" id="terminalFilterPopover" aria-label="Terminal filters">
+                                            <input class="terminal-filter-field" id="terminalFilterName" type="text" placeholder="Terminal Name (Device Label)" aria-label="Filter by terminal name">
+                                            <input class="terminal-filter-field" id="terminalFilterSn" type="text" placeholder="SN" aria-label="Filter by SN">
+                                            <input class="terminal-filter-field" id="terminalFilterTid" type="text" placeholder="TID" aria-label="Filter by TID">
+                                            <select class="terminal-filter-select" id="terminalFilterModel" aria-label="Filter by model">
+                                                <option value="">Model</option>
+                                                <option value="q3vu">Q3VU</option>
+                                                <option value="q3mini-v">Q3MINI-V</option>
+                                                <option value="q3ru">Q3RU</option>
+                                                <option value="q1k">Q1K</option>
+                                                <option value="q2">Q2</option>
+                                                <option value="q3pda">Q3PDA</option>
+                                                <option value="q2pro">Q2PRO</option>
+                                                <option value="q3mini-c">Q3MINI-C</option>
+                                                <option value="q3au">Q3AU</option>
+                                                <option value="q3 nexus">Q3 Nexus</option>
+                                            </select>
+                                            <select class="terminal-filter-select" id="terminalFilterStatus" aria-label="Filter by status">
+                                                <option value="">Status</option>
+                                                <option value="activated">Activated</option>
+                                                <option value="unactivated">Unactivated</option>
+                                            </select>
+                                            <div class="terminal-filter-actions">
+                                                <button class="terminal-filter-reset" id="terminalFilterReset" type="button">
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
+                                                    <span>Reset</span>
+                                                </button>
+                                                <button class="terminal-filter-search" id="terminalFilterSearch" type="button">
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                                                    <span>Search</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="table-wrapper">
                                 <table class="data-table terminal-table">
                                     <thead>
                                         <tr>
-                                            <th>Terminal Name</th>
-                                            <th>SN</th>
-                                            <th>TID</th>
-                                            <th>Model</th>
-                                            <th>Reseller</th>
-                                            <th>Merchant</th>
-                                            <th>Created Time</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
+                                            <th style="width: 230px;">SN</th>
+                                            <th style="width: 255px;">Terminal Name (Device Label)</th>
+                                            <th style="width: 70px;">TID</th>
+                                            <th style="width: 105px;">Model</th>
+                                            <th style="width: 140px;">Status</th>
+                                            <th style="width: 190px;">Merchant Name</th>
+                                            <th style="width: 190px;">Store Name</th>
+                                            <th style="width: 180px;">Created Date</th>
+                                            <th style="width: 140px;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Q2-142 64773</td><td>1130012780</td><td>EC05KCCU</td><td>WizarPOS - Q2</td>
-                                            <td>Universal Processing</td><td>JUUCE LLC 64773</td><td>2025-09-03 17:07</td>
-                                            <td><span class="status-pill success">Online</span></td>
-                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP6047UQ33000052</a></td><td>WP6047UQ33000052</td><td class="tid-cell">-</td><td>Q3RU</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Retail Tech Pte Ltd</td><td>Retail Tech Pte Ltd</td><td>2026-06-25 14:01:25</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
-                                            <td>Q2L-141 64773</td><td>1130010633</td><td>JS1292M</td><td>WizarPOS - Q2</td>
-                                            <td>Universal Processing</td><td>JUUCE LLC 64773</td><td>2025-08-27 17:35</td>
-                                            <td><span class="status-pill danger">Offline</span></td>
-                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP6030VQ33000340</a></td><td>WP6030VQ33000340</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Anime World</td><td>Anime World_1</td><td>2026-06-24 23:09:42</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
-                                            <td>Q3-27 06272</td><td>1640216716</td><td>WQ500QNB</td><td>WizarPOS - Q3</td>
-                                            <td>Universal Processing</td><td>YO! USA 06272</td><td>2025-08-07 18:03</td>
-                                            <td><span class="status-pill success">Online</span></td>
-                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP6030VQ33000337</a></td><td>WP6030VQ33000337</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Anime World</td><td>Anime World_1</td><td>2026-06-24 14:06:22</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
-                                            <td>Q3-78 87278</td><td>1640281841</td><td>U5D0X60A</td><td>WizarPOS - Q3</td>
-                                            <td>Universal Processing</td><td>HAHA Innovation LLC 87278</td><td>2025-08-02 11:52</td>
-                                            <td><span class="status-pill danger">Offline</span></td>
-                                            <td><div class="action-buttons"><button class="action-button" aria-label="Disable">X</button><button class="action-button" aria-label="More">...</button></div></td>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200063</a></td><td>WP5445UQ33200063</td><td class="tid-cell">-</td><td>Q3VU</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Regiis Flowers LLC</td><td>Regiis Flowers_1</td><td>2026-06-24 01:03:33</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200080</a></td><td>WP5445UQ33200080</td><td class="tid-cell">-</td><td>Q3VU</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Momoko Shop KFT</td><td>Momoko shop kft_1</td><td>2026-06-23 02:02:57</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200060</a></td><td>WP5445UQ33200060</td><td class="tid-cell">-</td><td>Q3VU</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Momoko Shop KFT</td><td>Momoko shop kft_1</td><td>2026-06-23 02:01:25</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200059</a></td><td>WP5445UQ33200059</td><td class="tid-cell">-</td><td>Q3VU</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>FLORISTERIA AN Y VERD</td><td>FLORISTERIA AN Y VERD_1</td><td>2026-06-23 01:20:51</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP6150KQ16000016</a></td><td>WP6150KQ16000016</td><td class="tid-cell">-</td><td>Q1K</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>Beaver Test Merchant</td><td>beaver test 2</td><td>2026-06-22 18:38:45</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="sn-link" href="1.terminalmanage.html">WP6140VQ36000308</a></td><td>WP6140VQ36000308</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
+                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td>ROTOMLOOT S.L.</td><td>RotomLoot S.L. 1</td><td>2026-06-20 19:55:35</td>
+                                            <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
+                                        </tr>
+                                        <tr class="inventory-only">
+                                            <td><span class="sn-static">WP5445UQ33200102</span></td><td>-</td><td class="tid-cell">-</td><td>Q3VU</td>
+                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td>-</td><td>-</td><td>2026-06-26 09:42:18</td>
+                                            <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
+                                        </tr>
+                                        <tr class="inventory-only">
+                                            <td><span class="sn-static">WP5445UQ33200103</span></td><td>-</td><td class="tid-cell">-</td><td>Q3VU</td>
+                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td>-</td><td>-</td><td>2026-06-26 09:42:18</td>
+                                            <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
+                                        </tr>
+                                        <tr class="inventory-only">
+                                            <td><span class="sn-static">WP6030VQ33000372</span></td><td>-</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
+                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td>-</td><td>-</td><td>2026-06-26 09:39:05</td>
+                                            <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
+                                        </tr>
+                                        <tr class="inventory-only">
+                                            <td><span class="sn-static">WP6047UQ33000079</span></td><td>-</td><td class="tid-cell">-</td><td>Q3RU</td>
+                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td>-</td><td>-</td><td>2026-06-26 09:35:44</td>
+                                            <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
+                                        </tr>
+                                        <tr class="inventory-only">
+                                            <td><span class="sn-static">WP6150KQ16000027</span></td><td>-</td><td class="tid-cell">-</td><td>Q1K</td>
+                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td>-</td><td>-</td><td>2026-06-25 18:10:12</td>
+                                            <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
+                                        </tr>
+                                        <tr class="inventory-only">
+                                            <td><span class="sn-static">WP6030VQ33000383</span></td><td>-</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
+                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td>-</td><td>-</td><td>2026-06-25 18:06:37</td>
+                                            <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                                <div class="terminal-pagination">
+                                    <div></div>
+                                    <div class="pager-center" aria-label="Pagination">
+                                        <button class="pager-btn" type="button" aria-label="First page">&laquo;</button>
+                                        <button class="pager-btn" type="button" aria-label="Previous page">&lsaquo;</button>
+                                        <span class="pager-page active">1</span>
+                                        <button class="pager-page" type="button">2</button>
+                                        <button class="pager-page" type="button">3</button>
+                                        <button class="pager-page" type="button">4</button>
+                                        <button class="pager-page" type="button">5</button>
+                                        <button class="pager-btn" type="button" aria-label="Next page">&rsaquo;</button>
+                                        <button class="pager-btn" type="button" aria-label="Last page">&raquo;</button>
+                                        <select class="pager-size" aria-label="Rows per page"><option>20</option></select>
+                                    </div>
+                                    <div class="pager-right">
+                                        <input class="pager-input" value="1" aria-label="Current page">
+                                        <span>/ 23 (456)</span>
+                                    </div>
+                                </div>
                             </div>
                         </section>
                         <section class="tab-panel" data-panel="profile">
@@ -1773,16 +2613,16 @@
 
         var currentAccount = {
           role: 'service_provider',
-          name: 'Universal Processing',
+          name: 'wizarpos',
           manageableParentLevels: [1, 2],
           resellerId: null
         };
         var hierarchyKindMeta = {
-          super_iso: { label: 'Super ISO', shortLabel: 'S-ISO', type: 'reseller' },
-          iso: { label: 'ISO', shortLabel: 'ISO', type: 'reseller' },
+          super_iso: { label: 'Service Provider', shortLabel: 'SP', type: 'reseller' },
+          iso: { label: 'Super ISO', shortLabel: 'S-ISO', type: 'reseller' },
           subiso: { label: 'Sub ISO', shortLabel: 'SUB', type: 'reseller' },
           agent: { label: 'Agent', shortLabel: 'AGT', type: 'reseller' },
-          merchant: { label: 'Merchant', type: 'merchant' },
+          merchant: { label: 'Merchant', shortLabel: 'MCH', type: 'merchant' },
           store: { label: 'Store', type: 'store' }
         };
         function getHierarchyKindMeta(kind){
@@ -1868,65 +2708,31 @@
         var hierarchyState = {
           filterText: '',
           filterType: 'all',
-          selectedId: 'm-direct-riverfront',
-          collapsedIds: {
-            'sp-apex': true,
-            'sp-pacific': true
-          }
+          selectedId: 'sp-wizardpos',
+          collapsedIds: {}
         };
 
         var hierarchyData = [
-          { id: 'm-direct-riverfront', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Riverfront Market' },
-          { id: 'st-direct-riverfront-main', parentId: 'm-direct-riverfront', level: 2, kind: 'store', type: 'store', name: 'Main Hall' },
-          { id: 'st-direct-riverfront-airport', parentId: 'm-direct-riverfront', level: 2, kind: 'store', type: 'store', name: 'Airport Kiosk' },
-          { id: 'm-direct-midtown', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Midtown Deli' },
-          { id: 'st-direct-midtown-counter', parentId: 'm-direct-midtown', level: 2, kind: 'store', type: 'store', name: 'Office Tower Counter' },
-          { id: 'm-direct-skyline', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Skyline Fitness Club' },
-          { id: 'st-direct-skyline-downtown', parentId: 'm-direct-skyline', level: 2, kind: 'store', type: 'store', name: 'Downtown Branch' },
-          { id: 'st-direct-skyline-westend', parentId: 'm-direct-skyline', level: 2, kind: 'store', type: 'store', name: 'West End Branch' },
-          { id: 'm-direct-urban-pet', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Urban Pet Supply' },
-          { id: 'st-direct-urban-pet-harbor', parentId: 'm-direct-urban-pet', level: 2, kind: 'store', type: 'store', name: 'Harbor Point Shop' },
-          { id: 'm-direct-harbor-medical', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Harbor Medical Group' },
-          { id: 'st-direct-harbor-clinic', parentId: 'm-direct-harbor-medical', level: 2, kind: 'store', type: 'store', name: 'Central Clinic' },
-          { id: 'st-direct-harbor-annex', parentId: 'm-direct-harbor-medical', level: 2, kind: 'store', type: 'store', name: 'North Annex' },
-          { id: 'm-direct-corner-table', parentId: '', level: 1, kind: 'merchant', type: 'merchant', name: 'Corner Table Hospitality' },
-          { id: 'st-direct-corner-table-main', parentId: 'm-direct-corner-table', level: 2, kind: 'store', type: 'store', name: 'Riverside Dining Room' },
-          { id: 'st-direct-corner-table-event', parentId: 'm-direct-corner-table', level: 2, kind: 'store', type: 'store', name: 'Convention Booth' },
-          { id: 'sp-apex', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'Apex Resellers' },
-          { id: 'iso-global', parentId: 'sp-apex', level: 2, kind: 'iso', type: 'reseller', name: 'Global Payments Inc.' },
-          { id: 'sub-northern', parentId: 'iso-global', level: 3, kind: 'subiso', type: 'reseller', name: 'Northern Trail Commerce' },
-          { id: 'agt-manhattan', parentId: 'sub-northern', level: 4, kind: 'agent', type: 'reseller', name: 'Manhattan Field Ops' },
-          { id: 'm-luxe', parentId: 'agt-manhattan', level: 5, kind: 'merchant', type: 'merchant', name: 'Luxe Boutique' },
-          { id: 'st-luxe-soho', parentId: 'm-luxe', level: 6, kind: 'store', type: 'store', name: 'Soho Flagship' },
-          { id: 'st-luxe-nomad', parentId: 'm-luxe', level: 6, kind: 'store', type: 'store', name: 'NoMad Pop-Up' },
-          { id: 'm-sunnydale', parentId: 'agt-manhattan', level: 5, kind: 'merchant', type: 'merchant', name: 'Sunnydale Bakery' },
-          { id: 'st-sunny-chelsea', parentId: 'm-sunnydale', level: 6, kind: 'store', type: 'store', name: 'Chelsea Store' },
-          { id: 'st-sunny-hudson', parentId: 'm-sunnydale', level: 6, kind: 'store', type: 'store', name: 'Hudson Kiosk' },
-          { id: 'agt-eastcoast', parentId: 'sub-northern', level: 4, kind: 'agent', type: 'reseller', name: 'East Coast Growth Team' },
-          { id: 'm-harborview', parentId: 'agt-eastcoast', level: 5, kind: 'merchant', type: 'merchant', name: 'Harborview Cafe' },
-          { id: 'st-harbor-pier7', parentId: 'm-harborview', level: 6, kind: 'store', type: 'store', name: 'Pier 7 Store' },
-          { id: 'm-maple-leaf', parentId: 'agt-eastcoast', level: 5, kind: 'merchant', type: 'merchant', name: 'Maple Leaf Grocers' },
-          { id: 'st-maple-union', parentId: 'm-maple-leaf', level: 6, kind: 'store', type: 'store', name: 'Union Square Market' },
-          { id: 'iso-silverline', parentId: 'sp-apex', level: 2, kind: 'iso', type: 'reseller', name: 'Silverline Processing' },
-          { id: 'sub-summit', parentId: 'iso-silverline', level: 3, kind: 'subiso', type: 'reseller', name: 'SummitPay MidAtlantic' },
-          { id: 'agt-brooklyn', parentId: 'sub-summit', level: 4, kind: 'agent', type: 'reseller', name: 'Brooklyn Partner Desk' },
-          { id: 'm-north-shore', parentId: 'agt-brooklyn', level: 5, kind: 'merchant', type: 'merchant', name: 'North Shore Market' },
-          { id: 'st-north-williamsburg', parentId: 'm-north-shore', level: 6, kind: 'store', type: 'store', name: 'Williamsburg Store' },
-          { id: 'm-brightside', parentId: 'agt-brooklyn', level: 5, kind: 'merchant', type: 'merchant', name: 'Brightside Floral' },
-          { id: 'st-brightside-downtown', parentId: 'm-brightside', level: 6, kind: 'store', type: 'store', name: 'Downtown Studio' },
-          { id: 'sp-pacific', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'Pacific Reseller Group' },
-          { id: 'iso-westward', parentId: 'sp-pacific', level: 2, kind: 'iso', type: 'reseller', name: 'Westward Pay Partners' },
-          { id: 'sub-cascade', parentId: 'iso-westward', level: 3, kind: 'subiso', type: 'reseller', name: 'Cascade Commerce Hub' },
-          { id: 'agt-bayarea', parentId: 'sub-cascade', level: 4, kind: 'agent', type: 'reseller', name: 'Bay Area Agent Desk' },
-          { id: 'm-golden-gate', parentId: 'agt-bayarea', level: 5, kind: 'merchant', type: 'merchant', name: 'Golden Gate Grocery' },
-          { id: 'st-golden-ferry', parentId: 'm-golden-gate', level: 6, kind: 'store', type: 'store', name: 'Ferry Building Store' },
-          { id: 'm-mission-fresh', parentId: 'agt-bayarea', level: 5, kind: 'merchant', type: 'merchant', name: 'Mission Fresh Foods' },
-          { id: 'st-mission-valencia', parentId: 'm-mission-fresh', level: 6, kind: 'store', type: 'store', name: 'Valencia Store' },
-          { id: 'iso-redwood', parentId: 'sp-pacific', level: 2, kind: 'iso', type: 'reseller', name: 'Redwood Transactions' },
-          { id: 'sub-desert', parentId: 'iso-redwood', level: 3, kind: 'subiso', type: 'reseller', name: 'Desert Star Processing' },
-          { id: 'agt-coastal', parentId: 'sub-desert', level: 4, kind: 'agent', type: 'reseller', name: 'Coastal Agent Network' },
-          { id: 'm-redwood-deli', parentId: 'agt-coastal', level: 5, kind: 'merchant', type: 'merchant', name: 'Redwood Deli' },
-          { id: 'st-redwood-berkeley', parentId: 'm-redwood-deli', level: 6, kind: 'store', type: 'store', name: 'Berkeley Counter' }
+          { id: 'sp-wizardpos', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'wizarpos' },
+          { id: 'siso-luoq', parentId: 'sp-wizardpos', level: 2, kind: 'iso', type: 'reseller', name: 'Luoqıu' },
+          { id: 'siso-jmsc-pos', parentId: 'sp-wizardpos', level: 2, kind: 'iso', type: 'reseller', name: 'JMSC POS' },
+          { id: 'm-tianfu', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Tianfu Merchant' },
+          { id: 'm-yameng', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'YamengProdTest' },
+          { id: 'm-agabae', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'AGABAE LLC' },
+          { id: 'm-wp-fady', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'WP FADY FAM VENDING' },
+          { id: 'm-levico', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Levico Vending' },
+          { id: 'm-mayfood', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'MayFood' },
+          { id: 'm-brave-florist', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Brave florist' },
+          { id: 'm-wowis-bali-1', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Wowis Bali Wowis' },
+          { id: 'm-le-relais', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'LE RELAIS DES LACS' },
+          { id: 'm-eu-sun24', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'EU Sun24' },
+          { id: 'm-sck', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'SCK MARTIAL ARTS ACADEMY' },
+          { id: 'm-trend-twist', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Trend Twist' },
+          { id: 'm-vendy', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'VENDY' },
+          { id: 'm-sia-eko-b', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'SIA EKO B' },
+          { id: 'm-amada-victoria', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Amada Victoria' },
+          { id: 'm-five-10', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Five 10 Private Limi' },
+          { id: 'm-wowis-bali-2', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Wowis Bali Wowis' }
         ];
 
         function getHierarchyItemById(id){
@@ -2192,7 +2998,7 @@
           var heroTitle = document.querySelector('.reseller-hero h1');
           if(!info){
             if(heroLabel) heroLabel.textContent = 'Partner';
-            if(heroTitle) heroTitle.textContent = 'Universal Processing';
+            if(heroTitle) heroTitle.textContent = 'wizarpos';
             if(heroParentMeta) heroParentMeta.textContent = 'Parent: Service Provider';
             if(heroPathMeta) heroPathMeta.textContent = '| Path: Select a node from the hierarchy';
             if(heroLayerMeta) heroLayerMeta.textContent = '| Layer: -';
@@ -2213,7 +3019,7 @@
           if(heroParentMeta) heroParentMeta.textContent = 'Parent: ' + (parent ? parent.name : 'Service Provider');
           if(heroPathMeta) heroPathMeta.textContent = '| Path: ' + getHierarchyPathText(item);
           if(heroLayerMeta) heroLayerMeta.textContent = '| Layer: ' + meta.label + ' (L' + item.level + ')';
-          if(detailTab) detailTab.textContent = meta.label + ' Detail';
+          if(detailTab) detailTab.textContent = item.kind === 'super_iso' ? 'Service Provider Details' : meta.label + ' Detail';
           if(resellerContent) resellerContent.style.display = isMerchantLike ? 'none' : '';
           if(merchantContent) merchantContent.style.display = isMerchantLike ? '' : 'none';
           if(isMerchantLike){
@@ -2288,7 +3094,7 @@
             }
             label.appendChild(name);
             main.appendChild(label);
-            if(item.type === 'reseller'){
+            if(item.type !== 'store'){
               var badge = document.createElement('span');
               badge.className = 'hierarchy-node-badge ' + getHierarchyKindClass(item.kind);
               badge.textContent = meta.shortLabel || meta.label;
@@ -2346,7 +3152,176 @@
             if(e.target.closest('button, a, input, select, textarea, label')) return;
             var row = e.target.closest('tr');
             if(!row) return;
+            if(row.classList.contains('inventory-only')) return;
             window.location.href = '1.terminalmanage.html';
+          });
+        }
+
+        // Terminal filter popover
+        var terminalFilterBtn = document.getElementById('terminalFilterBtn');
+        var terminalFilterPopover = document.getElementById('terminalFilterPopover');
+        var terminalFilterName = document.getElementById('terminalFilterName');
+        var terminalFilterSn = document.getElementById('terminalFilterSn');
+        var terminalFilterTid = document.getElementById('terminalFilterTid');
+        var terminalFilterModel = document.getElementById('terminalFilterModel');
+        var terminalFilterStatus = document.getElementById('terminalFilterStatus');
+        var terminalFilterSearch = document.getElementById('terminalFilterSearch');
+        var terminalFilterReset = document.getElementById('terminalFilterReset');
+
+        function normalizeTerminalFilterValue(value){
+          return String(value || '').trim().toLowerCase();
+        }
+
+        function setTerminalFilterOpen(open){
+          if(!terminalFilterPopover || !terminalFilterBtn) return;
+          terminalFilterPopover.classList.toggle('is-open', open);
+          terminalFilterBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        function applyTerminalFilters(){
+          if(!terminalTableBody) return;
+          var filters = {
+            name: normalizeTerminalFilterValue(terminalFilterName && terminalFilterName.value),
+            sn: normalizeTerminalFilterValue(terminalFilterSn && terminalFilterSn.value),
+            tid: normalizeTerminalFilterValue(terminalFilterTid && terminalFilterTid.value),
+            model: normalizeTerminalFilterValue(terminalFilterModel && terminalFilterModel.value),
+            status: normalizeTerminalFilterValue(terminalFilterStatus && terminalFilterStatus.value)
+          };
+          Array.prototype.forEach.call(terminalTableBody.querySelectorAll('tr'), function(row){
+            var cells = row.cells;
+            var rowSn = normalizeTerminalFilterValue(cells[0] && cells[0].textContent);
+            var rowName = normalizeTerminalFilterValue(cells[1] && cells[1].textContent);
+            var rowTid = normalizeTerminalFilterValue(cells[2] && cells[2].textContent);
+            var rowModel = normalizeTerminalFilterValue(cells[3] && cells[3].textContent);
+            var rowStatus = normalizeTerminalFilterValue(cells[4] && cells[4].textContent);
+            var matched = (!filters.name || rowName.indexOf(filters.name) > -1)
+              && (!filters.sn || rowSn.indexOf(filters.sn) > -1)
+              && (!filters.tid || rowTid.indexOf(filters.tid) > -1)
+              && (!filters.model || rowModel === filters.model)
+              && (!filters.status || rowStatus === filters.status);
+            row.style.display = matched ? '' : 'none';
+          });
+        }
+
+        function resetTerminalFilters(){
+          [terminalFilterName, terminalFilterSn, terminalFilterTid].forEach(function(input){
+            if(input) input.value = '';
+          });
+          if(terminalFilterModel) terminalFilterModel.value = '';
+          if(terminalFilterStatus) terminalFilterStatus.value = '';
+          applyTerminalFilters();
+        }
+
+        if(terminalFilterBtn && terminalFilterPopover){
+          terminalFilterBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            setTerminalFilterOpen(!terminalFilterPopover.classList.contains('is-open'));
+          });
+          terminalFilterPopover.addEventListener('click', function(e){
+            e.stopPropagation();
+          });
+          document.addEventListener('click', function(){
+            setTerminalFilterOpen(false);
+          });
+        }
+        if(terminalFilterSearch){
+          terminalFilterSearch.addEventListener('click', function(){
+            applyTerminalFilters();
+            setTerminalFilterOpen(false);
+          });
+        }
+        if(terminalFilterReset){
+          terminalFilterReset.addEventListener('click', resetTerminalFilters);
+        }
+        [terminalFilterName, terminalFilterSn, terminalFilterTid].forEach(function(input){
+          if(!input) return;
+          input.addEventListener('keydown', function(e){
+            if(e.key === 'Enter'){
+              applyTerminalFilters();
+              setTerminalFilterOpen(false);
+            }
+          });
+        });
+
+        // Model breakdown metric switching
+        var modelModeCards = document.querySelectorAll('[data-model-mode]');
+        var modelItems = document.querySelectorAll('.model-item');
+        var modelSummary = document.querySelector('.model-summary');
+        var modelContextMetric = document.getElementById('modelContextMetric');
+        var modelContextLabels = {
+          total: 'Total',
+          active: 'Activated',
+          inactive: 'Unactivated',
+          rate: 'Activation Rate'
+        };
+
+        function getModelMetric(item, mode){
+          var total = Number(item.getAttribute('data-total')) || 0;
+          var active = Number(item.getAttribute('data-active')) || 0;
+          var inactive = Number(item.getAttribute('data-inactive')) || 0;
+          if(mode === 'active') return String(active);
+          if(mode === 'inactive') return String(inactive);
+          if(mode === 'rate') return total ? Math.round((active / total) * 1000) / 10 + '%' : '0%';
+          return String(total);
+        }
+
+        function setModelMode(mode){
+          modelModeCards.forEach(function(card){
+            var selected = card.getAttribute('data-model-mode') === mode;
+            card.classList.toggle('is-selected', selected);
+            card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+          });
+          if(modelContextMetric) modelContextMetric.textContent = modelContextLabels[mode] || modelContextLabels.total;
+          if(modelSummary){
+            modelSummary.classList.remove('model-mode-total', 'model-mode-active', 'model-mode-inactive', 'model-mode-rate');
+            modelSummary.classList.add('model-mode-' + mode);
+          }
+          modelItems.forEach(function(item){
+            var count = item.querySelector('.model-count');
+            if(count) count.textContent = getModelMetric(item, mode);
+          });
+        }
+
+        if(modelModeCards.length && modelItems.length){
+          modelModeCards.forEach(function(card){
+            var mode = card.getAttribute('data-model-mode');
+            card.addEventListener('click', function(){ setModelMode(mode); });
+            card.addEventListener('keydown', function(e){
+              if(e.key === 'Enter' || e.key === ' '){
+                e.preventDefault();
+                setModelMode(mode);
+              }
+            });
+          });
+          setModelMode('total');
+        }
+
+        // Manual TMS inventory refresh
+        var refreshTmsBtn = document.getElementById('refreshTmsBtn');
+        var terminalSyncStatus = document.getElementById('terminalSyncStatus');
+        function formatSyncTime(date){
+          function pad(value){ return String(value).padStart(2, '0'); }
+          return date.getFullYear() + '-' +
+            pad(date.getMonth() + 1) + '-' +
+            pad(date.getDate()) + ' ' +
+            pad(date.getHours()) + ':' +
+            pad(date.getMinutes()) + ':' +
+            pad(date.getSeconds());
+        }
+        if(refreshTmsBtn){
+          refreshTmsBtn.addEventListener('click', function(){
+            if(refreshTmsBtn.classList.contains('is-loading')) return;
+            var label = refreshTmsBtn.querySelector('span');
+            refreshTmsBtn.classList.add('is-loading');
+            refreshTmsBtn.disabled = true;
+            if(label) label.textContent = 'Refreshing';
+            if(terminalSyncStatus) terminalSyncStatus.textContent = 'Pulling latest TMS inventory...';
+            window.setTimeout(function(){
+              refreshTmsBtn.classList.remove('is-loading');
+              refreshTmsBtn.disabled = false;
+              if(label) label.textContent = 'Sync';
+              if(terminalSyncStatus) terminalSyncStatus.textContent = 'Last sync: ' + formatSyncTime(new Date());
+            }, 900);
           });
         }
 
