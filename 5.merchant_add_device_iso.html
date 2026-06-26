@@ -2701,12 +2701,19 @@
         const params = new URLSearchParams(window.location.search);
         const storeName = params.get('storeName') || 'Selected Store';
         const storeId = params.get('storeId');
+        const boundSn = params.get('sn') || params.get('SN') || '';
 
         if (storeNameEl) {
             storeNameEl.textContent = storeName;
         }
         if (storeName) {
             document.title = `Add Device - ${storeName}`;
+        }
+        if (boundSn) {
+            const deviceSnInput = document.getElementById('device-tpn');
+            if (deviceSnInput) {
+                deviceSnInput.value = boundSn;
+            }
         }
 
         const processorSelect = document.getElementById('device-processor');

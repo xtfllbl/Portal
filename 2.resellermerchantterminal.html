@@ -533,6 +533,81 @@
         .required-mark { color: #b40000; margin-left: 2px; }
         .inline-field { display: flex; align-items: end; gap: 8px; }
         .suffix-note { font-size: 12px; color: var(--text-muted); }
+        .bind-store-modal {
+            width: min(520px, calc(100vw - 40px));
+        }
+        .bind-store-modal header {
+            padding: 14px 16px;
+        }
+        .bind-store-modal .modal-body {
+            display: block;
+            padding: 16px;
+        }
+        .bind-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        .bind-summary-label {
+            font-size: 11px;
+            line-height: 1.1;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .bind-summary-value {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-heading);
+            white-space: nowrap;
+        }
+        .bind-form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .bind-form-grid .field {
+            display: grid;
+            gap: 6px;
+        }
+        .bind-form-grid .field select,
+        .bind-form-grid .field input {
+            width: 100%;
+            height: 38px;
+        }
+        .bind-create-link {
+            width: fit-content;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: #006fd6;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .bind-inline-create {
+            display: none;
+        }
+        .bind-inline-create.show {
+            display: block;
+        }
+        .bind-error {
+            display: none;
+            margin-top: 2px;
+            color: #b42318;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .bind-error.show {
+            display: block;
+        }
 
         /* Empty state for right panel */
         .page-card.empty > :not(.empty-state) { display: none !important; }
@@ -1049,14 +1124,14 @@
         .terminal-table .tid-cell { text-align: center; }
         .terminal-table .actions-cell { text-align: center; white-space: nowrap; }
         .status-tag {
-            min-width: 92px;
-            height: 28px;
-            padding: 0 10px;
+            min-width: 58px;
+            height: 24px;
+            padding: 0 8px;
             border-radius: 999px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1;
             font-weight: 800;
             white-space: nowrap;
@@ -1701,8 +1776,8 @@
                                             </select>
                                             <select class="terminal-filter-select" id="terminalFilterStatus" aria-label="Filter by status">
                                                 <option value="">Status</option>
-                                                <option value="activated">Activated</option>
-                                                <option value="unactivated">Unactivated</option>
+                                                <option value="act">ACT</option>
+                                                <option value="inact">INACT</option>
                                             </select>
                                             <div class="terminal-filter-actions">
                                                 <button class="terminal-filter-reset" id="terminalFilterReset" type="button">
@@ -1736,91 +1811,91 @@
                                     <tbody>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP6047UQ33000052</a></td><td>WP6047UQ33000052</td><td class="tid-cell">-</td><td>Q3RU</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Retail Tech Pte Ltd</td><td>Retail Tech Pte Ltd</td><td>2026-06-25 14:01:25</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP6030VQ33000340</a></td><td>WP6030VQ33000340</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Anime World</td><td>Anime World_1</td><td>2026-06-24 23:09:42</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP6030VQ33000337</a></td><td>WP6030VQ33000337</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Anime World</td><td>Anime World_1</td><td>2026-06-24 14:06:22</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200063</a></td><td>WP5445UQ33200063</td><td class="tid-cell">-</td><td>Q3VU</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Regiis Flowers LLC</td><td>Regiis Flowers_1</td><td>2026-06-24 01:03:33</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200080</a></td><td>WP5445UQ33200080</td><td class="tid-cell">-</td><td>Q3VU</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Momoko Shop KFT</td><td>Momoko shop kft_1</td><td>2026-06-23 02:02:57</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200060</a></td><td>WP5445UQ33200060</td><td class="tid-cell">-</td><td>Q3VU</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Momoko Shop KFT</td><td>Momoko shop kft_1</td><td>2026-06-23 02:01:25</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP5445UQ33200059</a></td><td>WP5445UQ33200059</td><td class="tid-cell">-</td><td>Q3VU</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>FLORISTERIA AN Y VERD</td><td>FLORISTERIA AN Y VERD_1</td><td>2026-06-23 01:20:51</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP6150KQ16000016</a></td><td>WP6150KQ16000016</td><td class="tid-cell">-</td><td>Q1K</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>Beaver Test Merchant</td><td>beaver test 2</td><td>2026-06-22 18:38:45</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr>
                                             <td><a class="sn-link" href="1.terminalmanage.html">WP6140VQ36000308</a></td><td>WP6140VQ36000308</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
-                                            <td><span class="status-tag activated">Activated</span></td>
+                                            <td><span class="status-tag activated">ACT</span></td>
                                             <td>ROTOMLOOT S.L.</td><td>RotomLoot S.L. 1</td><td>2026-06-20 19:55:35</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
                                         </tr>
                                         <tr class="inventory-only">
                                             <td><span class="sn-static">WP5445UQ33200102</span></td><td>-</td><td class="tid-cell">-</td><td>Q3VU</td>
-                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td><span class="status-tag unactivated">INACT</span></td>
                                             <td>-</td><td>-</td><td>2026-06-26 09:42:18</td>
                                             <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
                                         <tr class="inventory-only">
                                             <td><span class="sn-static">WP5445UQ33200103</span></td><td>-</td><td class="tid-cell">-</td><td>Q3VU</td>
-                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td><span class="status-tag unactivated">INACT</span></td>
                                             <td>-</td><td>-</td><td>2026-06-26 09:42:18</td>
                                             <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
                                         <tr class="inventory-only">
                                             <td><span class="sn-static">WP6030VQ33000372</span></td><td>-</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
-                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td><span class="status-tag unactivated">INACT</span></td>
                                             <td>-</td><td>-</td><td>2026-06-26 09:39:05</td>
                                             <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
                                         <tr class="inventory-only">
                                             <td><span class="sn-static">WP6047UQ33000079</span></td><td>-</td><td class="tid-cell">-</td><td>Q3RU</td>
-                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td><span class="status-tag unactivated">INACT</span></td>
                                             <td>-</td><td>-</td><td>2026-06-26 09:35:44</td>
                                             <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
                                         <tr class="inventory-only">
                                             <td><span class="sn-static">WP6150KQ16000027</span></td><td>-</td><td class="tid-cell">-</td><td>Q1K</td>
-                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td><span class="status-tag unactivated">INACT</span></td>
                                             <td>-</td><td>-</td><td>2026-06-25 18:10:12</td>
                                             <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
                                         <tr class="inventory-only">
                                             <td><span class="sn-static">WP6030VQ33000383</span></td><td>-</td><td class="tid-cell">-</td><td>Q3MINI-V</td>
-                                            <td><span class="status-tag unactivated">Unactivated</span></td>
+                                            <td><span class="status-tag unactivated">INACT</span></td>
                                             <td>-</td><td>-</td><td>2026-06-25 18:06:37</td>
                                             <td class="actions-cell"><button class="terminal-bind-button" type="button">Bind</button></td>
                                         </tr>
@@ -2195,6 +2270,64 @@
           <div class="modal-actions">
             <button type="button" id="addTerminalCancel" class="chip-button">Cancel</button>
             <button type="submit" class="chip-button primary-action">OK</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Bind TMS Serial Number Modal -->
+    <div id="bindStoreModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal bind-store-modal" role="document">
+        <header>
+          <span>Bind to Store</span>
+          <button class="close-btn" id="bindStoreClose" aria-label="Close">×</button>
+        </header>
+        <form id="bindStoreForm">
+          <div class="modal-body">
+            <div class="bind-summary">
+              <div>
+                <div class="bind-summary-label">SN</div>
+                <div class="bind-summary-value" id="bindStoreSn">-</div>
+              </div>
+              <div>
+                <div class="bind-summary-label">Model</div>
+                <div class="bind-summary-value" id="bindStoreModel">-</div>
+              </div>
+            </div>
+            <div class="bind-form-grid">
+              <div class="field">
+                <label for="bindMerchant">Merchant <span class="required-mark">*</span></label>
+                <select id="bindMerchant" name="merchant">
+                  <option value="">Select Merchant</option>
+                  <option>Retail Tech Pte Ltd</option>
+                  <option>Anime World</option>
+                  <option>Regiis Flowers LLC</option>
+                  <option>Momoko Shop KFT</option>
+                  <option>FLORISTERIA AN Y VERD</option>
+                  <option>Beaver Test Merchant</option>
+                  <option>ROTOMLOOT S.L.</option>
+                  <option>Smartmatic Sdn Bhd</option>
+                </select>
+                <button class="bind-create-link" id="bindCreateMerchantBtn" type="button">+ Create New Merchant</button>
+                <div class="bind-inline-create" id="bindNewMerchantWrap">
+                  <input id="bindNewMerchant" type="text" placeholder="New merchant name">
+                </div>
+              </div>
+              <div class="field">
+                <label for="bindStore">Store <span class="required-mark">*</span></label>
+                <select id="bindStore" name="store">
+                  <option value="">Select Store</option>
+                </select>
+                <button class="bind-create-link" id="bindCreateStoreBtn" type="button">+ Create New Store</button>
+                <div class="bind-inline-create" id="bindNewStoreWrap">
+                  <input id="bindNewStore" type="text" placeholder="New store name">
+                </div>
+              </div>
+              <div class="bind-error" id="bindStoreError">Select or create a merchant and store.</div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="bindStoreCancel" class="chip-button">Cancel</button>
+            <button type="submit" class="chip-button primary-action">Bind</button>
           </div>
         </form>
       </div>
@@ -3242,6 +3375,125 @@
             }
           });
         });
+
+        // Bind unactivated TMS serial number to a merchant store
+        var bindStoreModal = document.getElementById('bindStoreModal');
+        var bindStoreForm = document.getElementById('bindStoreForm');
+        var bindStoreClose = document.getElementById('bindStoreClose');
+        var bindStoreCancel = document.getElementById('bindStoreCancel');
+        var bindStoreSn = document.getElementById('bindStoreSn');
+        var bindStoreModel = document.getElementById('bindStoreModel');
+        var bindMerchant = document.getElementById('bindMerchant');
+        var bindStore = document.getElementById('bindStore');
+        var bindCreateMerchantBtn = document.getElementById('bindCreateMerchantBtn');
+        var bindCreateStoreBtn = document.getElementById('bindCreateStoreBtn');
+        var bindNewMerchantWrap = document.getElementById('bindNewMerchantWrap');
+        var bindNewStoreWrap = document.getElementById('bindNewStoreWrap');
+        var bindNewMerchant = document.getElementById('bindNewMerchant');
+        var bindNewStore = document.getElementById('bindNewStore');
+        var bindStoreError = document.getElementById('bindStoreError');
+        var activeBindTerminal = { sn: '', model: '' };
+        var bindStoreOptions = {
+          'Retail Tech Pte Ltd': ['Retail Tech Pte Ltd'],
+          'Anime World': ['Anime World_1'],
+          'Regiis Flowers LLC': ['Regiis Flowers_1'],
+          'Momoko Shop KFT': ['Momoko shop kft_1'],
+          'FLORISTERIA AN Y VERD': ['FLORISTERIA AN Y VERD_1'],
+          'Beaver Test Merchant': ['beaver test 2'],
+          'ROTOMLOOT S.L.': ['RotomLoot S.L. 1'],
+          'Smartmatic Sdn Bhd': ['Smartmatic Store 1']
+        };
+
+        function closeBindStoreModal(){
+          if(bindStoreModal){
+            bindStoreModal.classList.remove('show');
+            bindStoreModal.setAttribute('aria-hidden', 'true');
+          }
+        }
+
+        function populateBindStores(merchantName){
+          if(!bindStore) return;
+          var options = bindStoreOptions[merchantName] || [];
+          bindStore.innerHTML = '<option value="">Select Store</option>' + options.map(function(store){
+            return '<option>' + store + '</option>';
+          }).join('');
+        }
+
+        function resetBindStoreForm(){
+          if(bindMerchant) bindMerchant.value = '';
+          populateBindStores('');
+          if(bindNewMerchant) bindNewMerchant.value = '';
+          if(bindNewStore) bindNewStore.value = '';
+          if(bindNewMerchantWrap) bindNewMerchantWrap.classList.remove('show');
+          if(bindNewStoreWrap) bindNewStoreWrap.classList.remove('show');
+          if(bindStoreError) bindStoreError.classList.remove('show');
+        }
+
+        function openBindStoreModal(sn, model){
+          activeBindTerminal = { sn: sn || '', model: model || '' };
+          resetBindStoreForm();
+          if(bindStoreSn) bindStoreSn.textContent = activeBindTerminal.sn || '-';
+          if(bindStoreModel) bindStoreModel.textContent = activeBindTerminal.model || '-';
+          if(bindStoreModal){
+            bindStoreModal.classList.add('show');
+            bindStoreModal.setAttribute('aria-hidden', 'false');
+          }
+          if(bindMerchant) bindMerchant.focus();
+        }
+
+        if(terminalTableBody){
+          terminalTableBody.addEventListener('click', function(e){
+            var bindBtn = e.target.closest('.terminal-bind-button');
+            if(!bindBtn) return;
+            e.preventDefault();
+            var row = bindBtn.closest('tr');
+            if(!row || !row.cells) return;
+            var sn = row.cells[0] ? row.cells[0].textContent.trim() : '';
+            var model = row.cells[3] ? row.cells[3].textContent.trim() : '';
+            openBindStoreModal(sn, model);
+          });
+        }
+        if(bindMerchant){
+          bindMerchant.addEventListener('change', function(){
+            populateBindStores(bindMerchant.value);
+            if(bindNewMerchant) bindNewMerchant.value = '';
+            if(bindStoreError) bindStoreError.classList.remove('show');
+          });
+        }
+        if(bindCreateMerchantBtn){
+          bindCreateMerchantBtn.addEventListener('click', function(){
+            if(bindNewMerchantWrap) bindNewMerchantWrap.classList.toggle('show');
+            if(bindNewMerchantWrap && bindNewMerchantWrap.classList.contains('show') && bindNewMerchant) bindNewMerchant.focus();
+          });
+        }
+        if(bindCreateStoreBtn){
+          bindCreateStoreBtn.addEventListener('click', function(){
+            if(bindNewStoreWrap) bindNewStoreWrap.classList.toggle('show');
+            if(bindNewStoreWrap && bindNewStoreWrap.classList.contains('show') && bindNewStore) bindNewStore.focus();
+          });
+        }
+        if(bindStoreClose) bindStoreClose.addEventListener('click', closeBindStoreModal);
+        if(bindStoreCancel) bindStoreCancel.addEventListener('click', closeBindStoreModal);
+        if(bindStoreModal){
+          bindStoreModal.addEventListener('click', function(e){
+            if(e.target === bindStoreModal) closeBindStoreModal();
+          });
+        }
+        if(bindStoreForm){
+          bindStoreForm.addEventListener('submit', function(e){
+            e.preventDefault();
+            var merchantName = (bindNewMerchant && bindNewMerchant.value.trim()) || (bindMerchant && bindMerchant.value) || '';
+            var storeName = (bindNewStore && bindNewStore.value.trim()) || (bindStore && bindStore.value) || '';
+            if(!merchantName || !storeName){
+              if(bindStoreError) bindStoreError.classList.add('show');
+              return;
+            }
+            var target = '5.merchant_add_device_iso.html?sn=' + encodeURIComponent(activeBindTerminal.sn)
+              + '&merchantName=' + encodeURIComponent(merchantName)
+              + '&storeName=' + encodeURIComponent(storeName);
+            window.location.href = target;
+          });
+        }
 
         // Model breakdown metric switching
         var modelModeCards = document.querySelectorAll('[data-model-mode]');
