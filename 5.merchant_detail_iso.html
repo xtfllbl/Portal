@@ -2764,7 +2764,7 @@
                                     <div>STATUS</div>
                                     <div>ACTIONS</div>
                                 </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="Enable">
+                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-version="v1.3.121" data-scenario="Standalone Terminal" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="OPC_ATTENDED_TCP">
                                     <div data-role="store-name">Downtown Location</div>
                                     <div class="device-cell-mono" data-role="device-sn">156724348539</div>
                                     <div data-role="device-model">P3</div>
@@ -2803,7 +2803,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348540" data-model="P2" data-processor="FISERV" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="Enable">
+                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348540" data-model="P2" data-processor="FISERV" data-version="1.0.34_20260622" data-scenario="Terminal + ECR" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="OPC_ATTENDED_TCP">
                                     <div data-role="store-name">Downtown Location</div>
                                     <div class="device-cell-mono" data-role="device-sn">156724348540</div>
                                     <div data-role="device-model">P2</div>
@@ -2842,7 +2842,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-sn="156724348541" data-model="VT #1" data-processor="Worldpay" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="Enable">
+                                <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-sn="156724348541" data-model="VT #1" data-processor="OXPAY" data-version="v1.0.19_260609" data-scenario="Standalone Terminal" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="OPC_VENDING_STANDARD">
                                     <div data-role="store-name">Midtown Location</div>
                                     <div class="device-cell-mono" data-role="device-sn">156724348541</div>
                                     <div data-role="device-model">VT #1</div>
@@ -4437,6 +4437,172 @@
             return cell;
         };
 
+        const appendSeedDeviceRow = (device) => {
+            if (!deviceGrid || document.querySelector(`.device-grid-row[data-sn="${device.sn}"]`)) return;
+
+            const row = document.createElement('div');
+            row.className = 'grid-row device-grid-row';
+            row.dataset.storeId = device.storeId;
+            row.dataset.storeName = device.storeName;
+            row.dataset.sn = device.sn;
+            row.dataset.model = device.model;
+            row.dataset.processor = device.processor;
+            row.dataset.version = device.version;
+            row.dataset.scenario = device.scenario;
+            row.dataset.label = device.label;
+            row.dataset.manufacturer = device.manufacturer || 'WizarPOS';
+            row.dataset.template = device.template || '';
+            row.dataset.paywizard = device.paywizard || 'OPC_VENDING_STANDARD';
+
+            const storeCell = document.createElement('div');
+            storeCell.setAttribute('data-role', 'store-name');
+            storeCell.textContent = device.storeName;
+            row.appendChild(storeCell);
+
+            const snCell = document.createElement('div');
+            snCell.className = 'device-cell-mono';
+            snCell.setAttribute('data-role', 'device-sn');
+            snCell.textContent = device.sn;
+            row.appendChild(snCell);
+
+            const modelCell = document.createElement('div');
+            modelCell.setAttribute('data-role', 'device-model');
+            modelCell.textContent = device.model;
+            row.appendChild(modelCell);
+
+            row.appendChild(createDeviceTerminalCell(device.label));
+            row.appendChild(Object.assign(document.createElement('div'), { textContent: device.addedAt }));
+
+            const statusCell = document.createElement('div');
+            statusCell.setAttribute('data-role', 'device-status');
+            const statusBadge = document.createElement('span');
+            statusBadge.className = `status-badge ${device.status.toLowerCase()}`;
+            statusBadge.textContent = device.status;
+            statusCell.appendChild(statusBadge);
+            row.appendChild(statusCell);
+
+            row.appendChild(buildDeviceActionsCell());
+            deviceGrid.appendChild(row);
+            setStoredTerminalName(device.sn, device.label);
+        };
+
+        const seedDemoDeviceRows = () => {
+            [
+                {
+                    storeId: 'st_123',
+                    storeName: 'Downtown Location',
+                    sn: '156724348542',
+                    model: 'Q3V',
+                    label: 'ELAVON Tap Counter',
+                    processor: 'ELAVON',
+                    version: 'v1.1.57',
+                    scenario: 'Standalone Terminal',
+                    template: 'Retail - Quick Start',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-02 09:16',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_123',
+                    storeName: 'Downtown Location',
+                    sn: '156724348543',
+                    model: 'Q3PRT',
+                    label: 'NUVEI ATTD Patio',
+                    processor: 'NUVEI ATTD',
+                    version: '1.0.20_260622',
+                    scenario: 'Terminal + ECR',
+                    template: 'Restaurant - Full Service',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-04 14:41',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_204',
+                    storeName: 'Midtown Location',
+                    sn: '156724348544',
+                    model: 'Q2',
+                    label: 'OXPAY QR Register',
+                    processor: 'OXPAY',
+                    version: 'v1.0.19_260609',
+                    scenario: 'Standalone Terminal',
+                    template: 'Convenience - Express',
+                    paywizard: 'OPC_VENDING_STANDARD',
+                    addedAt: '2026-05-08 12:18',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_310',
+                    storeName: 'Uptown Cafe',
+                    sn: '156724348545',
+                    model: 'Q3V',
+                    label: 'NUVEI UPT Coffee Bar',
+                    processor: 'NUVEI UPT',
+                    version: '1.0.41_20260622',
+                    scenario: 'Terminal + ECR',
+                    template: 'Restaurant - Full Service',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-12 08:34',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_522',
+                    storeName: 'Brooklyn Market',
+                    sn: '156724348546',
+                    model: 'Q3PRT',
+                    label: 'ELAVON Market Lane',
+                    processor: 'ELAVON',
+                    version: 'v1.1.57',
+                    scenario: 'Standalone Terminal',
+                    template: 'Retail - Quick Start',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-17 15:07',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_522',
+                    storeName: 'Brooklyn Market',
+                    sn: '156724348547',
+                    model: 'Q2',
+                    label: 'TSYS Produce Kiosk',
+                    processor: 'TSYS',
+                    version: 'v1.3.121',
+                    scenario: 'Vending Machine',
+                    template: 'Retail - Quick Start',
+                    paywizard: 'OPC_VENDING_STANDARD',
+                    addedAt: '2026-05-18 10:52',
+                    status: 'Pending'
+                },
+                {
+                    storeId: 'st_630',
+                    storeName: 'Airport Concourse',
+                    sn: '156724348548',
+                    model: 'Q3V',
+                    label: 'ELAVON Gate A',
+                    processor: 'ELAVON',
+                    version: 'v1.1.57',
+                    scenario: 'Standalone Terminal',
+                    template: 'Retail - Quick Start',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-21 07:25',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_630',
+                    storeName: 'Airport Concourse',
+                    sn: '156724348549',
+                    model: 'Q3PRT',
+                    label: 'OXPAY Gate B QR',
+                    processor: 'OXPAY',
+                    version: 'v1.0.19_260609',
+                    scenario: 'Standalone Terminal',
+                    template: 'Convenience - Express',
+                    paywizard: 'OPC_VENDING_STANDARD',
+                    addedAt: '2026-05-22 13:09',
+                    status: 'Active'
+                }
+            ].forEach(appendSeedDeviceRow);
+        };
+
         const updateStoreDeviceSummaries = () => {
             const deviceRows = getDeviceRows();
             const summaryMap = new Map();
@@ -4891,6 +5057,8 @@
                 label: getTerminalNameForRow(row),
                 model: row.dataset.model || '',
                 processor: row.dataset.processor || '',
+                version: row.dataset.version || '',
+                scenario: row.dataset.scenario || '',
                 template: row.dataset.template || '',
                 paywizard: row.dataset.paywizard || '',
                 manufacturer: row.dataset.manufacturer || ''
@@ -5534,6 +5702,7 @@
 
         populateValidateCardOptions();
         syncValidateTrack2();
+        seedDemoDeviceRows();
         enhanceExistingDeviceSettingsControls();
         getDeviceRows().forEach((row) => {
             applyTerminalNameToRow(row, getTerminalNameForRow(row));

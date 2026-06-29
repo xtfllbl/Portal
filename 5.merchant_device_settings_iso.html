@@ -1043,6 +1043,114 @@
             accent-color: var(--accent);
         }
 
+        .payment-config {
+            margin: 18px 0 10px;
+            padding: 18px 18px 20px;
+            border: 1px solid #edf0f5;
+            border-radius: 12px;
+            background: #fbfcfe;
+        }
+
+        .payment-config .form-grid {
+            margin-top: 20px;
+            gap: 22px 28px;
+        }
+
+        .deployment-options.is-hidden {
+            display: none;
+        }
+
+        .payment-config-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .payment-config-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .payment-config-note {
+            margin: 3px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+            padding-top: 1px;
+        }
+
+        .switchline {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            color: var(--text-main);
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .switchline input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .switch-track {
+            position: relative;
+            width: 38px;
+            height: 22px;
+            border-radius: 999px;
+            background: #cbd5e1;
+            transition: background-color 0.18s ease;
+            flex-shrink: 0;
+            pointer-events: none;
+        }
+
+        .switch-track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
+            transition: transform 0.18s ease;
+        }
+
+        .switchline input:checked + .switch-track {
+            background: var(--text-strong);
+        }
+
+        .switchline input:checked + .switch-track::after {
+            transform: translateX(16px);
+        }
+
+        .switchline input:focus-visible + .switch-track {
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.14);
+        }
+
+        .switchline input:disabled + .switch-track,
+        .switchline input:disabled ~ span:last-child {
+            opacity: 1;
+        }
+
+        .key-download.is-hidden {
+            display: none;
+        }
+
         .wizard-actions {
             display: flex;
             justify-content: space-between;
@@ -1074,6 +1182,114 @@
             display: inline-flex;
             align-items: center;
             gap: 12px;
+        }
+
+        .confirm-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.42);
+        }
+
+        .confirm-modal.is-hidden {
+            display: none;
+        }
+
+        .confirm-dialog {
+            width: min(560px, 100%);
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+            overflow: hidden;
+        }
+
+        .confirm-dialog-head {
+            padding: 20px 22px 14px;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .confirm-dialog-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-strong);
+        }
+
+        .confirm-summary {
+            display: grid;
+            gap: 12px;
+            padding: 18px 22px;
+        }
+
+        .confirm-row {
+            display: grid;
+            grid-template-columns: minmax(130px, 0.45fr) minmax(0, 1fr);
+            gap: 16px;
+            align-items: baseline;
+        }
+
+        .confirm-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .confirm-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            word-break: break-word;
+        }
+
+        .redeploy-options {
+            display: grid;
+            gap: 12px;
+            padding: 18px 22px;
+            border-top: 1px solid #eef1f5;
+        }
+
+        .redeploy-options-title {
+            margin: 0 0 2px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .redeploy-choice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .redeploy-choice input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text-strong);
+            flex: 0 0 auto;
+        }
+
+        .redeploy-choice.is-hidden {
+            display: none;
+        }
+
+        .confirm-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 22px 20px;
+            border-top: 1px solid #eef1f5;
         }
 
         .helper-text {
@@ -1118,16 +1334,9 @@
             color: var(--text-muted);
         }
 
-        .processor-pill {
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: #eef2ff;
-            color: #1d4ed8;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.10) inset;
+        .processor-template-row {
+            margin-top: 16px;
+            max-width: 520px;
         }
 
         .param-set {
@@ -1140,26 +1349,25 @@
         }
 
         .param-tabs {
-            margin-top: 12px;
+            margin-top: 20px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
+            gap: 30px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            overflow-x: auto;
+            scrollbar-width: thin;
         }
 
         .param-tab {
             border: none;
             background: transparent;
-            padding: 8px 2px;
-            font-size: 12px;
+            padding: 12px 2px 13px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-muted);
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: color 0.18s ease, border-color 0.18s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+            white-space: nowrap;
         }
 
         .param-tab:hover {
@@ -1173,7 +1381,7 @@
 
         .param-panel {
             display: none;
-            margin-top: 16px;
+            margin-top: 22px;
         }
 
         .param-panel.active {
@@ -1181,11 +1389,8 @@
         }
 
         .param-group {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 14px;
+            padding: 0 8px 8px;
             margin-bottom: 16px;
-            background: #f9fafb;
         }
 
         .group-header {
@@ -1202,8 +1407,9 @@
 
         .group-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            column-gap: 28px;
+            row-gap: 22px;
         }
 
         .field.full {
@@ -1217,7 +1423,150 @@
         .processor-params .field label {
             text-transform: none;
             letter-spacing: 0;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #454854;
+            line-height: 1.35;
+        }
+
+        .processor-params .required-mark {
+            margin-left: 3px;
+            color: #d92d20;
+        }
+
+        .param-label-line {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .param-info-button {
+            width: 17px;
+            height: 17px;
+            flex: 0 0 17px;
+            padding: 0;
+            border: 1px solid #737986;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #5f6572;
+            font: 700 11px/15px Arial, sans-serif;
+            text-align: center;
+            cursor: help;
+        }
+
+        .param-info-button:hover,
+        .param-info-button:focus-visible {
+            border-color: #111111;
+            color: #111111;
+            outline: none;
+        }
+
+        .param-tooltip {
+            position: absolute;
+            z-index: 20;
+            left: calc(100% + 8px);
+            top: 50%;
+            width: 310px;
+            padding: 10px 12px;
+            border: 1px solid #dfe2e8;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #4c5260;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 1.5;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(-4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        .param-info-button:hover + .param-tooltip,
+        .param-info-button:focus-visible + .param-tooltip {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .param-control {
+            margin-top: 6px;
+        }
+
+        .param-input {
+            width: 100%;
+            min-height: 38px;
+            padding: 7px 0 8px;
+            border: 0;
+            border-bottom: 1px solid #cfd3da;
+            border-radius: 0;
+            background: transparent;
+            color: #363843;
+            font: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .param-input:focus {
+            border-bottom-color: #111111;
+            box-shadow: 0 1px 0 #111111;
+        }
+
+        .field.has-error .param-input {
+            border-bottom-color: #d92d20;
+            box-shadow: 0 1px 0 #d92d20;
+        }
+
+        .param-error {
+            display: none;
+            margin-top: 6px;
+            color: #d92d20;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .param-error.is-visible {
+            display: block;
+        }
+
+        select.param-input {
+            cursor: pointer;
+        }
+
+        .param-segmented {
+            display: inline-flex;
+            gap: 2px;
+            padding: 3px;
+            border-radius: 8px;
+            background: #f3f3f5;
+        }
+
+        .param-segment {
+            min-width: 70px;
+            padding: 7px 12px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: #747783;
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .param-segment.is-selected {
+            background: #0b0b0d;
+            color: #ffffff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+        }
+
+        .param-empty {
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 13px;
         }
 
         .input {
@@ -1667,42 +2016,76 @@
                                 </div>
 
                                 <div class="form-grid two">
-                                  
                                     <div class="field">
-                                        <label for="device-processor">Processor *</label>
-                                        <select class="input-field" id="device-processor">
-                                            <option value="">Select Processor</option>
-                                            <option value="TSYS">TSYS</option>
-                                            <option value="FISERV">FISERV</option>
-                                            <option value="Worldpay">Worldpay</option>
+                                        <label for="device-terminal-scenario">Terminal Scenario *</label>
+                                        <select class="input-field" id="device-terminal-scenario" required>
+                                            <optgroup label="Unattended Scenarios">
+                                                <option>Vending Machine</option>
+                                                <option>EV Charging</option>
+                                                <option>Arcade Machine</option>
+                                                <option>Coffee Machine</option>
+                                            </optgroup>
+                                            <optgroup label="Attended Scenarios">
+                                                <option>Standalone Terminal</option>
+                                                <option>Terminal + ECR</option>
+                                            </optgroup>
                                         </select>
                                     </div>
-                                    <div class="field">
-                                        <label for="processor-version">Template Version</label>
-                                        <select class="input-field" id="processor-version" disabled>
-                                            <option value="">Select Version</option>
-                                        </select>
-                                    </div>
-                                
                                 </div>
 
-                                <div class="form-grid two">
-                                    <div class="field">
-                                        <label for="device-template">Assign Template</label>
-                                        <select class="input-field" id="device-template">
-                                            <option value="">Select Template</option>
-                                            <option>Retail - Quick Start</option>
-                                            <option>Restaurant - Full Service</option>
-                                            <option>Convenience - Express</option>
-                                        </select>
+                                <div class="payment-config">
+                                    <div class="payment-config-head">
+                                        <div>
+                                            <h4 class="payment-config-title">Payment app deployment</h4>
+                                            <p class="payment-config-note">Review the payment app, parameters, and keys deployed to this device.</p>
+                                        </div>
+                                        <div class="switch-group">
+                                            <label class="switchline" for="device-provision-toggle">
+                                                <input type="checkbox" id="device-provision-toggle" checked disabled>
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                                <span>Deploy app &amp; parameters</span>
+                                            </label>
+                                            <label class="switchline key-download is-hidden" id="keyDownloadOption" for="processor-key-download">
+                                                <input type="checkbox" id="processor-key-download" checked disabled>
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                                <span>Inject key</span>
+                                            </label>
+                                        </div>
                                     </div>
-                
-                                    <div class="field">
-                                        <label for="device-paywizard">Paywizard Integration</label>
-                                        <select class="input-field" id="device-paywizard">
-                                            <option value="Disable" selected>Disable</option>
-                                            <option value="Enable">Enable</option>
-                                        </select>
+
+                                    <div class="deployment-options" id="deploymentOptions">
+                                        <div class="form-grid two">
+                                            <div class="field">
+                                                <label for="device-processor">1. Processor / Acquirer *</label>
+                                                <select class="input-field" id="device-processor">
+                                                    <option value="">Select Processor</option>
+                                                    <option value="TSYS">TSYS</option>
+                                                    <option value="FISERV">FISERV</option>
+                                                    <option value="ELAVON">ELAVON</option>
+                                                    <option value="NUVEI ATTD">NUVEI ATTD</option>
+                                                    <option value="NUVEI UPT">NUVEI UPT</option>
+                                                    <option value="OXPAY">OXPAY</option>
+                                                </select>
+                                            </div>
+                                            <div class="field">
+                                                <label for="processor-version">2. Payment App Version *</label>
+                                                <select class="input-field" id="processor-version">
+                                                    <option value="">Select Version</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-grid two">
+                                            <div class="field">
+                                                <label for="device-paywizard">3. Integration Mode</label>
+                                                <select class="input-field" id="device-paywizard">
+                                                    <option value="Disable" selected>Disable</option>
+                                                    <option value="OPC_VENDING_STANDARD">PAYwizard OPC Vending Standard</option>
+                                                    <option value="OPC_ATTENDED_TCP">PAYwizard OPC Attended TCP</option>
+                                                    <option value="OPC_UNATTENDED_SERIAL">PAYwizard OPC Unattended Serial</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1712,8 +2095,19 @@
                                             <h4>Processor Parameters</h4>
                                             <p>Fill in the parameter file groups for the selected processor.</p>
                                         </div>
-                                        <div class="processor-pill" id="processorParamName">Processor</div>
                                     </div>
+                                    <div class="processor-template-row">
+                                        <div class="field">
+                                            <label for="device-template">Payment App Para Template (Optional)</label>
+                                            <select class="input-field" id="device-template">
+                                                <option value="">Select Template</option>
+                                                <option>Retail - Quick Start</option>
+                                                <option>Restaurant - Full Service</option>
+                                                <option>Convenience - Express</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="processorParamSets" aria-live="polite"></div>
                                     <div class="param-set" data-processor="TSYS">
                                         <div class="param-tabs">
                                             <button type="button" class="param-tab active" data-tab="password">Password Information</button>
@@ -2268,11 +2662,11 @@
                                 <div class="processor-params paywizard-params is-hidden" id="paywizardParams">
                                     <div class="processor-params-head">
                                         <div>
-                                            <h4>Paywizard Integration Parameters</h4>
-                                            <p>Provide the Paywizard integration settings for this device.</p>
+                                            <h4>OPC Configuration Parameters</h4>
+                                            <p>Review the PAYwizard OPC configuration values for the selected profile.</p>
                                         </div>
-                                        <div class="processor-pill">Paywizard</div>
                                     </div>
+                                    <div id="paywizardParamSets" aria-live="polite"></div>
                                     <div class="param-group">
                                         <div class="group-header">
                                             <div class="group-title">Paywizard Integration Parameters</div>
@@ -2361,7 +2755,7 @@
                                 <div class="wizard-actions">
                                     <a class="btn secondary" href="5.merchant_detail_iso.html">Back</a>
                                     <span class="action-group">
-                                        <button class="btn secondary" type="button" id="saveTemplateBtn">Save as Template</button>
+                                        <button class="btn secondary" type="button" id="saveTemplateBtn">Save as Payment App Para Template</button>
                                         <button class="btn primary" type="button" id="redeployBtn">Redeploy Parameters</button>
                                     </span>
                                 </div>
@@ -2374,6 +2768,64 @@
         </div>
     </div>
 
+    <div class="confirm-modal is-hidden" id="saveDeviceConfirmModal" role="dialog" aria-modal="true" aria-labelledby="saveDeviceConfirmTitle">
+        <div class="confirm-dialog">
+            <div class="confirm-dialog-head">
+                <h3 class="confirm-dialog-title" id="saveDeviceConfirmTitle">Confirm Device Push</h3>
+            </div>
+            <div class="confirm-summary">
+                <div class="confirm-row">
+                    <span class="confirm-label">Deploy App</span>
+                    <span class="confirm-value" id="confirmDeployState">-</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Payment Channel</span>
+                    <span class="confirm-value" id="confirmProcessor">-</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">App Version</span>
+                    <span class="confirm-value" id="confirmAppVersion">-</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Integration Mode</span>
+                    <span class="confirm-value" id="confirmIntegrationMode">-</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Inject Key</span>
+                    <span class="confirm-value" id="confirmInjectKey">-</span>
+                </div>
+            </div>
+            <div class="redeploy-options" aria-labelledby="redeployOptionsTitle">
+                <h4 class="redeploy-options-title" id="redeployOptionsTitle">Redeploy Scope</h4>
+                <label class="redeploy-choice" for="redeployPaymentApp">
+                    <input type="checkbox" id="redeployPaymentApp" checked>
+                    <span>Redeploy Payment App</span>
+                </label>
+                <label class="redeploy-choice" for="redeployPaymentParams">
+                    <input type="checkbox" id="redeployPaymentParams" checked>
+                    <span>Redeploy Payment Parameters</span>
+                </label>
+                <label class="redeploy-choice" for="redeployPaywizard">
+                    <input type="checkbox" id="redeployPaywizard" checked>
+                    <span>Redeploy PAYwizard</span>
+                </label>
+                <label class="redeploy-choice" for="redeployPaywizardParams">
+                    <input type="checkbox" id="redeployPaywizardParams" checked>
+                    <span>Redeploy PAYwizard Integration Parameters</span>
+                </label>
+                <label class="redeploy-choice is-hidden" id="redeployInjectKeyChoice" for="redeployInjectKey">
+                    <input type="checkbox" id="redeployInjectKey" checked>
+                    <span>Re-inject Key</span>
+                </label>
+            </div>
+            <div class="confirm-dialog-actions">
+                <button class="btn secondary" type="button" id="cancelSaveDeviceBtn">Cancel</button>
+                <button class="btn primary" type="button" id="confirmSaveDeviceBtn">Confirm Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="processor-parameter-data.js"></script>
     <script>
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
         const storeNameEl = document.getElementById('store-context-name');
@@ -2414,29 +2866,155 @@
         const deviceTpn = document.getElementById('device-tpn');
         const deviceLabel = document.getElementById('device-label');
         const deviceModel = document.getElementById('device-model');
+        const deviceTerminalScenario = document.getElementById('device-terminal-scenario');
         const deviceTemplate = document.getElementById('device-template');
         const processorSelect = document.getElementById('device-processor');
         const processorVersionSelect = document.getElementById('processor-version');
         const paywizardSelect = document.getElementById('device-paywizard');
         const redeployBtn = document.getElementById('redeployBtn');
         const processorParams = document.getElementById('processorParams');
-        const processorParamName = document.getElementById('processorParamName');
-        const paramSets = Array.from(document.querySelectorAll('.param-set'));
+        const processorParamSets = document.getElementById('processorParamSets');
+        const paywizardParams = document.getElementById('paywizardParams');
+        const paywizardParamSets = document.getElementById('paywizardParamSets');
+        const provisionToggle = document.getElementById('device-provision-toggle');
+        const keyDownloadOption = document.getElementById('keyDownloadOption');
+        const keyDownloadCheckbox = document.getElementById('processor-key-download');
+        const deploymentOptions = document.getElementById('deploymentOptions');
+        const requestedParameterGroup = params.get('group');
+        const processorsWithKeyDownload = new Set(['ELAVON', 'NUVEI ATTD', 'NUVEI UPT']);
+        let paramSets = [];
+
+        function normalizePaywizardValue(value) {
+            if (value === 'Enable') return 'OPC_VENDING_STANDARD';
+            return value || 'OPC_VENDING_STANDARD';
+        }
 
         const deviceValues = {
             manufacturer: params.get('manufacturer') || 'WizarPOS',
             sn: deviceSn,
             label: deviceLabelValue,
             model: params.get('model') || '',
+            scenario: params.get('scenario') || 'Vending Machine',
             processor: params.get('processor') || 'TSYS',
+            processorVersion: params.get('version') || params.get('appVersion') || '',
             template: params.get('template') || '',
-            paywizard: params.get('paywizard') || 'Enable'
+            paywizard: normalizePaywizardValue(params.get('paywizard'))
         };
+
+        const PAYWIZARD_PARAMETER_SCHEMA = [
+            ['OPERTAION MODE', [
+                ['OperatingMode', 'Operating Mode', 'OperatingMode', '0', false, null, null, null, [['0', 'UPT'], ['1', 'BIZHI'], ['2', 'ATTENDANCE'], ['3', 'SenseTime'], ['4', 'SERIAL_MODE'], ['5', 'YinXiang'], ['6', 'OpenableLocker'], ['7', 'MultiPrice'], ['8', 'FixedPrice']]],
+                ['ProtocolType', 'Protocol Type', 'Protocol Type', '12', false, null, null, null, [['0', 'SERIAL HOST'], ['1', 'MDB'], ['2', 'PAX-ECR'], ['3', 'SERIAL SLAVE'], ['4', 'SERIAL EXT'], ['5', 'SOCKET SERVER'], ['6', 'SERIAL CDC'], ['7', 'SERIAL VENDOR'], ['8', 'PULSE MODE'], ['9', 'SERIAL EXT2'], ['10', 'USB ACCESSORY'], ['11', 'CLOUD MODE'], ['12', 'DEFAULT'], ['13', 'BLUETOOTH SPP']]],
+                ['UrlType', 'Paywizard Server', 'UrlType', '2', false, null, null, null, [['0', 'DEBUG'], ['1', 'UAT'], ['2', 'RELEASE'], ['3', 'TEST'], ['4', 'DEV']]],
+                ['UiRunMode', 'OPC UI Run Mode', '0 follow ProtocolType; 1 foreground with kiosk; 2 background without kiosk', '0', false, null, null, null, [['0', 'Follow ProtocolType'], ['1', 'Foreground'], ['2', 'Background']]]
+            ]],
+            ['PAYMENT APP', [
+                ['EnableDebugMode', 'Debug Mode', 'EnableDebugMode', '0', false, null, null, null, 'binary'],
+                ['HomePaymentIcons', 'Home Payment Icons', 'Comma-separated preset keys or image URLs; empty = app default', '', false, '0', '8000', 'ANS', null],
+                ['HomeAnimationUrl', 'Home Animation Url', 'Home ready-state guide animation URL; empty=built-in Lottie', '', false, '0', '2000', 'ANS', null],
+                ['EnableNetworkDisconnectReboot', 'Enable Network Disconnect Reboot', 'Reboot device after network disconnected for 5 minutes; default disabled', '0', false, null, null, null, 'binary'],
+                ['AidlPackageName', 'Payment App', 'Payment App ID', 'com.wizarpos.paywizard.demo', false, '0', '128', 'ANS', null],
+                ['CurrencyCode', 'Currency Code', 'CurrencyCode', '', true, '0', '3', 'N', null],
+                ['NeedCheckParam', 'Check Param', 'Need Check Param', '0', false, null, null, null, 'binary'],
+                ['KeyState', 'Check KeyState', 'KeyState', '0', false, null, null, null, 'binary'],
+                ['paymentTimeout', 'Payment Timeout(s)', 'paymentTimeout', '180', true, '1', '5', 'N', null],
+                ['IsSimplify', 'JSON parameters', 'IsSimplify', '0', false, null, null, null, [['1', 'Simplify'], ['0', 'All parameters']]],
+                ['CustomerServiceHotline', 'Customer Hotline', 'Customer Service Hotline', '', false, '0', '15', 'ANS', null],
+                ['ClientId', 'ClientId', 'ClientId', '', false, '0', '50', 'ANS', null],
+                ['ClientSecret', 'ClientSecret', 'ClientSecret', '', false, '0', '50', 'ANS', null],
+                ['JwtToken', 'JwtToken', 'JwtToken', '', false, '0', '50', 'ANS', null],
+                ['EnableOpcTakeoverUi', 'Enable OPC Takeover UI', 'OPC takes over payment UI (SkipUI + transaction page navigation)', '0', false, null, null, null, 'binary'],
+                ['EnableWhiteBin', 'Enable White Bin', 'EnableWhiteBin', '0', false, null, null, null, 'binary'],
+                ['WhiteBinVersion', 'White Bin Version', 'WhiteBinVersion', '', false, '0', '64', 'ANS', null],
+                ['WhiteBinList', 'White Bin List', 'Comma-separated package names or paths', '', false, '0', '8000', 'ANS', null]
+            ]],
+            ['ATTENDANCE MODE', [
+                ['CreditCards', 'CreditCards', 'CreditCards', '1', false, null, null, null, 'binary'],
+                ['DigitalWallets', 'DigitalWallets', 'DigitalWallets', '0', false, null, null, null, 'binary'],
+                ['Loyalty', 'Loyalty', 'Loyalty', '0', false, null, null, null, 'binary'],
+                ['EnableReaderHeadTapUi', 'Enable Reader Head Tap UI', 'Use native reader-head tap animation instead of NFC ripple on transaction screen', '0', false, null, null, null, 'binary']
+            ]],
+            ['UPT MODE', [
+                ['AdminPass', 'Admin Password', 'Admin Passwd', '99999999', false, '0', '8', 'ANS', null],
+                ['operationPass', 'Operation Password', 'operation Pass', '88888888', false, '0', '8', 'ANS', null],
+                ['AllowOfflineMode', 'AllowOfflineMode', 'AllowOfflineMode', '0', false, null, null, null, 'binary'],
+                ['AmountScale', 'AmountScale', 'AmountScale', '0', false, null, null, null, [['0', 'DEFAULT'], ['10', 'Multiply 10'], ['100', 'Multiply 100'], ['-10', 'Divide 10'], ['-100', 'Divide 100']]],
+                ['QrMid', 'QrMid', 'QrMid', '', false, '0', '64', 'ANS', null],
+                ['QrScanChannel', 'Qr Scan Channel', 'QR pay scanChannel; empty defaults to PAY_DATA_CLOUD', 'PAY_DATA_CLOUD', false, null, null, null, [['M_PAY', 'MPAY'], ['PIX', 'PIX'], ['MMG', 'MMG'], ['PAY_DATA_CLOUD', 'PayData Cloud'], ['PAYWIZARD_APM', 'Paywizard APM'], ['OX_PAY', 'OXPAY'], ['PROMPT_PAY', 'PromptPay']]],
+                ['EnableVoicePlayback', 'Enable Voice Playback', 'Enable Voice Playback', '1', false, null, null, null, 'binary'],
+                ['SystemVolume', 'System Volume', 'System Volume (0-100)', '70', true, '1', '3', 'N', null],
+                ['BaudRate', 'Set Baud Rate', 'Baud Rate', '115200', false, '0', '6', 'N', null],
+                ['SocketPort', 'SocketPort', 'SocketPort', '6031', false, '0', '6', 'N', null],
+                ['EnableDataSplit', 'Enable Data Split', 'Enable Data Split', '0', false, null, null, null, 'binary'],
+                ['ConcurrentRequests', 'ConcurrentRequests', 'Allow concurrent transaction requests', '0', false, null, null, null, 'binary'],
+                ['SplitLength', 'Split Length', 'Split Length', '150', false, '0', '5', 'N', null],
+                ['SplitDelay', 'Split Delay', 'Split Delayh', '500', false, '0', '5', 'N', null],
+                ['ShowPaymentResult', 'Show Payment Result', 'ShowPaymentResult', '0', false, null, null, null, 'binary'],
+                ['EnableExitDirectly', 'Allowed Exit', 'Enable Exit Directly', '0', false, null, null, null, 'binary'],
+                ['LogoUrl', 'Logo Url', 'LogoUrl', '', false, '0', '2000', 'ANS', null],
+                ['EnableManualBeginSession', 'Manual Begin Session', 'Enable Manual Begin Session', '0', false, null, null, null, 'binary'],
+                ['EnableSilent', 'Silent', 'Enable Silent', '0', false, null, null, null, 'binary'],
+                ['EnableConvertJodAmt', 'Convert JOD Amt', 'Enable Convert JOD Amt', '0', false, null, null, null, 'binary'],
+                ['KsnetMberCode', 'KSNET Mber Code', 'KSNET mberCode', '0000', true, '0', '128', 'ANS', null],
+                ['KsnetCrtftCode', 'KSNET Crtft Code', 'KSNET crtftCode', '0000', true, '0', '128', 'ANS', null],
+                ['TSMTerminalCode', 'TSM Terminal Code', 'Terminal Code', '00000000', true, '8', '8', 'ANS', null],
+                ['TSMMerchantCode', 'TSM Merchant Code', '9F40', '000000000000', true, '12', '32', 'ANS', null],
+                ['TSMConnType', 'TSM Conn Type', 'TSMConnType', '0', false, null, null, null, [['0', 'PROC'], ['1', 'TEST']]],
+                ['BtSppUuid', 'Bluetooth SPP UUID', 'RFCOMM service UUID for Bluetooth SPP server; empty or invalid uses default SPP UUID', '00002026-0000-1000-8000-00805F9B34FB', false, '0', '36', 'ANS', null]
+            ]],
+            ['MDB PARA', [
+                ['EnableManualCancel', 'MDB Manual Cancel', 'Enable Manual Cancel', '0', false, null, null, null, 'binary'],
+                ['ScalingFactor', 'MDB Scaling Factor', 'ScalingFactor', '1', true, '1', '7', 'N', null],
+                ['DecimalPlaces', 'MDB Decimal Places', 'DecimalPlaces', '0', true, '1', '2', 'N', null],
+                ['FoundAvailable', 'MDB Found Available', 'FoundAvailable', '65535', true, '0', '10', 'ANS', null],
+                ['MdbAutoReversal', 'MDB Auto Reversal', 'MdbAutoReversal', '0', false, null, null, null, 'binary'],
+                ['Mdb3Support32BitAmount', 'Mdb3Support32BitAmount', 'Mdb3Support32BitAmount', '0', false, null, null, null, 'binary'],
+                ['ManualMdbBegin', 'ManualMdbBegin', 'ManualMdbBegin', '0', false, null, null, null, 'binary'],
+                ['EnableGenTransCode', 'Enable Gen Trans Code', 'EnableGenTransCode', '0', false, null, null, null, 'binary']
+            ]],
+            ['PULSE PARA', [
+                ['PulsePortNum', 'Pulse Port Num', 'Pulse Port Num', '0', false, null, null, null, [['0', 'Channel 1'], ['1', 'Channel 2']]],
+                ['PulseDeviceVoltage', 'Pulse Device Voltage', 'Pulse Device Voltage', '0', false, null, null, null, [['0', 'Low Level'], ['1', 'High Level']]],
+                ['PulseDuration', 'Pulse Duration', 'Pulse Duration (ms)', '200', true, '1', '5', 'N', null],
+                ['PulseInterval', 'Pulse Interval', 'Pulse Interval (ms)', '50', true, '1', '5', 'N', null],
+                ['PulseAmount', 'PulseAmount P1', 'PulseAmount', '100', true, '0', '128', 'ANS', null],
+                ['PulseVoltage', 'PulseNumber P1', 'PulseVoltage', '1', true, '0', '128', 'ANS', null],
+                ['PulseAmount2', 'PulseAmount P2', 'PulseAmount2', '200', true, '0', '128', 'ANS', null],
+                ['PulseVoltage2', 'PulseNumber P2', 'PulseVoltage2', '2', true, '0', '128', 'ANS', null],
+                ['PulseAmount3', 'PulseAmount P3', 'PulseAmount3', '300', true, '0', '128', 'ANS', null],
+                ['PulseVoltage3', 'PulseNumber P3', 'PulseVoltage3', '3', true, '0', '128', 'ANS', null],
+                ['PulseAmount4', 'PulseAmount P4', 'PulseAmount4', '400', true, '0', '128', 'ANS', null],
+                ['PulseVoltage4', 'PulseNumber P4', 'PulseVoltage4', '4', true, '0', '128', 'ANS', null],
+                ['PulseText', 'PulseText P1', 'Pulse button 1 text; empty shows pulse count TIMES', '', false, '0', '20', 'ANS', null],
+                ['PulseText2', 'PulseText P2', 'Pulse button 2 text; empty shows pulse count TIMES', '', false, '0', '20', 'ANS', null],
+                ['PulseText3', 'PulseText P3', 'Pulse button 3 text; empty shows pulse count TIMES', '', false, '0', '20', 'ANS', null],
+                ['PulseText4', 'PulseText P4', 'Pulse button 4 text; empty shows pulse count TIMES', '', false, '0', '20', 'ANS', null]
+            ]],
+            ['BIZHI MODE', [
+                ['bzUrlType', 'BIZHI UrlType', 'bzUrlType', '0', false, null, null, null, [['0', 'SINGAPORE_IOTSONG'], ['1', 'AMERICA_BTOZ_TECH'], ['2', 'UAT']]]
+            ]],
+            ['SenseTime MODE', [
+                ['senseTimeUrlType', 'senseTimeUrlType', 'senseTimeUrlType', '0', false, null, null, null, [['0', 'SENSE_TIME_RELEASE'], ['1', 'SENSE_TIME_UAT']]],
+                ['senseTimeAccessKey', 'senseTimeAccessKey', 'senseTimeAccessKey', '', false, '0', '100', 'ANS', null],
+                ['senseTimeSecretKey', 'senseTimeSecretKey', 'senseTimeSecretKey', '', false, '0', '100', 'ANS', null]
+            ]],
+            ['MULTI PRICE', [
+                ['MultiPricingAmount1', 'MultiPricing Amount 1', 'MultiPricing fixed amount slot 1', '1', true, '0', '10', 'N', null],
+                ['MultiPricingAmount2', 'MultiPricing Amount 2', 'MultiPricing fixed amount slot 2', '2', true, '0', '10', 'N', null],
+                ['MultiPricingAmount3', 'MultiPricing Amount 3', 'MultiPricing fixed amount slot 3', '3', true, '0', '10', 'N', null],
+                ['MultiPricingAmount4', 'MultiPricing Amount 4', 'MultiPricing fixed amount slot 4', '4', true, '0', '10', 'N', null],
+                ['EReceiptRequired', 'E-Receipt Required', 'MultiPricing: require e-receipt QR screen', '1', false, null, null, null, 'binary']
+            ]],
+            ['FIXED PRICE', [
+                ['FixedPricingAmount', 'FixedPricing Amount', 'FixedPricing fixed amount (integer major units)', '5', true, '0', '10', 'N', null]
+            ]]
+        ];
 
         if (deviceManufacturer) deviceManufacturer.value = deviceValues.manufacturer;
         if (deviceTpn && deviceValues.sn) deviceTpn.value = deviceValues.sn;
         if (deviceLabel && deviceValues.label) deviceLabel.value = deviceValues.label;
         if (deviceModel && deviceValues.model) deviceModel.value = deviceValues.model;
+        if (deviceTerminalScenario) deviceTerminalScenario.value = deviceValues.scenario;
         if (processorSelect) processorSelect.value = deviceValues.processor;
         if (deviceTemplate && deviceValues.template) deviceTemplate.value = deviceValues.template;
         if (paywizardSelect) paywizardSelect.value = deviceValues.paywizard;
@@ -2448,7 +3026,6 @@
             deviceManufacturer,
             deviceModel,
             processorSelect,
-            processorVersionSelect,
             deviceTemplate,
             paywizardSelect
         ].forEach((field) => {
@@ -2477,6 +3054,258 @@
             });
         }
 
+        function parameterSlug(value) {
+            return String(value)
+                .toLowerCase()
+                .replace(/&/g, 'and')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+        }
+
+        function resolveParameterOptions(optionSpec) {
+            if (Array.isArray(optionSpec)) {
+                return optionSpec;
+            }
+            if (optionSpec && optionSpec !== 'binary') {
+                return PROCESSOR_PARAMETER_OPTIONS[optionSpec] || [];
+            }
+            return [];
+        }
+
+        function syncSegmentedControl(input) {
+            if (!input) return;
+            const segmented = input.parentElement && input.parentElement.querySelector('.param-segmented');
+            if (!segmented) return;
+            segmented.querySelectorAll('.param-segment').forEach((button) => {
+                const isSelected = button.dataset.value === input.value;
+                button.classList.toggle('is-selected', isSelected);
+                button.setAttribute('aria-pressed', String(isSelected));
+            });
+        }
+
+        function createParameterField(processor, fieldData) {
+            const [key, labelText, , defaultValue, required, minLength, maxLength, rule, optionSpec] = fieldData;
+            const field = document.createElement('div');
+            field.className = 'field';
+
+            const inputId = `param-${parameterSlug(processor)}-${parameterSlug(key)}`;
+            const label = document.createElement('label');
+            label.htmlFor = inputId;
+            label.append(document.createTextNode(labelText));
+            if (required) {
+                const requiredMark = document.createElement('span');
+                requiredMark.className = 'required-mark';
+                requiredMark.textContent = '*';
+                label.appendChild(requiredMark);
+            }
+            field.appendChild(label);
+
+            const control = document.createElement('div');
+            control.className = 'param-control';
+
+            if (optionSpec === 'binary') {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.id = inputId;
+                hiddenInput.name = `${processor}.${key}`;
+                hiddenInput.value = defaultValue;
+                hiddenInput.className = 'parameter-value';
+                hiddenInput.dataset.parameterKey = key;
+
+                const segmented = document.createElement('div');
+                segmented.className = 'param-segmented';
+                segmented.setAttribute('role', 'group');
+                segmented.setAttribute('aria-label', labelText);
+                [['1', 'Enable'], ['0', 'Disable']].forEach(([value, text]) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'param-segment';
+                    button.dataset.value = value;
+                    button.textContent = text;
+                    segmented.appendChild(button);
+                });
+
+                control.append(hiddenInput, segmented);
+                field.appendChild(control);
+                syncSegmentedControl(hiddenInput);
+                return field;
+            }
+
+            if (optionSpec) {
+                const select = document.createElement('select');
+                select.id = inputId;
+                select.name = `${processor}.${key}`;
+                select.className = 'param-input parameter-value';
+                select.dataset.parameterKey = key;
+                if (required) select.required = true;
+
+                const options = resolveParameterOptions(optionSpec);
+                if (!defaultValue || !options.some(([value]) => value === defaultValue)) {
+                    const emptyOption = document.createElement('option');
+                    emptyOption.value = '';
+                    emptyOption.textContent = `Select ${labelText}`;
+                    select.appendChild(emptyOption);
+                }
+                options.forEach(([value, text]) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = text;
+                    select.appendChild(option);
+                });
+                select.value = defaultValue;
+                control.appendChild(select);
+                field.appendChild(control);
+                return field;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = inputId;
+            input.name = `${processor}.${key}`;
+            input.value = defaultValue;
+            input.className = 'param-input parameter-value';
+            input.dataset.parameterKey = key;
+            if (required) input.required = true;
+            if (minLength && Number(minLength) > 0) input.minLength = Number(minLength);
+            if (maxLength) input.maxLength = Number(maxLength);
+            if (rule === 'N') {
+                input.inputMode = 'numeric';
+                input.pattern = '[0-9]*';
+            }
+            control.appendChild(input);
+            field.appendChild(control);
+            return field;
+        }
+
+        function renderProcessorParameterSchemas() {
+            if (!processorParams || !processorParamSets || typeof PROCESSOR_PARAMETER_SCHEMA === 'undefined') {
+                return;
+            }
+
+            Array.from(processorParams.children).forEach((child) => {
+                if (child.classList && child.classList.contains('param-set')) {
+                    child.remove();
+                }
+            });
+            processorParamSets.innerHTML = '';
+
+            Object.entries(PROCESSOR_PARAMETER_SCHEMA).forEach(([processor, groups]) => {
+                const set = document.createElement('div');
+                set.className = 'param-set';
+                set.dataset.processor = processor;
+                const requestedGroupIndex = groups.findIndex(([groupName]) => groupName === requestedParameterGroup);
+                const activeGroupIndex = requestedGroupIndex >= 0 ? requestedGroupIndex : 0;
+
+                const tabs = document.createElement('div');
+                tabs.className = 'param-tabs';
+                tabs.setAttribute('role', 'tablist');
+                tabs.setAttribute('aria-label', `${processor} parameter groups`);
+
+                groups.forEach(([groupName], groupIndex) => {
+                    const tabKey = `${parameterSlug(processor)}-${parameterSlug(groupName)}`;
+                    const isActive = groupIndex === activeGroupIndex;
+                    const tab = document.createElement('button');
+                    tab.type = 'button';
+                    tab.className = `param-tab${isActive ? ' active' : ''}`;
+                    tab.dataset.tab = tabKey;
+                    tab.id = `${tabKey}-tab`;
+                    tab.setAttribute('role', 'tab');
+                    tab.setAttribute('aria-controls', `${tabKey}-panel`);
+                    tab.setAttribute('aria-selected', String(isActive));
+                    tab.textContent = groupName;
+                    tabs.appendChild(tab);
+                });
+                set.appendChild(tabs);
+
+                groups.forEach(([groupName, fields], groupIndex) => {
+                    const tabKey = `${parameterSlug(processor)}-${parameterSlug(groupName)}`;
+                    const panel = document.createElement('div');
+                    panel.className = `param-panel${groupIndex === activeGroupIndex ? ' active' : ''}`;
+                    panel.dataset.panel = tabKey;
+                    panel.id = `${tabKey}-panel`;
+                    panel.setAttribute('role', 'tabpanel');
+                    panel.setAttribute('aria-labelledby', `${tabKey}-tab`);
+
+                    const group = document.createElement('div');
+                    group.className = 'param-group';
+                    const grid = document.createElement('div');
+                    grid.className = 'group-grid';
+                    fields.forEach((fieldData) => {
+                        grid.appendChild(createParameterField(processor, fieldData));
+                    });
+                    group.appendChild(grid);
+                    panel.appendChild(group);
+                    set.appendChild(panel);
+                });
+
+                processorParamSets.appendChild(set);
+            });
+
+            paramSets = Array.from(processorParamSets.querySelectorAll('.param-set'));
+        }
+
+        function renderPaywizardParameterSchemas() {
+            if (!paywizardParams || !paywizardParamSets) {
+                return;
+            }
+
+            Array.from(paywizardParams.children).forEach((child) => {
+                if (child.classList && child.classList.contains('param-group')) {
+                    child.remove();
+                }
+            });
+            paywizardParamSets.innerHTML = '';
+            const set = document.createElement('div');
+            set.className = 'param-set active';
+            set.dataset.processor = 'PAYWIZARD_OPC';
+            const requestedGroupIndex = PAYWIZARD_PARAMETER_SCHEMA.findIndex(([groupName]) => groupName === requestedParameterGroup);
+            const activeGroupIndex = requestedGroupIndex >= 0 ? requestedGroupIndex : 0;
+
+            const tabs = document.createElement('div');
+            tabs.className = 'param-tabs';
+            tabs.setAttribute('role', 'tablist');
+            tabs.setAttribute('aria-label', 'OPC parameter groups');
+
+            PAYWIZARD_PARAMETER_SCHEMA.forEach(([groupName], groupIndex) => {
+                const tabKey = `paywizard-opc-${parameterSlug(groupName)}`;
+                const isActive = groupIndex === activeGroupIndex;
+                const tab = document.createElement('button');
+                tab.type = 'button';
+                tab.className = `param-tab${isActive ? ' active' : ''}`;
+                tab.dataset.tab = tabKey;
+                tab.id = `${tabKey}-tab`;
+                tab.setAttribute('role', 'tab');
+                tab.setAttribute('aria-controls', `${tabKey}-panel`);
+                tab.setAttribute('aria-selected', String(isActive));
+                tab.textContent = groupName;
+                tabs.appendChild(tab);
+            });
+            set.appendChild(tabs);
+
+            PAYWIZARD_PARAMETER_SCHEMA.forEach(([groupName, fields], groupIndex) => {
+                const tabKey = `paywizard-opc-${parameterSlug(groupName)}`;
+                const panel = document.createElement('div');
+                panel.className = `param-panel${groupIndex === activeGroupIndex ? ' active' : ''}`;
+                panel.dataset.panel = tabKey;
+                panel.id = `${tabKey}-panel`;
+                panel.setAttribute('role', 'tabpanel');
+                panel.setAttribute('aria-labelledby', `${tabKey}-tab`);
+
+                const group = document.createElement('div');
+                group.className = 'param-group';
+                const grid = document.createElement('div');
+                grid.className = 'group-grid';
+                fields.forEach((fieldData) => {
+                    grid.appendChild(createParameterField('PAYWIZARD_OPC', fieldData));
+                });
+                group.appendChild(grid);
+                panel.appendChild(group);
+                set.appendChild(panel);
+            });
+
+            paywizardParamSets.appendChild(set);
+        }
+
         function activateParamTab(button, set) {
             const tabId = button.getAttribute('data-tab');
             if (!tabId || !set) {
@@ -2490,17 +3319,28 @@
             });
         }
 
+        renderProcessorParameterSchemas();
+        renderPaywizardParameterSchemas();
+
         const templateVersions = {
             TSYS: [
-                'V1.00.16E_20250606',
-                'V1.00.15A_20250312',
-                'V1.00.14D_20250105',
-                'V1.00.13B_20241018',
-                'V1.00.12F_20240809',
-                'V1.00.11C_20240521'
+                'v1.3.121'
             ],
-            FISERV: [],
-            Worldpay: []
+            FISERV: [
+                '1.0.34_20260622'
+            ],
+            ELAVON: [
+                'v1.1.57'
+            ],
+            'NUVEI ATTD': [
+                '1.0.20_260622'
+            ],
+            'NUVEI UPT': [
+                '1.0.41_20260622'
+            ],
+            OXPAY: [
+                'v1.0.19_260609'
+            ]
         };
 
         function populateProcessorVersions(processor) {
@@ -2519,7 +3359,22 @@
                 if (idx === 0) option.selected = true;
                 processorVersionSelect.appendChild(option);
             });
-            processorVersionSelect.disabled = true;
+            if (deviceValues.processorVersion && list.includes(deviceValues.processorVersion)) {
+                processorVersionSelect.value = deviceValues.processorVersion;
+            }
+            processorVersionSelect.disabled = list.length === 0;
+        }
+
+        function syncKeyDownloadOption() {
+            if (!keyDownloadOption || !processorSelect) {
+                return;
+            }
+            const hasKeyDownload = processorsWithKeyDownload.has(processorSelect.value);
+            keyDownloadOption.classList.toggle('is-hidden', !hasKeyDownload);
+            if (keyDownloadCheckbox) {
+                keyDownloadCheckbox.checked = hasKeyDownload;
+                keyDownloadCheckbox.disabled = true;
+            }
         }
 
         function syncProcessorParams() {
@@ -2529,9 +3384,6 @@
             const selected = processorSelect.value;
             const hasSelection = Boolean(selected);
             processorParams.classList.toggle('is-hidden', !hasSelection);
-            if (processorParamName) {
-                processorParamName.textContent = selected || 'Processor';
-            }
             populateProcessorVersions(selected);
             paramSets.forEach((set) => {
                 const isMatch = hasSelection && set.dataset.processor === selected;
@@ -2543,6 +3395,7 @@
                     }
                 }
             });
+            syncKeyDownloadOption();
         }
 
         document.querySelectorAll('.param-tabs').forEach((tabs) => {
@@ -2559,18 +3412,30 @@
             });
         });
 
+        [processorParamSets, paywizardParamSets].forEach((root) => {
+            if (!root) return;
+            root.addEventListener('click', (event) => {
+                const segment = event.target.closest('.param-segment');
+                if (!segment) return;
+                const control = segment.closest('.param-control');
+                const input = control && control.querySelector('.parameter-value');
+                if (!input) return;
+                input.value = segment.dataset.value;
+                syncSegmentedControl(input);
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+
         if (processorSelect) {
             processorSelect.addEventListener('change', syncProcessorParams);
             syncProcessorParams();
         }
 
-        const paywizardParams = document.getElementById('paywizardParams');
-
         function syncPaywizardParams() {
             if (!paywizardSelect || !paywizardParams) {
                 return;
             }
-            const isEnabled = paywizardSelect.value === 'Enable';
+            const isEnabled = paywizardSelect.value !== 'Disable';
             paywizardParams.classList.toggle('is-hidden', !isEnabled);
         }
 
@@ -2579,9 +3444,31 @@
             syncPaywizardParams();
         }
 
+        if (deploymentOptions) {
+            deploymentOptions.classList.remove('is-hidden');
+        }
+        if (provisionToggle) {
+            provisionToggle.checked = true;
+            provisionToggle.disabled = true;
+        }
+
         const TEMPLATE_KEY = 'pw_device_param_templates';
         const assignTemplateEl = document.getElementById('device-template');
         const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+        const saveDeviceConfirmModal = document.getElementById('saveDeviceConfirmModal');
+        const cancelSaveDeviceBtn = document.getElementById('cancelSaveDeviceBtn');
+        const confirmSaveDeviceBtn = document.getElementById('confirmSaveDeviceBtn');
+        const confirmDeployState = document.getElementById('confirmDeployState');
+        const confirmProcessor = document.getElementById('confirmProcessor');
+        const confirmAppVersion = document.getElementById('confirmAppVersion');
+        const confirmIntegrationMode = document.getElementById('confirmIntegrationMode');
+        const confirmInjectKey = document.getElementById('confirmInjectKey');
+        const redeployPaymentApp = document.getElementById('redeployPaymentApp');
+        const redeployPaymentParams = document.getElementById('redeployPaymentParams');
+        const redeployPaywizard = document.getElementById('redeployPaywizard');
+        const redeployPaywizardParams = document.getElementById('redeployPaywizardParams');
+        const redeployInjectKeyChoice = document.getElementById('redeployInjectKeyChoice');
+        const redeployInjectKey = document.getElementById('redeployInjectKey');
         const baseTemplateOptions = assignTemplateEl
             ? Array.from(assignTemplateEl.options).filter((opt) => !opt.value.startsWith('__tpl_'))
             : [];
@@ -2598,9 +3485,65 @@
             localStorage.setItem(TEMPLATE_KEY, JSON.stringify(list));
         }
 
+        function getSelectedOptionText(selectEl) {
+            if (!selectEl) return '-';
+            const option = selectEl.options[selectEl.selectedIndex];
+            return option ? option.textContent.trim() : '-';
+        }
+
+        function buildDevicePushSummary() {
+            const processor = getSelectedOptionText(processorSelect);
+            return {
+                deployState: 'Deploy app & parameters',
+                processor,
+                appVersion: getSelectedOptionText(processorVersionSelect),
+                integrationMode: getSelectedOptionText(paywizardSelect),
+                injectKey: processorsWithKeyDownload.has(processorSelect ? processorSelect.value : '') ? 'YES' : 'NO'
+            };
+        }
+
+        function resetRedeployScope(summary) {
+            [
+                redeployPaymentApp,
+                redeployPaymentParams,
+                redeployPaywizard,
+                redeployPaywizardParams
+            ].forEach((checkbox) => {
+                if (checkbox) checkbox.checked = true;
+            });
+
+            const canInjectKey = summary.injectKey === 'YES';
+            if (redeployInjectKeyChoice) {
+                redeployInjectKeyChoice.classList.toggle('is-hidden', !canInjectKey);
+            }
+            if (redeployInjectKey) {
+                redeployInjectKey.checked = canInjectKey;
+                redeployInjectKey.disabled = !canInjectKey;
+            }
+        }
+
+        function openSaveDeviceConfirmModal() {
+            if (!saveDeviceConfirmModal) return;
+            const summary = buildDevicePushSummary();
+            if (confirmDeployState) confirmDeployState.textContent = summary.deployState;
+            if (confirmProcessor) confirmProcessor.textContent = summary.processor;
+            if (confirmAppVersion) confirmAppVersion.textContent = summary.appVersion;
+            if (confirmIntegrationMode) confirmIntegrationMode.textContent = summary.integrationMode;
+            if (confirmInjectKey) confirmInjectKey.textContent = summary.injectKey;
+            resetRedeployScope(summary);
+            saveDeviceConfirmModal.classList.remove('is-hidden');
+            if (confirmSaveDeviceBtn) confirmSaveDeviceBtn.focus();
+        }
+
+        function closeSaveDeviceConfirmModal() {
+            if (!saveDeviceConfirmModal) return;
+            saveDeviceConfirmModal.classList.add('is-hidden');
+            if (redeployBtn) redeployBtn.focus();
+        }
+
         function collectProcessorParams() {
             const data = {};
-            document.querySelectorAll('#processorParams .input, #processorParams .input-field').forEach((el) => {
+            document.querySelectorAll('#processorParamSets .param-set.active .parameter-value').forEach((el) => {
                 if (!el.id) return;
                 data[el.id] = el.value;
             });
@@ -2609,7 +3552,7 @@
 
         function collectPaywizardParams() {
             const data = {};
-            document.querySelectorAll('#paywizardParams .input, #paywizardParams .input-field').forEach((el) => {
+            document.querySelectorAll('#paywizardParamSets .parameter-value').forEach((el) => {
                 if (!el.id) return;
                 data[el.id] = el.value;
             });
@@ -2621,13 +3564,19 @@
             if (tpl.processor) {
                 Object.entries(tpl.processor).forEach(([id, val]) => {
                     const el = document.getElementById(id);
-                    if (el) el.value = val;
+                    if (el) {
+                        el.value = val;
+                        syncSegmentedControl(el);
+                    }
                 });
             }
             if (tpl.paywizard) {
                 Object.entries(tpl.paywizard).forEach(([id, val]) => {
                     const el = document.getElementById(id);
-                    if (el) el.value = val;
+                    if (el) {
+                        el.value = val;
+                        syncSegmentedControl(el);
+                    }
                 });
             }
         }
@@ -2682,9 +3631,36 @@
 
         if (redeployBtn) {
             redeployBtn.addEventListener('click', () => {
-                alert('Parameters redeployed (mock).');
+                openSaveDeviceConfirmModal();
             });
         }
+
+        if (cancelSaveDeviceBtn) {
+            cancelSaveDeviceBtn.addEventListener('click', closeSaveDeviceConfirmModal);
+        }
+
+        if (saveDeviceConfirmModal) {
+            saveDeviceConfirmModal.addEventListener('click', (event) => {
+                if (event.target === saveDeviceConfirmModal) {
+                    closeSaveDeviceConfirmModal();
+                }
+            });
+        }
+
+        if (confirmSaveDeviceBtn) {
+            confirmSaveDeviceBtn.addEventListener('click', () => {
+                closeSaveDeviceConfirmModal();
+                alert('Device saved');
+            });
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' &&
+                saveDeviceConfirmModal &&
+                !saveDeviceConfirmModal.classList.contains('is-hidden')) {
+                closeSaveDeviceConfirmModal();
+            }
+        });
     </script>
 </body>
 </html>
