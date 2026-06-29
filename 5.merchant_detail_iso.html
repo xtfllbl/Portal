@@ -1595,17 +1595,17 @@
         }
 
         .device-settings-menu {
-            position: absolute;
-            right: 0;
-            top: calc(100% + 8px);
+            position: fixed;
+            right: auto;
+            top: auto;
             min-width: 220px;
             background: #fff;
             border: 1px solid var(--border);
             border-radius: 12px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
             padding: 6px;
             display: none;
-            z-index: 20;
+            z-index: 80;
         }
 
         .device-settings-menu.show {
@@ -2021,6 +2021,46 @@
             justify-content: flex-end;
             gap: 10px;
             background: #fafafa;
+        }
+
+        .clone-bind-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .clone-bind-label {
+            margin-bottom: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .clone-bind-value {
+            min-width: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .clone-store-error {
+            display: none;
+            color: #b91c1c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .clone-store-error.show {
+            display: block;
         }
 
         .delete-confirm-summary {
@@ -3206,11 +3246,8 @@
                         </div>
                         <div class="field">
                             <label for="device-manufacturer-modal">Manufacturer *</label>
-                            <select class="input-field" id="device-manufacturer-modal" required>
-                                <option value="">Select Manufacturer</option>
-                                <option>WizarPOS</option>
-                                <option>PAX</option>
-                                <option>Ingenico</option>
+                            <select class="input-field" id="device-manufacturer-modal" required disabled>
+                                <option value="WizarPOS" selected>WizarPOS</option>
                             </select>
                         </div>
                     </div>
@@ -3282,6 +3319,47 @@
                 <div class="modal-actions">
                     <button class="btn secondary" type="button" data-close="device-modal">Cancel</button>
                     <button class="btn primary" type="submit">Add Device</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="clone-store-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="clone-store-title" style="max-width: 560px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="clone-store-title">Clone Device</h3>
+                    <p class="modal-note">Choose which store under this merchant will receive the cloned terminal.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="clone-store-modal" aria-label="Close"></button>
+            </div>
+            <form id="clone-store-form" autocomplete="off">
+                <div class="modal-body">
+                    <div class="clone-bind-summary">
+                        <div>
+                            <div class="clone-bind-label">SN</div>
+                            <div class="clone-bind-value" id="cloneSourceSn">-</div>
+                        </div>
+                        <div>
+                            <div class="clone-bind-label">Model</div>
+                            <div class="clone-bind-value" id="cloneSourceModel">-</div>
+                        </div>
+                        <div>
+                            <div class="clone-bind-label">Terminal</div>
+                            <div class="clone-bind-value" id="cloneSourceTerminal">-</div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="cloneTargetStore">Store <span class="required">*</span></label>
+                        <select class="input-field" id="cloneTargetStore" required>
+                            <option value="">Select Store</option>
+                        </select>
+                    </div>
+                    <div class="clone-store-error" id="cloneStoreError">Select a target store.</div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="clone-store-modal">Cancel</button>
+                    <button class="btn primary" type="submit">Continue</button>
                 </div>
             </form>
         </div>
@@ -3803,6 +3881,13 @@
         const merchantProfileModal = document.getElementById('merchant-profile-modal');
         const storeModal = document.getElementById('store-modal');
         const deviceModal = document.getElementById('device-modal');
+        const cloneStoreModal = document.getElementById('clone-store-modal');
+        const cloneStoreForm = document.getElementById('clone-store-form');
+        const cloneTargetStore = document.getElementById('cloneTargetStore');
+        const cloneStoreError = document.getElementById('cloneStoreError');
+        const cloneSourceSn = document.getElementById('cloneSourceSn');
+        const cloneSourceModel = document.getElementById('cloneSourceModel');
+        const cloneSourceTerminal = document.getElementById('cloneSourceTerminal');
         const deviceDeleteModal = document.getElementById('device-delete-modal');
         const deleteDeviceName = document.getElementById('delete-device-name');
         const deleteDeviceSn = document.getElementById('delete-device-sn');
@@ -3867,6 +3952,7 @@
         let editingStoreId = null;
         let scanFormMode = 'add';
         let pendingDeleteDeviceRow = null;
+        let pendingCloneDeviceRow = null;
         const merchantState = {
             id: '82910293',
             dba: 'Tasty Treats (NYC)',
@@ -4518,6 +4604,8 @@
             row.dataset.manufacturer = device.manufacturer || 'WizarPOS';
             row.dataset.template = device.template || '';
             row.dataset.paywizard = device.paywizard || 'OPC_VENDING_STANDARD';
+            row.dataset.deployAppSelected = device.deployAppSelected ?? 'true';
+            row.dataset.injectKeySelected = device.injectKeySelected ?? 'true';
 
             const storeCell = document.createElement('div');
             storeCell.setAttribute('data-role', 'store-name');
@@ -4571,6 +4659,38 @@
                     template: 'Restaurant - Full Service',
                     paywizard: 'OPC_ATTENDED_TCP',
                     addedAt: '2026-05-04 14:41',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_123',
+                    storeName: 'Downtown Location',
+                    sn: '156724348550',
+                    model: 'Q3V',
+                    label: 'Bound Only Terminal',
+                    processor: 'ELAVON',
+                    version: 'v1.1.57',
+                    scenario: 'Standalone Terminal',
+                    template: 'Retail - Quick Start',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-06 09:30',
+                    deployAppSelected: 'false',
+                    injectKeySelected: 'false',
+                    status: 'Active'
+                },
+                {
+                    storeId: 'st_123',
+                    storeName: 'Downtown Location',
+                    sn: '156724348551',
+                    model: 'Q3PRT',
+                    label: 'Params Only Terminal',
+                    processor: 'ELAVON',
+                    version: 'v1.1.57',
+                    scenario: 'Standalone Terminal',
+                    template: 'Retail - Quick Start',
+                    paywizard: 'OPC_ATTENDED_TCP',
+                    addedAt: '2026-05-07 10:10',
+                    deployAppSelected: 'true',
+                    injectKeySelected: 'false',
                     status: 'Active'
                 },
                 {
@@ -4868,6 +4988,11 @@
             if (modal === deviceDeleteModal) {
                 pendingDeleteDeviceRow = null;
             }
+            if (modal === cloneStoreModal) {
+                pendingCloneDeviceRow = null;
+                if (cloneStoreForm) cloneStoreForm.reset();
+                if (cloneStoreError) cloneStoreError.classList.remove('show');
+            }
             const hasOpenModal = Boolean(document.querySelector('.modal-overlay.active'));
             document.body.style.overflow = hasOpenModal ? 'hidden' : '';
         };
@@ -5100,10 +5225,29 @@
             document.querySelectorAll('.device-settings-menu.show').forEach((menu) => {
                 menu.classList.remove('show');
                 menu.setAttribute('aria-hidden', 'true');
+                menu.style.left = '';
+                menu.style.top = '';
             });
             document.querySelectorAll('.device-settings-toggle[aria-expanded="true"]').forEach((btn) => {
                 btn.setAttribute('aria-expanded', 'false');
             });
+        };
+
+        const positionDeviceMenu = (button, menu) => {
+            if (!button || !menu) return;
+            const buttonRect = button.getBoundingClientRect();
+            const menuRect = menu.getBoundingClientRect();
+            const viewportPadding = 16;
+            const left = Math.min(
+                Math.max(viewportPadding, buttonRect.right - menuRect.width),
+                window.innerWidth - menuRect.width - viewportPadding
+            );
+            const preferredTop = buttonRect.bottom + 8;
+            const top = preferredTop + menuRect.height + viewportPadding > window.innerHeight
+                ? buttonRect.top - menuRect.height - 8
+                : preferredTop;
+            menu.style.left = `${left}px`;
+            menu.style.top = `${Math.max(viewportPadding, top)}px`;
         };
 
         const toggleDeviceMenu = (button) => {
@@ -5117,6 +5261,7 @@
                 menu.classList.add('show');
                 menu.setAttribute('aria-hidden', 'false');
                 button.setAttribute('aria-expanded', 'true');
+                positionDeviceMenu(button, menu);
             }
         };
 
@@ -5133,17 +5278,19 @@
                 scenario: row.dataset.scenario || '',
                 template: row.dataset.template || '',
                 paywizard: row.dataset.paywizard || '',
-                manufacturer: row.dataset.manufacturer || ''
+                manufacturer: row.dataset.manufacturer || '',
+                deployAppSelected: row.dataset.deployAppSelected || 'true',
+                injectKeySelected: row.dataset.injectKeySelected || 'true'
             });
             window.location.href = `5.merchant_device_settings_iso.html?${params.toString()}`;
         };
 
-        const openCloneDevicePage = (row) => {
+        const openCloneDevicePage = (row, targetStore = null) => {
             if (!row) return;
             const params = new URLSearchParams({
                 mode: 'clone',
-                storeId: row.dataset.storeId || '',
-                storeName: row.dataset.storeName || '',
+                storeId: targetStore?.id || row.dataset.storeId || '',
+                storeName: targetStore?.name || row.dataset.storeName || '',
                 sourceSn: row.dataset.sn || '',
                 sourceLabel: getTerminalNameForRow(row),
                 model: row.dataset.model || '',
@@ -5155,6 +5302,37 @@
                 manufacturer: row.dataset.manufacturer || ''
             });
             window.location.href = `5.merchant_add_device_iso.html?${params.toString()}`;
+        };
+
+        const populateCloneTargetStores = (sourceRow) => {
+            if (!cloneTargetStore) return;
+            const stores = getStoreRows().map((row) => ({
+                id: row.dataset.storeId || '',
+                name: row.dataset.storeName || 'Store'
+            }));
+            cloneTargetStore.innerHTML = '<option value="">Select Store</option>';
+            stores.forEach((store) => {
+                const option = document.createElement('option');
+                option.value = store.id;
+                option.textContent = store.name;
+                option.dataset.storeName = store.name;
+                if (sourceRow && store.id === sourceRow.dataset.storeId) {
+                    option.selected = true;
+                }
+                cloneTargetStore.appendChild(option);
+            });
+        };
+
+        const openCloneStoreModal = (row) => {
+            if (!cloneStoreModal || !row) return;
+            pendingCloneDeviceRow = row;
+            populateCloneTargetStores(row);
+            if (cloneStoreError) cloneStoreError.classList.remove('show');
+            if (cloneSourceSn) cloneSourceSn.textContent = row.dataset.sn || '-';
+            if (cloneSourceModel) cloneSourceModel.textContent = row.dataset.model || '-';
+            if (cloneSourceTerminal) cloneSourceTerminal.textContent = getTerminalNameForRow(row) || '-';
+            openModal(cloneStoreModal);
+            if (cloneTargetStore) cloneTargetStore.focus();
         };
 
         const setStoreDisabled = (row, disabled) => {
@@ -5327,6 +5505,30 @@
             validateSubmitButton.addEventListener('click', runValidateTransaction);
         }
 
+        if (cloneTargetStore) {
+            cloneTargetStore.addEventListener('change', () => {
+                if (cloneStoreError) cloneStoreError.classList.remove('show');
+            });
+        }
+
+        if (cloneStoreForm) {
+            cloneStoreForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                if (!pendingCloneDeviceRow || !cloneTargetStore || !cloneTargetStore.value) {
+                    if (cloneStoreError) cloneStoreError.classList.add('show');
+                    return;
+                }
+                const selected = cloneTargetStore.options[cloneTargetStore.selectedIndex];
+                const targetStore = {
+                    id: cloneTargetStore.value,
+                    name: selected?.dataset.storeName || selected?.textContent.trim() || ''
+                };
+                const sourceRow = pendingCloneDeviceRow;
+                closeModal(cloneStoreModal);
+                openCloneDevicePage(sourceRow, targetStore);
+            });
+        }
+
         if (deleteDeviceConfirm) {
             deleteDeviceConfirm.addEventListener('click', confirmDeleteDevice);
         }
@@ -5337,6 +5539,7 @@
                 if (target === 'merchant-profile-modal') closeModal(merchantProfileModal);
                 if (target === 'store-modal') closeModal(storeModal);
                 if (target === 'device-modal') closeModal(deviceModal);
+                if (target === 'clone-store-modal') closeModal(cloneStoreModal);
                 if (target === 'device-delete-modal') closeModal(deviceDeleteModal);
                 if (target === 'device-validate-modal') closeModal(validateModal);
                 if (target === 'store-payment-modal') closeModal(storePaymentModal);
@@ -5345,7 +5548,7 @@
             });
         });
 
-        [merchantProfileModal, storeModal, deviceModal, deviceDeleteModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
+        [merchantProfileModal, storeModal, deviceModal, cloneStoreModal, deviceDeleteModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
             if (!modal) return;
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
@@ -5359,6 +5562,7 @@
             if (merchantProfileModal?.classList.contains('active')) closeModal(merchantProfileModal);
             if (storeModal?.classList.contains('active')) closeModal(storeModal);
             if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
+            if (cloneStoreModal?.classList.contains('active')) closeModal(cloneStoreModal);
             if (deviceDeleteModal?.classList.contains('active')) closeModal(deviceDeleteModal);
             if (validateModal?.classList.contains('active')) closeModal(validateModal);
             if (storePaymentModal?.classList.contains('active')) closeModal(storePaymentModal);
@@ -5490,7 +5694,7 @@
 
                     if (action === 'clone-device') {
                         closeDeviceMenus();
-                        openCloneDevicePage(row);
+                        openCloneStoreModal(row);
                         return;
                     }
 
@@ -5737,7 +5941,7 @@
                 const deviceModel = deviceModelInput?.value || 'Unknown';
                 const processor = deviceProcessorInput?.value || 'TSYS';
                 const storeName = getStoreRows().find((row) => row.dataset.storeId === deviceStoreId)?.dataset.storeName || 'Store';
-                const manufacturer = deviceManufacturerInput?.value || 'WizarPOS';
+                const manufacturer = 'WizarPOS';
                 const template = deviceTemplateInput?.value || 'Retail - Quick Start';
                 const paywizard = devicePaywizardInput?.value || 'Disable';
 
@@ -5752,6 +5956,8 @@
                 row.dataset.manufacturer = manufacturer;
                 row.dataset.template = template;
                 row.dataset.paywizard = paywizard;
+                row.dataset.deployAppSelected = 'true';
+                row.dataset.injectKeySelected = 'true';
 
                 const storeCell = document.createElement('div');
                 storeCell.setAttribute('data-role', 'store-name');

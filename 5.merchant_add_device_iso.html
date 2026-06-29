@@ -2020,8 +2020,8 @@
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="device-manufacturer">Manufacturer *</label>
-                                        <select class="input-field" id="device-manufacturer">
-                                            <option value="WizarPOS">WizarPOS</option>
+                                        <select class="input-field" id="device-manufacturer" disabled>
+                                            <option value="WizarPOS" selected>WizarPOS</option>
                                         
                                         </select>
                                     </div>
@@ -2747,7 +2747,7 @@
             </div>
             <div class="confirm-dialog-actions">
                 <button class="btn secondary" type="button" id="cancelSaveDeviceBtn">Cancel</button>
-                <button class="btn primary" type="button" id="confirmSaveDeviceBtn">Confirm Save</button>
+                <button class="btn primary" type="button" id="confirmSaveDeviceBtn">Confirm Deploy</button>
             </div>
         </div>
     </div>
@@ -3357,6 +3357,21 @@
             return !provisionToggle || provisionToggle.checked;
         }
 
+        function syncSaveDeviceActionLabels(deployEnabled = isProvisionEnabled()) {
+            const primaryAction = document.getElementById('saveDeviceBtn');
+            const confirmTitle = document.getElementById('saveDeviceConfirmTitle');
+            const confirmAction = document.getElementById('confirmSaveDeviceBtn');
+            if (primaryAction) {
+                primaryAction.textContent = deployEnabled ? 'Save & Deploy' : 'Save Device';
+            }
+            if (confirmTitle) {
+                confirmTitle.textContent = deployEnabled ? 'Confirm Device Push' : 'Confirm Save Device';
+            }
+            if (confirmAction) {
+                confirmAction.textContent = deployEnabled ? 'Confirm Deploy' : 'Confirm Save';
+            }
+        }
+
         function activateParamTab(button, set) {
             const tabId = button.getAttribute('data-tab');
             if (!tabId || !set) {
@@ -3490,6 +3505,7 @@
 
         function setProvisionState() {
             const enabled = isProvisionEnabled();
+            syncSaveDeviceActionLabels(enabled);
             if (deploymentOptions) {
                 deploymentOptions.classList.toggle('is-hidden', !enabled);
             }
@@ -3654,7 +3670,7 @@
                 deviceLabelInput.value = cloneMode ? '' : (params.get('label') || '');
             }
 
-            setControlValue(deviceManufacturerSelect, requestedManufacturer);
+            setControlValue(deviceManufacturerSelect, 'WizarPOS');
             setControlValue(deviceModelSelect, requestedModel);
             setControlValue(deviceTerminalScenarioSelect, requestedScenario);
 
@@ -3712,7 +3728,8 @@
 
         if (saveDeviceBtn) {
             saveDeviceBtn.addEventListener('click', (event) => {
-                if (typeof window.validateElavonTerminalFields === 'function' &&
+                if (isProvisionEnabled() &&
+                    typeof window.validateElavonTerminalFields === 'function' &&
                     !window.validateElavonTerminalFields(true)) {
                     event.preventDefault();
                     const firstError = document.querySelector(

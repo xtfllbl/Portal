@@ -1151,6 +1151,10 @@
             display: none;
         }
 
+        .provision-switch.is-hidden {
+            display: none;
+        }
+
         .deployment-status-group {
             display: flex;
             align-items: center;
@@ -1173,12 +1177,24 @@
             white-space: nowrap;
         }
 
+        .deployment-status-chip.is-hidden {
+            display: none;
+        }
+
         .deployment-status-dot {
             width: 8px;
             height: 8px;
             border-radius: 999px;
             background: var(--text-strong);
             flex: 0 0 auto;
+        }
+
+        .deployment-status-dot.was-selected {
+            background: var(--status-active);
+        }
+
+        .deployment-status-dot.was-not-selected {
+            background: var(--status-hold);
         }
 
         .deployment-status-chip.muted {
@@ -1188,12 +1204,6 @@
 
         .deployment-status-chip.muted .deployment-status-dot {
             background: #aeb7c4;
-        }
-
-        .deployment-status-hidden {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
         }
 
         .wizard-actions {
@@ -2026,8 +2036,8 @@
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="device-manufacturer">Manufacturer *</label>
-                                        <select class="input-field" id="device-manufacturer">
-                                            <option value="">WizarPOS</option>
+                                        <select class="input-field" id="device-manufacturer" disabled>
+                                            <option value="WizarPOS" selected>WizarPOS</option>
                                         
                                         </select>
                                     </div>
@@ -2082,17 +2092,25 @@
                                     <div class="payment-config-head">
                                         <div>
                                             <h4 class="payment-config-title">Payment app deployment</h4>
-                                            <p class="payment-config-note">Review the payment app, parameters, and keys deployed to this device.</p>
+                                            <p class="payment-config-note" id="paymentConfigNote">Review the payment app, parameters, and keys deployed to this device.</p>
                                         </div>
                                         <div class="deployment-status-group">
-                                            <input class="deployment-status-hidden" type="checkbox" id="device-provision-toggle" checked disabled>
-                                            <span class="deployment-status-chip">
-                                                <span class="deployment-status-dot" aria-hidden="true"></span>
+                                            <label class="switchline provision-switch is-hidden" id="provisionSwitchOption" for="device-provision-toggle">
+                                                <input type="checkbox" id="device-provision-toggle">
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                                <span>Deploy app &amp; parameters</span>
+                                            </label>
+                                            <span class="deployment-status-chip" id="provisionStatusOption">
+                                                <span class="deployment-status-dot" id="provisionHistoryDot" aria-hidden="true"></span>
                                                 <span>Deploy app &amp; parameters</span>
                                             </span>
-                                            <input class="deployment-status-hidden" type="checkbox" id="processor-key-download" checked disabled>
-                                            <span class="deployment-status-chip key-download is-hidden" id="keyDownloadOption">
-                                                <span class="deployment-status-dot" aria-hidden="true"></span>
+                                            <label class="switchline key-download is-hidden" id="keyDownloadOption" for="processor-key-download">
+                                                <input type="checkbox" id="processor-key-download" checked>
+                                                <span class="switch-track" aria-hidden="true"></span>
+                                                <span>Inject key</span>
+                                            </label>
+                                            <span class="deployment-status-chip key-download is-hidden" id="keyDownloadStatusOption">
+                                                <span class="deployment-status-dot" id="keyDownloadHistoryDot" aria-hidden="true"></span>
                                                 <span>Inject key</span>
                                             </span>
                                         </div>
@@ -2102,7 +2120,7 @@
                                         <div class="form-grid two">
                                             <div class="field">
                                                 <label for="device-processor">1. Processor / Acquirer *</label>
-                                                <select class="input-field" id="device-processor">
+                                                <select class="input-field" id="device-processor" disabled>
                                                     <option value="">Select Processor</option>
                                                     <option value="TSYS">TSYS</option>
                                                     <option value="FISERV">FISERV</option>
@@ -2860,12 +2878,12 @@
                 </label>
                 <label class="redeploy-choice is-hidden" id="redeployInjectKeyChoice" for="redeployInjectKey">
                     <input type="checkbox" id="redeployInjectKey" checked>
-                    <span>Re-inject Key</span>
+                    <span>Inject Key</span>
                 </label>
             </div>
             <div class="confirm-dialog-actions">
                 <button class="btn secondary" type="button" id="cancelSaveDeviceBtn">Cancel</button>
-                <button class="btn primary" type="button" id="confirmSaveDeviceBtn">Confirm Save</button>
+                <button class="btn primary" type="button" id="confirmSaveDeviceBtn">Confirm Deploy</button>
             </div>
         </div>
     </div>
@@ -2917,17 +2935,49 @@
         const processorVersionSelect = document.getElementById('processor-version');
         const paywizardSelect = document.getElementById('device-paywizard');
         const redeployBtn = document.getElementById('redeployBtn');
+        const paymentConfigNote = document.getElementById('paymentConfigNote');
         const processorParams = document.getElementById('processorParams');
         const processorParamSets = document.getElementById('processorParamSets');
         const paywizardParams = document.getElementById('paywizardParams');
         const paywizardParamSets = document.getElementById('paywizardParamSets');
         const provisionToggle = document.getElementById('device-provision-toggle');
+        const provisionSwitchOption = document.getElementById('provisionSwitchOption');
+        const provisionStatusOption = document.getElementById('provisionStatusOption');
+        const provisionHistoryDot = document.getElementById('provisionHistoryDot');
         const keyDownloadOption = document.getElementById('keyDownloadOption');
+        const keyDownloadStatusOption = document.getElementById('keyDownloadStatusOption');
         const keyDownloadCheckbox = document.getElementById('processor-key-download');
+        const keyDownloadHistoryDot = document.getElementById('keyDownloadHistoryDot');
         const deploymentOptions = document.getElementById('deploymentOptions');
         const requestedParameterGroup = params.get('group');
         const processorsWithKeyDownload = new Set(['ELAVON', 'NUVEI ATTD', 'NUVEI UPT']);
         let paramSets = [];
+
+        function parseBooleanParam(value) {
+            if (value === null) return null;
+            const normalized = value.trim().toLowerCase();
+            if (['1', 'true', 'yes', 'y', 'selected', 'deployed', 'injected'].includes(normalized)) return true;
+            if (['0', 'false', 'no', 'n', 'missing', 'none', 'not_selected', 'not_deployed', 'not_injected'].includes(normalized)) return false;
+            return null;
+        }
+
+        function getPreviousInjectKeySelected() {
+            const keys = ['injectKeySelected', 'keyInjected', 'hasKey', 'injectKey'];
+            for (const key of keys) {
+                const parsed = parseBooleanParam(params.get(key));
+                if (parsed !== null) return parsed;
+            }
+            return true;
+        }
+
+        function getPreviousDeployAppSelected() {
+            const keys = ['deployAppSelected', 'appDeployed', 'deploySelected', 'deployed', 'provisioned', 'deployApp'];
+            for (const key of keys) {
+                const parsed = parseBooleanParam(params.get(key));
+                if (parsed !== null) return parsed;
+            }
+            return true;
+        }
 
         function normalizePaywizardValue(value) {
             if (value === 'Enable') return 'OPC_VENDING_STANDARD';
@@ -2935,7 +2985,7 @@
         }
 
         const deviceValues = {
-            manufacturer: params.get('manufacturer') || 'WizarPOS',
+            manufacturer: 'WizarPOS',
             sn: deviceSn,
             label: deviceLabelValue,
             model: params.get('model') || '',
@@ -2943,7 +2993,9 @@
             processor: params.get('processor') || 'TSYS',
             processorVersion: params.get('version') || params.get('appVersion') || '',
             template: params.get('template') || '',
-            paywizard: normalizePaywizardValue(params.get('paywizard'))
+            paywizard: normalizePaywizardValue(params.get('paywizard')),
+            deployAppSelected: getPreviousDeployAppSelected(),
+            injectKeySelected: getPreviousInjectKeySelected()
         };
 
         const PAYWIZARD_PARAMETER_SCHEMA = [
@@ -3060,7 +3112,10 @@
         if (deviceLabel && deviceValues.label) deviceLabel.value = deviceValues.label;
         if (deviceModel && deviceValues.model) deviceModel.value = deviceValues.model;
         if (deviceTerminalScenario) deviceTerminalScenario.value = deviceValues.scenario;
-        if (processorSelect) processorSelect.value = deviceValues.processor;
+        if (processorSelect) {
+            processorSelect.value = deviceValues.processor;
+            processorSelect.disabled = true;
+        }
         if (deviceTemplate && deviceValues.template) deviceTemplate.value = deviceValues.template;
         if (paywizardSelect) paywizardSelect.value = deviceValues.paywizard;
 
@@ -3409,15 +3464,83 @@
             processorVersionSelect.disabled = list.length === 0;
         }
 
+        function isProvisionEnabled() {
+            return !provisionToggle || provisionToggle.checked;
+        }
+
+        function syncProvisionStatus() {
+            if (provisionToggle) {
+                if (deviceValues.deployAppSelected) {
+                    provisionToggle.checked = true;
+                    provisionToggle.disabled = true;
+                } else {
+                    provisionToggle.disabled = false;
+                    if (!provisionToggle.dataset.initialized) {
+                        provisionToggle.checked = false;
+                        provisionToggle.dataset.initialized = 'true';
+                    }
+                }
+            }
+            if (provisionSwitchOption) {
+                provisionSwitchOption.classList.toggle('is-hidden', deviceValues.deployAppSelected);
+            }
+            if (provisionStatusOption) {
+                provisionStatusOption.classList.toggle('is-hidden', !deviceValues.deployAppSelected);
+                provisionStatusOption.title = deviceValues.deployAppSelected
+                    ? 'Last selection: app and parameters deployed'
+                    : 'Last selection: app and parameters not deployed';
+                provisionStatusOption.setAttribute('aria-label', deviceValues.deployAppSelected
+                    ? 'Deploy app and parameters. Last selection: deployed'
+                    : 'Deploy app and parameters. Last selection: not deployed');
+            }
+            if (provisionHistoryDot) {
+                provisionHistoryDot.classList.toggle('was-selected', deviceValues.deployAppSelected);
+                provisionHistoryDot.classList.toggle('was-not-selected', !deviceValues.deployAppSelected);
+            }
+            if (paymentConfigNote) {
+                paymentConfigNote.textContent = deviceValues.deployAppSelected
+                    ? 'Review the payment app, parameters, and keys deployed to this device.'
+                    : 'Choose whether to push the payment app, parameters, and keys to this device.';
+            }
+        }
+
         function syncKeyDownloadOption() {
             if (!keyDownloadOption || !processorSelect) {
                 return;
             }
-            const hasKeyDownload = processorsWithKeyDownload.has(processorSelect.value);
-            keyDownloadOption.classList.toggle('is-hidden', !hasKeyDownload);
+            const hasKeyDownload = isProvisionEnabled() && processorsWithKeyDownload.has(processorSelect.value);
+            const useSwitch = !deviceValues.deployAppSelected;
+            keyDownloadOption.classList.toggle('is-hidden', !hasKeyDownload || !useSwitch);
+            if (keyDownloadStatusOption) {
+                keyDownloadStatusOption.classList.toggle('is-hidden', !hasKeyDownload || useSwitch);
+                keyDownloadStatusOption.title = deviceValues.injectKeySelected
+                    ? 'Last selection: Inject key selected'
+                    : 'Last selection: Inject key not selected';
+                keyDownloadStatusOption.setAttribute('aria-label', deviceValues.injectKeySelected
+                    ? 'Inject key. Last selection: selected'
+                    : 'Inject key. Last selection: not selected');
+            }
+            keyDownloadOption.title = deviceValues.injectKeySelected
+                ? 'Last selection: Inject key selected'
+                : 'Last selection: Inject key not selected';
+            keyDownloadOption.setAttribute('aria-label', deviceValues.injectKeySelected
+                ? 'Inject key. Last selection: selected'
+                : 'Inject key. Last selection: not selected');
+            if (keyDownloadHistoryDot) {
+                keyDownloadHistoryDot.classList.toggle('was-selected', deviceValues.injectKeySelected);
+                keyDownloadHistoryDot.classList.toggle('was-not-selected', !deviceValues.injectKeySelected);
+            }
             if (keyDownloadCheckbox) {
-                keyDownloadCheckbox.checked = hasKeyDownload;
-                keyDownloadCheckbox.disabled = true;
+                if (useSwitch) {
+                    keyDownloadCheckbox.disabled = !hasKeyDownload;
+                    if (hasKeyDownload && !keyDownloadCheckbox.dataset.initialized) {
+                        keyDownloadCheckbox.checked = true;
+                        keyDownloadCheckbox.dataset.initialized = 'true';
+                    }
+                } else {
+                    keyDownloadCheckbox.checked = hasKeyDownload && deviceValues.injectKeySelected;
+                    keyDownloadCheckbox.disabled = true;
+                }
             }
         }
 
@@ -3427,6 +3550,11 @@
             }
             const selected = processorSelect.value;
             const hasSelection = Boolean(selected);
+            if (!isProvisionEnabled()) {
+                processorParams.classList.add('is-hidden');
+                syncKeyDownloadOption();
+                return;
+            }
             processorParams.classList.toggle('is-hidden', !hasSelection);
             populateProcessorVersions(selected);
             paramSets.forEach((set) => {
@@ -3472,29 +3600,56 @@
 
         if (processorSelect) {
             processorSelect.addEventListener('change', syncProcessorParams);
-            syncProcessorParams();
         }
 
         function syncPaywizardParams() {
             if (!paywizardSelect || !paywizardParams) {
                 return;
             }
-            const isEnabled = paywizardSelect.value !== 'Disable';
+            const isEnabled = isProvisionEnabled() && paywizardSelect.value !== 'Disable';
             paywizardParams.classList.toggle('is-hidden', !isEnabled);
+        }
+
+        function setProvisionState() {
+            syncProvisionStatus();
+            const enabled = isProvisionEnabled();
+            if (deploymentOptions) {
+                deploymentOptions.classList.toggle('is-hidden', !enabled);
+            }
+            if (processorSelect) {
+                processorSelect.disabled = true;
+            }
+            if (deviceTemplate) {
+                deviceTemplate.disabled = !enabled;
+            }
+            if (paywizardSelect) {
+                paywizardSelect.disabled = !enabled;
+            }
+            if (!enabled) {
+                if (processorVersionSelect) {
+                    processorVersionSelect.disabled = true;
+                }
+                if (processorParams) {
+                    processorParams.classList.add('is-hidden');
+                }
+                if (paywizardParams) {
+                    paywizardParams.classList.add('is-hidden');
+                }
+                syncKeyDownloadOption();
+                return;
+            }
+            syncProcessorParams();
+            syncPaywizardParams();
         }
 
         if (paywizardSelect) {
             paywizardSelect.addEventListener('change', syncPaywizardParams);
-            syncPaywizardParams();
         }
 
-        if (deploymentOptions) {
-            deploymentOptions.classList.remove('is-hidden');
-        }
         if (provisionToggle) {
-            provisionToggle.checked = true;
-            provisionToggle.disabled = true;
+            provisionToggle.addEventListener('change', setProvisionState);
         }
+        setProvisionState();
 
         const TEMPLATE_KEY = 'pw_device_param_templates';
         const assignTemplateEl = document.getElementById('device-template');
@@ -3536,32 +3691,44 @@
         }
 
         function buildDevicePushSummary() {
-            const processor = getSelectedOptionText(processorSelect);
+            const deployEnabled = isProvisionEnabled();
+            const processor = deployEnabled ? getSelectedOptionText(processorSelect) : 'Not deployed';
+            const appVersion = deployEnabled ? getSelectedOptionText(processorVersionSelect) : 'Not deployed';
+            const integrationMode = deployEnabled ? getSelectedOptionText(paywizardSelect) : 'Not deployed';
+            const injectVisible = keyDownloadOption && !keyDownloadOption.classList.contains('is-hidden');
+            const injectStatusVisible = keyDownloadStatusOption && !keyDownloadStatusOption.classList.contains('is-hidden');
+            const injectEnabled = deployEnabled && (
+                (injectVisible && keyDownloadCheckbox && keyDownloadCheckbox.checked) ||
+                (injectStatusVisible && deviceValues.injectKeySelected)
+            );
             return {
-                deployState: 'Deploy app & parameters',
+                deployState: deployEnabled ? 'Deploy app & parameters' : 'No app or parameters will be deployed',
                 processor,
-                appVersion: getSelectedOptionText(processorVersionSelect),
-                integrationMode: getSelectedOptionText(paywizardSelect),
-                injectKey: processorsWithKeyDownload.has(processorSelect ? processorSelect.value : '') ? 'YES' : 'NO'
+                appVersion,
+                integrationMode,
+                injectKey: injectEnabled ? 'YES' : 'NO'
             };
         }
 
         function resetRedeployScope(summary) {
+            const deployEnabled = summary.deployState === 'Deploy app & parameters';
             [
                 redeployPaymentApp,
                 redeployPaymentParams,
                 redeployPaywizard,
                 redeployPaywizardParams
             ].forEach((checkbox) => {
-                if (checkbox) checkbox.checked = true;
+                if (!checkbox) return;
+                checkbox.checked = deployEnabled;
+                checkbox.disabled = !deployEnabled;
             });
 
-            const canInjectKey = summary.injectKey === 'YES';
+            const canInjectKey = deployEnabled && processorSelect && processorsWithKeyDownload.has(processorSelect.value);
             if (redeployInjectKeyChoice) {
                 redeployInjectKeyChoice.classList.toggle('is-hidden', !canInjectKey);
             }
             if (redeployInjectKey) {
-                redeployInjectKey.checked = canInjectKey;
+                redeployInjectKey.checked = canInjectKey && summary.injectKey === 'YES';
                 redeployInjectKey.disabled = !canInjectKey;
             }
         }
