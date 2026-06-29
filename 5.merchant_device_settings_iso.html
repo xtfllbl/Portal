@@ -1151,6 +1151,51 @@
             display: none;
         }
 
+        .deployment-status-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 1px;
+        }
+
+        .deployment-status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border: 1px solid #dbe1ea;
+            border-radius: 999px;
+            background: #ffffff;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .deployment-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--text-strong);
+            flex: 0 0 auto;
+        }
+
+        .deployment-status-chip.muted {
+            color: var(--text-muted);
+            background: #f8fafc;
+        }
+
+        .deployment-status-chip.muted .deployment-status-dot {
+            background: #aeb7c4;
+        }
+
+        .deployment-status-hidden {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .wizard-actions {
             display: flex;
             justify-content: space-between;
@@ -2039,17 +2084,17 @@
                                             <h4 class="payment-config-title">Payment app deployment</h4>
                                             <p class="payment-config-note">Review the payment app, parameters, and keys deployed to this device.</p>
                                         </div>
-                                        <div class="switch-group">
-                                            <label class="switchline" for="device-provision-toggle">
-                                                <input type="checkbox" id="device-provision-toggle" checked disabled>
-                                                <span class="switch-track" aria-hidden="true"></span>
+                                        <div class="deployment-status-group">
+                                            <input class="deployment-status-hidden" type="checkbox" id="device-provision-toggle" checked disabled>
+                                            <span class="deployment-status-chip">
+                                                <span class="deployment-status-dot" aria-hidden="true"></span>
                                                 <span>Deploy app &amp; parameters</span>
-                                            </label>
-                                            <label class="switchline key-download is-hidden" id="keyDownloadOption" for="processor-key-download">
-                                                <input type="checkbox" id="processor-key-download" checked disabled>
-                                                <span class="switch-track" aria-hidden="true"></span>
+                                            </span>
+                                            <input class="deployment-status-hidden" type="checkbox" id="processor-key-download" checked disabled>
+                                            <span class="deployment-status-chip key-download is-hidden" id="keyDownloadOption">
+                                                <span class="deployment-status-dot" aria-hidden="true"></span>
                                                 <span>Inject key</span>
-                                            </label>
+                                            </span>
                                         </div>
                                     </div>
 
@@ -3026,8 +3071,7 @@
             deviceManufacturer,
             deviceModel,
             processorSelect,
-            deviceTemplate,
-            paywizardSelect
+            deviceTemplate
         ].forEach((field) => {
             if (field) field.disabled = true;
         });
