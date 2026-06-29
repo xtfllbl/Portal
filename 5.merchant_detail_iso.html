@@ -407,6 +407,12 @@
             color: #fff;
         }
 
+        .btn.danger {
+            background: #111111;
+            border-color: #111111;
+            color: #fff;
+        }
+
         .btn.sm {
             padding: 8px 12px;
             font-size: 12px;
@@ -1433,8 +1439,8 @@
 
         .device-grid-head,
         .device-grid-row {
-            grid-template-columns: minmax(150px, 1.05fr) minmax(190px, 1.35fr) minmax(100px, 0.75fr) minmax(210px, 1.45fr) minmax(140px, 0.9fr) 120px minmax(170px, max-content);
-            min-width: 1220px;
+            grid-template-columns: minmax(150px, 1.05fr) minmax(190px, 1.35fr) minmax(100px, 0.75fr) minmax(230px, 1.55fr) minmax(150px, 0.95fr) minmax(170px, max-content);
+            min-width: 1080px;
             column-gap: 18px;
         }
 
@@ -1448,8 +1454,8 @@
         }
 
         .device-grid-head > div:last-child {
-            text-align: left;
-            justify-self: start;
+            text-align: center;
+            justify-self: center;
         }
 
         .device-grid-row {
@@ -1549,9 +1555,9 @@
 
         .device-actions-cell {
             display: flex;
-            justify-content: flex-end;
-            justify-self: end;
-            text-align: right;
+            justify-content: center;
+            justify-self: stretch;
+            text-align: center;
             cursor: default;
         }
 
@@ -1748,7 +1754,8 @@
             border-color: #e5e7eb;
         }
 
-        .status-badge.offline {
+        .status-badge.offline,
+        .status-badge.inactive {
             background: #fee2e2;
             color: #991b1b;
             border-color: #fecaca;
@@ -2014,6 +2021,36 @@
             justify-content: flex-end;
             gap: 10px;
             background: #fafafa;
+        }
+
+        .delete-confirm-summary {
+            display: grid;
+            gap: 10px;
+            padding: 14px;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            background: #fff7f7;
+        }
+
+        .delete-confirm-row {
+            display: grid;
+            grid-template-columns: 140px minmax(0, 1fr);
+            gap: 16px;
+            align-items: baseline;
+        }
+
+        .delete-confirm-label {
+            color: var(--text-dim);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .delete-confirm-value {
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 700;
+            word-break: break-word;
         }
 
         .modal-section-title {
@@ -2588,13 +2625,13 @@
                                 <div>Midtown Location</div>
                                 <div>55 Lexington Ave, New York, NY</div>
                                 <div>2026-04-12 14:36</div>
-                                <div data-role="device-count">1 Pending</div>
+                                <div data-role="device-count">1 Active</div>
                                 <div class="mid-summary-cell" tabindex="0" role="link" aria-label="Open payment channel settings for Midtown Location">
                                     <div class="mid-empty">Not configured</div>
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge offline" data-role="store-stored-value">Disabled</span></div>
-                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
+                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
                                         <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
@@ -2623,7 +2660,7 @@
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
-                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
+                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
                                         <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
@@ -2653,7 +2690,7 @@
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
-                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
+                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
                                         <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
@@ -2683,7 +2720,7 @@
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
-                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
+                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
                                         <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
@@ -2713,7 +2750,7 @@
                                     <div class="mid-match-line" data-role="mid-match" hidden></div>
                                 </div>
                                 <div><span class="status-badge active" data-role="store-stored-value">Enabled</span></div>
-                                <div><span class="status-badge pending" data-role="store-status">Pending</span></div>
+                                <div><span class="status-badge active" data-role="store-status">Active</span></div>
                                 <div class="store-actions-cell">
                                     <div class="store-settings">
                                         <button class="store-settings-toggle" type="button" aria-haspopup="true" aria-expanded="false">
@@ -2761,7 +2798,6 @@
                                     <div>MODEL</div>
                                     <div>TERMINAL NAME</div>
                                     <div>ADDED AT</div>
-                                    <div>STATUS</div>
                                     <div>ACTIONS</div>
                                 </div>
                                 <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-sn="156724348539" data-model="P3" data-processor="TSYS" data-version="v1.3.121" data-scenario="Standalone Terminal" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="OPC_ATTENDED_TCP">
@@ -2781,7 +2817,6 @@
                                         </div>
                                     </div>
                                     <div>2026-04-03 10:22</div>
-                                    <div data-role="device-status"><span class="status-badge active">Active</span></div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
                                             <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
@@ -2820,7 +2855,6 @@
                                         </div>
                                     </div>
                                     <div>2026-04-05 16:08</div>
-                                    <div data-role="device-status"><span class="status-badge active">Active</span></div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
                                             <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
@@ -2859,7 +2893,6 @@
                                         </div>
                                     </div>
                                     <div>2026-04-15 11:47</div>
-                                    <div data-role="device-status"><span class="status-badge pending">Pending</span></div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
                                             <button class="action-button danger" type="button" data-action="delete-device" aria-label="Delete device">
@@ -3161,14 +3194,6 @@
                                 <option value="E-Com">E-Com</option>
                             </select>
                         </div>
-                        <div class="field">
-                            <label for="device-status-modal">Status</label>
-                            <select class="input-field" id="device-status-modal">
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Offline">Offline</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="form-grid three">
                         <div class="field">
@@ -3261,6 +3286,39 @@
             </form>
         </div>
     </div>
+
+    <div class="modal-overlay" id="device-delete-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="device-delete-title" style="max-width: 560px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="device-delete-title">Delete Device</h3>
+                    <p class="modal-note">Confirm before removing this terminal from the store.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="device-delete-modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-confirm-summary">
+                    <div class="delete-confirm-row">
+                        <div class="delete-confirm-label">Terminal Name</div>
+                        <div class="delete-confirm-value" id="delete-device-name">-</div>
+                    </div>
+                    <div class="delete-confirm-row">
+                        <div class="delete-confirm-label">Terminal S/N</div>
+                        <div class="delete-confirm-value" id="delete-device-sn">-</div>
+                    </div>
+                    <div class="delete-confirm-row">
+                        <div class="delete-confirm-label">Store</div>
+                        <div class="delete-confirm-value" id="delete-device-store">-</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn secondary" type="button" data-close="device-delete-modal">Cancel</button>
+                <button class="btn danger" type="button" id="delete-device-confirm">Delete Device</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="device-validate-modal" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="device-validate-title" style="max-width: 720px;">
             <div class="modal-header">
@@ -3745,6 +3803,11 @@
         const merchantProfileModal = document.getElementById('merchant-profile-modal');
         const storeModal = document.getElementById('store-modal');
         const deviceModal = document.getElementById('device-modal');
+        const deviceDeleteModal = document.getElementById('device-delete-modal');
+        const deleteDeviceName = document.getElementById('delete-device-name');
+        const deleteDeviceSn = document.getElementById('delete-device-sn');
+        const deleteDeviceStore = document.getElementById('delete-device-store');
+        const deleteDeviceConfirm = document.getElementById('delete-device-confirm');
         const validateModal = document.getElementById('device-validate-modal');
         const storePaymentModal = document.getElementById('store-payment-modal');
         const storePaymentEditModal = document.getElementById('store-payment-edit-modal');
@@ -3803,6 +3866,7 @@
         let storeFormMode = 'add';
         let editingStoreId = null;
         let scanFormMode = 'add';
+        let pendingDeleteDeviceRow = null;
         const merchantState = {
             id: '82910293',
             dba: 'Tasty Treats (NYC)',
@@ -4166,7 +4230,7 @@
         const updateStatusBadge = (badge, status) => {
             if (!badge) return;
             const statusClass = status.toLowerCase();
-            badge.classList.remove('active', 'pending', 'offline');
+            badge.classList.remove('active', 'pending', 'offline', 'inactive');
             badge.classList.add(statusClass);
             badge.textContent = status;
         };
@@ -4402,6 +4466,7 @@
             };
 
             menu.appendChild(makeItem('Edit Params', 'edit-device-params'));
+            menu.appendChild(makeItem('Clone Device', 'clone-device'));
             menu.appendChild(makeItem('Validate', 'validate-device'));
 
             settingsWrap.appendChild(toggleButton);
@@ -4472,14 +4537,6 @@
 
             row.appendChild(createDeviceTerminalCell(device.label));
             row.appendChild(Object.assign(document.createElement('div'), { textContent: device.addedAt }));
-
-            const statusCell = document.createElement('div');
-            statusCell.setAttribute('data-role', 'device-status');
-            const statusBadge = document.createElement('span');
-            statusBadge.className = `status-badge ${device.status.toLowerCase()}`;
-            statusBadge.textContent = device.status;
-            statusCell.appendChild(statusBadge);
-            row.appendChild(statusCell);
 
             row.appendChild(buildDeviceActionsCell());
             deviceGrid.appendChild(row);
@@ -4569,8 +4626,7 @@
                     scenario: 'Vending Machine',
                     template: 'Retail - Quick Start',
                     paywizard: 'OPC_VENDING_STANDARD',
-                    addedAt: '2026-05-18 10:52',
-                    status: 'Pending'
+                    addedAt: '2026-05-18 10:52'
                 },
                 {
                     storeId: 'st_630',
@@ -4610,7 +4666,7 @@
             deviceRows.forEach((row) => {
                 const storeId = row.dataset.storeId;
                 if (!storeId) return;
-                const statusText = row.querySelector('.status-badge')?.textContent?.trim() || 'Active';
+                const statusText = row.dataset.deviceStatus || 'Active';
                 const current = summaryMap.get(storeId) || { total: 0, statuses: {} };
                 current.total += 1;
                 current.statuses[statusText] = (current.statuses[statusText] || 0) + 1;
@@ -4639,19 +4695,7 @@
 
                 const statusBadge = row.querySelector('[data-role="store-status"]');
                 if (statusBadge) {
-                    if (isDisabled) {
-                        updateStatusBadge(statusBadge, 'Offline');
-                    } else {
-                        let storeStatus = 'Pending';
-                        if (summary.statuses.Active) {
-                            storeStatus = 'Active';
-                        } else if (summary.statuses.Pending) {
-                            storeStatus = 'Pending';
-                        } else if (summary.statuses.Offline) {
-                            storeStatus = 'Offline';
-                        }
-                        updateStatusBadge(statusBadge, storeStatus);
-                    }
+                    updateStatusBadge(statusBadge, isDisabled ? 'Inactive' : 'Active');
                 }
             });
         };
@@ -4821,8 +4865,36 @@
             if (!modal) return;
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
+            if (modal === deviceDeleteModal) {
+                pendingDeleteDeviceRow = null;
+            }
             const hasOpenModal = Boolean(document.querySelector('.modal-overlay.active'));
             document.body.style.overflow = hasOpenModal ? 'hidden' : '';
+        };
+
+        const openDeleteDeviceModal = (row) => {
+            if (!deviceDeleteModal || !row) return;
+            pendingDeleteDeviceRow = row;
+            const terminalName = getTerminalNameForRow(row) || row.dataset.sn || 'Terminal';
+            if (deleteDeviceName) deleteDeviceName.textContent = terminalName;
+            if (deleteDeviceSn) deleteDeviceSn.textContent = row.dataset.sn || '-';
+            if (deleteDeviceStore) deleteDeviceStore.textContent = row.dataset.storeName || '-';
+            openModal(deviceDeleteModal);
+            if (deleteDeviceConfirm) deleteDeviceConfirm.focus();
+        };
+
+        const confirmDeleteDevice = () => {
+            const row = pendingDeleteDeviceRow;
+            if (!row) {
+                closeModal(deviceDeleteModal);
+                return;
+            }
+            const sn = row.dataset.sn || '';
+            row.remove();
+            setStoredTerminalName(sn, '');
+            closeModal(deviceDeleteModal);
+            updateCounts();
+            refreshDeviceGrid();
         };
 
         const populateValidateCardOptions = () => {
@@ -5066,6 +5138,25 @@
             window.location.href = `5.merchant_device_settings_iso.html?${params.toString()}`;
         };
 
+        const openCloneDevicePage = (row) => {
+            if (!row) return;
+            const params = new URLSearchParams({
+                mode: 'clone',
+                storeId: row.dataset.storeId || '',
+                storeName: row.dataset.storeName || '',
+                sourceSn: row.dataset.sn || '',
+                sourceLabel: getTerminalNameForRow(row),
+                model: row.dataset.model || '',
+                processor: row.dataset.processor || '',
+                version: row.dataset.version || '',
+                scenario: row.dataset.scenario || '',
+                template: row.dataset.template || '',
+                paywizard: row.dataset.paywizard || '',
+                manufacturer: row.dataset.manufacturer || ''
+            });
+            window.location.href = `5.merchant_add_device_iso.html?${params.toString()}`;
+        };
+
         const setStoreDisabled = (row, disabled) => {
             if (!row) return;
             if (disabled) {
@@ -5075,7 +5166,7 @@
             }
             syncStoreToggleLabel(row);
             if (disabled) {
-                updateStatusBadge(row.querySelector('[data-role="store-status"]'), 'Offline');
+                updateStatusBadge(row.querySelector('[data-role="store-status"]'), 'Inactive');
             } else {
                 updateStoreDeviceSummaries();
             }
@@ -5236,12 +5327,17 @@
             validateSubmitButton.addEventListener('click', runValidateTransaction);
         }
 
+        if (deleteDeviceConfirm) {
+            deleteDeviceConfirm.addEventListener('click', confirmDeleteDevice);
+        }
+
         document.querySelectorAll('[data-close]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-close');
                 if (target === 'merchant-profile-modal') closeModal(merchantProfileModal);
                 if (target === 'store-modal') closeModal(storeModal);
                 if (target === 'device-modal') closeModal(deviceModal);
+                if (target === 'device-delete-modal') closeModal(deviceDeleteModal);
                 if (target === 'device-validate-modal') closeModal(validateModal);
                 if (target === 'store-payment-modal') closeModal(storePaymentModal);
                 if (target === 'store-payment-edit-modal') closeModal(storePaymentEditModal);
@@ -5249,7 +5345,7 @@
             });
         });
 
-        [merchantProfileModal, storeModal, deviceModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
+        [merchantProfileModal, storeModal, deviceModal, deviceDeleteModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
             if (!modal) return;
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
@@ -5263,6 +5359,7 @@
             if (merchantProfileModal?.classList.contains('active')) closeModal(merchantProfileModal);
             if (storeModal?.classList.contains('active')) closeModal(storeModal);
             if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
+            if (deviceDeleteModal?.classList.contains('active')) closeModal(deviceDeleteModal);
             if (validateModal?.classList.contains('active')) closeModal(validateModal);
             if (storePaymentModal?.classList.contains('active')) closeModal(storePaymentModal);
             if (storePaymentEditModal?.classList.contains('active')) closeModal(storePaymentEditModal);
@@ -5391,6 +5488,12 @@
                         return;
                     }
 
+                    if (action === 'clone-device') {
+                        closeDeviceMenus();
+                        openCloneDevicePage(row);
+                        return;
+                    }
+
                     if (action === 'validate-device') {
                         closeDeviceMenus();
                         openValidateModal(row);
@@ -5417,15 +5520,7 @@
                 }
 
                 if (action === 'delete-device') {
-                    const terminalName = getTerminalNameForRow(row) || row.dataset.sn || 'this device';
-                    if (!confirm(`Delete ${terminalName} (mock)?`)) {
-                        return;
-                    }
-                    const sn = row.dataset.sn || '';
-                    row.remove();
-                    setStoredTerminalName(sn, '');
-                    updateCounts();
-                    refreshDeviceGrid();
+                    openDeleteDeviceModal(row);
                     return;
                 }
             });
@@ -5604,9 +5699,9 @@
 
                 const statusCell = document.createElement('div');
                 const statusBadge = document.createElement('span');
-                statusBadge.className = 'status-badge pending';
+                statusBadge.className = 'status-badge active';
                 statusBadge.setAttribute('data-role', 'store-status');
-                statusBadge.textContent = 'Pending';
+                statusBadge.textContent = 'Active';
                 statusCell.appendChild(statusBadge);
                 row.appendChild(statusCell);
 
@@ -5633,7 +5728,6 @@
                 const deviceTpnInput = document.getElementById('device-tpn-modal');
                 const deviceLabelInput = document.getElementById('device-label-modal');
                 const deviceProcessorInput = document.getElementById('device-processor-modal');
-                const deviceStatusInput = document.getElementById('device-status-modal');
                 const deviceManufacturerInput = document.getElementById('device-manufacturer-modal');
                 const deviceTemplateInput = document.getElementById('device-template-modal');
                 const devicePaywizardInput = document.getElementById('device-paywizard-modal');
@@ -5642,7 +5736,6 @@
                 const label = deviceLabelInput?.value.trim() || tpn;
                 const deviceModel = deviceModelInput?.value || 'Unknown';
                 const processor = deviceProcessorInput?.value || 'TSYS';
-                const status = deviceStatusInput?.value || 'Active';
                 const storeName = getStoreRows().find((row) => row.dataset.storeId === deviceStoreId)?.dataset.storeName || 'Store';
                 const manufacturer = deviceManufacturerInput?.value || 'WizarPOS';
                 const template = deviceTemplateInput?.value || 'Retail - Quick Start';
@@ -5678,14 +5771,6 @@
 
                 row.appendChild(createDeviceTerminalCell(label));
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: formatDateTime() }));
-
-                const statusCell = document.createElement('div');
-                statusCell.setAttribute('data-role', 'device-status');
-                const statusBadge = document.createElement('span');
-                statusBadge.className = `status-badge ${status.toLowerCase()}`;
-                statusBadge.textContent = status;
-                statusCell.appendChild(statusBadge);
-                row.appendChild(statusCell);
 
                 row.appendChild(buildDeviceActionsCell());
 

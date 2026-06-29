@@ -840,6 +840,30 @@
             font-weight: 600;
         }
 
+        .clone-source-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 6px 0 18px;
+            padding: 12px 14px;
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+            background: #eef2ff;
+            color: #1e3a8a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .clone-source-banner.is-hidden {
+            display: none;
+        }
+
+        .clone-source-meta {
+            color: #4b5563;
+            font-weight: 600;
+        }
+
         .wizard-steps {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1948,7 +1972,7 @@
         <div class="main-container">
             <header class="top-header">
                 <div class="breadcrumbs">
-                    MERCHANTS &gt; <span>Add Device</span>
+                    MERCHANTS &gt; <span id="page-mode-label">Add Device</span>
                 </div>
                 <div class="user-controls">
                     <div class="icon-circle" aria-label="Notifications">
@@ -1975,7 +1999,7 @@
                         <div class="wizard-header">
                             <div>
                                 <div class="wizard-title-row">
-                                    <h2 class="wizard-title">Add Device</h2>
+                                    <h2 class="wizard-title" id="wizard-title">Add Device</h2>
                                     <div class="store-inline" aria-live="polite">
                                         <span class="store-inline-name" id="store-context-name">Selected Store</span>
                                     </div>
@@ -1983,16 +2007,21 @@
                             </div>
                         </div>
 
+                        <div class="clone-source-banner is-hidden" id="cloneSourceBanner">
+                            <span>Clone Device Configuration</span>
+                            <span class="clone-source-meta" id="cloneSourceMeta"></span>
+                        </div>
+
                         <form class="wizard-form" autocomplete="off">
                             <div class="wizard-panel active">
                                 <h3 class="panel-title">Device Info</h3>
-                                <p class="panel-note">Configure the device for the selected store.</p>
+                                <p class="panel-note" id="device-panel-note">Configure the device for the selected store.</p>
 
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="device-manufacturer">Manufacturer *</label>
                                         <select class="input-field" id="device-manufacturer">
-                                            <option value="">WizarPOS</option>
+                                            <option value="WizarPOS">WizarPOS</option>
                                         
                                         </select>
                                     </div>
@@ -2725,25 +2754,42 @@
 
     <script src="processor-parameter-data.js"></script>
     <script>
+        const pageModeLabel = document.getElementById('page-mode-label');
+        const wizardTitle = document.getElementById('wizard-title');
+        const panelNote = document.getElementById('device-panel-note');
         const storeNameEl = document.getElementById('store-context-name');
+        const cloneSourceBanner = document.getElementById('cloneSourceBanner');
+        const cloneSourceMeta = document.getElementById('cloneSourceMeta');
         const params = new URLSearchParams(window.location.search);
+        const cloneMode = params.get('mode') === 'clone';
         const storeName = params.get('storeName') || 'Selected Store';
         const storeId = params.get('storeId');
         const boundSn = params.get('sn') || params.get('SN') || '';
+        const cloneSourceSn = params.get('sourceSn') || '';
+        const cloneSourceLabel = params.get('sourceLabel') || '';
 
         if (storeNameEl) {
             storeNameEl.textContent = storeName;
         }
-        if (storeName) {
+        if (cloneMode) {
+            if (pageModeLabel) pageModeLabel.textContent = 'Clone Device';
+            if (wizardTitle) wizardTitle.textContent = 'Clone Device';
+            if (panelNote) panelNote.textContent = 'Enter the replacement terminal identity. Existing app and parameter configuration is copied below.';
+            if (cloneSourceBanner) cloneSourceBanner.classList.remove('is-hidden');
+            if (cloneSourceMeta) {
+                const sourceLabel = cloneSourceLabel || 'Source terminal';
+                cloneSourceMeta.textContent = cloneSourceSn ? `${sourceLabel} / SN ${cloneSourceSn}` : sourceLabel;
+            }
+            document.title = `Clone Device - ${storeName}`;
+        } else if (storeName) {
             document.title = `Add Device - ${storeName}`;
         }
-        if (boundSn) {
-            const deviceSnInput = document.getElementById('device-tpn');
-            if (deviceSnInput) {
-                deviceSnInput.value = boundSn;
-            }
-        }
 
+        const deviceManufacturerSelect = document.getElementById('device-manufacturer');
+        const deviceSnInput = document.getElementById('device-tpn');
+        const deviceLabelInput = document.getElementById('device-label');
+        const deviceModelSelect = document.getElementById('device-model');
+        const deviceTerminalScenarioSelect = document.getElementById('device-terminal-scenario');
         const processorSelect = document.getElementById('device-processor');
         const processorVersionSelect = document.getElementById('processor-version');
         const processorParams = document.getElementById('processorParams');
@@ -2758,7 +2804,31 @@
         const keyDownloadCheckbox = document.getElementById('processor-key-download');
         const deploymentOptions = document.getElementById('deploymentOptions');
         const requestedProcessor = params.get('processor');
+        const requestedVersion = params.get('version');
+        const requestedScenario = params.get('scenario');
+        const requestedTemplate = params.get('template');
+        const requestedPaywizard = params.get('paywizard');
+        const requestedManufacturer = params.get('manufacturer');
+        const requestedModel = params.get('model');
         const requestedParameterGroup = params.get('group');
+
+        function setControlValue(control, value) {
+            if (!control || value == null || value === '') return;
+            const normalizedValue = String(value);
+            if (control.tagName === 'SELECT') {
+                const matchingOption = Array.from(control.options).find((option) => option.value === normalizedValue || option.textContent.trim() === normalizedValue);
+                if (matchingOption) {
+                    control.value = matchingOption.value;
+                    return;
+                } else {
+                    const option = document.createElement('option');
+                    option.value = normalizedValue;
+                    option.textContent = normalizedValue;
+                    control.appendChild(option);
+                }
+            }
+            control.value = normalizedValue;
+        }
 
         const PAYWIZARD_PARAMETER_SCHEMA = [
             ['OPERTAION MODE', [
@@ -2869,8 +2939,8 @@
             ]]
         ];
 
-        if (processorSelect && Object.prototype.hasOwnProperty.call(PROCESSOR_PARAMETER_SCHEMA, requestedProcessor)) {
-            processorSelect.value = requestedProcessor;
+        if (processorSelect && requestedProcessor && Object.prototype.hasOwnProperty.call(PROCESSOR_PARAMETER_SCHEMA, requestedProcessor)) {
+            setControlValue(processorSelect, requestedProcessor);
         }
 
         function parameterSlug(value) {
@@ -3576,6 +3646,39 @@
             }
         }
 
+        function applyIncomingDeviceContext() {
+            if (deviceSnInput) {
+                deviceSnInput.value = cloneMode ? '' : boundSn;
+            }
+            if (deviceLabelInput) {
+                deviceLabelInput.value = cloneMode ? '' : (params.get('label') || '');
+            }
+
+            setControlValue(deviceManufacturerSelect, requestedManufacturer);
+            setControlValue(deviceModelSelect, requestedModel);
+            setControlValue(deviceTerminalScenarioSelect, requestedScenario);
+
+            if (processorSelect && requestedProcessor) {
+                setControlValue(processorSelect, requestedProcessor);
+                syncProcessorParams();
+            }
+
+            if (processorVersionSelect && requestedVersion) {
+                setControlValue(processorVersionSelect, requestedVersion);
+            }
+
+            if (paywizardSelect && requestedPaywizard) {
+                setControlValue(paywizardSelect, requestedPaywizard);
+                syncPaywizardParams();
+            }
+
+            if (assignTemplateEl && requestedTemplate) {
+                setControlValue(assignTemplateEl, requestedTemplate);
+            }
+
+            syncKeyDownloadOption();
+        }
+
         if (assignTemplateEl) {
             refreshAssignTemplateOptions();
             assignTemplateEl.addEventListener('change', () => {
@@ -3587,6 +3690,8 @@
                 applyTemplateToForm(tpl);
             });
         }
+
+        applyIncomingDeviceContext();
 
         if (saveTemplateBtn) {
             saveTemplateBtn.addEventListener('click', () => {
