@@ -79,6 +79,9 @@
     .trash-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid #e5e7eb; background: #f8fafc; color: #9ca3af; display: inline-grid; place-items: center; }
     .trash-btn:hover { color: #b91c1c; border-color: #fecaca; background: #fff; }
     .trash-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 1.9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .edit-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid #e5e7eb; background: #f8fafc; color: #64748b; display: inline-grid; place-items: center; }
+    .edit-btn:hover { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+    .edit-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 1.9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
     .table-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: auto; background: #fff; box-shadow: var(--shadow-xs); }
     .data-table { width: 100%; min-width: 940px; border-collapse: collapse; }
@@ -102,6 +105,30 @@
     .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
     .panel-title { margin: 0; color: #0f172a; font-size: 16px; font-weight: 850; line-height: 1.25; }
     .section-stack { display: grid; gap: 14px; }
+    .channel-list { display: block; }
+    .payment-workbench { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 14px; align-items: start; }
+    .channel-rail { border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; overflow: hidden; }
+    .channel-rail-head { padding: 11px 12px; border-bottom: 1px solid #e5e7eb; color: #64748b; font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .02em; }
+    .channel-rail-list { display: grid; gap: 0; }
+    .channel-option { appearance: none; border: 0; border-bottom: 1px solid #e5e7eb; background: transparent; text-align: left; padding: 12px; color: #0f172a; display: grid; gap: 8px; width: 100%; border-radius: 0; }
+    .channel-option:last-child { border-bottom: 0; }
+    .channel-option:hover { background: #fff; }
+    .channel-option.active { background: #fff; box-shadow: inset 3px 0 0 #2563eb; }
+    .channel-option-title { font-weight: 850; font-size: 14px; }
+    .channel-option-meta { color: #64748b; font-size: 12px; font-weight: 650; }
+    .channel-detail { border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; overflow: hidden; box-shadow: var(--shadow-xs); }
+    .channel-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border-bottom: 1px solid #e5e7eb; background: #fbfdff; }
+    .channel-name { color: #0f172a; font-size: 16px; font-weight: 850; }
+    .channel-detail-body { display: grid; gap: 14px; padding: 14px; }
+    .asset-pane { border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; overflow: hidden; }
+    .asset-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-bottom: 1px solid #e5e7eb; background: #fbfdff; }
+    .asset-section-title { margin: 0; color: #0f172a; font-size: 14px; font-weight: 850; }
+    .asset-pane-body { padding: 12px; }
+    .asset-empty-line { border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px; color: #64748b; font-size: 13px; font-weight: 700; text-align: center; background: #f8fafc; }
+    .latest-xml-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; background: #f8fafc; min-height: 92px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+    .latest-xml-main { min-width: 0; }
+    .latest-xml-file { color: #0f172a; font-weight: 850; overflow-wrap: anywhere; }
+    .latest-xml-time { margin-top: 4px; color: #64748b; font-size: 12px; font-weight: 650; }
     .version-select { width: 230px; max-width: 100%; height: 34px; border: 1px solid #dbe3ef; border-radius: 9px; padding: 6px 9px; background: #fff; color: #0f172a; font-size: 13px; }
     .dropzone { min-height: 190px; border: 1px dashed #cbd5e1; border-radius: 14px; background: linear-gradient(180deg, #f8fbff 0%, #f8fafc 100%); display: grid; place-items: center; padding: 18px; text-align: center; color: #475569; }
     .dropzone strong { display: block; margin-bottom: 8px; font-size: 22px; color: #111827; }
@@ -131,6 +158,7 @@
       .main-body { flex-direction: column; }
       .sidebar { width: 100%; flex-basis: auto; }
       .sidebar .brand { justify-content: flex-start; min-height: auto; padding: 0; }
+      .payment-workbench { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
       .main-body { padding: 12px; gap: 12px; }
@@ -191,13 +219,14 @@
               </div>
             </div>
             <div id="mainTabs" class="banner-tabs" role="tablist">
-              <button class="tab active" data-tab="firmware" type="button" role="tab" aria-selected="true">Firmware</button>
-              <button class="tab" data-tab="apps" type="button" role="tab" aria-selected="false">OPC &amp; Payment Apps</button>
+              <button class="tab active" data-tab="payment" type="button" role="tab" aria-selected="true">Payment Apps</button>
+              <button class="tab" data-tab="opc" type="button" role="tab" aria-selected="false">OPC</button>
+              <button class="tab" data-tab="firmware" type="button" role="tab" aria-selected="false">Firmware</button>
             </div>
           </div>
 
           <div class="content">
-            <section id="tab-firmware" class="main-pane">
+            <section id="tab-firmware" class="main-pane hidden">
               <div class="panel pad">
                 <div class="panel-head">
                   <h2 class="panel-title">Firmware Versions</h2>
@@ -219,7 +248,7 @@
               </div>
             </section>
 
-            <section id="tab-apps" class="main-pane hidden">
+            <section id="tab-opc" class="main-pane hidden">
               <div class="section-stack">
                 <div class="panel pad">
                   <div class="panel-head">
@@ -239,35 +268,23 @@
 
                 <div class="panel pad">
                   <div class="panel-head">
-                    <h2 class="panel-title">OPC Parameter XML Files</h2>
+                    <h2 class="panel-title">Latest OPC Parameter XML</h2>
                     <button id="uploadOpcXmlBtn" class="btn-soft" type="button">Upload OPC XML</button>
                   </div>
-                  <div class="table-wrap">
-                    <table class="data-table">
-                      <thead><tr><th>XML File</th><th>Revision</th><th>Active</th><th>Uploaded</th><th>Actions</th></tr></thead>
-                      <tbody id="opcXmlTableBody"></tbody>
-                    </table>
-                    <div id="opcXmlEmpty" class="empty-state hidden">No OPC XML files found.</div>
-                  </div>
+                  <div id="opcXmlLatest"></div>
                 </div>
+              </div>
+            </section>
 
+            <section id="tab-payment" class="main-pane">
+              <div class="section-stack">
                 <div class="panel pad">
                   <div class="panel-head">
                     <h2 class="panel-title">Payment Channels</h2>
                     <button id="openChannelCreateBtn" class="btn-primary" type="button">Create Payment Channel</button>
                   </div>
-                  <div class="toolbar">
-                    <div class="toolbar-left">
-                      <input id="channelSearch" class="search" type="text" placeholder="Search processor / acquirer">
-                    </div>
-                  </div>
-                  <div class="table-wrap">
-                    <table class="data-table">
-                      <thead><tr><th>Processor / Acquirer</th><th>Active Payment APK</th><th>Active Parameter XML</th><th>Updated</th><th>Actions</th></tr></thead>
-                      <tbody id="channelTableBody"></tbody>
-                    </table>
-                    <div id="channelEmpty" class="empty-state hidden">No payment channels match the current search.</div>
-                  </div>
+                  <div id="channelList" class="channel-list"></div>
+                  <div id="channelEmpty" class="empty-state hidden">No payment channels created.</div>
                 </div>
               </div>
             </section>
@@ -364,7 +381,10 @@
     let firmware = [];
     let opcAssets = { appVersions: [], parameterFiles: [] };
     let paymentChannels = [];
-    let currentMainTab = 'firmware';
+    let currentMainTab = 'payment';
+    let selectedChannelId = '';
+    let channelModalMode = 'create';
+    let editingChannelId = '';
     let uploadContext = { type: '', channelId: '' };
 
     const $ = selector => document.querySelector(selector);
@@ -447,8 +467,9 @@
       return 0;
     }
     function sortVersions(rows){ return [...rows].sort((a,b) => compareVersions(b.version || b.revision, a.version || a.revision)); }
+    function sortByUploaded(rows){ return [...(rows || [])].sort((a,b) => String(b.uploaded || b.updated || '').localeCompare(String(a.uploaded || a.updated || ''))); }
     function latestApp(rows){ return sortVersions(rows || [])[0]; }
-    function latestXml(rows){ return sortVersions(rows || [])[0]; }
+    function latestXml(rows){ return sortByUploaded(rows)[0] || null; }
     function activeItem(rows){ return (rows || []).find(item => item.active) || null; }
     function channelById(id){ return paymentChannels.find(item => item.id === id); }
     function ensureSingleActive(rows){
@@ -469,12 +490,12 @@
         name,
         updated: channel.updated || nowText(),
         appVersions: ensureSingleActive(Array.isArray(channel.appVersions) ? channel.appVersions : []),
-        parameterFiles: ensureSingleActive(Array.isArray(channel.parameterFiles) ? channel.parameterFiles : [])
+        parameterFiles: latestXml(channel.parameterFiles) ? [latestXml(channel.parameterFiles)] : []
       };
     }
     function normalizeAssetState(){
       opcAssets.appVersions = ensureSingleActive(opcAssets.appVersions);
-      opcAssets.parameterFiles = ensureSingleActive(opcAssets.parameterFiles);
+      opcAssets.parameterFiles = latestXml(opcAssets.parameterFiles) ? [latestXml(opcAssets.parameterFiles)] : [];
       paymentChannels = paymentChannels.map(normalizeChannel);
     }
     function setActive(rows, id){
@@ -515,10 +536,10 @@
 
     function renderOpcAssets(){
       const appRows = sortVersions(opcAssets.appVersions);
-      const xmlRows = sortVersions(opcAssets.parameterFiles);
+      const latestOpcXml = latestXml(opcAssets.parameterFiles);
       $('#opcAppTableBody').innerHTML = appRows.map(item => `
         <tr>
-          <td><span class="cell-main">${escapeHtml(item.name)}</span><span class="cell-sub">Min FW ${escapeHtml(item.minFirmware || '-')}</span></td>
+          <td><span class="cell-main">${escapeHtml(item.name)}</span></td>
           <td class="mono">${escapeHtml(item.package)}</td>
           <td>${escapeHtml(item.version)}</td>
           <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
@@ -528,40 +549,102 @@
       `).join('');
       $('#opcAppEmpty').classList.toggle('hidden', appRows.length > 0);
 
-      $('#opcXmlTableBody').innerHTML = xmlRows.map(item => `
-        <tr>
-          <td><span class="cell-main mono">${escapeHtml(item.fileName)}</span><span class="cell-sub">${escapeHtml(item.notes || '')}</span></td>
-          <td>${escapeHtml(item.revision)}</td>
-          <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
-          <td>${escapeHtml(item.uploaded)}</td>
-          <td><div class="row-actions">${item.active ? '' : `<button class="btn-secondary" data-set-active-opc-xml="${item.id}" type="button">Set Active</button>`}${trashButton('data-delete-opc-xml', item.id, 'Delete OPC XML')}</div></td>
-        </tr>
-      `).join('');
-      $('#opcXmlEmpty').classList.toggle('hidden', xmlRows.length > 0);
+      $('#opcXmlLatest').innerHTML = latestOpcXml ? `
+        <div class="latest-xml-card">
+          <div class="latest-xml-main">
+            <div class="latest-xml-file mono">${escapeHtml(latestOpcXml.fileName)}</div>
+            <div class="latest-xml-time">Uploaded ${escapeHtml(latestOpcXml.uploaded)}</div>
+          </div>
+        </div>
+      ` : '<div class="empty-state">No OPC XML file uploaded.</div>';
     }
 
     function renderChannels(){
-      const keyword = normalize($('#channelSearch').value);
-      const rows = paymentChannels.filter(channel => {
-        const text = normalize(channel.name);
-        return !keyword || text.includes(keyword);
-      });
-      $('#channelTableBody').innerHTML = rows.map(channel => {
-        const app = activeItem(channel.appVersions);
-        const xml = activeItem(channel.parameterFiles);
-        const appOptions = sortVersions(channel.appVersions).map(item => `<option value="${escapeHtml(item.id)}" ${item.active ? 'selected' : ''}>${escapeHtml(item.version)}</option>`).join('');
-        const xmlOptions = sortVersions(channel.parameterFiles).map(item => `<option value="${escapeHtml(item.id)}" ${item.active ? 'selected' : ''}>${escapeHtml(item.revision)}</option>`).join('');
-        return `
-          <tr>
-            <td><span class="cell-main">${escapeHtml(channel.name)}</span></td>
-            <td>${app ? `<select class="version-select" data-select-channel-app="${escapeHtml(channel.id)}">${appOptions}</select><span class="cell-sub mono">${escapeHtml(app.package)}</span>` : statusBadge('Missing')}</td>
-            <td>${xml ? `<select class="version-select" data-select-channel-xml="${escapeHtml(channel.id)}">${xmlOptions}</select><span class="cell-sub mono">${escapeHtml(xml.fileName)}</span>` : statusBadge('Missing')}</td>
-            <td>${escapeHtml(channel.updated)}</td>
-            <td><div class="row-actions"><button class="btn-soft" data-upload-payment-app="${channel.id}" type="button">Upload Payment APK</button><button class="btn-soft" data-upload-payment-xml="${channel.id}" type="button">Upload Parameter XML</button>${trashButton('data-delete-channel', channel.id, 'Delete payment channel')}</div></td>
-          </tr>
-        `;
-      }).join('');
+      const rows = paymentChannels;
+      if (rows.length && !rows.some(channel => channel.id === selectedChannelId)) selectedChannelId = rows[0].id;
+      if (!rows.length) selectedChannelId = '';
+      const selectedChannel = rows.find(channel => channel.id === selectedChannelId);
+      $('#channelList').innerHTML = selectedChannel ? `
+        <div class="payment-workbench">
+          <aside class="channel-rail">
+            <div class="channel-rail-head">Processors / Acquirers</div>
+            <div class="channel-rail-list">
+              ${rows.map(channel => {
+                return `
+                  <button class="channel-option ${channel.id === selectedChannel.id ? 'active' : ''}" data-select-channel="${escapeHtml(channel.id)}" type="button">
+                    <span class="channel-option-title">${escapeHtml(channel.name)}</span>
+                    <span class="channel-option-meta">${channel.appVersions.length} APK ${channel.appVersions.length === 1 ? 'version' : 'versions'}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </aside>
+          ${renderChannelDetail(selectedChannel)}
+        </div>
+      ` : '';
       $('#channelEmpty').classList.toggle('hidden', rows.length > 0);
+    }
+
+    function renderChannelDetail(channel){
+      const activeApp = activeItem(channel.appVersions);
+      const appRows = sortVersions(channel.appVersions);
+      const latestChannelXml = latestXml(channel.parameterFiles);
+      return `
+        <section class="channel-detail">
+          <div class="channel-detail-head">
+            <div>
+              <div class="channel-name">${escapeHtml(channel.name)}</div>
+            </div>
+            <button class="edit-btn" data-edit-channel="${escapeHtml(channel.id)}" type="button" title="Rename Channel" aria-label="Rename Channel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"></path></svg></button>
+          </div>
+          <div class="channel-detail-body">
+            <section class="asset-pane">
+              <div class="asset-pane-head">
+                <h3 class="asset-section-title">Payment APK Versions</h3>
+                <button class="btn-primary" data-upload-payment-app="${escapeHtml(channel.id)}" type="button">Upload Payment APK</button>
+              </div>
+              <div class="asset-pane-body">
+                ${appRows.length ? `
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead><tr><th>APP</th><th>Package</th><th>Version</th><th>State</th><th>Updated</th><th>Actions</th></tr></thead>
+                      <tbody>
+                        ${appRows.map(item => `
+                          <tr>
+                            <td><span class="cell-main">${escapeHtml(item.name)}</span></td>
+                            <td class="mono">${escapeHtml(item.package)}</td>
+                            <td>${escapeHtml(item.version)}</td>
+                            <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
+                            <td>${escapeHtml(item.updated)}</td>
+                            <td><div class="row-actions">${item.active ? '' : `<button class="btn-secondary" data-set-active-payment-app="${escapeHtml(channel.id)}:${escapeHtml(item.id)}" type="button">Set Active</button>`}${trashButton('data-delete-payment-app', `${channel.id}:${item.id}`, 'Delete payment APK')}</div></td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                ` : '<div class="asset-empty-line">No payment APK versions uploaded.</div>'}
+              </div>
+            </section>
+
+            <section class="asset-pane">
+              <div class="asset-pane-head">
+                <h3 class="asset-section-title">Parameter XML</h3>
+                <button class="btn-soft" data-upload-payment-xml="${escapeHtml(channel.id)}" type="button">Upload Parameter XML</button>
+              </div>
+              <div class="asset-pane-body">
+                ${latestChannelXml ? `
+                  <div class="latest-xml-card">
+                    <div class="latest-xml-main">
+                      <div class="latest-xml-file mono">${escapeHtml(latestChannelXml.fileName)}</div>
+                      <div class="latest-xml-time">Uploaded ${escapeHtml(latestChannelXml.uploaded)}</div>
+                    </div>
+                  </div>
+                ` : '<div class="asset-empty-line">No parameter XML uploaded.</div>'}
+              </div>
+            </section>
+          </div>
+        </section>
+      `;
     }
 
     function renderAll(){
@@ -606,7 +689,7 @@
     }
     function validateChannel(){
       const name = $('#channelName').value.trim();
-      const duplicate = paymentChannels.some(channel => normalize(channel.name) === normalize(name));
+      const duplicate = paymentChannels.some(channel => channel.id !== editingChannelId && normalize(channel.name) === normalize(name));
       if (!name) { alert('Processor / Acquirer name is required.'); return false; }
       if (duplicate) { alert('This processor / acquirer already exists.'); return false; }
       return true;
@@ -625,9 +708,6 @@
       const file = $('#assetFile').files[0];
       if (!file) { alert('File is required.'); return false; }
       if (uploadContext.type.endsWith('Xml')) {
-        const revision = parseFileMeta(file.name, 'xml').revision;
-        const exists = targetXmlList().some(item => normalize(item.revision) === normalize(revision));
-        if (exists) { alert('This XML revision already exists for the target.'); return false; }
         return true;
       }
       const meta = parseFileMeta(file.name, 'app');
@@ -665,6 +745,7 @@
 
     function openAssetUpload(type, channelId){
       uploadContext = { type, channelId: channelId || '' };
+      if (channelId) selectedChannelId = channelId;
       const isXml = type.endsWith('Xml');
       const channel = channelById(channelId);
       const titleMap = {
@@ -705,17 +786,32 @@
     }
     function saveChannel(){
       if (!validateChannel()) return;
-      paymentChannels.unshift({
+      if (channelModalMode === 'edit') {
+        const channel = channelById(editingChannelId);
+        if (channel) {
+          channel.name = $('#channelName').value.trim();
+          channel.updated = nowText();
+          selectedChannelId = channel.id;
+        }
+        closeModal('channelModal');
+        saveAll();
+        renderAll();
+        showMainTab('payment');
+        return;
+      }
+      const newChannel = {
         id: `channel-${Date.now()}`,
         name: $('#channelName').value.trim(),
         updated: nowText(),
         appVersions: [],
         parameterFiles: []
-      });
+      };
+      paymentChannels.unshift(newChannel);
+      selectedChannelId = newChannel.id;
       closeModal('channelModal');
       saveAll();
       renderAll();
-      showMainTab('apps');
+      showMainTab('payment');
     }
     function saveAssetUpload(){
       if (!validateAssetUpload()) return;
@@ -725,12 +821,10 @@
         const target = targetXmlList();
         const file = $('#assetFile').files[0];
         const meta = parseFileMeta(file.name, 'xml');
-        target.forEach(item => { item.active = false; });
-        target.unshift({
+        target.splice(0, target.length, {
           id: `xml-${Date.now()}`,
           fileName: file.name,
           revision: meta.revision,
-          active: true,
           uploaded: nowText(),
           notes: uploadContext.type === 'opcXml' ? 'OPC parameter XML.' : `${channel?.name || 'Payment'} parameter XML.`
         });
@@ -750,13 +844,13 @@
           updated: nowText()
         });
       }
-      if (channel) channel.updated = nowText();
+      if (channel) { channel.updated = nowText(); selectedChannelId = channel.id; }
       $('#assetFile').value = '';
       $('#assetFileName').textContent = 'No file selected';
       closeModal('assetUploadModal');
       saveAll();
       renderAll();
-      showMainTab('apps');
+      showMainTab(uploadContext.type.startsWith('payment') ? 'payment' : 'opc');
     }
 
     function wireEvents(){
@@ -769,6 +863,10 @@
       $('#uploadOpcAppBtn').addEventListener('click', () => openAssetUpload('opcApp'));
       $('#uploadOpcXmlBtn').addEventListener('click', () => openAssetUpload('opcXml'));
       $('#openChannelCreateBtn').addEventListener('click', () => {
+        channelModalMode = 'create';
+        editingChannelId = '';
+        $('#channelModalTitle').textContent = 'Create Payment Channel';
+        $('#saveChannelBtn').textContent = 'Create Channel';
         $('#channelName').value = '';
         openModal('channelModal');
       });
@@ -778,42 +876,50 @@
 
       ['firmwareSearch', 'firmwareStatusFilter'].forEach(id => $(`#${id}`).addEventListener('input', renderFirmware));
       $('#firmwareStatusFilter').addEventListener('change', renderFirmware);
-      $('#channelSearch').addEventListener('input', renderChannels);
       $('#saveChannelBtn').addEventListener('click', saveChannel);
 
       document.addEventListener('click', evt => {
+        const selectChannel = evt.target.closest('[data-select-channel]');
+        if (selectChannel) { selectedChannelId = selectChannel.dataset.selectChannel; renderChannels(); return; }
+        const editChannel = evt.target.closest('[data-edit-channel]');
+        if (editChannel) {
+          const channel = channelById(editChannel.dataset.editChannel);
+          if (channel) {
+            channelModalMode = 'edit';
+            editingChannelId = channel.id;
+            $('#channelModalTitle').textContent = 'Rename Payment Channel';
+            $('#saveChannelBtn').textContent = 'Save Name';
+            $('#channelName').value = channel.name;
+            openModal('channelModal');
+          }
+          return;
+        }
         const fwToggle = evt.target.closest('[data-toggle-fw]');
         if (fwToggle) { const item = firmware.find(f => f.id === fwToggle.dataset.toggleFw); if (item) item.status = item.status === 'Published' ? 'Draft' : 'Published'; saveAll(); renderAll(); return; }
         const fwDelete = evt.target.closest('[data-delete-fw]');
         if (fwDelete && confirm('Delete this firmware package?')) { firmware = firmware.filter(f => f.id !== fwDelete.dataset.deleteFw); saveAll(); renderAll(); return; }
         const setOpcApp = evt.target.closest('[data-set-active-opc-app]');
         if (setOpcApp) { setActive(opcAssets.appVersions, setOpcApp.dataset.setActiveOpcApp); saveAll(); renderAll(); return; }
-        const setOpcXml = evt.target.closest('[data-set-active-opc-xml]');
-        if (setOpcXml) { setActive(opcAssets.parameterFiles, setOpcXml.dataset.setActiveOpcXml); saveAll(); renderAll(); return; }
+        const setPaymentApp = evt.target.closest('[data-set-active-payment-app]');
+        if (setPaymentApp) {
+          const [channelId, appId] = setPaymentApp.dataset.setActivePaymentApp.split(':');
+          const channel = channelById(channelId);
+          if (channel) { setActive(channel.appVersions, appId); channel.updated = nowText(); saveAll(); renderAll(); }
+          return;
+        }
         const deleteOpcApk = evt.target.closest('[data-delete-opc-apk]');
         if (deleteOpcApk && confirm('Delete this OPC APK version?')) { opcAssets.appVersions = removeAsset(opcAssets.appVersions, deleteOpcApk.dataset.deleteOpcApk); saveAll(); renderAll(); return; }
-        const deleteOpcXml = evt.target.closest('[data-delete-opc-xml]');
-        if (deleteOpcXml && confirm('Delete this OPC XML file?')) { opcAssets.parameterFiles = removeAsset(opcAssets.parameterFiles, deleteOpcXml.dataset.deleteOpcXml); saveAll(); renderAll(); return; }
+        const deletePaymentApp = evt.target.closest('[data-delete-payment-app]');
+        if (deletePaymentApp && confirm('Delete this payment APK version?')) {
+          const [channelId, appId] = deletePaymentApp.dataset.deletePaymentApp.split(':');
+          const channel = channelById(channelId);
+          if (channel) { channel.appVersions = removeAsset(channel.appVersions, appId); channel.updated = nowText(); saveAll(); renderAll(); }
+          return;
+        }
         const uploadPaymentApp = evt.target.closest('[data-upload-payment-app]');
         if (uploadPaymentApp) { openAssetUpload('paymentApp', uploadPaymentApp.dataset.uploadPaymentApp); return; }
         const uploadPaymentXml = evt.target.closest('[data-upload-payment-xml]');
         if (uploadPaymentXml) { openAssetUpload('paymentXml', uploadPaymentXml.dataset.uploadPaymentXml); return; }
-        const deleteChannel = evt.target.closest('[data-delete-channel]');
-        if (deleteChannel && confirm('Delete this payment channel?')) { paymentChannels = paymentChannels.filter(channel => channel.id !== deleteChannel.dataset.deleteChannel); saveAll(); renderAll(); return; }
-      });
-
-      document.addEventListener('change', evt => {
-        const appSelect = evt.target.closest('[data-select-channel-app]');
-        if (appSelect) {
-          const channel = channelById(appSelect.dataset.selectChannelApp);
-          if (channel) { setActive(channel.appVersions, appSelect.value); channel.updated = nowText(); saveAll(); renderAll(); }
-          return;
-        }
-        const xmlSelect = evt.target.closest('[data-select-channel-xml]');
-        if (xmlSelect) {
-          const channel = channelById(xmlSelect.dataset.selectChannelXml);
-          if (channel) { setActive(channel.parameterFiles, xmlSelect.value); channel.updated = nowText(); saveAll(); renderAll(); }
-        }
       });
 
       $('#firmwareFile').addEventListener('change', () => {
