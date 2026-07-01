@@ -797,6 +797,7 @@
             justify-content: space-between;
             gap: 16px;
             flex-wrap: wrap;
+            margin-bottom: 18px;
         }
 
         .wizard-title {
@@ -826,6 +827,13 @@
             margin-bottom: 10px;
         }
 
+        .wizard-header-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         .store-inline {
             display: inline-flex;
             align-items: center;
@@ -845,7 +853,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin: 6px 0 18px;
+            margin: -6px 0 18px;
             padding: 12px 14px;
             border: 1px solid #c7d2fe;
             border-radius: 12px;
@@ -862,6 +870,56 @@
         .clone-source-meta {
             color: #4b5563;
             font-weight: 600;
+        }
+
+        .clone-config-body {
+            display: grid;
+            gap: 18px;
+            padding: 18px 22px;
+        }
+
+        .clone-source-preview {
+            display: none;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e1e7f0;
+            border-radius: 10px;
+            background: #fbfcfe;
+        }
+
+        .clone-source-preview.is-visible {
+            display: grid;
+        }
+
+        .clone-preview-label {
+            margin-bottom: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .clone-preview-value {
+            min-width: 0;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .clone-config-error {
+            display: none;
+            color: #b91c1c;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .clone-config-error.is-visible {
+            display: block;
         }
 
         .wizard-steps {
@@ -1723,6 +1781,10 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .clone-source-preview {
+                grid-template-columns: 1fr;
+            }
+
             .param-tooltip {
                 left: 0;
                 top: calc(100% + 8px);
@@ -2004,6 +2066,15 @@
                                         <span class="store-inline-name" id="store-context-name">Selected Store</span>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="wizard-header-actions">
+                                <button class="btn secondary" type="button" id="openCloneConfigBtn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+                                        <path d="M5 16V7a2 2 0 0 1 2-2h9"></path>
+                                    </svg>
+                                    <span>Clone Device</span>
+                                </button>
                             </div>
                         </div>
 
@@ -2752,6 +2823,46 @@
         </div>
     </div>
 
+    <div class="confirm-modal is-hidden" id="cloneConfigModal" role="dialog" aria-modal="true" aria-labelledby="cloneConfigTitle">
+        <div class="confirm-dialog">
+            <div class="confirm-dialog-head">
+                <h3 class="confirm-dialog-title" id="cloneConfigTitle">Clone Device Configuration</h3>
+                <p class="confirm-dialog-note">Select a terminal under this merchant to copy the app and parameter configuration.</p>
+            </div>
+            <form id="cloneConfigForm" autocomplete="off">
+                <div class="clone-config-body">
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="cloneSourceStore">Store</label>
+                            <input class="input-field" id="cloneSourceStore" type="text" list="cloneSourceStoreList" placeholder="Search or select store">
+                            <datalist id="cloneSourceStoreList"></datalist>
+                        </div>
+                        <div class="field">
+                            <label for="cloneSourceDevice">Terminal</label>
+                            <input class="input-field" id="cloneSourceDevice" type="text" list="cloneSourceDeviceList" placeholder="Search or select SN">
+                            <datalist id="cloneSourceDeviceList"></datalist>
+                        </div>
+                    </div>
+                    <div class="clone-source-preview" id="cloneSourcePreview" aria-live="polite">
+                        <div>
+                            <div class="clone-preview-label">SN</div>
+                            <div class="clone-preview-value" id="clonePreviewSn">-</div>
+                        </div>
+                        <div>
+                            <div class="clone-preview-label">Model</div>
+                            <div class="clone-preview-value" id="clonePreviewModel">-</div>
+                        </div>
+                    </div>
+                    <div class="clone-config-error" id="cloneConfigError">Select a terminal under this merchant.</div>
+                </div>
+                <div class="confirm-dialog-actions">
+                    <button class="btn secondary" type="button" id="cancelCloneConfigBtn">Cancel</button>
+                    <button class="btn primary" type="submit">Copy Configuration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="processor-parameter-data.js"></script>
     <script>
         const pageModeLabel = document.getElementById('page-mode-label');
@@ -2811,6 +2922,203 @@
         const requestedManufacturer = params.get('manufacturer');
         const requestedModel = params.get('model');
         const requestedParameterGroup = params.get('group');
+        const openCloneConfigBtn = document.getElementById('openCloneConfigBtn');
+        const cloneConfigModal = document.getElementById('cloneConfigModal');
+        const cloneConfigForm = document.getElementById('cloneConfigForm');
+        const cloneSourceStoreInput = document.getElementById('cloneSourceStore');
+        const cloneSourceStoreList = document.getElementById('cloneSourceStoreList');
+        const cloneSourceDeviceInput = document.getElementById('cloneSourceDevice');
+        const cloneSourceDeviceList = document.getElementById('cloneSourceDeviceList');
+        const cancelCloneConfigBtn = document.getElementById('cancelCloneConfigBtn');
+        const cloneConfigError = document.getElementById('cloneConfigError');
+        const cloneSourcePreview = document.getElementById('cloneSourcePreview');
+        const clonePreviewSn = document.getElementById('clonePreviewSn');
+        const clonePreviewModel = document.getElementById('clonePreviewModel');
+
+        const MERCHANT_DEVICE_SOURCES = [
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'WP6267UQ36000934',
+                model: 'P3',
+                label: 'Front Counter',
+                processor: 'TSYS',
+                version: 'v1.3.121',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'WP6267UQ36000932',
+                model: 'P2',
+                label: 'Side Bar',
+                processor: 'FISERV',
+                version: '1.0.34_20260622',
+                scenario: 'Terminal + ECR',
+                template: 'Restaurant - Full Service',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_204',
+                storeName: 'Midtown Location',
+                sn: 'WP6267UQ36000933',
+                model: 'VT #1',
+                label: 'Register 1',
+                processor: 'OXPAY',
+                version: 'v1.0.19_260609',
+                scenario: 'Standalone Terminal',
+                template: 'Convenience - Express',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'WP6267UQ36000931',
+                model: 'Q3V',
+                label: 'ELAVON Tap Counter',
+                processor: 'ELAVON',
+                version: 'v1.1.57',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'WP6267UQ36000930',
+                model: 'Q3PRT',
+                label: 'NUVEI ATTD Patio',
+                processor: 'NUVEI ATTD',
+                version: '1.0.20_260622',
+                scenario: 'Terminal + ECR',
+                template: 'Restaurant - Full Service',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'WP6267UQ36000929',
+                model: 'Q3V',
+                label: 'Bound Only Terminal',
+                processor: 'ELAVON',
+                version: 'v1.1.57',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'false',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'WP6267UQ36000928',
+                model: 'Q3PRT',
+                label: 'Params Only Terminal',
+                processor: 'ELAVON',
+                version: 'v1.1.57',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_204',
+                storeName: 'Midtown Location',
+                sn: 'WP6267UQ36000927',
+                model: 'Q2',
+                label: 'OXPAY QR Register',
+                processor: 'OXPAY',
+                version: 'v1.0.19_260609',
+                scenario: 'Standalone Terminal',
+                template: 'Convenience - Express',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_310',
+                storeName: 'Uptown Cafe',
+                sn: 'WP6267UQ36000922',
+                model: 'Q3V',
+                label: 'NUVEI UPT Coffee Bar',
+                processor: 'NUVEI UPT',
+                version: '1.0.41_20260622',
+                scenario: 'Terminal + ECR',
+                template: 'Restaurant - Full Service',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_522',
+                storeName: 'Brooklyn Market',
+                sn: 'WP6267UQ36000924',
+                model: 'Q3PRT',
+                label: 'ELAVON Market Lane',
+                processor: 'ELAVON',
+                version: 'v1.1.57',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_522',
+                storeName: 'Brooklyn Market',
+                sn: 'WP6267UQ36000920',
+                model: 'Q2',
+                label: 'TSYS Produce Kiosk',
+                processor: 'TSYS',
+                version: 'v1.3.121',
+                scenario: 'Vending Machine',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_630',
+                storeName: 'Airport Concourse',
+                sn: 'WP6267UQ36000923',
+                model: 'Q3V',
+                label: 'ELAVON Gate A',
+                processor: 'ELAVON',
+                version: 'v1.1.57',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_630',
+                storeName: 'Airport Concourse',
+                sn: 'WP6267UQ36000925',
+                model: 'Q3PRT',
+                label: 'OXPAY Gate B QR',
+                processor: 'OXPAY',
+                version: 'v1.0.19_260609',
+                scenario: 'Standalone Terminal',
+                template: 'Convenience - Express',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            }
+        ];
 
         function setControlValue(control, value) {
             if (!control || value == null || value === '') return;
@@ -3408,6 +3716,160 @@
         };
         const processorsWithKeyDownload = new Set(['ELAVON', 'NUVEI ATTD', 'NUVEI UPT']);
 
+        function normalizeCloneSn(value) {
+            return String(value || '').trim().toUpperCase();
+        }
+
+        function getCloneSourceStores() {
+            const seen = new Set();
+            return MERCHANT_DEVICE_SOURCES.reduce((stores, device) => {
+                if (!device.storeId || seen.has(device.storeId)) return stores;
+                seen.add(device.storeId);
+                stores.push({ id: device.storeId, name: device.storeName || 'Store' });
+                return stores;
+            }, []);
+        }
+
+        function findCloneSourceBySn(sn) {
+            const normalized = normalizeCloneSn(sn);
+            if (!normalized) return null;
+            return MERCHANT_DEVICE_SOURCES.find((device) => normalizeCloneSn(device.sn) === normalized) || null;
+        }
+
+        function getSelectedCloneStore() {
+            const value = String(cloneSourceStoreInput?.value || '').trim().toLowerCase();
+            if (!value) return null;
+            return getCloneSourceStores().find((store) =>
+                store.id.toLowerCase() === value ||
+                store.name.toLowerCase() === value
+            ) || null;
+        }
+
+        function getCloneSourceBySelection() {
+            if (!cloneSourceDeviceInput || !cloneSourceDeviceInput.value) return null;
+            const source = findCloneSourceBySn(cloneSourceDeviceInput.value);
+            const selectedStore = getSelectedCloneStore();
+            if (!source) return null;
+            if (selectedStore && source.storeId !== selectedStore.id) return null;
+            return source;
+        }
+
+        function setCloneConfigError(message = '') {
+            if (!cloneConfigError) return;
+            cloneConfigError.textContent = message || 'Select a terminal under this merchant.';
+            cloneConfigError.classList.toggle('is-visible', Boolean(message));
+        }
+
+        function updateCloneSourcePreview(source = getCloneSourceBySelection()) {
+            if (!cloneSourcePreview) return;
+            cloneSourcePreview.classList.toggle('is-visible', Boolean(source));
+            if (!source) return;
+            if (clonePreviewSn) clonePreviewSn.textContent = source.sn || '-';
+            if (clonePreviewModel) clonePreviewModel.textContent = source.model || '-';
+        }
+
+        function populateCloneSourceStores() {
+            if (!cloneSourceStoreList) return;
+            const currentValue = cloneSourceStoreInput?.value || '';
+            cloneSourceStoreList.innerHTML = '';
+            getCloneSourceStores().forEach((store) => {
+                const option = document.createElement('option');
+                option.value = store.name;
+                option.dataset.storeName = store.name;
+                option.dataset.storeId = store.id;
+                cloneSourceStoreList.appendChild(option);
+            });
+            const preferredStore = storeId || getCloneSourceStores().find((store) => store.name === storeName)?.id || '';
+            const preferredStoreRow = getCloneSourceStores().find((store) => store.id === preferredStore);
+            if (cloneSourceStoreInput) {
+                cloneSourceStoreInput.value = currentValue || preferredStoreRow?.name || '';
+            }
+        }
+
+        function populateCloneSourceDevices() {
+            if (!cloneSourceDeviceList) return;
+            const selectedStore = getSelectedCloneStore();
+            const selectedStoreId = selectedStore?.id || '';
+            const devices = selectedStoreId
+                ? MERCHANT_DEVICE_SOURCES.filter((device) => device.storeId === selectedStoreId)
+                : MERCHANT_DEVICE_SOURCES;
+            if (cloneSourceDeviceInput) {
+                cloneSourceDeviceInput.disabled = false;
+                cloneSourceDeviceInput.placeholder = selectedStoreId ? 'Search or select SN' : 'Search all merchant terminals';
+            }
+            cloneSourceDeviceList.innerHTML = '';
+            devices.forEach((device) => {
+                const option = document.createElement('option');
+                option.value = device.sn;
+                option.dataset.model = device.model || '';
+                cloneSourceDeviceList.appendChild(option);
+            });
+        }
+
+        function openCloneConfigModal() {
+            if (!cloneConfigModal) return;
+            populateCloneSourceStores();
+            populateCloneSourceDevices();
+            if (cloneSourceDeviceInput) cloneSourceDeviceInput.value = '';
+            setCloneConfigError('');
+            updateCloneSourcePreview(null);
+            cloneConfigModal.classList.remove('is-hidden');
+            if (cloneSourceStoreInput) cloneSourceStoreInput.focus();
+        }
+
+        function closeCloneConfigModal() {
+            if (!cloneConfigModal) return;
+            cloneConfigModal.classList.add('is-hidden');
+            if (openCloneConfigBtn) openCloneConfigBtn.focus();
+        }
+
+        function updateCloneBanner(source) {
+            if (!cloneSourceBanner || !cloneSourceMeta || !source) return;
+            cloneSourceBanner.classList.remove('is-hidden');
+            cloneSourceBanner.firstElementChild.textContent = 'Copied Device Configuration';
+            cloneSourceMeta.textContent = `${source.label || 'Source terminal'} / SN ${source.sn}`;
+        }
+
+        function clearDeploymentConfig() {
+            if (processorSelect) processorSelect.value = '';
+            if (processorVersionSelect) {
+                processorVersionSelect.innerHTML = '<option value="">Select Version</option>';
+                processorVersionSelect.disabled = true;
+            }
+            if (paywizardSelect) paywizardSelect.value = 'Disable';
+            if (assignTemplateEl) assignTemplateEl.value = '';
+        }
+
+        function applyCloneSourceConfig(source) {
+            if (!source) return;
+            const deployEnabled = source.deployAppSelected !== 'false';
+
+            setControlValue(deviceManufacturerSelect, 'WizarPOS');
+            setControlValue(deviceModelSelect, source.model);
+            setControlValue(deviceTerminalScenarioSelect, source.scenario);
+
+            if (provisionToggle) provisionToggle.checked = deployEnabled;
+            if (!deployEnabled) {
+                clearDeploymentConfig();
+                setProvisionState();
+                updateCloneBanner(source);
+                return;
+            }
+
+            setProvisionState();
+            setControlValue(processorSelect, source.processor);
+            syncProcessorParams();
+            setControlValue(processorVersionSelect, source.version);
+            setControlValue(paywizardSelect, source.paywizard);
+            if (assignTemplateEl) setControlValue(assignTemplateEl, source.template);
+            syncPaywizardParams();
+            syncKeyDownloadOption();
+            if (keyDownloadCheckbox && processorsWithKeyDownload.has(processorSelect?.value || '')) {
+                keyDownloadCheckbox.checked = source.injectKeySelected !== 'false';
+            }
+            updateCloneBanner(source);
+        }
+
         function syncKeyDownloadOption() {
             if (!keyDownloadOption || !processorSelect) {
                 return;
@@ -3693,6 +4155,13 @@
             }
 
             syncKeyDownloadOption();
+
+            if (cloneMode && cloneSourceSn) {
+                const matchedCloneSource = findCloneSourceBySn(cloneSourceSn);
+                if (matchedCloneSource) {
+                    applyCloneSourceConfig(matchedCloneSource);
+                }
+            }
         }
 
         if (assignTemplateEl) {
@@ -3708,6 +4177,56 @@
         }
 
         applyIncomingDeviceContext();
+
+        if (openCloneConfigBtn) {
+            openCloneConfigBtn.addEventListener('click', openCloneConfigModal);
+        }
+
+        if (cloneSourceStoreInput) {
+            const handleCloneStoreInput = () => {
+                if (cloneSourceDeviceInput) cloneSourceDeviceInput.value = '';
+                populateCloneSourceDevices();
+                updateCloneSourcePreview(null);
+                setCloneConfigError('');
+            };
+            cloneSourceStoreInput.addEventListener('input', handleCloneStoreInput);
+            cloneSourceStoreInput.addEventListener('change', handleCloneStoreInput);
+        }
+
+        if (cloneSourceDeviceInput) {
+            const handleCloneDeviceInput = () => {
+                updateCloneSourcePreview(getCloneSourceBySelection());
+                setCloneConfigError('');
+            };
+            cloneSourceDeviceInput.addEventListener('input', handleCloneDeviceInput);
+            cloneSourceDeviceInput.addEventListener('change', handleCloneDeviceInput);
+        }
+
+        if (cancelCloneConfigBtn) {
+            cancelCloneConfigBtn.addEventListener('click', closeCloneConfigModal);
+        }
+
+        if (cloneConfigModal) {
+            cloneConfigModal.addEventListener('click', (event) => {
+                if (event.target === cloneConfigModal) {
+                    closeCloneConfigModal();
+                }
+            });
+        }
+
+        if (cloneConfigForm) {
+            cloneConfigForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const source = getCloneSourceBySelection();
+                if (!source) {
+                    setCloneConfigError('Select a terminal under this merchant.');
+                    updateCloneSourcePreview(null);
+                    return;
+                }
+                applyCloneSourceConfig(source);
+                closeCloneConfigModal();
+            });
+        }
 
         if (saveTemplateBtn) {
             saveTemplateBtn.addEventListener('click', () => {
@@ -3762,9 +4281,12 @@
         }
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' &&
-                saveDeviceConfirmModal &&
-                !saveDeviceConfirmModal.classList.contains('is-hidden')) {
+            if (event.key !== 'Escape') return;
+            if (cloneConfigModal && !cloneConfigModal.classList.contains('is-hidden')) {
+                closeCloneConfigModal();
+                return;
+            }
+            if (saveDeviceConfirmModal && !saveDeviceConfirmModal.classList.contains('is-hidden')) {
                 closeSaveDeviceConfirmModal();
             }
         });
