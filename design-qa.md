@@ -1,3 +1,9 @@
+# Development Notes
+
+- Current project UI development is based on PrimeVue: https://primevue.dev/
+
+---
+
 # Design QA
 
 - Source visual truth path: user-provided inline screenshots 2 and 3 in the current conversation.

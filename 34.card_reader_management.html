@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card Reader Management</title>
+  <link rel="stylesheet" href="styles/na-theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .top-header { height: 56px; background: #fff; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .shell-brand { display: flex; align-items: center; gap: 10px; font-weight: 650; color: #0f172a; font-size: 15px; }
+    .shell-brand-logo { width: 28px; height: 28px; border-radius: 6px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+    .shell-header-actions { display: flex; align-items: center; gap: 12px; }
+    .shell-icon-button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; display: grid; place-items: center; position: relative; color: #0f172a; font-weight: 700; }
+    .shell-icon-button .badge { position: absolute; right: 4px; top: 4px; background: #111; color: #fff; font-size: 10px; font-weight: 800; padding: 0 5px; line-height: 16px; border-radius: 8px; }
+    .shell-user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; border: 1px solid #e5e5e5; background: #fff; font-size: 13px; color: #0f172a; }
+    .shell-user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+
+    .main-body { display: flex; min-height: calc(100vh - 56px); align-items: flex-start; gap: 20px; padding: 20px; }
+    .sidebar { width: 260px; flex: 0 0 260px; background: transparent; border: 0; box-shadow: none; position: relative; overflow: visible; display: flex; flex-direction: column; gap: 14px; }
+    .sidebar .brand { display: flex; align-items: center; justify-content: center; min-height: 74px; padding: 2px 8px 0; }
+    .sidebar .brand-text { display: flex; flex-direction: column; align-items: flex-end; gap: 0; }
+    .sidebar .brand-name { font-weight: 800; font-size: 25px; color: #0f0f10; letter-spacing: 0; line-height: 1; }
+    .sidebar .brand-sub { font-size: 10px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.45px; font-weight: 800; }
+    .nav-card { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06); overflow: hidden; }
+    .menu { padding: 12px 10px 16px; display: flex; flex-direction: column; gap: 2px; }
+    .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: #111; transition: background-color .18s ease, color .18s ease; text-decoration: none; }
+    .menu-item:hover { background: #f3f4f6; text-decoration: none; color: #111; }
+    .menu-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #0f0f10; flex: 0 0 auto; }
+    .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .label { font-size: 14px; font-weight: 650; color: inherit; }
+    .chevron { font-size: 11px; color: #6b7280; }
+    .menu-item.active { background: #0f0f10; color: #fff; }
+    .menu-item.active .icon, .menu-item.active .chevron { color: #fff; }
+    .sub-menu { margin: 4px 0 10px; padding-left: 32px; display: flex; flex-direction: column; gap: 2px; }
+    .sub-item { position: relative; font-size: 13px; color: #6b7280; padding: 4px 0 4px 14px; border-radius: 999px; cursor: pointer; text-decoration: none; }
+    .sub-item::before { content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; border: 1px solid #d1d5db; transform: translateY(-50%); }
+    .sub-item:hover { color: #111; background: #f3f4f6; text-decoration: none; }
+    .sub-item.active { padding: 6px 10px 6px 24px; background: #111; color: #fff; }
+    .sub-item.active::before { width: 7px; height: 7px; border: none; background: #fff; left: 10px; }
+
+    .workspace { flex: 1; min-width: 0; }
+    .page-wrap { width: 100%; max-width: 1320px; margin: 0 auto; }
+    .crumbs { font-size: 12px; font-weight: 800; letter-spacing: .08em; color: var(--muted); margin: 6px 0 12px; text-transform: uppercase; }
+    .crumbs span { color: #0f172a; }
+    .management-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
+    .card-banner { background: #111; color: #fff; padding: 18px 20px 0; }
+    .banner-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+    .title-wrap { min-width: 0; }
+    .title { margin: 0; color: #fff; font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: 0; }
+    .banner-meta { margin-top: 6px; color: rgba(255,255,255,.78); font-size: 13px; line-height: 1.5; max-width: 820px; }
+    .banner-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .banner-tabs { margin-top: 16px; display: flex; gap: 14px; overflow-x: auto; }
+    .banner-tabs .tab { appearance: none; background: transparent; border: none; border-bottom: 3px solid transparent; color: rgba(255,255,255,.78); cursor: pointer; font-size: 13px; font-weight: 800; margin: 0; padding: 10px 2px 12px; white-space: nowrap; }
+    .banner-tabs .tab:hover { color: #fff; }
+    .banner-tabs .tab.active { color: #fff; border-bottom-color: #2563eb; }
+    .content { padding: 18px; display: grid; gap: 14px; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; margin-bottom: 12px; }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; min-width: 0; }
+    .toolbar-left { flex: 1 1 auto; }
+    .toolbar input, .toolbar select, .modal-body input, .modal-body select, .modal-body textarea, .inline-form input, .inline-form select { height: 36px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; background: #fff; color: #0f172a; }
+    .toolbar input.search { width: 320px !important; max-width: 36vw; flex: 0 1 320px; }
+    .toolbar select { width: 160px !important; flex: 0 0 160px; }
+    .btn-primary, .btn-secondary, .btn-danger, .btn-soft { width: auto; min-height: 36px; padding: 8px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 7px; box-shadow: none; text-decoration: none; line-height: 1; white-space: nowrap; }
+    .btn-primary { border: 1px solid #111 !important; background: #111 !important; color: #fff !important; }
+    .btn-primary:hover { background: #000 !important; }
+    .btn-secondary { border: 1px solid var(--border); background: #fff; color: #111; }
+    .btn-secondary:hover, .btn-soft:hover { background: #f8fafc; text-decoration: none; }
+    .btn-danger { border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; }
+    .btn-soft { border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+    .icon-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); background: #fff; color: #0f172a; display: inline-grid; place-items: center; font-weight: 900; line-height: 1; }
+    .icon-btn:hover { background: #f8fafc; }
+    .icon-btn.danger { color: #b91c1c; border-color: #fecaca; background: #fff; }
+    .trash-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid #e5e7eb; background: #f8fafc; color: #9ca3af; display: inline-grid; place-items: center; }
+    .trash-btn:hover { color: #b91c1c; border-color: #fecaca; background: #fff; }
+    .trash-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 1.9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .table-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: auto; background: #fff; box-shadow: var(--shadow-xs); }
+    .data-table { width: 100%; min-width: 940px; border-collapse: collapse; }
+    .data-table th { background: #f8fafc; color: #64748b; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .02em; padding: 11px 12px; white-space: nowrap; }
+    .data-table td { border-bottom: 1px solid #e5e7eb; padding: 12px; color: #334155; font-size: 14px; vertical-align: middle; }
+    .data-table tbody tr:nth-child(even) td { background: #fafafa; }
+    .data-table tbody tr:hover td { background: #f8fafc; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .01em; }
+    .cell-main { display: block; color: #0f172a; font-weight: 800; }
+    .cell-sub { display: block; margin-top: 3px; color: #64748b; font-size: 12px; font-weight: 600; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-height: 24px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 850; white-space: nowrap; }
+    .badge.success, .badge.published { background: #dcfce7; color: #166534; }
+    .badge.failed, .badge.missing { background: #fee2e2; color: #b91c1c; }
+    .badge.pending, .badge.warning, .badge.incomplete { background: #fef3c7; color: #92400e; }
+    .badge.neutral, .badge.draft { background: #e2e8f0; color: #334155; }
+    .badge.info { background: #dbeafe; color: #1d4ed8; }
+    .empty-state { padding: 34px 18px; text-align: center; color: #64748b; font-weight: 650; }
+
+    .panel { border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: var(--shadow-xs); }
+    .panel.pad { padding: 14px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .panel-title { margin: 0; color: #0f172a; font-size: 16px; font-weight: 850; line-height: 1.25; }
+    .section-stack { display: grid; gap: 14px; }
+    .version-select { width: 230px; max-width: 100%; height: 34px; border: 1px solid #dbe3ef; border-radius: 9px; padding: 6px 9px; background: #fff; color: #0f172a; font-size: 13px; }
+    .dropzone { min-height: 190px; border: 1px dashed #cbd5e1; border-radius: 14px; background: linear-gradient(180deg, #f8fbff 0%, #f8fafc 100%); display: grid; place-items: center; padding: 18px; text-align: center; color: #475569; }
+    .dropzone strong { display: block; margin-bottom: 8px; font-size: 22px; color: #111827; }
+    .selected-file { margin: 12px auto 0; display: inline-flex; align-items: center; min-height: 32px; padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid #dbe3ef; color: #334155; font-size: 13px; font-weight: 700; max-width: 100%; word-break: break-all; }
+    .inline-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .field label { display: block; color: #475569; font-size: 12px; font-weight: 800; margin: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .notice { margin-top: 12px; padding: 11px 12px; border-radius: 12px; border: 1px solid #dbe3ef; background: #f8fafc; color: #334155; font-size: 13px; line-height: 1.45; }
+    .notice.success { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+    .notice.warning { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+    .notice.error { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
+    .notice.info { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+
+    body.modal-open { overflow: hidden; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, .45); display: none; align-items: center; justify-content: center; padding: 22px; }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: min(900px, calc(100vw - 32px)); max-height: calc(100vh - 44px); background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 28px 76px rgba(15, 23, 42, .28); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+    .modal-title { margin: 0; color: #111827; font-size: 24px; font-weight: 850; line-height: 1.2; }
+    .modal-body { padding: 16px 22px 22px; overflow: auto; flex: 1; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .row-actions { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 1180px) {
+      .main-body { flex-direction: column; }
+      .sidebar { width: 100%; flex-basis: auto; }
+      .sidebar .brand { justify-content: flex-start; min-height: auto; padding: 0; }
+    }
+    @media (max-width: 760px) {
+      .main-body { padding: 12px; gap: 12px; }
+      .banner-top, .toolbar, .panel-head { flex-direction: column; align-items: stretch; }
+      .toolbar-left, .toolbar-right { width: 100%; flex-wrap: wrap; }
+      .toolbar input.search, .toolbar select { width: 100% !important; max-width: none; flex: 1 1 100%; }
+      .inline-form { grid-template-columns: 1fr; }
+      .modal-backdrop { padding: 0; align-items: stretch; }
+      .modal { width: 100vw; max-height: 100vh; border-radius: 0; }
+      .modal-head, .modal-body, .modal-footer { padding-left: 14px; padding-right: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-header">
+    <div class="shell-brand"><div class="shell-brand-logo">PW</div><div>Paywizard Console</div></div>
+    <div class="shell-header-actions">
+      <button class="shell-icon-button" aria-label="Notifications"><span>!</span><span class="badge">5</span></button>
+      <button class="shell-icon-button" aria-label="Settings">*</button>
+      <div class="shell-user-chip"><div class="shell-user-avatar">R</div><span>robasz</span></div>
+    </div>
+  </header>
+
+  <div class="main-body">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-text"><div class="brand-name">PAYwizard</div><div class="brand-sub">portal</div></div>
+      </div>
+      <div class="nav-card">
+        <div class="menu">
+          <a class="menu-item" href="#"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg></span><span class="label">Dashboard</span></div></a>
+          <a class="menu-item" href="12.transaction_list.html"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h4"></path></svg></span><span class="label">Transactions</span></div></a>
+          <a class="menu-item" href="#"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 3H5z"></path><path d="M7 10v7h10v-7"></path><path d="M9 14h6"></path></svg></span><span class="label">Batches</span></div></a>
+          <a class="menu-item" href="#"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path><path d="M10 12.5l2 2 3-3.5"></path></svg></span><span class="label">Security</span></div></a>
+          <a class="menu-item" href="5.merchant_manage_iso.html"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path><path d="M9 21V12h6v9"></path></svg></span><span class="label">Merchants</span></div><span class="chevron">></span></a>
+          <div class="menu-item active"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg></span><span class="label">Device Management</span></div><span class="chevron">v</span></div>
+          <div class="sub-menu">
+            <a class="sub-item" href="1.terminalmanage.html">Terminal Management</a>
+            <a class="sub-item" href="3.pushtemplate_new.html">Template Management</a>
+            <a class="sub-item active" href="34.card_reader_management.html">Card Reader Management</a>
+          </div>
+          <a class="menu-item" href="10.customer_app_upload_manage.html"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></span><span class="label">APP Management</span></div></a>
+          <a class="menu-item" href="#"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6M9 13h6M9 17h6"></path></svg></span><span class="label">User Management</span></div></a>
+          <a class="menu-item" href="#"><div class="menu-main"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg></span><span class="label">Settings</span></div></a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <div class="page-wrap">
+        <div class="crumbs">Device Management > <span>Card Reader Management</span></div>
+        <section class="management-card">
+          <div class="card-banner">
+            <div class="banner-top">
+              <div class="title-wrap">
+                <h1 class="title">Card Reader Management</h1>
+                <div class="banner-meta">Central Q3min-R library for firmware, OPC assets, payment channels, APK versions, and XML parameter files.</div>
+              </div>
+            </div>
+            <div id="mainTabs" class="banner-tabs" role="tablist">
+              <button class="tab active" data-tab="firmware" type="button" role="tab" aria-selected="true">Firmware</button>
+              <button class="tab" data-tab="apps" type="button" role="tab" aria-selected="false">OPC &amp; Payment Apps</button>
+            </div>
+          </div>
+
+          <div class="content">
+            <section id="tab-firmware" class="main-pane">
+              <div class="panel pad">
+                <div class="panel-head">
+                  <h2 class="panel-title">Firmware Versions</h2>
+                  <button id="openFirmwareUploadBtn" class="btn-primary" type="button">Upload Firmware</button>
+                </div>
+                <div class="toolbar">
+                  <div class="toolbar-left">
+                    <input id="firmwareSearch" class="search" type="text" placeholder="Search version / package">
+                    <select id="firmwareStatusFilter" aria-label="Firmware status"><option value="all">Any Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead><tr><th>Package</th><th>Version</th><th>Model</th><th>Status</th><th>Size</th><th>Uploaded</th><th>Actions</th></tr></thead>
+                    <tbody id="firmwareTableBody"></tbody>
+                  </table>
+                  <div id="firmwareEmpty" class="empty-state hidden">No firmware packages found.</div>
+                </div>
+              </div>
+            </section>
+
+            <section id="tab-apps" class="main-pane hidden">
+              <div class="section-stack">
+                <div class="panel pad">
+                  <div class="panel-head">
+                    <h2 class="panel-title">OPC Versions</h2>
+                    <div class="row-actions">
+                      <button id="uploadOpcAppBtn" class="btn-primary" type="button">Upload OPC</button>
+                    </div>
+                  </div>
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead><tr><th>APP</th><th>Package</th><th>Version</th><th>Active</th><th>Updated</th><th>Actions</th></tr></thead>
+                      <tbody id="opcAppTableBody"></tbody>
+                    </table>
+                    <div id="opcAppEmpty" class="empty-state hidden">No OPC APK versions found.</div>
+                  </div>
+                </div>
+
+                <div class="panel pad">
+                  <div class="panel-head">
+                    <h2 class="panel-title">OPC Parameter XML Files</h2>
+                    <button id="uploadOpcXmlBtn" class="btn-soft" type="button">Upload OPC XML</button>
+                  </div>
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead><tr><th>XML File</th><th>Revision</th><th>Active</th><th>Uploaded</th><th>Actions</th></tr></thead>
+                      <tbody id="opcXmlTableBody"></tbody>
+                    </table>
+                    <div id="opcXmlEmpty" class="empty-state hidden">No OPC XML files found.</div>
+                  </div>
+                </div>
+
+                <div class="panel pad">
+                  <div class="panel-head">
+                    <h2 class="panel-title">Payment Channels</h2>
+                    <button id="openChannelCreateBtn" class="btn-primary" type="button">Create Payment Channel</button>
+                  </div>
+                  <div class="toolbar">
+                    <div class="toolbar-left">
+                      <input id="channelSearch" class="search" type="text" placeholder="Search processor / acquirer">
+                    </div>
+                  </div>
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead><tr><th>Processor / Acquirer</th><th>Active Payment APK</th><th>Active Parameter XML</th><th>Updated</th><th>Actions</th></tr></thead>
+                      <tbody id="channelTableBody"></tbody>
+                    </table>
+                    <div id="channelEmpty" class="empty-state hidden">No payment channels match the current search.</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="firmwareUploadModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="firmwareUploadTitle">
+      <div class="modal-head"><h2 id="firmwareUploadTitle" class="modal-title">Upload Firmware</h2><button class="icon-btn" data-close-modal="firmwareUploadModal" type="button" aria-label="Close">&times;</button></div>
+      <div class="modal-body">
+        <div class="dropzone"><div><strong>Select Q3min-R Firmware</strong><div>Mock upload accepts .bin, .zip, .img, or .fw files.</div><div id="firmwareFileName" class="selected-file">No firmware selected</div><div style="margin-top:12px"><input id="firmwareFile" type="file" accept=".bin,.zip,.img,.fw"></div></div></div>
+        <div class="inline-form" style="margin-top:12px">
+          <div class="field"><label for="firmwareModel">Model</label><select id="firmwareModel"><option>Q3min-R</option></select></div>
+          <div class="field"><label for="firmwareStatus">Status</label><select id="firmwareStatus"><option>Published</option><option>Draft</option></select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn-secondary" data-close-modal="firmwareUploadModal" type="button">Cancel</button><button id="saveFirmwareBtn" class="btn-primary" type="button">Upload Firmware</button></div>
+    </div>
+  </div>
+
+  <div id="channelModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="channelModalTitle">
+      <div class="modal-head"><h2 id="channelModalTitle" class="modal-title">Create Payment Channel</h2><button class="icon-btn" data-close-modal="channelModal" type="button" aria-label="Close">&times;</button></div>
+      <div class="modal-body">
+        <div class="inline-form">
+          <div class="field full"><label for="channelName">Processor / Acquirer Name</label><input id="channelName" type="text" placeholder="ELAVON"></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn-secondary" data-close-modal="channelModal" type="button">Cancel</button><button id="saveChannelBtn" class="btn-primary" type="button">Create Channel</button></div>
+    </div>
+  </div>
+
+  <div id="assetUploadModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="assetUploadTitle">
+      <div class="modal-head"><h2 id="assetUploadTitle" class="modal-title">Upload Asset</h2><button class="icon-btn" data-close-modal="assetUploadModal" type="button" aria-label="Close">&times;</button></div>
+      <div class="modal-body">
+        <div class="dropzone"><div><strong id="assetDropTitle">Select File</strong><div id="assetDropHint">Mock upload accepts APK or XML files.</div><div id="assetFileName" class="selected-file">No file selected</div><div style="margin-top:12px"><input id="assetFile" type="file"></div></div></div>
+      </div>
+      <div class="modal-footer"><button class="btn-secondary" data-close-modal="assetUploadModal" type="button">Cancel</button><button id="saveAssetBtn" class="btn-primary" type="button">Upload</button></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE = {
+      firmware: 'pw_card_reader_firmware',
+      opcAssets: 'pw_card_reader_opc_assets',
+      paymentChannels: 'pw_card_reader_payment_channels'
+    };
+
+    const FIRMWARE_RELEASES = [
+      { id: 'fw-1', packageName: 'Q3min-R Secure FW', version: '3.4.0_20260618', model: 'Q3min-R', status: 'Published', size: '18.4 MB', fileName: 'q3min-r-fw-3.4.0_20260618.bin', updated: '2026-06-18 11:24' },
+      { id: 'fw-2', packageName: 'Q3min-R EMV Kernel FW', version: '3.3.8_20260603', model: 'Q3min-R', status: 'Published', size: '17.9 MB', fileName: 'q3min-r-fw-3.3.8_20260603.bin', updated: '2026-06-03 09:10' },
+      { id: 'fw-3', packageName: 'Q3min-R Lab Candidate', version: '3.5.0_rc1', model: 'Q3min-R', status: 'Draft', size: '18.8 MB', fileName: 'q3min-r-fw-3.5.0_rc1.zip', updated: '2026-06-28 16:40' }
+    ];
+
+    const DEFAULT_OPC_ASSETS = {
+      appVersions: [
+        { id: 'opc-app-1', name: 'Paywizard OPC Bridge', package: 'com.wizarpos.opc.reader', version: '3.2.0_20260621', active: false, minFirmware: '3.3.8', fileName: 'paywizard-opc-bridge-3.2.0_20260621.apk', updated: '2026-06-21 14:36' },
+        { id: 'opc-app-2', name: 'Paywizard OPC Bridge', package: 'com.wizarpos.opc.reader', version: '3.3.0_beta', active: true, minFirmware: '3.5.0', fileName: 'paywizard-opc-bridge-3.3.0_beta.apk', updated: '2026-06-29 18:05' }
+      ],
+      parameterFiles: [
+        { id: 'opc-xml-1', fileName: 'opc-q3minr-release-20260621.xml', revision: 'xml-20260621', active: true, uploaded: '2026-06-21 15:20', notes: 'Production OPC connectivity parameters.' },
+        { id: 'opc-xml-2', fileName: 'opc-q3minr-uat-20260629.xml', revision: 'xml-20260629-uat', active: false, uploaded: '2026-06-29 18:18', notes: 'UAT validation parameters.' }
+      ]
+    };
+
+    const DEFAULT_PAYMENT_CHANNELS = [
+      {
+        id: 'channel-1',
+        name: 'ELAVON',
+        updated: '2026-06-21 15:42',
+        appVersions: [
+          { id: 'pay-app-1', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.4_20260619', active: true, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.4_20260619.apk', updated: '2026-06-19 10:12' },
+          { id: 'pay-app-1b', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.2_20260605', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.2_20260605.apk', updated: '2026-06-05 10:12' }
+        ],
+        parameterFiles: [
+          { id: 'pay-xml-1', fileName: 'elavon-q3minr-20260619.xml', revision: 'xml-20260619', active: true, uploaded: '2026-06-19 10:40', notes: 'ELAVON card reader payment parameters.' }
+        ]
+      },
+      {
+        id: 'channel-2',
+        name: 'TSYS',
+        updated: '2026-06-28 12:16',
+        appVersions: [
+          { id: 'pay-app-2', name: 'Q3min-R TSYS Payment App', package: 'com.paywizard.q3minr.pay.tsys', version: '2.7.9_20260628', active: true, minFirmware: '3.3.8', fileName: 'q3minr-payment-tsys-2.7.9_20260628.apk', updated: '2026-06-28 12:16' }
+        ],
+        parameterFiles: []
+      }
+    ];
+
+    let firmware = [];
+    let opcAssets = { appVersions: [], parameterFiles: [] };
+    let paymentChannels = [];
+    let currentMainTab = 'firmware';
+    let uploadContext = { type: '', channelId: '' };
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    function clone(value){ return JSON.parse(JSON.stringify(value)); }
+    function nowText(){
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    function escapeHtml(value){
+      return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+    function normalize(value){ return String(value || '').trim().toLowerCase(); }
+    function loadArray(key, defaults){
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return clone(defaults);
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : clone(defaults);
+      } catch (e) {
+        return clone(defaults);
+      }
+    }
+    function loadObject(key, defaults){
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return clone(defaults);
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : clone(defaults);
+      } catch (e) {
+        return clone(defaults);
+      }
+    }
+    function saveAll(){
+      localStorage.setItem(STORAGE.firmware, JSON.stringify(firmware));
+      localStorage.setItem(STORAGE.opcAssets, JSON.stringify(opcAssets));
+      localStorage.setItem(STORAGE.paymentChannels, JSON.stringify(paymentChannels));
+    }
+    function init(){
+      firmware = loadArray(STORAGE.firmware, FIRMWARE_RELEASES);
+      opcAssets = loadObject(STORAGE.opcAssets, DEFAULT_OPC_ASSETS);
+      opcAssets.appVersions = Array.isArray(opcAssets.appVersions) ? opcAssets.appVersions : [];
+      opcAssets.parameterFiles = Array.isArray(opcAssets.parameterFiles) ? opcAssets.parameterFiles : [];
+      paymentChannels = loadArray(STORAGE.paymentChannels, DEFAULT_PAYMENT_CHANNELS);
+      normalizeAssetState();
+      saveAll();
+      wireEvents();
+      renderAll();
+    }
+
+    function statusBadge(status){
+      const key = normalize(status);
+      let cls = 'neutral';
+      if (key === 'published' || key === 'success') cls = 'published';
+      if (key === 'active') cls = 'published';
+      if (key === 'draft') cls = 'draft';
+      if (key === 'inactive') cls = 'neutral';
+      if (key === 'missing') cls = 'missing';
+      if (key === 'incomplete') cls = 'incomplete';
+      if (key === 'apk' || key === 'xml') cls = 'info';
+      return `<span class="badge ${cls}">${escapeHtml(status)}</span>`;
+    }
+    function trashButton(attr, id, title){
+      return `<button class="trash-btn" ${attr}="${escapeHtml(id)}" type="button" title="${escapeHtml(title || 'Delete')}" aria-label="${escapeHtml(title || 'Delete')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button>`;
+    }
+    function compareVersions(left, right){
+      const tokenize = value => String(value || '').replace(/^v/i, '').split(/[^A-Za-z0-9]+/).filter(Boolean).map(part => /^\d+$/.test(part) ? Number(part) : part.toLowerCase());
+      const l = tokenize(left), r = tokenize(right), len = Math.max(l.length, r.length);
+      for (let i = 0; i < len; i += 1) {
+        const a = l[i] ?? 0, b = r[i] ?? 0;
+        if (a === b) continue;
+        if (typeof a === 'number' && typeof b === 'number') return a > b ? 1 : -1;
+        if (typeof a === 'number') return 1;
+        if (typeof b === 'number') return -1;
+        const cmp = String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+        if (cmp) return cmp > 0 ? 1 : -1;
+      }
+      return 0;
+    }
+    function sortVersions(rows){ return [...rows].sort((a,b) => compareVersions(b.version || b.revision, a.version || a.revision)); }
+    function latestApp(rows){ return sortVersions(rows || [])[0]; }
+    function latestXml(rows){ return sortVersions(rows || [])[0]; }
+    function activeItem(rows){ return (rows || []).find(item => item.active) || null; }
+    function channelById(id){ return paymentChannels.find(item => item.id === id); }
+    function ensureSingleActive(rows){
+      if (!Array.isArray(rows) || !rows.length) return [];
+      let activeIndex = rows.findIndex(item => item.active === true);
+      if (activeIndex < 0) activeIndex = rows.findIndex(item => normalize(item.status) === 'published');
+      if (activeIndex < 0) {
+        const latest = sortVersions(rows)[0];
+        activeIndex = rows.findIndex(item => item.id === latest.id);
+      }
+      rows.forEach((item, index) => { item.active = index === activeIndex; });
+      return rows;
+    }
+    function normalizeChannel(channel){
+      const name = (channel.processor || channel.name || channel.code || '').trim() || 'Unnamed Processor';
+      return {
+        id: channel.id || `channel-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name,
+        updated: channel.updated || nowText(),
+        appVersions: ensureSingleActive(Array.isArray(channel.appVersions) ? channel.appVersions : []),
+        parameterFiles: ensureSingleActive(Array.isArray(channel.parameterFiles) ? channel.parameterFiles : [])
+      };
+    }
+    function normalizeAssetState(){
+      opcAssets.appVersions = ensureSingleActive(opcAssets.appVersions);
+      opcAssets.parameterFiles = ensureSingleActive(opcAssets.parameterFiles);
+      paymentChannels = paymentChannels.map(normalizeChannel);
+    }
+    function setActive(rows, id){
+      rows.forEach(item => { item.active = item.id === id; });
+    }
+    function removeAsset(rows, id){
+      const removed = rows.find(item => item.id === id);
+      const nextRows = rows.filter(item => item.id !== id);
+      if (removed?.active && nextRows.length) {
+        setActive(nextRows, sortVersions(nextRows)[0].id);
+      }
+      return nextRows;
+    }
+    function defaultPackageForChannel(channel){
+      return `com.paywizard.q3minr.pay.${normalize(channel.name).replace(/[^a-z0-9]+/g, '') || 'channel'}`;
+    }
+
+    function renderFirmware(){
+      const keyword = normalize($('#firmwareSearch').value);
+      const status = $('#firmwareStatusFilter').value;
+      const rows = firmware.filter(item => {
+        const text = normalize(`${item.packageName} ${item.version} ${item.fileName} ${item.model}`);
+        return (!keyword || text.includes(keyword)) && (status === 'all' || normalize(item.status) === status);
+      });
+      $('#firmwareTableBody').innerHTML = rows.map(item => `
+        <tr>
+          <td><span class="cell-main">${escapeHtml(item.packageName)}</span><span class="cell-sub">${escapeHtml(item.fileName)}</span></td>
+          <td>${escapeHtml(item.version)}</td>
+          <td>${escapeHtml(item.model || 'Q3min-R')}</td>
+          <td>${statusBadge(item.status)}</td>
+          <td>${escapeHtml(item.size)}</td>
+          <td>${escapeHtml(item.updated)}</td>
+          <td><div class="row-actions"><button class="btn-secondary" data-toggle-fw="${item.id}" type="button">${item.status === 'Published' ? 'Unpublish' : 'Publish'}</button>${trashButton('data-delete-fw', item.id, 'Delete firmware package')}</div></td>
+        </tr>
+      `).join('');
+      $('#firmwareEmpty').classList.toggle('hidden', rows.length > 0);
+    }
+
+    function renderOpcAssets(){
+      const appRows = sortVersions(opcAssets.appVersions);
+      const xmlRows = sortVersions(opcAssets.parameterFiles);
+      $('#opcAppTableBody').innerHTML = appRows.map(item => `
+        <tr>
+          <td><span class="cell-main">${escapeHtml(item.name)}</span><span class="cell-sub">Min FW ${escapeHtml(item.minFirmware || '-')}</span></td>
+          <td class="mono">${escapeHtml(item.package)}</td>
+          <td>${escapeHtml(item.version)}</td>
+          <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
+          <td>${escapeHtml(item.updated)}</td>
+          <td><div class="row-actions">${item.active ? '' : `<button class="btn-secondary" data-set-active-opc-app="${item.id}" type="button">Set Active</button>`}${trashButton('data-delete-opc-app', item.id, 'Delete OPC APK')}</div></td>
+        </tr>
+      `).join('');
+      $('#opcAppEmpty').classList.toggle('hidden', appRows.length > 0);
+
+      $('#opcXmlTableBody').innerHTML = xmlRows.map(item => `
+        <tr>
+          <td><span class="cell-main mono">${escapeHtml(item.fileName)}</span><span class="cell-sub">${escapeHtml(item.notes || '')}</span></td>
+          <td>${escapeHtml(item.revision)}</td>
+          <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
+          <td>${escapeHtml(item.uploaded)}</td>
+          <td><div class="row-actions">${item.active ? '' : `<button class="btn-secondary" data-set-active-opc-xml="${item.id}" type="button">Set Active</button>`}${trashButton('data-delete-opc-xml', item.id, 'Delete OPC XML')}</div></td>
+        </tr>
+      `).join('');
+      $('#opcXmlEmpty').classList.toggle('hidden', xmlRows.length > 0);
+    }
+
+    function renderChannels(){
+      const keyword = normalize($('#channelSearch').value);
+      const rows = paymentChannels.filter(channel => {
+        const text = normalize(channel.name);
+        return !keyword || text.includes(keyword);
+      });
+      $('#channelTableBody').innerHTML = rows.map(channel => {
+        const app = activeItem(channel.appVersions);
+        const xml = activeItem(channel.parameterFiles);
+        const appOptions = sortVersions(channel.appVersions).map(item => `<option value="${escapeHtml(item.id)}" ${item.active ? 'selected' : ''}>${escapeHtml(item.version)}</option>`).join('');
+        const xmlOptions = sortVersions(channel.parameterFiles).map(item => `<option value="${escapeHtml(item.id)}" ${item.active ? 'selected' : ''}>${escapeHtml(item.revision)}</option>`).join('');
+        return `
+          <tr>
+            <td><span class="cell-main">${escapeHtml(channel.name)}</span></td>
+            <td>${app ? `<select class="version-select" data-select-channel-app="${escapeHtml(channel.id)}">${appOptions}</select><span class="cell-sub mono">${escapeHtml(app.package)}</span>` : statusBadge('Missing')}</td>
+            <td>${xml ? `<select class="version-select" data-select-channel-xml="${escapeHtml(channel.id)}">${xmlOptions}</select><span class="cell-sub mono">${escapeHtml(xml.fileName)}</span>` : statusBadge('Missing')}</td>
+            <td>${escapeHtml(channel.updated)}</td>
+            <td><div class="row-actions"><button class="btn-soft" data-upload-payment-app="${channel.id}" type="button">Upload Payment APK</button><button class="btn-soft" data-upload-payment-xml="${channel.id}" type="button">Upload Parameter XML</button>${trashButton('data-delete-channel', channel.id, 'Delete payment channel')}</div></td>
+          </tr>
+        `;
+      }).join('');
+      $('#channelEmpty').classList.toggle('hidden', rows.length > 0);
+    }
+
+    function renderAll(){
+      renderFirmware();
+      renderOpcAssets();
+      renderChannels();
+    }
+
+    function showMainTab(tab){
+      currentMainTab = tab;
+      $$('#mainTabs .tab').forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+      $$('.main-pane').forEach(pane => pane.classList.add('hidden'));
+      $(`#tab-${tab}`).classList.remove('hidden');
+    }
+    function openModal(id){
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+    function closeModal(id){
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      if (!$$('.modal-backdrop.open').length) document.body.classList.remove('modal-open');
+    }
+
+    function validateFirmwareUpload(){
+      const file = $('#firmwareFile').files[0];
+      if (!file) { alert('Firmware file is required.'); return false; }
+      const meta = parseFileMeta(file.name, 'firmware');
+      const version = meta.version;
+      const exists = firmware.some(item => normalize(item.version) === normalize(version));
+      if (exists) { alert('This firmware version already exists.'); return false; }
+      return true;
+    }
+    function validateChannel(){
+      const name = $('#channelName').value.trim();
+      const duplicate = paymentChannels.some(channel => normalize(channel.name) === normalize(name));
+      if (!name) { alert('Processor / Acquirer name is required.'); return false; }
+      if (duplicate) { alert('This processor / acquirer already exists.'); return false; }
+      return true;
+    }
+    function targetAppList(){
+      if (uploadContext.type === 'opcApp') return opcAssets.appVersions;
+      const channel = channelById(uploadContext.channelId);
+      return channel ? channel.appVersions : [];
+    }
+    function targetXmlList(){
+      if (uploadContext.type === 'opcXml') return opcAssets.parameterFiles;
+      const channel = channelById(uploadContext.channelId);
+      return channel ? channel.parameterFiles : [];
+    }
+    function validateAssetUpload(){
+      const file = $('#assetFile').files[0];
+      if (!file) { alert('File is required.'); return false; }
+      if (uploadContext.type.endsWith('Xml')) {
+        const revision = parseFileMeta(file.name, 'xml').revision;
+        const exists = targetXmlList().some(item => normalize(item.revision) === normalize(revision));
+        if (exists) { alert('This XML revision already exists for the target.'); return false; }
+        return true;
+      }
+      const meta = parseFileMeta(file.name, 'app');
+      const pkg = normalize(meta.package || defaultPackageForUpload());
+      const version = meta.version;
+      const duplicate = targetAppList().some(item => normalize(item.package) === pkg && normalize(item.version) === normalize(version));
+      if (duplicate) {
+        alert('This APP package version already exists for the target.');
+        return false;
+      }
+      return true;
+    }
+    function parseFileMeta(fileName, kind){
+      const base = fileName.replace(/\.(apk|xml|bin|zip|img|fw)$/i, '');
+      const versionMatch = base.match(/v?\d+\.\d+(?:\.\d+)?(?:[_\-.][A-Za-z0-9]+)*|\d{8}(?:[_\-.][A-Za-z0-9]+)*/i);
+      const fallbackStamp = nowText().replace(/[-: ]/g, '').slice(0, 12);
+      const version = versionMatch ? versionMatch[0].replace(/^v/i, '') : fallbackStamp;
+      if (kind === 'firmware') return { name: titleFromFile(base, 'Q3min-R Firmware'), version };
+      if (kind === 'xml') return { revision: version ? `xml-${version}` : `xml-${nowText().slice(0, 10).replace(/-/g, '')}` };
+      const packageMatch = base.match(/com\.[A-Za-z0-9_.]+/);
+      const pkg = packageMatch ? packageMatch[0] : '';
+      const cleaned = base.replace(packageMatch ? packageMatch[0] : '', '').replace(versionMatch ? versionMatch[0] : '', '').replace(/[_\-.]+/g, ' ').trim();
+      return { name: cleaned || (pkg.includes('opc') ? 'Paywizard OPC Bridge' : 'Q3min-R Payment App'), version, package: pkg };
+    }
+    function titleFromFile(base, fallback){
+      const versionMatch = base.match(/v?\d+\.\d+(?:\.\d+)?(?:[_\-.][A-Za-z0-9]+)*|\d{8}(?:[_\-.][A-Za-z0-9]+)*/i);
+      const cleaned = base.replace(versionMatch ? versionMatch[0] : '', '').replace(/[_\-.]+/g, ' ').trim();
+      return cleaned ? cleaned.replace(/\b\w/g, ch => ch.toUpperCase()) : fallback;
+    }
+    function defaultPackageForUpload(){
+      if (uploadContext.type === 'opcApp') return 'com.wizarpos.opc.reader';
+      const channel = channelById(uploadContext.channelId);
+      return channel ? defaultPackageForChannel(channel) : 'com.paywizard.q3minr.pay';
+    }
+
+    function openAssetUpload(type, channelId){
+      uploadContext = { type, channelId: channelId || '' };
+      const isXml = type.endsWith('Xml');
+      const channel = channelById(channelId);
+      const titleMap = {
+        opcApp: 'Upload OPC APK',
+        opcXml: 'Upload OPC Parameter XML',
+        paymentApp: 'Upload Payment APK',
+        paymentXml: 'Upload Payment Parameter XML'
+      };
+      $('#assetUploadTitle').textContent = titleMap[type] || 'Upload Asset';
+      $('#assetDropTitle').textContent = isXml ? 'Select XML File' : 'Select APK';
+      $('#assetDropHint').textContent = isXml ? 'Mock upload accepts .xml parameter files.' : 'Mock upload accepts .apk files.';
+      $('#assetFile').accept = isXml ? '.xml' : '.apk';
+      $('#assetFile').value = '';
+      $('#assetFileName').textContent = 'No file selected';
+      openModal('assetUploadModal');
+    }
+
+    function saveFirmwareUpload(){
+      if (!validateFirmwareUpload()) return;
+      const file = $('#firmwareFile').files[0];
+      const meta = parseFileMeta(file.name, 'firmware');
+      firmware.unshift({
+        id: `fw-${Date.now()}`,
+        packageName: meta.name,
+        version: meta.version,
+        model: $('#firmwareModel').value,
+        status: $('#firmwareStatus').value,
+        size: '18.6 MB',
+        fileName: file.name,
+        updated: nowText()
+      });
+      $('#firmwareFile').value = '';
+      $('#firmwareFileName').textContent = 'No firmware selected';
+      closeModal('firmwareUploadModal');
+      saveAll();
+      renderAll();
+      showMainTab('firmware');
+    }
+    function saveChannel(){
+      if (!validateChannel()) return;
+      paymentChannels.unshift({
+        id: `channel-${Date.now()}`,
+        name: $('#channelName').value.trim(),
+        updated: nowText(),
+        appVersions: [],
+        parameterFiles: []
+      });
+      closeModal('channelModal');
+      saveAll();
+      renderAll();
+      showMainTab('apps');
+    }
+    function saveAssetUpload(){
+      if (!validateAssetUpload()) return;
+      const isXml = uploadContext.type.endsWith('Xml');
+      const channel = channelById(uploadContext.channelId);
+      if (isXml) {
+        const target = targetXmlList();
+        const file = $('#assetFile').files[0];
+        const meta = parseFileMeta(file.name, 'xml');
+        target.forEach(item => { item.active = false; });
+        target.unshift({
+          id: `xml-${Date.now()}`,
+          fileName: file.name,
+          revision: meta.revision,
+          active: true,
+          uploaded: nowText(),
+          notes: uploadContext.type === 'opcXml' ? 'OPC parameter XML.' : `${channel?.name || 'Payment'} parameter XML.`
+        });
+      } else {
+        const target = targetAppList();
+        const file = $('#assetFile').files[0];
+        const meta = parseFileMeta(file.name, 'app');
+        target.forEach(item => { item.active = false; });
+        target.unshift({
+          id: `app-${Date.now()}`,
+          name: meta.name,
+          package: meta.package || defaultPackageForUpload(),
+          version: meta.version,
+          active: true,
+          minFirmware: '',
+          fileName: file.name,
+          updated: nowText()
+        });
+      }
+      if (channel) channel.updated = nowText();
+      $('#assetFile').value = '';
+      $('#assetFileName').textContent = 'No file selected';
+      closeModal('assetUploadModal');
+      saveAll();
+      renderAll();
+      showMainTab('apps');
+    }
+
+    function wireEvents(){
+      $$('#mainTabs .tab').forEach(btn => btn.addEventListener('click', () => showMainTab(btn.dataset.tab)));
+      $('#openFirmwareUploadBtn').addEventListener('click', () => {
+        $('#firmwareFile').value = '';
+        $('#firmwareFileName').textContent = 'No firmware selected';
+        openModal('firmwareUploadModal');
+      });
+      $('#uploadOpcAppBtn').addEventListener('click', () => openAssetUpload('opcApp'));
+      $('#uploadOpcXmlBtn').addEventListener('click', () => openAssetUpload('opcXml'));
+      $('#openChannelCreateBtn').addEventListener('click', () => {
+        $('#channelName').value = '';
+        openModal('channelModal');
+      });
+      $$('[data-close-modal]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.closeModal)));
+      $$('.modal-backdrop').forEach(backdrop => backdrop.addEventListener('click', evt => { if (evt.target === backdrop) closeModal(backdrop.id); }));
+      document.addEventListener('keydown', evt => { if (evt.key === 'Escape') $$('.modal-backdrop.open').forEach(modal => closeModal(modal.id)); });
+
+      ['firmwareSearch', 'firmwareStatusFilter'].forEach(id => $(`#${id}`).addEventListener('input', renderFirmware));
+      $('#firmwareStatusFilter').addEventListener('change', renderFirmware);
+      $('#channelSearch').addEventListener('input', renderChannels);
+      $('#saveChannelBtn').addEventListener('click', saveChannel);
+
+      document.addEventListener('click', evt => {
+        const fwToggle = evt.target.closest('[data-toggle-fw]');
+        if (fwToggle) { const item = firmware.find(f => f.id === fwToggle.dataset.toggleFw); if (item) item.status = item.status === 'Published' ? 'Draft' : 'Published'; saveAll(); renderAll(); return; }
+        const fwDelete = evt.target.closest('[data-delete-fw]');
+        if (fwDelete && confirm('Delete this firmware package?')) { firmware = firmware.filter(f => f.id !== fwDelete.dataset.deleteFw); saveAll(); renderAll(); return; }
+        const setOpcApp = evt.target.closest('[data-set-active-opc-app]');
+        if (setOpcApp) { setActive(opcAssets.appVersions, setOpcApp.dataset.setActiveOpcApp); saveAll(); renderAll(); return; }
+        const setOpcXml = evt.target.closest('[data-set-active-opc-xml]');
+        if (setOpcXml) { setActive(opcAssets.parameterFiles, setOpcXml.dataset.setActiveOpcXml); saveAll(); renderAll(); return; }
+        const deleteOpcApk = evt.target.closest('[data-delete-opc-apk]');
+        if (deleteOpcApk && confirm('Delete this OPC APK version?')) { opcAssets.appVersions = removeAsset(opcAssets.appVersions, deleteOpcApk.dataset.deleteOpcApk); saveAll(); renderAll(); return; }
+        const deleteOpcXml = evt.target.closest('[data-delete-opc-xml]');
+        if (deleteOpcXml && confirm('Delete this OPC XML file?')) { opcAssets.parameterFiles = removeAsset(opcAssets.parameterFiles, deleteOpcXml.dataset.deleteOpcXml); saveAll(); renderAll(); return; }
+        const uploadPaymentApp = evt.target.closest('[data-upload-payment-app]');
+        if (uploadPaymentApp) { openAssetUpload('paymentApp', uploadPaymentApp.dataset.uploadPaymentApp); return; }
+        const uploadPaymentXml = evt.target.closest('[data-upload-payment-xml]');
+        if (uploadPaymentXml) { openAssetUpload('paymentXml', uploadPaymentXml.dataset.uploadPaymentXml); return; }
+        const deleteChannel = evt.target.closest('[data-delete-channel]');
+        if (deleteChannel && confirm('Delete this payment channel?')) { paymentChannels = paymentChannels.filter(channel => channel.id !== deleteChannel.dataset.deleteChannel); saveAll(); renderAll(); return; }
+      });
+
+      document.addEventListener('change', evt => {
+        const appSelect = evt.target.closest('[data-select-channel-app]');
+        if (appSelect) {
+          const channel = channelById(appSelect.dataset.selectChannelApp);
+          if (channel) { setActive(channel.appVersions, appSelect.value); channel.updated = nowText(); saveAll(); renderAll(); }
+          return;
+        }
+        const xmlSelect = evt.target.closest('[data-select-channel-xml]');
+        if (xmlSelect) {
+          const channel = channelById(xmlSelect.dataset.selectChannelXml);
+          if (channel) { setActive(channel.parameterFiles, xmlSelect.value); channel.updated = nowText(); saveAll(); renderAll(); }
+        }
+      });
+
+      $('#firmwareFile').addEventListener('change', () => {
+        const file = $('#firmwareFile').files[0];
+        $('#firmwareFileName').textContent = file ? file.name : 'No firmware selected';
+      });
+      $('#saveFirmwareBtn').addEventListener('click', saveFirmwareUpload);
+
+      $('#assetFile').addEventListener('change', () => {
+        const file = $('#assetFile').files[0];
+        $('#assetFileName').textContent = file ? file.name : 'No file selected';
+      });
+      $('#saveAssetBtn').addEventListener('click', saveAssetUpload);
+    }
+
+    init();
+  </script>
+</body>
+</html>
