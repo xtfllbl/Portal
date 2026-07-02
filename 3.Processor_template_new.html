@@ -174,6 +174,33 @@
             background: #fff;
         }
 
+        .source-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .source-toggle-btn {
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .source-toggle-btn.active {
+            background: #111827;
+            border-color: #111827;
+            color: #fff;
+        }
+
         /* Special Dark Button for + APP */
         .btn-dark-sm {
             background-color: var(--primary-color);
@@ -191,11 +218,87 @@
         }
         .btn-dark-sm:hover { opacity: 0.9; }
 
+        .hint-btn {
+            min-height: 28px;
+            min-width: 42px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .hint-btn:hover {
+            background: #f9fafb;
+            color: var(--text-primary);
+            border-color: #d1d5db;
+        }
+
+        .hint-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .hint-popover {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            z-index: 20;
+            width: 240px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: #111827;
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.45;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-4px);
+            transition: opacity .12s ease, transform .12s ease;
+        }
+
+        .hint-wrap:hover .hint-popover,
+        .hint-wrap.open .hint-popover {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .template-list-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 8px 0 12px;
+        }
+
+        .template-source-panel {
+            display: none;
+        }
+
+        .template-source-panel.active {
+            display: block;
+        }
+
         .template-list {
             list-style: none;
             padding: 12px;
             margin: 0;
             overflow-y: auto;
+        }
+
+        .template-list-scroll .template-list {
+            padding: 0 12px 8px;
+            overflow: visible;
         }
         
         .template-list li {
@@ -228,9 +331,21 @@
             color: var(--text-secondary);
         }
 
+        .template-list .empty-list-item {
+            cursor: default;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .template-list .empty-list-item:hover {
+            background: transparent;
+            border-color: transparent;
+        }
+
         /* Right Panel: Content */
         .main-panel {
             flex-grow: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -357,6 +472,7 @@
         }
         
         thead th { background-color: #f8f9fb; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .app-version-table thead th { background-color: #111827; color: #ffffff; border-bottom-color: #111827; }
 
         tbody tr:last-child td {
             border-bottom: none;
@@ -503,7 +619,6 @@
         </header>
 
         <main class="page-content">
-            <!-- Left Panel: List of Applications (Previously Templates) -->
             <div class="template-list-container">
                 <div class="template-list-header">
                     <h4 style="margin:0;font-size:14px;font-weight:700;">Applications</h4>
@@ -511,42 +626,57 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         APP
                     </button>
+                    <span class="hint-wrap is-hidden" id="cardReaderHintWrap">
+                        <button class="hint-btn" id="cardReaderHintBtn" type="button" aria-describedby="cardReaderHintPopover" aria-expanded="false">i</button>
+                        <span class="hint-popover" id="cardReaderHintPopover" role="tooltip">Manage Card Reader apps in Card Reader Management.</span>
+                    </span>
                 </div>
-                <ul class="template-list" id="appList">
-                    <!-- Javascript will populate active state -->
-                    <li onclick="selectApp(this, 'Nuvei ATTD', 'com.smartpos.attd.nuvei.ca.smartpay')">
-                        <span class="template-name">Nuvei ATTD</span>
-                        <span class="template-info">com.smartpos.attd.nuvei.ca.smartpay</span>
-                    </li>
-                    <li onclick="selectApp(this, 'EPX', 'com.wizarpos.epx')">
-                        <span class="template-name">EPX</span>
-                        <span class="template-info">com.wizarpos.epx</span>
-                    </li>
-                    <li onclick="selectApp(this, 'ELAVON EU', 'com.smartpos.elavon.payment')">
-                        <span class="template-name">ELAVON EU</span>
-                        <span class="template-info">com.smartpos.elavon.payment</span>
-                    </li>
-                    <li onclick="selectApp(this, 'Nuvei_Unattend', 'com.smartpos.nuvei.smartpay')">
-                        <span class="template-name">Nuvei_Unattend</span>
-                        <span class="template-info">com.smartpos.nuvei.smartpay</span>
-                    </li>
-                    <li onclick="selectApp(this, 'PAYwizard', 'com.wizarpos.opc')">
-                        <span class="template-name">PAYwizard</span>
-                        <span class="template-info">com.wizarpos.opc</span>
-                    </li>
-                    <li onclick="selectApp(this, 'Payment Emulator', 'com.wizarpos.paywizard.demo')">
-                        <span class="template-name">Payment Emulator</span>
-                        <span class="template-info">com.wizarpos.paywizard.demo</span>
-                    </li>
-                    <li onclick="selectApp(this, 'Fiserv_Attended', 'com.smartpos.firstdata.wizarpos.smartpay')">
-                        <span class="template-name">Fiserv_Attended</span>
-                        <span class="template-info">com.smartpos.firstdata.wizarpos.smartpay</span>
-                    </li>
-                    <li class="active" onclick="selectApp(this, 'TSYS_Transit', 'com.smartpos.paywizard.tsys.smartpay')">
-                        <span class="template-name">TSYS_Transit</span>
-                        <span class="template-info">com.smartpos.paywizard.tsys.smartpay</span>
-                    </li>
-                </ul>
+                <div class="source-toggle" role="tablist" aria-label="Application source">
+                    <button class="source-toggle-btn active" data-source-tab="tms" type="button" role="tab" aria-selected="true">WSTORE</button>
+                    <button class="source-toggle-btn" data-source-tab="cardReader" type="button" role="tab" aria-selected="false">Card Reader</button>
+                </div>
+                <div class="template-list-scroll">
+                    <div class="template-source-panel active" data-source-panel="tms">
+                        <ul class="template-list" id="appList">
+                            <!-- Javascript will populate active state -->
+                            <li onclick="selectApp(this, 'Nuvei ATTD', 'com.smartpos.attd.nuvei.ca.smartpay')">
+                                <span class="template-name">Nuvei ATTD</span>
+                                <span class="template-info">com.smartpos.attd.nuvei.ca.smartpay</span>
+                            </li>
+                            <li onclick="selectApp(this, 'EPX', 'com.wizarpos.epx')">
+                                <span class="template-name">EPX</span>
+                                <span class="template-info">com.wizarpos.epx</span>
+                            </li>
+                            <li onclick="selectApp(this, 'ELAVON EU', 'com.smartpos.elavon.payment')">
+                                <span class="template-name">ELAVON EU</span>
+                                <span class="template-info">com.smartpos.elavon.payment</span>
+                            </li>
+                            <li onclick="selectApp(this, 'Nuvei_Unattend', 'com.smartpos.nuvei.smartpay')">
+                                <span class="template-name">Nuvei_Unattend</span>
+                                <span class="template-info">com.smartpos.nuvei.smartpay</span>
+                            </li>
+                            <li onclick="selectApp(this, 'PAYwizard', 'com.wizarpos.opc')">
+                                <span class="template-name">PAYwizard</span>
+                                <span class="template-info">com.wizarpos.opc</span>
+                            </li>
+                            <li onclick="selectApp(this, 'Payment Emulator', 'com.wizarpos.paywizard.demo')">
+                                <span class="template-name">Payment Emulator</span>
+                                <span class="template-info">com.wizarpos.paywizard.demo</span>
+                            </li>
+                            <li onclick="selectApp(this, 'Fiserv_Attended', 'com.smartpos.firstdata.wizarpos.smartpay')">
+                                <span class="template-name">Fiserv_Attended</span>
+                                <span class="template-info">com.smartpos.firstdata.wizarpos.smartpay</span>
+                            </li>
+                            <li class="active" onclick="selectApp(this, 'TSYS_Transit', 'com.smartpos.paywizard.tsys.smartpay')">
+                                <span class="template-name">TSYS_Transit</span>
+                                <span class="template-info">com.smartpos.paywizard.tsys.smartpay</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="template-source-panel" data-source-panel="cardReader">
+                        <ul class="template-list" id="cardReaderList"></ul>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Panel: Application Parameter Details -->
@@ -565,9 +695,9 @@
                         <p id="masterDescription">This is the initial parameter template for this application.<br>Application versions are released from this structure.</p>
                     </div>
                     <div class="master-actions">
-                        <button class="btn btn-ghost" onclick="alert('Opening Master Parameter Editor...')">
+                        <button id="defaultParaBtn" class="btn btn-ghost">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-16"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-                            Default Para
+                            <span id="defaultParaText">Default Para</span>
                         </button>
                         <button id="createTemplateBtn" class="btn btn-primary is-hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -592,7 +722,7 @@
                 <div id="app-versions" class="tab-content active">
                     
                     <div class="table-container" style="margin-top: 12px;">
-                        <table>
+                        <table class="app-version-table">
                             <thead>
                                 <tr>
                                     <th style="width: 40px;"><input type="checkbox" class="checkbox"></th>
@@ -767,17 +897,69 @@
             }
         };
 
+        const CARD_READER_STORAGE = {
+            opcAssets: 'pw_card_reader_opc_assets',
+            paymentChannels: 'pw_card_reader_payment_channels'
+        };
+
+        const DEFAULT_CARD_READER_OPC_ASSETS = {
+            appVersions: [
+                { id: 'opc-app-1', name: 'Paywizard OPC Reader', package: 'com.wizarpos.opc.reader', version: '3.2.0_20260621', active: false, fileName: 'paywizard-opc-reader-3.2.0_20260621.apk', updated: '2026-06-21 14:36' },
+                { id: 'opc-app-2', name: 'Paywizard OPC Reader', package: 'com.wizarpos.opc.reader', version: '3.3.0_beta', active: true, fileName: 'paywizard-opc-reader-3.3.0_beta.apk', updated: '2026-06-29 18:05' }
+            ],
+            parameterFiles: [
+                { id: 'opc-xml-2', fileName: 'opc-q3minr-uat-20260629.xml', revision: 'xml-20260629-uat', active: false, uploaded: '2026-06-29 18:18' }
+            ]
+        };
+
+        const DEFAULT_CARD_READER_PAYMENT_CHANNELS = [
+            {
+                id: 'channel-1',
+                name: 'ELAVON_EU_Reader',
+                appVersions: [
+                    { id: 'pay-app-1', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.4_20260619', active: true, fileName: 'q3minr-payment-elavon-2.8.4_20260619.apk', updated: '2026-06-19 10:12' }
+                ],
+                parameterFiles: [
+                    { id: 'pay-xml-1', fileName: 'elavon-q3minr-20260619.xml', revision: 'xml-20260619', active: true, uploaded: '2026-06-19 10:40' }
+                ]
+            },
+            {
+                id: 'channel-3',
+                name: 'TSYS_Transit_Reader',
+                appVersions: [
+                    { id: 'pay-app-2', name: 'Q3min-R TSYS Payment App', package: 'com.paywizard.q3minr.pay.tsys', version: '2.7.9_20260628', active: true, fileName: 'q3minr-payment-tsys-2.7.9_20260628.apk', updated: '2026-06-28 12:16' }
+                ],
+                parameterFiles: []
+            }
+        ];
+
+        const CARD_READER_CHANNEL_NAME_MAP = {
+            elavon: 'ELAVON_EU_Reader',
+            'elavon retail': 'ELAVON_EU_Reader',
+            nuvei: 'Nuvei_ATTD_Reader',
+            tsys: 'TSYS_Transit_Reader',
+            'tsys transit': 'TSYS_Transit_Reader',
+            fiserv: 'Fiserv_Reader'
+        };
+
         const appList = document.getElementById('appList');
+        const cardReaderList = document.getElementById('cardReaderList');
         const appTitle = document.getElementById('appTitle');
         const masterDescription = document.getElementById('masterDescription');
         const templateTableBody = document.getElementById('templateTableBody');
         const versionTableBody = document.getElementById('versionTableBody');
         const createTemplateBtn = document.getElementById('createTemplateBtn');
         const subTemplatesTab = document.getElementById('subTemplatesTab');
+        const defaultParaBtn = document.getElementById('defaultParaBtn');
+        const defaultParaText = document.getElementById('defaultParaText');
         const tabs = document.querySelectorAll('.tab-item');
         const tabContents = document.querySelectorAll('.tab-content');
+        const sourceToggleBtns = document.querySelectorAll('[data-source-tab]');
+        const sourcePanels = document.querySelectorAll('[data-source-panel]');
 
         const pushBtn = document.getElementById('pushTemplateBtn');
+        const cardReaderHintWrap = document.getElementById('cardReaderHintWrap');
+        const cardReaderHintBtn = document.getElementById('cardReaderHintBtn');
         const pushModal = document.getElementById('createTemplateModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const cancelCreate = document.getElementById('cancelCreate');
@@ -794,9 +976,127 @@
         let selectedAppVersion = '';
         let selectedParamTemplate = '';
         let appCatalog = buildAppCatalog();
+        let cardReaderData = buildCardReaderData();
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function clone(value) {
+            return JSON.parse(JSON.stringify(value));
+        }
+
+        function loadStoredValue(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return clone(fallback);
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : clone(fallback);
+            } catch (error) {
+                return clone(fallback);
+            }
+        }
+
+        function activeItem(rows) {
+            return (rows || []).find(item => item.active) || null;
+        }
+
+        function latestUploaded(rows) {
+            return [...(rows || [])].sort((left, right) => String(right.uploaded || right.updated || '').localeCompare(String(left.uploaded || left.updated || '')))[0] || null;
+        }
+
+        function getAppData(appName) {
+            return appData[appName] || cardReaderData[appName] || null;
+        }
+
+        function normalizeCardReaderChannelName(name) {
+            const key = String(name || '').trim().toLowerCase();
+            return CARD_READER_CHANNEL_NAME_MAP[key] || name;
+        }
+
+        function cardReaderVersionRow(activeApp, parameterFile, fallbackName, index) {
+            return {
+                id: index,
+                ver: activeApp.version || '-',
+                name: activeApp.fileName || `${fallbackName}_${activeApp.version || 'active'}`,
+                created: activeApp.updated || '-',
+                updated: activeApp.updated || '-',
+                used: '-',
+                parameter: parameterFile?.fileName || '',
+                parameterUpdated: parameterFile?.uploaded || ''
+            };
+        }
+
+        function buildCardReaderData() {
+            const data = {};
+            const opcAssets = loadStoredValue(CARD_READER_STORAGE.opcAssets, DEFAULT_CARD_READER_OPC_ASSETS);
+            const opcApps = Array.isArray(opcAssets.appVersions) ? opcAssets.appVersions : [];
+            const opcParameters = Array.isArray(opcAssets.parameterFiles) ? opcAssets.parameterFiles : [];
+            const activeOpc = activeItem(opcApps);
+            if (activeOpc) {
+                const name = activeOpc.name === 'Paywizard OPC Bridge' ? 'Paywizard OPC Reader' : (activeOpc.name || 'Paywizard OPC Reader');
+                const latestParameter = latestUploaded(opcParameters);
+                data[name] = {
+                    source: 'cardReader',
+                    sourceType: 'OPC',
+                    subtitle: activeOpc.package || 'com.wizarpos.opc.reader',
+                    hasSubTemplates: false,
+                    versions: [cardReaderVersionRow(activeOpc, latestParameter, name, 1)],
+                    templates: []
+                };
+            }
+
+            const channels = loadStoredValue(CARD_READER_STORAGE.paymentChannels, DEFAULT_CARD_READER_PAYMENT_CHANNELS);
+            (Array.isArray(channels) ? channels : []).forEach(channel => {
+                const activePaymentApp = activeItem(channel.appVersions || []);
+                if (!activePaymentApp) return;
+                const name = normalizeCardReaderChannelName(channel.name || activePaymentApp.name || 'Card Reader Payment App');
+                const latestParameter = latestUploaded(channel.parameterFiles || []);
+                data[name] = {
+                    source: 'cardReader',
+                    sourceType: 'Payment Channel',
+                    subtitle: activePaymentApp.package || '',
+                    hasSubTemplates: false,
+                    versions: [cardReaderVersionRow(activePaymentApp, latestParameter, name, Object.keys(data).length + 1)],
+                    templates: []
+                };
+            });
+            return data;
+        }
+
+        function renderCardReaderList() {
+            const entries = Object.entries(cardReaderData);
+            if (!entries.length) {
+                cardReaderList.innerHTML = '<li class="empty-list-item">No active card reader APK versions found. Manage OPC and payment channel assets in Card Reader Management.</li>';
+                return;
+            }
+            cardReaderList.innerHTML = entries.map(([name, data]) => `
+                <li data-card-reader-app="${escapeHtml(name)}">
+                    <span class="template-name">${escapeHtml(name)}</span>
+                    <span class="template-info">${escapeHtml(data.subtitle || 'Paywizard managed')}</span>
+                </li>
+            `).join('');
+        }
 
         function appSupportsSubTemplates(appName) {
             return Boolean(appData[appName] && appData[appName].hasSubTemplates);
+        }
+
+        function showSourceTab(source) {
+            sourceToggleBtns.forEach(btn => {
+                const active = btn.dataset.sourceTab === source;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', String(active));
+            });
+            sourcePanels.forEach(panel => {
+                panel.classList.toggle('active', panel.dataset.sourcePanel === source);
+            });
+            pushBtn.classList.toggle('is-hidden', source !== 'tms');
+            cardReaderHintWrap.classList.toggle('is-hidden', source !== 'cardReader');
+            if (source !== 'cardReader') {
+                cardReaderHintWrap.classList.remove('open');
+                cardReaderHintBtn.setAttribute('aria-expanded', 'false');
+            }
         }
 
         function buildAssignProviderUrl(appName, version, templateName) {
@@ -819,12 +1119,17 @@
         }
 
         function activateAppByName(name) {
-            if (!appData[name]) return;
+            const data = getAppData(name);
+            if (!data) return;
             currentAppName = name;
+            showSourceTab(data.source === 'cardReader' ? 'cardReader' : 'tms');
 
             appList.querySelectorAll('li').forEach(item => {
                 const itemName = item.querySelector('.template-name')?.textContent?.trim();
                 item.classList.toggle('active', itemName === name);
+            });
+            cardReaderList.querySelectorAll('li').forEach(item => {
+                item.classList.toggle('active', item.dataset.cardReaderApp === name);
             });
 
             const showSubTemplates = appSupportsSubTemplates(name);
@@ -832,6 +1137,7 @@
             masterDescription.innerHTML = showSubTemplates
                 ? 'This is the initial parameter template for this application.<br>All sub-templates are derived from this structure.'
                 : 'This is the initial parameter template for this application.<br>Application versions are released from this structure.';
+            defaultParaText.textContent = 'Default Para';
 
             createTemplateBtn.classList.toggle('is-hidden', !showSubTemplates);
             subTemplatesTab.classList.toggle('is-hidden', !showSubTemplates);
@@ -845,7 +1151,7 @@
         }
 
         function renderTables(appName) {
-            const data = appData[appName];
+            const data = getAppData(appName);
             templateTableBody.innerHTML = '';
             versionTableBody.innerHTML = '';
 
@@ -856,11 +1162,11 @@
                         <tr>
                             <td><input type="checkbox" class="checkbox"></td>
                             <td>
-                                <div style="font-weight: 500;">${template.name}</div>
-                                <div style="font-size: 11px; color: var(--text-secondary);">${template.desc}</div>
+                                <div style="font-weight: 500;">${escapeHtml(template.name)}</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">${escapeHtml(template.desc)}</div>
                             </td>
-                            <td>${template.date}</td>
-                            <td>${template.status}</td>
+                            <td>${escapeHtml(template.date)}</td>
+                            <td>${escapeHtml(template.status)}</td>
                             <td style="text-align: right;">
                                 <div class="version-actions">
                                     <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
@@ -883,23 +1189,25 @@
             if (data && data.versions && data.versions.length > 0) {
                 data.versions.forEach(version => {
                     const assignUrl = buildAssignProviderUrl(appName, version.ver, version.name);
+                    const deleteAction = data.source === 'cardReader' ? '' : `
+                                    <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>`;
                     const row = `
                          <tr>
                             <td><input type="checkbox" class="checkbox"></td>
-                            <td>${version.id}</td>
+                            <td>${escapeHtml(version.id)}</td>
                             <td style="font-weight:500;">
-                                <a class="version-link" href="${assignUrl}" title="Assign service providers">${version.ver}</a>
+                                <a class="version-link" href="${assignUrl}" title="Assign service providers">${escapeHtml(version.ver)}</a>
                             </td>
-                            <td>${version.name}</td>
-                            <td>${version.created}</td>
-                            <td>${version.updated}</td>
-                            <td>${version.used}</td>
+                            <td>${escapeHtml(version.name)}</td>
+                            <td>${escapeHtml(version.created)}</td>
+                            <td>${escapeHtml(version.updated)}</td>
+                            <td>${escapeHtml(version.used)}</td>
                             <td style="text-align: right;">
                                 <div class="version-actions">
                                     <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
-                                    <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                    </button>
+${deleteAction}
                                 </div>
                             </td>
                         </tr>
@@ -932,6 +1240,23 @@
             });
         });
 
+        sourceToggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => showSourceTab(btn.dataset.sourceTab));
+        });
+
+        cardReaderHintBtn.addEventListener('click', event => {
+            event.stopPropagation();
+            const open = !cardReaderHintWrap.classList.contains('open');
+            cardReaderHintWrap.classList.toggle('open', open);
+            cardReaderHintBtn.setAttribute('aria-expanded', String(open));
+        });
+
+        document.addEventListener('click', event => {
+            if (cardReaderHintWrap.contains(event.target)) return;
+            cardReaderHintWrap.classList.remove('open');
+            cardReaderHintBtn.setAttribute('aria-expanded', 'false');
+        });
+
         createTemplateBtn.addEventListener('click', () => {
             if (!appSupportsSubTemplates(currentAppName)) return;
             const templateName = prompt('Template Name', `PAYwizard_Sub_${Date.now()}`);
@@ -945,6 +1270,10 @@
             });
             renderTables(currentAppName);
             setActiveTab('sub-templates');
+        });
+
+        defaultParaBtn.addEventListener('click', () => {
+            alert('Opening Master Parameter Editor...');
         });
 
         function formatDateTime(date) {
@@ -1137,11 +1466,20 @@
         });
         document.addEventListener("keydown", event => {
             if (event.key === "Escape" && pushModal.style.display === "flex") closePushModal();
+            if (event.key === "Escape") {
+                cardReaderHintWrap.classList.remove('open');
+                cardReaderHintBtn.setAttribute('aria-expanded', 'false');
+            }
         });
 
         allApps.addEventListener("change", () => {
             const selected = allApps.querySelector("input[type=radio]:checked");
             setSelectedApp(selected ? selected.value : "");
+        });
+        cardReaderList.addEventListener("click", event => {
+            const item = event.target.closest("[data-card-reader-app]");
+            if (!item) return;
+            activateAppByName(item.dataset.cardReaderApp);
         });
         appVersionSelect.addEventListener("change", () => setSelectedVersion(appVersionSelect.value));
         paramTemplateSelect.addEventListener("change", () => setSelectedTemplate(paramTemplateSelect.value));
@@ -1164,7 +1502,8 @@
         }
 
         const queryApp = new URLSearchParams(window.location.search).get('app');
-        if (queryApp && appData[queryApp]) {
+        renderCardReaderList();
+        if (queryApp && getAppData(queryApp)) {
             currentAppName = queryApp;
         }
         renderAppCards(Object.keys(appCatalog));
