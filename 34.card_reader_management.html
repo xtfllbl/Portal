@@ -82,6 +82,11 @@
     .edit-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid #e5e7eb; background: #f8fafc; color: #64748b; display: inline-grid; place-items: center; }
     .edit-btn:hover { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
     .edit-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 1.9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .state-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid #dbe3ef; background: #fff; color: #64748b; display: inline-grid; place-items: center; }
+    .state-btn:hover { color: #2563eb; border-color: #bfdbfe; background: #eff6ff; }
+    .state-btn.online { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
+    .state-btn.online:hover { color: #b91c1c; border-color: #fecaca; background: #fff; }
+    .state-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
     .table-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: auto; background: #fff; box-shadow: var(--shadow-xs); }
     .data-table { width: 100%; min-width: 940px; border-collapse: collapse; }
@@ -89,6 +94,14 @@
     .data-table td { border-bottom: 1px solid #e5e7eb; padding: 12px; color: #334155; font-size: 14px; vertical-align: middle; }
     .data-table tbody tr:nth-child(even) td { background: #fafafa; }
     .data-table tbody tr:hover td { background: #f8fafc; }
+    .payment-apk-table { min-width: 0; table-layout: fixed; }
+    .payment-apk-table th:nth-child(1), .payment-apk-table td:nth-child(1) { width: 24%; }
+    .payment-apk-table th:nth-child(2), .payment-apk-table td:nth-child(2) { overflow-wrap: anywhere; word-break: break-word; }
+    .payment-apk-table th:nth-child(3), .payment-apk-table td:nth-child(3) { width: 160px; }
+    .payment-apk-table th:nth-child(4), .payment-apk-table td:nth-child(4) { width: 112px; }
+    .payment-apk-table th:nth-child(5), .payment-apk-table td:nth-child(5) { width: 170px; }
+    .payment-apk-table th:nth-child(6), .payment-apk-table td:nth-child(6) { width: 96px; }
+    .payment-apk-table .row-actions { flex-wrap: nowrap; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .01em; }
     .cell-main { display: block; color: #0f172a; font-weight: 800; }
     .cell-sub { display: block; margin-top: 3px; color: #64748b; font-size: 12px; font-weight: 600; }
@@ -235,7 +248,7 @@
                 <div class="toolbar">
                   <div class="toolbar-left">
                     <input id="firmwareSearch" class="search" type="text" placeholder="Search version / package">
-                    <select id="firmwareStatusFilter" aria-label="Firmware status"><option value="all">Any Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+                    <select id="firmwareStatusFilter" aria-label="Firmware status"><option value="all">Any Status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
                   </div>
                 </div>
                 <div class="table-wrap">
@@ -301,7 +314,7 @@
         <div class="dropzone"><div><strong>Select Q3min-R Firmware</strong><div>Mock upload accepts .bin, .zip, .img, or .fw files.</div><div id="firmwareFileName" class="selected-file">No firmware selected</div><div style="margin-top:12px"><input id="firmwareFile" type="file" accept=".bin,.zip,.img,.fw"></div></div></div>
         <div class="inline-form" style="margin-top:12px">
           <div class="field"><label for="firmwareModel">Model</label><select id="firmwareModel"><option>Q3min-R</option></select></div>
-          <div class="field"><label for="firmwareStatus">Status</label><select id="firmwareStatus"><option>Published</option><option>Draft</option></select></div>
+          <div class="field"><label for="firmwareStatus">Status</label><select id="firmwareStatus"><option>Active</option><option>Inactive</option></select></div>
         </div>
       </div>
       <div class="modal-footer"><button class="btn-secondary" data-close-modal="firmwareUploadModal" type="button">Cancel</button><button id="saveFirmwareBtn" class="btn-primary" type="button">Upload Firmware</button></div>
@@ -313,7 +326,7 @@
       <div class="modal-head"><h2 id="channelModalTitle" class="modal-title">Create Payment Channel</h2><button class="icon-btn" data-close-modal="channelModal" type="button" aria-label="Close">&times;</button></div>
       <div class="modal-body">
         <div class="inline-form">
-          <div class="field full"><label for="channelName">Processor / Acquirer Name</label><input id="channelName" type="text" placeholder="ELAVON"></div>
+          <div class="field full"><label for="channelName">Processor / Acquirer Name</label><input id="channelName" type="text" placeholder="ELAVON_EU_Reader"></div>
         </div>
       </div>
       <div class="modal-footer"><button class="btn-secondary" data-close-modal="channelModal" type="button">Cancel</button><button id="saveChannelBtn" class="btn-primary" type="button">Create Channel</button></div>
@@ -338,15 +351,15 @@
     };
 
     const FIRMWARE_RELEASES = [
-      { id: 'fw-1', packageName: 'Q3min-R Secure FW', version: '3.4.0_20260618', model: 'Q3min-R', status: 'Published', size: '18.4 MB', fileName: 'q3min-r-fw-3.4.0_20260618.bin', updated: '2026-06-18 11:24' },
-      { id: 'fw-2', packageName: 'Q3min-R EMV Kernel FW', version: '3.3.8_20260603', model: 'Q3min-R', status: 'Published', size: '17.9 MB', fileName: 'q3min-r-fw-3.3.8_20260603.bin', updated: '2026-06-03 09:10' },
-      { id: 'fw-3', packageName: 'Q3min-R Lab Candidate', version: '3.5.0_rc1', model: 'Q3min-R', status: 'Draft', size: '18.8 MB', fileName: 'q3min-r-fw-3.5.0_rc1.zip', updated: '2026-06-28 16:40' }
+      { id: 'fw-1', packageName: 'Q3min-R Secure FW', version: '3.4.0_20260618', model: 'Q3min-R', status: 'Active', size: '18.4 MB', fileName: 'q3min-r-fw-3.4.0_20260618.bin', updated: '2026-06-18 11:24' },
+      { id: 'fw-2', packageName: 'Q3min-R EMV Kernel FW', version: '3.3.8_20260603', model: 'Q3min-R', status: 'Active', size: '17.9 MB', fileName: 'q3min-r-fw-3.3.8_20260603.bin', updated: '2026-06-03 09:10' },
+      { id: 'fw-3', packageName: 'Q3min-R Lab Candidate', version: '3.5.0_rc1', model: 'Q3min-R', status: 'Inactive', size: '18.8 MB', fileName: 'q3min-r-fw-3.5.0_rc1.zip', updated: '2026-06-28 16:40' }
     ];
 
     const DEFAULT_OPC_ASSETS = {
       appVersions: [
-        { id: 'opc-app-1', name: 'Paywizard OPC Bridge', package: 'com.wizarpos.opc.reader', version: '3.2.0_20260621', active: false, minFirmware: '3.3.8', fileName: 'paywizard-opc-bridge-3.2.0_20260621.apk', updated: '2026-06-21 14:36' },
-        { id: 'opc-app-2', name: 'Paywizard OPC Bridge', package: 'com.wizarpos.opc.reader', version: '3.3.0_beta', active: true, minFirmware: '3.5.0', fileName: 'paywizard-opc-bridge-3.3.0_beta.apk', updated: '2026-06-29 18:05' }
+        { id: 'opc-app-1', name: 'Paywizard OPC Reader', package: 'com.wizarpos.opc.reader', version: '3.2.0_20260621', active: false, minFirmware: '3.3.8', fileName: 'paywizard-opc-reader-3.2.0_20260621.apk', updated: '2026-06-21 14:36' },
+        { id: 'opc-app-2', name: 'Paywizard OPC Reader', package: 'com.wizarpos.opc.reader', version: '3.3.0_beta', active: true, minFirmware: '3.5.0', fileName: 'paywizard-opc-reader-3.3.0_beta.apk', updated: '2026-06-29 18:05' }
       ],
       parameterFiles: [
         { id: 'opc-xml-1', fileName: 'opc-q3minr-release-20260621.xml', revision: 'xml-20260621', active: true, uploaded: '2026-06-21 15:20', notes: 'Production OPC connectivity parameters.' },
@@ -357,23 +370,37 @@
     const DEFAULT_PAYMENT_CHANNELS = [
       {
         id: 'channel-1',
-        name: 'ELAVON',
+        name: 'ELAVON_EU_Reader',
         updated: '2026-06-21 15:42',
         appVersions: [
           { id: 'pay-app-1', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.4_20260619', active: true, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.4_20260619.apk', updated: '2026-06-19 10:12' },
           { id: 'pay-app-1b', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.2_20260605', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.2_20260605.apk', updated: '2026-06-05 10:12' }
         ],
         parameterFiles: [
-          { id: 'pay-xml-1', fileName: 'elavon-q3minr-20260619.xml', revision: 'xml-20260619', active: true, uploaded: '2026-06-19 10:40', notes: 'ELAVON card reader payment parameters.' }
+          { id: 'pay-xml-1', fileName: 'elavon-q3minr-20260619.xml', revision: 'xml-20260619', active: true, uploaded: '2026-06-19 10:40', notes: 'ELAVON_EU_Reader card reader payment parameters.' }
         ]
       },
       {
         id: 'channel-2',
-        name: 'TSYS',
+        name: 'Nuvei_ATTD_Reader',
+        updated: '2026-06-22 09:28',
+        appVersions: [],
+        parameterFiles: []
+      },
+      {
+        id: 'channel-3',
+        name: 'TSYS_Transit_Reader',
         updated: '2026-06-28 12:16',
         appVersions: [
           { id: 'pay-app-2', name: 'Q3min-R TSYS Payment App', package: 'com.paywizard.q3minr.pay.tsys', version: '2.7.9_20260628', active: true, minFirmware: '3.3.8', fileName: 'q3minr-payment-tsys-2.7.9_20260628.apk', updated: '2026-06-28 12:16' }
         ],
+        parameterFiles: []
+      },
+      {
+        id: 'channel-4',
+        name: 'Fiserv_Reader',
+        updated: '2026-06-24 10:08',
+        appVersions: [],
         parameterFiles: []
       }
     ];
@@ -431,6 +458,7 @@
       opcAssets.appVersions = Array.isArray(opcAssets.appVersions) ? opcAssets.appVersions : [];
       opcAssets.parameterFiles = Array.isArray(opcAssets.parameterFiles) ? opcAssets.parameterFiles : [];
       paymentChannels = loadArray(STORAGE.paymentChannels, DEFAULT_PAYMENT_CHANNELS);
+      normalizeFirmwareState();
       normalizeAssetState();
       saveAll();
       wireEvents();
@@ -452,6 +480,10 @@
     function trashButton(attr, id, title){
       return `<button class="trash-btn" ${attr}="${escapeHtml(id)}" type="button" title="${escapeHtml(title || 'Delete')}" aria-label="${escapeHtml(title || 'Delete')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button>`;
     }
+    function stateEditButton(attr, id, active, onlineTitle, offlineTitle){
+      const title = active ? offlineTitle : onlineTitle;
+      return `<button class="state-btn ${active ? 'online' : ''}" ${attr}="${escapeHtml(id)}" type="button" title="${title}" aria-label="${title}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10"></path><path d="M18.4 6.6a8 8 0 11-12.8 0"></path></svg></button>`;
+    }
     function compareVersions(left, right){
       const tokenize = value => String(value || '').replace(/^v/i, '').split(/[^A-Za-z0-9]+/).filter(Boolean).map(part => /^\d+$/.test(part) ? Number(part) : part.toLowerCase());
       const l = tokenize(left), r = tokenize(right), len = Math.max(l.length, r.length);
@@ -472,6 +504,17 @@
     function latestXml(rows){ return sortByUploaded(rows)[0] || null; }
     function activeItem(rows){ return (rows || []).find(item => item.active) || null; }
     function channelById(id){ return paymentChannels.find(item => item.id === id); }
+    const SAMPLE_CHANNEL_NAME_MAP = {
+      elavon: 'ELAVON_EU_Reader',
+      'elavon retail': 'ELAVON_EU_Reader',
+      nuvei: 'Nuvei_ATTD_Reader',
+      tsys: 'TSYS_Transit_Reader',
+      'tsys transit': 'TSYS_Transit_Reader',
+      fiserv: 'Fiserv_Reader'
+    };
+    function sampleChannelName(name){
+      return SAMPLE_CHANNEL_NAME_MAP[normalize(name)] || name;
+    }
     function ensureSingleActive(rows){
       if (!Array.isArray(rows) || !rows.length) return [];
       let activeIndex = rows.findIndex(item => item.active === true);
@@ -484,7 +527,8 @@
       return rows;
     }
     function normalizeChannel(channel){
-      const name = (channel.processor || channel.name || channel.code || '').trim() || 'Unnamed Processor';
+      const rawName = (channel.processor || channel.name || channel.code || '').trim() || 'Unnamed Processor';
+      const name = sampleChannelName(rawName);
       return {
         id: channel.id || `channel-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         name,
@@ -494,12 +538,22 @@
       };
     }
     function normalizeAssetState(){
+      opcAssets.appVersions.forEach(item => {
+        if (item.name === 'Paywizard OPC Bridge') item.name = 'Paywizard OPC Reader';
+      });
       opcAssets.appVersions = ensureSingleActive(opcAssets.appVersions);
       opcAssets.parameterFiles = latestXml(opcAssets.parameterFiles) ? [latestXml(opcAssets.parameterFiles)] : [];
       paymentChannels = paymentChannels.map(normalizeChannel);
     }
     function setActive(rows, id){
       rows.forEach(item => { item.active = item.id === id; });
+    }
+    function normalizeFirmwareState(){
+      firmware.forEach(item => {
+        const status = normalize(item.status);
+        if (status === 'published') item.status = 'Active';
+        if (status === 'draft') item.status = 'Inactive';
+      });
     }
     function removeAsset(rows, id){
       const removed = rows.find(item => item.id === id);
@@ -528,7 +582,7 @@
           <td>${statusBadge(item.status)}</td>
           <td>${escapeHtml(item.size)}</td>
           <td>${escapeHtml(item.updated)}</td>
-          <td><div class="row-actions"><button class="btn-secondary" data-toggle-fw="${item.id}" type="button">${item.status === 'Published' ? 'Unpublish' : 'Publish'}</button>${trashButton('data-delete-fw', item.id, 'Delete firmware package')}</div></td>
+          <td><div class="row-actions">${stateEditButton('data-toggle-fw-state', item.id, normalize(item.status) === 'active', 'Set Firmware Active', 'Set Firmware Inactive')}${trashButton('data-delete-fw', item.id, 'Delete firmware package')}</div></td>
         </tr>
       `).join('');
       $('#firmwareEmpty').classList.toggle('hidden', rows.length > 0);
@@ -544,7 +598,7 @@
           <td>${escapeHtml(item.version)}</td>
           <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
           <td>${escapeHtml(item.updated)}</td>
-          <td><div class="row-actions">${item.active ? '' : `<button class="btn-secondary" data-set-active-opc-app="${item.id}" type="button">Set Active</button>`}${trashButton('data-delete-opc-app', item.id, 'Delete OPC APK')}</div></td>
+          <td><div class="row-actions">${item.active ? '' : stateEditButton('data-set-active-opc-app', item.id, false, 'Set OPC APK Active', 'Set OPC APK Inactive')}${trashButton('data-delete-opc-app', item.id, 'Delete OPC APK')}</div></td>
         </tr>
       `).join('');
       $('#opcAppEmpty').classList.toggle('hidden', appRows.length > 0);
@@ -606,7 +660,7 @@
               <div class="asset-pane-body">
                 ${appRows.length ? `
                   <div class="table-wrap">
-                    <table class="data-table">
+                    <table class="data-table payment-apk-table">
                       <thead><tr><th>APP</th><th>Package</th><th>Version</th><th>State</th><th>Updated</th><th>Actions</th></tr></thead>
                       <tbody>
                         ${appRows.map(item => `
@@ -616,7 +670,7 @@
                             <td>${escapeHtml(item.version)}</td>
                             <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
                             <td>${escapeHtml(item.updated)}</td>
-                            <td><div class="row-actions">${item.active ? '' : `<button class="btn-secondary" data-set-active-payment-app="${escapeHtml(channel.id)}:${escapeHtml(item.id)}" type="button">Set Active</button>`}${trashButton('data-delete-payment-app', `${channel.id}:${item.id}`, 'Delete payment APK')}</div></td>
+                            <td><div class="row-actions">${stateEditButton('data-toggle-payment-app-state', `${channel.id}:${item.id}`, item.active, 'Put Payment APK Online', 'Take Payment APK Offline')}${trashButton('data-delete-payment-app', `${channel.id}:${item.id}`, 'Delete payment APK')}</div></td>
                           </tr>
                         `).join('')}
                       </tbody>
@@ -730,7 +784,7 @@
       const packageMatch = base.match(/com\.[A-Za-z0-9_.]+/);
       const pkg = packageMatch ? packageMatch[0] : '';
       const cleaned = base.replace(packageMatch ? packageMatch[0] : '', '').replace(versionMatch ? versionMatch[0] : '', '').replace(/[_\-.]+/g, ' ').trim();
-      return { name: cleaned || (pkg.includes('opc') ? 'Paywizard OPC Bridge' : 'Q3min-R Payment App'), version, package: pkg };
+      return { name: cleaned || (pkg.includes('opc') ? 'Paywizard OPC Reader' : 'Q3min-R Payment App'), version, package: pkg };
     }
     function titleFromFile(base, fallback){
       const versionMatch = base.match(/v?\d+\.\d+(?:\.\d+)?(?:[_\-.][A-Za-z0-9]+)*|\d{8}(?:[_\-.][A-Za-z0-9]+)*/i);
@@ -894,17 +948,24 @@
           }
           return;
         }
-        const fwToggle = evt.target.closest('[data-toggle-fw]');
-        if (fwToggle) { const item = firmware.find(f => f.id === fwToggle.dataset.toggleFw); if (item) item.status = item.status === 'Published' ? 'Draft' : 'Published'; saveAll(); renderAll(); return; }
+        const fwToggle = evt.target.closest('[data-toggle-fw-state]');
+        if (fwToggle) {
+          const item = firmware.find(f => f.id === fwToggle.dataset.toggleFwState);
+          if (item) item.status = normalize(item.status) === 'active' ? 'Inactive' : 'Active';
+          saveAll();
+          renderAll();
+          return;
+        }
         const fwDelete = evt.target.closest('[data-delete-fw]');
         if (fwDelete && confirm('Delete this firmware package?')) { firmware = firmware.filter(f => f.id !== fwDelete.dataset.deleteFw); saveAll(); renderAll(); return; }
         const setOpcApp = evt.target.closest('[data-set-active-opc-app]');
         if (setOpcApp) { setActive(opcAssets.appVersions, setOpcApp.dataset.setActiveOpcApp); saveAll(); renderAll(); return; }
-        const setPaymentApp = evt.target.closest('[data-set-active-payment-app]');
-        if (setPaymentApp) {
-          const [channelId, appId] = setPaymentApp.dataset.setActivePaymentApp.split(':');
+        const togglePaymentAppState = evt.target.closest('[data-toggle-payment-app-state]');
+        if (togglePaymentAppState) {
+          const [channelId, appId] = togglePaymentAppState.dataset.togglePaymentAppState.split(':');
           const channel = channelById(channelId);
-          if (channel) { setActive(channel.appVersions, appId); channel.updated = nowText(); saveAll(); renderAll(); }
+          const app = channel?.appVersions.find(item => item.id === appId);
+          if (channel && app) { app.active = !app.active; channel.updated = nowText(); saveAll(); renderAll(); }
           return;
         }
         const deleteOpcApk = evt.target.closest('[data-delete-opc-apk]');
