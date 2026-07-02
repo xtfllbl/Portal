@@ -39,7 +39,7 @@
 
         /* --- Sidebar Navigation --- */
         .sidebar {
-            width: 260px;
+            width: 250px;
             background: var(--sidebar-bg);
             border-radius: 18px;
             border: 1px solid var(--menu-divider);
@@ -49,57 +49,115 @@
             flex-direction: column;
             flex-shrink: 0;
             font-family: 'Poppins', 'Inter', sans-serif;
-            margin: 10px 0 10px 10px; /* Added slight margin for floating look */
+            margin: 10px 0 10px 10px;
         }
 
         .ops-brand {
-            padding: 18px 18px 12px;
-            border-bottom: 1px solid var(--menu-divider);
+            padding: 24px 18px 20px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 4px;
         }
 
         .ops-brand-name {
             font-weight: 700;
-            font-size: 18px;
+            font-size: 30px;
             color: var(--menu-text-strong);
-            letter-spacing: 0.2px;
+            letter-spacing: -0.08em;
+            line-height: 1;
         }
 
         .ops-brand-sub {
-            font-size: 10px;
-            color: var(--menu-text-dim);
+            font-size: 14px;
+            color: #111;
             text-transform: uppercase;
-            letter-spacing: 0.32em;
+            letter-spacing: 0.18em;
+            margin-left: 98px;
         }
 
         .ops-menu {
-            padding: 10px 8px 16px;
+            margin: 0 16px 16px;
+            padding: 14px 12px 18px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             overflow-y: auto;
+            border: 1px solid var(--menu-divider);
+            border-radius: 10px;
+            min-height: 0;
+            flex: 1;
+        }
+
+        .ops-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .ops-title {
-            margin: 8px 10px 6px;
-            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: var(--menu-text-dim);
+            color: #2b2b2e;
+            line-height: 1.2;
+        }
+
+        .ops-title.active {
+            background: #2b2b2e;
+            color: #fff;
+        }
+
+        .ops-title-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .ops-icon {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .ops-caret {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
         }
 
         .ops-item {
-            display: block;
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 30px;
+            padding: 7px 9px;
+            border-radius: 999px;
+            font-size: 14px;
             font-weight: 600;
             text-decoration: none;
-            color: var(--text-primary);
+            color: #2b2b2e;
             transition: background-color 0.18s ease, color 0.18s ease;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 30px);
+        }
+
+        .ops-item::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border: 3px solid currentColor;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
 
         .ops-item:hover {
@@ -107,8 +165,18 @@
         }
 
         .ops-item.active {
-            background: #e5e7eb;
-            color: var(--menu-text-strong);
+            margin-left: 18px;
+            background: #2b2b2e;
+            color: #fff;
+            font-weight: 700;
+            padding: 9px 12px;
+        }
+
+        .ops-item.active::before {
+            width: 8px;
+            height: 8px;
+            border-width: 0;
+            background: currentColor;
         }
 
         /* --- Main Content --- */
@@ -701,20 +769,52 @@
     <aside class="sidebar">
         <div class="ops-brand">
             <div class="ops-brand-name">PAYwizard</div>
-            <div class="ops-brand-sub">Admin</div>
+            <div class="ops-brand-sub">Maintain</div>
         </div>
 
-        <nav class="ops-menu" aria-label="Operations navigation">
+        <nav class="ops-menu" aria-label="Maintain navigation">
             <div class="ops-section">
-                <div class="ops-title">Payment &amp; Billing</div>
-                <a class="ops-item" href="#">Transaction Details</a>
+                <div class="ops-title">
+                    <span class="ops-title-left">
+                        <svg class="ops-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"></rect><path d="M16 6V4a2 2 0 0 0-2-2h-3L8 6"></path><path d="M7 13h.01"></path></svg>
+                        Payment
+                    </span>
+                    <svg class="ops-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                </div>
+                <a class="ops-item" href="12.transaction_list.html">Transactions</a>
                 <a class="ops-item" href="#">Settlement Info</a>
+                <a class="ops-item" href="#">Billing Overview</a>
+                <a class="ops-item" href="23.payment_channel_setting.html">Payment Channel</a>
+                <a class="ops-item" href="#">Service Fee Log</a>
+                <a class="ops-item" href="#">Service Fee Report</a>
+                <a class="ops-item" href="#">Cached Transaction</a>
             </div>
+
             <div class="ops-section">
-                <div class="ops-title">System Settings</div>
-                <a class="ops-item" href="#">Role Management</a>
-                <a class="ops-item active" href="#">Parameter Management</a>
-                <a class="ops-item" href="#">Device Status</a>
+                <div class="ops-title active">
+                    <span class="ops-title-left">
+                        <svg class="ops-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7"></path><path d="M4 10V3"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M20 21v-5"></path><path d="M20 12V3"></path><path d="M2 14h4"></path><path d="M10 8h4"></path><path d="M18 16h4"></path></svg>
+                        Operations
+                    </span>
+                    <svg class="ops-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                </div>
+                <a class="ops-item" href="25.merchant_lead.html">Leads</a>
+                <a class="ops-item" href="21.service_provider.html">Service Provider</a>
+                <a class="ops-item" href="#">Developer Manage</a>
+                <a class="ops-item" href="#">Onboarding</a>
+                <a class="ops-item" href="2.resellermerchantterminal.html">Device Manage</a>
+                <a class="ops-item" href="23.sp_merchant_list.html">Merchant List</a>
+                <a class="ops-item active" href="3.Processor_template_new.html">Processor Template</a>
+            </div>
+
+            <div class="ops-section">
+                <div class="ops-title">
+                    <span class="ops-title-left">
+                        <svg class="ops-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 3.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 3.6 8a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 8 3.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 3.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 8c.36.15.7.35 1 .6.3.25.65.4 1.1.4H22a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.4Z"></path></svg>
+                        System
+                    </span>
+                    <svg class="ops-caret" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                </div>
             </div>
         </nav>
     </aside>
@@ -1265,6 +1365,21 @@
             return `3.version_provider_assign.html?${params.toString()}`;
         }
 
+        function versionActionMarkup(appName, data, assignUrl) {
+            if (appName === 'Paywizard OPC Reader') return '';
+
+            const deleteAction = data.source === 'cardReader' ? '' : `
+                                    <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>`;
+
+            if (appName === 'PAYwizard') return deleteAction;
+
+            return `
+                                    <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
+${deleteAction}`;
+        }
+
         function setActiveTab(tabId) {
             const targetTab = document.querySelector(`.tab-item[data-tab="${tabId}"]`);
             if (!targetTab || targetTab.classList.contains('is-hidden')) return;
@@ -1351,10 +1466,7 @@
             if (data && data.versions && data.versions.length > 0) {
                 data.versions.forEach(version => {
                     const assignUrl = buildAssignProviderUrl(appName, version.ver, version.name);
-                    const deleteAction = data.source === 'cardReader' ? '' : `
-                                    <button class="icon-btn danger" title="Delete Version" onclick="deleteVersion(this)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                    </button>`;
+                    const actions = versionActionMarkup(appName, data, assignUrl);
                     const row = `
                          <tr>
                             <td><input type="checkbox" class="checkbox"></td>
@@ -1368,8 +1480,7 @@
                             <td>${escapeHtml(version.used)}</td>
                             <td style="text-align: right;">
                                 <div class="version-actions">
-                                    <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
-${deleteAction}
+${actions}
                                 </div>
                             </td>
                         </tr>
