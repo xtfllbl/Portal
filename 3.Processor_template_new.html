@@ -459,6 +459,111 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
+        .sub-template-tools {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .sub-template-search {
+            width: 260px;
+            height: 36px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font: inherit;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .sub-template-search:focus {
+            outline: none;
+            border-color: #111827;
+            box-shadow: 0 0 0 3px rgba(17,24,39,.08);
+        }
+
+        .square-tool-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .square-tool-btn:hover {
+            background: #f9fafb;
+            color: var(--text-primary);
+        }
+
+        .square-tool-btn.primary {
+            background: #111827;
+            color: #fff;
+            border-color: #111827;
+        }
+
+        .sub-template-pagination {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 14px 16px;
+            border-top: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .sub-template-pages {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .sub-template-page-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .page-size-select,
+        .page-input {
+            height: 36px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--text-primary);
+            font: inherit;
+            text-align: center;
+        }
+
+        .page-size-select { width: 72px; padding: 0 12px; }
+        .page-input { width: 56px; padding: 0 8px; }
+
+        .page-dot {
+            min-width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .page-dot.active {
+            background: #050505;
+            color: #fff;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -472,7 +577,7 @@
         }
         
         thead th { background-color: #f8f9fb; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
-        .app-version-table thead th { background-color: #111827; color: #ffffff; border-bottom-color: #111827; }
+        .dark-head-table thead th { background-color: #111827; color: #ffffff; border-bottom-color: #111827; }
 
         tbody tr:last-child td {
             border-bottom: none;
@@ -497,6 +602,10 @@
         }
         .icon-btn:hover{ background:#f3f4f6; color:var(--text-primary); }
         .icon-btn.danger:hover { background: #fef2f2; color: #ef4444; }
+        .icon-btn.edit-action { border-color: #bae6fd; color: #0ea5e9; background: #fff; }
+        .icon-btn.edit-action:hover { background: #f0f9ff; color: #0284c7; }
+        .icon-btn.danger { border-color: #fecaca; color: #ef4444; background: #fff; }
+        .template-actions .icon-btn { width: 36px; height: 36px; border-radius: 8px; }
         .icon-16{ width:16px; height:16px; }
         .icon-18{ width:18px; height:18px; }
 
@@ -722,7 +831,7 @@
                 <div id="app-versions" class="tab-content active">
                     
                     <div class="table-container" style="margin-top: 12px;">
-                        <table class="app-version-table">
+                        <table class="dark-head-table">
                             <thead>
                                 <tr>
                                     <th style="width: 40px;"><input type="checkbox" class="checkbox"></th>
@@ -744,23 +853,53 @@
 
                 <!-- Tab Content: Sub-Templates (Now Second & Inactive) -->
                 <div id="sub-templates" class="tab-content">
-                    
+                    <div class="sub-template-tools">
+                        <input id="subTemplateSearch" class="sub-template-search" type="text" placeholder="Template Name">
+                        <button id="resetSubTemplateSearch" class="square-tool-btn" type="button" aria-label="Reset search">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+                        </button>
+                        <button id="applySubTemplateSearch" class="square-tool-btn primary" type="button" aria-label="Search templates">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                        </button>
+                    </div>
                     <div class="table-container">
-                        <table>
+                        <table class="dark-head-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 40px;"><input type="checkbox" class="checkbox" id="selectAll"></th>
+                                    <th style="width: 70px;">#</th>
                                     <th>Template Name</th>
-                                    <!-- Removed Type Column -->
-                                    <th>Last Updated</th>
-                                    <th>Status</th>
-                                    <th style="width: 220px; text-align: right;">Action</th>
+                                    <th>Create Time</th>
+                                    <th>Created User</th>
+                                    <th>Update Time</th>
+                                    <th>Updated User</th>
+                                    <th style="width: 260px; text-align: right;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="templateTableBody">
                                 <!-- Populated by JS -->
                             </tbody>
                         </table>
+                        <div class="sub-template-pagination">
+                            <div></div>
+                            <div class="sub-template-pages">
+                                <span>&laquo;</span>
+                                <span>&lsaquo;</span>
+                                <span class="page-dot active">1</span>
+                                <span class="page-dot">2</span>
+                                <span class="page-dot">3</span>
+                                <span class="page-dot">4</span>
+                                <span class="page-dot">5</span>
+                                <span>&rsaquo;</span>
+                                <span>&raquo;</span>
+                            </div>
+                            <div class="sub-template-page-meta">
+                                <select class="page-size-select" aria-label="Rows per page">
+                                    <option>10</option>
+                                </select>
+                                <input class="page-input" type="text" value="1" aria-label="Current page">
+                                <span>/ 8 (77)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -970,6 +1109,9 @@
         const selectedAppLabel = document.getElementById('selectedAppLabel');
         const appVersionSelect = document.getElementById('appVersionSelect');
         const paramTemplateSelect = document.getElementById('paramTemplateSelect');
+        const subTemplateSearch = document.getElementById('subTemplateSearch');
+        const resetSubTemplateSearch = document.getElementById('resetSubTemplateSearch');
+        const applySubTemplateSearch = document.getElementById('applySubTemplateSearch');
 
         let currentAppName = 'TSYS_Transit';
         let selectedAppName = '';
@@ -1009,6 +1151,10 @@
             return appData[appName] || cardReaderData[appName] || null;
         }
 
+        function clonePaywizardTemplates() {
+            return clone(appData.PAYwizard?.templates || []);
+        }
+
         function normalizeCardReaderChannelName(name) {
             const key = String(name || '').trim().toLowerCase();
             return CARD_READER_CHANNEL_NAME_MAP[key] || name;
@@ -1027,6 +1173,17 @@
             };
         }
 
+        function templateAudit(template, index) {
+            const createTime = template.createTime || template.date || '-';
+            const updateTime = template.updateTime || (index % 3 === 0 ? template.date : '-');
+            return {
+                createTime,
+                createdUser: template.createdUser || template.user || (index % 3 === 2 ? 'Haven' : index % 2 === 0 ? 'Felix' : 'Lily'),
+                updateTime,
+                updatedUser: template.updatedUser || (updateTime === '-' ? '-' : index % 2 === 0 ? 'Felix' : 'Luna')
+            };
+        }
+
         function buildCardReaderData() {
             const data = {};
             const opcAssets = loadStoredValue(CARD_READER_STORAGE.opcAssets, DEFAULT_CARD_READER_OPC_ASSETS);
@@ -1040,9 +1197,9 @@
                     source: 'cardReader',
                     sourceType: 'OPC',
                     subtitle: activeOpc.package || 'com.wizarpos.opc.reader',
-                    hasSubTemplates: false,
+                    hasSubTemplates: true,
                     versions: [cardReaderVersionRow(activeOpc, latestParameter, name, 1)],
-                    templates: []
+                    templates: clonePaywizardTemplates()
                 };
             }
 
@@ -1079,7 +1236,7 @@
         }
 
         function appSupportsSubTemplates(appName) {
-            return Boolean(appData[appName] && appData[appName].hasSubTemplates);
+            return Boolean(getAppData(appName)?.hasSubTemplates);
         }
 
         function showSourceTab(source) {
@@ -1155,25 +1312,30 @@
             templateTableBody.innerHTML = '';
             versionTableBody.innerHTML = '';
 
-            if (data && data.hasSubTemplates && data.templates.length > 0) {
-                data.templates.forEach((template, index) => {
+            const templateKeyword = subTemplateSearch ? subTemplateSearch.value.trim().toLowerCase() : '';
+            const templateRows = data && data.hasSubTemplates
+                ? data.templates.filter(template => !templateKeyword || String(template.name || '').toLowerCase().includes(templateKeyword))
+                : [];
+            if (templateRows.length > 0) {
+                templateRows.forEach((template, index) => {
                     const assignUrl = buildAssignProviderUrl(appName, 'sub-template', template.name);
+                    const audit = templateAudit(template, index);
+                    const sourceIndex = data.templates.indexOf(template);
                     const row = `
                         <tr>
-                            <td><input type="checkbox" class="checkbox"></td>
-                            <td>
-                                <div style="font-weight: 500;">${escapeHtml(template.name)}</div>
-                                <div style="font-size: 11px; color: var(--text-secondary);">${escapeHtml(template.desc)}</div>
-                            </td>
-                            <td>${escapeHtml(template.date)}</td>
-                            <td>${escapeHtml(template.status)}</td>
+                            <td>${index + 1}</td>
+                            <td style="font-weight: 500;">${escapeHtml(template.name)}</td>
+                            <td>${escapeHtml(audit.createTime)}</td>
+                            <td>${escapeHtml(audit.createdUser)}</td>
+                            <td>${escapeHtml(audit.updateTime)}</td>
+                            <td>${escapeHtml(audit.updatedUser)}</td>
                             <td style="text-align: right;">
-                                <div class="version-actions">
+                                <div class="version-actions template-actions">
                                     <a class="assign-btn" href="${assignUrl}" title="Assign to service providers">Assign SP</a>
-                                    <button class="icon-btn" title="Edit Template Parameters">
+                                    <button class="icon-btn edit-action" title="Edit Template Parameters">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     </button>
-                                    <button class="icon-btn danger" title="Delete Sub-Template" onclick="deleteTemplate(${index})">
+                                    <button class="icon-btn danger" title="Delete Sub-Template" onclick="deleteTemplate(${sourceIndex})">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                     </button>
                                 </div>
@@ -1183,7 +1345,7 @@
                     templateTableBody.insertAdjacentHTML('beforeend', row);
                 });
             } else {
-                templateTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 32px; color:var(--text-secondary);">No sub-templates found.</td></tr>`;
+                templateTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 32px; color:var(--text-secondary);">No sub-templates found.</td></tr>`;
             }
 
             if (data && data.versions && data.versions.length > 0) {
@@ -1228,7 +1390,7 @@ ${deleteAction}
         function deleteTemplate(index) {
             if (!appSupportsSubTemplates(currentAppName)) return;
             if (!confirm("Are you sure you want to delete this sub-template?")) return;
-            appData[currentAppName].templates.splice(index, 1);
+            getAppData(currentAppName).templates.splice(index, 1);
             renderTables(currentAppName);
         }
 
@@ -1259,13 +1421,19 @@ ${deleteAction}
 
         createTemplateBtn.addEventListener('click', () => {
             if (!appSupportsSubTemplates(currentAppName)) return;
-            const templateName = prompt('Template Name', `PAYwizard_Sub_${Date.now()}`);
+            const data = getAppData(currentAppName);
+            const prefix = data?.source === 'cardReader' ? 'CardReader_OPC_Sub' : 'PAYwizard_Sub';
+            const templateName = prompt('Template Name', `${prefix}_${Date.now()}`);
             if (!templateName) return;
             const now = formatDateTime(new Date());
-            appData[currentAppName].templates.unshift({
+            data.templates.unshift({
                 name: templateName.trim(),
-                desc: "Custom PAYwizard sub-template",
+                desc: data?.source === 'cardReader' ? "Custom card reader OPC sub-template" : "Custom PAYwizard sub-template",
                 date: now,
+                createTime: now,
+                createdUser: "beaver.xu",
+                updateTime: "-",
+                updatedUser: "-",
                 status: "Active"
             });
             renderTables(currentAppName);
@@ -1485,6 +1653,14 @@ ${deleteAction}
         paramTemplateSelect.addEventListener("change", () => setSelectedTemplate(paramTemplateSelect.value));
         templateNameInput.addEventListener("input", updateContinueState);
         syncAppsBtn.addEventListener("click", syncAppList);
+        applySubTemplateSearch.addEventListener("click", () => renderTables(currentAppName));
+        resetSubTemplateSearch.addEventListener("click", () => {
+            subTemplateSearch.value = "";
+            renderTables(currentAppName);
+        });
+        subTemplateSearch.addEventListener("keydown", event => {
+            if (event.key === "Enter") renderTables(currentAppName);
+        });
         continueCreate.addEventListener("click", () => {
             if (continueCreate.disabled) return;
             const name = templateNameInput.value.trim();
