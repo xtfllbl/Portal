@@ -1056,6 +1056,18 @@
             gap: 22px 28px;
         }
 
+        .processor-version-field.is-hidden {
+            display: none;
+        }
+
+        .integration-mode-field {
+            grid-column: 1 / 2;
+        }
+
+        .deployment-processor-grid.card-reader-mode .integration-mode-field {
+            grid-column: auto;
+        }
+
         .deployment-options.is-hidden {
             display: none;
         }
@@ -2066,6 +2078,7 @@
                                             <option>Q2</option>
                                             <option>Q3V</option>
                                             <option>Q3PRT</option>
+                                            <option>Q3MINI-R</option>
                                         </select>
                                     </div>
                                 </div>
@@ -2091,18 +2104,18 @@
                                 <div class="payment-config">
                                     <div class="payment-config-head">
                                         <div>
-                                            <h4 class="payment-config-title">Payment app deployment</h4>
+                                            <h4 class="payment-config-title" id="deploymentTitle">Payment app deployment</h4>
                                             <p class="payment-config-note" id="paymentConfigNote">Review the payment app, parameters, and keys deployed to this device.</p>
                                         </div>
                                         <div class="deployment-status-group">
                                             <label class="switchline provision-switch is-hidden" id="provisionSwitchOption" for="device-provision-toggle">
                                                 <input type="checkbox" id="device-provision-toggle">
                                                 <span class="switch-track" aria-hidden="true"></span>
-                                                <span>Deploy app &amp; parameters</span>
+                                                <span id="provisionSwitchText">Deploy app &amp; parameters</span>
                                             </label>
                                             <span class="deployment-status-chip" id="provisionStatusOption">
                                                 <span class="deployment-status-dot" id="provisionHistoryDot" aria-hidden="true"></span>
-                                                <span>Deploy app &amp; parameters</span>
+                                                <span id="provisionStatusText">Deploy app &amp; parameters</span>
                                             </span>
                                             <label class="switchline key-download is-hidden" id="keyDownloadOption" for="processor-key-download">
                                                 <input type="checkbox" id="processor-key-download" checked>
@@ -2117,7 +2130,7 @@
                                     </div>
 
                                     <div class="deployment-options" id="deploymentOptions">
-                                        <div class="form-grid two">
+                                        <div class="form-grid two deployment-processor-grid" id="deploymentProcessorGrid">
                                             <div class="field">
                                                 <label for="device-processor">1. Processor / Acquirer *</label>
                                                 <select class="input-field" id="device-processor" disabled>
@@ -2130,17 +2143,14 @@
                                                     <option value="OXPAY">OXPAY</option>
                                                 </select>
                                             </div>
-                                            <div class="field">
+                                            <div class="field processor-version-field" id="processorVersionField">
                                                 <label for="processor-version">2. Payment App Version *</label>
                                                 <select class="input-field" id="processor-version">
                                                     <option value="">Select Version</option>
                                                 </select>
                                             </div>
-                                        </div>
-
-                                        <div class="form-grid two">
-                                            <div class="field">
-                                                <label for="device-paywizard">3. Integration Mode</label>
+                                            <div class="field integration-mode-field">
+                                                <label for="device-paywizard" id="integrationModeLabel">3. Integration Mode</label>
                                                 <select class="input-field" id="device-paywizard">
                                                     <option value="Disable" selected>Disable</option>
                                                     <option value="OPC_VENDING_STANDARD">PAYwizard OPC Vending Standard</option>
@@ -2933,6 +2943,10 @@
         const deviceTemplate = document.getElementById('device-template');
         const processorSelect = document.getElementById('device-processor');
         const processorVersionSelect = document.getElementById('processor-version');
+        const deploymentTitle = document.getElementById('deploymentTitle');
+        const deploymentProcessorGrid = document.getElementById('deploymentProcessorGrid');
+        const processorVersionField = document.getElementById('processorVersionField');
+        const integrationModeLabel = document.getElementById('integrationModeLabel');
         const paywizardSelect = document.getElementById('device-paywizard');
         const redeployBtn = document.getElementById('redeployBtn');
         const paymentConfigNote = document.getElementById('paymentConfigNote');
@@ -2943,6 +2957,8 @@
         const provisionToggle = document.getElementById('device-provision-toggle');
         const provisionSwitchOption = document.getElementById('provisionSwitchOption');
         const provisionStatusOption = document.getElementById('provisionStatusOption');
+        const provisionSwitchText = document.getElementById('provisionSwitchText');
+        const provisionStatusText = document.getElementById('provisionStatusText');
         const provisionHistoryDot = document.getElementById('provisionHistoryDot');
         const keyDownloadOption = document.getElementById('keyDownloadOption');
         const keyDownloadStatusOption = document.getElementById('keyDownloadStatusOption');
@@ -2951,6 +2967,32 @@
         const deploymentOptions = document.getElementById('deploymentOptions');
         const requestedParameterGroup = params.get('group');
         const processorsWithKeyDownload = new Set(['ELAVON', 'NUVEI ATTD', 'NUVEI UPT']);
+        const CARD_READER_MODEL = 'Q3MINI-R';
+        const CARD_READER_PAYMENT_CHANNEL_STORAGE = 'pw_card_reader_payment_channels';
+        const defaultProcessorOptions = processorSelect
+            ? Array.from(processorSelect.options).map((option) => ({
+                value: option.value,
+                text: option.textContent,
+                disabled: option.disabled,
+                selected: option.selected
+            }))
+            : [];
+        const defaultCardReaderChannels = [
+            {
+                name: 'ELAVON_EU_Reader',
+                appVersions: [
+                    { version: '2.8.4_20260619', active: true }
+                ]
+            },
+            { name: 'Nuvei_ATTD_Reader', appVersions: [] },
+            {
+                name: 'TSYS_Transit_Reader',
+                appVersions: [
+                    { version: '2.7.9_20260628', active: true }
+                ]
+            },
+            { name: 'Fiserv_Reader', appVersions: [] }
+        ];
         let paramSets = [];
 
         function parseBooleanParam(value) {
@@ -2997,6 +3039,118 @@
             deployAppSelected: getPreviousDeployAppSelected(),
             injectKeySelected: getPreviousInjectKeySelected()
         };
+
+        function isCardReaderDeployment() {
+            return String(deviceModel?.value || deviceValues.model || '').trim().toUpperCase() === CARD_READER_MODEL;
+        }
+
+        function loadCardReaderPaymentChannels() {
+            try {
+                const stored = JSON.parse(localStorage.getItem(CARD_READER_PAYMENT_CHANNEL_STORAGE) || 'null');
+                return Array.isArray(stored) && stored.length ? stored : defaultCardReaderChannels;
+            } catch (e) {
+                return defaultCardReaderChannels;
+            }
+        }
+
+        function normalizeCardReaderChannelName(name) {
+            const key = String(name || '').trim().toLowerCase();
+            const map = {
+                elavon: 'ELAVON_EU_Reader',
+                'elavon retail': 'ELAVON_EU_Reader',
+                nuvei: 'Nuvei_ATTD_Reader',
+                tsys: 'TSYS_Transit_Reader',
+                'tsys transit': 'TSYS_Transit_Reader',
+                fiserv: 'Fiserv_Reader'
+            };
+            return map[key] || name;
+        }
+
+        function getCardReaderChannels() {
+            return loadCardReaderPaymentChannels()
+                .map((channel) => ({
+                    ...channel,
+                    name: normalizeCardReaderChannelName(channel.name)
+                }))
+                .filter((channel) => channel.name && !/opc/i.test(channel.name));
+        }
+
+        function resolveCardReaderProcessorValue(channelName) {
+            const normalized = String(channelName || '').toLowerCase();
+            if (normalized.includes('elavon')) return 'ELAVON';
+            if (normalized.includes('nuvei')) return 'NUVEI ATTD';
+            if (normalized.includes('tsys')) return 'TSYS';
+            if (normalized.includes('fiserv')) return 'FISERV';
+            if (normalized.includes('oxpay')) return 'OXPAY';
+            return channelName;
+        }
+
+        function renderProcessorOptions(cardReaderMode = isCardReaderDeployment()) {
+            if (!processorSelect) return;
+            const preservedValue = processorSelect.value || deviceValues.processor;
+            const preservedText = processorSelect.options[processorSelect.selectedIndex]?.textContent?.trim() || '';
+            processorSelect.innerHTML = '';
+
+            if (cardReaderMode) {
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Select Payment Channel';
+                processorSelect.appendChild(placeholder);
+
+                getCardReaderChannels().forEach((channel) => {
+                    const option = document.createElement('option');
+                    option.value = resolveCardReaderProcessorValue(channel.name);
+                    option.textContent = channel.name;
+                    option.dataset.channelName = channel.name;
+                    processorSelect.appendChild(option);
+                });
+            } else {
+                defaultProcessorOptions.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.value;
+                    option.textContent = item.text;
+                    option.disabled = item.disabled;
+                    option.selected = item.selected;
+                    processorSelect.appendChild(option);
+                });
+            }
+
+            const matchingOption = Array.from(processorSelect.options).find((option) =>
+                option.value === preservedValue ||
+                option.textContent.trim() === preservedValue ||
+                option.textContent.trim() === preservedText
+            );
+            processorSelect.value = matchingOption ? matchingOption.value : '';
+        }
+
+        function syncDeviceDeploymentMode({ refreshParams = true } = {}) {
+            const cardReaderMode = isCardReaderDeployment();
+            const deployLabel = cardReaderMode ? 'Deploy parameters' : 'Deploy app & parameters';
+
+            if (deploymentTitle) {
+                deploymentTitle.textContent = cardReaderMode ? 'Card Reader Deployment' : 'Payment app deployment';
+            }
+            if (provisionSwitchText) provisionSwitchText.textContent = deployLabel;
+            if (provisionStatusText) provisionStatusText.textContent = deployLabel;
+            if (integrationModeLabel) {
+                integrationModeLabel.textContent = cardReaderMode ? '2. Integration Mode' : '3. Integration Mode';
+            }
+            if (deploymentProcessorGrid) {
+                deploymentProcessorGrid.classList.toggle('card-reader-mode', cardReaderMode);
+            }
+            if (processorVersionField) {
+                processorVersionField.classList.toggle('is-hidden', cardReaderMode);
+            }
+            if (cardReaderMode && processorVersionSelect) {
+                processorVersionSelect.innerHTML = '<option value="">Not Required</option>';
+                processorVersionSelect.disabled = true;
+            }
+            renderProcessorOptions(cardReaderMode);
+            if (refreshParams) {
+                syncProvisionStatus();
+                syncProcessorParams();
+            }
+        }
 
         const PAYWIZARD_PARAMETER_SCHEMA = [
             ['OPERTAION MODE', [
@@ -3113,7 +3267,11 @@
         if (deviceModel && deviceValues.model) deviceModel.value = deviceValues.model;
         if (deviceTerminalScenario) deviceTerminalScenario.value = deviceValues.scenario;
         if (processorSelect) {
-            processorSelect.value = deviceValues.processor;
+            renderProcessorOptions(isCardReaderDeployment());
+            const matchingProcessor = Array.from(processorSelect.options).find((option) =>
+                option.value === deviceValues.processor || option.textContent.trim() === deviceValues.processor
+            );
+            processorSelect.value = matchingProcessor ? matchingProcessor.value : '';
             processorSelect.disabled = true;
         }
         if (deviceTemplate && deviceValues.template) deviceTemplate.value = deviceValues.template;
@@ -3444,6 +3602,11 @@
 
         function populateProcessorVersions(processor) {
             if (!processorVersionSelect) return;
+            if (isCardReaderDeployment()) {
+                processorVersionSelect.innerHTML = '<option value="">Not Required</option>';
+                processorVersionSelect.disabled = true;
+                return;
+            }
             const list = templateVersions[processor] || [];
             processorVersionSelect.innerHTML = '';
             if (!processor) {
@@ -3469,6 +3632,10 @@
         }
 
         function syncProvisionStatus() {
+            const cardReaderMode = isCardReaderDeployment();
+            const deployLabel = cardReaderMode ? 'Deploy parameters' : 'Deploy app & parameters';
+            const deployedTitle = cardReaderMode ? 'Last selection: parameters deployed' : 'Last selection: app and parameters deployed';
+            const notDeployedTitle = cardReaderMode ? 'Last selection: parameters not deployed' : 'Last selection: app and parameters not deployed';
             if (provisionToggle) {
                 if (deviceValues.deployAppSelected) {
                     provisionToggle.checked = true;
@@ -3487,11 +3654,11 @@
             if (provisionStatusOption) {
                 provisionStatusOption.classList.toggle('is-hidden', !deviceValues.deployAppSelected);
                 provisionStatusOption.title = deviceValues.deployAppSelected
-                    ? 'Last selection: app and parameters deployed'
-                    : 'Last selection: app and parameters not deployed';
+                    ? deployedTitle
+                    : notDeployedTitle;
                 provisionStatusOption.setAttribute('aria-label', deviceValues.deployAppSelected
-                    ? 'Deploy app and parameters. Last selection: deployed'
-                    : 'Deploy app and parameters. Last selection: not deployed');
+                    ? `${deployLabel}. Last selection: deployed`
+                    : `${deployLabel}. Last selection: not deployed`);
             }
             if (provisionHistoryDot) {
                 provisionHistoryDot.classList.toggle('was-selected', deviceValues.deployAppSelected);
@@ -3499,8 +3666,12 @@
             }
             if (paymentConfigNote) {
                 paymentConfigNote.textContent = deviceValues.deployAppSelected
-                    ? 'Review the payment app, parameters, and keys deployed to this device.'
-                    : 'Choose whether to push the payment app, parameters, and keys to this device.';
+                    ? (cardReaderMode
+                        ? 'Review the card reader parameters and keys deployed to this device.'
+                        : 'Review the payment app, parameters, and keys deployed to this device.')
+                    : (cardReaderMode
+                        ? 'Choose whether to push card reader parameters and keys to this device.'
+                        : 'Choose whether to push the payment app, parameters, and keys to this device.');
             }
         }
 
@@ -3649,6 +3820,10 @@
         if (provisionToggle) {
             provisionToggle.addEventListener('change', setProvisionState);
         }
+        if (deviceModel) {
+            deviceModel.addEventListener('change', () => syncDeviceDeploymentMode());
+        }
+        syncDeviceDeploymentMode({ refreshParams: false });
         setProvisionState();
 
         const TEMPLATE_KEY = 'pw_device_param_templates';
@@ -3693,7 +3868,9 @@
         function buildDevicePushSummary() {
             const deployEnabled = isProvisionEnabled();
             const processor = deployEnabled ? getSelectedOptionText(processorSelect) : 'Not deployed';
-            const appVersion = deployEnabled ? getSelectedOptionText(processorVersionSelect) : 'Not deployed';
+            const appVersion = deployEnabled
+                ? (isCardReaderDeployment() ? 'Not required' : getSelectedOptionText(processorVersionSelect))
+                : 'Not deployed';
             const integrationMode = deployEnabled ? getSelectedOptionText(paywizardSelect) : 'Not deployed';
             const injectVisible = keyDownloadOption && !keyDownloadOption.classList.contains('is-hidden');
             const injectStatusVisible = keyDownloadStatusOption && !keyDownloadStatusOption.classList.contains('is-hidden');
@@ -3701,8 +3878,9 @@
                 (injectVisible && keyDownloadCheckbox && keyDownloadCheckbox.checked) ||
                 (injectStatusVisible && deviceValues.injectKeySelected)
             );
+            const deployStateText = isCardReaderDeployment() ? 'Deploy parameters' : 'Deploy app & parameters';
             return {
-                deployState: deployEnabled ? 'Deploy app & parameters' : 'No app or parameters will be deployed',
+                deployState: deployEnabled ? deployStateText : 'No app or parameters will be deployed',
                 processor,
                 appVersion,
                 integrationMode,
@@ -3711,9 +3889,9 @@
         }
 
         function resetRedeployScope(summary) {
-            const deployEnabled = summary.deployState === 'Deploy app & parameters';
+            const deployEnabled = summary.deployState !== 'No app or parameters will be deployed';
+            const cardReaderMode = isCardReaderDeployment();
             [
-                redeployPaymentApp,
                 redeployPaymentParams,
                 redeployPaywizard,
                 redeployPaywizardParams
@@ -3722,6 +3900,10 @@
                 checkbox.checked = deployEnabled;
                 checkbox.disabled = !deployEnabled;
             });
+            if (redeployPaymentApp) {
+                redeployPaymentApp.checked = deployEnabled && !cardReaderMode;
+                redeployPaymentApp.disabled = !deployEnabled || cardReaderMode;
+            }
 
             const canInjectKey = deployEnabled && processorSelect && processorsWithKeyDownload.has(processorSelect.value);
             if (redeployInjectKeyChoice) {
