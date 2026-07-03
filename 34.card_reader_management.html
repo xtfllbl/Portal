@@ -121,7 +121,9 @@
     .channel-list { display: block; }
     .payment-workbench { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 14px; align-items: start; }
     .channel-rail { border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; overflow: hidden; }
-    .channel-rail-head { padding: 11px 12px; border-bottom: 1px solid #e5e7eb; color: #64748b; font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .02em; }
+    .channel-rail-head { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; color: #64748b; font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .02em; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .channel-create-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid #111; background: #111; color: #fff; display: inline-grid; place-items: center; font-size: 19px; font-weight: 850; line-height: 1; }
+    .channel-create-btn:hover { border-color: #000; background: #000; }
     .channel-rail-list { display: grid; gap: 0; }
     .channel-option { appearance: none; border: 0; border-bottom: 1px solid #e5e7eb; background: transparent; text-align: left; padding: 12px; color: #0f172a; display: grid; gap: 8px; width: 100%; border-radius: 0; }
     .channel-option:last-child { border-bottom: 0; }
@@ -294,7 +296,6 @@
                 <div class="panel pad">
                   <div class="panel-head">
                     <h2 class="panel-title">Payment Channels</h2>
-                    <button id="openChannelCreateBtn" class="btn-primary" type="button">Create Payment Channel</button>
                   </div>
                   <div id="channelList" class="channel-list"></div>
                   <div id="channelEmpty" class="empty-state hidden">No payment channels created.</div>
@@ -371,37 +372,80 @@
       {
         id: 'channel-1',
         name: 'ELAVON_EU_Reader',
-        updated: '2026-06-21 15:42',
+        updated: '2026-06-29 16:28',
         appVersions: [
-          { id: 'pay-app-1', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.4_20260619', active: true, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.4_20260619.apk', updated: '2026-06-19 10:12' },
-          { id: 'pay-app-1b', name: 'Q3min-R Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.2_20260605', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.2_20260605.apk', updated: '2026-06-05 10:12' }
+          { id: 'pay-app-elavon-1', name: 'Q3min-R ELAVON Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.5_20260629', active: true, minFirmware: '3.4.0', fileName: 'q3minr-payment-elavon-2.8.5_20260629.apk', updated: '2026-06-29 16:28' },
+          { id: 'pay-app-elavon-2', name: 'Q3min-R ELAVON Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.4_20260619', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.4_20260619.apk', updated: '2026-06-19 10:12' },
+          { id: 'pay-app-elavon-3', name: 'Q3min-R ELAVON Payment App', package: 'com.paywizard.q3minr.pay.elavon', version: '2.8.2_20260605', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-elavon-2.8.2_20260605.apk', updated: '2026-06-05 10:12' }
         ],
         parameterFiles: [
-          { id: 'pay-xml-1', fileName: 'elavon-q3minr-20260619.xml', revision: 'xml-20260619', active: true, uploaded: '2026-06-19 10:40', notes: 'ELAVON_EU_Reader card reader payment parameters.' }
+          { id: 'pay-xml-elavon-1', fileName: 'elavon-q3minr-release-20260629.xml', revision: 'xml-20260629', active: true, uploaded: '2026-06-29 16:35', notes: 'ELAVON_EU_Reader production payment parameters.' }
         ]
       },
       {
         id: 'channel-2',
         name: 'Nuvei_ATTD_Reader',
-        updated: '2026-06-22 09:28',
-        appVersions: [],
-        parameterFiles: []
+        updated: '2026-06-27 09:28',
+        appVersions: [
+          { id: 'pay-app-nuvei-attd-1', name: 'Q3min-R Nuvei ATTD Payment App', package: 'com.paywizard.q3minr.pay.nuvei.attd', version: '2.6.7_20260627', active: true, minFirmware: '3.4.0', fileName: 'q3minr-payment-nuvei-attd-2.6.7_20260627.apk', updated: '2026-06-27 09:28' },
+          { id: 'pay-app-nuvei-attd-2', name: 'Q3min-R Nuvei ATTD Payment App', package: 'com.paywizard.q3minr.pay.nuvei.attd', version: '2.6.4_20260611', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-nuvei-attd-2.6.4_20260611.apk', updated: '2026-06-11 17:06' },
+          { id: 'pay-app-nuvei-attd-3', name: 'Q3min-R Nuvei ATTD Payment App', package: 'com.paywizard.q3minr.pay.nuvei.attd', version: '2.5.9_20260530', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-nuvei-attd-2.5.9_20260530.apk', updated: '2026-05-30 14:22' }
+        ],
+        parameterFiles: [
+          { id: 'pay-xml-nuvei-attd-1', fileName: 'nuvei-attd-q3minr-release-20260627.xml', revision: 'xml-20260627', active: true, uploaded: '2026-06-27 09:45', notes: 'Nuvei_ATTD_Reader attended payment parameters.' }
+        ]
       },
       {
         id: 'channel-3',
-        name: 'TSYS_Transit_Reader',
-        updated: '2026-06-28 12:16',
+        name: 'Nuvei_Unattd_Reader',
+        updated: '2026-06-26 13:52',
         appVersions: [
-          { id: 'pay-app-2', name: 'Q3min-R TSYS Payment App', package: 'com.paywizard.q3minr.pay.tsys', version: '2.7.9_20260628', active: true, minFirmware: '3.3.8', fileName: 'q3minr-payment-tsys-2.7.9_20260628.apk', updated: '2026-06-28 12:16' }
+          { id: 'pay-app-nuvei-unattd-1', name: 'Q3min-R Nuvei Unattended Payment App', package: 'com.paywizard.q3minr.pay.nuvei.unattd', version: '2.6.2_20260626', active: true, minFirmware: '3.4.0', fileName: 'q3minr-payment-nuvei-unattd-2.6.2_20260626.apk', updated: '2026-06-26 13:52' },
+          { id: 'pay-app-nuvei-unattd-2', name: 'Q3min-R Nuvei Unattended Payment App', package: 'com.paywizard.q3minr.pay.nuvei.unattd', version: '2.6.0_20260612', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-nuvei-unattd-2.6.0_20260612.apk', updated: '2026-06-12 11:18' },
+          { id: 'pay-app-nuvei-unattd-3', name: 'Q3min-R Nuvei Unattended Payment App', package: 'com.paywizard.q3minr.pay.nuvei.unattd', version: '2.5.8_20260528', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-nuvei-unattd-2.5.8_20260528.apk', updated: '2026-05-28 15:40' }
         ],
-        parameterFiles: []
+        parameterFiles: [
+          { id: 'pay-xml-nuvei-unattd-1', fileName: 'nuvei-unattd-q3minr-release-20260626.xml', revision: 'xml-20260626', active: true, uploaded: '2026-06-26 14:05', notes: 'Nuvei_Unattd_Reader unattended payment parameters.' }
+        ]
       },
       {
         id: 'channel-4',
+        name: 'TSYS_Transit_Reader',
+        updated: '2026-06-28 12:16',
+        appVersions: [
+          { id: 'pay-app-tsys-1', name: 'Q3min-R TSYS Transit Payment App', package: 'com.paywizard.q3minr.pay.tsys.transit', version: '2.7.9_20260628', active: true, minFirmware: '3.4.0', fileName: 'q3minr-payment-tsys-transit-2.7.9_20260628.apk', updated: '2026-06-28 12:16' },
+          { id: 'pay-app-tsys-2', name: 'Q3min-R TSYS Transit Payment App', package: 'com.paywizard.q3minr.pay.tsys.transit', version: '2.7.6_20260610', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-tsys-transit-2.7.6_20260610.apk', updated: '2026-06-10 09:58' },
+          { id: 'pay-app-tsys-3', name: 'Q3min-R TSYS Transit Payment App', package: 'com.paywizard.q3minr.pay.tsys.transit', version: '2.7.1_20260524', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-tsys-transit-2.7.1_20260524.apk', updated: '2026-05-24 10:35' }
+        ],
+        parameterFiles: [
+          { id: 'pay-xml-tsys-1', fileName: 'tsys-transit-q3minr-release-20260628.xml', revision: 'xml-20260628', active: true, uploaded: '2026-06-28 12:32', notes: 'TSYS_Transit_Reader production payment parameters.' }
+        ]
+      },
+      {
+        id: 'channel-5',
         name: 'Fiserv_Reader',
         updated: '2026-06-24 10:08',
-        appVersions: [],
-        parameterFiles: []
+        appVersions: [
+          { id: 'pay-app-fiserv-1', name: 'Q3min-R Fiserv Payment App', package: 'com.paywizard.q3minr.pay.fiserv', version: '2.5.6_20260624', active: true, minFirmware: '3.4.0', fileName: 'q3minr-payment-fiserv-2.5.6_20260624.apk', updated: '2026-06-24 10:08' },
+          { id: 'pay-app-fiserv-2', name: 'Q3min-R Fiserv Payment App', package: 'com.paywizard.q3minr.pay.fiserv', version: '2.5.3_20260607', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-fiserv-2.5.3_20260607.apk', updated: '2026-06-07 16:15' },
+          { id: 'pay-app-fiserv-3', name: 'Q3min-R Fiserv Payment App', package: 'com.paywizard.q3minr.pay.fiserv', version: '2.4.9_20260522', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-fiserv-2.4.9_20260522.apk', updated: '2026-05-22 13:44' }
+        ],
+        parameterFiles: [
+          { id: 'pay-xml-fiserv-1', fileName: 'fiserv-q3minr-release-20260624.xml', revision: 'xml-20260624', active: true, uploaded: '2026-06-24 10:22', notes: 'Fiserv_Reader production payment parameters.' }
+        ]
+      },
+      {
+        id: 'channel-6',
+        name: 'OxPay_Reader',
+        updated: '2026-06-25 15:12',
+        appVersions: [
+          { id: 'pay-app-oxpay-1', name: 'Q3min-R OxPay Payment App', package: 'com.paywizard.q3minr.pay.oxpay', version: '2.4.8_20260625', active: true, minFirmware: '3.4.0', fileName: 'q3minr-payment-oxpay-2.4.8_20260625.apk', updated: '2026-06-25 15:12' },
+          { id: 'pay-app-oxpay-2', name: 'Q3min-R OxPay Payment App', package: 'com.paywizard.q3minr.pay.oxpay', version: '2.4.5_20260606', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-oxpay-2.4.5_20260606.apk', updated: '2026-06-06 10:50' },
+          { id: 'pay-app-oxpay-3', name: 'Q3min-R OxPay Payment App', package: 'com.paywizard.q3minr.pay.oxpay', version: '2.4.1_20260520', active: false, minFirmware: '3.3.8', fileName: 'q3minr-payment-oxpay-2.4.1_20260520.apk', updated: '2026-05-20 09:36' }
+        ],
+        parameterFiles: [
+          { id: 'pay-xml-oxpay-1', fileName: 'oxpay-q3minr-release-20260625.xml', revision: 'xml-20260625', active: true, uploaded: '2026-06-25 15:28', notes: 'OxPay_Reader production payment parameters.' }
+        ]
       }
     ];
 
@@ -508,9 +552,14 @@
       elavon: 'ELAVON_EU_Reader',
       'elavon retail': 'ELAVON_EU_Reader',
       nuvei: 'Nuvei_ATTD_Reader',
+      'nuvei attended': 'Nuvei_ATTD_Reader',
+      'nuvei attd': 'Nuvei_ATTD_Reader',
+      'nuvei unattended': 'Nuvei_Unattd_Reader',
+      'nuvei unattd': 'Nuvei_Unattd_Reader',
       tsys: 'TSYS_Transit_Reader',
       'tsys transit': 'TSYS_Transit_Reader',
-      fiserv: 'Fiserv_Reader'
+      fiserv: 'Fiserv_Reader',
+      oxpay: 'OxPay_Reader'
     };
     function sampleChannelName(name){
       return SAMPLE_CHANNEL_NAME_MAP[normalize(name)] || name;
@@ -537,12 +586,31 @@
         parameterFiles: latestXml(channel.parameterFiles) ? [latestXml(channel.parameterFiles)] : []
       };
     }
+    function mergeAppVersions(target, source){
+      source.forEach(sourceApp => {
+        const exists = target.some(targetApp => normalize(targetApp.package) === normalize(sourceApp.package) && normalize(targetApp.version) === normalize(sourceApp.version));
+        if (!exists) target.push(clone(sourceApp));
+      });
+      return ensureSingleActive(target);
+    }
+    function mergeDefaultPaymentChannels(){
+      DEFAULT_PAYMENT_CHANNELS.forEach(defaultChannel => {
+        const existing = paymentChannels.find(channel => normalize(channel.name) === normalize(defaultChannel.name));
+        if (!existing) {
+          paymentChannels.push(clone(defaultChannel));
+          return;
+        }
+        existing.appVersions = mergeAppVersions(Array.isArray(existing.appVersions) ? existing.appVersions : [], defaultChannel.appVersions);
+        if (!latestXml(existing.parameterFiles) && latestXml(defaultChannel.parameterFiles)) existing.parameterFiles = clone(defaultChannel.parameterFiles);
+      });
+    }
     function normalizeAssetState(){
       opcAssets.appVersions.forEach(item => {
         if (item.name === 'Paywizard OPC Bridge') item.name = 'Paywizard OPC Reader';
       });
       opcAssets.appVersions = ensureSingleActive(opcAssets.appVersions);
       opcAssets.parameterFiles = latestXml(opcAssets.parameterFiles) ? [latestXml(opcAssets.parameterFiles)] : [];
+      mergeDefaultPaymentChannels();
       paymentChannels = paymentChannels.map(normalizeChannel);
     }
     function setActive(rows, id){
@@ -621,7 +689,10 @@
       $('#channelList').innerHTML = selectedChannel ? `
         <div class="payment-workbench">
           <aside class="channel-rail">
-            <div class="channel-rail-head">Processors / Acquirers</div>
+            <div class="channel-rail-head">
+              <span>Processors / Acquirers</span>
+              <button class="channel-create-btn" data-create-channel type="button" title="Create Payment Channel" aria-label="Create Payment Channel">+</button>
+            </div>
             <div class="channel-rail-list">
               ${rows.map(channel => {
                 return `
@@ -670,7 +741,7 @@
                             <td>${escapeHtml(item.version)}</td>
                             <td>${statusBadge(item.active ? 'Active' : 'Inactive')}</td>
                             <td>${escapeHtml(item.updated)}</td>
-                            <td><div class="row-actions">${stateEditButton('data-toggle-payment-app-state', `${channel.id}:${item.id}`, item.active, 'Put Payment APK Online', 'Take Payment APK Offline')}${trashButton('data-delete-payment-app', `${channel.id}:${item.id}`, 'Delete payment APK')}</div></td>
+                            <td><div class="row-actions">${item.active ? '' : stateEditButton('data-set-active-payment-app', `${channel.id}:${item.id}`, false, 'Set Payment APK Active', 'Set Payment APK Inactive')}${trashButton('data-delete-payment-app', `${channel.id}:${item.id}`, 'Delete payment APK')}</div></td>
                           </tr>
                         `).join('')}
                       </tbody>
@@ -867,6 +938,14 @@
       renderAll();
       showMainTab('payment');
     }
+    function openCreateChannelModal(){
+      channelModalMode = 'create';
+      editingChannelId = '';
+      $('#channelModalTitle').textContent = 'Create Payment Channel';
+      $('#saveChannelBtn').textContent = 'Create Channel';
+      $('#channelName').value = '';
+      openModal('channelModal');
+    }
     function saveAssetUpload(){
       if (!validateAssetUpload()) return;
       const isXml = uploadContext.type.endsWith('Xml');
@@ -916,14 +995,6 @@
       });
       $('#uploadOpcAppBtn').addEventListener('click', () => openAssetUpload('opcApp'));
       $('#uploadOpcXmlBtn').addEventListener('click', () => openAssetUpload('opcXml'));
-      $('#openChannelCreateBtn').addEventListener('click', () => {
-        channelModalMode = 'create';
-        editingChannelId = '';
-        $('#channelModalTitle').textContent = 'Create Payment Channel';
-        $('#saveChannelBtn').textContent = 'Create Channel';
-        $('#channelName').value = '';
-        openModal('channelModal');
-      });
       $$('[data-close-modal]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.closeModal)));
       $$('.modal-backdrop').forEach(backdrop => backdrop.addEventListener('click', evt => { if (evt.target === backdrop) closeModal(backdrop.id); }));
       document.addEventListener('keydown', evt => { if (evt.key === 'Escape') $$('.modal-backdrop.open').forEach(modal => closeModal(modal.id)); });
@@ -933,6 +1004,8 @@
       $('#saveChannelBtn').addEventListener('click', saveChannel);
 
       document.addEventListener('click', evt => {
+        const createChannel = evt.target.closest('[data-create-channel]');
+        if (createChannel) { openCreateChannelModal(); return; }
         const selectChannel = evt.target.closest('[data-select-channel]');
         if (selectChannel) { selectedChannelId = selectChannel.dataset.selectChannel; renderChannels(); return; }
         const editChannel = evt.target.closest('[data-edit-channel]');
@@ -960,12 +1033,11 @@
         if (fwDelete && confirm('Delete this firmware package?')) { firmware = firmware.filter(f => f.id !== fwDelete.dataset.deleteFw); saveAll(); renderAll(); return; }
         const setOpcApp = evt.target.closest('[data-set-active-opc-app]');
         if (setOpcApp) { setActive(opcAssets.appVersions, setOpcApp.dataset.setActiveOpcApp); saveAll(); renderAll(); return; }
-        const togglePaymentAppState = evt.target.closest('[data-toggle-payment-app-state]');
-        if (togglePaymentAppState) {
-          const [channelId, appId] = togglePaymentAppState.dataset.togglePaymentAppState.split(':');
+        const setPaymentApp = evt.target.closest('[data-set-active-payment-app]');
+        if (setPaymentApp) {
+          const [channelId, appId] = setPaymentApp.dataset.setActivePaymentApp.split(':');
           const channel = channelById(channelId);
-          const app = channel?.appVersions.find(item => item.id === appId);
-          if (channel && app) { app.active = !app.active; channel.updated = nowText(); saveAll(); renderAll(); }
+          if (channel) { setActive(channel.appVersions, appId); channel.updated = nowText(); saveAll(); renderAll(); }
           return;
         }
         const deleteOpcApk = evt.target.closest('[data-delete-opc-apk]');

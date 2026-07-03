@@ -1,0 +1,2900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Management</title>
+    <link rel="stylesheet" href="styles/na-theme.css">
+    <style>
+        :root {
+            --banner: #111111;   /* near-black header */
+            --accent: #2563eb;   /* subtle blue accent */
+            --chip-bg: #f1f2f4;  /* gray chip */
+            --chip-text: #374151;
+        }
+        /* Page shell to match Paywizard Console look */
+        body { background: var(--bg); margin: 0; }
+        .page-wrap { width: 100%; max-width: 1120px; margin: 24px auto; padding: 0 20px; }
+        .sidebar.is-collapsed + .workspace .page-wrap {
+            max-width: none;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 14px;
+            padding-right: 34px;
+        }
+        .crumbs { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin: 6px 0 12px; text-transform: uppercase; }
+        .crumbs span { color: #0f172a; }
+
+        /* Main card that holds the header, tabs and content */
+        .terminal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
+
+        /* Blue banner header to match the provided structure */
+        .card-banner { background: var(--banner); color: #fff; padding: 16px 18px 12px; position: relative; }
+        .banner-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .title { font-size: 22px; font-weight: 760; margin: 0; letter-spacing: .2px; }
+        .banner-meta { margin-top: 4px; color: rgba(255,255,255,.9); font-size: 12px; }
+        .banner-meta b { color: #fff; }
+        .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); }
+        .connection-status {
+            position: relative;
+            display: inline-flex;
+        }
+        .connection-summary {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 999px;
+            background: rgba(255,255,255,.08);
+            color: #fff;
+            min-height: 34px;
+            padding: 5px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .connection-summary:hover,
+        .connection-summary:focus-visible {
+            background: rgba(255,255,255,.14);
+            outline: none;
+        }
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, .18);
+            flex: 0 0 auto;
+        }
+        .connection-primary { font-weight: 800; flex: 0 0 auto; }
+        .connection-status.is-online .connection-summary {
+            border-color: rgba(74, 222, 128, .42);
+            background: rgba(22, 163, 74, .18);
+        }
+        .connection-status.is-online .connection-dot {
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .18);
+        }
+        .connection-status.is-offline .connection-summary {
+            border-color: rgba(248, 113, 113, .46);
+            background: rgba(185, 28, 28, .24);
+        }
+        .connection-status.is-offline .connection-dot {
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .2);
+        }
+        .connection-status.is-partial .connection-summary {
+            border-color: rgba(251, 191, 36, .48);
+            background: rgba(180, 83, 9, .26);
+        }
+        .connection-popover {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 310px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid rgba(15, 23, 42, .12);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, .28);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+            z-index: 40;
+        }
+        .connection-status:hover .connection-popover,
+        .connection-status:focus-within .connection-popover,
+        .connection-status.open .connection-popover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .connection-popover::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            right: 28px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-left: 1px solid rgba(15, 23, 42, .12);
+            border-top: 1px solid rgba(15, 23, 42, .12);
+            transform: rotate(45deg);
+        }
+        .connection-detail-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-top: 1px solid #eef2f7;
+        }
+        .connection-detail-row:first-child {
+            border-top: 0;
+            padding-top: 0;
+        }
+        .connection-detail-label {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 650;
+        }
+        .connection-detail-state {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #0f172a;
+            white-space: nowrap;
+        }
+        .connection-detail-state::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+        .connection-detail-state.is-offline {
+            color: #b91c1c;
+        }
+        .connection-detail-state.is-offline::before {
+            background: #ef4444;
+        }
+        .connection-last-update {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 11px;
+        }
+        .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; background: rgba(17,17,17,.75); color: #fff; border: 1px solid rgba(255,255,255,.15); }
+        .sync-text { position: absolute; right: 18px; bottom: 8px; font-size: 11px; color: rgba(255,255,255,.8); }
+        .card-banner .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12); color: #fff; }
+        .card-banner .icon-btn:hover { background: rgba(255,255,255,.2); }
+        .terminal-action-wrap { position: relative; }
+        .terminal-action-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 190px;
+            padding: 6px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.28);
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 30;
+        }
+        .terminal-action-menu.open { display: flex; }
+        .terminal-action-item {
+            appearance: none;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .terminal-action-item:hover { background: #f8fafc; }
+        .terminal-action-item.danger { color: #b42318; }
+        .terminal-action-item.danger:hover { background: #fef2f2; }
+
+        /* Primary tabs live inside the banner */
+        .toolbar { display: none; }
+        .banner-tabs { margin-top: 10px; display: flex; gap: 14px; }
+        .banner-tabs .tab { appearance: none; background: transparent; border: none; padding: 10px 12px; margin: 0; font-weight: 700; color: rgba(255,255,255,.85); cursor: pointer; border-bottom: 3px solid transparent; }
+        .banner-tabs .tab:hover { color: #fff; }
+        .banner-tabs .tab.active { color: #fff; border-bottom-color: var(--accent); }
+
+        /* Info strip */
+        .info-strip { display: flex; justify-content: space-between; gap: 16px; align-items: center; background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        .kv { display: flex; flex-wrap: wrap; gap: 16px 22px; font-size: 13px; color: #475569; }
+        .kv b { color: #0f172a; }
+        .status-line { display: flex; align-items: center; gap: 14px; color: #475569; font-size: 13px; }
+        .muted { color: #64748b; font-size: 12px; }
+
+        /* Section content */
+        .content { padding: 18px; }
+        .content-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .subtabs { display: flex; gap: 8px; }
+        .subtab { appearance: none; background: var(--chip-bg); border: 1px solid var(--border); padding: 5px 10px; margin: 0; font-weight: 600; color: var(--chip-text); cursor: pointer; border-radius: 10px; font-size: 13px; }
+        .subtab.active { background: #111; color: #fff; border-color: #111; }
+        .content-head .btn-primary { width: auto; padding: 8px 12px; font-size: 13px; }
+
+        /* Filters */
+        .filter-bar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 10px; margin: 8px 0 12px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+        .filter-grid .field { display: flex; flex-direction: column; gap: 6px; }
+        .filter-grid label { font-size: 11px; font-weight: 700; color: #475569; }
+        .filter-bar input[type="text"], .filter-bar select { padding: 8px 10px; font-size: 13px; height: 34px; border-radius: 10px; }
+        .date-range { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .filter-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+        .filter-actions .btn-primary, .filter-actions .btn-secondary { width: auto; }
+
+        /* Task card */
+        .task-card { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow-xs); }
+        .task-title { font-size: 16px; font-weight: 650; color: #0f172a; margin: 0 0 6px; }
+        .task-title span { color: #14532d; background: #dcfce7; border-radius: 8px; padding: 2px 6px; font-size: 12px; font-weight: 700; margin-left: 6px; }
+        .task-meta { color: #475569; font-size: 13px; line-height: 1.6; }
+        .task-actions { display: flex; align-items: center; gap: 10px; }
+        .badge.success { background: #e8f5e9; color: #1b5e20; }
+        .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: #0f172a; display: grid; place-items: center; cursor: pointer; }
+        .icon-btn:hover { background: #f8fafc; }
+
+        /* History section */
+        .section { margin-top: 22px; }
+        .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .section-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+        .section-tools { display: flex; gap: 8px; }
+        .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); overflow: hidden; }
+        .table thead th { padding: 10px 12px; }
+        .table tbody td { padding: 10px 12px; }
+        #tab-appfw .table-wrap { overflow-x: auto; }
+        #tab-appfw .table { min-width: 980px; }
+        #tab-appfw .app-table-title {
+            margin: 14px 0 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+        #tab-appfw .app-table-title:first-child { margin-top: 0; }
+        .app-para-table .minor-code { margin-left: 10px; color: #2563eb; font-size: 12px; text-decoration: none; }
+        .app-para-table .minor-code:hover { text-decoration: underline; }
+        .installed-app-table { min-width: 1160px; }
+        .installed-app-table th:last-child,
+        .installed-app-table td:last-child {
+            width: 72px;
+            text-align: center;
+        }
+        .installed-delete-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #dedfe3;
+            background: #ffffff;
+            color: #b42318;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .installed-delete-btn:hover { background: #fff1f0; border-color: #f0b8b2; }
+        .installed-delete-btn:disabled {
+            color: #a1a1aa;
+            background: #f4f4f5;
+            border-color: #e4e4e7;
+            cursor: not-allowed;
+        }
+        .installed-delete-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        #table-para.parameter-panel {
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+            overflow: visible;
+        }
+        #table-para .table-wrap { overflow-x: auto; }
+        .param-history-table {
+            min-width: 1000px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .param-history-table thead th {
+            background: #f8fafc;
+            color: #6b7280;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+        .param-history-table tbody tr:nth-child(even) { background: #fafafa; }
+        .param-history-table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #3f3f46;
+            font-size: 14px;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+        .param-history-table th:nth-child(1) { width: 39%; }
+        .param-history-table th:nth-child(2) { width: 22%; }
+        .param-history-table th:nth-child(3) { width: 13%; }
+        .param-history-table th:nth-child(4) { width: 9%; }
+        .param-history-table th:nth-child(5) { width: 11%; }
+        .param-history-table th:nth-child(6) { width: 6%; }
+        .param-name-link {
+            color: #006fd6;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .param-name-link:hover { text-decoration: underline; }
+        .param-status-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .param-status-badge.applied { background: #d7f5e2; color: #10823b; }
+        .param-status-badge.created { background: #f2f2f3; color: #3f3f46; }
+        .param-status-badge.key-init { background: #dbeafe; color: #1d4ed8; }
+        .param-status-badge.key-success { background: #d7f5e2; color: #10823b; }
+        .param-status-badge.key-failed { background: #fee2e2; color: #b91c1c; }
+        .param-status-badge.key-reset { background: #fef3c7; color: #92400e; }
+        .param-status-badge.key-invalid { background: #e5e7eb; color: #374151; }
+        .param-action-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #dedfe3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #111111;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .param-action-btn:hover { background: #f5f5f6; border-color: #c9cbd1; }
+        .param-action-btn svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .hidden { display: none; }
+        .old { display: none; }
+
+        /* Black/white button treatment */
+        .btn-primary { background: #111 !important; border-color: #111 !important; color: #fff; border: 1px solid #111; border-radius: 999px; box-shadow: 0 3px 8px rgba(0,0,0,.10); padding: 8px 12px; font-weight: 700; font-size: 13px; }
+        .btn-primary:hover { background: #000; }
+        .btn-secondary { background: #fff; color: #111; border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; font-size: 13px; }
+
+        /* Hide old info strip – info now lives inside banner */
+        .info-strip { display: none; }
+
+        /* Shell from reseller page */
+        .top-header {
+            height: 56px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .shell-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; font-size: 15px; }
+        .shell-brand-logo { width: 28px; height: 28px; border-radius: 6px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+        .shell-header-actions { display: flex; align-items: center; gap: 12px; }
+        .shell-icon-button { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; display: grid; place-items: center; position: relative; color: #0f172a; font-weight: 600; cursor: pointer; }
+        .shell-icon-button .badge { position: absolute; right: 4px; top: 4px; background: #111; color: #fff; font-size: 10px; font-weight: 700; padding: 0 5px; line-height: 16px; border-radius: 8px; }
+        .shell-user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; border: 1px solid #e5e5e5; background: #fff; font-size: 13px; color: #0f172a; }
+        .shell-user-avatar { width: 24px; height: 24px; border-radius: 50%; background: #111; color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 12px; }
+        .main-body { display: flex; min-height: calc(100vh - 56px); align-items: flex-start; gap: 20px; padding: 20px; }
+        .workspace { flex: 1; min-width: 0; }
+        .sidebar {
+            width: 260px;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            position: relative;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: width 0.22s ease;
+        }
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 74px;
+            padding: 2px 8px 0;
+        }
+        .sidebar .brand-left { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .sidebar .brand-text { display: flex; flex-direction: column; align-items: flex-end; gap: 0; }
+        .sidebar .brand-name { font-weight: 800; font-size: 25px; color: #0f0f10; letter-spacing: 0; line-height: 1; }
+        .sidebar .brand-sub { font-size: 10px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.45px; font-weight: 700; }
+        .sidebar .nav-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            overflow: visible;
+        }
+        .sidebar .nav-control {
+            position: absolute;
+            right: -14px;
+            top: 0;
+            bottom: 0;
+            width: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            padding: 0;
+            pointer-events: auto;
+            z-index: 9;
+        }
+        .sidebar .close-btn {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            color: #ffffff;
+            opacity: 1;
+            transform: none;
+            pointer-events: auto;
+            transition: opacity 0.18s ease;
+        }
+        .sidebar .close-btn::before {
+            content: "";
+            position: absolute;
+            left: 13px;
+            top: 18px;
+            bottom: 18px;
+            width: 2px;
+            border-radius: 999px;
+            background: #d8dee6;
+            transition: background-color 0.18s ease, transform 0.18s ease;
+        }
+        .sidebar .close-btn::after {
+            content: "";
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            background: #111111;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+            opacity: 0;
+            transform: translateY(-50%) scale(0.86);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        .sidebar .close-btn:hover {
+            color: #ffffff;
+            box-shadow: none;
+        }
+        .sidebar .close-btn:hover::before,
+        .sidebar .close-btn:focus-visible::before { background: transparent; transform: scaleY(0.6); }
+        .sidebar .close-btn:hover::after,
+        .sidebar .close-btn:focus-visible::after { opacity: 1; transform: translateY(-50%) scale(1); }
+        .sidebar .close-btn:focus-visible { outline: 2px solid #111111; outline-offset: 3px; }
+        .sidebar .close-btn .toggle-icon {
+            position: relative;
+            z-index: 1;
+            font-size: 15px;
+            line-height: 1;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(-1px);
+            transition: opacity 0.18s ease;
+        }
+        .sidebar .close-btn:hover .toggle-icon,
+        .sidebar .close-btn:focus-visible .toggle-icon { opacity: 1; }
+        .sidebar .menu { padding: 12px 10px 16px; display: flex; flex-direction: column; gap: 2px; }
+        .sidebar .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: #111111; transition: background-color 0.18s ease, color 0.18s ease; }
+        .sidebar .menu-item:hover { background: #f3f4f6; }
+        .sidebar .menu-main { display: flex; align-items: center; gap: 10px; }
+        .sidebar .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #0f0f10; }
+        .sidebar .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .sidebar .label { font-size: 14px; font-weight: 600; color: inherit; }
+        .sidebar .chevron { font-size: 11px; color: #6b7280; }
+        .sidebar .menu-item.active { background: #0f0f10; color: #ffffff; }
+        .sidebar .menu-item.active .icon,
+        .sidebar .menu-item.active .chevron { color: #ffffff; }
+        .sidebar .sub-menu { margin: 4px 0 10px; padding-left: 32px; display: none; flex-direction: column; gap: 2px; }
+        .sidebar .sub-menu.open { display: flex; }
+        .sidebar .sub-item { position: relative; font-size: 13px; color: #6b7280; padding: 4px 0 4px 14px; border-radius: 999px; cursor: pointer; transition: background-color 0.18s ease, color 0.18s ease; }
+        .sidebar .sub-item::before { content: ""; position: absolute; left: 0; top: 50%; width: 5px; height: 5px; border-radius: 50%; border: 1px solid #d1d5db; transform: translateY(-50%); }
+        .sidebar .sub-item:hover { color: #111111; background: #f3f4f6; }
+        .sidebar .sub-item.active { padding: 6px 10px 6px 24px; background: #111111; color: #ffffff; }
+        .sidebar .sub-item.active::before { width: 7px; height: 7px; border: none; background: #ffffff; left: 10px; }
+        .sidebar.is-collapsed { width: 82px; }
+        .sidebar.is-collapsed .brand { min-height: 48px; padding: 0; }
+        .sidebar.is-collapsed .brand-left { display: none; }
+        .sidebar.is-collapsed .brand::before {
+            content: "PW";
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #111111;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+        .sidebar.is-collapsed .menu { padding: 8px 8px 12px; }
+        .sidebar.is-collapsed .menu-item { justify-content: center; padding: 10px 8px; }
+        .sidebar.is-collapsed .menu-main { gap: 0; }
+        .sidebar.is-collapsed .label,
+        .sidebar.is-collapsed .chevron,
+        .sidebar.is-collapsed .sub-menu { display: none !important; }
+
+        .source-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .push-app-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            padding: 20px;
+        }
+        .push-app-modal-overlay.open { display: flex; }
+        .push-app-modal {
+            width: min(1240px, 96vw);
+            max-height: calc(100vh - 40px);
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 22px 54px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .push-app-modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .push-app-modal-title { margin: 0; font-size: 22px; font-weight: 700; color: #111827; }
+        .push-app-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #111827;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .push-app-modal-body { padding: 16px 24px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+        .push-app-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
+        .source-tabs { display: flex; gap: 8px; }
+        .source-tab {
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 10px;
+        }
+        .source-tab.active { color: #111827; border-bottom-color: #111827; }
+        .source-search { width: 280px; max-width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; }
+        .select-table-wrap { border: 1px solid #e5e7eb; border-radius: 10px; overflow: auto; }
+        .select-table { width: 100%; border-collapse: collapse; min-width: 980px; }
+        .select-table thead th {
+            background: #fafafa;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .select-table tbody td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+        .select-table tbody tr { cursor: pointer; transition: background-color .16s ease; }
+        .select-table tbody tr:hover { background: #f8fafc; }
+        .select-table tbody tr.active { background: #eef2ff; }
+        .pick-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1.6px solid #9ca3af;
+            display: inline-block;
+            position: relative;
+        }
+        .pick-dot.active { border-color: #dc2626; }
+        .pick-dot.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc2626;
+            transform: translate(-50%, -50%);
+        }
+        .app-name-cell { display: flex; align-items: center; gap: 10px; color: #0f172a; }
+        .app-name-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .app-name-title { font-weight: 700; color: #0f172a; }
+        .app-avatar { width: 42px; height: 42px; border-radius: 10px; display: block; flex-shrink: 0; overflow: hidden; }
+        .app-icon-mark { display: block; width: 100%; height: 100%; }
+        .app-icon-mark svg { width: 100%; height: 100%; display: block; }
+        .app-source-note { font-size: 12px; color: #64748b; }
+        .empty-row td { text-align: center; color: #94a3b8; padding: 24px 12px; }
+        .push-app-modal-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .picked-app-hint { font-size: 13px; color: #475569; font-weight: 600; }
+        .push-app-links { display: flex; gap: 14px; font-size: 13px; flex-wrap: wrap; }
+        .push-app-modal-footer .action-buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .push-app-modal-footer .btn-primary,
+        .push-app-modal-footer .btn-secondary {
+            width: auto;
+            min-width: 96px;
+        }
+
+        .param-preview-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.46);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1250;
+            padding: 22px;
+        }
+        .param-preview-overlay.open { display: flex; }
+        .param-preview-modal {
+            width: min(1540px, 96vw);
+            max-height: calc(100vh - 44px);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 24px 58px rgba(0, 0, 0, 0.28);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .param-preview-head {
+            padding: 22px 28px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+        .param-preview-title {
+            margin: 0;
+            color: #3f414a;
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+        .param-preview-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #d8dbe2;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #3f414a;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .param-preview-body {
+            padding: 0 28px 24px;
+            overflow: auto;
+        }
+        .param-preview-tabs {
+            display: flex;
+            align-items: flex-end;
+            gap: 26px;
+            border-bottom: 1px solid #dedfe3;
+            margin-top: 18px;
+            overflow-x: auto;
+        }
+        .param-preview-tab {
+            border: 0;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: #737782;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 14px 0 16px;
+            white-space: nowrap;
+        }
+        .param-preview-tab.active {
+            color: #15171d;
+            border-bottom-color: #15171d;
+        }
+        .param-preview-panel {
+            padding: 28px 0 6px;
+        }
+        .param-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px 24px;
+        }
+        .param-readonly-field {
+            min-width: 0;
+        }
+        .param-field-label {
+            color: #444750;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.35;
+            margin-bottom: 8px;
+        }
+        .param-readonly-control {
+            min-height: 42px;
+            border: 0;
+            border-bottom: 1px solid #cfd3da;
+            background: #ffffff;
+            color: #454751;
+            display: flex;
+            align-items: center;
+            padding: 0 12px 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.35;
+            cursor: default;
+        }
+        .param-readonly-value {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+        .param-readonly-value.empty {
+            min-height: 20px;
+            color: transparent;
+        }
+        .param-unmatched {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .param-unmatched-item {
+            border: 1px solid #e2e5ea;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+        .param-unmatched-key {
+            color: #111827;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .param-unmatched-value {
+            color: #4b5563;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+        .param-preview-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 16px 28px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .param-preview-footer .btn-secondary {
+            width: auto;
+            min-width: 92px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1160px) {
+            .main-body { flex-direction: column; }
+            .sidebar { width: 100%; overflow: hidden; }
+            .sidebar .brand { justify-content: flex-start; min-height: auto; padding: 0 0 12px; }
+            .sidebar .nav-control { justify-content: flex-end; padding: 8px 10px 0; }
+            .sidebar .close-btn {
+                position: static;
+                width: 32px;
+                height: 32px;
+                border-radius: 999px;
+                border: 1px solid #e5e7eb;
+                background: #f9fafb;
+                box-shadow: none;
+                transform: none;
+            }
+            .sidebar .close-btn::before,
+            .sidebar .close-btn::after { display: none; }
+            .sidebar .close-btn:hover {
+                background: #111111;
+                border-color: #111111;
+                color: #ffffff;
+                box-shadow: none;
+                transform: none;
+            }
+            .sidebar.is-collapsed { width: 100%; }
+            .sidebar.is-collapsed .brand { justify-content: flex-start; min-height: auto; padding: 0 0 12px; }
+            .sidebar.is-collapsed .brand::before { display: none; }
+            .sidebar.is-collapsed .brand-left { display: flex; }
+            .sidebar.is-collapsed .nav-control { justify-content: flex-end; padding: 8px 10px 0; }
+            .sidebar.is-collapsed .menu { padding: 10px 10px 16px; }
+            .sidebar.is-collapsed .menu-item { justify-content: space-between; padding: 8px 10px; }
+            .sidebar.is-collapsed .menu-main { gap: 10px; }
+            .sidebar.is-collapsed .label,
+            .sidebar.is-collapsed .chevron { display: inline-flex !important; }
+            .sidebar.is-collapsed .sub-menu.open { display: flex !important; }
+        }
+        @media (max-width: 900px) {
+            .banner-top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .banner-status {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            .connection-popover {
+                left: 0;
+                right: auto;
+                max-width: min(310px, calc(100vw - 48px));
+            }
+            .connection-popover::before {
+                left: 28px;
+                right: auto;
+            }
+            .content-head,
+            .section-head,
+            .task-card,
+            .push-app-tools,
+            .push-app-modal-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .sync-text {
+                position: static;
+                margin-top: 10px;
+            }
+            .push-app-modal-footer .action-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .source-search { width: 100%; }
+            .param-form-grid,
+            .param-unmatched {
+                grid-template-columns: 1fr;
+            }
+            .param-preview-head,
+            .param-preview-body,
+            .param-preview-footer {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
+        @media (max-width: 560px) {
+            .connection-summary {
+                max-width: calc(100vw - 120px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-header">
+        <div class="shell-brand">
+            <div class="shell-brand-logo">PW</div>
+            <div>Paywizard Console</div>
+        </div>
+        <div class="shell-header-actions">
+            <button class="shell-icon-button" aria-label="Notifications">
+                <span>!</span>
+                <span class="badge">5</span>
+            </button>
+            <button class="shell-icon-button" aria-label="Settings">*</button>
+            <div class="shell-user-chip">
+                <div class="shell-user-avatar">R</div>
+                <span>robasz</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-body">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-left">
+                    <div class="brand-text">
+                        <div class="brand-name">PAYwizard</div>
+                        <div class="brand-sub">portal</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-control">
+                    <button class="close-btn" type="button" aria-label="Collapse menu" title="Collapse menu">
+                        <span class="toggle-icon" aria-hidden="true">&lsaquo;</span>
+                    </button>
+                </div>
+
+                <div class="menu">
+                <div class="menu-item" data-key="dashboard">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="4" width="7" height="7" rx="1.5"></rect>
+                                <rect x="4" y="13" width="7" height="7" rx="1.5"></rect>
+                                <rect x="13" y="13" width="7" height="7" rx="1.5"></rect>
+                            </svg>
+                        </span>
+                        <span class="label">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="transactions">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                                <path d="M8 14h4"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Transactions</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="batches">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 7h12l1 3H5z"></path>
+                                <path d="M7 10v7h10v-7"></path>
+                                <path d="M9 14h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Batches</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-key="security">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path>
+                                <path d="M10 12.5l2 2 3-3.5"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Security</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="agents">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M7.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M16.5 13a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"></path>
+                                <path d="M4 20a4 4 0 018 0"></path>
+                                <path d="M12 17a4 4 0 018 0"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Agents</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="agents">
+                    <div class="sub-item" data-key="agents-list" data-link="2.agent_list_iso.html">Agent List</div>
+                    <div class="sub-item" data-key="agents-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="merchants">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 9l7-5 7 5v9a2 2 0 01-2 2H7a2 2 0 01-2-2z"></path>
+                                <path d="M9 21V12h6v9"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Merchants</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="merchants">
+                    <div class="sub-item" data-key="merchants-leads">Leads</div>
+                    <div class="sub-item" data-key="merchants-onboarding">Onboarding</div>
+                    <div class="sub-item" data-key="merchants-list">Merchant List</div>
+                    <div class="sub-item" data-key="merchants-analytics">Analytics</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="partners">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 10.5C5 7 8 4 12 4s7 3 7 6.5c0 2.8-2 4.5-3.5 5.3l2 3.2H6.5l2-3.2C7 15 5 13.3 5 10.5z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Partners</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="partners">
+                    <div class="sub-item" data-key="partners-list">Partner List</div>
+                    <div class="sub-item" data-key="partners-hardware">Hardware</div>
+                </div>
+
+                <div class="menu-item active expanded" data-toggle="submenu" data-target="devices">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 4l6 4v4c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V8z"></path>
+                                <path d="M10 12.5l2 2 3-3.5"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Device Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">v</span>
+                </div>
+                <div class="sub-menu open" data-parent="devices">
+                    <div class="sub-item active" data-key="terminal-management" data-link="1.terminalmanage.html">Terminal Management</div>
+                    <div class="sub-item" data-key="template-management" data-link="3.pushtemplate_new.html">Template Management</div>
+                </div>
+
+                <div class="menu-item" data-key="app-center" data-link="10.customer_app_upload_manage.html">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                                <path d="M8 12h8"></path>
+                                <path d="M12 8v8"></path>
+                            </svg>
+                        </span>
+                        <span class="label">APP Management</span>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="users">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+                                <path d="M9 9h6M9 13h6M9 17h6"></path>
+                            </svg>
+                        </span>
+                        <span class="label">User Management</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="users">
+                    <div class="sub-item" data-key="users-list">User List</div>
+                    <div class="sub-item" data-key="users-roles">Role Permissions</div>
+                </div>
+
+                <div class="menu-item" data-toggle="submenu" data-target="settings">
+                    <div class="menu-main">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 008.6 15a1.65 1.65 0 00-1.82-.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0015.4 9c.33 0 .65-.1.92-.28l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 15z"></path>
+                            </svg>
+                        </span>
+                        <span class="label">Settings</span>
+                    </div>
+                    <span class="chevron" aria-hidden="true">></span>
+                </div>
+                <div class="sub-menu" data-parent="settings">
+                    <div class="sub-item" data-key="settings-branding" data-link="branding.html">Branding</div>
+                    <div class="sub-item" data-key="settings-payments">Payment Channels</div>
+                </div>
+            </div>
+            </div>
+        </aside>
+
+        <div class="workspace">
+            <div class="page-wrap">
+        <div class="crumbs">Merchant Account > <span>Terminal Management</span> > <span id="crumbTerminalLabel">Terminal - WP6267UQ36002376</span></div>
+
+        <div class="terminal-card">
+            <div class="card-banner">
+                <div class="banner-top">
+                    <h1 class="title" id="terminalTitle">Terminal - WP6267UQ36002376</h1>
+                    <div class="banner-status">
+                        <div
+                            id="connectionStatus"
+                            class="connection-status"
+                            data-device-online="false"
+                            data-service-online="true"
+                            data-device-since="2025-06-15 15:15:21"
+                            data-service-since="2025-06-15 15:15:21"
+                            data-device-offline-duration="8m"
+                            data-service-offline-duration="8m"
+                            data-last-update="2025-06-15 15:15:21"
+                        >
+                            <button
+                                id="connectionStatusButton"
+                                class="connection-summary"
+                                type="button"
+                                aria-haspopup="dialog"
+                                aria-expanded="false"
+                                aria-controls="connectionStatusPopover"
+                            >
+                                <span class="connection-dot" aria-hidden="true"></span>
+                                <span id="connectionPrimary" class="connection-primary">Partially Online</span>
+                            </button>
+                            <div id="connectionStatusPopover" class="connection-popover" role="dialog" aria-label="Connection status">
+                                <div class="connection-detail-row">
+                                    <span class="connection-detail-label">Device Service</span>
+                                    <span id="deviceConnectionState" class="connection-detail-state is-offline">Offline 8m</span>
+                                </div>
+                                <div class="connection-detail-row">
+                                    <span class="connection-detail-label">Payment Service</span>
+                                    <span id="terminalServiceState" class="connection-detail-state">Online</span>
+                                </div>
+                                <div class="connection-last-update">Last update: <span id="connectionLastUpdate">2025-06-15 15:15:21</span></div>
+                            </div>
+                        </div>
+                        <button class="icon-btn" title="More">⋮</button>
+                    </div>
+                </div>
+                <div class="banner-meta">
+                    <b>Reseller:</b> Universal Processing &nbsp;/&nbsp;
+                    <b>Merchant:</b> <span id="bannerMerchant">1 of a Kind World Travel LLC 41381</span> &nbsp;/&nbsp;
+                    <b>SN:</b> <span id="bannerSn">WP6267UQ36002376</span> &nbsp;/&nbsp;
+                    <b>TID:</b> <span id="bannerTid">UZN10E08</span> &nbsp;/&nbsp;
+                    <b>Model Name:</b> Q3RU
+                </div>
+                <div class="banner-tabs" id="primaryTabs" role="tablist">
+                    <button class="tab active" data-tab="basic" role="tab" aria-selected="true">Basic Information</button>
+                    <button class="tab" data-tab="appfw" role="tab" aria-selected="false">APP &amp; Parameters</button>
+                    <button class="tab" data-tab="push" role="tab" aria-selected="false">Push Task</button>
+                    <button class="tab" data-tab="settings" role="tab" aria-selected="false">Setting</button>
+                    <button class="tab" data-tab="params" role="tab" aria-selected="false">Parameter Variables</button>
+                </div>
+                <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
+            </div>
+
+            
+
+            <div class="info-strip">
+                <div class="kv">
+                    <div><b>Reseller:</b> Universal Processing</div>
+                    <div><b>Merchant:</b> <span id="infoMerchant">1 of a Kind World Travel LLC 41381</span></div>
+                    <div><b>SN:</b> <span id="infoSn">WP6267UQ36002376</span></div>
+                    <div><b>TID:</b> <span id="infoTid">UZN10E08</span></div>
+                    <div><b>Model:</b> Q3RU</div>
+                </div>
+                <div class="status-line">
+                    <span>🔔 0%</span>
+                    <span>🔒 Offline 8M (2025-06-15 15:15:21)</span>
+                    <span class="muted">Sync: 2024-09-23 17:05</span>
+                    <button class="icon-btn" title="Refresh">⟳</button>
+                </div>
+            </div>
+
+            <div class="content old">
+                <div class="content-head">
+                    <div class="subtabs">
+                        <div class="subtab active">App</div>
+                        <div class="subtab">Firmware</div>
+                        <div class="subtab">Launcher</div>
+                    </div>
+                    <button class="btn-primary" type="button">+ Push App</button>
+                </div>
+
+                <div class="task-card">
+                    <div>
+                        <div class="task-title">BroadPOS TransIT UPT <span>V1.00.16E_20250606</span></div>
+                        <div class="task-meta">
+                            Type: Parameter App<br>
+                            Effective Time: 2025-06-27 03:00<br>
+                            App Push Time: 2025-06-27 03:00
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <span class="badge success">Active</span>
+                        <button class="icon-btn" title="Delete">🗑</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-head">
+                        <div class="section-title">Operation History</div>
+                        <div class="section-tools">
+                            <button class="btn-secondary">Export</button>
+                            <button class="btn-secondary">Search</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Target</th>
+                                    <th>Version</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Push App</td>
+                                    <td>BroadPOS TransIT UPT</td>
+                                    <td>V1.00.16E_20250606</td>
+                                    <td><span class="badge success">Success</span></td>
+                                    <td>2025-06-27 03:00</td>
+                                </tr>
+                                <tr>
+                                    <td>Sync</td>
+                                    <td>Device</td>
+                                    <td>—</td>
+                                    <td><span class="badge warn">Pending</span></td>
+                                    <td>2025-06-27 02:55</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New content with tabs and filters -->
+            <div class="content" id="newContent">
+                <!-- Basic Information -->
+                <section id="tab-basic" role="tabpanel" aria-labelledby="basic">
+                    <!-- Basic tab styles kept local to avoid changing global sheet -->
+                    <style>
+                        .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+                        .panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); }
+                        .panel.pad { padding: 12px; }
+                        .panel-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: #0f172a; }
+                        .map-card { position: relative; min-height: 240px; display: grid; place-items: center; overflow: hidden; }
+                        .map-bg { position: absolute; inset: 0; background: linear-gradient(180deg,#f3f4f6, #e5e7eb); filter: grayscale(1) contrast(1); }
+                        .map-hint { position: relative; color: #6b7280; font-weight: 600; font-size: 14px; letter-spacing: .2px; }
+                        .map-refresh { position: absolute; right: 10px; top: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #111; }
+                        .stat-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                        .stat-card { padding: 12px; }
+                        .stat-head { display: flex; align-items: center; gap: 8px; color: #4b5563; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+                        .stat-value { font-size: 22px; font-weight: 800; margin: 8px 0 6px; color: #0b1220; }
+                        .stat-sub { color: #6b7280; font-weight: 600; font-size: 12px; }
+                        .bar { height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+                        .bar > span { display: block; height: 100%; background: #111; border-radius: inherit; }
+                        .details-grid { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: start; }
+                        .kv-list { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 8px; align-items: baseline; }
+                        .kv-list dt { color: #6b7280; font-size: 13px; font-weight: 700; }
+                        .kv-list dd { margin: 0; color: #0b1220; font-weight: 700; }
+                        .device-thumb { width: 100%; height: 140px; border: 1px solid var(--border); border-radius: 10px; background: linear-gradient(180deg,#eee,#ddd); display: grid; place-items: center; color: #475569; font-weight: 700; font-size: 12px; }
+                        .btn-ghost { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: #111; font-weight: 700; font-size: 12px; }
+                        .btn-ghost:hover { background: #f8fafc; }
+                        .group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
+                        .group-meta { color: #6b7280; font-size: 12px; }
+                        .group-name { font-weight: 750; }
+                        .txn-section { margin-top: 18px; }
+                        .txn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+                        .txn-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+                        .txn-kpi-card { display: grid; gap: 4px; }
+                        .txn-kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+                        .txn-kpi-value { font-size: 24px; font-weight: 800; color: #0b1220; line-height: 1.2; }
+                        .txn-kpi-note { color: #64748b; font-size: 12px; font-weight: 600; }
+                        .txn-table-wrap { overflow-x: auto; }
+                        .txn-table { min-width: 860px; }
+                        .txn-table thead th { text-align: center; white-space: nowrap; }
+                        .txn-table thead tr:last-child th:first-child { text-align: left; }
+                        .txn-table tbody td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+                        .txn-table tbody td:first-child { text-align: left; font-weight: 700; color: #0f172a; }
+                        .txn-footnote { margin-top: 8px; color: #64748b; font-size: 12px; font-weight: 600; }
+                        @media (max-width: 900px) {
+                            .txn-head { flex-direction: column; align-items: flex-start; }
+                            .txn-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                        }
+                        @media (max-width: 560px) {
+                            .txn-kpi-grid { grid-template-columns: 1fr; }
+                        }
+                    </style>
+
+                    <h2 class="section-title" style="margin-bottom:10px">Dashboard</h2>
+                    <div class="dash-grid">
+                        <!-- Left stack: map + stats -->
+                        <div class="left-stack">
+                            <div class="panel map-card">
+                                <div class="map-bg" aria-hidden="true"></div>
+                                <div class="map-hint">Terminal Location Not Uploaded</div>
+                                <button class="map-refresh" title="Refresh">⟳</button>
+                            </div>
+
+                            <div class="stat-grid">
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">RAM</div>
+                                    <div class="stat-value">20.49%</div>
+                                    <div class="bar"><span style="width:20.49%"></span></div>
+                                </div>
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">CPU</div>
+                                    <div class="stat-value">33.00%</div>
+                                    <div class="bar"><span style="width:33%"></span></div>
+                                </div>
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">Battery</div>
+                                    <div class="stat-value">NA</div>
+                                    <div class="bar"><span style="width:0%"></span></div>
+                                </div>
+                                <div class="panel pad stat-card">
+                                    <div class="stat-head">Storage</div>
+                                    <div class="stat-value">0.44GB <span class="stat-sub">/ 4.55GB</span></div>
+                                    <div class="bar"><span style="width:9.67%"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right stack: details + groups -->
+                        <div class="right-stack" style="display:grid; gap:12px; align-content:start;">
+                            <div class="panel pad">
+                                <div class="panel-title">Terminal Details</div>
+                                <div class="details-grid">
+                                    <dl class="kv-list">
+                                        <dt>SN</dt><dd id="detailsSn">WP6267UQ36002376</dd>
+                                        <dt>Model</dt><dd>Q3RU</dd>
+                                        <dt>PN</dt><dd>Q3RU-0AA-RD5-0JA0</dd>
+                                        <dt>Type</dt><dd>Payment Device - Smart POS</dd>
+                                    </dl>
+                                    <div class="device-thumb">Device Image</div>
+                                </div>
+                                <div style="margin-top:10px"><button class="btn-ghost" type="button">View Detail »</button></div>
+                            </div>
+                            <div class="panel pad">
+                                <div class="panel-title">Group List</div>
+                                <div class="group-item">
+                                    <div style="width:28px;height:28px;border-radius:8px;border:1px solid var(--border);display:grid;place-items:center;">👥</div>
+                                    <div>
+                                        <div class="group-name">Q3RU VendLink-UPT New</div>
+                                        <div class="group-meta">Group Type: General Group · Reseller: Universal Processing · Added: 2024-09-11 18:42</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terminal transaction statistics -->
+                    <div class="txn-section">
+                        <div class="txn-head">
+                            <div class="panel-title" style="margin:0">Terminal Transaction Statistics</div>
+                            <a id="viewTerminalTransactionsLink" class="btn-secondary" href="12.transaction_list.html">View Terminal Transactions</a>
+                        </div>
+                        <div class="txn-kpi-grid">
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Today Sales</div>
+                                <div class="txn-kpi-value">$38.71</div>
+                                <div class="txn-kpi-note">Credit Card + Prepaid Credit</div>
+                            </div>
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Today Transactions</div>
+                                <div class="txn-kpi-value">9</div>
+                                <div class="txn-kpi-note">Approved transactions</div>
+                            </div>
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Week Sales</div>
+                                <div class="txn-kpi-value">$241.44</div>
+                                <div class="txn-kpi-note">This week total amount</div>
+                            </div>
+                            <div class="panel pad txn-kpi-card">
+                                <div class="txn-kpi-label">Month Transactions</div>
+                                <div class="txn-kpi-value">130</div>
+                                <div class="txn-kpi-note">Current month total count</div>
+                            </div>
+                        </div>
+                        <div class="table-wrap txn-table-wrap">
+                            <table class="table txn-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th colspan="3">Sales</th>
+                                        <th colspan="3">Transactions</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Time Period</th>
+                                        <th>Credit Card</th>
+                                        <th>Prepaid Credit</th>
+                                        <th>Total</th>
+                                        <th>Credit Card</th>
+                                        <th>Prepaid Credit</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Today</td><td>$38.71</td><td>$0.00</td><td>$38.71</td><td>9</td><td>0</td><td>9</td></tr>
+                                    <tr><td>Yesterday</td><td>$69.54</td><td>$0.00</td><td>$69.54</td><td>16</td><td>0</td><td>16</td></tr>
+                                    <tr><td>This Week</td><td>$241.44</td><td>$0.00</td><td>$241.44</td><td>57</td><td>0</td><td>57</td></tr>
+                                    <tr><td>Last Week</td><td>$472.66</td><td>$0.00</td><td>$472.66</td><td>113</td><td>0</td><td>113</td></tr>
+                                    <tr><td>This Month</td><td>$549.69</td><td>$0.00</td><td>$549.69</td><td>130</td><td>0</td><td>130</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="txn-footnote">Last transaction sync: 2025-06-27 03:00</div>
+                    </div>
+                </section>
+
+                <!-- App & Parameters -->
+                <section id="tab-appfw" class="hidden" role="tabpanel" aria-labelledby="appfw">
+                    <div class="content-head">
+                        <div class="subtabs" id="subTabs">
+                            <button class="subtab active" data-sub="app">APP</button>
+                            <button class="subtab" data-sub="para">Parameters</button>
+                            <button class="subtab" data-sub="key">KEY</button>
+                        </div>
+                    </div>
+
+                    <div id="table-app">
+                        <div class="app-table-title">Installed APP List</div>
+                        <div class="table-wrap">
+                            <table id="installedAppTable" class="table app-para-table installed-app-table">
+                                <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Installed Time</th><th>Cert DN</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete PayWizard" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.113</td><td>2026-02-12 16:54:11</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete TsysPay" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.7</td><td>2026-02-11 14:12:33</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete aidIdemo" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.2_2601271</td><td>2026-02-02 16:43:19</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete Payment Emulator" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                    <tr><td>InitConnectionMode</td><td>com.wizarpos.setusbattrs</td><td>1.0</td><td>2024-05-21 10:31:50</td><td>EMAILADDRESS=support...</td><td><button class="installed-delete-btn" type="button" data-installed-delete aria-label="Delete InitConnectionMode" title="Delete installed APP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="app-table-title">Subscribed APP List</div>
+                        <div class="table-wrap">
+                            <table id="subscribedAppTable" class="table app-para-table">
+                                <thead><tr><th>Name</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td>support_PayWizard_Demo_V2.2.2_2601271 <a href="#" class="minor-code">201</a></td>
+                                        <td>com.wizarpos.paywizard.demo</td>
+                                        <td>2.2.2_2601271</td>
+                                        <td>2026-02-11</td>
+                                    </tr>
+                                    <tr>
+                                        <td>opcDavidChen2.3.3</td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>2.3.3-global</td>
+                                        <td>2026-02-10</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="parameter-panel hidden" id="table-para">
+                        <div class="table-wrap">
+                            <table id="subscribedParaTable" class="table app-para-table param-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Package Name</th>
+                                        <th>Version</th>
+                                        <th>Status</th>
+                                        <th>Applied Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-param-record="demo-short">
+                                        <td><a href="#" class="param-name-link">appParam-WP6267UQ36002376-1650</a></td>
+                                        <td>com.wizarpos.paywizard.demo</td>
+                                        <td>20260603200011</td>
+                                        <td><span class="param-status-badge applied">Applied</span></td>
+                                        <td>2026-06-03 20:00:41</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="demo-short" aria-label="View parameters for appParam-WP6267UQ36002376-1650" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr data-param-record="opc-full">
+                                        <td><a href="#" class="param-name-link">appParam-WP6267UQ36002376-1356</a></td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>20260602030122</td>
+                                        <td><span class="param-status-badge applied">Applied</span></td>
+                                        <td>2026-06-02 03:02:11</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="opc-full" aria-label="View parameters for appParam-WP6267UQ36002376-1356" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr data-param-record="tsys-created">
+                                        <td><a href="#" class="param-name-link">APPPARAM_WP6267UQ36002376_com.smartpos.paywizard.tsys.smartpay</a></td>
+                                        <td>com.smartpos.paywizard.tsys.smartpay</td>
+                                        <td>0.0.2</td>
+                                        <td><span class="param-status-badge created">Created</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="tsys-created" aria-label="View parameters for APPPARAM_WP6267UQ36002376_com.smartpos.paywizard.tsys.smartpay" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr data-param-record="opc-created">
+                                        <td><a href="#" class="param-name-link">APPPARAM_WP6267UQ36002376_com.wizarpos.opc</a></td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>0.0.2</td>
+                                        <td><span class="param-status-badge created">Created</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="param-action-btn" type="button" data-param-view="opc-created" aria-label="View parameters for APPPARAM_WP6267UQ36002376_com.wizarpos.opc" title="View parameters">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="parameter-panel hidden" id="table-key">
+                        <div class="table-wrap">
+                            <table id="keyHistoryTable" class="table app-para-table param-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Key Name</th>
+                                        <th>SN</th>
+                                        <th>Status</th>
+                                        <th>Pushed Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><a href="#" class="param-name-link">ELAVON_TPK_WP6267UQ36002376_20260603</a></td>
+                                        <td>WP6267UQ36002376</td>
+                                        <td><span class="param-status-badge key-success" title="终端已经下载和安装成功">Success</span></td>
+                                        <td>2026-06-03 20:02:18</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#" class="param-name-link">ELAVON_TMK_WP6267UQ36002376_20260602</a></td>
+                                        <td>WP6267UQ36002376</td>
+                                        <td><span class="param-status-badge key-init" title="初始化，终端可查询和下载">Init</span></td>
+                                        <td>2026-06-02 03:05:44</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#" class="param-name-link">NUVEI_TPK_WP6267UQ36002376_20260528</a></td>
+                                        <td>WP6267UQ36002376</td>
+                                        <td><span class="param-status-badge key-failed" title="终端安装失败">Failed</span></td>
+                                        <td>2026-05-28 11:36:09</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#" class="param-name-link">ELAVON_TPK_WP6267UQ36002376_20260521</a></td>
+                                        <td>WP6267UQ36002376</td>
+                                        <td><span class="param-status-badge key-reset" title="已经安装过的密钥被管理员标记为重置，终端可再次下载和安装">Reset</span></td>
+                                        <td>2026-05-21 16:18:32</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#" class="param-name-link">TSYS_TPK_WP6267UQ36002376_20260512</a></td>
+                                        <td>WP6267UQ36002376</td>
+                                        <td><span class="param-status-badge key-invalid" title="密钥被管理员标记为无效，不可再使用">Invalid</span></td>
+                                        <td>2026-05-12 09:24:51</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Push Task (active by default) -->
+                <section id="tab-push" class="hidden" role="tabpanel" aria-labelledby="push">
+                    <div class="content-head">
+                        <div class="subtabs">
+                            <button class="subtab active">App</button>
+                            <button class="subtab">Firmware</button>
+                            <button class="subtab">Launcher</button>
+                            <span class="source-chip">WSTORE + APP Uploaded</span>
+                        </div>
+                        <button id="openPushAppModal" class="btn-primary" type="button">+ Push App</button>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-head">
+                            <div class="section-title">Operation History</div>
+                            <div class="section-tools">
+                                <button class="btn-secondary">Export</button>
+                                <button class="btn-secondary">Search</button>
+                            </div>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Source</th><th>Status</th><th>Time</th></tr>
+                                </thead>
+                                <tbody id="pushHistoryBody">
+                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td>WSTORE</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
+                                    <tr><td>Sync</td><td>Device</td><td>&mdash;</td><td>&mdash;</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings -->
+                <section id="tab-settings" class="hidden" role="tabpanel" aria-labelledby="settings">
+                    <h2 class="section-title" style="margin-bottom:10px">Device Settings</h2>
+                    <fieldset>
+                        <legend>Connectivity</legend>
+                        <div class="form-group"><label><input type="checkbox" checked> Enable automatic updates</label></div>
+                        <div class="form-group"><label><input type="checkbox"> Allow remote configuration</label></div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Security</legend>
+                        <div class="form-group"><label><input type="checkbox" checked> Lock when offline for 10 minutes</label></div>
+                        <div class="hint">Applies device-level policy similar to reference UI.</div>
+                    </fieldset>
+                    <button class="btn-primary" type="button">Save Changes</button>
+                </section>
+
+                <!-- Parameter Variables -->
+                <section id="tab-params" class="hidden" role="tabpanel" aria-labelledby="params">
+                    <div class="filter-bar">
+                        <div class="filter-grid">
+                            <div class="field"><label>Key</label><input type="text" placeholder="Search key" /></div>
+                            <div class="field"><label>Value</label><input type="text" placeholder="Contains value" /></div>
+                            <div class="field"><label>Scope</label><select><option>All</option><option>System</option><option>App</option></select></div>
+                            <div class="field"><label>Modified By</label><input type="text" placeholder="User" /></div>
+                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
+                        </div>
+                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead><tr><th>Key</th><th>Value</th><th>Scope</th><th>Updated</th></tr></thead>
+                            <tbody>
+                                <tr><td>merchant.id</td><td>41381</td><td>System</td><td>2025-08-01</td></tr>
+                                <tr><td>feature.tipping</td><td>true</td><td>App</td><td>2025-08-11</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <div id="pushAppModal" class="push-app-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="push-app-modal">
+            <div class="push-app-modal-header">
+                <h2 class="push-app-modal-title">Select Application</h2>
+                <button id="closePushAppModal" class="push-app-close" type="button" aria-label="Close">&times;</button>
+            </div>
+            <div class="push-app-modal-body">
+                <div class="push-app-tools">
+                    <div class="source-tabs" id="sourceTabs">
+                        <button class="source-tab active" type="button" data-source="public">WSTORE</button>
+                        <button class="source-tab" type="button" data-source="customer">APP Uploaded</button>
+                    </div>
+                    <input id="sourceSearchInput" class="source-search" type="text" placeholder="Search">
+                </div>
+                <div class="select-table-wrap">
+                    <table class="select-table">
+                        <thead>
+                            <tr>
+                                <th style="width:46px"></th>
+                                <th>APP NAME</th>
+                                <th>VERSION</th>
+                                <th>TYPE</th>
+                                <th>DEVELOPER</th>
+                                <th>UPDATED TIME</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selectAppRows"></tbody>
+                    </table>
+                </div>
+                <div class="push-app-links">
+                    <a href="10.customer_app_upload_manage.html">Open APP Management</a>
+                </div>
+            </div>
+            <div class="push-app-modal-footer">
+                <div id="pickedAppHint" class="picked-app-hint">No app selected</div>
+                <div class="action-buttons">
+                    <button id="cancelPushAppModal" class="btn-secondary" type="button">Cancel</button>
+                    <button id="confirmPushApp" class="btn-primary" type="button">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="paramPreviewModal" class="param-preview-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="paramPreviewTitle">
+        <div class="param-preview-modal">
+            <div class="param-preview-head">
+                <div>
+                    <h2 id="paramPreviewTitle" class="param-preview-title">Parameter Details</h2>
+                </div>
+                <button id="closeParamPreview" class="param-preview-close" type="button" aria-label="Close">&times;</button>
+            </div>
+            <div class="param-preview-body">
+                <div id="paramPreviewTabs" class="param-preview-tabs" role="tablist" aria-label="Parameter fieldsets"></div>
+                <div id="paramPreviewPanel" class="param-preview-panel"></div>
+            </div>
+            <div class="param-preview-footer">
+                <button id="closeParamPreviewFooter" class="btn-secondary" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+<script>
+    const terminalContext = (() => {
+        const defaults = {
+            terminalName: 'Terminal - WP6267UQ36002376',
+            sn: 'WP6267UQ36002376',
+            tid: 'UZN10E08',
+            merchantName: '1 of a Kind World Travel LLC 41381'
+        };
+        const params = new URLSearchParams(window.location.search);
+        const pick = key => {
+            const value = params.get(key);
+            return value ? value.trim() : '';
+        };
+        const context = {
+            terminalName: pick('terminalName') || defaults.terminalName,
+            sn: pick('sn') || defaults.sn,
+            tid: pick('tid') || defaults.tid,
+            merchantName: pick('merchantName') || defaults.merchantName
+        };
+        const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if(el) el.textContent = value;
+        };
+        setText('crumbTerminalLabel', context.terminalName);
+        setText('terminalTitle', context.terminalName);
+        setText('bannerMerchant', context.merchantName);
+        setText('bannerSn', context.sn);
+        setText('bannerTid', context.tid);
+        setText('infoMerchant', context.merchantName);
+        setText('infoSn', context.sn);
+        setText('infoTid', context.tid);
+        setText('detailsSn', context.sn);
+        const viewTransactionsLink = document.getElementById('viewTerminalTransactionsLink');
+        if(viewTransactionsLink){
+            const query = new URLSearchParams({
+                sn: context.sn,
+                tid: context.tid,
+                merchantName: context.merchantName,
+                terminalName: context.terminalName
+            });
+            viewTransactionsLink.href = `12.transaction_list.html?${query.toString()}`;
+        }
+        document.title = `${context.terminalName} - Terminal Management`;
+        return context;
+    })();
+
+    (function() {
+        const tabs = document.querySelectorAll('#primaryTabs .tab');
+        const sections = {
+            basic: document.getElementById('tab-basic'),
+            appfw: document.getElementById('tab-appfw'),
+            push: document.getElementById('tab-push'),
+            settings: document.getElementById('tab-settings'),
+            params: document.getElementById('tab-params')
+        };
+
+        function showTab(key) {
+            Object.keys(sections).forEach(k => {
+                if (!sections[k]) return;
+                sections[k].classList.toggle('hidden', k !== key);
+            });
+            tabs.forEach(btn => {
+                const active = btn.getAttribute('data-tab') === key;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', String(active));
+            });
+        }
+
+        tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+        const requestedTab = new URLSearchParams(window.location.search).get('tab');
+        showTab(sections[requestedTab] ? requestedTab : 'appfw');
+
+        const subTabs = document.querySelectorAll('#subTabs .subtab');
+        const tables = {
+            app: document.getElementById('table-app'),
+            para: document.getElementById('table-para'),
+            key: document.getElementById('table-key')
+        };
+
+        function showSub(key) {
+            Object.keys(tables).forEach(k => {
+                if (!tables[k]) return;
+                tables[k].classList.toggle('hidden', k !== key);
+            });
+            subTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === key));
+        }
+
+        subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
+        showSub('para');
+    })();
+
+    (function(){
+        const PAYWIZARD_TEMPLATE_FIELDSETS = [{"name":"OPERTAION MODE","fields":[{"key":"OperatingMode","label":"Operating Mode","options":[["0","UPT"],["1","BIZHI"],["2","ATTENDANCE"],["3","SenseTime"],["4","SERIAL_MODE"],["5","YinXiang"],["6","OpenableLocker"],["7","MultiPrice"],["8","FixedPrice"]]},{"key":"ProtocolType","label":"Protocol Type","options":[["0","SERIAL HOST"],["1","MDB"],["2","PAX-ECR"],["3","SERIAL SLAVE"],["4","SERIAL EXT"],["5","SOCKET SERVER"],["6","SERIAL CDC"],["7","SERIAL VENDOR"],["8","PULSE MODE"],["9","SERIAL EXT2"],["10","USB ACCESSORY"],["11","CLOUD MODE"],["12","DEFAULT"],["13","BLUETOOTH SPP"]]},{"key":"UrlType","label":"Paywizard Server","options":[["0","DEBUG"],["1","UAT"],["2","RELEASE"],["3","TEST"],["4","DEV"]]},{"key":"UiRunMode","label":"OPC UI Run Mode","options":[["0","Follow ProtocolType"],["1","Foreground"],["2","Background"]]}]},
+            {"name":"PAYMENT APP","fields":[{"key":"EnableDebugMode","label":"Debug Mode","options":[["1","Enable"],["0","Disable"]]},{"key":"HomePaymentIcons","label":"Home Payment Icons","options":[]},{"key":"AidlPackageName","label":"Payment App","options":[]},{"key":"CurrencyCode","label":"Currency Code","options":[]},{"key":"NeedCheckParam","label":"Check Param","options":[["1","Enable"],["0","Disable"]]},{"key":"KeyState","label":"Check KeyState","options":[["1","Enable"],["0","Disable"]]},{"key":"paymentTimeout","label":"Payment Timeout(s)","options":[]},{"key":"IsSimplify","label":"JSON parameters","options":[["1","Simplify"],["0","All parameters"]]},{"key":"CustomerServiceHotline","label":"Customer Hotline","options":[]},{"key":"ClientId","label":"ClientId","options":[]},{"key":"ClientSecret","label":"ClientSecret","options":[]},{"key":"JwtToken","label":"JwtToken","options":[]},{"key":"EnableOpcTakeoverUi","label":"Enable OPC Takeover UI","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableWhiteBin","label":"Enable White Bin","options":[["1","Enable"],["0","Disable"]]},{"key":"WhiteBinVersion","label":"White Bin Version","options":[]},{"key":"WhiteBinList","label":"White Bin List","options":[]}]},
+            {"name":"ATTENDANCE MODE","fields":[{"key":"CreditCards","label":"CreditCards","options":[["1","Enable"],["0","Disable"]]},{"key":"DigitalWallets","label":"DigitalWallets","options":[["1","Enable"],["0","Disable"]]},{"key":"Loyalty","label":"Loyalty","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableCardReaderTapUi","label":"Enable Card Reader Tap UI","options":[["1","Enable"],["0","Disable"]]}]},
+            {"name":"UPT MODE","fields":[{"key":"AdminPass","label":"Admin Password","options":[]},{"key":"operationPass","label":"Operation Password","options":[]},{"key":"AllowOfflineMode","label":"AllowOfflineMode","options":[["0","Disable"],["1","Enable"]]},{"key":"AmountScale","label":"AmountScale","options":[["0","DEFAULT"],["10","Multiply 10"],["100","Multiply 100"],["-10","Divide 10"],["-100","Divide 100"]]},{"key":"QrMid","label":"QrMid","options":[]},{"key":"QrScanChannel","label":"Qr Scan Channel","options":[["M_PAY","MPAY"],["PIX","PIX"],["MMG","MMG"],["PAY_DATA_CLOUD","\u6c47\u6570\u4e91"],["PAYWIZARD_APM","Paywizard APM"],["OX_PAY","OXPAY"],["PROMPT_PAY","PromptPay"]]},{"key":"EnableVoicePlayback","label":"Enable Voice Playback","options":[["1","Enable"],["0","Disable"]]},{"key":"SystemVolume","label":"System Volume","options":[]},{"key":"BaudRate","label":"Set Baud Rate","options":[]},{"key":"SocketPort","label":"SocketPort","options":[]},{"key":"EnableDataSplit","label":"Enable Data Split","options":[["1","Enable"],["0","Disable"]]},{"key":"ConcurrentRequests","label":"ConcurrentRequests","options":[["1","Enable"],["0","Disable"]]},{"key":"SplitLength","label":"Split Length","options":[]},{"key":"SplitDelay","label":"Split Delay","options":[]},{"key":"ShowPaymentResult","label":"Show Payment Result","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableExitDirectly","label":"Allowed Exit","options":[["1","Enable"],["0","Disable"]]},{"key":"LogoUrl","label":"Logo Url","options":[]},{"key":"EnableManualBeginSession","label":"Manual Begin Session","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableSilent","label":"Silent","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableConvertJodAmt","label":"Convert JOD Amt","options":[["1","Enable"],["0","Disable"]]},{"key":"KsnetMberCode","label":"KSNET Mber Code","options":[]},{"key":"KsnetCrtftCode","label":"KSNET Crtft Code","options":[]},{"key":"TSMTerminalCode","label":"TSM Terminal Code","options":[]},{"key":"TSMMerchantCode","label":"TSM Merchant Code","options":[]},{"key":"TSMConnType","label":"TSM Conn Type","options":[["0","PROC"],["1","TEST"]]},{"key":"BtSppUuid","label":"Bluetooth SPP UUID","options":[]}]},
+            {"name":"MDB PARA","fields":[{"key":"EnableManualCancel","label":"MDB Manual Cancel","options":[["1","Enable"],["0","Disable"]]},{"key":"ScalingFactor","label":"MDB Scaling Factor","options":[]},{"key":"DecimalPlaces","label":"MDB Decimal Places","options":[]},{"key":"FoundAvailable","label":"MDB Found Available","options":[]},{"key":"MdbAutoReversal","label":"MDB Auto Reversal","options":[["1","Enable"],["0","Disable"]]},{"key":"Mdb3Support32BitAmount","label":"Mdb3Support32BitAmount","options":[["1","Enable"],["0","Disable"]]},{"key":"ManualMdbBegin","label":"ManualMdbBegin","options":[["1","Enable"],["0","Disable"]]},{"key":"EnableGenTransCode","label":"Enable Gen Trans Code","options":[["1","Enable"],["0","Disable"]]}]},
+            {"name":"PULSE PARA","fields":[{"key":"PulsePortNum","label":"Pulse Port Num","options":[["0","Channel 1"],["1","Channel 2"]]},{"key":"PulseDeviceVoltage","label":"Pulse Device Voltage","options":[["0","Low Level"],["1","High Level"]]},{"key":"PulseDuration","label":"Pulse Duration","options":[]},{"key":"PulseInterval","label":"Pulse Interval","options":[]},{"key":"PulseAmount","label":"PulseAmount P1","options":[]},{"key":"PulseVoltage","label":"PulseNumber P1","options":[]},{"key":"PulseAmount2","label":"PulseAmount P2","options":[]},{"key":"PulseVoltage2","label":"PulseNumber P2","options":[]},{"key":"PulseAmount3","label":"PulseAmount P3","options":[]},{"key":"PulseVoltage3","label":"PulseNumber P3","options":[]},{"key":"PulseAmount4","label":"PulseAmount P4","options":[]},{"key":"PulseVoltage4","label":"PulseNumber P4","options":[]},{"key":"PulseText","label":"PulseText","options":[]}]},
+            {"name":"BIZHI MODE","fields":[{"key":"bzUrlType","label":"BIZHI UrlType","options":[["0","SINGAPORE_IOTSONG"],["1","AMERICA_BTOZ_TECH"],["2","UAT"]]}]},
+            {"name":"SenseTime MODE","fields":[{"key":"senseTimeUrlType","label":"senseTimeUrlType","options":[["0","SENSE_TIME_RELEASE"],["1","SENSE_TIME_UAT"]]},{"key":"senseTimeAccessKey","label":"senseTimeAccessKey","options":[]},{"key":"senseTimeSecretKey","label":"senseTimeSecretKey","options":[]}]},
+            {"name":"MULTI PRICE","fields":[{"key":"MultiPricingAmount1","label":"MultiPricing Amount 1","options":[]},{"key":"MultiPricingAmount2","label":"MultiPricing Amount 2","options":[]},{"key":"MultiPricingAmount3","label":"MultiPricing Amount 3","options":[]},{"key":"MultiPricingAmount4","label":"MultiPricing Amount 4","options":[]},{"key":"EReceiptRequired","label":"E-Receipt Required","options":[["1","Enable"],["0","Disable"]]}]},
+            {"name":"FIXED PRICE","fields":[{"key":"FixedPricingAmount","label":"FixedPricing Amount","options":[]}]}];
+
+        const PARAMETER_RECORDS = {
+            "demo-short": {
+                name: "appParam-WP6267UQ36002376-1650",
+                raw: `#
+#Tue Jun 02 03:01:37 CST 2026
+AdminPass=99999999
+AidlPackageName=com.wizarpos.paywizard.demo
+AllowOfflineMode=0
+AmountScale=0
+BaudRate=115200
+CurrencyCode=840
+EnableDebugMode=1
+EnableExitDirectly=1
+LogoUrl=
+ProtocolType=11
+ShowPaymentResult=1
+SocketPort=6031
+UrlType=1
+keepDebugModeTime=240
+TemplateRevision=PAYwizard_Template-2.10.4
+RemoteProfileId=demo-release-uqt-20260603
+OperatorMemo=Configured from merchant selected template before backend key translation
+PartnerTraceId=PWZ-OPS-20260603-0001650
+LegacyTipMode=auto
+DeviceLocale=en_US
+ParameterSource=Template Selection
+LastTemplateEditor=ops.demo.user
+RawTemplateFileName=PAYwizard_Template-2.10.4.xml
+LongUnmatchedValue=https://parameter-preview.example.com/releases/paywizard/demo/profile/appParam-WP6267UQ36002376-1650
+EmptyUnmatchedValue=
+paymentTimeout=180`
+            },
+            "opc-full": {
+                name: "appParam-WP6267UQ36002376-1356",
+                raw: `#
+#Mon Jun 08 07:06:29 UTC 2026
+AllowOfflineMode=0
+EnableConvertJodAmt=0
+EnableSilent=0
+WhiteBinList=
+LogoUrl=
+EnableDataSplit=0
+SplitLength=150
+TSMConnType=0
+KsnetMberCode=0000
+IsSimplify=0
+CurrencyCode=840
+ShowPaymentResult=0
+KsnetCrtftCode=0000
+QrScanChannel=PAY_DATA_CLOUD
+UiRunMode=0
+SystemVolume=70
+CustomerServiceHotline=
+ConcurrentRequests=0
+EnableDebugMode=0
+ClientId=
+EnableWhiteBin=0
+SocketPort=6031
+TSMTerminalCode=00000000
+KeyState=0
+AdminPass=99999999
+AidlPackageName=com.wizarpos.opc
+ProtocolType=11
+UrlType=2
+paymentTimeout=180`
+            },
+            "tsys-created": {
+                name: "APPPARAM_WP6267UQ36002376_com.smartpos.paywizard.tsys.smartpay",
+                raw: `#
+TsysHostUrl=https://gateway.tsys.example.com
+TsysMerchantId=7000003021
+TsysTerminalId=TSYS000030
+TsysDeviceId=WP6267UQ36002376
+TsysMarketCode=retail
+TsysBatchCloseTime=23:30
+TsysEnableDebit=true
+TsysEnableEbt=false
+TsysTipPromptMode=receipt
+TsysTokenizationProfile=smartpay-token-v2
+TsysReceiptHeader=PAYwizard TSYS SmartPay
+TsysSupportPhone=1-800-555-0199`
+            },
+            "opc-created": {
+                name: "APPPARAM_WP6267UQ36002376_com.wizarpos.opc",
+                raw: `#
+OperatingMode=0
+ProtocolType=11
+UrlType=2
+EnableDebugMode=0
+AidlPackageName=com.wizarpos.opc
+CurrencyCode=840
+EnableOpcTakeoverUi=1
+paymentTimeout=180`
+            }
+        };
+
+        const modal = document.getElementById('paramPreviewModal');
+        const closeTop = document.getElementById('closeParamPreview');
+        const closeFooter = document.getElementById('closeParamPreviewFooter');
+        const tabsWrap = document.getElementById('paramPreviewTabs');
+        const panel = document.getElementById('paramPreviewPanel');
+        if(!modal || !tabsWrap || !panel) return;
+
+        let activeGroupIndex = 0;
+        let currentGroups = [];
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function normalizeFieldsetName(name){
+            return name === 'OPERTAION MODE' ? 'OPERATION MODE' : name;
+        }
+
+        function parseParamContent(raw){
+            return String(raw || '').split(/\r?\n/).map(line => line.trim()).filter(line => line && !line.startsWith('#')).map(line => {
+                const splitIndex = line.indexOf('=');
+                if(splitIndex < 0) return null;
+                const key = line.slice(0, splitIndex).trim();
+                const value = line.slice(splitIndex + 1).trim();
+                return key ? { key, value } : null;
+            }).filter(Boolean);
+        }
+
+        function optionDisplay(field, value){
+            const match = (field.options || []).find(option => String(option[0]) === String(value));
+            return match ? match[1] : value;
+        }
+
+        function groupEntries(entries){
+            const byKey = new Map(entries.map(entry => [entry.key.toLowerCase(), entry]));
+            const consumedKeys = new Set();
+            const groups = PAYWIZARD_TEMPLATE_FIELDSETS.map(fieldset => {
+                const items = fieldset.fields.map(field => {
+                    const entry = byKey.get(field.key.toLowerCase());
+                    if(!entry) return null;
+                    consumedKeys.add(entry.key.toLowerCase());
+                    return {
+                        key: entry.key,
+                        label: field.label || entry.key,
+                        value: entry.value,
+                        displayValue: optionDisplay(field, entry.value),
+                        isSelect: (field.options || []).length > 0
+                    };
+                }).filter(Boolean);
+                return items.length ? { name: normalizeFieldsetName(fieldset.name), items } : null;
+            }).filter(Boolean);
+
+            const unmatched = entries.filter(entry => !consumedKeys.has(entry.key.toLowerCase()));
+            if(unmatched.length){
+                const hasTemplateMatches = groups.length > 0;
+                groups.push({
+                    name: hasTemplateMatches ? 'OTHER PARAMETERS' : 'PARAMETERS',
+                    unmatched: true,
+                    items: unmatched.map(entry => ({ key: entry.key, value: entry.value }))
+                });
+            }
+
+            return groups;
+        }
+
+        function renderTabs(){
+            tabsWrap.innerHTML = currentGroups.map((group, index) => `
+                <button class="param-preview-tab ${index === activeGroupIndex ? 'active' : ''}" type="button" role="tab" aria-selected="${index === activeGroupIndex}" data-param-group="${index}">
+                    ${escapeHtml(group.name)}
+                </button>
+            `).join('');
+            tabsWrap.querySelectorAll('[data-param-group]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    activeGroupIndex = Number(tab.getAttribute('data-param-group')) || 0;
+                    render();
+                });
+            });
+        }
+
+        function renderField(item){
+            const value = item.displayValue == null ? '' : String(item.displayValue);
+            return `
+                <div class="param-readonly-field">
+                    <div class="param-field-label">${escapeHtml(item.label)}</div>
+                    <div class="param-readonly-control" aria-readonly="true" title="${escapeHtml(item.key)}">
+                        <span class="param-readonly-value ${value ? '' : 'empty'}">${escapeHtml(value || ' ')}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPanel(){
+            const group = currentGroups[activeGroupIndex];
+            if(!group){
+                panel.innerHTML = '<div class="empty-row"><div>No parameters found.</div></div>';
+                return;
+            }
+
+            if(group.unmatched){
+                panel.innerHTML = `
+                    <div class="param-unmatched">
+                        ${group.items.map(item => `
+                            <div class="param-unmatched-item">
+                                <div class="param-unmatched-key">${escapeHtml(item.key)}</div>
+                                <div class="param-unmatched-value">${escapeHtml(item.value || '')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                return;
+            }
+
+            panel.innerHTML = `<div class="param-form-grid">${group.items.map(renderField).join('')}</div>`;
+        }
+
+        function render(){
+            renderTabs();
+            renderPanel();
+        }
+
+        function openPreview(recordId){
+            const record = PARAMETER_RECORDS[recordId];
+            if(!record) return;
+            currentGroups = groupEntries(parseParamContent(record.raw));
+            activeGroupIndex = 0;
+            render();
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closePreview(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        document.querySelectorAll('[data-param-view]').forEach(button => {
+            button.addEventListener('click', () => openPreview(button.getAttribute('data-param-view')));
+        });
+        document.querySelectorAll('#subscribedParaTable .param-name-link').forEach(link => {
+            link.addEventListener('click', evt => {
+                evt.preventDefault();
+                const row = link.closest('[data-param-record]');
+                if(row) openPreview(row.getAttribute('data-param-record'));
+            });
+        });
+        closeTop.addEventListener('click', closePreview);
+        closeFooter.addEventListener('click', closePreview);
+        modal.addEventListener('click', evt => {
+            if(evt.target === modal) closePreview();
+        });
+        document.addEventListener('keydown', evt => {
+            if(evt.key === 'Escape' && modal.classList.contains('open')) closePreview();
+        });
+    })();
+
+    (function(){
+        const connectionStatus = document.getElementById('connectionStatus');
+        if(!connectionStatus) return;
+
+        const statusButton = document.getElementById('connectionStatusButton');
+        const primary = document.getElementById('connectionPrimary');
+        const deviceState = document.getElementById('deviceConnectionState');
+        const serviceState = document.getElementById('terminalServiceState');
+        const lastUpdate = document.getElementById('connectionLastUpdate');
+
+        function boolFromValue(value){
+            if(value == null) return null;
+            if(/^(1|true|yes|online)$/i.test(value)) return true;
+            if(/^(0|false|no|offline)$/i.test(value)) return false;
+            return null;
+        }
+
+        function getStatusParam(names){
+            const params = new URLSearchParams(window.location.search);
+            for(const name of names){
+                const parsed = boolFromValue(params.get(name));
+                if(parsed !== null) return parsed;
+            }
+            return null;
+        }
+
+        function offlineText(kind){
+            const duration = connectionStatus.dataset[`${kind}OfflineDuration`] || '';
+            return duration ? `Offline ${duration}` : 'Offline';
+        }
+
+        function renderDetail(element, online, kind){
+            if(!element) return;
+            element.textContent = online ? 'Online' : offlineText(kind);
+            element.classList.toggle('is-offline', !online);
+        }
+
+        function setConnectionOpen(open){
+            connectionStatus.classList.toggle('open', open);
+            if(statusButton) statusButton.setAttribute('aria-expanded', String(open));
+        }
+
+        function refreshConnectionStatus(){
+            const forcedDevice = getStatusParam(['deviceOnline', 'terminalOnline', 'online']);
+            const forcedService = getStatusParam(['serviceOnline', 'terminalServiceOnline', 'opcOnline']);
+            if(forcedDevice !== null) connectionStatus.dataset.deviceOnline = String(forcedDevice);
+            if(forcedService !== null) connectionStatus.dataset.serviceOnline = String(forcedService);
+
+            const deviceOnline = connectionStatus.dataset.deviceOnline === 'true';
+            const serviceOnline = connectionStatus.dataset.serviceOnline === 'true';
+            const bothOnline = deviceOnline && serviceOnline;
+            const bothOffline = !deviceOnline && !serviceOnline;
+
+            connectionStatus.classList.toggle('is-online', bothOnline);
+            connectionStatus.classList.toggle('is-offline', bothOffline);
+            connectionStatus.classList.toggle('is-partial', !bothOnline && !bothOffline);
+
+            if(primary){
+                primary.textContent = bothOnline ? 'Online' : bothOffline ? 'Offline' : 'Partially Online';
+            }
+
+            renderDetail(deviceState, deviceOnline, 'device');
+            renderDetail(serviceState, serviceOnline, 'service');
+            if(lastUpdate) lastUpdate.textContent = connectionStatus.dataset.lastUpdate || '--';
+
+            if(statusButton){
+                statusButton.setAttribute(
+                    'aria-label',
+                    `Connection status: ${primary ? primary.textContent : ''}. Device Connection ${deviceOnline ? 'online' : 'offline'}. Payment Service ${serviceOnline ? 'online' : 'offline'}.`
+                );
+            }
+        }
+
+        window.getDeviceConnectionOnline = function(){
+            return connectionStatus.dataset.deviceOnline === 'true';
+        };
+
+        refreshConnectionStatus();
+
+        if(statusButton){
+            statusButton.addEventListener('click', evt => {
+                evt.stopPropagation();
+                setConnectionOpen(!connectionStatus.classList.contains('open'));
+            });
+        }
+        document.addEventListener('click', evt => {
+            if(!connectionStatus.contains(evt.target)) setConnectionOpen(false);
+        });
+        document.addEventListener('keydown', evt => {
+            if(evt.key === 'Escape') setConnectionOpen(false);
+        });
+    })();
+
+    (function(){
+        const installedAppTable = document.getElementById('installedAppTable');
+        if(!installedAppTable) return;
+
+        function getForcedOnlineState(){
+            const params = new URLSearchParams(window.location.search);
+            const value = params.get('online') || params.get('terminalOnline');
+            if(value == null) return null;
+            return /^(1|true|yes|online)$/i.test(value);
+        }
+
+        function isTerminalOnline(){
+            const forced = getForcedOnlineState();
+            if(forced !== null) return forced;
+            if(typeof window.getDeviceConnectionOnline === 'function') return window.getDeviceConnectionOnline();
+            const statusText = (document.querySelector('.banner-status')?.textContent || '').toLowerCase();
+            return statusText.includes('online') && !statusText.includes('offline');
+        }
+
+        function appNameFromRow(row){
+            return (row && row.cells[0] ? row.cells[0].textContent : 'this APP').trim() || 'this APP';
+        }
+
+        function syncDeleteButtons(){
+            const online = isTerminalOnline();
+            installedAppTable.querySelectorAll('[data-installed-delete]').forEach(button => {
+                button.disabled = !online;
+                button.title = online ? 'Delete installed APP' : 'Terminal must be online to delete installed APP';
+                button.setAttribute('aria-disabled', String(!online));
+            });
+        }
+
+        installedAppTable.querySelectorAll('[data-installed-delete]').forEach(button => {
+            button.addEventListener('click', () => {
+                if(!isTerminalOnline()) return;
+                const row = button.closest('tr');
+                const appName = appNameFromRow(row);
+                if(!window.confirm(`Delete ${appName} from this terminal?`)) return;
+                row.remove();
+                const tbody = installedAppTable.querySelector('tbody');
+                if(tbody && !tbody.querySelector('tr')){
+                    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No installed APP records.</td></tr>';
+                }
+            });
+        });
+
+        syncDeleteButtons();
+    })();
+
+    (function(){
+        const sidebar = document.querySelector('.sidebar');
+        if(!sidebar) return;
+
+        const rootMenuItems = sidebar.querySelectorAll('.menu-item');
+        const submenuTriggers = sidebar.querySelectorAll('.menu-item[data-toggle="submenu"]');
+        const subItems = sidebar.querySelectorAll('.sub-item');
+        const sidebarToggle = sidebar.querySelector('.close-btn');
+        const sidebarToggleIcon = sidebar.querySelector('.toggle-icon');
+        const compactBreakpoint = window.matchMedia('(max-width: 1160px)');
+        const sidebarStateKey = 'pw_terminal_sidebar_collapsed';
+        let savedOpenSubmenu = null;
+
+        function setActiveRoot(target){
+            rootMenuItems.forEach(item => item.classList.toggle('active', item === target));
+        }
+
+        function closeAllSubmenus(){
+            sidebar.querySelectorAll('.sub-menu.open').forEach(menu => menu.classList.remove('open'));
+            submenuTriggers.forEach(trigger => {
+                trigger.classList.remove('expanded');
+                const ch = trigger.querySelector('.chevron');
+                if(ch) ch.textContent = '>';
+            });
+        }
+
+        function getOpenSubmenuParent(){
+            const openMenu = sidebar.querySelector('.sub-menu.open');
+            return openMenu ? openMenu.getAttribute('data-parent') : null;
+        }
+
+        function getActiveSubmenuParent(){
+            const activeSub = sidebar.querySelector('.sub-item.active');
+            return activeSub && activeSub.parentElement ? activeSub.parentElement.getAttribute('data-parent') : null;
+        }
+
+        function openSubmenuByParent(parentId){
+            if(!parentId) return false;
+            const trigger = sidebar.querySelector('.menu-item[data-target="' + parentId + '"]');
+            const submenu = sidebar.querySelector('.sub-menu[data-parent="' + parentId + '"]');
+            if(!trigger || !submenu) return false;
+
+            closeAllSubmenus();
+            submenu.classList.add('open');
+            trigger.classList.add('expanded');
+            const chOpen = trigger.querySelector('.chevron');
+            if(chOpen) chOpen.textContent = 'v';
+            return true;
+        }
+
+        function syncSubmenuChevrons(){
+            submenuTriggers.forEach(trigger => {
+                const targetId = trigger.getAttribute('data-target');
+                const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+                const ch = trigger.querySelector('.chevron');
+                if(ch) ch.textContent = submenu && submenu.classList.contains('open') ? 'v' : '>';
+            });
+        }
+
+        function syncCollapsedTitles(){
+            rootMenuItems.forEach(item => {
+                const label = item.querySelector('.label');
+                if(!label) return;
+                let title = (label.textContent || '').trim();
+                const targetId = item.getAttribute('data-target');
+                if(targetId){
+                    const activeSub = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"] .sub-item.active');
+                    if(activeSub) title += ' / ' + (activeSub.textContent || '').trim();
+                }
+                if(title) item.setAttribute('title', title);
+            });
+        }
+
+        function getSavedSidebarCollapsed(){
+            try {
+                return localStorage.getItem(sidebarStateKey) === '1';
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function updateSidebarToggleState(){
+            const collapsed = sidebar.classList.contains('is-collapsed');
+            const nextAction = collapsed ? 'Expand menu' : 'Collapse menu';
+            if(sidebarToggle){
+                sidebarToggle.setAttribute('aria-label', nextAction);
+                sidebarToggle.setAttribute('title', nextAction);
+            }
+            if(sidebarToggleIcon) sidebarToggleIcon.textContent = collapsed ? '\u203a' : '\u2039';
+        }
+
+        function setSidebarCollapsed(collapsed, persist = true){
+            const shouldCollapse = !!collapsed && !compactBreakpoint.matches;
+            sidebar.classList.toggle('is-collapsed', shouldCollapse);
+
+            if(shouldCollapse){
+                savedOpenSubmenu = getOpenSubmenuParent() || getActiveSubmenuParent() || savedOpenSubmenu;
+                closeAllSubmenus();
+            } else {
+                const restored = openSubmenuByParent(savedOpenSubmenu) || openSubmenuByParent(getActiveSubmenuParent());
+                if(!restored) syncSubmenuChevrons();
+            }
+            updateSidebarToggleState();
+
+            if(persist){
+                try {
+                    localStorage.setItem(sidebarStateKey, shouldCollapse ? '1' : '0');
+                } catch (err) {}
+            }
+        }
+
+        syncSubmenuChevrons();
+        syncCollapsedTitles();
+
+        if(sidebarToggle){
+            sidebarToggle.addEventListener('click', evt => {
+                evt.stopPropagation();
+                const nextState = !sidebar.classList.contains('is-collapsed');
+                setSidebarCollapsed(nextState);
+            });
+        }
+
+        const handleCompactChange = () => {
+            if(compactBreakpoint.matches){
+                setSidebarCollapsed(false, false);
+            } else {
+                setSidebarCollapsed(getSavedSidebarCollapsed(), false);
+            }
+        };
+        if(typeof compactBreakpoint.addEventListener === 'function'){
+            compactBreakpoint.addEventListener('change', handleCompactChange);
+        } else if(typeof compactBreakpoint.addListener === 'function'){
+            compactBreakpoint.addListener(handleCompactChange);
+        }
+
+        setSidebarCollapsed(getSavedSidebarCollapsed(), false);
+
+        submenuTriggers.forEach(item => {
+            item.addEventListener('click', () => {
+                if(sidebar.classList.contains('is-collapsed')){
+                    setSidebarCollapsed(false);
+                }
+                const targetId = item.getAttribute('data-target');
+                const submenu = sidebar.querySelector('.sub-menu[data-parent="' + targetId + '"]');
+                const isOpen = submenu && submenu.classList.contains('open');
+
+                setActiveRoot(item);
+                if(!submenu) return;
+
+                if(isOpen){
+                    submenu.classList.remove('open');
+                    item.classList.remove('expanded');
+                    const chClose = item.querySelector('.chevron');
+                    if(chClose) chClose.textContent = '>';
+                    savedOpenSubmenu = getActiveSubmenuParent();
+                } else {
+                    closeAllSubmenus();
+                    submenu.classList.add('open');
+                    item.classList.add('expanded');
+                    const chOpen = item.querySelector('.chevron');
+                    if(chOpen) chOpen.textContent = 'v';
+                    savedOpenSubmenu = targetId;
+                }
+                syncCollapsedTitles();
+            });
+        });
+
+        rootMenuItems.forEach(item => {
+            if(item.hasAttribute('data-toggle')) return;
+            item.addEventListener('click', () => {
+                setActiveRoot(item);
+                closeAllSubmenus();
+                savedOpenSubmenu = null;
+                syncCollapsedTitles();
+                const link = item.getAttribute('data-link');
+                if(link) window.location.href = link;
+            });
+        });
+
+        subItems.forEach(sub => {
+            sub.addEventListener('click', evt => {
+                evt.stopPropagation();
+                subItems.forEach(s => s.classList.remove('active'));
+                sub.classList.add('active');
+                const parent = sub.parentElement && sub.parentElement.getAttribute('data-parent');
+                if(parent){
+                    const trigger = sidebar.querySelector('.menu-item[data-target="' + parent + '"]');
+                    if(trigger) setActiveRoot(trigger);
+                    savedOpenSubmenu = parent;
+                }
+                syncCollapsedTitles();
+                const link = sub.getAttribute('data-link');
+                if(link) window.location.href = link;
+            });
+        });
+    })();
+
+    (function(){
+        const STORAGE_KEY = 'pw_customer_apps';
+        const defaultCustomerApps = [
+            { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18', iconKey: 'store' },
+            { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45', iconKey: 'travel' },
+            { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10', iconKey: 'tool' }
+        ];
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function hashText(text){
+            return String(text || '').split('').reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) % 2147483647, 7);
+        }
+
+        function deriveIconKey(name, type){
+            const lower = `${name || ''} ${type || ''}`.toLowerCase();
+            if(lower.includes('broadpos') || lower.includes('transit') || lower.includes('terminal')) return 'terminal';
+            if(lower.includes('check')) return 'check';
+            if(lower.includes('air') || lower.includes('view')) return 'view';
+            if(lower.includes('retail') || lower.includes('store')) return 'store';
+            if(lower.includes('travel') || lower.includes('trip') || lower.includes('pay') || lower.includes('flight')) return 'travel';
+            if(lower.includes('ota') || lower.includes('tool') || lower.includes('update')) return 'tool';
+            if(lower.includes('link') || lower.includes('vm') || lower.includes('network')) return 'network';
+            if((type || '').toLowerCase().includes('parameter')) return 'tune';
+            if((type || '').toLowerCase().includes('tool')) return 'tool';
+            return 'grid';
+        }
+
+        function iconTheme(seed){
+            const palettes = [
+                { bg: '#0f172a', plate: '#2563eb', accent: '#93c5fd', soft: '#dbeafe' },
+                { bg: '#172554', plate: '#7c3aed', accent: '#c4b5fd', soft: '#ede9fe' },
+                { bg: '#0f3d3e', plate: '#0f766e', accent: '#5eead4', soft: '#ccfbf1' },
+                { bg: '#4a1d15', plate: '#ea580c', accent: '#fdba74', soft: '#ffedd5' },
+                { bg: '#164e63', plate: '#0284c7', accent: '#7dd3fc', soft: '#e0f2fe' },
+                { bg: '#3f1d4d', plate: '#db2777', accent: '#f9a8d4', soft: '#fce7f3' }
+            ];
+            return palettes[hashText(seed) % palettes.length];
+        }
+
+        function iconArt(iconKey, theme){
+            switch(iconKey){
+                case 'terminal':
+                    return `<rect x="16" y="17" width="32" height="30" rx="10" fill="#ffffff" fill-opacity=".98"/><rect x="22" y="24" width="20" height="11" rx="4" fill="${theme.soft}"/><circle cx="39" cy="29" r="3" fill="${theme.plate}"/><path d="M24 40h16" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
+                case 'check':
+                    return `<circle cx="32" cy="32" r="17" fill="#ffffff" fill-opacity=".96"/><path d="M24 32l5 5 11-13" stroke="${theme.plate}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+                case 'view':
+                    return `<path d="M16 32c4.5-7 10.5-10.5 16-10.5S43.5 25 48 32c-4.5 7-10.5 10.5-16 10.5S20.5 39 16 32z" fill="#ffffff" fill-opacity=".96"/><circle cx="32" cy="32" r="7.5" fill="${theme.plate}"/><circle cx="32" cy="32" r="3" fill="${theme.soft}"/>`;
+                case 'store':
+                    return `<path d="M20 24h24l-1.8 6.5H21.8L20 24z" fill="#ffffff" fill-opacity=".95"/><path d="M23 30.5h18V44a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 23 44V30.5z" fill="#ffffff"/><path d="M28 24c0-3 1.5-5 4-5s4 2 4 5" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/><path d="M28 37h8" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
+                case 'travel':
+                    return `<path d="M18 40l28-16-7 16-7-4-4 7-2-3-8 0z" fill="#ffffff" fill-opacity=".96"/><path d="M30 20l4 10" stroke="${theme.plate}" stroke-width="3" stroke-linecap="round"/>`;
+                case 'tool':
+                    return `<path d="M32 18v4M32 42v4M18 32h4M42 32h4M22.5 22.5l2.8 2.8M38.7 38.7l2.8 2.8M41.5 22.5l-2.8 2.8M25.3 38.7l-2.8 2.8" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/><circle cx="32" cy="32" r="10" fill="#ffffff"/><circle cx="32" cy="32" r="5" fill="${theme.plate}"/>`;
+                case 'network':
+                    return `<circle cx="22" cy="24" r="6" fill="#ffffff"/><circle cx="42" cy="24" r="6" fill="#ffffff"/><circle cx="32" cy="40" r="6" fill="#ffffff"/><path d="M28 24h8M26 28l6 8M38 28l-6 8" stroke="${theme.plate}" stroke-width="3.1" stroke-linecap="round"/>`;
+                case 'tune':
+                    return `<path d="M24 22v20M32 18v28M40 24v16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="28" r="4" fill="${theme.accent}"/><circle cx="32" cy="39" r="4" fill="${theme.accent}"/><circle cx="40" cy="30" r="4" fill="${theme.accent}"/>`;
+                default:
+                    return `<rect x="20" y="20" width="10" height="10" rx="3" fill="#ffffff"/><rect x="34" y="20" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="20" y="34" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="34" y="34" width="10" height="10" rx="3" fill="#ffffff"/>`;
+            }
+        }
+
+        function renderAppIcon(app, className){
+            const name = app && app.name ? app.name : 'APP';
+            const type = app && app.type ? app.type : 'Standard App';
+            const iconKey = app && app.iconKey ? app.iconKey : deriveIconKey(name, type);
+            const theme = iconTheme(`${name}-${iconKey}-${type}`);
+            return `<span class="${className || 'app-icon-mark'}" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="18" fill="${theme.bg}"/><circle cx="48" cy="16" r="10" fill="${theme.accent}" opacity=".95"/><circle cx="18" cy="48" r="7" fill="${theme.soft}" opacity=".72"/><rect x="10" y="10" width="44" height="44" rx="14" fill="${theme.plate}" opacity=".38"/>${iconArt(iconKey, theme)}</svg></span>`;
+        }
+
+        function loadListedCustomerApps(){
+            try {
+                const raw = window.localStorage.getItem(STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : defaultCustomerApps;
+                if(!Array.isArray(parsed)) return [];
+                return parsed
+                    .filter(item => item && item.listed !== false)
+                    .map((item, idx) => ({
+                        id: item.id || `cus-${idx + 1}`,
+                        name: item.name || 'Unknown APP',
+                        version: item.version || '1.0.0',
+                        type: item.type || 'Standard App',
+                        iconKey: item.iconKey || deriveIconKey(item.name, item.type),
+                        developer: '1 of a Kind World Travel LLC',
+                        updated: item.updated || '2026-03-01 00:00'
+                    }));
+            } catch (e){
+                return defaultCustomerApps
+                    .filter(item => item.listed !== false)
+                    .map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        version: item.version,
+                        type: item.type,
+                        iconKey: item.iconKey || deriveIconKey(item.name, item.type),
+                        developer: '1 of a Kind World Travel LLC',
+                        updated: item.updated
+                    }));
+            }
+        }
+
+        const appData = {
+            public: [
+                { id: 'pub-1', name: 'BroadPOS TransIT', version: 'V1.04.00E_20230723', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-07-23 08:34', iconKey: 'terminal' },
+                { id: 'pub-2', name: 'CheckUP', version: '1.03.07_20250708', type: 'Standard App', developer: 'PAX USBO', updated: '2025-07-09 08:16', iconKey: 'check' },
+                { id: 'pub-3', name: 'AirViewer', version: '3.5.0', type: 'Standard App', developer: 'PAXSTORE Team', updated: '2025-06-30 08:11', iconKey: 'view' },
+                { id: 'pub-4', name: 'BroadPOS TransIT UPT Demo', version: 'V1.00.16E_20250606', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-06-11 07:52', iconKey: 'terminal' },
+                { id: 'pub-5', name: 'Vixslink-VM', version: 'V1.13.06.20250522', type: 'Parameter App', developer: 'PAX Technology', updated: '2025-06-03 07:46', iconKey: 'network' }
+            ],
+            customer: loadListedCustomerApps()
+        };
+
+        const modal = document.getElementById('pushAppModal');
+        const openBtn = document.getElementById('openPushAppModal');
+        const closeBtn = document.getElementById('closePushAppModal');
+        const cancelBtn = document.getElementById('cancelPushAppModal');
+        const confirmBtn = document.getElementById('confirmPushApp');
+        const bannerMoreBtn = document.querySelector('.banner-status .icon-btn[title="More"]');
+        if(bannerMoreBtn && !document.getElementById('terminalActionMenu')){
+            bannerMoreBtn.id = 'terminalActionBtn';
+            bannerMoreBtn.type = 'button';
+            bannerMoreBtn.textContent = '\u22EE';
+            bannerMoreBtn.setAttribute('aria-haspopup', 'true');
+            bannerMoreBtn.setAttribute('aria-expanded', 'false');
+
+            const actionWrap = document.createElement('div');
+            actionWrap.className = 'terminal-action-wrap';
+            bannerMoreBtn.parentNode.insertBefore(actionWrap, bannerMoreBtn);
+            actionWrap.appendChild(bannerMoreBtn);
+            actionWrap.insertAdjacentHTML('beforeend', `
+                <div id="terminalActionMenu" class="terminal-action-menu" aria-hidden="true">
+                    <button id="pushSubscribedAction" class="terminal-action-item" type="button">Push Subscription</button>
+                    <button id="restartTerminalAction" class="terminal-action-item danger" type="button">Reboot Terminal</button>
+                </div>
+            `);
+        }
+
+        const terminalActionBtn = document.getElementById('terminalActionBtn');
+        const terminalActionMenu = document.getElementById('terminalActionMenu');
+        const pushSubscribedAction = document.getElementById('pushSubscribedAction');
+        const restartTerminalAction = document.getElementById('restartTerminalAction');
+        const pushTabBtn = document.querySelector('#primaryTabs .tab[data-tab="push"]');
+        const sourceTabs = document.querySelectorAll('#sourceTabs .source-tab');
+        const searchInput = document.getElementById('sourceSearchInput');
+        const rowsWrap = document.getElementById('selectAppRows');
+        const pickedHint = document.getElementById('pickedAppHint');
+        const subscribedAppTable = document.getElementById('subscribedAppTable');
+        const subscribedParaTable = document.getElementById('subscribedParaTable');
+
+        const activePushName = document.getElementById('activePushNameText');
+        const activePushVersion = document.getElementById('activePushVersion');
+        const activePushType = document.getElementById('activePushType');
+        const activePushSource = document.getElementById('activePushSource');
+        const activePushEffectiveTime = document.getElementById('activePushEffectiveTime');
+        const activePushTime = document.getElementById('activePushTime');
+        const pushHistoryBody = document.getElementById('pushHistoryBody');
+
+        if(!modal || !openBtn || !rowsWrap) return;
+
+        let activeSource = 'public';
+        let searchKeyword = '';
+        const selectedBySource = { public: 'pub-1', customer: null };
+
+        function nowText(){
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+        }
+
+        function cleanText(value){
+            return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+        }
+
+        function readSubscribedApps(){
+            if(!subscribedAppTable) return [];
+            return Array.from(subscribedAppTable.querySelectorAll('tbody tr')).map(row => {
+                const cells = row.cells;
+                const nameCell = cells[0] ? cells[0].cloneNode(true) : null;
+                if(nameCell) nameCell.querySelectorAll('.minor-code').forEach(node => node.remove());
+                return {
+                    name: cleanText(nameCell ? nameCell.textContent : ''),
+                    version: cleanText(cells[2] ? cells[2].textContent : '')
+                };
+            }).filter(item => item.name);
+        }
+
+        function readSubscribedParameters(){
+            if(!subscribedParaTable) return [];
+            return Array.from(subscribedParaTable.querySelectorAll('tbody tr')).map(row => {
+                const cells = row.cells;
+                return {
+                    name: cleanText(cells[0] ? cells[0].textContent : ''),
+                    version: cleanText(cells[2] ? cells[2].textContent : '')
+                };
+            }).filter(item => item.name);
+        }
+
+        function prependPushHistory(action, target, version, source, statusClass, statusText, time){
+            if(!pushHistoryBody) return;
+            const row = document.createElement('tr');
+            /*
+            row.innerHTML = `<td>${escapeHtml(action)}</td><td>${escapeHtml(target)}</td><td>${escapeHtml(version || '—')}</td><td>${escapeHtml(source)}</td><td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td><td>${escapeHtml(time)}</td>`;
+            */
+            row.innerHTML = `<td>${escapeHtml(action)}</td><td>${escapeHtml(target)}</td><td>${escapeHtml(version || '--')}</td><td>${escapeHtml(source)}</td><td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td><td>${escapeHtml(time)}</td>`;
+            pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
+        }
+
+        function openTerminalActionMenu(){
+            if(!terminalActionBtn || !terminalActionMenu) return;
+            terminalActionMenu.classList.add('open');
+            terminalActionMenu.setAttribute('aria-hidden', 'false');
+            terminalActionBtn.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeTerminalActionMenu(){
+            if(!terminalActionBtn || !terminalActionMenu) return;
+            terminalActionMenu.classList.remove('open');
+            terminalActionMenu.setAttribute('aria-hidden', 'true');
+            terminalActionBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        function toggleTerminalActionMenu(){
+            if(!terminalActionMenu) return;
+            if(terminalActionMenu.classList.contains('open')){
+                closeTerminalActionMenu();
+            } else {
+                openTerminalActionMenu();
+            }
+        }
+
+        function handlePushSubscribed(){
+            const apps = readSubscribedApps();
+            const parameters = readSubscribedParameters();
+            if(!apps.length && !parameters.length){
+                alert('No subscribed APP or parameter records found for this terminal.');
+                return;
+            }
+
+            const now = nowText();
+            const tasks = [
+                ...apps.map(item => ({
+                    action: 'Push App',
+                    target: item.name,
+                    version: item.version,
+                    source: 'Current Subscription'
+                })),
+                ...parameters.map(item => ({
+                    action: 'Push Parameter',
+                    target: item.name,
+                    version: item.version,
+                    source: 'Current Subscription'
+                }))
+            ];
+
+            tasks.slice().reverse().forEach(task => {
+                prependPushHistory(task.action, task.target, task.version, task.source, 'warn', 'Pending', now);
+            });
+
+            if(activePushName) activePushName.textContent = 'Current Terminal Subscription';
+            if(activePushVersion) activePushVersion.textContent = `${apps.length} APP + ${parameters.length} PARA`;
+            if(activePushType) activePushType.textContent = parameters.length ? 'Subscribed APP & Parameters' : 'Subscribed APP';
+            if(activePushSource) activePushSource.textContent = 'Current Subscription';
+            if(activePushEffectiveTime) activePushEffectiveTime.textContent = now;
+            if(activePushTime) activePushTime.textContent = now;
+
+            closeTerminalActionMenu();
+            if(pushTabBtn) pushTabBtn.click();
+        }
+
+        function handleTerminalRestart(){
+            const now = nowText();
+            prependPushHistory('Restart Terminal', terminalContext.terminalName, '--', 'Remote Command', 'warn', 'Pending', now);
+            closeTerminalActionMenu();
+            if(pushTabBtn) pushTabBtn.click();
+        }
+
+        function filteredApps(){
+            const list = appData[activeSource] || [];
+            if(!searchKeyword) return list;
+            return list.filter(item => {
+                const text = `${item.name} ${item.version} ${item.type} ${item.developer}`.toLowerCase();
+                return text.includes(searchKeyword);
+            });
+        }
+
+        function updatePickedHint(){
+            const selectedId = selectedBySource[activeSource];
+            const selected = (appData[activeSource] || []).find(item => item.id === selectedId);
+            if(!selected){
+                if(activeSource === 'customer' && !(appData.customer || []).length){
+                    pickedHint.textContent = 'No published APP Uploaded apps. Go to APP Management and publish an app.';
+                    return;
+                }
+                pickedHint.textContent = 'No app selected';
+                return;
+            }
+            pickedHint.textContent = `Selected: ${selected.name} (${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'})`;
+        }
+
+        function renderRows(){
+            const selectedId = selectedBySource[activeSource];
+            const rows = filteredApps();
+
+            if(!rows.length){
+                rowsWrap.innerHTML = '<tr class="empty-row"><td colspan="6">No applications found.</td></tr>';
+                updatePickedHint();
+                return;
+            }
+
+            rowsWrap.innerHTML = rows.map(app => {
+                const picked = app.id === selectedId;
+                return `
+                    <tr class="${picked ? 'active' : ''}" data-app-id="${app.id}">
+                        <td><span class="pick-dot ${picked ? 'active' : ''}"></span></td>
+                        <td>
+                            <div class="app-name-cell">
+                                <div class="app-avatar">${renderAppIcon(app, 'app-icon-mark')}</div>
+                                <div class="app-name-copy">
+                                    <div class="app-name-title">${escapeHtml(app.name)}</div>
+                                    <div class="app-source-note">${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${escapeHtml(app.version)}</td>
+                        <td>${escapeHtml(app.type)}</td>
+                        <td>${escapeHtml(app.developer)}</td>
+                        <td>${escapeHtml(app.updated)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            rowsWrap.querySelectorAll('tr[data-app-id]').forEach(row => {
+                row.addEventListener('click', () => {
+                    selectedBySource[activeSource] = row.getAttribute('data-app-id');
+                    renderRows();
+                });
+            });
+
+            updatePickedHint();
+        }
+
+        function setSource(source){
+            activeSource = source;
+            sourceTabs.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-source') === source));
+            if(!selectedBySource[source] && (appData[source] || []).length){
+                selectedBySource[source] = appData[source][0].id;
+            }
+            renderRows();
+        }
+
+        function openModal(){
+            appData.customer = loadListedCustomerApps();
+            if(selectedBySource.customer && !(appData.customer || []).some(item => item.id === selectedBySource.customer)){
+                selectedBySource.customer = null;
+            }
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            renderRows();
+        }
+
+        function closeModal(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        sourceTabs.forEach(tab => tab.addEventListener('click', () => setSource(tab.getAttribute('data-source'))));
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        searchInput.addEventListener('input', () => {
+            searchKeyword = searchInput.value.trim().toLowerCase();
+            renderRows();
+        });
+        modal.addEventListener('click', evt => {
+            if(evt.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', evt => {
+            if(evt.key === 'Escape' && modal.classList.contains('open')) closeModal();
+            if(evt.key === 'Escape') closeTerminalActionMenu();
+        });
+        if(terminalActionBtn){
+            terminalActionBtn.addEventListener('click', evt => {
+                evt.stopPropagation();
+                toggleTerminalActionMenu();
+            });
+        }
+        if(terminalActionMenu){
+            terminalActionMenu.addEventListener('click', evt => evt.stopPropagation());
+        }
+        if(pushSubscribedAction){
+            pushSubscribedAction.addEventListener('click', handlePushSubscribed);
+        }
+        if(restartTerminalAction){
+            restartTerminalAction.addEventListener('click', handleTerminalRestart);
+        }
+        document.addEventListener('click', evt => {
+            if(!terminalActionMenu || !terminalActionBtn) return;
+            if(terminalActionMenu.contains(evt.target) || terminalActionBtn.contains(evt.target)) return;
+            closeTerminalActionMenu();
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            const selectedId = selectedBySource[activeSource];
+            const selected = (appData[activeSource] || []).find(item => item.id === selectedId);
+            if(!selected){
+                alert('Please select an application first.');
+                return;
+            }
+            const now = nowText();
+            if(activePushName) activePushName.textContent = selected.name;
+            if(activePushVersion) activePushVersion.textContent = selected.version;
+            if(activePushType) activePushType.textContent = selected.type;
+            if(activePushSource) activePushSource.textContent = activeSource === 'public' ? 'WSTORE' : 'APP Uploaded';
+            if(activePushEffectiveTime) activePushEffectiveTime.textContent = now;
+            if(activePushTime) activePushTime.textContent = now;
+
+            const statusClass = activeSource === 'public' ? 'success' : 'warn';
+            const statusText = activeSource === 'public' ? 'Success' : 'Pending';
+            if(pushHistoryBody){
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>Push App</td><td>${selected.name}</td><td>${selected.version}</td><td>${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>${now}</td>`;
+                pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
+            }
+            closeModal();
+        });
+
+        setSource('public');
+    })();
+</script>
+</body>
+</html>
