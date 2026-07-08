@@ -46,9 +46,26 @@
     .tabs{min-width:286px;display:inline-flex;gap:20px;border-bottom:1px solid #d9dce5}
     .tab{border:none;background:transparent;padding:0 24px 16px;color:#808797;font-size:20px;font-weight:500;border-bottom:3px solid transparent}
     .tab.active{color:#20252f;border-bottom-color:#cfd3db}
-    .acts{display:flex;align-items:center;gap:12px;position:relative}
-    .date{min-width:270px;height:50px;padding:16px 18px 0;border:1px solid #cfd5e0;border-radius:12px;position:relative;background:#fff;color:#3b4658;font-size:16px;display:inline-flex;align-items:center}
+    .acts{display:flex;align-items:flex-start;gap:12px;position:relative}
+    .datefield{display:flex;flex-direction:column;gap:6px;position:relative}
+    .date{min-width:270px;height:50px;padding:16px 18px 0;border:1px solid #cfd5e0;border-radius:12px;position:relative;background:#fff;color:#3b4658;font-size:16px;text-align:left;display:inline-flex;align-items:center}
+    .date.open,.date:hover{border-color:#0f1014}
     .date:before{content:attr(data-label);position:absolute;left:14px;top:-11px;padding:0 8px;background:#fff;color:#778096;font-size:13px}
+    .datepop{position:absolute;top:calc(100% + 10px);right:0;width:360px;max-width:calc(100vw - 44px);padding:16px;border:1px solid #d9dde7;border-radius:12px;background:#fff;box-shadow:0 8px 22px rgba(23,30,47,.14);display:none;z-index:40}
+    .datepop.show{display:block}
+    .calhead{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;margin-bottom:12px}
+    .calnav{width:32px;height:32px;border:0;background:transparent;color:#7b8089;font-size:30px;line-height:1;display:grid;place-items:center}
+    .caltitle{text-align:center;color:#3f424a;font-size:18px;font-weight:500}
+    .caltitle span+span{margin-left:12px}
+    .calrule{height:1px;background:#dedfe3;margin-bottom:12px}
+    .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;color:#3f424a}
+    .caldow{font-size:14px;font-weight:600;line-height:1.2}
+    .calday{width:34px;height:34px;justify-self:center;border:0;border-radius:50%;background:transparent;color:#85888e;font-size:14px;line-height:34px;text-align:center}
+    .calday.in{color:#44474f}
+    .calday.selected{background:#0d0d11;color:#fff}
+    .calhint{margin:12px 0 0;padding:8px 10px;border-radius:8px;background:#f6f8fb;color:#5d6677;font-size:12px;font-weight:500;line-height:1.4}
+    .calquick{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .calquick button{height:30px;border:0;background:transparent;color:#0f1014;font-size:13px;font-weight:600;white-space:nowrap}
     .anchor{position:relative}
     .tool{width:52px;height:50px;border:1px solid var(--line);border-radius:12px;background:#fff;color:#6e788d;display:grid;place-items:center;position:relative}
     .tool.open,.tool:hover,.seg:hover{background:#f7f8fb;color:#434d61;border-color:#c8cfdb}
@@ -133,8 +150,9 @@
     .toggle input:checked+.box{background:#0f1014;border-color:#0f1014}
     .toggle input:checked+.box:before{border-right-color:#fff;border-bottom-color:#fff}
     .toggle span:last-child{font-size:18px;color:#454c5b}
-    .menu{width:220px;padding:8px}
+    .menu{width:176px;padding:8px;z-index:90}
     .mitem{width:100%;height:44px;border:none;background:transparent;border-radius:10px;color:#41495a;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:14px}
+    .mitem svg{width:18px;height:18px;flex:0 0 18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
     .mitem:hover{background:#f4f6fa}
     .tablewrap{margin-top:10px;border-radius:14px;overflow:hidden}
     .scroll{overflow:auto;padding-bottom:2px}
@@ -332,7 +350,7 @@
     @media (max-width:1600px){.brand h1{font-size:48px}.brand p{padding-left:154px;font-size:18px}.side{width:314px;flex-basis:314px}.cols{right:-50px}}
     @media (max-width:1320px){.app{flex-direction:column}.side{width:100%;flex-basis:auto}.brand{padding-left:6px}.brand p{padding-left:158px}.filter,.cols{right:auto;left:0}.filter:before,.filter:after,.cols:before,.cols:after{right:auto;left:18px}}
     @media (max-width:1080px){.panel{padding:20px 18px 16px}.acts{width:100%;flex-wrap:wrap}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.list{grid-template-columns:1fr}}
-    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.date{min-width:100%}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
+    @media (max-width:880px){.app{gap:16px;padding:16px}.top{padding:16px 18px}.panel h2{font-size:28px}.tabs{min-width:0}.tab{padding-left:12px;padding-right:12px;font-size:18px}.datefield{width:100%}.date{min-width:100%}.datepop{width:100%;padding:16px}.acts{gap:10px}.filterhead,.fbtns,.row.head{flex-direction:column;align-items:stretch}.headtools{justify-content:flex-start}.grid{grid-template-columns:1fr}.btns{justify-content:stretch}.ghost,.search{width:100%}.cols{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:calc(100vh - 140px)}.cols:before,.cols:after{display:none}}
     @media (max-width:560px){.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.ledger-head{display:grid}.ledger-table{overflow:auto}.ledger-row{min-width:420px}.routing-head{display:grid;gap:8px}.routing-mode{display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-selected,.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
   </style>
 </head>
@@ -369,7 +387,31 @@
             <button class="tab" data-tab="failed">Failed</button>
           </div>
           <div class="acts">
-            <div class="date" data-label="Date Range (Processor)">2026-4-7 - 2026-4-7</div>
+            <div class="datefield">
+              <button class="date" id="dateRangeBtn" type="button" data-label="Date Range (Processor)" aria-haspopup="dialog" aria-expanded="false">2026-7-6 - 2026-7-6</button>
+              <div class="datepop" id="dateRangePop" role="dialog" aria-label="Date Range Calendar">
+                <div class="calhead">
+                  <button class="calnav" type="button" aria-label="Previous month">&lsaquo;</button>
+                  <div class="caltitle"><span>July</span><span>2026</span></div>
+                  <button class="calnav" type="button" aria-label="Next month">&rsaquo;</button>
+                </div>
+                <div class="calrule"></div>
+                <div class="calgrid" aria-label="July 2026">
+                  <div class="caldow">Su</div><div class="caldow">Mo</div><div class="caldow">Tu</div><div class="caldow">We</div><div class="caldow">Th</div><div class="caldow">Fr</div><div class="caldow">Sa</div>
+                  <button class="calday" type="button">28</button><button class="calday" type="button">29</button><button class="calday" type="button">30</button><button class="calday in" type="button">1</button><button class="calday in" type="button">2</button><button class="calday in" type="button">3</button><button class="calday in" type="button">4</button>
+                  <button class="calday in" type="button">5</button><button class="calday in selected" type="button">6</button><button class="calday in" type="button">7</button><button class="calday in" type="button">8</button><button class="calday in" type="button">9</button><button class="calday in" type="button">10</button><button class="calday in" type="button">11</button>
+                  <button class="calday in" type="button">12</button><button class="calday in" type="button">13</button><button class="calday in" type="button">14</button><button class="calday in" type="button">15</button><button class="calday in" type="button">16</button><button class="calday in" type="button">17</button><button class="calday in" type="button">18</button>
+                  <button class="calday in" type="button">19</button><button class="calday in" type="button">20</button><button class="calday in" type="button">21</button><button class="calday in" type="button">22</button><button class="calday in" type="button">23</button><button class="calday in" type="button">24</button><button class="calday in" type="button">25</button>
+                  <button class="calday in" type="button">26</button><button class="calday in" type="button">27</button><button class="calday in" type="button">28</button><button class="calday in" type="button">29</button><button class="calday in" type="button">30</button><button class="calday in" type="button">31</button><button class="calday" type="button">1</button>
+                </div>
+                <div class="calhint">Time span can be up to 3 months.</div>
+                <div class="calquick">
+                  <button type="button">Today</button>
+                  <button type="button">Last 7 days</button>
+                  <button type="button">Last 30 days</button>
+                </div>
+              </div>
+            </div>
             <button class="tool" id="filterBtn" aria-label="Toggle filters" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V20l4 2v-9.5L22 3z"></path></svg><span class="badge" id="filterBadge">0</span></button>
             <div class="anchor">
               <button class="tool" id="colsBtn" aria-label="Columns"><svg viewBox="0 0 24 24"><line x1="6" y1="4" x2="6" y2="20"></line><circle cx="6" cy="9" r="2"></circle><line x1="12" y1="4" x2="12" y2="20"></line><circle cx="12" cy="15" r="2"></circle><line x1="18" y1="4" x2="18" y2="20"></line><circle cx="18" cy="8" r="2"></circle></svg></button>
@@ -630,6 +672,7 @@
       };
       const head=document.getElementById("headRow"),body=document.getElementById("bodyRows"),colList=document.getElementById("colList");
       const filterBtn=document.getElementById("filterBtn"),colsBtn=document.getElementById("colsBtn"),menuBtn=document.getElementById("menuBtn"),exportBtn=document.getElementById("exportBtn");
+      const dateRangeBtn=document.getElementById("dateRangeBtn"),dateRangePop=document.getElementById("dateRangePop");
       const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
       const colEditorTitle=document.getElementById("colEditorTitle");
       const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
@@ -677,6 +720,7 @@
       };
       const rowActionState={row:null,anchor:null};
       const followupState={row:null,action:"",terminalMode:"current",selectedTerminal:null,terminalOptions:[],currentTerminalOnline:false,terminalRouteBlocked:false};
+      const exportState={running:false,timer:null};
       let toastTimer=null;
       const showActionToast=message=>{
         actionToast.textContent=message;
@@ -1548,6 +1592,17 @@
         filtersPanel.classList.toggle("show",open);
         updateFilterUi();
       };
+      const closeDateRange=()=>{
+        dateRangePop.classList.remove("show");
+        dateRangeBtn.classList.remove("open");
+        dateRangeBtn.setAttribute("aria-expanded","false");
+      };
+      const toggleDateRange=()=>{
+        const open=!dateRangePop.classList.contains("show");
+        dateRangePop.classList.toggle("show",open);
+        dateRangeBtn.classList.toggle("open",open);
+        dateRangeBtn.setAttribute("aria-expanded",open?"true":"false");
+      };
       const expandSnRange=(prefix,startDigits,endDigits)=>{
         if(endDigits.length>startDigits.length) return [];
         const fixedDigits=startDigits.slice(0,startDigits.length-endDigits.length);
@@ -1665,6 +1720,14 @@
         renderTable();
       };
       const exportRows=fmt=>{
+        if(exportState.running){
+          showActionToast("The previous export task is still running. Please wait.");
+          setPop("");
+          return;
+        }
+        exportState.running=true;
+        showActionToast(`${fmt.toUpperCase()} export task started.`);
+        setPop("");
         const cols=visible();
         const data=rows.filter(matches).map(r=>Object.fromEntries(cols.map(c=>[defs[c.key][2],c.key==="cardPan"?[r.cardPanMasked,r.cardDisplayNo].filter(Boolean).join(" / "):c.key==="paymentMethod"?(r.paymentMethod||"Bank Card"):r[c.key]])));
         const stamp="20260407_120000";
@@ -1678,14 +1741,20 @@
           blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           name=`transaction_list_${state.tab}_${stamp}.csv`;
         }
-        const url=URL.createObjectURL(blob), a=document.createElement("a");
-        a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-        setPop("");
+        window.clearTimeout(exportState.timer);
+        exportState.timer=window.setTimeout(()=>{
+          const url=URL.createObjectURL(blob), a=document.createElement("a");
+          a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+          exportState.running=false;
+          showActionToast(`${fmt.toUpperCase()} export task completed.`);
+        },1800);
       };
       document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{state.tab=t.dataset.tab; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t)); updateColumnEditorTitle(); renderTable();});
-      filterBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); syncFilters(); setPop(""); toggleFilters();};
-      colsBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(colsPop.classList.contains("show")?"":"cols");};
-      menuBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(menuPop.classList.contains("show")?"":"menu");};
+      dateRangeBtn.onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); setPop(""); toggleFilters(false); toggleDateRange();};
+      dateRangePop.addEventListener("click",e=>e.stopPropagation());
+      filterBtn.onclick=e=>{e.stopPropagation(); closeDateRange(); closeSnDetail(); closeSnPicker(); syncFilters(); setPop(""); toggleFilters();};
+      colsBtn.onclick=e=>{e.stopPropagation(); closeDateRange(); closeSnDetail(); closeSnPicker(); setPop(colsPop.classList.contains("show")?"":"cols");};
+      menuBtn.onclick=e=>{e.stopPropagation(); closeDateRange(); closeSnDetail(); closeSnPicker(); setPop(menuPop.classList.contains("show")?"":"menu");};
       colsPop.addEventListener("click",e=>e.stopPropagation());
       exportBtn.onclick=()=>exportRows("csv");
       document.getElementById("searchBtn").onclick=()=>{closeSnDetail(); closeSnPicker(); applyFilters(); setPop("");};
@@ -1897,13 +1966,14 @@
         if(btn) exportRows(btn.dataset.format);
       });
       document.addEventListener("click",e=>{
+        if(!e.target.closest(".datefield")) closeDateRange();
         if(!e.target.closest(".sn-main-link")) closeSnDetail();
         if(!e.target.closest(".sn-picker-pop")&&!e.target.closest(".sn-icon-btn")) closeSnPicker();
         if(!e.target.closest(".row-action-pop")&&!e.target.closest(".more[data-transaction-id]")) closeRowActionMenu();
         if(e.target.closest(".anchor")) return;
         setPop("");
       });
-      document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(followupBackdrop.classList.contains("show")) closeFollowupModal(); closeRowActionMenu(); closeSnDetail(); closeSnPicker(); closeSnSwitchConfirm(); setPop(""); toggleFilters(false);}});
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(followupBackdrop.classList.contains("show")) closeFollowupModal(); closeDateRange(); closeRowActionMenu(); closeSnDetail(); closeSnPicker(); closeSnSwitchConfirm(); setPop(""); toggleFilters(false);}});
       window.addEventListener("resize",()=>{if(rowActionPop.classList.contains("show")) positionRowActionMenu(); if(snDetailState.open) positionSnDetail(); if(snPickerState.open) positionSnPicker();});
       document.addEventListener("scroll",()=>{closeRowActionMenu(); if(snDetailState.open) closeSnDetail(); if(snPickerState.open) positionSnPicker();},{capture:true,passive:true});
       renderCols();

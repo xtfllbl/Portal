@@ -188,8 +188,8 @@
 
         /* Section content */
         .content { padding: 18px; }
-        .content-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .subtabs { display: flex; gap: 8px; }
+        .content-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .subtabs { display: flex; flex-wrap: wrap; gap: 8px; }
         .subtab { appearance: none; background: var(--chip-bg); border: 1px solid var(--border); padding: 5px 10px; margin: 0; font-weight: 600; color: var(--chip-text); cursor: pointer; border-radius: 10px; font-size: 13px; }
         .subtab.active { background: #111; color: #fff; border-color: #111; }
         .content-head .btn-primary { width: auto; padding: 8px 12px; font-size: 13px; }
@@ -236,6 +236,30 @@
         .installed-app-table { min-width: 980px; }
         .installed-app-table th:last-child,
         .installed-app-table td:last-child { width: 140px; }
+        .panel-action-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            flex: 0 0 auto;
+        }
+        .content-head .panel-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            min-width: 0;
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+        }
+        .content-head .panel-action-btn.hidden { display: none; }
         .app-status-badge {
             display: inline-flex;
             align-items: center;
@@ -327,6 +351,82 @@
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
+        }
+        #tab-logs .content-head { margin-bottom: 12px; }
+        #tab-logs .table-wrap { overflow-x: auto; }
+        .terminal-log-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .terminal-log-refresh {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #dedfe3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #4b5563;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .terminal-log-refresh:hover {
+            background: #f5f5f6;
+            border-color: #c9cbd1;
+            color: #111827;
+        }
+        .terminal-log-refresh svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .terminal-log-table { min-width: 760px; }
+        .terminal-log-table th:last-child,
+        .terminal-log-table td:last-child {
+            width: 110px;
+            text-align: right;
+        }
+        .terminal-log-file {
+            color: #2684ff;
+            font-weight: 650;
+            text-decoration: none;
+        }
+        .terminal-log-file:hover { text-decoration: underline; }
+        .terminal-log-download {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #dedfe3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #111827;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .terminal-log-download:hover {
+            background: #f8fafc;
+            border-color: #c9cbd1;
+        }
+        .terminal-log-download svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .terminal-log-status {
+            min-height: 18px;
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 650;
         }
         .hidden { display: none; }
         .old { display: none; }
@@ -509,138 +609,134 @@
         .sidebar.is-collapsed .chevron,
         .sidebar.is-collapsed .sub-menu { display: none !important; }
 
-        .source-chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 3px 8px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: #f8fafc;
-            font-size: 11px;
-            font-weight: 700;
-            color: #475569;
-        }
+        .empty-row td { text-align: center; color: #94a3b8; padding: 24px 12px; }
 
-        .push-app-modal-overlay {
+        .operation-modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(15, 23, 42, 0.45);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1200;
-            padding: 20px;
+            z-index: 1300;
+            padding: 22px;
         }
-        .push-app-modal-overlay.open { display: flex; }
-        .push-app-modal {
-            width: min(1240px, 96vw);
-            max-height: calc(100vh - 40px);
+        .operation-modal-overlay.open { display: flex; }
+        .operation-modal {
+            width: min(620px, 96vw);
+            max-height: calc(100vh - 44px);
             background: #fff;
             border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 22px 54px rgba(0, 0, 0, 0.25);
+            border-radius: 14px;
+            box-shadow: 0 24px 58px rgba(0, 0, 0, 0.28);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
-        .push-app-modal-header {
-            padding: 18px 24px;
+        .operation-modal-head {
+            padding: 18px 22px;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
+            gap: 16px;
         }
-        .push-app-modal-title { margin: 0; font-size: 22px; font-weight: 700; color: #111827; }
-        .push-app-close {
+        .operation-modal-title {
+            margin: 0;
+            color: #111827;
+            font-size: 21px;
+            font-weight: 850;
+            line-height: 1.25;
+        }
+        .operation-modal-close {
             width: 34px;
             height: 34px;
+            border: 1px solid #d8dbe2;
             border-radius: 10px;
-            border: 1px solid #d1d5db;
             background: #fff;
-            color: #111827;
-            font-size: 20px;
+            color: #3f414a;
+            font-size: 22px;
             line-height: 1;
             cursor: pointer;
         }
-        .push-app-modal-body { padding: 16px 24px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
-        .push-app-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
-        .source-tabs { display: flex; gap: 8px; }
-        .source-tab {
-            border: none;
-            border-bottom: 2px solid transparent;
-            background: transparent;
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            padding: 8px 10px;
+        .operation-modal-body {
+            padding: 18px 24px 20px;
+            overflow: auto;
+            color: #334155;
         }
-        .source-tab.active { color: #111827; border-bottom-color: #111827; }
-        .source-search { width: 280px; max-width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; }
-        .select-table-wrap { border: 1px solid #e5e7eb; border-radius: 10px; overflow: auto; }
-        .select-table { width: 100%; border-collapse: collapse; min-width: 980px; }
-        .select-table thead th {
-            background: #fafafa;
-            color: #6b7280;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-            padding: 14px 12px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .select-table tbody td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
-        .select-table tbody tr { cursor: pointer; transition: background-color .16s ease; }
-        .select-table tbody tr:hover { background: #f8fafc; }
-        .select-table tbody tr.active { background: #eef2ff; }
-        .pick-dot {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 1.6px solid #9ca3af;
-            display: inline-block;
-            position: relative;
-        }
-        .pick-dot.active { border-color: #dc2626; }
-        .pick-dot.active::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #dc2626;
-            transform: translate(-50%, -50%);
-        }
-        .app-name-cell { display: flex; align-items: center; gap: 10px; color: #0f172a; }
-        .app-name-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-        .app-name-title { font-weight: 700; color: #0f172a; }
-        .app-avatar { width: 42px; height: 42px; border-radius: 10px; display: block; flex-shrink: 0; overflow: hidden; }
-        .app-icon-mark { display: block; width: 100%; height: 100%; }
-        .app-icon-mark svg { width: 100%; height: 100%; display: block; }
-        .app-source-note { font-size: 12px; color: #64748b; }
-        .empty-row td { text-align: center; color: #94a3b8; padding: 24px 12px; }
-        .push-app-modal-footer {
-            border-top: 1px solid #e5e7eb;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .picked-app-hint { font-size: 13px; color: #475569; font-weight: 600; }
-        .push-app-links { display: flex; gap: 14px; font-size: 13px; flex-wrap: wrap; }
-        .push-app-modal-footer .action-buttons {
-            display: inline-flex;
-            align-items: center;
+        .operation-summary {
+            display: grid;
             gap: 8px;
         }
-        .push-app-modal-footer .btn-primary,
-        .push-app-modal-footer .btn-secondary {
+        .operation-summary-row {
+            display: grid;
+            grid-template-columns: 150px minmax(0, 1fr);
+            gap: 18px;
+            align-items: baseline;
+            padding: 3px 0;
+            background: transparent;
+        }
+        .operation-summary-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+        .operation-summary-value {
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 750;
+            overflow-wrap: anywhere;
+        }
+        .operation-scope {
+            display: grid;
+            gap: 9px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #eef1f5;
+        }
+        .operation-scope-title {
+            margin: 0 0 2px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+        .operation-scope-choice {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: fit-content;
+            color: #111827;
+            font-size: 15px;
+            font-weight: 750;
+            cursor: pointer;
+        }
+        .operation-scope-choice input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #111111;
+            flex: 0 0 auto;
+            cursor: pointer;
+        }
+        .operation-modal-footer {
+            padding: 14px 22px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .operation-modal-footer .btn-primary,
+        .operation-modal-footer .btn-secondary {
             width: auto;
-            min-width: 96px;
+            min-width: 112px;
+        }
+        .operation-modal-footer .btn-primary:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .param-preview-overlay {
@@ -851,21 +947,24 @@
             }
             .content-head,
             .section-head,
-            .task-card,
-            .push-app-tools,
-            .push-app-modal-footer {
+            .task-card {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+            .panel-action-row {
+                margin-left: 0;
+            }
+            .terminal-log-actions {
+                margin-left: 0;
+            }
+            .operation-summary-row {
+                grid-template-columns: 1fr;
+                gap: 4px;
             }
             .sync-text {
                 position: static;
                 margin-top: 10px;
             }
-            .push-app-modal-footer .action-buttons {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            .source-search { width: 100%; }
             .param-form-grid,
             .param-unmatched {
                 grid-template-columns: 1fr;
@@ -1143,9 +1242,7 @@
                 <div class="banner-tabs" id="primaryTabs" role="tablist">
                     <button class="tab active" data-tab="basic" role="tab" aria-selected="true">Basic Information</button>
                     <button class="tab" data-tab="appfw" role="tab" aria-selected="false">APP &amp; Parameters</button>
-                    <button class="tab" data-tab="push" role="tab" aria-selected="false">Push Task</button>
-                    <button class="tab" data-tab="settings" role="tab" aria-selected="false">Setting</button>
-                    <button class="tab" data-tab="params" role="tab" aria-selected="false">Parameter Variables</button>
+                    <button class="tab" data-tab="logs" role="tab" aria-selected="false">Terminal Logs</button>
                 </div>
                 <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
             </div>
@@ -1165,71 +1262,6 @@
                     <span>🔒 Offline 8M (2025-06-15 15:15:21)</span>
                     <span class="muted">Sync: 2024-09-23 17:05</span>
                     <button class="icon-btn" title="Refresh">⟳</button>
-                </div>
-            </div>
-
-            <div class="content old">
-                <div class="content-head">
-                    <div class="subtabs">
-                        <div class="subtab active">App</div>
-                        <div class="subtab">Firmware</div>
-                        <div class="subtab">Launcher</div>
-                    </div>
-                    <button class="btn-primary" type="button">+ Push App</button>
-                </div>
-
-                <div class="task-card">
-                    <div>
-                        <div class="task-title">BroadPOS TransIT UPT <span>V1.00.16E_20250606</span></div>
-                        <div class="task-meta">
-                            Type: Parameter App<br>
-                            Effective Time: 2025-06-27 03:00<br>
-                            App Push Time: 2025-06-27 03:00
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <span class="badge success">Active</span>
-                        <button class="icon-btn" title="Delete">🗑</button>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-head">
-                        <div class="section-title">Operation History</div>
-                        <div class="section-tools">
-                            <button class="btn-secondary">Export</button>
-                            <button class="btn-secondary">Search</button>
-                        </div>
-                    </div>
-                    <div class="table-wrap">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Action</th>
-                                    <th>Target</th>
-                                    <th>Version</th>
-                                    <th>Status</th>
-                                    <th>Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Push App</td>
-                                    <td>BroadPOS TransIT UPT</td>
-                                    <td>V1.00.16E_20250606</td>
-                                    <td><span class="badge success">Success</span></td>
-                                    <td>2025-06-27 03:00</td>
-                                </tr>
-                                <tr>
-                                    <td>Sync</td>
-                                    <td>Device</td>
-                                    <td>—</td>
-                                    <td><span class="badge warn">Pending</span></td>
-                                    <td>2025-06-27 02:55</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
 
@@ -1370,13 +1402,18 @@
                             <button class="subtab" data-sub="key">KEY</button>
                             <button class="subtab" data-sub="firmware">Firmware</button>
                         </div>
+                        <div class="panel-action-row" aria-label="APP and parameter actions">
+                            <button id="updateAppBtn" class="btn-primary panel-action-btn" data-action-for="app" type="button">Update APP</button>
+                            <button id="injectKeyBtn" class="btn-primary panel-action-btn hidden" data-action-for="key" type="button">Inject Key</button>
+                            <button id="updateFirmwareBtn" class="btn-primary panel-action-btn hidden" data-action-for="firmware" type="button">Update Firmware</button>
+                        </div>
                     </div>
 
                     <div id="table-app">
                         <div class="table-wrap">
                             <table id="installedAppTable" class="table app-para-table installed-app-table">
                                 <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Update Time</th><th>Status</th></tr></thead>
-                                <tbody>
+                                <tbody id="installedAppTableBody">
                                     <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.1.0 (310)</td><td>2026-03-04 09:18:22</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>
                                     <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td><span class="app-status-badge success">Success</span></td></tr>
                                     <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>2.3.3-global</td><td>2026-02-10 11:24:07</td><td><span class="app-status-badge success">Success</span></td></tr>
@@ -1470,7 +1507,7 @@
                                         <th>Pushed Time</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="keyHistoryTableBody">
                                     <tr>
                                         <td><a href="#" class="param-name-link">ELAVON_TPK_WP6267UQ36002376_20260603</a></td>
                                         <td>WP6267UQ36002376</td>
@@ -1518,7 +1555,7 @@
                                         <th>Update Time</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="firmwareHistoryTableBody">
                                     <tr>
                                         <td>Q3MINI-R Secure Firmware</td>
                                         <td>Q3MINI-R</td>
@@ -1553,126 +1590,93 @@
                     </div>
                 </section>
 
-                <!-- Push Task (active by default) -->
-                <section id="tab-push" class="hidden" role="tabpanel" aria-labelledby="push">
+                <!-- Terminal Logs -->
+                <section id="tab-logs" class="hidden" role="tabpanel" aria-labelledby="logs">
                     <div class="content-head">
-                        <div class="subtabs">
-                            <button class="subtab active">App</button>
-                            <button class="subtab">Firmware</button>
-                            <button class="subtab">Launcher</button>
-                            <span class="source-chip">WSTORE + APP Uploaded</span>
+                        <div class="section-title">Terminal Logs</div>
+                        <div class="terminal-log-actions">
+                            <button id="uploadLogBtn" class="btn-primary" type="button">Upload Log</button>
+                            <button id="refreshLogsBtn" class="terminal-log-refresh" type="button" title="Refresh Logs" aria-label="Refresh Logs">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M20 11a8 8 0 1 0-2.34 5.66"></path>
+                                    <path d="M20 4v7h-7"></path>
+                                </svg>
+                            </button>
                         </div>
-                        <button id="openPushAppModal" class="btn-primary" type="button">+ Push App</button>
-                    </div>
-
-                    <div class="section">
-                        <div class="section-head">
-                            <div class="section-title">Operation History</div>
-                            <div class="section-tools">
-                                <button class="btn-secondary">Export</button>
-                                <button class="btn-secondary">Search</button>
-                            </div>
-                        </div>
-                        <div class="table-wrap">
-                            <table class="table">
-                                <thead>
-                                    <tr><th>Action</th><th>Target</th><th>Version</th><th>Source</th><th>Status</th><th>Time</th></tr>
-                                </thead>
-                                <tbody id="pushHistoryBody">
-                                    <tr><td>Push App</td><td>BroadPOS TransIT UPT</td><td>V1.00.16E_20250606</td><td>WSTORE</td><td><span class="badge success">Success</span></td><td>2025-06-27 03:00</td></tr>
-                                    <tr><td>Sync</td><td>Device</td><td>&mdash;</td><td>&mdash;</td><td><span class="badge warn">Pending</span></td><td>2025-06-27 02:55</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Settings -->
-                <section id="tab-settings" class="hidden" role="tabpanel" aria-labelledby="settings">
-                    <h2 class="section-title" style="margin-bottom:10px">Device Settings</h2>
-                    <fieldset>
-                        <legend>Connectivity</legend>
-                        <div class="form-group"><label><input type="checkbox" checked> Enable automatic updates</label></div>
-                        <div class="form-group"><label><input type="checkbox"> Allow remote configuration</label></div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Security</legend>
-                        <div class="form-group"><label><input type="checkbox" checked> Lock when offline for 10 minutes</label></div>
-                        <div class="hint">Applies device-level policy similar to reference UI.</div>
-                    </fieldset>
-                    <button class="btn-primary" type="button">Save Changes</button>
-                </section>
-
-                <!-- Parameter Variables -->
-                <section id="tab-params" class="hidden" role="tabpanel" aria-labelledby="params">
-                    <div class="filter-bar">
-                        <div class="filter-grid">
-                            <div class="field"><label>Key</label><input type="text" placeholder="Search key" /></div>
-                            <div class="field"><label>Value</label><input type="text" placeholder="Contains value" /></div>
-                            <div class="field"><label>Scope</label><select><option>All</option><option>System</option><option>App</option></select></div>
-                            <div class="field"><label>Modified By</label><input type="text" placeholder="User" /></div>
-                            <div class="field"><label>Date</label><div class="date-range"><input type="text" placeholder="YYYY-MM-DD" /><input type="text" placeholder="YYYY-MM-DD" /></div></div>
-                        </div>
-                        <div class="filter-actions"><button class="btn-primary" type="button">Apply</button><button class="btn-secondary" type="button">Reset</button></div>
                     </div>
                     <div class="table-wrap">
-                        <table class="table">
-                            <thead><tr><th>Key</th><th>Value</th><th>Scope</th><th>Updated</th></tr></thead>
-                            <tbody>
-                                <tr><td>merchant.id</td><td>41381</td><td>System</td><td>2025-08-01</td></tr>
-                                <tr><td>feature.tipping</td><td>true</td><td>App</td><td>2025-08-11</td></tr>
+                        <table id="terminalLogsTable" class="table terminal-log-table">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Size</th>
+                                    <th>Upload Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="terminalLogsTableBody">
+                                <tr>
+                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703140649.zip">WP6267UQ36002376-20260703140649.zip</a></td>
+                                    <td>885.10 KB</td>
+                                    <td>2026-07-03 14:06:49</td>
+                                    <td>
+                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703140649.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703140649.zip">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703135155.zip">WP6267UQ36002376-20260703135155.zip</a></td>
+                                    <td>781.10 KB</td>
+                                    <td>2026-07-03 13:51:55</td>
+                                    <td>
+                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703135155.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703135155.zip">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703131643.zip">WP6267UQ36002376-20260703131643.zip</a></td>
+                                    <td>874.32 KB</td>
+                                    <td>2026-07-03 13:16:43</td>
+                                    <td>
+                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703131643.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703131643.zip">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703111852.zip">WP6267UQ36002376-20260703111852.zip</a></td>
+                                    <td>22.88 MB</td>
+                                    <td>2026-07-03 11:18:52</td>
+                                    <td>
+                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703111852.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703111852.zip">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260701031635.zip">WP6267UQ36002376-20260701031635.zip</a></td>
+                                    <td>22.76 MB</td>
+                                    <td>2026-07-01 03:16:35</td>
+                                    <td>
+                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260701031635.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260701031635.zip">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                                        </button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
+                    <div id="terminalLogStatus" class="terminal-log-status" aria-live="polite"></div>
                 </section>
+
             </div>
         </div>
     </div>
         </div>
     </div>
 
-    <div id="pushAppModal" class="push-app-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-        <div class="push-app-modal">
-            <div class="push-app-modal-header">
-                <h2 class="push-app-modal-title">Select Application</h2>
-                <button id="closePushAppModal" class="push-app-close" type="button" aria-label="Close">&times;</button>
-            </div>
-            <div class="push-app-modal-body">
-                <div class="push-app-tools">
-                    <div class="source-tabs" id="sourceTabs">
-                        <button class="source-tab active" type="button" data-source="public">WSTORE</button>
-                        <button class="source-tab" type="button" data-source="customer">APP Uploaded</button>
-                    </div>
-                    <input id="sourceSearchInput" class="source-search" type="text" placeholder="Search">
-                </div>
-                <div class="select-table-wrap">
-                    <table class="select-table">
-                        <thead>
-                            <tr>
-                                <th style="width:46px"></th>
-                                <th>APP NAME</th>
-                                <th>VERSION</th>
-                                <th>TYPE</th>
-                                <th>DEVELOPER</th>
-                                <th>UPDATED TIME</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selectAppRows"></tbody>
-                    </table>
-                </div>
-                <div class="push-app-links">
-                    <a href="10.customer_app_upload_manage.html">Open APP Management</a>
-                </div>
-            </div>
-            <div class="push-app-modal-footer">
-                <div id="pickedAppHint" class="picked-app-hint">No app selected</div>
-                <div class="action-buttons">
-                    <button id="cancelPushAppModal" class="btn-secondary" type="button">Cancel</button>
-                    <button id="confirmPushApp" class="btn-primary" type="button">OK</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <div id="paramPreviewModal" class="param-preview-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="paramPreviewTitle">
         <div class="param-preview-modal">
             <div class="param-preview-head">
@@ -1687,6 +1691,19 @@
             </div>
             <div class="param-preview-footer">
                 <button id="closeParamPreviewFooter" class="btn-secondary" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="operationConfirmModal" class="operation-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="operationConfirmTitle">
+        <div class="operation-modal">
+            <div class="operation-modal-head">
+                <h2 id="operationConfirmTitle" class="operation-modal-title">Confirm Operation</h2>
+                <button id="closeOperationConfirm" class="operation-modal-close" type="button" aria-label="Close">&times;</button>
+            </div>
+            <div id="operationConfirmBody" class="operation-modal-body"></div>
+            <div class="operation-modal-footer">
+                <button id="cancelOperationConfirm" class="btn-secondary" type="button">Cancel</button>
+                <button id="submitOperationConfirm" class="btn-primary" type="button">Confirm</button>
             </div>
         </div>
     </div>
@@ -1741,9 +1758,7 @@
         const sections = {
             basic: document.getElementById('tab-basic'),
             appfw: document.getElementById('tab-appfw'),
-            push: document.getElementById('tab-push'),
-            settings: document.getElementById('tab-settings'),
-            params: document.getElementById('tab-params')
+            logs: document.getElementById('tab-logs')
         };
 
         function showTab(key) {
@@ -1763,6 +1778,7 @@
         showTab(sections[requestedTab] ? requestedTab : 'appfw');
 
         const subTabs = document.querySelectorAll('#subTabs .subtab');
+        const subActionButtons = document.querySelectorAll('[data-action-for]');
         const tables = {
             app: document.getElementById('table-app'),
             para: document.getElementById('table-para'),
@@ -1776,10 +1792,318 @@
                 tables[k].classList.toggle('hidden', k !== key);
             });
             subTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.sub === key));
+            subActionButtons.forEach(btn => btn.classList.toggle('hidden', btn.dataset.actionFor !== key));
         }
 
         subTabs.forEach(btn => btn.addEventListener('click', () => showSub(btn.dataset.sub)));
-        showSub('para');
+        showSub('app');
+    })();
+
+    (function(){
+        const uploadBtn = document.getElementById('uploadLogBtn');
+        const refreshBtn = document.getElementById('refreshLogsBtn');
+        const tbody = document.getElementById('terminalLogsTableBody');
+        const status = document.getElementById('terminalLogStatus');
+        if(!uploadBtn || !refreshBtn || !tbody) return;
+
+        let pendingLog = null;
+        let generatedLogCount = 0;
+        const generatedSizes = ['918.42 KB', '1.12 MB', '846.70 KB', '23.04 MB'];
+        const downloadIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>';
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function pad(value){
+            return String(value).padStart(2, '0');
+        }
+
+        function formatUploadTime(date){
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        function formatFileStamp(date){
+            return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+        }
+
+        function setStatus(message){
+            if(status) status.textContent = message;
+        }
+
+        function logRowHtml(log){
+            const fileName = escapeHtml(log.fileName);
+            return `
+                <tr>
+                    <td><a href="#" class="terminal-log-file" data-log-download="${fileName}">${fileName}</a></td>
+                    <td>${escapeHtml(log.size)}</td>
+                    <td>${escapeHtml(log.uploadTime)}</td>
+                    <td>
+                        <button class="terminal-log-download" type="button" data-log-download="${fileName}" title="Download log" aria-label="Download ${fileName}">
+                            ${downloadIcon}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function makePendingLog(){
+            const now = new Date();
+            const fileName = `${terminalContext.sn}-${formatFileStamp(now)}.zip`;
+            const size = generatedSizes[generatedLogCount % generatedSizes.length];
+            generatedLogCount += 1;
+            return {
+                fileName,
+                size,
+                uploadTime: formatUploadTime(now)
+            };
+        }
+
+        function downloadLog(fileName){
+            const content = [
+                `Terminal Log: ${fileName}`,
+                `SN: ${terminalContext.sn}`,
+                `TID: ${terminalContext.tid}`,
+                `Generated At: ${formatUploadTime(new Date())}`,
+                '',
+                'This prototype file represents the terminal log package downloaded from the portal.'
+            ].join('\n');
+            const blob = new Blob([content], { type: 'application/zip' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        uploadBtn.addEventListener('click', () => {
+            pendingLog = makePendingLog();
+            setStatus(`Upload log command sent to ${terminalContext.sn}. Refresh after the terminal finishes uploading.`);
+        });
+
+        refreshBtn.addEventListener('click', () => {
+            if(pendingLog){
+                tbody.insertAdjacentHTML('afterbegin', logRowHtml(pendingLog));
+                setStatus(`Log list refreshed. ${pendingLog.fileName} is now available.`);
+                pendingLog = null;
+                return;
+            }
+            setStatus(`Log list refreshed at ${formatUploadTime(new Date())}.`);
+        });
+
+        tbody.addEventListener('click', evt => {
+            const trigger = evt.target.closest('[data-log-download]');
+            if(!trigger) return;
+            evt.preventDefault();
+            downloadLog(trigger.dataset.logDownload);
+        });
+    })();
+
+    (function(){
+        const modal = document.getElementById('operationConfirmModal');
+        const title = document.getElementById('operationConfirmTitle');
+        const body = document.getElementById('operationConfirmBody');
+        const closeBtn = document.getElementById('closeOperationConfirm');
+        const cancelBtn = document.getElementById('cancelOperationConfirm');
+        const submitBtn = document.getElementById('submitOperationConfirm');
+        if(!modal || !title || !body || !submitBtn) return;
+
+        const appUpdate = {
+            opcName: 'Paywizard OPC Reader',
+            opcPackage: 'com.wizarpos.opc',
+            opcVersion: '3.3.0_beta',
+            paymentChannel: 'TSYS_Transit_Reader',
+            paymentName: 'Q3MINI-R TSYS Transit Payment App',
+            paymentPackage: 'com.smartpos.paywizard.tsys.smartpay',
+            paymentVersion: '2.7.9_20260628'
+        };
+        const keyInjection = {
+            keyName: `ELAVON_TPK_${terminalContext.sn}_20260703`,
+            sn: terminalContext.sn
+        };
+        const firmwareUpdate = {
+            name: 'Q3MINI-R Secure Firmware',
+            model: 'Q3MINI-R',
+            version: '3.5.1_20260703'
+        };
+        let currentOperation = null;
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function nowText(){
+            const d = new Date();
+            const pad = value => String(value).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+
+        function summaryHtml(rows){
+            return `
+                <div class="operation-summary">
+                    ${rows.map(row => `
+                        <div class="operation-summary-row">
+                            <div class="operation-summary-label">${escapeHtml(row.label)}</div>
+                            <div class="operation-summary-value">${escapeHtml(row.value)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function scopeHtml(scope){
+            if(!scope || !Array.isArray(scope.options) || scope.options.length === 0) return '';
+            const titleText = scope.title || 'Update Scope';
+            return `
+                <div class="operation-scope" aria-labelledby="operationScopeTitle">
+                    <h4 class="operation-scope-title" id="operationScopeTitle">${escapeHtml(titleText)}</h4>
+                    ${scope.options.map(option => `
+                        <label class="operation-scope-choice" for="${escapeHtml(option.id)}">
+                            <input type="checkbox" id="${escapeHtml(option.id)}" data-scope-option="${escapeHtml(option.value)}" ${option.checked === false ? '' : 'checked'}>
+                            <span>${escapeHtml(option.label)}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function selectedScopeOptions(){
+            return Array.from(body.querySelectorAll('[data-scope-option]:checked')).map(input => input.dataset.scopeOption);
+        }
+
+        function syncSubmitState(){
+            const scopeInputs = body.querySelectorAll('[data-scope-option]');
+            if(scopeInputs.length === 0){
+                submitBtn.disabled = false;
+                return;
+            }
+            submitBtn.disabled = !Array.from(scopeInputs).some(input => input.checked);
+        }
+
+        function openOperation(config){
+            currentOperation = config;
+            title.textContent = config.title;
+            body.innerHTML = summaryHtml(config.rows) + scopeHtml(config.scope);
+            submitBtn.textContent = config.submitText;
+            syncSubmitState();
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeOperation(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            submitBtn.disabled = false;
+            currentOperation = null;
+        }
+
+        function pushAppUpdate(scopeOptions = ['paywizard', 'paymentApp']){
+            const tbody = document.getElementById('installedAppTableBody');
+            if(!tbody) return;
+            const now = nowText();
+            const rows = [];
+            if(scopeOptions.includes('paywizard')){
+                rows.push(`<tr><td>PayWizard</td><td>${escapeHtml(appUpdate.opcPackage)}</td><td>${escapeHtml(appUpdate.opcVersion)}</td><td>${escapeHtml(now)}</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>`);
+            }
+            if(scopeOptions.includes('paymentApp')){
+                rows.push(`<tr><td>TsysPay</td><td>${escapeHtml(appUpdate.paymentPackage)}</td><td>${escapeHtml(appUpdate.paymentVersion)}</td><td>${escapeHtml(now)}</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>`);
+            }
+            if(rows.length) tbody.insertAdjacentHTML('afterbegin', rows.join(''));
+        }
+
+        function injectKey(){
+            const tbody = document.getElementById('keyHistoryTableBody');
+            if(!tbody) return;
+            tbody.insertAdjacentHTML('afterbegin', `
+                <tr>
+                    <td><span class="param-name-link">${escapeHtml(keyInjection.keyName)}</span></td>
+                    <td>${escapeHtml(keyInjection.sn)}</td>
+                    <td><span class="param-status-badge key-init" title="初始化，终端可查询和下载">Init</span></td>
+                    <td>${escapeHtml(nowText())}</td>
+                </tr>
+            `);
+        }
+
+        function pushFirmwareUpdate(){
+            const tbody = document.getElementById('firmwareHistoryTableBody');
+            if(!tbody) return;
+            tbody.insertAdjacentHTML('afterbegin', `
+                <tr>
+                    <td>${escapeHtml(firmwareUpdate.name)}</td>
+                    <td>${escapeHtml(firmwareUpdate.model)}</td>
+                    <td>${escapeHtml(firmwareUpdate.version)}</td>
+                    <td><span class="app-status-badge pushed">Pushed</span></td>
+                    <td>${escapeHtml(nowText())}</td>
+                </tr>
+            `);
+        }
+
+        document.getElementById('updateAppBtn')?.addEventListener('click', () => {
+            openOperation({
+                title: 'Update APP',
+                submitText: 'Push Update',
+                rows: [
+                    { label: 'Target SN', value: terminalContext.sn },
+                    { label: 'Latest OPC', value: `${appUpdate.opcName} ${appUpdate.opcVersion}` },
+                    { label: 'OPC Package', value: appUpdate.opcPackage },
+                    { label: 'Payment Channel', value: appUpdate.paymentChannel },
+                    { label: 'Payment APP', value: `${appUpdate.paymentName} ${appUpdate.paymentVersion}` },
+                    { label: 'Payment Package', value: appUpdate.paymentPackage }
+                ],
+                scope: {
+                    title: 'Update Scope',
+                    options: [
+                        { id: 'updatePaymentAppScope', value: 'paymentApp', label: 'Update Payment App', checked: true },
+                        { id: 'updatePaywizardScope', value: 'paywizard', label: 'Update PAYwizard', checked: true }
+                    ]
+                },
+                onConfirm: () => pushAppUpdate(selectedScopeOptions())
+            });
+        });
+
+        document.getElementById('injectKeyBtn')?.addEventListener('click', () => {
+            openOperation({
+                title: 'Inject Key',
+                submitText: 'Start Injection',
+                rows: [
+                    { label: 'Key Name', value: keyInjection.keyName },
+                    { label: 'Inject SN', value: keyInjection.sn }
+                ],
+                onConfirm: injectKey
+            });
+        });
+
+        document.getElementById('updateFirmwareBtn')?.addEventListener('click', () => {
+            openOperation({
+                title: 'Update Firmware',
+                submitText: 'Push Update',
+                rows: [
+                    { label: 'Target SN', value: terminalContext.sn },
+                    { label: 'Firmware Name', value: firmwareUpdate.name },
+                    { label: 'Model', value: firmwareUpdate.model },
+                    { label: 'Latest Version', value: firmwareUpdate.version }
+                ],
+                onConfirm: pushFirmwareUpdate
+            });
+        });
+
+        body.addEventListener('change', evt => {
+            if(evt.target?.matches('[data-scope-option]')) syncSubmitState();
+        });
+        submitBtn.addEventListener('click', () => {
+            if(currentOperation?.onConfirm) currentOperation.onConfirm();
+            closeOperation();
+        });
+        [closeBtn, cancelBtn].forEach(btn => btn?.addEventListener('click', closeOperation));
+        modal.addEventListener('click', evt => {
+            if(evt.target === modal) closeOperation();
+        });
+        document.addEventListener('keydown', evt => {
+            if(evt.key === 'Escape' && modal.classList.contains('open')) closeOperation();
+        });
     })();
 
     (function(){
@@ -2328,286 +2652,6 @@ paymentTimeout=180`
         });
     })();
 
-    (function(){
-        const STORAGE_KEY = 'pw_customer_apps';
-        const defaultCustomerApps = [
-            { id: 'cus-1', name: 'UPT Retail Plus', package: 'com.customer.upt.retailplus', version: '2.6.1_20260304', type: 'Standard App', listed: true, updated: '2026-03-04 11:18', iconKey: 'store' },
-            { id: 'cus-2', name: 'TravelPay Lite', package: 'com.customer.travelpay.lite', version: '1.9.4_20260228', type: 'Parameter App', listed: true, updated: '2026-02-28 19:45', iconKey: 'travel' },
-            { id: 'cus-3', name: 'StoreAssist OTA', package: 'com.customer.storeassist.ota', version: '5.0.0_20260225', type: 'Tool App', listed: false, updated: '2026-02-25 14:10', iconKey: 'tool' }
-        ];
-
-        function escapeHtml(value){
-            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-        }
-
-        function hashText(text){
-            return String(text || '').split('').reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) % 2147483647, 7);
-        }
-
-        function deriveIconKey(name, type){
-            const lower = `${name || ''} ${type || ''}`.toLowerCase();
-            if(lower.includes('broadpos') || lower.includes('transit') || lower.includes('terminal')) return 'terminal';
-            if(lower.includes('check')) return 'check';
-            if(lower.includes('air') || lower.includes('view')) return 'view';
-            if(lower.includes('retail') || lower.includes('store')) return 'store';
-            if(lower.includes('travel') || lower.includes('trip') || lower.includes('pay') || lower.includes('flight')) return 'travel';
-            if(lower.includes('ota') || lower.includes('tool') || lower.includes('update')) return 'tool';
-            if(lower.includes('link') || lower.includes('vm') || lower.includes('network')) return 'network';
-            if((type || '').toLowerCase().includes('parameter')) return 'tune';
-            if((type || '').toLowerCase().includes('tool')) return 'tool';
-            return 'grid';
-        }
-
-        function iconTheme(seed){
-            const palettes = [
-                { bg: '#0f172a', plate: '#2563eb', accent: '#93c5fd', soft: '#dbeafe' },
-                { bg: '#172554', plate: '#7c3aed', accent: '#c4b5fd', soft: '#ede9fe' },
-                { bg: '#0f3d3e', plate: '#0f766e', accent: '#5eead4', soft: '#ccfbf1' },
-                { bg: '#4a1d15', plate: '#ea580c', accent: '#fdba74', soft: '#ffedd5' },
-                { bg: '#164e63', plate: '#0284c7', accent: '#7dd3fc', soft: '#e0f2fe' },
-                { bg: '#3f1d4d', plate: '#db2777', accent: '#f9a8d4', soft: '#fce7f3' }
-            ];
-            return palettes[hashText(seed) % palettes.length];
-        }
-
-        function iconArt(iconKey, theme){
-            switch(iconKey){
-                case 'terminal':
-                    return `<rect x="16" y="17" width="32" height="30" rx="10" fill="#ffffff" fill-opacity=".98"/><rect x="22" y="24" width="20" height="11" rx="4" fill="${theme.soft}"/><circle cx="39" cy="29" r="3" fill="${theme.plate}"/><path d="M24 40h16" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
-                case 'check':
-                    return `<circle cx="32" cy="32" r="17" fill="#ffffff" fill-opacity=".96"/><path d="M24 32l5 5 11-13" stroke="${theme.plate}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
-                case 'view':
-                    return `<path d="M16 32c4.5-7 10.5-10.5 16-10.5S43.5 25 48 32c-4.5 7-10.5 10.5-16 10.5S20.5 39 16 32z" fill="#ffffff" fill-opacity=".96"/><circle cx="32" cy="32" r="7.5" fill="${theme.plate}"/><circle cx="32" cy="32" r="3" fill="${theme.soft}"/>`;
-                case 'store':
-                    return `<path d="M20 24h24l-1.8 6.5H21.8L20 24z" fill="#ffffff" fill-opacity=".95"/><path d="M23 30.5h18V44a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 23 44V30.5z" fill="#ffffff"/><path d="M28 24c0-3 1.5-5 4-5s4 2 4 5" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/><path d="M28 37h8" stroke="${theme.plate}" stroke-width="3.2" stroke-linecap="round"/>`;
-                case 'travel':
-                    return `<path d="M18 40l28-16-7 16-7-4-4 7-2-3-8 0z" fill="#ffffff" fill-opacity=".96"/><path d="M30 20l4 10" stroke="${theme.plate}" stroke-width="3" stroke-linecap="round"/>`;
-                case 'tool':
-                    return `<path d="M32 18v4M32 42v4M18 32h4M42 32h4M22.5 22.5l2.8 2.8M38.7 38.7l2.8 2.8M41.5 22.5l-2.8 2.8M25.3 38.7l-2.8 2.8" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/><circle cx="32" cy="32" r="10" fill="#ffffff"/><circle cx="32" cy="32" r="5" fill="${theme.plate}"/>`;
-                case 'network':
-                    return `<circle cx="22" cy="24" r="6" fill="#ffffff"/><circle cx="42" cy="24" r="6" fill="#ffffff"/><circle cx="32" cy="40" r="6" fill="#ffffff"/><path d="M28 24h8M26 28l6 8M38 28l-6 8" stroke="${theme.plate}" stroke-width="3.1" stroke-linecap="round"/>`;
-                case 'tune':
-                    return `<path d="M24 22v20M32 18v28M40 24v16" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="28" r="4" fill="${theme.accent}"/><circle cx="32" cy="39" r="4" fill="${theme.accent}"/><circle cx="40" cy="30" r="4" fill="${theme.accent}"/>`;
-                default:
-                    return `<rect x="20" y="20" width="10" height="10" rx="3" fill="#ffffff"/><rect x="34" y="20" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="20" y="34" width="10" height="10" rx="3" fill="#ffffff" fill-opacity=".9"/><rect x="34" y="34" width="10" height="10" rx="3" fill="#ffffff"/>`;
-            }
-        }
-
-        function renderAppIcon(app, className){
-            const name = app && app.name ? app.name : 'APP';
-            const type = app && app.type ? app.type : 'Standard App';
-            const iconKey = app && app.iconKey ? app.iconKey : deriveIconKey(name, type);
-            const theme = iconTheme(`${name}-${iconKey}-${type}`);
-            return `<span class="${className || 'app-icon-mark'}" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="18" fill="${theme.bg}"/><circle cx="48" cy="16" r="10" fill="${theme.accent}" opacity=".95"/><circle cx="18" cy="48" r="7" fill="${theme.soft}" opacity=".72"/><rect x="10" y="10" width="44" height="44" rx="14" fill="${theme.plate}" opacity=".38"/>${iconArt(iconKey, theme)}</svg></span>`;
-        }
-
-        function loadListedCustomerApps(){
-            try {
-                const raw = window.localStorage.getItem(STORAGE_KEY);
-                const parsed = raw ? JSON.parse(raw) : defaultCustomerApps;
-                if(!Array.isArray(parsed)) return [];
-                return parsed
-                    .filter(item => item && item.listed !== false)
-                    .map((item, idx) => ({
-                        id: item.id || `cus-${idx + 1}`,
-                        name: item.name || 'Unknown APP',
-                        version: item.version || '1.0.0',
-                        type: item.type || 'Standard App',
-                        iconKey: item.iconKey || deriveIconKey(item.name, item.type),
-                        developer: '1 of a Kind World Travel LLC',
-                        updated: item.updated || '2026-03-01 00:00'
-                    }));
-            } catch (e){
-                return defaultCustomerApps
-                    .filter(item => item.listed !== false)
-                    .map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        version: item.version,
-                        type: item.type,
-                        iconKey: item.iconKey || deriveIconKey(item.name, item.type),
-                        developer: '1 of a Kind World Travel LLC',
-                        updated: item.updated
-                    }));
-            }
-        }
-
-        const appData = {
-            public: [
-                { id: 'pub-1', name: 'BroadPOS TransIT', version: 'V1.04.00E_20230723', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-07-23 08:34', iconKey: 'terminal' },
-                { id: 'pub-2', name: 'CheckUP', version: '1.03.07_20250708', type: 'Standard App', developer: 'PAX USBO', updated: '2025-07-09 08:16', iconKey: 'check' },
-                { id: 'pub-3', name: 'AirViewer', version: '3.5.0', type: 'Standard App', developer: 'PAXSTORE Team', updated: '2025-06-30 08:11', iconKey: 'view' },
-                { id: 'pub-4', name: 'BroadPOS TransIT UPT Demo', version: 'V1.00.16E_20250606', type: 'Parameter App', developer: 'PAX USBO', updated: '2025-06-11 07:52', iconKey: 'terminal' },
-                { id: 'pub-5', name: 'Vixslink-VM', version: 'V1.13.06.20250522', type: 'Parameter App', developer: 'PAX Technology', updated: '2025-06-03 07:46', iconKey: 'network' }
-            ],
-            customer: loadListedCustomerApps()
-        };
-
-        const modal = document.getElementById('pushAppModal');
-        const openBtn = document.getElementById('openPushAppModal');
-        const closeBtn = document.getElementById('closePushAppModal');
-        const cancelBtn = document.getElementById('cancelPushAppModal');
-        const confirmBtn = document.getElementById('confirmPushApp');
-        const sourceTabs = document.querySelectorAll('#sourceTabs .source-tab');
-        const searchInput = document.getElementById('sourceSearchInput');
-        const rowsWrap = document.getElementById('selectAppRows');
-        const pickedHint = document.getElementById('pickedAppHint');
-
-        const activePushName = document.getElementById('activePushNameText');
-        const activePushVersion = document.getElementById('activePushVersion');
-        const activePushType = document.getElementById('activePushType');
-        const activePushSource = document.getElementById('activePushSource');
-        const activePushEffectiveTime = document.getElementById('activePushEffectiveTime');
-        const activePushTime = document.getElementById('activePushTime');
-        const pushHistoryBody = document.getElementById('pushHistoryBody');
-
-        if(!modal || !openBtn || !rowsWrap) return;
-
-        let activeSource = 'public';
-        let searchKeyword = '';
-        const selectedBySource = { public: 'pub-1', customer: null };
-
-        function nowText(){
-            const d = new Date();
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            const hh = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-        }
-
-        function filteredApps(){
-            const list = appData[activeSource] || [];
-            if(!searchKeyword) return list;
-            return list.filter(item => {
-                const text = `${item.name} ${item.version} ${item.type} ${item.developer}`.toLowerCase();
-                return text.includes(searchKeyword);
-            });
-        }
-
-        function updatePickedHint(){
-            const selectedId = selectedBySource[activeSource];
-            const selected = (appData[activeSource] || []).find(item => item.id === selectedId);
-            if(!selected){
-                if(activeSource === 'customer' && !(appData.customer || []).length){
-                    pickedHint.textContent = 'No published APP Uploaded apps. Go to APP Management and publish an app.';
-                    return;
-                }
-                pickedHint.textContent = 'No app selected';
-                return;
-            }
-            pickedHint.textContent = `Selected: ${selected.name} (${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'})`;
-        }
-
-        function renderRows(){
-            const selectedId = selectedBySource[activeSource];
-            const rows = filteredApps();
-
-            if(!rows.length){
-                rowsWrap.innerHTML = '<tr class="empty-row"><td colspan="6">No applications found.</td></tr>';
-                updatePickedHint();
-                return;
-            }
-
-            rowsWrap.innerHTML = rows.map(app => {
-                const picked = app.id === selectedId;
-                return `
-                    <tr class="${picked ? 'active' : ''}" data-app-id="${app.id}">
-                        <td><span class="pick-dot ${picked ? 'active' : ''}"></span></td>
-                        <td>
-                            <div class="app-name-cell">
-                                <div class="app-avatar">${renderAppIcon(app, 'app-icon-mark')}</div>
-                                <div class="app-name-copy">
-                                    <div class="app-name-title">${escapeHtml(app.name)}</div>
-                                    <div class="app-source-note">${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${escapeHtml(app.version)}</td>
-                        <td>${escapeHtml(app.type)}</td>
-                        <td>${escapeHtml(app.developer)}</td>
-                        <td>${escapeHtml(app.updated)}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            rowsWrap.querySelectorAll('tr[data-app-id]').forEach(row => {
-                row.addEventListener('click', () => {
-                    selectedBySource[activeSource] = row.getAttribute('data-app-id');
-                    renderRows();
-                });
-            });
-
-            updatePickedHint();
-        }
-
-        function setSource(source){
-            activeSource = source;
-            sourceTabs.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-source') === source));
-            if(!selectedBySource[source] && (appData[source] || []).length){
-                selectedBySource[source] = appData[source][0].id;
-            }
-            renderRows();
-        }
-
-        function openModal(){
-            appData.customer = loadListedCustomerApps();
-            if(selectedBySource.customer && !(appData.customer || []).some(item => item.id === selectedBySource.customer)){
-                selectedBySource.customer = null;
-            }
-            modal.classList.add('open');
-            modal.setAttribute('aria-hidden', 'false');
-            renderRows();
-        }
-
-        function closeModal(){
-            modal.classList.remove('open');
-            modal.setAttribute('aria-hidden', 'true');
-        }
-
-        sourceTabs.forEach(tab => tab.addEventListener('click', () => setSource(tab.getAttribute('data-source'))));
-        openBtn.addEventListener('click', openModal);
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-        searchInput.addEventListener('input', () => {
-            searchKeyword = searchInput.value.trim().toLowerCase();
-            renderRows();
-        });
-        modal.addEventListener('click', evt => {
-            if(evt.target === modal) closeModal();
-        });
-        document.addEventListener('keydown', evt => {
-            if(evt.key === 'Escape' && modal.classList.contains('open')) closeModal();
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            const selectedId = selectedBySource[activeSource];
-            const selected = (appData[activeSource] || []).find(item => item.id === selectedId);
-            if(!selected){
-                alert('Please select an application first.');
-                return;
-            }
-            const now = nowText();
-            if(activePushName) activePushName.textContent = selected.name;
-            if(activePushVersion) activePushVersion.textContent = selected.version;
-            if(activePushType) activePushType.textContent = selected.type;
-            if(activePushSource) activePushSource.textContent = activeSource === 'public' ? 'WSTORE' : 'APP Uploaded';
-            if(activePushEffectiveTime) activePushEffectiveTime.textContent = now;
-            if(activePushTime) activePushTime.textContent = now;
-
-            const statusClass = activeSource === 'public' ? 'success' : 'warn';
-            const statusText = activeSource === 'public' ? 'Success' : 'Pending';
-            if(pushHistoryBody){
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>Push App</td><td>${selected.name}</td><td>${selected.version}</td><td>${activeSource === 'public' ? 'WSTORE' : 'APP Uploaded'}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>${now}</td>`;
-                pushHistoryBody.insertBefore(row, pushHistoryBody.firstChild);
-            }
-            closeModal();
-        });
-
-        setSource('public');
-    })();
 </script>
 </body>
 </html>
