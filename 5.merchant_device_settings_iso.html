@@ -997,6 +997,15 @@
             color: #94a3b8;
         }
 
+        .input-field.tci-input[readonly] {
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.045em;
+        }
+
         .chip-input {
             display: flex;
             align-items: center;
@@ -1209,6 +1218,10 @@
             background: var(--status-hold);
         }
 
+        .deployment-status-dot.not-pushed {
+            background: #aeb7c4;
+        }
+
         .deployment-status-chip.muted {
             color: var(--text-muted);
             background: #f8fafc;
@@ -1297,6 +1310,10 @@
             grid-template-columns: minmax(130px, 0.45fr) minmax(0, 1fr);
             gap: 16px;
             align-items: baseline;
+        }
+
+        .confirm-row.is-hidden {
+            display: none;
         }
 
         .confirm-label {
@@ -2043,43 +2060,27 @@
                         <form class="wizard-form" autocomplete="off">
                             <div class="wizard-panel active">
                                 <h3 class="panel-title">Device Info</h3>
-                                <p class="panel-note">Device info is read-only. Update processor and Paywizard parameters below to redeploy.</p>
+                                <p class="panel-note" id="deviceInfoNote">Review device identity and update processor or Paywizard parameters below.</p>
 
                                 <div class="form-grid two">
                                     <div class="field">
-                                        <label for="device-manufacturer">Manufacturer *</label>
-                                        <select class="input-field" id="device-manufacturer" disabled>
-                                            <option value="WizarPOS" selected>WizarPOS</option>
-                                        
-                                        </select>
+                                        <label for="device-tci">TCI (Terminal Configuration Identifier)</label>
+                                        <input class="input-field tci-input" id="device-tci" name="tci" type="text" readonly>
                                     </div>
-                                      <div class="field">
-                                        <label for="device-tpn">Terminal S/N *(Hardware serial number)</label>
-                                        <input class="input-field" id="device-tpn" type="text" placeholder="1567246">
+                                    <div class="field">
+                                        <label for="device-manufacturer">Manufacturer</label>
+                                        <input class="input-field" id="device-manufacturer" type="text" value="WizarPOS" readonly>
                                     </div>
-                         
-                    
                                 </div>
 
                                 <div class="form-grid two">
-                        
+                                    <div class="field">
+                                        <label for="device-tpn">Terminal S/N (Hardware Serial Number)</label>
+                                        <input class="input-field" id="device-tpn" type="text" placeholder="Enter S/N to assign a terminal">
+                                    </div>
                                     <div class="field">
                                         <label for="device-label">Terminal Name (Device Label)</label>
                                         <input class="input-field" id="device-label" type="text" placeholder="Front Counter">
-                                    </div>
-                                
-                                           <div class="field">
-                                        <label for="device-model">Device Model *</label>
-                                        <select class="input-field" id="device-model">
-                                            <option value="">Select Model</option>
-                                            <option>P3</option>
-                                            <option>P2</option>
-                                            <option>VT #1</option>
-                                            <option>Q2</option>
-                                            <option>Q3V</option>
-                                            <option>Q3PRT</option>
-                                            <option>Q3MINI-R</option>
-                                        </select>
                                     </div>
                                 </div>
 
@@ -2097,6 +2098,19 @@
                                                 <option>Standalone Terminal</option>
                                                 <option>Terminal + ECR</option>
                                             </optgroup>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="device-model">Device Model</label>
+                                        <select class="input-field" id="device-model">
+                                            <option value="">Select Model</option>
+                                            <option>P3</option>
+                                            <option>P2</option>
+                                            <option>VT #1</option>
+                                            <option>Q2</option>
+                                            <option>Q3V</option>
+                                            <option>Q3PRT</option>
+                                            <option>Q3MINI-R</option>
                                         </select>
                                     </div>
                                 </div>
@@ -2848,6 +2862,14 @@
             </div>
             <div class="confirm-summary">
                 <div class="confirm-row">
+                    <span class="confirm-label">TCI</span>
+                    <span class="confirm-value" id="confirmTci">-</span>
+                </div>
+                <div class="confirm-row" id="confirmTerminalSnRow">
+                    <span class="confirm-label">Terminal S/N</span>
+                    <span class="confirm-value" id="confirmTerminalSn">-</span>
+                </div>
+                <div class="confirm-row">
                     <span class="confirm-label">Deploy App</span>
                     <span class="confirm-value" id="confirmDeployState">-</span>
                 </div>
@@ -2872,19 +2894,19 @@
                 <h4 class="redeploy-options-title" id="redeployOptionsTitle">Redeploy Scope</h4>
                 <label class="redeploy-choice" for="redeployPaymentApp">
                     <input type="checkbox" id="redeployPaymentApp" checked>
-                    <span>Redeploy Payment App</span>
+                    <span id="scopePaymentAppLabel">Redeploy Payment App</span>
                 </label>
                 <label class="redeploy-choice" for="redeployPaymentParams">
                     <input type="checkbox" id="redeployPaymentParams" checked>
-                    <span>Redeploy Payment Parameters</span>
+                    <span id="scopePaymentParamsLabel">Redeploy Payment Parameters</span>
                 </label>
                 <label class="redeploy-choice" for="redeployPaywizard">
                     <input type="checkbox" id="redeployPaywizard" checked>
-                    <span>Redeploy PAYwizard</span>
+                    <span id="scopePaywizardLabel">Redeploy PAYwizard</span>
                 </label>
                 <label class="redeploy-choice" for="redeployPaywizardParams">
                     <input type="checkbox" id="redeployPaywizardParams" checked>
-                    <span>Redeploy PAYwizard Integration Parameters</span>
+                    <span id="scopePaywizardParamsLabel">Redeploy PAYwizard Integration Parameters</span>
                 </label>
                 <label class="redeploy-choice is-hidden" id="redeployInjectKeyChoice" for="redeployInjectKey">
                     <input type="checkbox" id="redeployInjectKey" checked>
@@ -2901,11 +2923,30 @@
     <script src="processor-parameter-data.js"></script>
     <script>
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
+        const DEVICE_SN_ASSIGNMENT_KEY = 'pw_device_sn_assignments';
         const storeNameEl = document.getElementById('store-context-name');
         const params = new URLSearchParams(window.location.search);
         const storeName = params.get('storeName') || 'Selected Store';
         const storeId = params.get('storeId');
-        const deviceSn = params.get('sn') || '';
+        const requestedDeviceSn = params.get('sn') || '';
+        const requestedTciDigits = (params.get('tci') || '').replace(/^TC/i, '').replace(/\D/g, '').slice(0, 8);
+        const fallbackTciDigits = requestedDeviceSn.replace(/\D/g, '').slice(-8).padStart(8, '0');
+        const deviceTci = `TC${requestedTciDigits.length === 8 ? requestedTciDigits : fallbackTciDigits}`;
+        const loadDeviceSnAssignments = () => {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(DEVICE_SN_ASSIGNMENT_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                return {};
+            }
+        };
+        const saveDeviceSnAssignment = (tci, sn) => {
+            if (!tci || !sn) return;
+            const assignments = loadDeviceSnAssignments();
+            assignments[tci] = sn;
+            localStorage.setItem(DEVICE_SN_ASSIGNMENT_KEY, JSON.stringify(assignments));
+        };
+        const deviceSn = requestedDeviceSn || loadDeviceSnAssignments()[deviceTci] || '';
         const loadTerminalNames = () => {
             try {
                 const parsed = JSON.parse(localStorage.getItem(DEVICE_TERMINAL_NAME_KEY) || '{}');
@@ -2936,6 +2977,7 @@
         document.title = `Device Settings - ${titleSuffix}`;
 
         const deviceManufacturer = document.getElementById('device-manufacturer');
+        const deviceTciInput = document.getElementById('device-tci');
         const deviceTpn = document.getElementById('device-tpn');
         const deviceLabel = document.getElementById('device-label');
         const deviceModel = document.getElementById('device-model');
@@ -2949,6 +2991,7 @@
         const integrationModeLabel = document.getElementById('integrationModeLabel');
         const paywizardSelect = document.getElementById('device-paywizard');
         const redeployBtn = document.getElementById('redeployBtn');
+        const deviceInfoNote = document.getElementById('deviceInfoNote');
         const paymentConfigNote = document.getElementById('paymentConfigNote');
         const processorParams = document.getElementById('processorParams');
         const processorParamSets = document.getElementById('processorParamSets');
@@ -3027,6 +3070,7 @@
         }
 
         const deviceValues = {
+            tci: deviceTci,
             manufacturer: 'WizarPOS',
             sn: deviceSn,
             label: deviceLabelValue,
@@ -3261,6 +3305,7 @@
             ]]
         ];
 
+        if (deviceTciInput) deviceTciInput.value = deviceValues.tci;
         if (deviceManufacturer) deviceManufacturer.value = deviceValues.manufacturer;
         if (deviceTpn && deviceValues.sn) deviceTpn.value = deviceValues.sn;
         if (deviceLabel && deviceValues.label) deviceLabel.value = deviceValues.label;
@@ -3277,7 +3322,7 @@
         if (deviceTemplate && deviceValues.template) deviceTemplate.value = deviceValues.template;
         if (paywizardSelect) paywizardSelect.value = deviceValues.paywizard;
 
-        if (deviceTpn) deviceTpn.readOnly = true;
+        if (deviceTpn) deviceTpn.readOnly = Boolean(deviceValues.sn);
         if (deviceLabel) deviceLabel.readOnly = false;
 
         [
@@ -3290,9 +3335,9 @@
         });
 
         const syncDeviceLabelUi = (value) => {
-            const nextLabel = (value || '').trim() || deviceSn || storeName || 'Device';
+            const nextLabel = (value || '').trim() || deviceValues.sn || storeName || 'Device';
             if (storeNameEl) {
-                storeNameEl.textContent = [storeName, nextLabel || deviceSn].filter(Boolean).join(' / ');
+                storeNameEl.textContent = [storeName, nextLabel || deviceValues.sn].filter(Boolean).join(' / ');
             }
             document.title = `Device Settings - ${nextLabel || storeName || 'Device'}`;
         };
@@ -3302,11 +3347,11 @@
                 syncDeviceLabelUi(deviceLabel.value);
             });
             deviceLabel.addEventListener('change', () => {
-                saveTerminalName(deviceSn, deviceLabel.value);
+                saveTerminalName(deviceValues.sn, deviceLabel.value);
                 syncDeviceLabelUi(deviceLabel.value);
             });
             deviceLabel.addEventListener('blur', () => {
-                saveTerminalName(deviceSn, deviceLabel.value);
+                saveTerminalName(deviceValues.sn, deviceLabel.value);
                 syncDeviceLabelUi(deviceLabel.value);
             });
         }
@@ -3631,8 +3676,38 @@
             return !provisionToggle || provisionToggle.checked;
         }
 
+        function getEnteredTerminalSn() {
+            return (deviceTpn?.value || '').trim();
+        }
+
+        function hasTerminalSn() {
+            return Boolean(getEnteredTerminalSn());
+        }
+
+        function isPendingTerminalAssignment() {
+            return !deviceValues.sn && hasTerminalSn();
+        }
+
+        function syncTerminalAssignmentUi() {
+            const isUnassigned = !deviceValues.sn;
+            const enteredSn = getEnteredTerminalSn();
+            const isPending = isUnassigned && Boolean(enteredSn);
+
+            if (deviceInfoNote) {
+                deviceInfoNote.textContent = isUnassigned
+                    ? 'This saved configuration has no physical terminal. Enter an S/N below to assign and deploy it.'
+                    : 'Review device identity and update processor or Paywizard parameters below.';
+            }
+            if (redeployBtn) {
+                redeployBtn.textContent = isPending
+                    ? 'Assign & Deploy'
+                    : (isUnassigned ? 'Save Configuration' : 'Redeploy Parameters');
+            }
+        }
+
         function syncProvisionStatus() {
             const cardReaderMode = isCardReaderDeployment();
+            const terminalAssigned = Boolean(deviceValues.sn);
             const deployLabel = cardReaderMode ? 'Deploy parameters' : 'Deploy app & parameters';
             const deployedTitle = cardReaderMode ? 'Last selection: parameters deployed' : 'Last selection: app and parameters deployed';
             const notDeployedTitle = cardReaderMode ? 'Last selection: parameters not deployed' : 'Last selection: app and parameters not deployed';
@@ -3653,19 +3728,26 @@
             }
             if (provisionStatusOption) {
                 provisionStatusOption.classList.toggle('is-hidden', !deviceValues.deployAppSelected);
+                provisionStatusOption.classList.remove('muted');
                 provisionStatusOption.title = deviceValues.deployAppSelected
-                    ? deployedTitle
+                    ? (terminalAssigned ? deployedTitle : 'Not pushed: terminal S/N has not been assigned')
                     : notDeployedTitle;
                 provisionStatusOption.setAttribute('aria-label', deviceValues.deployAppSelected
-                    ? `${deployLabel}. Last selection: deployed`
+                    ? (terminalAssigned ? `${deployLabel}. Last selection: deployed` : `${deployLabel}. Not pushed`)
                     : `${deployLabel}. Last selection: not deployed`);
             }
+            if (provisionStatusText) {
+                provisionStatusText.textContent = deployLabel;
+            }
             if (provisionHistoryDot) {
-                provisionHistoryDot.classList.toggle('was-selected', deviceValues.deployAppSelected);
-                provisionHistoryDot.classList.toggle('was-not-selected', !deviceValues.deployAppSelected);
+                provisionHistoryDot.classList.toggle('was-selected', terminalAssigned && deviceValues.deployAppSelected);
+                provisionHistoryDot.classList.toggle('was-not-selected', terminalAssigned && !deviceValues.deployAppSelected);
+                provisionHistoryDot.classList.toggle('not-pushed', !terminalAssigned);
             }
             if (paymentConfigNote) {
-                paymentConfigNote.textContent = deviceValues.deployAppSelected
+                paymentConfigNote.textContent = !terminalAssigned
+                    ? 'Review the application and parameters that will be downloaded after a terminal S/N is assigned.'
+                    : deviceValues.deployAppSelected
                     ? (cardReaderMode
                         ? 'Review the card reader parameters and keys deployed to this device.'
                         : 'Review the payment app, parameters, and keys deployed to this device.')
@@ -3681,13 +3763,18 @@
             }
             const hasKeyDownload = isProvisionEnabled() && processorsWithKeyDownload.has(processorSelect.value);
             const useSwitch = !deviceValues.deployAppSelected;
+            const terminalAssigned = Boolean(deviceValues.sn);
             keyDownloadOption.classList.toggle('is-hidden', !hasKeyDownload || !useSwitch);
             if (keyDownloadStatusOption) {
                 keyDownloadStatusOption.classList.toggle('is-hidden', !hasKeyDownload || useSwitch);
-                keyDownloadStatusOption.title = deviceValues.injectKeySelected
+                keyDownloadStatusOption.title = !terminalAssigned
+                    ? 'Not injected: terminal S/N has not been assigned'
+                    : deviceValues.injectKeySelected
                     ? 'Last selection: Inject key selected'
                     : 'Last selection: Inject key not selected';
-                keyDownloadStatusOption.setAttribute('aria-label', deviceValues.injectKeySelected
+                keyDownloadStatusOption.setAttribute('aria-label', !terminalAssigned
+                    ? 'Inject key. Not injected'
+                    : deviceValues.injectKeySelected
                     ? 'Inject key. Last selection: selected'
                     : 'Inject key. Last selection: not selected');
             }
@@ -3698,8 +3785,9 @@
                 ? 'Inject key. Last selection: selected'
                 : 'Inject key. Last selection: not selected');
             if (keyDownloadHistoryDot) {
-                keyDownloadHistoryDot.classList.toggle('was-selected', deviceValues.injectKeySelected);
-                keyDownloadHistoryDot.classList.toggle('was-not-selected', !deviceValues.injectKeySelected);
+                keyDownloadHistoryDot.classList.toggle('was-selected', terminalAssigned && deviceValues.injectKeySelected);
+                keyDownloadHistoryDot.classList.toggle('was-not-selected', terminalAssigned && !deviceValues.injectKeySelected);
+                keyDownloadHistoryDot.classList.toggle('not-pushed', !terminalAssigned);
             }
             if (keyDownloadCheckbox) {
                 if (useSwitch) {
@@ -3823,15 +3911,26 @@
         if (deviceModel) {
             deviceModel.addEventListener('change', () => syncDeviceDeploymentMode());
         }
+        if (deviceTpn) {
+            deviceTpn.addEventListener('input', () => {
+                syncTerminalAssignmentUi();
+                syncProvisionStatus();
+            });
+        }
         syncDeviceDeploymentMode({ refreshParams: false });
         setProvisionState();
+        syncTerminalAssignmentUi();
 
         const TEMPLATE_KEY = 'pw_device_param_templates';
         const assignTemplateEl = document.getElementById('device-template');
         const saveTemplateBtn = document.getElementById('saveTemplateBtn');
         const saveDeviceConfirmModal = document.getElementById('saveDeviceConfirmModal');
+        const saveDeviceConfirmTitle = document.getElementById('saveDeviceConfirmTitle');
         const cancelSaveDeviceBtn = document.getElementById('cancelSaveDeviceBtn');
         const confirmSaveDeviceBtn = document.getElementById('confirmSaveDeviceBtn');
+        const confirmTci = document.getElementById('confirmTci');
+        const confirmTerminalSnRow = document.getElementById('confirmTerminalSnRow');
+        const confirmTerminalSn = document.getElementById('confirmTerminalSn');
         const confirmDeployState = document.getElementById('confirmDeployState');
         const confirmProcessor = document.getElementById('confirmProcessor');
         const confirmAppVersion = document.getElementById('confirmAppVersion');
@@ -3843,6 +3942,11 @@
         const redeployPaywizardParams = document.getElementById('redeployPaywizardParams');
         const redeployInjectKeyChoice = document.getElementById('redeployInjectKeyChoice');
         const redeployInjectKey = document.getElementById('redeployInjectKey');
+        const redeployOptionsTitle = document.getElementById('redeployOptionsTitle');
+        const scopePaymentAppLabel = document.getElementById('scopePaymentAppLabel');
+        const scopePaymentParamsLabel = document.getElementById('scopePaymentParamsLabel');
+        const scopePaywizardLabel = document.getElementById('scopePaywizardLabel');
+        const scopePaywizardParamsLabel = document.getElementById('scopePaywizardParamsLabel');
         const baseTemplateOptions = assignTemplateEl
             ? Array.from(assignTemplateEl.options).filter((opt) => !opt.value.startsWith('__tpl_'))
             : [];
@@ -3866,21 +3970,25 @@
         }
 
         function buildDevicePushSummary() {
-            const deployEnabled = isProvisionEnabled();
-            const processor = deployEnabled ? getSelectedOptionText(processorSelect) : 'Not deployed';
-            const appVersion = deployEnabled
+            const configurationEnabled = isProvisionEnabled();
+            const deployEnabled = configurationEnabled && hasTerminalSn();
+            const processor = configurationEnabled ? getSelectedOptionText(processorSelect) : '-';
+            const appVersion = configurationEnabled
                 ? (isCardReaderDeployment() ? 'Not required' : getSelectedOptionText(processorVersionSelect))
-                : 'Not deployed';
-            const integrationMode = deployEnabled ? getSelectedOptionText(paywizardSelect) : 'Not deployed';
+                : '-';
+            const integrationMode = configurationEnabled ? getSelectedOptionText(paywizardSelect) : '-';
             const injectVisible = keyDownloadOption && !keyDownloadOption.classList.contains('is-hidden');
             const injectStatusVisible = keyDownloadStatusOption && !keyDownloadStatusOption.classList.contains('is-hidden');
-            const injectEnabled = deployEnabled && (
+            const injectEnabled = configurationEnabled && (
                 (injectVisible && keyDownloadCheckbox && keyDownloadCheckbox.checked) ||
                 (injectStatusVisible && deviceValues.injectKeySelected)
             );
             const deployStateText = isCardReaderDeployment() ? 'Deploy parameters' : 'Deploy app & parameters';
             return {
-                deployState: deployEnabled ? deployStateText : 'No app or parameters will be deployed',
+                deployState: configurationEnabled ? deployStateText : 'Save device only',
+                willDeploy: deployEnabled,
+                tci: deviceValues.tci,
+                sn: getEnteredTerminalSn() || '-',
                 processor,
                 appVersion,
                 integrationMode,
@@ -3889,7 +3997,7 @@
         }
 
         function resetRedeployScope(summary) {
-            const deployEnabled = summary.deployState !== 'No app or parameters will be deployed';
+            const deployEnabled = summary.willDeploy;
             const cardReaderMode = isCardReaderDeployment();
             [
                 redeployPaymentParams,
@@ -3918,6 +4026,28 @@
         function openSaveDeviceConfirmModal() {
             if (!saveDeviceConfirmModal) return;
             const summary = buildDevicePushSummary();
+            const assignmentMode = isPendingTerminalAssignment();
+            const saveOnlyMode = !deviceValues.sn && !hasTerminalSn();
+            if (saveDeviceConfirmTitle) {
+                saveDeviceConfirmTitle.textContent = assignmentMode
+                    ? 'Confirm Terminal Assignment'
+                    : (saveOnlyMode ? 'Save Configuration' : 'Confirm Device Push');
+            }
+            if (confirmSaveDeviceBtn) {
+                confirmSaveDeviceBtn.textContent = assignmentMode
+                    ? 'Assign & Deploy'
+                    : (saveOnlyMode ? 'Confirm Save' : 'Confirm Deploy');
+            }
+            if (redeployOptionsTitle) {
+                redeployOptionsTitle.textContent = assignmentMode ? 'Initial Deployment Scope' : 'Redeploy Scope';
+            }
+            if (scopePaymentAppLabel) scopePaymentAppLabel.textContent = assignmentMode ? 'Deploy Payment App' : 'Redeploy Payment App';
+            if (scopePaymentParamsLabel) scopePaymentParamsLabel.textContent = assignmentMode ? 'Deploy Payment Parameters' : 'Redeploy Payment Parameters';
+            if (scopePaywizardLabel) scopePaywizardLabel.textContent = assignmentMode ? 'Deploy PAYwizard' : 'Redeploy PAYwizard';
+            if (scopePaywizardParamsLabel) scopePaywizardParamsLabel.textContent = assignmentMode ? 'Deploy PAYwizard Integration Parameters' : 'Redeploy PAYwizard Integration Parameters';
+            if (confirmTci) confirmTci.textContent = summary.tci;
+            if (confirmTerminalSn) confirmTerminalSn.textContent = summary.sn;
+            if (confirmTerminalSnRow) confirmTerminalSnRow.classList.toggle('is-hidden', saveOnlyMode);
             if (confirmDeployState) confirmDeployState.textContent = summary.deployState;
             if (confirmProcessor) confirmProcessor.textContent = summary.processor;
             if (confirmAppVersion) confirmAppVersion.textContent = summary.appVersion;
@@ -4042,8 +4172,26 @@
 
         if (confirmSaveDeviceBtn) {
             confirmSaveDeviceBtn.addEventListener('click', () => {
+                const assignmentMode = isPendingTerminalAssignment();
+                const assignedSn = getEnteredTerminalSn();
+                if (assignmentMode) {
+                    saveDeviceSnAssignment(deviceValues.tci, assignedSn);
+                    deviceValues.sn = assignedSn;
+                    if (deviceTpn) deviceTpn.readOnly = true;
+                    if (deviceLabel) saveTerminalName(assignedSn, deviceLabel.value);
+                    syncDeviceLabelUi(deviceLabel?.value || '');
+                    syncTerminalAssignmentUi();
+                    syncProvisionStatus();
+                    syncKeyDownloadOption();
+                }
                 closeSaveDeviceConfirmModal();
-                alert('Device saved');
+                if (assignmentMode) {
+                    alert(`Terminal ${assignedSn} assigned to ${deviceValues.tci}. Application and parameter download has started.`);
+                } else if (!deviceValues.sn) {
+                    alert('Configuration saved without terminal deployment.');
+                } else {
+                    alert('Device deployment requested.');
+                }
             });
         }
 

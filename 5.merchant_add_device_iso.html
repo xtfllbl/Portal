@@ -403,6 +403,11 @@
             color: #fff;
         }
 
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
         .btn.sm {
             padding: 8px 12px;
             font-size: 12px;
@@ -1075,6 +1080,15 @@
             color: #94a3b8;
         }
 
+        .input-field.tci-input[readonly] {
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.045em;
+        }
+
         .chip-input {
             display: flex;
             align-items: center;
@@ -1282,7 +1296,9 @@
         .wizard-actions .action-group {
             display: inline-flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         .confirm-modal {
@@ -1340,6 +1356,10 @@
             align-items: baseline;
         }
 
+        .confirm-row.is-hidden {
+            display: none;
+        }
+
         .confirm-label {
             font-size: 12px;
             font-weight: 700;
@@ -1361,6 +1381,64 @@
             gap: 10px;
             padding: 14px 22px 20px;
             border-top: 1px solid #eef1f5;
+        }
+
+        .compatibility-dialog {
+            width: min(620px, 100%);
+        }
+
+        .compatibility-body {
+            display: grid;
+            gap: 16px;
+            padding: 18px 22px 20px;
+        }
+
+        .compatibility-guidance {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .compatibility-list-label {
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .compatibility-list {
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .compatibility-item {
+            display: grid;
+            grid-template-columns: minmax(150px, 0.6fr) minmax(0, 1fr);
+            gap: 16px;
+            padding: 12px 14px;
+            background: #fff;
+        }
+
+        .compatibility-item + .compatibility-item {
+            border-top: 1px solid #eef1f5;
+        }
+
+        .compatibility-item-label {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .compatibility-item-value {
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            word-break: break-word;
         }
 
         .helper-text {
@@ -2085,13 +2163,13 @@
                                         <rect x="8" y="8" width="11" height="11" rx="2"></rect>
                                         <path d="M5 16V7a2 2 0 0 1 2-2h9"></path>
                                     </svg>
-                                    <span>Clone Device</span>
+                                    <span>Copy Configuration from TCI</span>
                                 </button>
                             </div>
                         </div>
 
                         <div class="clone-source-banner is-hidden" id="cloneSourceBanner">
-                            <span>Clone Device Configuration</span>
+                            <span>Configuration Copied</span>
                             <span class="clone-source-meta" id="cloneSourceMeta"></span>
                         </div>
 
@@ -2102,36 +2180,23 @@
 
                                 <div class="form-grid two">
                                     <div class="field">
-                                        <label for="device-manufacturer">Manufacturer *</label>
-                                        <select class="input-field" id="device-manufacturer" disabled>
-                                            <option value="WizarPOS" selected>WizarPOS</option>
-                                        
-                                        </select>
+                                        <label for="device-tci">TCI (Terminal Configuration Identifier)</label>
+                                        <input class="input-field tci-input" id="device-tci" name="tci" type="text" readonly>
                                     </div>
-                                      <div class="field">
-                                        <label for="device-tpn">Terminal S/N *(Hardware serial number)</label>
-                                        <input class="input-field" id="device-tpn" type="text" placeholder="1567246">
+                                    <div class="field">
+                                        <label for="device-manufacturer">Manufacturer</label>
+                                        <input class="input-field" id="device-manufacturer" type="text" value="WizarPOS" readonly>
                                     </div>
-                         
-                    
                                 </div>
 
                                 <div class="form-grid two">
-
+                                    <div class="field">
+                                        <label for="device-tpn">Terminal S/N (Hardware Serial Number)</label>
+                                        <input class="input-field" id="device-tpn" type="text" placeholder="Optional, e.g. 1567246">
+                                    </div>
                                     <div class="field">
                                         <label for="device-label">Terminal Name (Device Label)</label>
                                         <input class="input-field" id="device-label" type="text" placeholder="Front Counter">
-                                    </div>
-                                
-                                           <div class="field">
-                                        <label for="device-model">Device Model *</label>
-                                        <select class="input-field" id="device-model">
-                                            <option value="">Select Model</option>
-                                            <option>Q2</option>
-                                            <option>Q3V</option>
-                                            <option>Q3PRT</option>
-                                            <option>Q3MINI-R</option>
-                                        </select>
                                     </div>
                                 </div>
 
@@ -2149,6 +2214,16 @@
                                                 <option>Standalone Terminal</option>
                                                 <option>Terminal + ECR</option>
                                             </optgroup>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="device-model">Device Model</label>
+                                        <select class="input-field" id="device-model">
+                                            <option value="">Select Model</option>
+                                            <option>Q2</option>
+                                            <option>Q3V</option>
+                                            <option>Q3PRT</option>
+                                            <option>Q3MINI-R</option>
                                         </select>
                                     </div>
                                 </div>
@@ -2806,6 +2881,14 @@
             </div>
             <div class="confirm-summary">
                 <div class="confirm-row">
+                    <span class="confirm-label">TCI</span>
+                    <span class="confirm-value" id="confirmTci">-</span>
+                </div>
+                <div class="confirm-row" id="confirmTerminalSnRow">
+                    <span class="confirm-label">Terminal S/N</span>
+                    <span class="confirm-value" id="confirmTerminalSn">-</span>
+                </div>
+                <div class="confirm-row">
                     <span class="confirm-label">Deploy App</span>
                     <span class="confirm-value" id="confirmDeployState">-</span>
                 </div>
@@ -2836,40 +2919,42 @@
     <div class="confirm-modal is-hidden" id="cloneConfigModal" role="dialog" aria-modal="true" aria-labelledby="cloneConfigTitle">
         <div class="confirm-dialog">
             <div class="confirm-dialog-head">
-                <h3 class="confirm-dialog-title" id="cloneConfigTitle">Clone Device Configuration</h3>
-                <p class="confirm-dialog-note">Select a terminal under this merchant to copy the app and parameter configuration.</p>
+                <h3 class="confirm-dialog-title" id="cloneConfigTitle">Copy Configuration from TCI</h3>
+                <p class="confirm-dialog-note">Enter the TCI for the configuration you want to use for this new device.</p>
             </div>
             <form id="cloneConfigForm" autocomplete="off">
                 <div class="clone-config-body">
-                    <div class="form-grid two">
-                        <div class="field">
-                            <label for="cloneSourceStore">Store</label>
-                            <input class="input-field" id="cloneSourceStore" type="text" list="cloneSourceStoreList" placeholder="Search or select store">
-                            <datalist id="cloneSourceStoreList"></datalist>
-                        </div>
-                        <div class="field">
-                            <label for="cloneSourceDevice">Terminal</label>
-                            <input class="input-field" id="cloneSourceDevice" type="text" list="cloneSourceDeviceList" placeholder="Search or select SN">
-                            <datalist id="cloneSourceDeviceList"></datalist>
-                        </div>
+                    <div class="field">
+                        <label for="existingConfigurationTci">Source TCI (Terminal Configuration Identifier)</label>
+                        <input class="input-field" id="existingConfigurationTci" name="sourceTci" type="text" maxlength="10" placeholder="TC48273915 or 48273915" spellcheck="false">
                     </div>
-                    <div class="clone-source-preview" id="cloneSourcePreview" aria-live="polite">
-                        <div>
-                            <div class="clone-preview-label">SN</div>
-                            <div class="clone-preview-value" id="clonePreviewSn">-</div>
-                        </div>
-                        <div>
-                            <div class="clone-preview-label">Model</div>
-                            <div class="clone-preview-value" id="clonePreviewModel">-</div>
-                        </div>
-                    </div>
-                    <div class="clone-config-error" id="cloneConfigError">Select a terminal under this merchant.</div>
+                    <div class="clone-config-error" id="cloneConfigError">Enter a valid TCI.</div>
                 </div>
                 <div class="confirm-dialog-actions">
                     <button class="btn secondary" type="button" id="cancelCloneConfigBtn">Cancel</button>
                     <button class="btn primary" type="submit">Copy Configuration</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div class="confirm-modal is-hidden" id="configurationCompatibilityModal" role="dialog" aria-modal="true" aria-labelledby="configurationCompatibilityTitle">
+        <div class="confirm-dialog compatibility-dialog">
+            <div class="confirm-dialog-head">
+                <h3 class="confirm-dialog-title" id="configurationCompatibilityTitle">Configuration Cannot Be Copied</h3>
+                <p class="confirm-dialog-note" id="configurationCompatibilitySource">The selected configuration is not compatible with this merchant.</p>
+            </div>
+            <div class="compatibility-body">
+                <div>
+                    <div class="compatibility-list-label">Unavailable for this merchant</div>
+                    <div class="compatibility-list" id="configurationCompatibilityIssues"></div>
+                </div>
+                <p class="compatibility-guidance">Configure the device manually using the available options, or choose another TCI.</p>
+            </div>
+            <div class="confirm-dialog-actions">
+                <button class="btn secondary" type="button" id="chooseAnotherTciBtn">Choose Another TCI</button>
+                <button class="btn primary" type="button" id="configureManuallyBtn">Configure Manually</button>
+            </div>
         </div>
     </div>
 
@@ -2882,31 +2967,27 @@
         const cloneSourceBanner = document.getElementById('cloneSourceBanner');
         const cloneSourceMeta = document.getElementById('cloneSourceMeta');
         const params = new URLSearchParams(window.location.search);
-        const cloneMode = params.get('mode') === 'clone';
+        const configurationMode = ['configuration', 'clone'].includes(params.get('mode'));
         const storeName = params.get('storeName') || 'Selected Store';
         const storeId = params.get('storeId');
         const boundSn = params.get('sn') || params.get('SN') || '';
-        const cloneSourceSn = params.get('sourceSn') || '';
+        const sourceTci = params.get('sourceTci') || '';
         const cloneSourceLabel = params.get('sourceLabel') || '';
 
         if (storeNameEl) {
             storeNameEl.textContent = storeName;
         }
-        if (cloneMode) {
-            if (pageModeLabel) pageModeLabel.textContent = 'Clone Device';
-            if (wizardTitle) wizardTitle.textContent = 'Clone Device';
-            if (panelNote) panelNote.textContent = 'Enter the replacement terminal identity. Existing app and parameter configuration is copied below.';
-            if (cloneSourceBanner) cloneSourceBanner.classList.remove('is-hidden');
-            if (cloneSourceMeta) {
-                const sourceLabel = cloneSourceLabel || 'Source terminal';
-                cloneSourceMeta.textContent = cloneSourceSn ? `${sourceLabel} / SN ${cloneSourceSn}` : sourceLabel;
-            }
-            document.title = `Clone Device - ${storeName}`;
+        if (configurationMode) {
+            if (pageModeLabel) pageModeLabel.textContent = 'Add Device';
+            if (wizardTitle) wizardTitle.textContent = 'Add Device';
+            if (panelNote) panelNote.textContent = 'Review the copied configuration and enter the new terminal identity.';
+            document.title = `Add Device from Configuration - ${storeName}`;
         } else if (storeName) {
             document.title = `Add Device - ${storeName}`;
         }
 
         const deviceManufacturerSelect = document.getElementById('device-manufacturer');
+        const deviceTciInput = document.getElementById('device-tci');
         const deviceSnInput = document.getElementById('device-tpn');
         const deviceLabelInput = document.getElementById('device-label');
         const deviceModelSelect = document.getElementById('device-model');
@@ -2941,15 +3022,14 @@
         const openCloneConfigBtn = document.getElementById('openCloneConfigBtn');
         const cloneConfigModal = document.getElementById('cloneConfigModal');
         const cloneConfigForm = document.getElementById('cloneConfigForm');
-        const cloneSourceStoreInput = document.getElementById('cloneSourceStore');
-        const cloneSourceStoreList = document.getElementById('cloneSourceStoreList');
-        const cloneSourceDeviceInput = document.getElementById('cloneSourceDevice');
-        const cloneSourceDeviceList = document.getElementById('cloneSourceDeviceList');
+        const existingConfigurationTciInput = document.getElementById('existingConfigurationTci');
         const cancelCloneConfigBtn = document.getElementById('cancelCloneConfigBtn');
         const cloneConfigError = document.getElementById('cloneConfigError');
-        const cloneSourcePreview = document.getElementById('cloneSourcePreview');
-        const clonePreviewSn = document.getElementById('clonePreviewSn');
-        const clonePreviewModel = document.getElementById('clonePreviewModel');
+        const configurationCompatibilityModal = document.getElementById('configurationCompatibilityModal');
+        const configurationCompatibilitySource = document.getElementById('configurationCompatibilitySource');
+        const configurationCompatibilityIssues = document.getElementById('configurationCompatibilityIssues');
+        const chooseAnotherTciBtn = document.getElementById('chooseAnotherTciBtn');
+        const configureManuallyBtn = document.getElementById('configureManuallyBtn');
         const CARD_READER_MODEL = 'Q3MINI-R';
         const CARD_READER_PAYMENT_CHANNEL_STORAGE = 'pw_card_reader_payment_channels';
         const defaultProcessorOptions = processorSelect
@@ -3159,6 +3239,96 @@
                 paywizard: 'OPC_VENDING_STANDARD',
                 deployAppSelected: 'true',
                 injectKeySelected: 'false'
+            },
+            {
+                storeId: 'st_123',
+                storeName: 'Downtown Location',
+                sn: 'Q3MINIR2026061901',
+                model: 'Q3MINI-R',
+                label: 'ELAVON Reader Counter',
+                processor: 'ELAVON',
+                version: '',
+                scenario: 'Vending Machine',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_522',
+                storeName: 'Brooklyn Market',
+                sn: 'Q3MINIR2026062201',
+                model: 'Q3MINI-R',
+                label: 'Nuvei Reader Kiosk',
+                processor: 'NUVEI ATTD',
+                version: '',
+                scenario: 'Vending Machine',
+                template: 'Restaurant - Full Service',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
+            },
+            {
+                storeId: 'st_630',
+                storeName: 'Airport Concourse',
+                sn: 'Q3MINIR2026062801',
+                model: 'Q3MINI-R',
+                label: 'TSYS Reader Gate C',
+                processor: 'TSYS',
+                version: '',
+                scenario: 'Vending Machine',
+                template: 'Convenience - Express',
+                paywizard: 'OPC_VENDING_STANDARD',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                tci: 'TC48273915',
+                storeId: 'st_204',
+                storeName: 'Midtown Location',
+                sn: '',
+                model: '',
+                label: 'Lobby Terminal Configuration',
+                processor: 'TSYS',
+                version: 'v1.3.121',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false'
+            },
+            {
+                tci: 'TC93865899',
+                storeId: 'st_522',
+                storeName: 'Brooklyn Market',
+                sn: '',
+                model: '',
+                label: 'Back Office Configuration',
+                processor: 'FISERV',
+                version: '1.0.34_20260622',
+                scenario: 'Terminal + ECR',
+                template: 'Restaurant - Full Service',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'false',
+                unavailableAssignments: [
+                    { label: 'Payment app version', value: '1.0.34_20260622' }
+                ]
+            },
+            {
+                tci: 'TC76518423',
+                storeId: 'st_630',
+                storeName: 'Airport Concourse',
+                sn: '',
+                model: '',
+                label: 'ELAVON Gate Configuration',
+                processor: 'ELAVON',
+                version: 'v1.1.57',
+                scenario: 'Standalone Terminal',
+                template: 'Retail - Quick Start',
+                paywizard: 'OPC_ATTENDED_TCP',
+                deployAppSelected: 'true',
+                injectKeySelected: 'true'
             }
         ];
 
@@ -3707,15 +3877,29 @@
             return !provisionToggle || provisionToggle.checked;
         }
 
-        function syncSaveDeviceActionLabels(deployEnabled = isProvisionEnabled()) {
+        function hasDeviceSn() {
+            return Boolean(deviceSnInput && deviceSnInput.value.trim());
+        }
+
+        function isImmediateDeploymentEnabled() {
+            return isProvisionEnabled() && hasDeviceSn();
+        }
+
+        function canSaveDeviceConfiguration() {
+            return hasDeviceSn() || isProvisionEnabled();
+        }
+
+        function syncSaveDeviceActionLabels(deployEnabled = isImmediateDeploymentEnabled()) {
             const primaryAction = document.getElementById('saveDeviceBtn');
             const confirmTitle = document.getElementById('saveDeviceConfirmTitle');
             const confirmAction = document.getElementById('confirmSaveDeviceBtn');
+            const canSave = canSaveDeviceConfiguration();
             if (primaryAction) {
-                primaryAction.textContent = deployEnabled ? 'Save & Deploy' : 'Save Device';
+                primaryAction.textContent = deployEnabled ? 'Save & Deploy' : 'Save';
+                primaryAction.disabled = !canSave;
             }
             if (confirmTitle) {
-                confirmTitle.textContent = deployEnabled ? 'Confirm Device Push' : 'Confirm Save Device';
+                confirmTitle.textContent = deployEnabled ? 'Confirm Device Push' : 'Save Configuration';
             }
             if (confirmAction) {
                 confirmAction.textContent = deployEnabled ? 'Confirm Deploy' : 'Confirm Save';
@@ -3876,105 +4060,87 @@
             syncProcessorParams();
         }
 
-        function normalizeCloneSn(value) {
-            return String(value || '').trim().toUpperCase();
+        function normalizeConfigurationTci(value) {
+            const digits = String(value || '').trim().replace(/^TC/i, '').replace(/\D/g, '').slice(0, 8);
+            return digits.length === 8 ? `TC${digits}` : '';
         }
 
-        function getCloneSourceStores() {
-            const seen = new Set();
-            return MERCHANT_DEVICE_SOURCES.reduce((stores, device) => {
-                if (!device.storeId || seen.has(device.storeId)) return stores;
-                seen.add(device.storeId);
-                stores.push({ id: device.storeId, name: device.storeName || 'Store' });
-                return stores;
-            }, []);
+        function getConfigurationTci(source) {
+            if (source?.tci) return normalizeConfigurationTci(source.tci);
+            const digits = String(source?.sn || '').replace(/\D/g, '').slice(-8).padStart(8, '0');
+            return digits === '00000000' ? '' : `TC${digits}`;
         }
 
-        function findCloneSourceBySn(sn) {
-            const normalized = normalizeCloneSn(sn);
+        function findConfigurationByTci(tci) {
+            const normalized = normalizeConfigurationTci(tci);
             if (!normalized) return null;
-            return MERCHANT_DEVICE_SOURCES.find((device) => normalizeCloneSn(device.sn) === normalized) || null;
+            return MERCHANT_DEVICE_SOURCES.find((source) => getConfigurationTci(source) === normalized) || null;
         }
 
-        function getSelectedCloneStore() {
-            const value = String(cloneSourceStoreInput?.value || '').trim().toLowerCase();
-            if (!value) return null;
-            return getCloneSourceStores().find((store) =>
-                store.id.toLowerCase() === value ||
-                store.name.toLowerCase() === value
-            ) || null;
+        function getConfigurationCompatibilityIssues(source) {
+            return Array.isArray(source?.unavailableAssignments)
+                ? source.unavailableAssignments.filter((item) => item?.label && item?.value)
+                : [];
         }
 
-        function getCloneSourceBySelection() {
-            if (!cloneSourceDeviceInput || !cloneSourceDeviceInput.value) return null;
-            const source = findCloneSourceBySn(cloneSourceDeviceInput.value);
-            const selectedStore = getSelectedCloneStore();
-            if (!source) return null;
-            if (selectedStore && source.storeId !== selectedStore.id) return null;
-            return source;
+        function closeConfigurationCompatibilityModal() {
+            if (!configurationCompatibilityModal) return;
+            configurationCompatibilityModal.classList.add('is-hidden');
+        }
+
+        function openConfigurationCompatibilityModal(source, issues) {
+            if (!configurationCompatibilityModal || !source || !issues.length) return;
+            if (cloneConfigModal) cloneConfigModal.classList.add('is-hidden');
+            if (configurationCompatibilitySource) {
+                configurationCompatibilitySource.textContent = `${getConfigurationTci(source)} includes resources that are no longer assigned to this merchant.`;
+            }
+            if (configurationCompatibilityIssues) {
+                configurationCompatibilityIssues.innerHTML = '';
+                issues.forEach((issue) => {
+                    const row = document.createElement('div');
+                    row.className = 'compatibility-item';
+
+                    const label = document.createElement('div');
+                    label.className = 'compatibility-item-label';
+                    label.textContent = issue.label;
+
+                    const value = document.createElement('div');
+                    value.className = 'compatibility-item-value';
+                    value.textContent = issue.value;
+
+                    row.appendChild(label);
+                    row.appendChild(value);
+                    configurationCompatibilityIssues.appendChild(row);
+                });
+            }
+            configurationCompatibilityModal.classList.remove('is-hidden');
+            if (chooseAnotherTciBtn) chooseAnotherTciBtn.focus();
+        }
+
+        function copyConfigurationIfCompatible(source) {
+            if (!source) return false;
+            const issues = getConfigurationCompatibilityIssues(source);
+            if (issues.length) {
+                openConfigurationCompatibilityModal(source, issues);
+                return false;
+            }
+            applyExistingConfiguration(source);
+            closeCloneConfigModal();
+            return true;
         }
 
         function setCloneConfigError(message = '') {
             if (!cloneConfigError) return;
-            cloneConfigError.textContent = message || 'Select a terminal under this merchant.';
+            cloneConfigError.textContent = message || 'Enter a valid TCI.';
             cloneConfigError.classList.toggle('is-visible', Boolean(message));
-        }
-
-        function updateCloneSourcePreview(source = getCloneSourceBySelection()) {
-            if (!cloneSourcePreview) return;
-            cloneSourcePreview.classList.toggle('is-visible', Boolean(source));
-            if (!source) return;
-            if (clonePreviewSn) clonePreviewSn.textContent = source.sn || '-';
-            if (clonePreviewModel) clonePreviewModel.textContent = source.model || '-';
-        }
-
-        function populateCloneSourceStores() {
-            if (!cloneSourceStoreList) return;
-            const currentValue = cloneSourceStoreInput?.value || '';
-            cloneSourceStoreList.innerHTML = '';
-            getCloneSourceStores().forEach((store) => {
-                const option = document.createElement('option');
-                option.value = store.name;
-                option.dataset.storeName = store.name;
-                option.dataset.storeId = store.id;
-                cloneSourceStoreList.appendChild(option);
-            });
-            const preferredStore = storeId || getCloneSourceStores().find((store) => store.name === storeName)?.id || '';
-            const preferredStoreRow = getCloneSourceStores().find((store) => store.id === preferredStore);
-            if (cloneSourceStoreInput) {
-                cloneSourceStoreInput.value = currentValue || preferredStoreRow?.name || '';
-            }
-        }
-
-        function populateCloneSourceDevices() {
-            if (!cloneSourceDeviceList) return;
-            const selectedStore = getSelectedCloneStore();
-            const selectedStoreId = selectedStore?.id || '';
-            const devices = selectedStoreId
-                ? MERCHANT_DEVICE_SOURCES.filter((device) => device.storeId === selectedStoreId)
-                : MERCHANT_DEVICE_SOURCES;
-            if (cloneSourceDeviceInput) {
-                cloneSourceDeviceInput.disabled = false;
-                cloneSourceDeviceInput.placeholder = selectedStoreId ? 'Search or select SN' : 'Search all merchant terminals';
-            }
-            cloneSourceDeviceList.innerHTML = '';
-            devices.forEach((device) => {
-                const option = document.createElement('option');
-                option.value = device.sn;
-                option.dataset.model = device.model || '';
-                cloneSourceDeviceList.appendChild(option);
-            });
         }
 
         function openCloneConfigModal() {
             if (!cloneConfigModal) return;
-            populateCloneSourceStores();
-            populateCloneSourceDevices();
-            if (cloneSourceDeviceInput) cloneSourceDeviceInput.value = '';
+            if (existingConfigurationTciInput) existingConfigurationTciInput.value = '';
             setCloneConfigError('');
-            updateCloneSourcePreview(null);
             cloneConfigModal.classList.remove('is-hidden');
-            if (cloneSourceStoreInput) cloneSourceStoreInput.focus();
+            if (existingConfigurationTciInput) existingConfigurationTciInput.focus();
         }
 
         function closeCloneConfigModal() {
@@ -3986,8 +4152,8 @@
         function updateCloneBanner(source) {
             if (!cloneSourceBanner || !cloneSourceMeta || !source) return;
             cloneSourceBanner.classList.remove('is-hidden');
-            cloneSourceBanner.firstElementChild.textContent = 'Copied Device Configuration';
-            cloneSourceMeta.textContent = `${source.label || 'Source terminal'} / SN ${source.sn}`;
+            cloneSourceBanner.firstElementChild.textContent = 'Configuration Copied';
+            cloneSourceMeta.textContent = `From ${getConfigurationTci(source)} · ${source.processor || 'No payment channel'}`;
         }
 
         function clearDeploymentConfig() {
@@ -4000,12 +4166,14 @@
             if (assignTemplateEl) assignTemplateEl.value = '';
         }
 
-        function applyCloneSourceConfig(source) {
+        function applyExistingConfiguration(source) {
             if (!source) return;
             const deployEnabled = source.deployAppSelected !== 'false';
 
+            if (deviceSnInput) deviceSnInput.value = '';
             setControlValue(deviceManufacturerSelect, 'WizarPOS');
-            setControlValue(deviceModelSelect, source.model);
+            setControlValue(deviceLabelInput, source.label);
+            if (deviceModelSelect) deviceModelSelect.value = source.model || '';
             setControlValue(deviceTerminalScenarioSelect, source.scenario);
             syncDeviceDeploymentMode();
 
@@ -4024,13 +4192,14 @@
                 setControlValue(processorVersionSelect, source.version);
             }
             setControlValue(paywizardSelect, source.paywizard);
-            if (assignTemplateEl) setControlValue(assignTemplateEl, source.template);
+            if (assignTemplateEl) assignTemplateEl.value = source.template || '';
             syncPaywizardParams();
             syncKeyDownloadOption();
             if (keyDownloadCheckbox && processorsWithKeyDownload.has(processorSelect?.value || '')) {
                 keyDownloadCheckbox.checked = source.injectKeySelected !== 'false';
             }
             updateCloneBanner(source);
+            syncSaveDeviceActionLabels();
         }
 
         function syncKeyDownloadOption() {
@@ -4140,7 +4309,7 @@
 
         function setProvisionState() {
             const enabled = isProvisionEnabled();
-            syncSaveDeviceActionLabels(enabled);
+            syncSaveDeviceActionLabels();
             if (deploymentOptions) {
                 deploymentOptions.classList.toggle('is-hidden', !enabled);
             }
@@ -4176,6 +4345,9 @@
         if (provisionToggle) {
             provisionToggle.addEventListener('change', setProvisionState);
         }
+        if (deviceSnInput) {
+            deviceSnInput.addEventListener('input', () => syncSaveDeviceActionLabels());
+        }
         setProvisionState();
 
         const TEMPLATE_KEY = 'pw_device_param_templates';
@@ -4184,6 +4356,9 @@
         const saveDeviceConfirmModal = document.getElementById('saveDeviceConfirmModal');
         const cancelSaveDeviceBtn = document.getElementById('cancelSaveDeviceBtn');
         const confirmSaveDeviceBtn = document.getElementById('confirmSaveDeviceBtn');
+        const confirmTci = document.getElementById('confirmTci');
+        const confirmTerminalSnRow = document.getElementById('confirmTerminalSnRow');
+        const confirmTerminalSn = document.getElementById('confirmTerminalSn');
         const confirmDeployState = document.getElementById('confirmDeployState');
         const confirmProcessor = document.getElementById('confirmProcessor');
         const confirmAppVersion = document.getElementById('confirmAppVersion');
@@ -4209,18 +4384,20 @@
         }
 
         function buildDevicePushSummary() {
-            const deployEnabled = isProvisionEnabled();
-            const processor = deployEnabled ? getSelectedOptionText(processorSelect) : 'Not deployed';
-            const appVersion = deployEnabled
+            const configurationEnabled = isProvisionEnabled();
+            const processor = configurationEnabled ? getSelectedOptionText(processorSelect) : '-';
+            const appVersion = configurationEnabled
                 ? (isCardReaderDeployment() ? 'Not required' : getSelectedOptionText(processorVersionSelect))
-                : 'Not deployed';
-            const integrationMode = deployEnabled ? getSelectedOptionText(paywizardSelect) : 'Not deployed';
+                : '-';
+            const integrationMode = configurationEnabled ? getSelectedOptionText(paywizardSelect) : '-';
             const injectVisible = keyDownloadOption && !keyDownloadOption.classList.contains('is-hidden');
-            const injectEnabled = deployEnabled && injectVisible && keyDownloadCheckbox && keyDownloadCheckbox.checked;
+            const injectEnabled = configurationEnabled && injectVisible && keyDownloadCheckbox && keyDownloadCheckbox.checked;
             const deployStateText = isCardReaderDeployment() ? 'Deploy parameters' : 'Deploy app & parameters';
 
             return {
-                deployState: deployEnabled ? deployStateText : 'No app or parameters will be deployed',
+                tci: deviceTciInput?.value || '-',
+                sn: deviceSnInput?.value.trim() || '',
+                deployState: configurationEnabled ? deployStateText : 'Save device only',
                 processor,
                 appVersion,
                 integrationMode,
@@ -4231,6 +4408,9 @@
         function openSaveDeviceConfirmModal() {
             if (!saveDeviceConfirmModal) return;
             const summary = buildDevicePushSummary();
+            if (confirmTci) confirmTci.textContent = summary.tci;
+            if (confirmTerminalSn) confirmTerminalSn.textContent = summary.sn || '-';
+            if (confirmTerminalSnRow) confirmTerminalSnRow.classList.toggle('is-hidden', !summary.sn);
             if (confirmDeployState) confirmDeployState.textContent = summary.deployState;
             if (confirmProcessor) confirmProcessor.textContent = summary.processor;
             if (confirmAppVersion) confirmAppVersion.textContent = summary.appVersion;
@@ -4301,11 +4481,21 @@
         }
 
         function applyIncomingDeviceContext() {
+            if (deviceTciInput) {
+                const requestedTci = (params.get('tci') || '').replace(/^TC/i, '').replace(/\D/g, '').slice(0, 8);
+                if (requestedTci.length === 8) {
+                    deviceTciInput.value = `TC${requestedTci}`;
+                } else {
+                    const randomValues = new Uint32Array(1);
+                    crypto.getRandomValues(randomValues);
+                    deviceTciInput.value = `TC${String(randomValues[0] % 100000000).padStart(8, '0')}`;
+                }
+            }
             if (deviceSnInput) {
-                deviceSnInput.value = cloneMode ? '' : boundSn;
+                deviceSnInput.value = configurationMode ? '' : boundSn;
             }
             if (deviceLabelInput) {
-                deviceLabelInput.value = cloneMode ? '' : (params.get('label') || '');
+                deviceLabelInput.value = configurationMode ? '' : (params.get('label') || '');
             }
 
             setControlValue(deviceManufacturerSelect, 'WizarPOS');
@@ -4333,12 +4523,11 @@
 
             syncKeyDownloadOption();
 
-            if (cloneMode && cloneSourceSn) {
-                const matchedCloneSource = findCloneSourceBySn(cloneSourceSn);
-                if (matchedCloneSource) {
-                    applyCloneSourceConfig(matchedCloneSource);
-                }
+            if (configurationMode && sourceTci) {
+                const matchedConfiguration = findConfigurationByTci(sourceTci);
+                if (matchedConfiguration) copyConfigurationIfCompatible(matchedConfiguration);
             }
+            syncSaveDeviceActionLabels();
         }
 
         if (assignTemplateEl) {
@@ -4359,24 +4548,8 @@
             openCloneConfigBtn.addEventListener('click', openCloneConfigModal);
         }
 
-        if (cloneSourceStoreInput) {
-            const handleCloneStoreInput = () => {
-                if (cloneSourceDeviceInput) cloneSourceDeviceInput.value = '';
-                populateCloneSourceDevices();
-                updateCloneSourcePreview(null);
-                setCloneConfigError('');
-            };
-            cloneSourceStoreInput.addEventListener('input', handleCloneStoreInput);
-            cloneSourceStoreInput.addEventListener('change', handleCloneStoreInput);
-        }
-
-        if (cloneSourceDeviceInput) {
-            const handleCloneDeviceInput = () => {
-                updateCloneSourcePreview(getCloneSourceBySelection());
-                setCloneConfigError('');
-            };
-            cloneSourceDeviceInput.addEventListener('input', handleCloneDeviceInput);
-            cloneSourceDeviceInput.addEventListener('change', handleCloneDeviceInput);
+        if (existingConfigurationTciInput) {
+            existingConfigurationTciInput.addEventListener('input', () => setCloneConfigError(''));
         }
 
         if (cancelCloneConfigBtn) {
@@ -4394,14 +4567,39 @@
         if (cloneConfigForm) {
             cloneConfigForm.addEventListener('submit', (event) => {
                 event.preventDefault();
-                const source = getCloneSourceBySelection();
-                if (!source) {
-                    setCloneConfigError('Select a terminal under this merchant.');
-                    updateCloneSourcePreview(null);
+                const normalizedTci = normalizeConfigurationTci(existingConfigurationTciInput?.value);
+                if (!normalizedTci) {
+                    setCloneConfigError('Enter a TCI in the format TC + 8 digits.');
                     return;
                 }
-                applyCloneSourceConfig(source);
-                closeCloneConfigModal();
+                const source = findConfigurationByTci(normalizedTci);
+                if (!source) {
+                    setCloneConfigError(`No configuration was found for ${normalizedTci}.`);
+                    return;
+                }
+                copyConfigurationIfCompatible(source);
+            });
+        }
+
+        if (chooseAnotherTciBtn) {
+            chooseAnotherTciBtn.addEventListener('click', () => {
+                closeConfigurationCompatibilityModal();
+                if (cloneConfigModal) cloneConfigModal.classList.remove('is-hidden');
+                if (existingConfigurationTciInput) {
+                    existingConfigurationTciInput.focus();
+                    existingConfigurationTciInput.select();
+                }
+            });
+        }
+
+        if (configureManuallyBtn) {
+            configureManuallyBtn.addEventListener('click', () => {
+                closeConfigurationCompatibilityModal();
+                if (isProvisionEnabled() && processorSelect && !processorSelect.disabled) {
+                    processorSelect.focus();
+                } else if (provisionToggle) {
+                    provisionToggle.focus();
+                }
             });
         }
 
@@ -4424,7 +4622,12 @@
 
         if (saveDeviceBtn) {
             saveDeviceBtn.addEventListener('click', (event) => {
-                if (isProvisionEnabled() &&
+                if (!canSaveDeviceConfiguration()) {
+                    event.preventDefault();
+                    syncSaveDeviceActionLabels();
+                    return;
+                }
+                if (isImmediateDeploymentEnabled() &&
                     typeof window.validateElavonTerminalFields === 'function' &&
                     !window.validateElavonTerminalFields(true)) {
                     event.preventDefault();
