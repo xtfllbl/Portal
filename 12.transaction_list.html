@@ -158,6 +158,14 @@
     .scroll{overflow:auto;padding-bottom:2px}
     table{width:max-content;min-width:100%;border-collapse:collapse;background:#fff}
     th{position:sticky;top:0;z-index:2;background:var(--dark);color:#fff;font-size:13px;font-weight:600;text-transform:uppercase;white-space:nowrap;text-align:left;padding:14px;border-right:1px solid rgba(255,255,255,.02)}
+    .sorthead{width:100%;border:0;background:transparent;color:inherit;padding:0;display:inline-flex;align-items:center;gap:7px;font:inherit;text-transform:inherit;text-align:left;white-space:nowrap}
+    .sorthead:hover{color:#fff}
+    .sorthead:focus-visible{outline:2px solid rgba(255,255,255,.72);outline-offset:3px;border-radius:3px}
+    .sortmark{width:12px;height:14px;position:relative;flex:0 0 12px;color:#8d96a8}
+    .sortmark:before,.sortmark:after{content:"";position:absolute;left:2px;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor}
+    .sortmark:before{top:1px;transform:rotate(225deg)}
+    .sortmark:after{bottom:1px;transform:rotate(45deg)}
+    .sorthead.asc .sortmark:before,.sorthead.desc .sortmark:after{color:#fff;border-width:2px}
     td{padding:10px 14px;border-bottom:1px solid #e5e8ef;color:#525a69;font-size:14px;line-height:1.35;vertical-align:middle;white-space:nowrap;background:#fff}
     tbody tr:hover td{background:#fcfcfe}
     .empty td{padding:42px 18px;text-align:center;color:#8690a2;font-size:15px}
@@ -469,6 +477,7 @@
             <input class="field" id="fTransIndexCode" placeholder="Trans Index Code">
             <input class="field" id="fPaywizardId" placeholder="PAYwizard ID">
             <input class="field" id="fTid" placeholder="TID">
+            <input class="field" id="fTci" placeholder="TCI">
             <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
             <input class="field" id="fApprovalCode" placeholder="Approval Code">
             <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Sale</option><option>Auth</option><option>Refund</option><option>Tip Adjust</option><option>Capture</option><option>Incremental</option><option>Failed</option></select></div>
@@ -540,8 +549,8 @@
   <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
   <script>
     (() => {
-      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","paymentMethod","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","sn","terminalName"];
-      const defaultOrder=["processorTime","timezone","sn","terminalName","paymentMethod","cardPan","type","currency","tid","storeId","transLogId","batch","merchantName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","paywizardId","transId","transIndexCode","trace","storeName","email"];
+      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","paymentMethod","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","tci","sn","terminalName"];
+      const defaultOrder=["processorTime","timezone","tci","sn","terminalName","paymentMethod","cardPan","type","currency","tid","storeId","transLogId","batch","merchantName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","paywizardId","transId","transIndexCode","trace","storeName","email"];
       const defs={
         processorTime:["DATE & TIME (PROCESSOR)",220,"Date & Time (Processor)"],
         terminalTime:["DATE & TIME (TERMINAL)",220,"Date & Time (Terminal)"],
@@ -555,6 +564,7 @@
         currency:["CURRENCY",98,"Currency"],
         mid:["MID",152,"MID"],
         tid:["TID",130,"TID"],
+        tci:["TCI",130,"TCI"],
         merchantName:["MERCHANT NAME",168,"Merchant Name"],
         storeName:["STORE NAME",146,"Store Name"],
         sn:["SN",340,"SN"],
@@ -568,6 +578,22 @@
         phoneNumber:["PHONE NUMBER",156,"Phone Number"],
         email:["EMAIL",220,"Email"],
         storeId:["STORE ID",140,"Store ID"]
+      };
+      const terminalTciBySn={
+        PWKIOSK03260427:"TC26042703",
+        PWKIOSK04260427:"TC26042704",
+        PWKIOSK05260427:"TC26042705",
+        PWPOS01260427:"TC26042701",
+        WP5151DQ33000097:"TC33000097",
+        WP52205Q33000977:"TC33000977",
+        WP5280VQ33200002:"TC33200002",
+        WP5280VQ33200005:"TC33200005",
+        WP5280VQ33200006:"TC33200006",
+        WP5280VQ33200016:"TC33200016",
+        WP6001MM33000109:"TC33000109",
+        WP6127TX33009110:"TC33009110",
+        WP7300EV33001088:"TC33001088",
+        WP7400AC33002019:"TC33002019"
       };
       const rows=[
         {status:"completed",processorTime:"2026-04-27 10:18:34",terminalTime:"-",timezone:"",invoiceNumber:"260427101834",paymentMethod:"Prepaid Card",cardBrand:"prepaid",cardPanMasked:"04A37C91B25F80",cardPanPlain:"04A37C91B25F80",cardDisplayNo:"EMP-CARD-004218",approvalCode:"A93F2B",type:"Purchase",amount:"3.50",baseAmount:"3.00",tipAmount:"0.50",currency:"USD",mid:"202604270000183",tid:"Coffee Kiosk 03",merchantName:"HQ Canteen",storeName:"Coffee Kiosk 03",sn:"PWKIOSK03260427",paywizardId:"PWV-260427-100183",transId:"TRX-100183",transLogId:"LOG-260427-100183",transIndexCode:"IDX-260427-100183",batch:"B918",trace:"100183",terminalName:"Coffee Kiosk 03",phoneNumber:"+1 604 555 0188",email:"ops@merchant.test",storeId:"STORE-HQ03",terminalUsage:"self_service",terminalScene:"Coffee Kiosk"},
@@ -594,6 +620,7 @@
         {status:"failed",processorTime:"2026-04-07 09:42:33",terminalTime:"-",timezone:"",invoiceNumber:"260407094233",cardBrand:"maestro",cardPanMasked:"621700****9814",cardPanPlain:"6217009814",approvalCode:"DECLINED",type:"Failed",amount:"19.80",currency:"USD",mid:"TestDemoMID",tid:"TestDemo",merchantName:"waou test merchant",storeName:"wa ou test store",sn:"WP52205Q33000977",paywizardId:"PW-20260407-094233",transId:"TRX-094233",transLogId:"LOG-20260407-094233",transIndexCode:"IDX-20260407-094233",batch:"B344",trace:"547225",terminalName:"Waou Terminal 01",phoneNumber:"+1 415 555 2201",email:"store@waou.test",storeId:"STORE-2004",terminalUsage:"standalone",terminalScene:"Standalone Terminal"},
         {status:"failed",processorTime:"2026-04-07 09:31:40",terminalTime:"-",timezone:"",invoiceNumber:"260407093140",cardBrand:"visa",cardPanMasked:"471622****7019",cardPanPlain:"4716227019",approvalCode:"DECLINED",type:"Failed",amount:"29.80",currency:"USD",mid:"202511040001208",tid:"Waiter Handheld 02",merchantName:"urban bistro",storeName:"city center",sn:"WP6001MM33000109",paywizardId:"PW-20260407-093140",transId:"TRX-093140",transLogId:"LOG-20260407-093140",transIndexCode:"IDX-20260407-093140",batch:"B102",trace:"546812",terminalName:"Waiter Mobile 02",phoneNumber:"+1 212 555 4010",email:"shiftlead@urbanbistro.test",storeId:"STORE-4012",terminalUsage:"staff_mobile",terminalScene:"Staff Handheld"}
       ];
+      rows.forEach(row=>{row.tci=terminalTciBySn[row.sn]||"-";});
       const transactionChannelByMid={
         "202604270000183":"FISERV",
         "202604270000221":"FISERV",
@@ -620,12 +647,13 @@
           {mid:"202604070000016",tid:"WSTORE-Q3-16",sn:"WP5280VQ33200016",terminalName:"Q3mini Lab 16",merchantName:"wstore-test",storeName:"Shanghai Lab Store",storeId:"STORE-5422",terminalUsage:"pos_linked",terminalScene:"Counter POS"}
         ]
       };
+      Object.values(additionalTerminalsByMid).flat().forEach(terminal=>{terminal.tci=terminalTciBySn[terminal.sn]||"-";});
       const viewStoreKey="paywizard.transactionList.savedViews";
       const maxCustomViews=2;
       const columnViewSwitchDelay=2000;
       const cloneColumns=cols=>cols.map(c=>({key:c.key,visible:c.visible}));
       const defaultColumns=()=>defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
-      const unattdVisible=["processorTime","timezone","sn","terminalName","tid","storeId","mid","paymentMethod","cardPan","type","amount","currency","transLogId","batch","trace","merchantName","storeName"];
+      const unattdVisible=["processorTime","timezone","tci","sn","terminalName","tid","storeId","mid","paymentMethod","cardPan","type","amount","currency","transLogId","batch","trace","merchantName","storeName"];
       const unattdColumns=()=>defaultOrder.map(k=>({key:k,visible:unattdVisible.includes(k)}));
       const systemViews=[
         {id:"default",name:"Attended",desc:"Attended payment view",getColumns:defaultColumns},
@@ -664,7 +692,8 @@
       };
       const state={
         tab:"completed",
-        filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
+        filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",tci:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
+        sort:{key:"",direction:"asc"},
         columns:defaultColumns(),
         savedViews:loadSavedViews(),
         selectedViewId:systemViews[0].id,
@@ -684,6 +713,7 @@
         transIndexCode:document.getElementById("fTransIndexCode"),
         paywizardId:document.getElementById("fPaywizardId"),
         tid:document.getElementById("fTid"),
+        tci:document.getElementById("fTci"),
         invoiceNumber:document.getElementById("fInvoiceNumber"),
         approvalCode:document.getElementById("fApprovalCode"),
         type:document.getElementById("fType"),
@@ -1071,6 +1101,7 @@
           amount:formatAmount(amount),
           ...tipFields,
           tid:routeTerminal.tid||row.tid,
+          tci:routeTerminal.tci||row.tci,
           sn:routeTerminal.sn||row.sn,
           terminalName:routeTerminal.terminalName||row.terminalName,
           storeName:routeTerminal.storeName||row.storeName,
@@ -1647,6 +1678,7 @@
           (!state.filters.transIndexCode||norm(r.transIndexCode).includes(norm(state.filters.transIndexCode))) &&
           (!state.filters.paywizardId||norm(r.paywizardId).includes(norm(state.filters.paywizardId))) &&
           (!state.filters.tid||norm(r.tid).includes(norm(state.filters.tid))) &&
+          (!state.filters.tci||norm(r.tci).includes(norm(state.filters.tci))) &&
           (!state.filters.invoiceNumber||norm(r.invoiceNumber).includes(norm(state.filters.invoiceNumber))) &&
           (!state.filters.approvalCode||norm(r.approvalCode).includes(norm(state.filters.approvalCode))) &&
           (!state.filters.type||norm(r.type)===norm(state.filters.type)) &&
@@ -1690,9 +1722,24 @@
         const v=r[k];
         return v===""?"&nbsp;":esc(v??"-");
       };
+      const sortedRows=data=>{
+        if(state.sort.key!=="tci") return data;
+        const direction=state.sort.direction==="desc"?-1:1;
+        return [...data].sort((a,b)=>String(a.tci||"").localeCompare(String(b.tci||""),undefined,{numeric:true,sensitivity:"base"})*direction);
+      };
+      const renderHeadCell=c=>{
+        const width=defs[c.key][1];
+        if(c.key!=="tci") return `<th style="min-width:${width}px">${defs[c.key][0]}</th>`;
+        const active=state.sort.key==="tci";
+        const direction=active?state.sort.direction:"none";
+        const ariaSort=direction==="asc"?"ascending":direction==="desc"?"descending":"none";
+        const sortClass=active?` ${direction}`:"";
+        const nextLabel=direction==="asc"?"descending":"ascending";
+        return `<th style="min-width:${width}px" aria-sort="${ariaSort}"><button class="sorthead${sortClass}" type="button" data-sort-key="tci" aria-label="Sort TCI ${nextLabel}"><span>${defs[c.key][0]}</span><span class="sortmark" aria-hidden="true"></span></button></th>`;
+      };
       const renderTable=()=>{
-        const cols=visible(), data=rows.filter(matches);
-        head.innerHTML=cols.map(c=>`<th style="min-width:${defs[c.key][1]}px">${defs[c.key][0]}</th>`).join("")+`<th style="min-width:82px">ACTIONS</th>`;
+        const cols=visible(), data=sortedRows(rows.filter(matches));
+        head.innerHTML=cols.map(renderHeadCell).join("")+`<th style="min-width:82px">ACTIONS</th>`;
         body.innerHTML=data.length?data.map(r=>`<tr>${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" data-transaction-id="${esc(r.paywizardId)}" aria-label="More actions for ${esc(r.transId)}" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
         closeRowActionMenu();
         closeSnDetail();
@@ -1729,7 +1776,7 @@
         showActionToast(`${fmt.toUpperCase()} export task started.`);
         setPop("");
         const cols=visible();
-        const data=rows.filter(matches).map(r=>Object.fromEntries(cols.map(c=>[defs[c.key][2],c.key==="cardPan"?[r.cardPanMasked,r.cardDisplayNo].filter(Boolean).join(" / "):c.key==="paymentMethod"?(r.paymentMethod||"Bank Card"):r[c.key]])));
+        const data=sortedRows(rows.filter(matches)).map(r=>Object.fromEntries(cols.map(c=>[defs[c.key][2],c.key==="cardPan"?[r.cardPanMasked,r.cardDisplayNo].filter(Boolean).join(" / "):c.key==="paymentMethod"?(r.paymentMethod||"Bank Card"):r[c.key]])));
         const stamp="20260407_120000";
         let blob,name;
         if(fmt==="json"){
@@ -1763,6 +1810,13 @@
       document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); markColumnsCustom(); renderCols(); renderTable();};
       document.getElementById("resetCols").onclick=resetCols;
       Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter") applyFilters();}));
+      head.addEventListener("click",e=>{
+        const button=e.target.closest("[data-sort-key='tci']");
+        if(!button) return;
+        state.sort.direction=state.sort.key==="tci"&&state.sort.direction==="asc"?"desc":"asc";
+        state.sort.key="tci";
+        renderTable();
+      });
       body.addEventListener("mouseover",e=>{
         const link=e.target.closest(".sn-main-link");
         if(!link||link.contains(e.relatedTarget)) return;
