@@ -133,3 +133,64 @@ final result: passed
 - Redesigned Tip Adjust screenshot: `assets/qa/qa-transaction-list-tip-help-redesign.png`.
 
 final result: passed
+
+---
+
+# Design QA — Nayax Product Map and DEX
+
+- Source visual truth: the two Nayax / Paywizard screenshots supplied in the current conversation, the Nayax Product Map field-definition and DEX administration references linked in the approved plan, and the unchanged local Paywizard baseline `1.terminalmanage.html`.
+- Implementation target: `1.terminalmanage_nayax.html`.
+- Browser-rendered implementation screenshots:
+  - `assets/qa/qa-nayax-product-map-viewport.png`
+  - `assets/qa/qa-nayax-dex-parsed-viewport.png`
+  - `assets/qa/qa-nayax-dex-raw-viewport.png`
+- Side-by-side comparison boards:
+  - `assets/qa/qa-nayax-product-map-comparison.png`
+  - `assets/qa/qa-nayax-dex-parsed-comparison.png`
+  - `assets/qa/qa-nayax-dex-raw-comparison.png`
+- Viewports: 1440 × 1000 desktop, 820 × 1000 tablet, and 390 × 844 phone.
+
+## Product Map comparison
+
+![Nayax Product Map reference at left and Paywizard implementation at right](assets/qa/qa-nayax-product-map-comparison.png)
+
+- The implementation preserves the Nayax concepts and field order for Product, Product Group, PA Code, MDB Code, PAR, On Hand, and Missing while fitting the existing Paywizard black header, blue active line, neutral cards, compact table, and status colors.
+- Product Map adds the required BIN / Slot, SKU, Price, status, actions, summary, search, filters, CRUD controls, CSV controls, and horizontal table scrolling without changing the surrounding terminal-management shell.
+- Inventory bars and green / yellow / red states make On Hand and Missing easier to scan while retaining the behavior shown in the Nayax reference.
+
+## Parsed DEX comparison
+
+![Nayax selected-read and DEX-history references at left and Paywizard Parsed DEX at right](assets/qa/qa-nayax-dex-parsed-comparison.png)
+
+- Last Read, Selected Read, and Delta align directly with the Nayax comparison model; the Paywizard implementation adds explicit machine-audit metadata and KPI cards above the same comparison table.
+- Full / Delta, source, read time, validation, record count, and history selection remain visible in one workflow.
+- The parsed table uses an independent 620px scroll region with a sticky header, preventing a full DEX read from creating an excessively long page.
+
+## RAW DATA comparison
+
+![Existing Paywizard terminal baseline at left and DEX RAW DATA implementation at right](assets/qa/qa-nayax-dex-raw-comparison.png)
+
+- RAW DATA reuses the existing Paywizard terminal card, typography, spacing, neutral controls, and black-primary-button treatment.
+- The dark monospace payload surface is visually distinct from parsed business data and keeps search, copy, and download actions immediately available.
+
+## Interaction and state verification
+
+- Removed terminal-level `Setting` and `Parameter Variables` tabs, panels, and script registration; the global sidebar `Settings` item remains.
+- Default entry still opens `APP & Parameters > Parameters`; legacy `?tab=settings`, `?tab=params`, and unknown tab values canonicalize to `?tab=appfw`.
+- Product Map single add, edit, bulk add, single / bulk delete, search, group and stock filters, uniqueness rules, MDB numeric validation, non-negative numeric validation, `On Hand ≤ PAR`, Missing calculation, and inventory-state thresholds: passed.
+- CSV quoted-field parsing, valid-row append, duplicate / invalid-row isolation, no-overwrite behavior, export filename, headers, and complete-map content: passed.
+- DEX Delta and Full reads: `Queued → Reading → Parsed` passed; both append to history and update metadata, KPIs, parsed values, and RAW DATA.
+- DEX Parsed / RAW tabs, category filtering, PA Code to Product Map association, RAW search, clipboard copy, and download: passed.
+- Historical Parsed, Failed, Warning, Stale, and No Data snapshots update the overview, validation state, parsed message, RAW message, and KPI availability as intended.
+- Main tab and DEX inner-tab keyboard navigation, modal focus entry, Escape close, focus restoration, ARIA relationships, and live status feedback: passed.
+- APP & Parameters parameter preview, Push Task, Basic Information, sidebar, terminal status, and existing action flows: passed.
+- Desktop, tablet, and phone widths have no document-level horizontal clipping; Product Map and DEX tables scroll inside their own containers, and DEX grids collapse below 900px.
+- Browser console errors / warnings: 0.
+- Inline JavaScript syntax, duplicate IDs, and missing `aria-controls` targets: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, responsive, accessibility, or interaction mismatches remain.
+- The narrow-screen shell keeps the project's existing stacked sidebar-first navigation pattern; the requested terminal content remains fully reachable and uncropped.
+
+final result: passed

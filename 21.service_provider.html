@@ -867,6 +867,67 @@
       border-color: #16a34a;
     }
 
+    /* Provider capabilities */
+    .capability-section {
+      grid-column: 1 / -1;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 2px 0;
+    }
+
+    .capability-copy {
+      min-width: 0;
+      flex: 0 0 auto;
+    }
+
+    .capability-name {
+      color: #555b66;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .switch-control {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex: 0 0 44px;
+      padding: 0;
+      border: 0;
+      border-radius: 99px;
+      background: #c9cdd5;
+      transition: background 0.18s ease;
+    }
+
+    .switch-control::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: transform 0.18s ease;
+    }
+
+    .switch-control[aria-checked="true"] {
+      background: #06070a;
+    }
+
+    .switch-control[aria-checked="true"]::after {
+      transform: translateX(20px);
+    }
+
+    .switch-control:focus-visible {
+      outline: 3px solid rgba(28, 168, 255, 0.28);
+      outline-offset: 2px;
+    }
+
     /* Payment Channel Multi-Select */
     .channel-section {
       grid-column: 1 / -1;
@@ -1779,6 +1840,14 @@
           </div>
         </div>
 
+        <div class="capability-section">
+          <div class="capability-copy">
+            <div class="capability-name" id="prepaidCardLabel">Enable Prepaid Card</div>
+          </div>
+          <button class="switch-control" id="prepaidCardSwitch" type="button" role="switch"
+            aria-checked="false" aria-labelledby="prepaidCardLabel"></button>
+        </div>
+
         <div class="tms-section">
           <div class="tms-section-title">TMS Info</div>
           <div class="tms-search-row">
@@ -1845,6 +1914,7 @@
       var selectedTags = document.getElementById("providerSelectedTags");
       var channelSearch = document.getElementById("providerChannelSearch");
       var selectedChannelSet = [];
+      var prepaidCardSwitch = document.getElementById("prepaidCardSwitch");
 
       // TMS elements
       var tmsSearchBtn = document.getElementById("tmsSearchBtn");
@@ -1864,6 +1934,7 @@
         updateChannelLabel();
         renderTags();
         closeChannelDropdown();
+        prepaidCardSwitch.setAttribute("aria-checked", "false");
         // Reset TMS
         resetTms();
         overlay.classList.add("open");
@@ -1980,6 +2051,11 @@
           var pkg = (opt.getAttribute("data-package") || "").toLowerCase();
           opt.style.display = (name.indexOf(query) > -1 || pkg.indexOf(query) > -1) ? "" : "none";
         });
+      });
+
+      prepaidCardSwitch.addEventListener("click", function () {
+        var isEnabled = prepaidCardSwitch.getAttribute("aria-checked") === "true";
+        prepaidCardSwitch.setAttribute("aria-checked", String(!isEnabled));
       });
 
       // TMS functions
