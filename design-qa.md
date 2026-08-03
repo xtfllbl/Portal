@@ -194,3 +194,171 @@ final result: passed
 - The narrow-screen shell keeps the project's existing stacked sidebar-first navigation pattern; the requested terminal content remains fully reachable and uncropped.
 
 final result: passed
+
+---
+
+# Design QA — Product Map Inline Editing Revision
+
+- Source visual truth: the latest Nayax Product Map screenshot supplied in the conversation and the existing Paywizard terminal-management shell.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Browser-rendered screenshots:
+  - `assets/qa/qa-nayax-product-map-inline-viewport.png`
+  - `assets/qa/qa-nayax-product-map-inline-edit.png`
+- Side-by-side comparison board:
+  - `assets/qa/qa-nayax-product-map-inline-comparison.png`
+- Browser viewport for the comparison capture: 1710 × 876; the wide table remains contained by its own horizontal scroll surface.
+
+## Visual comparison
+
+![Nayax Product Map reference at left and revised Paywizard Product Map at right](assets/qa/qa-nayax-product-map-inline-comparison.png)
+
+- Removed the Product Map summary cards, search and filter controls, CSV controls, bulk-selection controls, checkbox column, and visible BIN / Slot column.
+- Reordered the table to follow the supplied Nayax reference: Product, Product Category, PA Code, MDB Code, PAR, On Hand, Missing, Price, Status, and Actions.
+- Preserved the Nayax-style inventory bars and the current project's green, yellow, and red stock states.
+- Kept the terminal black header, blue active-tab line, neutral table surface, black primary buttons, border treatment, and type scale consistent with the surrounding project.
+
+## Interaction verification
+
+- `Add BIN` inserts one editable row directly into the table; no dialog is created or opened.
+- `Add Multiple BINS` inserts three editable rows directly into the table; no dialog is created or opened.
+- Inline product name, SKU, category, PA Code, MDB Code, PAR, On Hand, and price fields update Missing, stock progress, and status in place.
+- Global `Save Changes` commits all valid pending rows atomically; `Cancel Changes` and per-row Cancel discard unsaved edits.
+- Existing-row Edit uses the same inline table treatment; it does not open the legacy editor dialog.
+- Duplicate PA Code validation was exercised in the browser and correctly blocked saving with an inline error.
+- Single-row Delete still uses the existing confirmation flow and updates Product Map / DEX session data after confirmation.
+- JavaScript syntax check and duplicate-ID check: passed.
+- Responsive CSS review: the toolbar stacks below 900px, controls become full-width below 560px, and the table stays inside its independent scroll container.
+
+## Findings
+
+- No visible Product Map filters, checkbox column, BIN / Slot column, or add modal remain in the revised primary workflow.
+- No actionable P0, P1, or P2 mismatch remains against the requested Product-first Nayax table direction.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Top-Row Insertion Revision
+
+- Source visual truth: the user-provided Product Map screenshot in the current conversation, represented by the prior browser capture `assets/qa/qa-nayax-product-map-inline-edit.png` for pixel-aligned comparison.
+- Implementation: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshots:
+  - `assets/qa/qa-nayax-product-map-top-insert.png`
+  - `assets/qa/qa-nayax-product-map-quantity-dialog.png`
+- Full-view comparison: `assets/qa/qa-nayax-product-map-top-insert-comparison.png`.
+- Source and implementation captures use the same desktop browser surface and density; both were normalized to 1200 × 675 panels in the 2400 × 675 comparison board.
+- State: four unsaved rows inserted directly below the table header; separate quantity-dialog state captured at its default value of 3.
+
+## Findings and fixes
+
+- Earlier P2: draft rows appeared after all existing rows. Fixed by rendering all pending additions before persisted Product Map records.
+- Earlier P2: the Product column exposed SKU and a `New BIN` label. Fixed by showing only the product-name input and distinguishing draft rows through a pale blue row background with a subtle left accent.
+- Earlier P2: the Status column remained visible after inventory status was already communicated by the On Hand progress color. Fixed by removing Status from the active Product Map header, persisted rows, and inline rows.
+- Earlier P1: `Add Multiple BINS` assumed three rows without asking. Fixed with an accessible project-styled quantity dialog, whole-number validation, a 1–50 range, Cancel/Escape behavior, and focus entry.
+
+## Fidelity surfaces
+
+- Fonts and typography: unchanged project font stack, weights, header casing, and numeric emphasis; passed.
+- Spacing and layout rhythm: editable rows begin immediately below the header and align with all nine active columns; passed.
+- Colors and tokens: draft background, input borders, inventory colors, modal overlay, and black primary actions reuse existing project tokens; passed.
+- Image and asset fidelity: no new imagery or approximated assets were introduced; not applicable.
+- Copy and content: SKU, `New BIN`, and Status are absent from the active workflow; quantity copy and validation are concise English project copy; passed.
+
+## Interaction verification
+
+- Single Add BIN creates one first-row draft without a dialog: passed.
+- Add Multiple BINS opens the quantity dialog; invalid 0 is rejected and entering 4 creates four first-row drafts: passed.
+- Product Map save succeeds without SKU and still enforces product name, category, PA Code, MDB Code, price, PAR, On Hand, uniqueness, and stock rules: passed.
+- Quantity modal cancel, focus, and no-dialog-after-confirm behavior: passed.
+- DEX tab regression and Product Map return navigation: passed.
+- JavaScript syntax, duplicate IDs, and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+- Focused comparison is not separate because the table region is large and legible in the normalized full-view comparison; the quantity dialog is captured separately at readable scale.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Code Rules and Simplified Quantity Dialog
+
+- Source visual truth: the latest Product Map draft-row and quantity-dialog screenshots supplied in the conversation, represented by the prior implementation captures `assets/qa/qa-nayax-product-map-top-insert.png` and `assets/qa/qa-nayax-product-map-quantity-dialog.png` for normalized comparison.
+- Implementation: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshots:
+  - `assets/qa/qa-nayax-product-map-empty-draft.png`
+  - `assets/qa/qa-nayax-product-map-simple-quantity-dialog.png`
+- Side-by-side comparison: `assets/qa/qa-nayax-product-map-rules-comparison.png` at 2400 × 1350; each panel normalized to 1200 × 675 at the same desktop browser density.
+- States: one newly inserted empty draft row and the default Add Multiple BINS quantity dialog.
+
+## Findings and fixes
+
+- Earlier P1: PA and MDB examples and validation allowed longer codes. Fixed by converting the seed Product Map to two-character PA Codes and two-digit MDB Codes, enforcing exact lengths, stripping invalid MDB characters, and normalizing PA letters to uppercase.
+- Earlier P2: new rows prefilled PA, MDB, PAR, On Hand, and Price and rendered an inventory bar. Fixed so every draft field is empty except On Hand = 0; Missing shows `--` until PAR is entered; draft/edit rows do not render stock progress.
+- Earlier P2: the quantity dialog duplicated Cancel with a top Close action, included unnecessary subtitle copy, and used unequal action widths. Fixed by removing the subtitle and header button and setting both footer actions to 132 × 40 px.
+
+## Fidelity surfaces
+
+- Fonts and typography: project font stack, title hierarchy, table labels, and button weights remain unchanged; passed.
+- Spacing and layout rhythm: the simpler 440px modal reduces unused vertical space and keeps equal button geometry; the empty draft remains aligned to the nine-column grid; passed.
+- Colors and tokens: existing modal overlay, borders, focus ring, draft-row tint, and persisted inventory colors are preserved; passed.
+- Image and asset fidelity: no image assets are present or required in this revision; not applicable.
+- Copy and content: removed redundant dialog copy and Close label; retained only title, field label, compact range guidance, Cancel, and Create Rows; passed.
+
+## Interaction verification
+
+- New-row values are empty for Product, Category, PA, MDB, PAR, and Price; On Hand is exactly 0: passed.
+- New/edit rows contain no inventory progress bar; persisted rows still show progress bars: passed.
+- PA Code rejects one or more than two characters, allows two alphanumeric characters, and saves lowercase input as uppercase: passed.
+- MDB Code strips non-digits and rejects values that are not exactly two digits: passed.
+- Quantity dialog contains no subtitle or header Close button; Cancel and Create Rows both measure 132 × 40 px: passed.
+- Quantity dialog Escape behavior and DEX tab regression: passed.
+- JavaScript syntax, duplicate IDs, and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+- The combined comparison board provides readable focused evidence for both changed surfaces, so no additional crop is required.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Validation Placement and Newest-First Ordering
+
+- Source visual truth: the three latest Product Map screenshots supplied in the conversation, covering in-row error overflow, PA/MDB placeholder hints, and a newly saved record at the bottom.
+- Implementation: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshots:
+  - `assets/qa/qa-nayax-product-map-validation-summary.png`
+  - `assets/qa/qa-nayax-product-map-newest-first.png`
+- Delta comparison board: `assets/qa/qa-nayax-product-map-errors-order-comparison.png` at 2700 × 506. The prior empty-draft capture is shown at left, the external validation state at center, and newest-first saved state at right; each panel is normalized to 900 × 506 at the same browser density.
+
+## Findings and fixes
+
+- Earlier P1: row-level error copy overflowed the narrow Actions cell and increased row height. Fixed by moving detailed validation into a full-width alert between the action toolbar and table; invalid inputs retain only their red field borders.
+- Earlier P3: `2 chars` and `2 digits` placeholders created repetitive visual noise. Fixed by leaving both PA Code and MDB Code inputs visually empty while retaining exact-length validation.
+- Earlier P1: newly saved records were appended below all seed records. Fixed by prepending each newly saved record or batch; later save operations appear above earlier saves and the seed map.
+
+## Fidelity surfaces
+
+- Fonts and typography: the alert uses the existing compact UI font, 12px body text, and semibold title; passed.
+- Spacing and layout rhythm: validation occupies its own horizontal region without altering table column widths or draft-row height; passed.
+- Colors and tokens: alert background, border, left accent, and invalid field borders reuse existing red semantic tokens; passed.
+- Image and asset fidelity: no images or icons were introduced; not applicable.
+- Copy and content: detailed errors are grouped by `New row N`; redundant PA/MDB placeholders are absent; the toolbar continues to show the unsaved count rather than duplicating the error message; passed.
+
+## Interaction verification
+
+- Invalid price and duplicate MDB Code produce two red field borders and one external summary; the Actions cell contains only Cancel: passed.
+- Editing one invalid row clears only that row's summary entry while preserving errors from other rows: passed by state-model review and targeted handler verification.
+- Two sequential saves produce `Product Two`, `Product One`, then the seed data: passed.
+- PA/MDB inputs have empty placeholder attributes: passed.
+- JavaScript syntax, duplicate IDs, and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+- The three-panel comparison is sufficient because the changed alert, draft inputs, and first persisted rows are all legible at normalized scale.
+
+final result: passed
