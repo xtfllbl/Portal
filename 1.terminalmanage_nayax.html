@@ -31,7 +31,24 @@
         /* Blue banner header to match the provided structure */
         .card-banner { background: var(--banner); color: #fff; padding: 16px 18px 12px; position: relative; }
         .banner-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-        .title { font-size: 22px; font-weight: 760; margin: 0; letter-spacing: .2px; }
+        .terminal-back-link {
+            min-height: 34px;
+            padding: 7px 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 8px;
+            background: #080808;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 750;
+            line-height: 1;
+            text-decoration: none;
+        }
+        .terminal-back-link img { width: 17px; height: 17px; filter: brightness(0) invert(1); }
+        .terminal-back-link:hover { background: #181818; border-color: rgba(255,255,255,.18); }
+        .terminal-back-link:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
         .banner-meta { margin-top: 4px; color: rgba(255,255,255,.9); font-size: 12px; }
         .banner-meta b { color: #fff; }
         .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); }
@@ -1675,13 +1692,9 @@
             .sidebar.is-collapsed .sub-menu.open { display: flex !important; }
         }
         @media (max-width: 900px) {
-            .banner-top {
-                align-items: flex-start;
-                flex-direction: column;
-            }
             .banner-status {
                 flex-wrap: wrap;
-                justify-content: flex-start;
+                justify-content: flex-end;
             }
             .connection-popover {
                 left: 0;
@@ -1730,6 +1743,10 @@
             .dex-raw-search { min-width: 0; width: 100%; }
         }
         @media (max-width: 560px) {
+            .terminal-type-copy { gap: 5px; }
+            .terminal-type-confirm-body { grid-template-columns: 1fr; }
+            .terminal-type-confirm-actions .btn-primary,
+            .terminal-type-confirm-actions .btn-secondary { flex: 1 1 0; min-width: 0; width: auto; }
             .connection-summary {
                 max-width: calc(100vw - 120px);
             }
@@ -1982,7 +1999,10 @@
         <div class="terminal-card">
             <div class="card-banner">
                 <div class="banner-top">
-                    <h1 class="title" id="terminalTitle">Terminal - WP6267UQ36002376</h1>
+                    <a class="terminal-back-link" href="2.resellermerchantterminal.html" aria-label="Back to Device Management">
+                        <img src="assets/icons/arrow-circle-left.svg" alt="" aria-hidden="true">
+                        <span>Back to Device Management</span>
+                    </a>
                     <div class="banner-status">
                         <div
                             id="connectionStatus"
@@ -2131,27 +2151,66 @@
                         .panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); }
                         .panel.pad { padding: 12px; }
                         .panel-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: #0f172a; }
+                        .left-stack { min-width: 0; display: grid; grid-template-rows: minmax(240px, 1fr) auto; gap: 12px; }
                         .map-card { position: relative; min-height: 240px; display: grid; place-items: center; overflow: hidden; }
                         .map-bg { position: absolute; inset: 0; background: linear-gradient(180deg,#f3f4f6, #e5e7eb); filter: grayscale(1) contrast(1); }
                         .map-hint { position: relative; color: #6b7280; font-weight: 600; font-size: 14px; letter-spacing: .2px; }
                         .map-refresh { position: absolute; right: 10px; top: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #111; }
-                        .stat-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+                        .stat-grid { margin-top: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
                         .stat-card { padding: 12px; }
                         .stat-head { display: flex; align-items: center; gap: 8px; color: #4b5563; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
                         .stat-value { font-size: 22px; font-weight: 800; margin: 8px 0 6px; color: #0b1220; }
                         .stat-sub { color: #6b7280; font-weight: 600; font-size: 12px; }
                         .bar { height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
                         .bar > span { display: block; height: 100%; background: #111; border-radius: inherit; }
-                        .details-grid { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: start; }
-                        .kv-list { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 8px; align-items: baseline; }
+                        .terminal-details-card { padding: 0; overflow: hidden; }
+                        .terminal-details-card .panel-title { margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--border); background: #f5f5f6; }
+                        .terminal-details-body { padding: 10px 12px 12px; }
+                        .terminal-device-visual { height: 118px; display: grid; place-items: center; margin-bottom: 8px; overflow: hidden; }
+                        .terminal-device-visual img { width: 112px; height: 112px; display: block; object-fit: contain; }
+                        .kv-list { min-width: 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); column-gap: 10px; row-gap: 7px; align-items: baseline; }
                         .kv-list dt { color: #6b7280; font-size: 13px; font-weight: 700; }
-                        .kv-list dd { margin: 0; color: #0b1220; font-weight: 700; }
-                        .device-thumb { width: 100%; height: 140px; border: 1px solid var(--border); border-radius: 10px; background: linear-gradient(180deg,#eee,#ddd); display: grid; place-items: center; color: #475569; font-weight: 700; font-size: 12px; }
+                        .kv-list dd { min-width: 0; margin: 0; color: #202124; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
                         .btn-ghost { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: #111; font-weight: 700; font-size: 12px; }
                         .btn-ghost:hover { background: #f8fafc; }
-                        .group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
-                        .group-meta { color: #6b7280; font-size: 12px; }
-                        .group-name { font-weight: 750; }
+                        .right-stack { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; align-self: stretch; }
+                        .terminal-type-card { align-self: stretch; display: flex; flex-direction: column; border-color: #bbf7d0; background: #f8fffb; box-shadow: 0 4px 14px rgba(22, 163, 74, .08); }
+                        .terminal-type-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+                        .terminal-type-card-head .panel-title { margin: 0; }
+                        .terminal-type-change { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; }
+                        .terminal-type-change img { width: 16px; height: 16px; opacity: .78; }
+                        .terminal-type-change:hover { background: #f8fafc; }
+                        .terminal-type-change:focus-visible { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14); }
+                        .terminal-type-summary { min-height: 74px; flex: 1 1 auto; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #ccefdc; border-radius: 10px; background: #fff; }
+                        .terminal-type-icon,
+                        .terminal-type-option-icon { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; }
+                        .terminal-type-icon img { width: 23px; height: 23px; }
+                        .terminal-type-option-icon img { width: 17px; height: 17px; }
+                        .terminal-type-icon.attended,
+                        .terminal-type-option-icon.attended { background: #e9f1ff; }
+                        .terminal-type-icon.attended img,
+                        .terminal-type-option-icon.attended img { filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(1839%) hue-rotate(211deg) brightness(92%) contrast(99%); }
+                        .terminal-type-icon.unattended,
+                        .terminal-type-option-icon.unattended { background: #e7f7ef; }
+                        .terminal-type-icon.unattended img,
+                        .terminal-type-option-icon.unattended img { filter: brightness(0) saturate(100%) invert(45%) sepia(97%) saturate(509%) hue-rotate(91deg) brightness(91%) contrast(90%); }
+                        .terminal-type-copy { min-width: 0; display: grid; gap: 4px; }
+                        .terminal-type-attendance { width: max-content; padding: 2px 7px; border: 1px solid #86d8a8; border-radius: 999px; background: #eaf8f0; color: #18864b; font-size: 10px; font-weight: 800; line-height: 1.2; }
+                        .terminal-type-attendance.attended { border-color: #b7cffb; background: #eef4ff; color: #245fc5; }
+                        .terminal-type-name { overflow: hidden; color: #111827; font-size: 15px; font-weight: 800; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+                        .terminal-type-dialog { width: min(460px, 94vw); }
+                        .terminal-type-dialog .feature-modal-body { padding: 14px 18px; }
+                        .terminal-type-options { display: block; }
+                        .terminal-type-group + .terminal-type-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid #edf0f4; }
+                        .terminal-type-group-label { margin: 0 3px 4px; color: #7c8798; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+                        .terminal-type-option { width: 100%; min-height: 38px; padding: 4px 6px; display: grid; grid-template-columns: 30px minmax(0,1fr) auto; align-items: center; gap: 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #20293a; text-align: left; cursor: pointer; }
+                        .terminal-type-option:hover { background: #f5f7fa; }
+                        .terminal-type-option:focus-visible { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.13); }
+                        .terminal-type-option.current { border-color: #c7d6fb; background: #eef3ff; cursor: default; }
+                        .terminal-type-option strong { overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+                        .terminal-type-current { color: #526b9d; font-size: 9px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+                        .terminal-type-modal-footer { padding-top: 12px; padding-bottom: 12px; }
+                        .terminal-type-modal-footer .btn-secondary { width: 96px; min-width: 96px; min-height: 36px; }
                         .txn-section { margin-top: 18px; }
                         .txn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
                         .txn-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
@@ -2167,6 +2226,10 @@
                         .txn-table tbody td:first-child { text-align: left; font-weight: 700; color: #0f172a; }
                         .txn-footnote { margin-top: 8px; color: #64748b; font-size: 12px; font-weight: 600; }
                         @media (max-width: 900px) {
+                            .dash-grid { grid-template-columns: 1fr; }
+                            .left-stack { display: block; }
+                            .stat-grid { margin-top: 12px; }
+                            .right-stack { grid-template-rows: auto auto; }
                             .txn-head { flex-direction: column; align-items: flex-start; }
                             .txn-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
                         }
@@ -2210,28 +2273,30 @@
                         </div>
 
                         <!-- Right stack: details + groups -->
-                        <div class="right-stack" style="display:grid; gap:12px; align-content:start;">
-                            <div class="panel pad">
+                        <div class="right-stack">
+                            <div class="panel terminal-details-card">
                                 <div class="panel-title">Terminal Details</div>
-                                <div class="details-grid">
+                                <div class="terminal-details-body">
+                                    <div class="terminal-device-visual"><img src="assets/terminal-q3-device.png" alt="Q3RU terminal device"></div>
                                     <dl class="kv-list">
-                                        <dt>SN</dt><dd id="detailsSn">WP6267UQ36002376</dd>
-                                        <dt>Model</dt><dd>Q3RU</dd>
-                                        <dt>PN</dt><dd>Q3RU-0AA-RD5-0JA0</dd>
-                                        <dt>Type</dt><dd>Payment Device - Smart POS</dd>
+                                        <dt>SN:</dt><dd id="detailsSn">WP6267UQ36002376</dd>
+                                        <dt>Terminal Name:</dt><dd id="detailsTerminalName">Terminal - WP6267UQ36002376</dd>
+                                        <dt>Model:</dt><dd id="detailsModel">Q3RU</dd>
+                                        <dt>Version:</dt><dd>1.0.40-1176</dd>
                                     </dl>
-                                    <div class="device-thumb">Device Image</div>
                                 </div>
-                                <div style="margin-top:10px"><button class="btn-ghost" type="button">View Detail »</button></div>
                             </div>
-                            <div class="panel pad">
-                                <div class="panel-title">Group List</div>
-                                <div class="group-item">
-                                    <div style="width:28px;height:28px;border-radius:8px;border:1px solid var(--border);display:grid;place-items:center;">👥</div>
-                                    <div>
-                                        <div class="group-name">Q3RU VendLink-UPT New</div>
-                                        <div class="group-meta">Group Type: General Group · Reseller: Universal Processing · Added: 2024-09-11 18:42</div>
-                                    </div>
+                            <div id="terminalTypeCard" class="panel pad terminal-type-card">
+                                <div class="terminal-type-card-head">
+                                    <div class="panel-title">Terminal Type</div>
+                                    <button id="terminalTypeButton" class="terminal-type-change" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="terminalTypeModal" aria-label="Edit terminal type, current Vending Machine" title="Edit terminal type"><img src="assets/icons/edit.svg" alt="" aria-hidden="true"></button>
+                                </div>
+                                <div class="terminal-type-summary" aria-live="polite">
+                                    <span id="terminalTypeIcon" class="terminal-type-icon unattended" aria-hidden="true"><img src="assets/icons/terminal-vending.svg" alt=""></span>
+                                    <span class="terminal-type-copy">
+                                        <span id="terminalTypeAttendance" class="terminal-type-attendance">Unattended</span>
+                                        <span id="terminalTypeName" class="terminal-type-name">Vending Machine</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -2786,6 +2851,20 @@
         </div>
     </div>
 
+    <div id="terminalTypeModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="terminalTypeModalTitle">
+        <div class="feature-modal compact terminal-type-dialog">
+            <div class="feature-modal-header">
+                <h2 id="terminalTypeModalTitle" class="feature-modal-title">Edit Terminal Type</h2>
+            </div>
+            <div class="feature-modal-body">
+                <div id="terminalTypeOptions" class="terminal-type-options" role="menu" aria-label="Terminal type options"></div>
+            </div>
+            <div class="feature-modal-footer terminal-type-modal-footer">
+                <button id="terminalTypeCancel" class="btn-secondary" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
 <script src="scripts/product-catalog.js"></script>
 <script>
@@ -2814,7 +2893,6 @@
             if(el) el.textContent = value;
         };
         setText('crumbTerminalLabel', context.terminalName);
-        setText('terminalTitle', context.terminalName);
         setText('bannerMerchant', context.merchantName);
         setText('bannerSn', context.sn);
         setText('bannerTid', context.tid);
@@ -2823,6 +2901,8 @@
         setText('infoSn', context.sn);
         setText('infoTid', context.tid);
         setText('detailsSn', context.sn);
+        setText('detailsTerminalName', context.terminalName);
+        setText('detailsModel', context.machineModel);
         const viewTransactionsLink = document.getElementById('viewTerminalTransactionsLink');
         if(viewTransactionsLink){
             const query = new URLSearchParams({
@@ -2835,6 +2915,205 @@
         }
         document.title = `${context.terminalName} - Terminal Management`;
         return context;
+    })();
+
+    (function(){
+        'use strict';
+
+        const STORAGE_KEY = 'paywizard.nayaxTerminalTypes.v1';
+        const DEFAULT_TYPE = 'unattended_vending';
+        const typeGroups = [
+            { label: 'Attended Scenarios', items: ['attended_standalone', 'attended_pos_linked'] },
+            { label: 'Unattended Scenarios', items: ['unattended_vending', 'unattended_ev', 'unattended_arcade', 'unattended_coffee'] }
+        ];
+        const typeMap = {
+            attended_standalone: { label: 'Standalone Terminal', attendance: 'Attended', icon: 'assets/icons/terminal-standalone.svg' },
+            attended_pos_linked: { label: 'Terminal + ECR', attendance: 'Attended', icon: 'assets/icons/terminal-ecr.svg' },
+            unattended_vending: { label: 'Vending Machine', attendance: 'Unattended', icon: 'assets/icons/terminal-vending.svg' },
+            unattended_ev: { label: 'EV Charging', attendance: 'Unattended', icon: 'assets/icons/terminal-ev.svg' },
+            unattended_arcade: { label: 'Arcade Machine', attendance: 'Unattended', icon: 'assets/icons/terminal-arcade.svg' },
+            unattended_coffee: { label: 'Coffee Machine', attendance: 'Unattended', icon: 'assets/icons/terminal-coffee.svg' }
+        };
+        const card = document.getElementById('terminalTypeCard');
+        const button = document.getElementById('terminalTypeButton');
+        const menu = document.getElementById('terminalTypeOptions');
+        const modal = document.getElementById('terminalTypeModal');
+        const cancelButton = document.getElementById('terminalTypeCancel');
+        const icon = document.getElementById('terminalTypeIcon');
+        const attendance = document.getElementById('terminalTypeAttendance');
+        const typeName = document.getElementById('terminalTypeName');
+        const toast = document.getElementById('prototypeToast');
+        if(!card || !button || !menu || !modal || !cancelButton || !icon || !attendance || !typeName) return;
+
+        const isValidType = key => Object.prototype.hasOwnProperty.call(typeMap, key);
+        const readStore = () => {
+            try {
+                const raw = window.sessionStorage.getItem(STORAGE_KEY);
+                if(!raw) return {};
+                const parsed = JSON.parse(raw);
+                if(!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Invalid terminal type state');
+                return parsed;
+            } catch(error){
+                try { window.sessionStorage.removeItem(STORAGE_KEY); } catch(ignore) {}
+                return {};
+            }
+        };
+        const initialStore = readStore();
+        const queryType = new URLSearchParams(window.location.search).get('terminalType') || '';
+        let currentTypeKey = isValidType(initialStore[terminalContext.sn])
+            ? initialStore[terminalContext.sn]
+            : isValidType(queryType) ? queryType : DEFAULT_TYPE;
+        let toastTimer = 0;
+
+        function escapeHtml(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[char]));
+        }
+        function attendanceClass(mode){
+            return mode.attendance === 'Attended' ? 'attended' : 'unattended';
+        }
+        function showTerminalTypeToast(message){
+            if(!toast) return;
+            window.clearTimeout(toastTimer);
+            toast.textContent = message;
+            toast.classList.add('show');
+            toastTimer = window.setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+        function persistCurrentType(){
+            try {
+                const state = readStore();
+                state[terminalContext.sn] = currentTypeKey;
+                window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                return true;
+            } catch(error){
+                return false;
+            }
+        }
+        function renderCard(){
+            const mode = typeMap[currentTypeKey] || typeMap[DEFAULT_TYPE];
+            const kind = attendanceClass(mode);
+            icon.className = `terminal-type-icon ${kind}`;
+            icon.innerHTML = `<img src="${mode.icon}" alt="">`;
+            attendance.textContent = mode.attendance;
+            attendance.className = `terminal-type-attendance ${kind}`;
+            typeName.textContent = mode.label;
+            button.setAttribute('aria-label', `Edit terminal type, current ${mode.label}`);
+        }
+        function renderMenu(){
+            menu.innerHTML = `${typeGroups.map(group => `
+                <div class="terminal-type-group" role="group" aria-label="${escapeHtml(group.label)}">
+                    <div class="terminal-type-group-label">${escapeHtml(group.label)}</div>
+                    ${group.items.map(key => {
+                        const mode = typeMap[key];
+                        const current = key === currentTypeKey;
+                        return `<button class="terminal-type-option${current ? ' current' : ''}" type="button" role="menuitem" data-terminal-type="${key}"${current ? ' disabled aria-current="true"' : ''}>
+                            <span class="terminal-type-option-icon ${attendanceClass(mode)}" aria-hidden="true"><img src="${mode.icon}" alt=""></span>
+                            <strong>${escapeHtml(mode.label)}</strong>
+                            ${current ? '<span class="terminal-type-current">Current</span>' : ''}
+                        </button>`;
+                    }).join('')}
+                </div>
+            `).join('')}`;
+        }
+        function menuItems(){
+            return Array.from(menu.querySelectorAll('.terminal-type-option:not([disabled])'));
+        }
+        function setModalOpen(open, focusEdge){
+            modal.classList.toggle('open', open);
+            modal.setAttribute('aria-hidden', String(!open));
+            button.setAttribute('aria-expanded', String(open));
+            if(open){
+                document.body.classList.add('feature-modal-open');
+                renderMenu();
+                if(focusEdge){
+                    window.requestAnimationFrame(() => {
+                        if(!modal.classList.contains('open')) return;
+                        const items = menuItems();
+                        const target = focusEdge === 'last' ? items[items.length - 1] : items[0];
+                        if(target) target.focus({ preventScroll: true });
+                    });
+                }
+            } else {
+                if(!document.querySelector('.feature-modal-overlay.open')) document.body.classList.remove('feature-modal-open');
+                if(focusEdge === 'button') button.focus();
+            }
+        }
+        function applyType(key){
+            if(!isValidType(key) || key === currentTypeKey) return;
+            currentTypeKey = key;
+            const saved = persistCurrentType();
+            renderCard();
+            renderMenu();
+            const label = typeMap[currentTypeKey].label;
+            setModalOpen(false, 'button');
+            showTerminalTypeToast(saved
+                ? `Terminal type changed to ${label}.`
+                : `Terminal type changed to ${label} until this page is refreshed.`);
+            document.dispatchEvent(new CustomEvent('terminaltype:changed', {
+                detail: { sn: terminalContext.sn, type: currentTypeKey, label }
+            }));
+        }
+
+        button.addEventListener('click', event => {
+            event.stopPropagation();
+            setModalOpen(true, 'first');
+        });
+        button.addEventListener('keydown', event => {
+            if(event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+            event.preventDefault();
+            setModalOpen(true, event.key === 'ArrowDown' ? 'first' : 'last');
+        });
+        menu.addEventListener('click', event => {
+            const option = event.target.closest('[data-terminal-type]');
+            if(!option || option.disabled) return;
+            applyType(option.getAttribute('data-terminal-type'));
+        });
+        menu.addEventListener('keydown', event => {
+            const items = menuItems();
+            if(!items.length) return;
+            if(event.key === 'Escape'){
+                event.preventDefault();
+                setModalOpen(false, 'button');
+                return;
+            }
+            if(!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const currentIndex = items.indexOf(document.activeElement);
+            let nextIndex = currentIndex;
+            if(event.key === 'Home') nextIndex = 0;
+            if(event.key === 'End') nextIndex = items.length - 1;
+            if(event.key === 'ArrowDown') nextIndex = (currentIndex + 1 + items.length) % items.length;
+            if(event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + items.length) % items.length;
+            items[nextIndex].focus();
+        });
+        cancelButton.addEventListener('click', () => setModalOpen(false, 'button'));
+        modal.addEventListener('click', event => {
+            if(event.target === modal) setModalOpen(false, 'button');
+        });
+        document.addEventListener('keydown', event => {
+            if(!modal.classList.contains('open')) return;
+            if(event.key === 'Escape'){
+                event.preventDefault();
+                setModalOpen(false, 'button');
+                return;
+            }
+            if(event.key !== 'Tab') return;
+            const focusable = [...menuItems(), cancelButton];
+            if(!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if(event.shiftKey && document.activeElement === first){
+                event.preventDefault();
+                last.focus();
+            } else if(!event.shiftKey && document.activeElement === last){
+                event.preventDefault();
+                first.focus();
+            }
+        });
+
+        renderCard();
+        renderMenu();
     })();
 
     (function() {

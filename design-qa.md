@@ -69,6 +69,44 @@ final result: passed
 
 ---
 
+# Design QA — Nayax Terminal Type Details Card
+
+- Source visual truth: the production Terminal Details header, dashboard alignment, and terminal-type states supplied in the current conversation, plus the picker definitions in `12.transaction_list.html`.
+- Implementation target: `1.terminalmanage_nayax.html`.
+- Inspection surface: live local page in the in-app browser at the existing desktop Paywizard portal viewport.
+- States reviewed: expanded and collapsed navigation, compact default `Unattended · Vending Machine` card, production-style Terminal Details, and the independent six-option edit dialog.
+
+## Full-view and focused comparison
+
+- The previously added terminal title and type control remain absent from the black header; the production-style `Back to Device Management` link is added without disturbing online status, terminal metadata, tabs, or synchronization time.
+- The unused Group List panel is replaced by a Terminal Type card beneath Terminal Details, keeping this management function in the information area rather than global navigation.
+- The visible bottom of the Terminal Type card aligns with the bottom of the left statistics cards in both expanded and collapsed navigation states; opening the editor does not resize either column.
+- Terminal Details now follows the production reference: gray title strip, centered terminal image, and four compact rows for SN, Terminal Name, Model, and Version. The obsolete PN, Type, placeholder image, and View Detail action were removed.
+- The right stack now relies on Grid stretching rather than a percentage height, preventing the extra gap seen with the collapsed sidebar; Terminal Details uses bounded rows and wraps long values so its image and content remain inside the panel.
+- Attended and Unattended options use the exact six SVG path definitions from Transactions with the same blue/green semantic split.
+- The default card has a subtle green border, pale green surface, stronger current-type hierarchy, and a 32px edit icon, increasing discovery without competing with Terminal Details. Editing opens a fixed dialog; selection saves immediately and closes it.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: card title, attendance badge, type name, group labels, and option labels follow the existing Basic Information scale: passed.
+- Spacing and layout rhythm: the visible Terminal Type bottom matches the left statistics bottom in both sidebar states with no forced-height overflow; the fixed dialog preserves dashboard geometry: passed.
+- Colors and visual tokens: attended blue, unattended green, current-selection blue, and black-header contrast match the established Portal semantics: passed.
+- Image quality and assets: the six local icon assets reproduce the exact Transactions SVG geometry; the local terminal rendering follows the supplied production device reference; dedicated edit and back assets remain sharp at 16–17px: passed.
+- Copy and content: all six Transactions terminal types and both scenario groups are represented exactly: passed.
+- Interaction and accessibility: dialog open/cancel/backdrop close, direct selection, Escape, arrow keys, Enter, focus trapping/restoration, session persistence, URL initialization, and ARIA states: passed.
+- Mobile layout: at 390px the Dashboard changes to one column, reports no document-level horizontal overflow, and keeps the dialog in the viewport: passed.
+- Browser page errors during final inspection: 0.
+- `git diff --check`: passed.
+
+## Findings
+
+- The header adds only the requested return action; no unsupported terminal title hierarchy was introduced.
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
 # Design QA — Product Map Toolbar Identification
 
 - Source visual truth: Nayax toolbar crop already preserved in `assets/qa/qa-product-map-stock-comparison.png` and the approved hybrid-style plan.
