@@ -362,3 +362,56 @@ final result: passed
 - The three-panel comparison is sufficient because the changed alert, draft inputs, and first persisted rows are all legible at normalized scale.
 
 final result: passed
+
+---
+
+# Design QA — Products Catalog and Product Map Integration
+
+- Source visual truth: the Paywizard Portal Settings screenshot supplied in the current conversation, the approved Nayax Classic Core category/product workflow, the supplied Nayax Product Map reference, and the existing Paywizard terminal shell.
+- Implementation targets: `35.product_management.html`, `scripts/product-catalog.js`, and `1.terminalmanage_nayax.html?tab=productmap` / `?tab=dex`.
+- Browser-rendered implementation screenshots:
+  - `assets/qa/qa-products-catalog-viewport.png`
+  - `assets/qa/qa-product-map-catalog-linked.png`
+  - `assets/qa/qa-dex-catalog-linked.png`
+- Combined comparison boards:
+  - `assets/qa/qa-products-catalog-comparison.png`
+  - `assets/qa/qa-product-map-catalog-comparison.png`
+- Viewports: 2048 × 1054 desktop, 899 × 900 tablet, and 390 × 844 phone.
+
+## Products catalog comparison
+
+![Existing Paywizard visual language at left and Settings Products implementation at right](assets/qa/qa-products-catalog-comparison.png)
+
+- The new page reuses the Portal logo, left navigation, Settings expansion, breadcrumb top bar, black primary actions, neutral borders, and existing typography from the supplied Paywizard reference.
+- The master-detail workspace keeps Product Categories visible beside the selected category's Products table on desktop, then collapses to a single readable column below 900px.
+- Category and product creation/editing remain in the right detail surface rather than introducing a large workflow modal.
+
+## Product Map comparison
+
+![Nayax Product Map reference at left and catalog-linked Paywizard Product Map at right](assets/qa/qa-product-map-catalog-comparison.png)
+
+- Product remains the first column and Product Category the second, matching the requested Nayax table direction.
+- New rows start at the top with an empty Category selector; Product stays disabled until Category is selected, then lists only Active products in that category.
+- Selecting a product copies its Default Retail Price while retaining terminal-level price editing; On Hand defaults to 0 and draft rows do not display inventory progress.
+- Existing mappings retain inactive products and show the inactive state without exposing them to new Product selections.
+
+## Interaction and data verification
+
+- Operator-level session catalog seeds Snacks, Candy, and eight products, safely recovers corrupt/incompatible storage, and publishes versioned catalog/map APIs: passed.
+- Category fields, VAT rows, product information, identifiers, pricing, nutrition, age verification, tax, tray, and fill fields save and edit in the detail editor: passed.
+- Category name/code and Product ID/Barcode/EAN uniqueness, 13-digit EAN, 100-character Product Name, 16-character DEX Name, and non-negative two-decimal pricing validation: passed.
+- No-category and empty-category states, category preselection, Active/Inactive filtering, referenced-product archive protection, and non-empty-category deletion protection: passed.
+- Product Map Category → Product focus order, active-only options, default price copy, independent price override, exact two-character PA Code, exact two-digit numeric MDB Code, On Hand default, external error summary, bulk-row independence, and newest-first saves: passed.
+- DEX uses `DEX Name || Product Name`, labels parsed values as `DEX Product Name`, and keeps historical raw/parsed snapshots immutable after catalog edits: passed.
+- Products navigation is present in the Nayax terminal prototype, the scoped Branding Settings prototype, and the prototype index: passed.
+- Desktop and mobile pages have no document-level horizontal overflow; Product and Product Map tables scroll only inside their local containers. Products becomes one column below 900px, DEX metadata/KPI grids become two columns on tablet and one on phone: passed.
+- Create menu, quantity dialog, delete/archive confirmation, dirty-leave confirmation, Escape behavior, focus trap/restoration, keyboard sequence, and ARIA/live feedback: passed.
+- Browser console errors and warnings after final reload: 0.
+- Inline JavaScript, shared-store JavaScript, Playwright test syntax, static IDs, and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, responsive, accessibility, data-flow, or interaction mismatches remain.
+- The mobile shell preserves the project's existing sidebar-first pattern; category/product content remains reachable and wide tables remain locally scrollable.
+
+final result: passed
