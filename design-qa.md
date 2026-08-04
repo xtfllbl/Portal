@@ -67,6 +67,54 @@
 
 final result: passed
 
+---
+
+# Design QA — Product Map Toolbar Identification
+
+- Source visual truth: Nayax toolbar crop already preserved in `assets/qa/qa-product-map-stock-comparison.png` and the approved hybrid-style plan.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Browser-rendered evidence:
+  - `assets/qa/qa-product-map-toolbar-map-open.png` (1695 × 869px)
+  - `assets/qa/qa-product-map-toolbar-stock-open.png` (1695 × 869px)
+- Combined focused comparison: `assets/qa/qa-product-map-toolbar-identification-comparison.png` (1826 × 620px).
+- State: saved eight-BIN Product Map with Map open; Stock open captured separately.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, interaction, or accessibility findings remain.
+
+## Full-view and focused comparison
+
+![Nayax command toolbar compared with the Paywizard hybrid implementation](assets/qa/qa-product-map-toolbar-identification-comparison.png)
+
+- Map and Stock now read as distinct commands through 18px functional icons, stronger expanded treatment, and consistent 14px chevrons.
+- The Map menu uses a single divider between setup and template actions, with no redundant section labels; Stock uses green Fill and red Empty semantics without changing the text hierarchy.
+- The implementation preserves Paywizard's white surface, neutral border, blue focus/expanded state, and compact table density while closing the affordance gap with Nayax.
+
+## Comparison history
+
+- First implementation pass rendered the nominal 220px menu at 236px because padding and borders were added outside the content box.
+- Fix: applied border-box sizing to the menu panel; the final browser measurement is exactly 220px.
+- Post-fix evidence: the final Map and Stock captures show aligned triggers, a lighter shadow, non-wrapping labels, and no table clipping.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: 13px command labels, 12px menu actions, and existing project font stack: passed.
+- Spacing and layout rhythm: 38px commands/items, 9px trigger radius, 220px menu width, 8–10px internal gaps, and left-aligned popovers: passed.
+- Colors and visual tokens: neutral default/hover states, blue expanded/focus state, and restrained semantic Stock colors: passed.
+- Image quality and assets: local Apache-licensed Material SVG assets render sharply at 16–18px; no glyph or placeholder fallbacks: passed.
+- Copy and content: Add BIN, Add Multiple BINS, Save as Template, Import Template, Fill Machine 100%, and Empty Machine: passed. The confirmation action remains the concise `Empty`.
+- Interaction and accessibility: mutual exclusion, Arrow navigation, Escape focus restoration, `aria-expanded`, and decorative icon treatment: passed.
+- Regression: Add BIN, Add Multiple BINS, Save as Template, and Import Template entry points open successfully and cancel cleanly: passed.
+- Responsive behavior: the 390 × 844 regression pass confirms Map and Stock remain in a non-wrapping horizontal row, the 220px menu stays inside the viewport, and table overflow remains local: passed.
+- Playwright regression suite: 13 passed.
+- Browser console errors during the final interaction pass: 0.
+- `git diff --check`: passed.
+
+final result: passed
+
+---
+
 # Design QA — Product Map Map and Stock Menus
 
 - Source visual truth: the Nayax Product Map toolbar screenshot supplied in the current conversation; normalized source crop from `assets/qa/qa-nayax-product-map-inline-comparison.png` (812 × 675px).

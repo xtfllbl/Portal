@@ -927,51 +927,112 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 7px;
+            gap: 8px;
+            min-height: 38px !important;
+            padding: 8px 12px !important;
+            border-color: #d7dde5;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #1f2937;
+            font-size: 13px;
             font-weight: 700;
+            line-height: 1;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+            transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease;
+        }
+        .pm-map-menu-button:hover {
+            border-color: #c7d0dc;
+            background: #f8fafc;
+        }
+        .pm-map-menu-button:focus-visible {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .16);
+        }
+        .pm-map-menu-button[aria-expanded="true"] {
+            border-color: #7da5f8;
+            background: #eff6ff;
+            color: #1d4ed8;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, .06);
+        }
+        .pm-command-icon {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto;
+            opacity: .82;
+            transition: filter .16s ease, opacity .16s ease;
+        }
+        .pm-map-menu-button[aria-expanded="true"] .pm-command-icon {
+            opacity: 1;
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(1839%) hue-rotate(211deg) brightness(92%) contrast(99%);
         }
         .pm-map-caret {
-            display: inline-block;
-            font-size: 10px;
-            line-height: 1;
-            transform: translateY(-1px);
+            display: block;
+            width: 14px;
+            height: 14px;
+            margin-left: 1px;
+            opacity: .72;
             transition: transform .16s ease;
         }
-        .pm-map-menu-button[aria-expanded="true"] .pm-map-caret { transform: translateY(1px) rotate(180deg); }
+        .pm-map-menu-button[aria-expanded="true"] .pm-map-caret { transform: rotate(180deg); }
         .pm-map-menu-panel {
             position: absolute;
             z-index: 35;
             top: calc(100% + 6px);
             left: 0;
-            width: 170px;
-            padding: 6px;
-            border: 1px solid #dfe3e8;
-            border-radius: 10px;
+            box-sizing: border-box;
+            width: 220px;
+            padding: 7px;
+            border: 1px solid #d8dee7;
+            border-radius: 11px;
             background: #fff;
-            box-shadow: 0 14px 30px rgba(15, 23, 42, .16);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .13);
         }
         .pm-map-menu-panel button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             width: 100%;
+            min-height: 38px;
             border: 0;
-            border-radius: 7px;
+            border-radius: 8px;
             background: transparent;
             color: #111827;
-            padding: 9px 10px;
+            padding: 8px 10px;
             text-align: left;
             font-size: 12px;
-            font-weight: 750;
+            font-weight: 700;
+            line-height: 1.25;
             cursor: pointer;
         }
         .pm-map-menu-panel button:hover,
-        .pm-map-menu-panel button:focus-visible { background: #f1f5f9; outline: none; }
+        .pm-map-menu-panel button:focus-visible { background: #f1f5f9; }
+        .pm-map-menu-panel button:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: -2px;
+        }
         .pm-map-menu-panel button:disabled {
             color: #94a3b8;
             cursor: not-allowed;
         }
         .pm-map-menu-panel button:disabled:hover { background: transparent; }
+        .pm-menu-item-icon {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 auto;
+            opacity: .72;
+        }
+        .pm-menu-item-icon.success {
+            opacity: 1;
+            filter: brightness(0) saturate(100%) invert(45%) sepia(97%) saturate(509%) hue-rotate(91deg) brightness(91%) contrast(90%);
+        }
+        .pm-menu-item-icon.danger {
+            opacity: 1;
+            filter: brightness(0) saturate(100%) invert(25%) sepia(93%) saturate(2924%) hue-rotate(350deg) brightness(89%) contrast(84%);
+        }
         .pm-map-menu-divider {
             height: 1px;
-            margin: 5px 4px;
+            margin: 5px 8px;
             background: #e5e7eb;
         }
         .pm-menu-note {
@@ -1680,6 +1741,18 @@
             .pm-inline-toolbar button,
             .dex-action-group button,
             .dex-raw-actions button { width: 100% !important; }
+            .pm-inline-toolbar > .pm-inline-toolbar-group:first-child {
+                width: 100%;
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: nowrap;
+            }
+            .pm-inline-toolbar > .pm-inline-toolbar-group:first-child .pm-map-menu {
+                flex: 0 0 auto;
+            }
+            .pm-inline-toolbar > .pm-inline-toolbar-group:first-child .pm-map-menu-button {
+                width: auto !important;
+            }
             .feature-modal-overlay { padding: 10px; }
             .feature-modal { max-height: calc(100vh - 20px); }
             .template-picker-list { max-height: 180px; }
@@ -2424,20 +2497,20 @@
                     <div class="pm-inline-toolbar" aria-label="Product map editing controls">
                         <div class="pm-inline-toolbar-group">
                             <div class="pm-map-menu">
-                                <button id="pmMapMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmMapMenuPanel">Map <span class="pm-map-caret" aria-hidden="true">▾</span></button>
+                                <button id="pmMapMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmMapMenuPanel"><img class="pm-command-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Map</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
                                 <div id="pmMapMenuPanel" class="pm-map-menu-panel hidden" role="menu">
-                                    <button id="pmInlineAddButton" type="button" role="menuitem">Add BIN</button>
-                                    <button id="pmInlineBulkAddButton" type="button" role="menuitem">Add Multiple BINS</button>
+                                    <button id="pmInlineAddButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/add-box.svg" alt="" aria-hidden="true"><span>Add BIN</span></button>
+                                    <button id="pmInlineBulkAddButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/playlist-add.svg" alt="" aria-hidden="true"><span>Add Multiple BINS</span></button>
                                     <div class="pm-map-menu-divider" role="separator"></div>
-                                    <button id="pmSaveTemplateButton" type="button" role="menuitem">Save as Template</button>
-                                    <button id="pmImportTemplateButton" type="button" role="menuitem">Import Template</button>
+                                    <button id="pmSaveTemplateButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/bookmark-add.svg" alt="" aria-hidden="true"><span>Save as Template</span></button>
+                                    <button id="pmImportTemplateButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/file-download.svg" alt="" aria-hidden="true"><span>Import Template</span></button>
                                 </div>
                             </div>
                             <div class="pm-map-menu">
-                                <button id="pmStockMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmStockMenuPanel">Stock <span class="pm-map-caret" aria-hidden="true">▾</span></button>
+                                <button id="pmStockMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmStockMenuPanel"><img class="pm-command-icon" src="assets/icons/inventory-2.svg" alt="" aria-hidden="true"><span>Stock</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
                                 <div id="pmStockMenuPanel" class="pm-map-menu-panel hidden" role="menu">
-                                    <button id="pmStockFillButton" type="button" role="menuitem">Fill Machine 100%</button>
-                                    <button id="pmStockEmptyButton" type="button" role="menuitem">Empty Machine</button>
+                                    <button id="pmStockFillButton" type="button" role="menuitem"><img class="pm-menu-item-icon success" src="assets/icons/inventory-check.svg" alt="" aria-hidden="true"><span>Fill Machine 100%</span></button>
+                                    <button id="pmStockEmptyButton" type="button" role="menuitem"><img class="pm-menu-item-icon danger" src="assets/icons/remove-circle-outline.svg" alt="" aria-hidden="true"><span>Empty Machine</span></button>
                                     <div id="pmStockMenuNote" class="pm-menu-note hidden" role="status"></div>
                                 </div>
                             </div>

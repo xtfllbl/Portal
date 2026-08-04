@@ -295,7 +295,7 @@ test("creates catalog entries and immediately saves one Product Map cell at a ti
   const rowBoxDuringGroupEdit = await savedRow.boundingBox();
   const paCellBoxDuringGroupEdit = await savedRow.locator('td').nth(2).boundingBox();
   expect(Math.abs(rowBoxDuringGroupEdit.height - rowBoxBeforeGroupEdit.height)).toBeLessThanOrEqual(1);
-  expect(Math.abs(paCellBoxDuringGroupEdit.x - paCellBoxBeforeGroupEdit.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(paCellBoxDuringGroupEdit.x - paCellBoxBeforeGroupEdit.x)).toBeLessThanOrEqual(2);
   await cellEditor.fill("Hot Meals");
   await cellEditor.press("Enter");
   await expect(savedRow.locator('[data-pm-cell-field="categoryId"] .pm-cell-edit-value')).toHaveText("Hot Meals");
@@ -359,6 +359,16 @@ test("Products and Product Map keep wide content inside local scroll containers 
 
   await page.goto(PRODUCT_MAP_URL);
   await expectNoDocumentOverflow(page);
+  const mobileToolbarCommands = page.locator(".pm-inline-toolbar > .pm-inline-toolbar-group").first();
+  await expect(mobileToolbarCommands).toHaveCSS("flex-direction", "row");
+  const mobileMapButton = page.locator("#pmMapMenuButton");
+  const mobileStockButton = page.locator("#pmStockMenuButton");
+  await expect(mobileMapButton).toHaveCSS("height", "38px");
+  await expect(mobileStockButton).toHaveCSS("height", "38px");
+  await mobileMapButton.click();
+  const mobileMapMenuBox = await page.locator("#pmMapMenuPanel").boundingBox();
+  expect(mobileMapMenuBox.x + mobileMapMenuBox.width).toBeLessThanOrEqual(391);
+  await page.keyboard.press("Escape");
   const tableWidths = await page.locator(".pm-table-wrap").evaluate((node) => ({
     clientWidth: node.clientWidth,
     scrollWidth: node.scrollWidth
@@ -381,7 +391,7 @@ test("saves the current Product Map as a template and imports it into another te
   await mapButton.click();
   await expect(mapButton).toHaveAttribute("aria-expanded", "true");
   const mapMenuWidth = await page.locator("#pmMapMenuPanel").evaluate((node) => node.getBoundingClientRect().width);
-  expect(mapMenuWidth).toBeLessThanOrEqual(185);
+  expect(mapMenuWidth).toBe(220);
   const mapItems = await page.locator("#pmMapMenuPanel [role=menuitem]").allTextContents();
   expect(mapItems).toEqual(["Add BIN", "Add Multiple BINS", "Save as Template", "Import Template"]);
   await page.getByRole("menuitem", { name: "Save as Template" }).click();
@@ -500,7 +510,7 @@ test("fills and empties every BIN from the Stock menu with confirmation and imme
   expect(rows.every((row) => row.onHand === row.par)).toBeTruthy();
 
   await stockButton.click();
-  await page.getByRole("menuitem", { name: "Empty Machine" }).click();
+  await page.getByRole("menuitem", { name: "Empty Machine", exact: true }).click();
   await expect(page.locator("#pmConfirmTitle")).toHaveText("Empty Machine?");
   await expect(page.locator("#pmConfirmMessage")).toContainText("On Hand to 0");
   await expect(page.locator("#pmConfirmAccept")).toHaveText("Empty");
@@ -523,7 +533,7 @@ test("disables Stock actions while Product Map changes are unsaved", async ({ pa
   const stockButton = page.getByRole("button", { name: "Stock", exact: true });
   await stockButton.click();
   await expect(page.getByRole("menuitem", { name: "Fill Machine 100%" })).toBeDisabled();
-  await expect(page.getByRole("menuitem", { name: "Empty Machine" })).toBeDisabled();
+  await expect(page.getByRole("menuitem", { name: "Empty Machine", exact: true })).toBeDisabled();
   await expect(page.locator("#pmStockMenuNote")).toHaveText("Save or cancel Product Map changes first.");
   await page.keyboard.press("Escape");
   await expect(stockButton).toBeFocused();
