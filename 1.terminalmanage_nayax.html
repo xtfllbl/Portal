@@ -967,6 +967,35 @@
         .pm-table tbody td { vertical-align: middle; }
         .pm-table tbody tr:hover { background: #fbfdff; }
         .pm-product-name { color: #0f172a; font-weight: 800; white-space: nowrap; }
+        .pm-cell-edit {
+            width: 100%;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 5px 7px;
+            margin: -5px -7px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        .pm-cell-edit:hover,
+        .pm-cell-edit:focus-visible { background: #eef4fb; outline: none; }
+        .pm-cell-edit-label {
+            flex: 0 0 auto;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 800;
+            opacity: 0;
+            transition: opacity .15s ease;
+        }
+        .pm-cell-edit:hover .pm-cell-edit-label,
+        .pm-cell-edit:focus-visible .pm-cell-edit-label { opacity: 1; }
         .pm-code { color: #334155; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; font-weight: 750; }
         .pm-inventory-cell { min-width: 130px; }
         .pm-stock-value { margin-bottom: 5px; color: #334155; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
@@ -1013,7 +1042,8 @@
         .pm-inline-edit-row td { padding: 10px 8px !important; vertical-align: top !important; }
         .pm-inline-stack { display: grid; gap: 6px; min-width: 190px; }
         .pm-inline-input,
-        .pm-inline-select {
+        .pm-inline-select,
+        .pm-inline-combobox {
             width: 100% !important;
             min-width: 86px;
             height: 34px;
@@ -1024,15 +1054,18 @@
             color: #111827;
             font-size: 12px !important;
         }
-        .pm-inline-select { min-width: 165px; }
+        .pm-inline-select,
+        .pm-inline-combobox { min-width: 165px; }
         .pm-inline-input:focus,
-        .pm-inline-select:focus {
+        .pm-inline-select:focus,
+        .pm-inline-combobox:focus {
             border-color: #111827 !important;
             box-shadow: 0 0 0 2px rgba(17, 24, 39, .1) !important;
             outline: none;
         }
         .pm-inline-input.is-invalid,
-        .pm-inline-select.is-invalid { border-color: #dc2626 !important; background: #fffafa !important; }
+        .pm-inline-select.is-invalid,
+        .pm-inline-combobox.is-invalid { border-color: #dc2626 !important; background: #fffafa !important; }
         .pm-inline-select:disabled { color: #94a3b8; background: #f8fafc !important; cursor: not-allowed; }
         .pm-catalog-state { margin-left: 6px; color: #b45309; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .pm-inline-number { min-width: 72px; max-width: 94px; }
@@ -1260,6 +1293,9 @@
             min-width: 132px;
             min-height: 40px;
             padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
         }
         .feature-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
         .feature-field { display: grid; gap: 6px; }
@@ -2174,7 +2210,7 @@
                             <thead>
                                 <tr>
                                     <th>Product</th>
-                                    <th>Product Category</th>
+                                    <th>Product Group</th>
                                     <th>PA Code</th>
                                     <th>MDB Code</th>
                                     <th>PAR</th>
@@ -3546,6 +3582,7 @@ paymentTimeout=180`
             style: 'currency',
             currency: 'USD'
         }).format((Number(cents) || 0) / 100);
+        const formatProtocolPriceFromCents = cents => ((Number(cents) || 0) / 100).toFixed(2);
         const formatDateTime = value => {
             if(!value) return '--';
             const date = value instanceof Date ? value : new Date(value);
@@ -3648,6 +3685,14 @@ paymentTimeout=180`
         function catalogProductById(id){
             return allCatalogProducts().find(product => product.id === id) || null;
         }
+        function catalogCategoryByName(name){
+            const target = canonicalText(name);
+            return allCatalogCategories().find(category => canonicalText(category.name) === target) || null;
+        }
+        function catalogProductByName(categoryId, name){
+            const target = canonicalText(name);
+            return allCatalogProducts().find(product => product.categoryId === categoryId && canonicalText(product.name) === target) || null;
+        }
         function catalogItemActive(item){
             return item && String(item.status || 'Active').toLowerCase() === 'active';
         }
@@ -3729,8 +3774,8 @@ paymentTimeout=180`
         function makeProductFromRaw(raw, id){
             const product = catalogProductById(raw.productId);
             const category = catalogCategoryById(raw.categoryId || (product && product.categoryId));
-            const productName = product ? product.name : String(raw.productNameSnapshot || raw.productName || '').trim();
-            const categoryName = category ? category.name : String(raw.categoryNameSnapshot || raw.productGroup || '').trim();
+            const productName = product ? product.name : String(raw.productNameInput || raw.productNameSnapshot || raw.productName || '').trim();
+            const categoryName = category ? category.name : String(raw.categoryNameInput || raw.categoryNameSnapshot || raw.productGroup || '').trim();
             const dexName = product ? catalogDexName(product) : String(raw.dexNameSnapshot || productName).trim();
             return {
                 id: id || '',
@@ -3750,12 +3795,18 @@ paymentTimeout=180`
             };
         }
         function validateProductRaw(raw, ignoreId, againstRows){
+            const requestedCategoryName = String(raw.categoryNameInput || raw.categoryNameSnapshot || '').trim();
+            const requestedProductName = String(raw.productNameInput || raw.productNameSnapshot || '').trim();
+            const matchedCategory = catalogCategoryById(String(raw.categoryId || '').trim()) || catalogCategoryByName(requestedCategoryName);
+            const matchedProduct = catalogProductById(String(raw.productId || '').trim()) || (matchedCategory ? catalogProductByName(matchedCategory.id, requestedProductName) : null);
             const values = {
                 slot: String(raw.slot || '').trim().toUpperCase(),
                 paCode: String(raw.paCode || '').trim(),
                 mdbCode: String(raw.mdbCode || '').trim(),
-                categoryId: String(raw.categoryId || '').trim(),
-                productId: String(raw.productId || '').trim(),
+                categoryId: matchedCategory ? matchedCategory.id : '',
+                productId: matchedProduct && matchedCategory && matchedProduct.categoryId === matchedCategory.id ? matchedProduct.id : '',
+                categoryNameInput: matchedCategory ? matchedCategory.name : requestedCategoryName,
+                productNameInput: matchedProduct && matchedCategory && matchedProduct.categoryId === matchedCategory.id ? matchedProduct.name : requestedProductName,
                 price: String(raw.price == null ? '' : raw.price).trim(),
                 par: String(raw.par == null ? '' : raw.par).trim(),
                 onHand: String(raw.onHand == null ? '' : raw.onHand).trim()
@@ -3763,22 +3814,21 @@ paymentTimeout=180`
             const errors = {};
             if(!values.slot) errors.slot = 'BIN / Slot is required.';
             else if(!/^[A-Z0-9][A-Z0-9._-]{0,19}$/.test(values.slot)) errors.slot = 'Use 1–20 letters, numbers, dots, underscores, or hyphens.';
-            if(!values.paCode) errors.paCode = 'PA Code is required.';
-            else if(!/^[A-Za-z0-9]{2}$/.test(values.paCode)) errors.paCode = 'PA Code must be exactly 2 letters or numbers.';
+            if(values.paCode && !/^[A-Za-z0-9]{2}$/.test(values.paCode)) errors.paCode = 'PA Code must be exactly 2 letters or numbers.';
             if(!values.mdbCode) errors.mdbCode = 'MDB Code is required.';
             else if(!/^\d{2}$/.test(values.mdbCode)) errors.mdbCode = 'MDB Code must be exactly 2 digits.';
-            const selectedCategory = catalogCategoryById(values.categoryId);
-            const selectedProduct = catalogProductById(values.productId);
+            const selectedCategory = matchedCategory;
+            const selectedProduct = matchedProduct;
             const existing = ignoreId ? productRows.find(row => row.id === ignoreId) : null;
             const keepsExistingCategory = Boolean(existing && existing.categoryId === values.categoryId);
             const keepsExistingProduct = Boolean(existing && existing.productId === values.productId);
-            if(!values.categoryId) errors.categoryId = 'Select a Product Category.';
-            else if(!selectedCategory) errors.categoryId = 'The selected Product Category is no longer available.';
-            else if(!catalogItemActive(selectedCategory) && !keepsExistingCategory) errors.categoryId = 'Select an Active Product Category.';
-            if(!values.productId) errors.productId = 'Select a Product.';
-            else if(!selectedProduct) errors.productId = 'The selected Product is no longer available.';
-            else if(selectedProduct.categoryId !== values.categoryId) errors.productId = 'The selected Product does not belong to this category.';
-            else if(!catalogItemActive(selectedProduct) && !keepsExistingProduct) errors.productId = 'Select an Active Product.';
+            if(!values.categoryNameInput) errors.categoryId = 'Enter or select a Product Group.';
+            else if(values.categoryNameInput.length > 100) errors.categoryId = 'Product Group Name must be 100 characters or fewer.';
+            else if(selectedCategory && !catalogItemActive(selectedCategory) && !keepsExistingCategory) errors.categoryId = 'Select an Active Product Group.';
+            if(!values.productNameInput) errors.productId = 'Enter or select a Product.';
+            else if(values.productNameInput.length > 100) errors.productId = 'Product Name must be 100 characters or fewer.';
+            else if(selectedProduct && selectedCategory && selectedProduct.categoryId !== selectedCategory.id) errors.productId = 'The selected Product does not belong to this Product Group.';
+            else if(selectedProduct && !catalogItemActive(selectedProduct) && !keepsExistingProduct) errors.productId = 'Select an Active Product.';
             if(!/^(0|[1-9]\d*)(\.\d{1,2})?$/.test(values.price)) errors.price = 'Enter a non-negative price with up to 2 decimals.';
             if(!/^(0|[1-9]\d*)$/.test(values.par)) errors.par = 'PAR must be a non-negative whole number.';
             if(!/^(0|[1-9]\d*)$/.test(values.onHand)) errors.onHand = 'On Hand must be a non-negative whole number.';
@@ -3793,7 +3843,7 @@ paymentTimeout=180`
 
             const pool = (againstRows || productRows).filter(row => row.id !== ignoreId);
             if(!errors.slot && pool.some(row => canonicalText(row.slot) === canonicalText(values.slot))) errors.slot = 'This BIN / Slot is already mapped.';
-            if(!errors.paCode && pool.some(row => canonicalText(row.paCode) === canonicalText(values.paCode))) errors.paCode = 'This PA Code is already mapped.';
+            if(values.paCode && !errors.paCode && pool.some(row => canonicalText(row.paCode) === canonicalText(values.paCode))) errors.paCode = 'This PA Code is already mapped.';
             if(!errors.mdbCode && pool.some(row => canonicalMdb(row.mdbCode) === canonicalMdb(values.mdbCode))) errors.mdbCode = 'This MDB Code is already mapped.';
 
             return {
@@ -3878,6 +3928,8 @@ paymentTimeout=180`
                 slot: nextInlineSlot(),
                 categoryId: '',
                 productId: '',
+                categoryNameInput: '',
+                productNameInput: '',
                 productNameSnapshot: '',
                 categoryNameSnapshot: '',
                 dexNameSnapshot: '',
@@ -3894,6 +3946,8 @@ paymentTimeout=180`
                 slot: current.slot,
                 categoryId: current.categoryId || '',
                 productId: current.productId || '',
+                categoryNameInput: current.productGroup || '',
+                productNameInput: current.productName || '',
                 productNameSnapshot: current.productNameSnapshot || current.productName,
                 categoryNameSnapshot: current.categoryNameSnapshot || current.productGroup,
                 dexNameSnapshot: current.dexNameSnapshot || current.productName,
@@ -3923,25 +3977,26 @@ paymentTimeout=180`
             const disabled = config.disabled ? ' disabled' : '';
             return `<select class="${classes.join(' ')}" data-inline-field="${field}" aria-label="${escapeHtml(config.label || field)}"${disabled}>${options}</select>`;
         }
-        function inlineCategoryOptions(selectedId){
-            const categories = allCatalogCategories()
+        function inlineCombobox(key, field, value, choices, config = {}){
+            const errors = inlineErrors.get(key) || {};
+            const classes = ['pm-inline-combobox'];
+            if(errors[field]) classes.push('is-invalid');
+            const listId = `pm-${field}-${key}-choices`.replace(/[^A-Za-z0-9_-]/g, '-');
+            const disabled = config.disabled ? ' disabled' : '';
+            const placeholder = config.placeholder ? ` placeholder="${escapeHtml(config.placeholder)}"` : '';
+            const options = choices.map(choice => `<option value="${escapeHtml(choice.name)}"></option>`).join('');
+            return `<input class="${classes.join(' ')}" type="text" list="${escapeHtml(listId)}" data-inline-field="${field}" value="${escapeHtml(value || '')}" aria-label="${escapeHtml(config.label || field)}" autocomplete="off"${placeholder}${disabled}><datalist id="${escapeHtml(listId)}">${options}</datalist>`;
+        }
+        function inlineCategoryChoices(selectedId){
+            return allCatalogCategories()
                 .filter(category => catalogItemActive(category) || category.id === selectedId)
                 .sort((left, right) => String(left.name).localeCompare(String(right.name)));
-            return '<option value="">Select category</option>' + categories.map(category => {
-                const inactive = !catalogItemActive(category);
-                return `<option value="${escapeHtml(category.id)}" ${category.id === selectedId ? 'selected' : ''}>${escapeHtml(category.name)}${inactive ? ' (Inactive)' : ''}</option>`;
-            }).join('');
         }
-        function inlineProductOptions(categoryId, selectedId){
-            if(!categoryId) return '<option value="">Select category first</option>';
-            const products = allCatalogProducts()
+        function inlineProductChoices(categoryId, selectedId){
+            if(!categoryId) return [];
+            return allCatalogProducts()
                 .filter(product => product.categoryId === categoryId && (catalogItemActive(product) || product.id === selectedId))
                 .sort((left, right) => String(left.name).localeCompare(String(right.name)));
-            if(!products.length) return '<option value="">No active products</option>';
-            return '<option value="">Select product</option>' + products.map(product => {
-                const inactive = !catalogItemActive(product);
-                return `<option value="${escapeHtml(product.id)}" ${product.id === selectedId ? 'selected' : ''}>${escapeHtml(product.name)}${inactive ? ' (Inactive)' : ''}</option>`;
-            }).join('');
         }
         function renderInlineEditableRow(key, raw, isNew){
             const par = Number(raw.par);
@@ -3951,15 +4006,15 @@ paymentTimeout=180`
             return `
                 <tr class="pm-inline-edit-row" data-inline-key="${escapeHtml(key)}">
                     <td>
-                        <div class="pm-inline-stack">${inlineSelect(key, 'productId', raw.productId, inlineProductOptions(raw.categoryId, raw.productId), { label: 'Product', disabled: !raw.categoryId })}</div>
+                        <div class="pm-inline-stack">${inlineCombobox(key, 'productId', raw.productNameInput || raw.productNameSnapshot, inlineProductChoices(raw.categoryId, raw.productId), { label: 'Product', disabled: !String(raw.categoryNameInput || raw.categoryNameSnapshot || '').trim(), placeholder: 'Select or enter product' })}</div>
                     </td>
-                    <td>${inlineSelect(key, 'categoryId', raw.categoryId, inlineCategoryOptions(raw.categoryId), { label: 'Product Category' })}</td>
+                    <td>${inlineCombobox(key, 'categoryId', raw.categoryNameInput || raw.categoryNameSnapshot, inlineCategoryChoices(raw.categoryId), { label: 'Product Group', placeholder: 'Select or enter group' })}</td>
                     <td>${inlineInput(key, 'paCode', raw.paCode, { label: 'PA Code', maxLength: 2 })}</td>
                     <td>${inlineInput(key, 'mdbCode', raw.mdbCode, { label: 'MDB Code', maxLength: 2, digits: true })}</td>
                     <td>${inlineInput(key, 'par', raw.par, { type: 'number', number: true, label: 'PAR' })}</td>
                     <td class="pm-inventory-cell">${inlineInput(key, 'onHand', raw.onHand, { type: 'number', number: true, label: 'On Hand' })}</td>
                     <td data-inline-preview="missing">${escapeHtml(missing)}</td>
-                    <td>${inlineInput(key, 'price', raw.price, { price: true, label: 'Price in USD' })}</td>
+                    <td>${inlineInput(key, 'price', raw.price, { price: true, label: 'Price' })}</td>
                     <td>
                         <div class="pm-row-actions"><button class="pm-row-action" type="button" data-inline-cancel="${escapeHtml(key)}">Cancel</button></div>
                     </td>
@@ -3983,14 +4038,14 @@ paymentTimeout=180`
                 const inactive = (mappedProduct && !catalogItemActive(mappedProduct)) || (mappedCategory && !catalogItemActive(mappedCategory));
                 rows.push(`
                     <tr data-pm-id="${escapeHtml(current.id)}">
-                        <td><div class="pm-product-name">${escapeHtml(current.productName)}${inactive ? ' <span class="pm-catalog-state">Inactive</span>' : ''}</div></td>
-                        <td>${escapeHtml(current.productGroup)}</td>
+                        <td><button class="pm-cell-edit" type="button" data-pm-quick-edit="${escapeHtml(current.id)}" data-pm-quick-field="productId" aria-label="Quick edit product ${escapeHtml(current.productName)}"><span class="pm-product-name">${escapeHtml(current.productName)}${inactive ? ' <span class="pm-catalog-state">Inactive</span>' : ''}</span><span class="pm-cell-edit-label">Edit</span></button></td>
+                        <td><button class="pm-cell-edit" type="button" data-pm-quick-edit="${escapeHtml(current.id)}" data-pm-quick-field="categoryId" aria-label="Quick edit product group ${escapeHtml(current.productGroup)}"><span>${escapeHtml(current.productGroup)}</span><span class="pm-cell-edit-label">Edit</span></button></td>
                         <td><span class="pm-code">${escapeHtml(current.paCode)}</span></td>
                         <td><span class="pm-code">${escapeHtml(current.mdbCode)}</span></td>
                         <td>${escapeHtml(current.par)}</td>
                         <td class="pm-inventory-cell"><div class="pm-stock-value">${escapeHtml(current.onHand)} / ${escapeHtml(current.par)}</div><div class="pm-stock-track"><span class="pm-stock-fill ${status === 'low-stock' ? 'low' : status === 'out-of-stock' ? 'out' : ''}" style="width:${progress}%"></span></div></td>
                         <td>${escapeHtml(missing)}</td>
-                        <td>${escapeHtml(formatUsdFromCents(current.priceCents))}</td>
+                        <td>${escapeHtml(formatProtocolPriceFromCents(current.priceCents))}</td>
                         <td><div class="pm-row-actions"><button class="pm-row-action" type="button" data-pm-inline-edit="${escapeHtml(current.id)}">Edit</button><button class="pm-row-action danger" type="button" data-pm-delete="${escapeHtml(current.id)}">Delete</button></div></td>
                     </tr>
                 `);
@@ -4047,6 +4102,38 @@ paymentTimeout=180`
             inlineErrors.delete(key);
             renderProductMapInline();
         }
+        function ensureInlineCatalogSelection(raw){
+            const groupName = String(raw.categoryNameInput || '').trim();
+            const productName = String(raw.productNameInput || '').trim();
+            let category = catalogCategoryById(raw.categoryId) || catalogCategoryByName(groupName);
+            if(!category){
+                if(!catalogStore || typeof catalogStore.saveCategory !== 'function') throw new Error('A new Product Group cannot be created in this browser session.');
+                category = catalogStore.saveCategory({ name: groupName, code: '', description: '', status: 'active', image: '', vatEntries: [] });
+            }
+            let product = catalogProductById(raw.productId);
+            if(!product || product.categoryId !== category.id || canonicalText(product.name) !== canonicalText(productName)){
+                product = catalogProductByName(category.id, productName);
+            }
+            if(!product){
+                if(!catalogStore || typeof catalogStore.saveProduct !== 'function') throw new Error('A new Product cannot be created in this browser session.');
+                const priceCents = Math.round(Number(raw.price) * 100);
+                product = catalogStore.saveProduct({
+                    categoryId: category.id,
+                    name: productName,
+                    status: 'active',
+                    dexName: '',
+                    prices: { defaultRetailPriceCents: priceCents }
+                });
+            }
+            raw.categoryId = category.id;
+            raw.productId = product.id;
+            raw.categoryNameInput = category.name;
+            raw.productNameInput = product.name;
+            raw.categoryNameSnapshot = category.name;
+            raw.productNameSnapshot = product.name;
+            raw.dexNameSnapshot = catalogDexName(product);
+            return raw;
+        }
         function saveInlineChanges(){
             inlineErrors.clear();
             let acceptedEdit = null;
@@ -4055,22 +4142,35 @@ paymentTimeout=180`
             if(inlineEditing){
                 const editResult = validateProductRaw(inlineEditing.raw, inlineEditing.id, validationPool);
                 if(editResult.valid){
-                    acceptedEdit = { ...editResult.product, id: inlineEditing.id };
+                    acceptedEdit = { raw: editResult.values, id: inlineEditing.id };
                     const editIndex = validationPool.findIndex(row => row.id === inlineEditing.id);
-                    if(editIndex >= 0) validationPool[editIndex] = acceptedEdit;
+                    if(editIndex >= 0) validationPool[editIndex] = { ...editResult.product, id: inlineEditing.id };
                 } else {
                     inlineErrors.set(inlineEditing.id, editResult.errors);
                 }
             }
             inlineDrafts.forEach(draft => {
                 const result = validateProductRaw(draft, null, validationPool.concat(acceptedDrafts.map(item => item.product)));
-                if(result.valid) acceptedDrafts.push({ key: draft.key, product: result.product });
+                if(result.valid) acceptedDrafts.push({ key: draft.key, raw: result.values, product: result.product });
                 else inlineErrors.set(draft.key, result.errors);
             });
             if(inlineErrors.size){
                 renderProductMapInline();
-                const firstInvalid = pmElements.tableBody.querySelector('.pm-inline-input.is-invalid, .pm-inline-select.is-invalid');
+                const firstInvalid = pmElements.tableBody.querySelector('.pm-inline-input.is-invalid, .pm-inline-select.is-invalid, .pm-inline-combobox.is-invalid');
                 if(firstInvalid) firstInvalid.focus();
+                return;
+            }
+            try {
+                if(acceptedEdit){
+                    ensureInlineCatalogSelection(acceptedEdit.raw);
+                    acceptedEdit = { ...makeProductFromRaw(acceptedEdit.raw, acceptedEdit.id), id: acceptedEdit.id };
+                }
+                acceptedDrafts.forEach(item => {
+                    ensureInlineCatalogSelection(item.raw);
+                    item.product = makeProductFromRaw(item.raw, null);
+                });
+            } catch(error){
+                showToast(error && error.message ? error.message : 'The catalog entry could not be created.');
                 return;
             }
             const previousRows = productRows.map(row => ({ ...row }));
@@ -4120,54 +4220,85 @@ paymentTimeout=180`
             renderProductMapInline();
             showToast('Unsaved Product Map changes discarded.');
         });
-        pmElements.tableBody.addEventListener('change', evt => {
-            const select = evt.target.closest('select[data-inline-field]');
-            const tableRow = evt.target.closest('[data-inline-key]');
-            if(!select || !tableRow) return;
-            const key = tableRow.getAttribute('data-inline-key');
-            const state = getInlineState(key);
-            if(!state) return;
-            const fieldName = select.getAttribute('data-inline-field');
-            inlineErrors.delete(key);
+        function syncInlineCatalogInput(tableRow, state, fieldName, value){
             if(fieldName === 'categoryId'){
-                state.categoryId = select.value;
-                state.productId = '';
-                state.productNameSnapshot = '';
-                state.categoryNameSnapshot = '';
-                state.dexNameSnapshot = '';
-                state.price = '';
-                renderProductMapInline();
-                const productSelect = pmElements.tableBody.querySelector(`[data-inline-key="${key}"] [data-inline-field="productId"]`);
-                if(productSelect && !productSelect.disabled) productSelect.focus();
+                const previousName = canonicalText(state.categoryNameInput || state.categoryNameSnapshot);
+                const nextName = String(value || '').trim();
+                const changed = canonicalText(nextName) !== previousName;
+                const category = catalogCategoryByName(nextName);
+                state.categoryNameInput = value;
+                state.categoryId = category ? category.id : '';
+                state.categoryNameSnapshot = category ? category.name : nextName;
+                if(changed){
+                    state.productId = '';
+                    state.productNameInput = '';
+                    state.productNameSnapshot = '';
+                    state.dexNameSnapshot = '';
+                    state.price = '';
+                    const productInput = tableRow.querySelector('[data-inline-field="productId"]');
+                    if(productInput){
+                        productInput.value = '';
+                        productInput.disabled = !nextName;
+                        const list = document.getElementById(productInput.getAttribute('list'));
+                        if(list) list.innerHTML = inlineProductChoices(state.categoryId, '').map(product => `<option value="${escapeHtml(product.name)}"></option>`).join('');
+                    }
+                    const priceInput = tableRow.querySelector('[data-inline-field="price"]');
+                    if(priceInput) priceInput.value = '';
+                }
                 return;
             }
             if(fieldName === 'productId'){
-                state.productId = select.value;
-                const product = catalogProductById(state.productId);
-                const category = catalogCategoryById(state.categoryId);
-                state.productNameSnapshot = product ? product.name : '';
-                state.categoryNameSnapshot = category ? category.name : '';
-                state.dexNameSnapshot = product ? catalogDexName(product) : '';
-                state.price = product ? (catalogDefaultPrice(product) / 100).toFixed(2) : '';
-                renderProductMapInline();
-                const nextField = pmElements.tableBody.querySelector(`[data-inline-key="${key}"] [data-inline-field="paCode"]`);
-                if(nextField) nextField.focus();
+                const previousId = state.productId;
+                const nextName = String(value || '').trim();
+                const product = state.categoryId ? catalogProductByName(state.categoryId, nextName) : null;
+                state.productNameInput = value;
+                state.productId = product ? product.id : '';
+                state.productNameSnapshot = product ? product.name : nextName;
+                state.dexNameSnapshot = product ? catalogDexName(product) : nextName;
+                if(product){
+                    const category = catalogCategoryById(state.categoryId);
+                    state.categoryNameSnapshot = category ? category.name : state.categoryNameInput;
+                    if(previousId !== product.id || !String(state.price || '').trim()) state.price = (catalogDefaultPrice(product) / 100).toFixed(2);
+                    const priceInput = tableRow.querySelector('[data-inline-field="price"]');
+                    if(priceInput) priceInput.value = state.price;
+                } else if(previousId){
+                    state.price = '';
+                    const priceInput = tableRow.querySelector('[data-inline-field="price"]');
+                    if(priceInput) priceInput.value = '';
+                }
             }
+        }
+        pmElements.tableBody.addEventListener('change', evt => {
+            const input = evt.target.closest('.pm-inline-combobox[data-inline-field]');
+            const tableRow = evt.target.closest('[data-inline-key]');
+            if(!input || !tableRow) return;
+            const key = tableRow.getAttribute('data-inline-key');
+            const state = getInlineState(key);
+            if(!state) return;
+            const fieldName = input.getAttribute('data-inline-field');
+            syncInlineCatalogInput(tableRow, state, fieldName, input.value);
+            inlineErrors.delete(key);
+            renderProductMapInline();
+            const nextFieldName = fieldName === 'categoryId' ? 'productId' : 'paCode';
+            const nextField = pmElements.tableBody.querySelector(`[data-inline-key="${key}"] [data-inline-field="${nextFieldName}"]`);
+            if(nextField && !nextField.disabled) nextField.focus();
         });
         pmElements.tableBody.addEventListener('input', evt => {
             const input = evt.target.closest('[data-inline-field]');
             const tableRow = evt.target.closest('[data-inline-key]');
             if(!input || !tableRow) return;
-            if(input.tagName === 'SELECT') return;
             const key = tableRow.getAttribute('data-inline-key');
             const state = getInlineState(key);
             if(!state) return;
             const fieldName = input.getAttribute('data-inline-field');
+            if(input.classList.contains('pm-inline-combobox')){
+                syncInlineCatalogInput(tableRow, state, fieldName, input.value);
+            }
             if(fieldName === 'mdbCode') input.value = input.value.replace(/\D/g, '').slice(0, 2);
             if(fieldName === 'paCode') input.value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 2);
-            state[fieldName] = input.value;
+            if(!input.classList.contains('pm-inline-combobox')) state[fieldName] = input.value;
             inlineErrors.delete(key);
-            tableRow.querySelectorAll('.pm-inline-input.is-invalid').forEach(field => field.classList.remove('is-invalid'));
+            tableRow.querySelectorAll('.pm-inline-input.is-invalid, .pm-inline-select.is-invalid, .pm-inline-combobox.is-invalid').forEach(field => field.classList.remove('is-invalid'));
             renderInlineValidationSummary();
             if(!inlineErrors.size){
                 const pendingCount = inlineDrafts.length + (inlineEditing ? 1 : 0);
@@ -4177,10 +4308,11 @@ paymentTimeout=180`
         });
         pmElements.tableBody.addEventListener('click', evt => {
             const edit = evt.target.closest('[data-pm-inline-edit]');
+            const quickEdit = evt.target.closest('[data-pm-quick-edit]');
             const cancel = evt.target.closest('[data-inline-cancel]');
             const remove = evt.target.closest('[data-pm-delete]');
-            if(edit){
-                const id = edit.getAttribute('data-pm-inline-edit');
+            if(edit || quickEdit){
+                const id = edit ? edit.getAttribute('data-pm-inline-edit') : quickEdit.getAttribute('data-pm-quick-edit');
                 const row = productRows.find(item => item.id === id);
                 if(!row) return;
                 if(inlineEditing && inlineEditing.id !== id){
@@ -4190,7 +4322,8 @@ paymentTimeout=180`
                 inlineEditing = { id, raw: rawFromProduct(row) };
                 inlineErrors.clear();
                 renderProductMapInline();
-                const field = pmElements.tableBody.querySelector(`[data-inline-key="${id}"] [data-inline-field="categoryId"]`);
+                const focusField = quickEdit ? quickEdit.getAttribute('data-pm-quick-field') : 'categoryId';
+                const field = pmElements.tableBody.querySelector(`[data-inline-key="${id}"] [data-inline-field="${focusField}"]`);
                 if(field) field.focus();
             }
             if(cancel) cancelInlineKey(cancel.getAttribute('data-inline-cancel'));
@@ -4273,6 +4406,7 @@ paymentTimeout=180`
             const stamp = dexTimestampParts(readAt);
             const productLines = [];
             mapSnapshot.forEach((row, index) => {
+                if(!String(row.paCode || '').trim()) return;
                 const cumulativeQuantity = 48 + (index * 3);
                 const cumulativeValue = cumulativeQuantity * row.priceCents;
                 const intervalQuantity = index % 4 + 1;
@@ -4299,7 +4433,8 @@ paymentTimeout=180`
         }
         function buildDeltaDexRaw(control, totals, mapSnapshot, readAt){
             const stamp = dexTimestampParts(readAt);
-            const changedProduct = mapSnapshot.find(row => Number(row.onHand) > 0) || mapSnapshot[0];
+            const dexMappedRows = mapSnapshot.filter(row => String(row.paCode || '').trim());
+            const changedProduct = dexMappedRows.find(row => Number(row.onHand) > 0) || dexMappedRows[0];
             const nextFill = changedProduct ? Math.max(0, Number(changedProduct.onHand) - 1) : 0;
             const productLines = changedProduct ? [
                 `PA1*${changedProduct.paCode}*${changedProduct.priceCents}*${changedProduct.dexNameSnapshot || changedProduct.productNameSnapshot || changedProduct.productName || ''}*${changedProduct.par}*${nextFill}*1*1`,

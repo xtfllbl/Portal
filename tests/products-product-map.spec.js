@@ -12,8 +12,8 @@ async function resetCatalog(page) {
 
 async function createCategory(page, { name, code }) {
   await page.locator("#createButton").click();
-  await page.getByRole("menuitem", { name: "Add Product Category" }).click();
-  await expect(page.getByRole("heading", { name: "Add Product Category" })).toBeVisible();
+  await page.getByRole("menuitem", { name: "Add Product Group" }).click();
+  await expect(page.getByRole("heading", { name: "Add Product Group" })).toBeVisible();
 
   await page.locator("#f-name").fill(name);
   await page.locator("#f-code").fill(code);
@@ -26,7 +26,7 @@ async function createCategory(page, { name, code }) {
 
 async function createProduct(page, { categoryId, name, productId, barcode, ean, dexName, price }) {
   await page.locator("#createButton").click();
-  await page.getByRole("menuitem", { name: "Add Product" }).click();
+  await page.getByRole("menuitem", { name: "Add Product", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Add Product", exact: true })).toBeVisible();
   await expect(page.locator("#f-categoryId")).toHaveValue(categoryId);
 
@@ -77,17 +77,19 @@ test("creates a category and product, preselects the category, and cascades its 
   await expect(page.locator("#tab-productmap")).toBeVisible();
   const draft = await addProductMapDraft(page);
 
-  const productSelect = draft.locator('[data-inline-field="productId"]');
-  const categorySelect = draft.locator('[data-inline-field="categoryId"]');
-  await expect(productSelect).toBeDisabled();
-  await expect(categorySelect).toBeFocused();
+  const productInput = draft.locator('[data-inline-field="productId"]');
+  const categoryInput = draft.locator('[data-inline-field="categoryId"]');
+  await expect(productInput).toBeDisabled();
+  await expect(categoryInput).toBeFocused();
 
-  await categorySelect.selectOption(categoryId);
+  await categoryInput.fill("Cold Drinks");
+  await categoryInput.press("Tab");
   const refreshedDraft = page.locator("#pmTableBody tr[data-inline-key]").first();
-  const refreshedProductSelect = refreshedDraft.locator('[data-inline-field="productId"]');
-  await expect(refreshedProductSelect).toBeEnabled();
-  await expect(refreshedProductSelect).toBeFocused();
-  await refreshedProductSelect.selectOption(productId);
+  const refreshedProductInput = refreshedDraft.locator('[data-inline-field="productId"]');
+  await expect(refreshedProductInput).toBeEnabled();
+  await expect(refreshedProductInput).toBeFocused();
+  await refreshedProductInput.fill("Sparkling Water");
+  await refreshedProductInput.press("Tab");
 
   await expect(refreshedDraft.locator('[data-inline-field="price"]')).toHaveValue("4.25");
   await expect(refreshedDraft.locator('[data-inline-field="onHand"]')).toHaveValue("0");
@@ -101,22 +103,53 @@ test("creates a category and product, preselects the category, and cascades its 
 
   const firstSavedRow = page.locator("#pmTableBody > tr[data-pm-id]").first();
   await expect(firstSavedRow).toContainText("Sparkling Water");
-  await expect(firstSavedRow.locator("td").nth(1)).toHaveText("Cold Drinks");
+  await expect(firstSavedRow.locator("td").nth(1)).toContainText("Cold Drinks");
   await expect(firstSavedRow.locator("td").nth(2)).toHaveText("Z9");
   await expect(firstSavedRow.locator("td").nth(3)).toHaveText("99");
   await expect(firstSavedRow.locator("td").nth(5)).toContainText("0 / 10");
-  await expect(firstSavedRow.locator("td").nth(7)).toHaveText("$4.25");
+  await expect(firstSavedRow.locator("td").nth(7)).toHaveText("4.25");
 });
 
-test("keeps Product Map validation outside the table and enforces two-character PA and two-digit MDB codes", async ({ page }) => {
+test("uses the simplified Product Group and Product editors and compact product list", async ({ page }) => {
+  await resetCatalog(page);
+
+  await page.locator("#createButton").click();
+  await page.getByRole("menuitem", { name: "Add Product Group" }).click();
+  await expect(page.getByRole("heading", { name: "Add Product Group" })).toBeVisible();
+  await expect(page.locator("#f-name")).toHaveAttribute("required", "");
+  await expect(page.locator("#f-operatorId, #f-status, #vatBody")).toHaveCount(0);
+  await expect(page.getByText("VAT Details", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Cancel" }).click();
+
+  await page.locator("#createButton").click();
+  await page.getByRole("menuitem", { name: "Add Product", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Add Product", exact: true })).toBeVisible();
+  await expect(page.locator("#f-operatorId")).toHaveCount(0);
+  await expect(page.locator("#f-categoryId")).toBeVisible();
+  await expect(page.getByText("Nutrition", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Miscellaneous", { exact: true })).toHaveCount(0);
+  const pricing = page.locator(".form-section", { has: page.getByRole("heading", { name: "Pricing" }) });
+  await expect(pricing.locator("input").first()).toHaveAttribute("id", "f-defaultRetailPrice");
+  await expect(pricing).not.toContainText("USD");
+  await page.getByRole("button", { name: "Cancel" }).click();
+
+  await expect(page.locator("#productIdSearch")).toHaveCount(0);
+  await expect(page.getByRole("columnheader", { name: "Product ID" })).toHaveCount(0);
+  await expect(page.locator("tbody .secondary")).toHaveCount(0);
+  await expect(page.locator("tbody tr").first().locator("td").nth(2)).toHaveText(/^\d+\.\d{2}$/);
+});
+
+test("keeps Product Map validation outside the table, allows blank PA Code, and enforces two-digit MDB codes", async ({ page }) => {
   await resetCatalog(page);
   await page.goto(PRODUCT_MAP_URL);
 
   const draft = await addProductMapDraft(page);
-  await draft.locator('[data-inline-field="categoryId"]').selectOption("category-snacks");
+  await draft.locator('[data-inline-field="categoryId"]').fill("Snacks");
+  await draft.locator('[data-inline-field="categoryId"]').press("Tab");
   const activeDraft = page.locator("#pmTableBody tr[data-inline-key]").first();
-  await activeDraft.locator('[data-inline-field="productId"]').selectOption("product-trail-mix");
-  await activeDraft.locator('[data-inline-field="paCode"]').fill("A");
+  await activeDraft.locator('[data-inline-field="productId"]').fill("Trail Mix");
+  await activeDraft.locator('[data-inline-field="productId"]').press("Tab");
+  await activeDraft.locator('[data-inline-field="paCode"]').fill("");
   await activeDraft.locator('[data-inline-field="mdbCode"]').fill("1x");
   await expect(activeDraft.locator('[data-inline-field="mdbCode"]')).toHaveValue("1");
   await activeDraft.locator('[data-inline-field="par"]').fill("10");
@@ -125,10 +158,10 @@ test("keeps Product Map validation outside the table and enforces two-character 
   await page.locator("#pmInlineSaveAll").click();
   const summary = page.locator("#pmValidationSummary");
   await expect(summary).toBeVisible();
-  await expect(summary).toContainText("PA Code must be exactly 2 letters or numbers.");
   await expect(summary).toContainText("MDB Code must be exactly 2 digits.");
+  await expect(summary).not.toContainText("PA Code");
   await expect(summary.locator("xpath=ancestor::table")).toHaveCount(0);
-  await expect(activeDraft.locator('[data-inline-field="paCode"]')).toHaveClass(/is-invalid/);
+  await expect(activeDraft.locator('[data-inline-field="paCode"]')).not.toHaveClass(/is-invalid/);
   await expect(activeDraft.locator('[data-inline-field="mdbCode"]')).toHaveClass(/is-invalid/);
 });
 
@@ -143,6 +176,8 @@ test("Add Multiple BINS modal focuses its quantity input, traps focus, closes wi
   const modal = page.locator("#pmQuantityModal");
   await expect(modal).toHaveClass(/open/);
   await expect(page.locator("#pmQuantityInput")).toBeFocused();
+  await expect(page.locator("#pmQuantityConfirm")).toHaveCSS("font-size", "13px");
+  await expect(page.locator("#pmQuantityConfirm")).toHaveCSS("font-weight", "700");
   await page.keyboard.press("Shift+Tab");
   await expect(page.locator("#pmQuantityConfirm")).toBeFocused();
 
@@ -173,9 +208,46 @@ test("a referenced product is archived instead of removed and remains visible on
   await expect(existingMapping).toContainText("Inactive");
 
   const draft = await addProductMapDraft(page);
-  await draft.locator('[data-inline-field="categoryId"]').selectOption("category-snacks");
-  const productOptions = page.locator("#pmTableBody tr[data-inline-key]").first().locator('[data-inline-field="productId"] option');
-  await expect(productOptions.filter({ hasText: "Trail Mix" })).toHaveCount(0);
+  await draft.locator('[data-inline-field="categoryId"]').fill("Snacks");
+  await draft.locator('[data-inline-field="categoryId"]').press("Tab");
+  const productInput = page.locator("#pmTableBody tr[data-inline-key]").first().locator('[data-inline-field="productId"]');
+  const productListId = await productInput.getAttribute("list");
+  await expect(page.locator(`#${productListId} option[value="Trail Mix"]`)).toHaveCount(0);
+});
+
+test("creates new Product Groups and Products from autocomplete cells and supports saved-row quick editing", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+
+  const draft = await addProductMapDraft(page);
+  const categoryInput = draft.locator('[data-inline-field="categoryId"]');
+  const productInput = draft.locator('[data-inline-field="productId"]');
+  await categoryInput.fill("Fresh Meals");
+  await categoryInput.press("Tab");
+  await expect(productInput).toBeEnabled();
+  await productInput.fill("Veggie Wrap");
+  await productInput.press("Tab");
+  await draft.locator('[data-inline-field="mdbCode"]').fill("77");
+  await draft.locator('[data-inline-field="par"]').fill("5");
+  await draft.locator('[data-inline-field="price"]').fill("6.50");
+  await page.locator("#pmInlineSaveAll").click();
+
+  const saved = page.locator('#pmTableBody tr[data-pm-id]', { hasText: "Veggie Wrap" }).first();
+  await expect(saved).toBeVisible();
+  await expect(saved.locator("td").nth(1)).toContainText("Fresh Meals");
+  await expect(saved.locator("td").nth(2)).toHaveText("");
+  const catalog = await page.evaluate(() => ({
+    groups: window.PaywizardProductCatalog.getCategories(),
+    products: window.PaywizardProductCatalog.getProducts()
+  }));
+  const group = catalog.groups.find((item) => item.name === "Fresh Meals");
+  expect(group).toBeTruthy();
+  expect(catalog.products.some((item) => item.name === "Veggie Wrap" && item.categoryId === group.id)).toBeTruthy();
+
+  await saved.locator('[data-pm-quick-field="productId"]').click();
+  const quickProduct = page.locator('#pmTableBody tr[data-inline-key] [data-inline-field="productId"]');
+  await expect(quickProduct).toBeFocused();
+  await expect(quickProduct).toHaveValue("Veggie Wrap");
 });
 
 test("Products and Product Map keep wide content inside local scroll containers on desktop and mobile", async ({ page }) => {

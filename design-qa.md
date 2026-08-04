@@ -69,6 +69,45 @@ final result: passed
 
 ---
 
+# Design QA — Product Map Editable Catalog Cells
+
+- Source visual truth: the annotated Product Map validation, Add Multiple BINS, Nayax inline pencil-editing, and editable Product Group screenshots supplied in the current conversation.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Browser-rendered evidence:
+  - `assets/qa/qa-product-map-create-rows-typography.png`
+  - `assets/qa/qa-product-map-autocomplete-filter.png`
+  - `assets/qa/qa-product-map-new-catalog-draft.png`
+  - `assets/qa/qa-product-map-quick-edit.png`
+- Combined before/after board: `assets/qa/qa-product-map-editable-comparison.png`.
+- Viewport: 2048 × 1054 CSS pixels at device scale factor 1.
+
+## Comparison evidence
+
+![Select-only and previous dialog states compared with editable comboboxes and aligned dialog typography](assets/qa/qa-product-map-editable-comparison.png)
+
+- PA Code is optional. An empty value no longer highlights the cell or appears in the external validation summary; a supplied value still accepts exactly two letters or digits and remains unique when present.
+- Product Group and Product are editable comboboxes. Typing filters the browser-native suggestion list, exact matches reuse catalog records, and unmatched names create a new Product Group or Product when the Product Map is saved.
+- Product suggestions are scoped to the selected Product Group. Changing Product Group clears the prior Product and price so an unrelated catalog value cannot be retained.
+- Saved Product and Product Group cells expose a pencil affordance on hover and keyboard focus; activation opens the row editor and focuses the selected field.
+- Add Multiple BINS retains the compact dialog. Cancel and Create Rows now share the same 13px, 700-weight button typography and aligned control height.
+
+## Interaction and regression verification
+
+- Blank PA Code save, optional PA uniqueness behavior, and Product Map persistence: passed.
+- Existing Product Group/Product selection, type-ahead filtering, default-price copy, and independent terminal price override: passed.
+- New Product Group and Product creation from an inline Product Map row, followed by cross-page catalog visibility: passed.
+- Quick-edit focus behavior for Product and Product Group, keyboard navigation, and draft cancellation: passed.
+- Inactive catalog entries remain visible only for existing mappings and are excluded from new suggestions: passed.
+- Browser console errors and warnings during final captures: 0.
+- Playwright regression suite: 7 passed.
+- JavaScript syntax and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, responsive, accessibility, or interaction findings remain.
+
+final result: passed
+
 # Design QA — Transaction Actions
 
 - Source visual truth path: user-provided Paywizard Transactions / ACTIONS screenshot in the current conversation.
@@ -413,5 +452,98 @@ final result: passed
 
 - No actionable P0, P1, or P2 visual, responsive, accessibility, data-flow, or interaction mismatches remain.
 - The mobile shell preserves the project's existing sidebar-first pattern; category/product content remains reachable and wide tables remain locally scrollable.
+
+final result: passed
+
+---
+
+# Design QA — Product Groups Catalog Simplification
+
+- Source visual truth: the Products list, Product Category editor, Product editor, Pricing, and Product Map screenshots supplied in the current conversation, plus the existing Paywizard Portal shell.
+- Implementation targets: `35.product_management.html`, `scripts/product-catalog.js`, and `1.terminalmanage_nayax.html?tab=productmap`.
+- Browser-rendered screenshots:
+  - `assets/qa/qa-products-groups-list.png`
+  - `assets/qa/qa-products-groups-create-menu.png`
+  - `assets/qa/qa-product-group-form-simplified.png`
+  - `assets/qa/qa-product-form-simplified.png`
+  - `assets/qa/qa-product-pricing-first.png`
+  - `assets/qa/qa-products-groups-mobile.png`
+  - `assets/qa/qa-product-map-groups-linked.png`
+- Combined before/after board: `assets/qa/qa-products-groups-comparison.png`.
+- Viewports: 2048 × 1054 desktop and 390 × 844 phone.
+
+## Visual comparison
+
+![Previous Product Categories catalog at left and simplified Product Groups catalog at right](assets/qa/qa-products-groups-comparison.png)
+
+- All visible Product Category language is now Product Group across the catalog and Product Map.
+- The Create control is a consistent 108 × 40px black action with a 10px radius; its two menu actions align within the page header without the previous oversized outline.
+- Product Group editing contains only Product Group Name, Code, Description, and Image. Operator, Status, and VAT sections are absent.
+- Product editing has no Operator, Nutrition, or Miscellaneous sections. Pricing starts with required Default Retail Price.
+- Product rows now contain one-line product names and omit Product ID and DEX sublines; Barcode / EAN, Default Price, Status, and Actions remain.
+- Mobile content collapses to one column without document-level horizontal overflow; the product table retains local horizontal scrolling.
+
+## Interaction and regression verification
+
+- Create menu opens Add Product Group and Add Product; both actions enter the correct right-side editor: passed.
+- Product Group create/edit/save retains the simplified field set while preserving shared catalog compatibility: passed.
+- Product create/edit/save retains optional Product ID internally but does not expose it as a list filter or column: passed.
+- Product Group → Product cascading selection, default-price copy, two-character PA Code, two-digit MDB Code, newest-first Product Map saves, external error summary, and bulk-add focus behavior: passed.
+- Referenced products archive instead of hard-delete and remain visible in existing mappings: passed.
+- Browser console errors and warnings during final desktop/mobile capture: 0.
+- Playwright regression suite: 6 passed.
+- JavaScript syntax and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, responsive, accessibility, or interaction findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Currency-Neutral Product Map Pricing
+
+- Source visual truth: the three annotated screenshots supplied in the current conversation, covering the Product Map Price column, Products Default Price column, and Pricing section currency label.
+- Implementation targets: `35.product_management.html` and `1.terminalmanage_nayax.html?tab=productmap`.
+- Previous-state screenshots:
+  - `assets/qa/qa-products-groups-list.png`
+  - `assets/qa/qa-product-pricing-first.png`
+  - `assets/qa/qa-product-map-groups-linked.png`
+- Updated browser-rendered screenshots:
+  - `assets/qa/qa-products-price-protocol-number.png`
+  - `assets/qa/qa-product-pricing-no-currency.png`
+  - `assets/qa/qa-product-map-price-protocol-number.png`
+- Combined comparison board: `assets/qa/qa-protocol-price-comparison.png`.
+- Viewport and normalization: 2048 × 1054 CSS pixels, device scale factor 1; each before/after pair uses the same viewport and page state.
+
+## Comparison evidence
+
+![Currency-bearing prices at left and currency-neutral protocol values at right](assets/qa/qa-protocol-price-comparison.png)
+
+- Products Default Price values now render as fixed two-decimal protocol numbers such as `1.50`, without `$` or another currency symbol.
+- The Product editor Pricing header no longer declares `USD`; the fields remain non-negative decimal values with up to two decimal places.
+- Saved Product Map Price cells now render as fixed two-decimal protocol numbers such as `2.25`; draft and edit inputs use the accessible label `Price`, not `Price in USD`.
+- The Product Map data model remains integer cents internally, so DEX generation and terminal mapping calculations are unchanged.
+
+## Required fidelity surfaces
+
+- Fonts and typography: unchanged; removing the prefix preserves numeric alignment and table density: passed.
+- Spacing and layout rhythm: the three affected regions retain their existing dimensions, column widths, and form grid: passed.
+- Colors and tokens: unchanged; no new semantic color or decoration was introduced: passed.
+- Image quality and asset fidelity: no image assets are involved in this change: not applicable.
+- Copy and content: all visible Product Map-related currency symbols and the `USD` unit were removed while price labels remain clear: passed.
+
+## Verification
+
+- Product Map saved price values: `2.25`, `1.75`, `1.50`, `1.50`, `1.25`, `1.50`, `1.25`, `1.75`: passed.
+- Product list Default Price values match the two-decimal numeric pattern with no currency prefix: passed.
+- Product editor Pricing section contains no `USD`: passed.
+- Product Map catalog linkage, default-price copy, editing, validation, newest-first persistence, dialogs, accessibility behavior, and responsive layout: 6 Playwright tests passed.
+- Browser console errors and warnings during final captures: 0.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, responsive, accessibility, or interaction findings remain.
 
 final result: passed

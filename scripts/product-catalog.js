@@ -417,24 +417,24 @@
   function saveCategory(input) {
     input = input || {};
     var current = input.id ? state.categories.find(function (item) { return item.id === input.id; }) : null;
-    if (input.id && !current) throw catalogError("Product Category was not found.", "NOT_FOUND", { id: "Unknown category." });
+    if (input.id && !current) throw catalogError("Product Group was not found.", "NOT_FOUND", { id: "Unknown product group." });
     var merged = Object.assign({}, current || {}, input);
     var fields = {};
     var name = cleanText(merged.name || merged.categoryName);
     var code = cleanText(merged.code);
-    if (!name) addFieldError(fields, "name", "Category Name is required.");
-    if (name.length > 100) addFieldError(fields, "name", "Category Name must be 100 characters or fewer.");
-    if (code && !/^\d+$/.test(code)) addFieldError(fields, "code", "Category Code must contain digits only.");
+    if (!name) addFieldError(fields, "name", "Product Group Name is required.");
+    if (name.length > 100) addFieldError(fields, "name", "Product Group Name must be 100 characters or fewer.");
+    if (code && !/^\d+$/.test(code)) addFieldError(fields, "code", "Product Group Code must contain digits only.");
     if (cleanText(merged.description).length > 1000) addFieldError(fields, "description", "Description must be 1,000 characters or fewer.");
     if (state.categories.some(function (item) {
       return item.id !== (current && current.id) && canonical(item.name) === canonical(name);
-    })) addFieldError(fields, "name", "A category with this name already exists.");
+    })) addFieldError(fields, "name", "A product group with this name already exists.");
     if (code && state.categories.some(function (item) {
       return item.id !== (current && current.id) && cleanText(item.code) === code;
-    })) addFieldError(fields, "code", "A category with this code already exists.");
+    })) addFieldError(fields, "code", "A product group with this code already exists.");
     var vatEntries = normalizeVatEntries(merged.vatEntries, fields);
     if (Object.keys(fields).length) {
-      throw catalogError("Fix the highlighted category fields.", "VALIDATION_FAILED", fields);
+      throw catalogError("Fix the highlighted product group fields.", "VALIDATION_FAILED", fields);
     }
     var stamp = nowIso();
     var saved = {
@@ -483,9 +483,9 @@
     var ean = cleanText(merged.ean);
     if (!name) addFieldError(fields, "name", "Product Name is required.");
     if (name.length > 100) addFieldError(fields, "name", "Product Name must be 100 characters or fewer.");
-    if (!category) addFieldError(fields, "categoryId", "Select a valid Product Category.");
+    if (!category) addFieldError(fields, "categoryId", "Select a valid Product Group.");
     if (category && category.status !== "active" && status === "active") {
-      addFieldError(fields, "categoryId", "An active product must belong to an active category.");
+      addFieldError(fields, "categoryId", "An active product must belong to an active Product Group.");
     }
     if (dexName.length > 16) addFieldError(fields, "dexName", "DEX Name must be 16 characters or fewer.");
     if (cleanText(merged.description).length > 2000) addFieldError(fields, "description", "Description must be 2,000 characters or fewer.");
@@ -588,10 +588,10 @@
 
   function deleteCategory(id) {
     var category = state.categories.find(function (item) { return item.id === id; });
-    if (!category) throw catalogError("Product Category was not found.", "NOT_FOUND", { id: "Unknown category." });
+    if (!category) throw catalogError("Product Group was not found.", "NOT_FOUND", { id: "Unknown product group." });
     var references = getReferenceCounts({ categoryId: id });
     if (references.categoryProductCount || references.categoryReferences) {
-      throw catalogError("This category cannot be deleted while it contains products or Product Map references.", "CATEGORY_IN_USE", {
+      throw catalogError("This product group cannot be deleted while it contains products or Product Map references.", "CATEGORY_IN_USE", {
         category: references.categoryProductCount + " product(s), " + references.categoryReferences + " Product Map reference(s)."
       });
     }
@@ -652,18 +652,18 @@
       if (par === null && !fields[prefix + "par"]) addFieldError(fields, prefix + "par", "PAR is required.");
       if (onHand === null && !fields[prefix + "onHand"]) addFieldError(fields, prefix + "onHand", "On Hand is required.");
       if (!product) addFieldError(fields, prefix + "productId", "Select a valid product.");
-      if (!category) addFieldError(fields, prefix + "categoryId", "Select a valid Product Category.");
+      if (!category) addFieldError(fields, prefix + "categoryId", "Select a valid Product Group.");
       if (product && category && product.categoryId !== category.id) {
-        addFieldError(fields, prefix + "productId", "The product does not belong to this category.");
+        addFieldError(fields, prefix + "productId", "The product does not belong to this Product Group.");
       }
-      if (!/^[A-Z0-9]{2}$/.test(paCode)) addFieldError(fields, prefix + "paCode", "PA Code must be exactly 2 letters or numbers.");
+      if (paCode && !/^[A-Z0-9]{2}$/.test(paCode)) addFieldError(fields, prefix + "paCode", "PA Code must be exactly 2 letters or numbers.");
       if (!/^\d{2}$/.test(mdbCode)) addFieldError(fields, prefix + "mdbCode", "MDB Code must be exactly 2 digits.");
       if (par !== null && onHand !== null && onHand > par) addFieldError(fields, prefix + "onHand", "On Hand cannot exceed PAR.");
       if (seenIds[id]) addFieldError(fields, prefix + "id", "Product Map row IDs must be unique.");
       if (paCode && seenPaCodes[paCode]) addFieldError(fields, prefix + "paCode", "This PA Code is already mapped.");
       if (mdbCode && seenMdbCodes[mdbCode]) addFieldError(fields, prefix + "mdbCode", "This MDB Code is already mapped.");
       seenIds[id] = true;
-      seenPaCodes[paCode] = true;
+      if (paCode) seenPaCodes[paCode] = true;
       seenMdbCodes[mdbCode] = true;
       var existing = currentById[id];
       var sameProduct = Boolean(existing && product && existing.productId === product.id);
