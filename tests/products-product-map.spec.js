@@ -49,6 +49,7 @@ async function createProduct(page, { categoryId, name, productId, barcode, ean, 
 }
 
 async function addProductMapDraft(page) {
+  await page.getByRole("button", { name: "Map", exact: true }).click();
   await page.locator("#pmInlineAddButton").click();
   const draft = page.locator("#pmTableBody tr[data-inline-key]").first();
   await expect(draft).toBeVisible();
@@ -108,10 +109,10 @@ test("creates a category and product, preselects the category, and cascades its 
   const firstSavedRow = page.locator("#pmTableBody > tr[data-pm-id]").first();
   await expect(firstSavedRow).toContainText("Sparkling Water");
   await expect(firstSavedRow.locator("td").nth(1)).toContainText("Cold Drinks");
-  await expect(firstSavedRow.locator("td").nth(2)).toHaveText("Z9");
-  await expect(firstSavedRow.locator("td").nth(3)).toHaveText("99");
+  await expect(firstSavedRow.locator('[data-pm-cell-field="paCode"] .pm-cell-edit-value')).toHaveText("Z9");
+  await expect(firstSavedRow.locator('[data-pm-cell-field="mdbCode"] .pm-cell-edit-value')).toHaveText("99");
   await expect(firstSavedRow.locator("td").nth(5)).toContainText("0 / 10");
-  await expect(firstSavedRow.locator("td").nth(7)).toHaveText("4.25");
+  await expect(firstSavedRow.locator('[data-pm-cell-field="price"] .pm-cell-edit-value')).toHaveText("4.25");
 });
 
 test("uses the simplified Product Group and Product editors and compact product list", async ({ page }) => {
@@ -173,6 +174,8 @@ test("Add Multiple BINS modal focuses its quantity input, traps focus, closes wi
   await resetCatalog(page);
   await page.goto(PRODUCT_MAP_URL);
 
+  const mapButton = page.getByRole("button", { name: "Map", exact: true });
+  await mapButton.click();
   const trigger = page.locator("#pmInlineBulkAddButton");
   await trigger.focus();
   await trigger.click();
@@ -188,7 +191,7 @@ test("Add Multiple BINS modal focuses its quantity input, traps focus, closes wi
   await page.keyboard.press("Escape");
   await expect(modal).not.toHaveClass(/open/);
   await expect(modal).toHaveAttribute("aria-hidden", "true");
-  await expect(trigger).toBeFocused();
+  await expect(mapButton).toBeFocused();
 });
 
 test("a referenced product is archived instead of removed and remains visible only in its existing Product Map mapping", async ({ page }) => {
@@ -219,7 +222,7 @@ test("a referenced product is archived instead of removed and remains visible on
   await expect(page.locator(`#${productListId} option[value="Trail Mix"]`)).toHaveCount(0);
 });
 
-test("creates new Product Groups and Products from autocomplete cells and supports saved-row quick editing", async ({ page }) => {
+test("creates catalog entries and immediately saves one Product Map cell at a time", async ({ page }) => {
   await resetCatalog(page);
   await page.goto(PRODUCT_MAP_URL);
 
@@ -239,7 +242,7 @@ test("creates new Product Groups and Products from autocomplete cells and suppor
   const saved = page.locator('#pmTableBody tr[data-pm-id]', { hasText: "Veggie Wrap" }).first();
   await expect(saved).toBeVisible();
   await expect(saved.locator("td").nth(1)).toContainText("Fresh Meals");
-  await expect(saved.locator("td").nth(2)).toHaveText("");
+  await expect(saved.locator('[data-pm-cell-field="paCode"] .pm-cell-edit-value')).toHaveText("—");
   const catalog = await page.evaluate(() => ({
     groups: window.PaywizardProductCatalog.getCategories(),
     products: window.PaywizardProductCatalog.getProducts()
@@ -247,11 +250,91 @@ test("creates new Product Groups and Products from autocomplete cells and suppor
   const group = catalog.groups.find((item) => item.name === "Fresh Meals");
   expect(group).toBeTruthy();
   expect(catalog.products.some((item) => item.name === "Veggie Wrap" && item.categoryId === group.id)).toBeTruthy();
+  const savedId = await saved.getAttribute("data-pm-id");
+  const savedRow = page.locator(`#pmTableBody tr[data-pm-id="${savedId}"]`);
 
-  await saved.locator('[data-pm-quick-field="productId"]').click();
-  const quickProduct = page.locator('#pmTableBody tr[data-inline-key] [data-inline-field="productId"]');
-  await expect(quickProduct).toBeFocused();
-  await expect(quickProduct).toHaveValue("Veggie Wrap");
+  await expect(savedRow.getByRole("button", { name: "Edit", exact: true })).toHaveCount(0);
+  await expect(page.locator(".pm-cell-edit-label")).toHaveCount(0);
+  const deleteButton = savedRow.getByRole("button", { name: "Delete Veggie Wrap" });
+  await expect(deleteButton).toBeVisible();
+  await expect(deleteButton.locator('img[src="assets/icons/delete.svg"]')).toHaveCount(1);
+
+  await savedRow.locator('[data-pm-cell-field="paCode"]').click();
+  let cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="paCode"]');
+  await expect(cellEditor).toBeFocused();
+  await expect(savedRow.locator('[data-pm-cell-editor]')).toHaveCount(1);
+  await cellEditor.fill("B7");
+  await cellEditor.press("Enter");
+  await expect(savedRow.locator('[data-pm-cell-field="paCode"] .pm-cell-edit-value')).toHaveText("B7");
+  await expect(page.locator("#pmInlineStatus")).toHaveText("All changes saved");
+
+  await savedRow.locator('[data-pm-cell-field="mdbCode"]').click();
+  cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="mdbCode"]');
+  await cellEditor.fill("16");
+  await cellEditor.press("Enter");
+  await expect(cellEditor).toBeFocused();
+  await expect(cellEditor).toHaveClass(/is-invalid/);
+  await expect(page.locator("#pmValidationSummary")).toContainText("This MDB Code is already mapped.");
+  await cellEditor.fill("78");
+  await cellEditor.press("Enter");
+  await expect(savedRow.locator('[data-pm-cell-field="mdbCode"] .pm-cell-edit-value')).toHaveText("78");
+  await expect(page.locator("#pmValidationSummary")).toBeHidden();
+
+  await savedRow.locator('[data-pm-cell-field="par"]').click();
+  cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="par"]');
+  await cellEditor.fill("9");
+    await cellEditor.press("Escape");
+    await expect(savedRow.locator('[data-pm-cell-field="par"] .pm-cell-edit-value')).toHaveText("5");
+    await expect(savedRow.locator('[data-pm-cell-edit][data-pm-cell-field="par"]')).toBeFocused();
+
+  const rowBoxBeforeGroupEdit = await savedRow.boundingBox();
+  const paCellBoxBeforeGroupEdit = await savedRow.locator('td').nth(2).boundingBox();
+  await savedRow.locator('[data-pm-cell-field="categoryId"]').click();
+  cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="categoryId"]');
+  await expect(savedRow.locator('.pm-cell-combobox-icon')).toHaveAttribute('src', 'assets/icons/chevron-down.svg');
+  const rowBoxDuringGroupEdit = await savedRow.boundingBox();
+  const paCellBoxDuringGroupEdit = await savedRow.locator('td').nth(2).boundingBox();
+  expect(Math.abs(rowBoxDuringGroupEdit.height - rowBoxBeforeGroupEdit.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(paCellBoxDuringGroupEdit.x - paCellBoxBeforeGroupEdit.x)).toBeLessThanOrEqual(1);
+  await cellEditor.fill("Hot Meals");
+  await cellEditor.press("Enter");
+  await expect(savedRow.locator('[data-pm-cell-field="categoryId"] .pm-cell-edit-value')).toHaveText("Hot Meals");
+  await expect(savedRow.locator('[data-pm-cell-field="productId"]')).toContainText("Select product");
+  let storedRow = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376").find((row) => row.mdbCode === "78"));
+  expect(storedRow.productId).toBe("");
+  expect(storedRow.productNameSnapshot).toBe("");
+  await page.reload();
+  await expect(savedRow.locator('[data-pm-cell-field="categoryId"] .pm-cell-edit-value')).toHaveText("Hot Meals");
+  await expect(savedRow.locator('[data-pm-cell-field="productId"]')).toContainText("Select product");
+
+  await savedRow.locator('[data-pm-cell-field="productId"]').click();
+  cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="productId"]');
+  await cellEditor.fill("Tomato Soup");
+  await cellEditor.press("Enter");
+  await expect(savedRow.locator('[data-pm-cell-field="productId"] .pm-cell-edit-value')).toContainText("Tomato Soup");
+
+  await savedRow.locator('[data-pm-cell-field="onHand"]').click();
+  cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="onHand"]');
+  await cellEditor.fill("3");
+  await cellEditor.press("Enter");
+  await expect(savedRow.locator('[data-pm-cell-field="onHand"]')).toContainText("3 / 5");
+  await expect(savedRow.locator("td").nth(6)).toHaveText("2");
+
+  await savedRow.locator('[data-pm-cell-field="price"]').click();
+  cellEditor = savedRow.locator('[data-pm-cell-editor][data-pm-cell-field="price"]');
+  await cellEditor.fill("7.25");
+  await page.locator("#pmInlineStatus").click();
+  await expect(savedRow.locator('[data-pm-cell-field="price"] .pm-cell-edit-value')).toHaveText("7.25");
+  storedRow = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376").find((row) => row.mdbCode === "78"));
+  expect(storedRow.onHand).toBe(3);
+  expect(storedRow.priceCents).toBe(725);
+  expect(storedRow.productNameSnapshot).toBe("Tomato Soup");
+
+  await savedRow.locator("[data-pm-delete]").click();
+  await expect(page.locator("#pmConfirmModal")).toBeVisible();
+  await expect(page.locator("#pmConfirmTitle")).toHaveText("Confirm Delete");
+  await page.locator("#pmConfirmModal [data-feature-close]").click();
+  await expect(savedRow).toBeVisible();
 });
 
 test("Products and Product Map keep wide content inside local scroll containers on desktop and mobile", async ({ page }) => {
@@ -298,7 +381,9 @@ test("saves the current Product Map as a template and imports it into another te
   await mapButton.click();
   await expect(mapButton).toHaveAttribute("aria-expanded", "true");
   const mapMenuWidth = await page.locator("#pmMapMenuPanel").evaluate((node) => node.getBoundingClientRect().width);
-  expect(mapMenuWidth).toBeLessThanOrEqual(170);
+  expect(mapMenuWidth).toBeLessThanOrEqual(185);
+  const mapItems = await page.locator("#pmMapMenuPanel [role=menuitem]").allTextContents();
+  expect(mapItems).toEqual(["Add BIN", "Add Multiple BINS", "Save as Template", "Import Template"]);
   await page.getByRole("menuitem", { name: "Save as Template" }).click();
   await expect(page.locator("#pmSaveTemplateModal")).toHaveClass(/open/);
   await expect(page.locator("#pmTemplateTerminalNameSummary")).toHaveText("Terminal - WP6267UQ36002376");
@@ -351,7 +436,9 @@ test("saves the current Product Map as a template and imports it into another te
   await expect(page.locator("#pmInlineStatus")).toHaveText("8 imported changes");
   await expect(page.locator("#pmTableBody tr.pm-template-import-row")).toHaveCount(8);
   await expect(page.locator("#pmTableBody tr[data-pm-id]").first().locator("td").nth(5)).toContainText("0 / 12");
+  await page.getByRole("button", { name: "Map", exact: true }).click();
   await expect(page.locator("#pmInlineAddButton")).toBeDisabled();
+  await page.keyboard.press("Escape");
 
   await page.getByRole("button", { name: "Cancel Changes" }).click();
   await expect(page.locator("#pmTableBody tr[data-pm-id]")).toHaveCount(0);
@@ -366,6 +453,80 @@ test("saves the current Product Map as a template and imports it into another te
   expect(savedTarget).toHaveLength(8);
   expect(savedTarget.every((row) => row.onHand === 0)).toBeTruthy();
   expect(savedTarget.map((row) => row.mdbCode)).toEqual(template.rows.map((row) => row.mdbCode));
+});
+
+test("fills and empties every BIN from the Stock menu with confirmation and immediate persistence", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+
+  const mapButton = page.getByRole("button", { name: "Map", exact: true });
+  const stockButton = page.getByRole("button", { name: "Stock", exact: true });
+  await mapButton.click();
+  await expect(mapButton).toHaveAttribute("aria-expanded", "true");
+  await stockButton.click();
+  await expect(mapButton).toHaveAttribute("aria-expanded", "false");
+  await expect(stockButton).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("menuitem", { name: "Fill Machine 100%" })).toBeFocused();
+
+  await page.getByRole("menuitem", { name: "Fill Machine 100%" }).click();
+  await expect(page.locator("#pmConfirmTitle")).toHaveText("Fill Machine 100%?");
+  await expect(page.locator("#pmConfirmMessage")).toContainText("On Hand to PAR");
+  await expect(page.locator("#pmConfirmModal").getByRole("button", { name: "Close" })).toHaveCount(0);
+  const confirmButtons = await page.locator("#pmConfirmModal .feature-modal-footer button").evaluateAll((buttons) => buttons.map((button) => ({
+    width: button.getBoundingClientRect().width,
+    height: button.getBoundingClientRect().height,
+    fontSize: getComputedStyle(button).fontSize,
+    fontWeight: getComputedStyle(button).fontWeight
+  })));
+  expect(confirmButtons).toEqual([
+    { width: 112, height: 36, fontSize: "13px", fontWeight: "700" },
+    { width: 112, height: 36, fontSize: "13px", fontWeight: "700" }
+  ]);
+  await page.locator("#pmConfirmModal").getByRole("button", { name: "Cancel" }).click();
+
+  let rows = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376"));
+  expect(rows.some((row) => row.onHand !== row.par)).toBeTruthy();
+
+  await stockButton.click();
+  await page.getByRole("menuitem", { name: "Fill Machine 100%" }).click();
+  await page.locator("#pmConfirmAccept").click();
+  await expect(page.locator("#prototypeToast")).toContainText("filled to PAR");
+  rows = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376"));
+  expect(rows.every((row) => row.onHand === row.par)).toBeTruthy();
+  await expect(page.locator("#pmTableBody tr[data-pm-id]").first().locator("td").nth(6)).toHaveText("0");
+
+  await page.reload();
+  rows = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376"));
+  expect(rows.every((row) => row.onHand === row.par)).toBeTruthy();
+
+  await stockButton.click();
+  await page.getByRole("menuitem", { name: "Empty Machine" }).click();
+  await expect(page.locator("#pmConfirmTitle")).toHaveText("Empty Machine?");
+  await expect(page.locator("#pmConfirmMessage")).toContainText("On Hand to 0");
+  await expect(page.locator("#pmConfirmAccept")).toHaveText("Empty");
+  await expect(page.locator("#pmConfirmAccept")).toHaveCSS("white-space", "normal");
+  const emptyButtonHeight = await page.locator("#pmConfirmAccept").evaluate((button) => button.getBoundingClientRect().height);
+  expect(emptyButtonHeight).toBe(36);
+  await page.locator("#pmConfirmAccept").click();
+  await expect(page.locator("#prototypeToast")).toContainText("BINS emptied");
+  rows = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376"));
+  expect(rows.every((row) => row.onHand === 0)).toBeTruthy();
+  await expect(page.locator("#pmTableBody tr[data-pm-id]").first().locator("td").nth(5)).toContainText("0 / 12");
+  await expect(page.locator("#pmTableBody tr[data-pm-id]").first().locator("td").nth(6)).toHaveText("12");
+});
+
+test("disables Stock actions while Product Map changes are unsaved", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+  await addProductMapDraft(page);
+
+  const stockButton = page.getByRole("button", { name: "Stock", exact: true });
+  await stockButton.click();
+  await expect(page.getByRole("menuitem", { name: "Fill Machine 100%" })).toBeDisabled();
+  await expect(page.getByRole("menuitem", { name: "Empty Machine" })).toBeDisabled();
+  await expect(page.locator("#pmStockMenuNote")).toHaveText("Save or cancel Product Map changes first.");
+  await page.keyboard.press("Escape");
+  await expect(stockButton).toBeFocused();
 });
 
 test("protects template creation during unsaved edits and imports templates using their vending machine model", async ({ page }) => {

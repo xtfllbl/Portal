@@ -280,7 +280,7 @@
     if (terminalSns.some(function (terminalSn) {
       var rowIds = {};
       return candidate.productMaps[terminalSn].some(function (row) {
-        if (!row || !cleanText(row.id) || rowIds[row.id] || !categoryIds[row.categoryId] || !productIds[row.productId]) return true;
+        if (!row || !cleanText(row.id) || rowIds[row.id] || !categoryIds[row.categoryId] || (cleanText(row.productId) && !productIds[row.productId])) return true;
         rowIds[row.id] = true;
         return false;
       });
@@ -291,7 +291,7 @@
         !cleanText(template.machineModel) || !Array.isArray(template.rows)) return true;
       templateIds[template.id] = true;
       return template.rows.some(function (row) {
-        return !row || !categoryIds[row.categoryId] || !productIds[row.productId];
+        return !row || !categoryIds[row.categoryId] || (cleanText(row.productId) && !productIds[row.productId]);
       });
     })) return false;
     return true;
@@ -709,7 +709,7 @@
       var priceCents = cents(input.priceCents, prefix + "priceCents", fields, true);
       if (par === null && !fields[prefix + "par"]) addFieldError(fields, prefix + "par", "PAR is required.");
       if (onHand === null && !fields[prefix + "onHand"]) addFieldError(fields, prefix + "onHand", "On Hand is required.");
-      if (!product) addFieldError(fields, prefix + "productId", "Select a valid product.");
+      if (cleanText(input.productId) && !product) addFieldError(fields, prefix + "productId", "Select a valid product.");
       if (!category) addFieldError(fields, prefix + "categoryId", "Select a valid Product Group.");
       if (product && category && product.categoryId !== category.id) {
         addFieldError(fields, prefix + "productId", "The product does not belong to this Product Group.");
@@ -737,7 +737,7 @@
         terminalSn: normalizedSn,
         slot: cleanText(input.slot).toUpperCase(),
         categoryId: categoryId,
-        productId: product ? product.id : cleanText(input.productId),
+        productId: product ? product.id : "",
         productName: productName,
         productCategory: categoryName,
         productGroup: categoryName,
@@ -785,7 +785,7 @@
     var mdbCode = cleanText(input.mdbCode);
     var par = optionalNonNegativeInteger(input.par, prefix + "par", fields);
     var priceCents = cents(input.priceCents, prefix + "priceCents", fields, true);
-    if (!product) addFieldError(fields, prefix + "productId", "Select a valid product.");
+    if (cleanText(input.productId) && !product) addFieldError(fields, prefix + "productId", "Select a valid product.");
     if (!category) addFieldError(fields, prefix + "categoryId", "Select a valid Product Group.");
     if (product && category && product.categoryId !== category.id) addFieldError(fields, prefix + "productId", "The product does not belong to this Product Group.");
     if (paCode && !/^[A-Z0-9]{2}$/.test(paCode)) addFieldError(fields, prefix + "paCode", "PA Code must be exactly 2 letters or numbers.");
@@ -794,7 +794,7 @@
     return {
       slot: cleanText(input.slot).toUpperCase(),
       categoryId: categoryId,
-      productId: product ? product.id : cleanText(input.productId),
+      productId: product ? product.id : "",
       productNameSnapshot: cleanText(input.productNameSnapshot || input.productName) || (product ? product.name : ""),
       categoryNameSnapshot: cleanText(input.categoryNameSnapshot || input.productCategory || input.productGroup) || (category ? category.name : ""),
       dexNameSnapshot: cleanText(input.dexNameSnapshot || input.dexName) || (product ? (product.dexName || product.name) : ""),
@@ -875,7 +875,7 @@
       var product = state.products.find(function (item) { return item.id === row.productId; });
       var category = state.categories.find(function (item) { return item.id === row.categoryId; });
       if (!category || category.status !== "active") issues.push({ index: index, field: "categoryId", message: "Product Group is missing or inactive." });
-      if (!product || product.status !== "active") issues.push({ index: index, field: "productId", message: "Product is missing or inactive." });
+      if (row.productId && (!product || product.status !== "active")) issues.push({ index: index, field: "productId", message: "Product is missing or inactive." });
       return Object.assign({}, row, {
         id: makeId("map"),
         terminalSn: targetSn,

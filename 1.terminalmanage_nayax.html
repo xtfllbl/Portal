@@ -943,7 +943,7 @@
             z-index: 35;
             top: calc(100% + 6px);
             left: 0;
-            width: 156px;
+            width: 170px;
             padding: 6px;
             border: 1px solid #dfe3e8;
             border-radius: 10px;
@@ -964,6 +964,26 @@
         }
         .pm-map-menu-panel button:hover,
         .pm-map-menu-panel button:focus-visible { background: #f1f5f9; outline: none; }
+        .pm-map-menu-panel button:disabled {
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        .pm-map-menu-panel button:disabled:hover { background: transparent; }
+        .pm-map-menu-divider {
+            height: 1px;
+            margin: 5px 4px;
+            background: #e5e7eb;
+        }
+        .pm-menu-note {
+            margin: 4px 4px 2px;
+            padding: 8px;
+            border-radius: 7px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 650;
+            line-height: 1.35;
+        }
         .pm-inline-status {
             color: #64748b;
             font-size: 12px;
@@ -1004,9 +1024,20 @@
             cursor: not-allowed;
         }
         .pm-table-wrap { overflow-x: auto; }
-        .pm-table { min-width: 1120px; }
+        .pm-table { min-width: 1120px; table-layout: fixed; }
         .pm-table thead th { white-space: nowrap; }
         .pm-table tbody td { vertical-align: middle; }
+        .pm-table tbody tr[data-pm-id] { height: 44px; }
+        .pm-table tbody tr[data-pm-id] > td { padding-top: 7px; padding-bottom: 7px; }
+        .pm-table th:nth-child(1), .pm-table td:nth-child(1) { width: 210px; }
+        .pm-table th:nth-child(2), .pm-table td:nth-child(2) { width: 180px; }
+        .pm-table th:nth-child(3), .pm-table td:nth-child(3) { width: 88px; }
+        .pm-table th:nth-child(4), .pm-table td:nth-child(4) { width: 98px; }
+        .pm-table th:nth-child(5), .pm-table td:nth-child(5) { width: 72px; }
+        .pm-table th:nth-child(6), .pm-table td:nth-child(6) { width: 170px; }
+        .pm-table th:nth-child(7), .pm-table td:nth-child(7) { width: 94px; }
+        .pm-table th:nth-child(8), .pm-table td:nth-child(8) { width: 88px; }
+        .pm-table th:nth-child(9), .pm-table td:nth-child(9) { width: 100px; }
         .pm-table tbody tr:hover { background: #fbfdff; }
         .pm-product-name { color: #0f172a; font-weight: 800; white-space: nowrap; }
         .pm-cell-edit {
@@ -1028,20 +1059,59 @@
         }
         .pm-cell-edit:hover,
         .pm-cell-edit:focus-visible { background: #eef4fb; outline: none; }
-        .pm-cell-edit-label {
-            flex: 0 0 auto;
-            color: #64748b;
-            font-size: 10px;
-            font-weight: 800;
-            opacity: 0;
-            transition: opacity .15s ease;
+        .pm-cell-edit-value { min-width: 0; width: 100%; }
+        .pm-cell-edit.is-empty { color: #64748b; font-weight: 650; }
+        .pm-cell-editor {
+            width: 100%;
+            max-width: 100%;
+            min-width: 72px;
+            height: 30px;
+            box-sizing: border-box;
+            border: 1px solid #2563eb;
+            border-radius: 7px;
+            background: #fff;
+            color: #0f172a;
+            padding: 5px 7px;
+            font: inherit;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
         }
-        .pm-cell-edit:hover .pm-cell-edit-label,
-        .pm-cell-edit:focus-visible .pm-cell-edit-label { opacity: 1; }
+        .pm-cell-editor:focus { outline: none; }
+        .pm-cell-editor.is-invalid {
+            border-color: #ef4444;
+            background: #fffafa;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, .1);
+        }
+        .pm-cell-editor[type="number"] { min-width: 74px; }
+        .pm-cell-combobox {
+            position: relative;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .pm-cell-combobox .pm-cell-editor { padding-right: 32px; }
+        .pm-cell-combobox .pm-cell-editor::-webkit-calendar-picker-indicator {
+            width: 28px;
+            height: 100%;
+            margin: 0 -7px 0 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .pm-cell-combobox-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            width: 14px;
+            height: 14px;
+            opacity: .62;
+            pointer-events: none;
+            transform: translateY(-50%);
+        }
+        .pm-cell-combobox:focus-within .pm-cell-combobox-icon { opacity: .82; }
         .pm-code { color: #334155; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; font-weight: 750; }
         .pm-inventory-cell { min-width: 130px; }
-        .pm-stock-value { margin-bottom: 5px; color: #334155; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
-        .pm-stock-track { height: 7px; overflow: hidden; background: #e5e7eb; border-radius: 999px; }
+        .pm-stock-value { display: block; margin-bottom: 5px; color: #334155; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .pm-stock-track { display: block; height: 7px; overflow: hidden; background: #e5e7eb; border-radius: 999px; }
         .pm-stock-fill { display: block; height: 100%; border-radius: inherit; background: #22c55e; }
         .pm-stock-fill.low { background: #f59e0b; }
         .pm-stock-fill.out { background: #ef4444; }
@@ -1076,6 +1146,21 @@
         .pm-row-action:hover,
         .dex-view-action:hover { background: #f8fafc; }
         .pm-row-action.danger { color: #b91c1c; }
+        .pm-delete-icon {
+            width: 32px;
+            height: 32px;
+            padding: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dfe3e8;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+        }
+        .pm-delete-icon img { width: 17px; height: 17px; display: block; }
+        .pm-delete-icon:hover,
+        .pm-delete-icon:focus-visible { border-color: #fecaca; background: #fef2f2; outline: none; }
         .pm-inline-edit-row {
             background: #f3f7fc;
             box-shadow: inset 3px 0 0 #3b82f6;
@@ -1404,6 +1489,24 @@
         .feature-modal-footer .btn-primary,
         .feature-modal-footer .btn-secondary,
         .feature-modal-footer .danger-button { width: auto; min-width: 92px; }
+        .pm-confirm-action {
+            width: 112px !important;
+            min-width: 112px !important;
+            min-height: 36px;
+            padding: 7px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .pm-confirm-footer .btn-secondary {
+            width: 112px;
+            min-width: 112px;
+            min-height: 36px;
+            padding: 7px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
         .pm-quantity-modal { width: min(440px, 94vw); }
         .pm-quantity-modal .feature-modal-header { padding: 18px 20px; }
         .pm-quantity-modal .feature-modal-body { padding: 18px 20px 14px; }
@@ -2320,13 +2423,22 @@
                 <section id="tab-productmap" class="hidden" role="tabpanel" aria-labelledby="primaryTabProductMap" tabindex="0">
                     <div class="pm-inline-toolbar" aria-label="Product map editing controls">
                         <div class="pm-inline-toolbar-group">
-                            <button id="pmInlineAddButton" class="btn-primary" type="button">Add BIN</button>
-                            <button id="pmInlineBulkAddButton" class="btn-secondary" type="button">Add Multiple BINS</button>
                             <div class="pm-map-menu">
                                 <button id="pmMapMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmMapMenuPanel">Map <span class="pm-map-caret" aria-hidden="true">▾</span></button>
                                 <div id="pmMapMenuPanel" class="pm-map-menu-panel hidden" role="menu">
+                                    <button id="pmInlineAddButton" type="button" role="menuitem">Add BIN</button>
+                                    <button id="pmInlineBulkAddButton" type="button" role="menuitem">Add Multiple BINS</button>
+                                    <div class="pm-map-menu-divider" role="separator"></div>
                                     <button id="pmSaveTemplateButton" type="button" role="menuitem">Save as Template</button>
                                     <button id="pmImportTemplateButton" type="button" role="menuitem">Import Template</button>
+                                </div>
+                            </div>
+                            <div class="pm-map-menu">
+                                <button id="pmStockMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmStockMenuPanel">Stock <span class="pm-map-caret" aria-hidden="true">▾</span></button>
+                                <div id="pmStockMenuPanel" class="pm-map-menu-panel hidden" role="menu">
+                                    <button id="pmStockFillButton" type="button" role="menuitem">Fill Machine 100%</button>
+                                    <button id="pmStockEmptyButton" type="button" role="menuitem">Empty Machine</button>
+                                    <div id="pmStockMenuNote" class="pm-menu-note hidden" role="status"></div>
                                 </div>
                             </div>
                         </div>
@@ -2515,15 +2627,14 @@
     <div id="pmConfirmModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmConfirmTitle">
         <div class="feature-modal compact">
             <div class="feature-modal-header">
-                <h2 id="pmConfirmTitle" class="feature-modal-title">Confirm Delete</h2>
-                <button class="feature-modal-close" type="button" data-feature-close>Close</button>
+                <h2 id="pmConfirmTitle" class="feature-modal-title">Confirm Action</h2>
             </div>
             <div class="feature-modal-body">
                 <p id="pmConfirmMessage" class="confirm-message">This action removes the selected mapping from the current session.</p>
             </div>
-            <div class="feature-modal-footer">
+            <div class="feature-modal-footer pm-confirm-footer">
                 <button class="btn-secondary" type="button" data-feature-close>Cancel</button>
-                <button id="pmConfirmAccept" class="danger-button" type="button">Delete</button>
+                <button id="pmConfirmAccept" class="danger-button pm-confirm-action" type="button">Confirm</button>
             </div>
         </div>
     </div>
@@ -3982,7 +4093,7 @@ paymentTimeout=180`
                 onHand: Number(raw.onHand)
             };
         }
-        function validateProductRaw(raw, ignoreId, againstRows){
+        function validateProductRaw(raw, ignoreId, againstRows, options = {}){
             const requestedCategoryName = String(raw.categoryNameInput || raw.categoryNameSnapshot || '').trim();
             const requestedProductName = String(raw.productNameInput || raw.productNameSnapshot || '').trim();
             const matchedCategory = catalogCategoryById(String(raw.categoryId || '').trim()) || catalogCategoryByName(requestedCategoryName);
@@ -4013,7 +4124,7 @@ paymentTimeout=180`
             if(!values.categoryNameInput) errors.categoryId = 'Enter or select a Product Group.';
             else if(values.categoryNameInput.length > 100) errors.categoryId = 'Product Group Name must be 100 characters or fewer.';
             else if(selectedCategory && !catalogItemActive(selectedCategory) && !keepsExistingCategory) errors.categoryId = 'Select an Active Product Group.';
-            if(!values.productNameInput) errors.productId = 'Enter or select a Product.';
+            if(!values.productNameInput && !options.allowBlankProduct) errors.productId = 'Enter or select a Product.';
             else if(values.productNameInput.length > 100) errors.productId = 'Product Name must be 100 characters or fewer.';
             else if(selectedProduct && selectedCategory && selectedProduct.categoryId !== selectedCategory.id) errors.productId = 'The selected Product does not belong to this Product Group.';
             else if(selectedProduct && !catalogItemActive(selectedProduct) && !keepsExistingProduct) errors.productId = 'Select an Active Product.';
@@ -4061,25 +4172,40 @@ paymentTimeout=180`
         }
 
         const confirmModal = byId('pmConfirmModal');
+        const confirmTitle = byId('pmConfirmTitle');
         const confirmMessage = byId('pmConfirmMessage');
         const confirmAccept = byId('pmConfirmAccept');
         let pendingConfirmAction = null;
+        function requestProductMapConfirmation({ title, message, acceptLabel, tone = 'primary', action, focusReturn }){
+            confirmTitle.textContent = title;
+            confirmMessage.textContent = message;
+            confirmAccept.textContent = acceptLabel;
+            confirmAccept.classList.toggle('danger-button', tone === 'danger');
+            confirmAccept.classList.toggle('btn-primary', tone !== 'danger');
+            pendingConfirmAction = action;
+            if(focusReturn && typeof focusReturn.focus === 'function') focusReturn.focus();
+            openFeatureModal(confirmModal, '#pmConfirmAccept');
+        }
         function requestProductDelete(ids, message){
             const validIds = ids.filter(id => productRows.some(row => row.id === id));
             if(!validIds.length) return;
-            confirmMessage.textContent = message;
-            pendingConfirmAction = () => {
-                const previousRows = productRows.map(row => ({ ...row }));
-                productRows = productRows.filter(row => !validIds.includes(row.id));
-                const count = previousRows.length - productRows.length;
-                if(templateImportBackup){
-                    renderProductMapInline();
-                    showToast(`${count} imported selection${count === 1 ? '' : 's'} removed from the pending map.`);
-                } else {
-                    commitProductRows(`${count} product map selection${count === 1 ? '' : 's'} deleted.`, previousRows);
+            requestProductMapConfirmation({
+                title: 'Confirm Delete',
+                message,
+                acceptLabel: 'Delete',
+                tone: 'danger',
+                action: () => {
+                    const previousRows = productRows.map(row => ({ ...row }));
+                    productRows = productRows.filter(row => !validIds.includes(row.id));
+                    const count = previousRows.length - productRows.length;
+                    if(templateImportBackup){
+                        renderProductMapInline();
+                        showToast(`${count} imported selection${count === 1 ? '' : 's'} removed from the pending map.`);
+                    } else {
+                        commitProductRows(`${count} product map selection${count === 1 ? '' : 's'} deleted.`, previousRows);
+                    }
                 }
-            };
-            openFeatureModal(confirmModal, '#pmConfirmAccept');
+            });
         }
         confirmAccept.addEventListener('click', () => {
             const action = pendingConfirmAction;
@@ -4118,6 +4244,13 @@ paymentTimeout=180`
             list: byId('pmTemplateList'),
             apply: byId('pmTemplateApply')
         };
+        const stockElements = {
+            menuButton: byId('pmStockMenuButton'),
+            menu: byId('pmStockMenuPanel'),
+            fill: byId('pmStockFillButton'),
+            empty: byId('pmStockEmptyButton'),
+            note: byId('pmStockMenuNote')
+        };
         const quantityModal = byId('pmQuantityModal');
         const quantityForm = byId('pmQuantityForm');
         const quantityInput = byId('pmQuantityInput');
@@ -4125,7 +4258,8 @@ paymentTimeout=180`
         const quantityError = byId('pmQuantityError');
         let inlineDraftSequence = 1;
         let inlineDrafts = [];
-        let inlineEditing = null;
+        let cellEditing = null;
+        let cellCommitInProgress = false;
         let inlineErrors = new Map();
         let selectedTemplateId = '';
         let templateImportBackup = null;
@@ -4238,14 +4372,37 @@ paymentTimeout=180`
                 </tr>
             `;
         }
+        function savedCellButton(row, field, content, label, empty = false){
+            if(cellEditing && cellEditing.id === row.id && cellEditing.field === field) return renderSavedCellEditor(row, field);
+            return `<button class="pm-cell-edit${empty ? ' is-empty' : ''}" type="button" data-pm-cell-edit="${escapeHtml(row.id)}" data-pm-cell-field="${escapeHtml(field)}" aria-label="Edit ${escapeHtml(label)}" title="Click to edit"><span class="pm-cell-edit-value">${content}</span></button>`;
+        }
+        function renderSavedCellEditor(row, field){
+            const raw = cellEditing && cellEditing.id === row.id ? cellEditing.raw : rawFromProduct(row);
+            const errors = inlineErrors.get(row.id) || {};
+            const invalid = errors[field] ? ' is-invalid' : '';
+            const fieldLabel = field === 'categoryId' ? 'Product Group' : field === 'productId' ? 'Product' : field;
+            const common = `class="pm-cell-editor${invalid}" data-pm-cell-editor="${escapeHtml(row.id)}" data-pm-cell-field="${escapeHtml(field)}" aria-label="Edit ${escapeHtml(fieldLabel)}"`;
+            if(field === 'categoryId'){
+                const listId = `pm-cell-groups-${String(row.id).replace(/[^A-Za-z0-9_-]/g, '-')}`;
+                const options = inlineCategoryChoices(raw.categoryId).map(category => `<option value="${escapeHtml(category.name)}"></option>`).join('');
+                return `<span class="pm-cell-combobox"><input ${common} type="text" list="${listId}" value="${escapeHtml(raw.categoryNameInput || raw.categoryNameSnapshot || '')}" autocomplete="off"><img class="pm-cell-combobox-icon" src="assets/icons/chevron-down.svg" alt=""><datalist id="${listId}">${options}</datalist></span>`;
+            }
+            if(field === 'productId'){
+                const listId = `pm-cell-products-${String(row.id).replace(/[^A-Za-z0-9_-]/g, '-')}`;
+                const options = inlineProductChoices(raw.categoryId, raw.productId).map(product => `<option value="${escapeHtml(product.name)}"></option>`).join('');
+                return `<span class="pm-cell-combobox"><input ${common} type="text" list="${listId}" value="${escapeHtml(raw.productNameInput || raw.productNameSnapshot || '')}" placeholder="Select product" autocomplete="off"><img class="pm-cell-combobox-icon" src="assets/icons/chevron-down.svg" alt=""><datalist id="${listId}">${options}</datalist></span>`;
+            }
+            const value = field === 'price' ? raw.price : raw[field];
+            const type = field === 'par' || field === 'onHand' ? 'number' : 'text';
+            const inputMode = field === 'price' ? 'decimal' : field === 'mdbCode' || field === 'par' || field === 'onHand' ? 'numeric' : 'text';
+            const maxLength = field === 'paCode' || field === 'mdbCode' ? ' maxlength="2"' : '';
+            const numberRules = type === 'number' ? ' min="0" step="1"' : '';
+            return `<input ${common} type="${type}" inputmode="${inputMode}" value="${escapeHtml(value)}"${maxLength}${numberRules}>`;
+        }
         function renderProductMapInline(){
             if(!pmElements.tableBody) return;
             const rows = inlineDrafts.map(draft => renderInlineEditableRow(draft.key, draft, true));
             productRows.forEach(row => {
-                if(inlineEditing && inlineEditing.id === row.id){
-                    rows.push(renderInlineEditableRow(row.id, inlineEditing.raw, false));
-                    return;
-                }
                 const current = materializeProductRow(row);
                 const status = getStockStatus(current);
                 const missing = Math.max(Number(current.par) - Number(current.onHand), 0);
@@ -4255,20 +4412,20 @@ paymentTimeout=180`
                 const inactive = (mappedProduct && !catalogItemActive(mappedProduct)) || (mappedCategory && !catalogItemActive(mappedCategory));
                 rows.push(`
                     <tr${templateImportBackup ? ' class="pm-template-import-row"' : ''} data-pm-id="${escapeHtml(current.id)}">
-                        <td><button class="pm-cell-edit" type="button" data-pm-quick-edit="${escapeHtml(current.id)}" data-pm-quick-field="productId" aria-label="Quick edit product ${escapeHtml(current.productName)}"><span class="pm-product-name">${escapeHtml(current.productName)}${inactive ? ' <span class="pm-catalog-state">Inactive</span>' : ''}</span><span class="pm-cell-edit-label">Edit</span></button></td>
-                        <td><button class="pm-cell-edit" type="button" data-pm-quick-edit="${escapeHtml(current.id)}" data-pm-quick-field="categoryId" aria-label="Quick edit product group ${escapeHtml(current.productGroup)}"><span>${escapeHtml(current.productGroup)}</span><span class="pm-cell-edit-label">Edit</span></button></td>
-                        <td><span class="pm-code">${escapeHtml(current.paCode)}</span></td>
-                        <td><span class="pm-code">${escapeHtml(current.mdbCode)}</span></td>
-                        <td>${escapeHtml(current.par)}</td>
-                        <td class="pm-inventory-cell"><div class="pm-stock-value">${escapeHtml(current.onHand)} / ${escapeHtml(current.par)}</div><div class="pm-stock-track"><span class="pm-stock-fill ${status === 'low-stock' ? 'low' : status === 'out-of-stock' ? 'out' : ''}" style="width:${progress}%"></span></div></td>
+                        <td>${savedCellButton(current, 'productId', `<span class="pm-product-name">${escapeHtml(current.productName || 'Select product')}${inactive ? ' <span class="pm-catalog-state">Inactive</span>' : ''}</span>`, `Product ${current.productName || 'selection'}`, !current.productName)}</td>
+                        <td>${savedCellButton(current, 'categoryId', escapeHtml(current.productGroup), `Product Group ${current.productGroup}`)}</td>
+                        <td>${savedCellButton(current, 'paCode', `<span class="pm-code">${escapeHtml(current.paCode || '—')}</span>`, 'PA Code', !current.paCode)}</td>
+                        <td>${savedCellButton(current, 'mdbCode', `<span class="pm-code">${escapeHtml(current.mdbCode)}</span>`, 'MDB Code')}</td>
+                        <td>${savedCellButton(current, 'par', escapeHtml(current.par), 'PAR')}</td>
+                        <td class="pm-inventory-cell">${cellEditing && cellEditing.id === current.id && cellEditing.field === 'onHand' ? renderSavedCellEditor(current, 'onHand') : savedCellButton(current, 'onHand', `<span class="pm-stock-value">${escapeHtml(current.onHand)} / ${escapeHtml(current.par)}</span><span class="pm-stock-track"><span class="pm-stock-fill ${status === 'low-stock' ? 'low' : status === 'out-of-stock' ? 'out' : ''}" style="width:${progress}%"></span></span>`, 'On Hand')}</td>
                         <td>${escapeHtml(missing)}</td>
-                        <td>${escapeHtml(formatProtocolPriceFromCents(current.priceCents))}</td>
-                        <td><div class="pm-row-actions"><button class="pm-row-action" type="button" data-pm-inline-edit="${escapeHtml(current.id)}">Edit</button><button class="pm-row-action danger" type="button" data-pm-delete="${escapeHtml(current.id)}">Delete</button></div></td>
+                        <td>${savedCellButton(current, 'price', escapeHtml(formatProtocolPriceFromCents(current.priceCents)), 'Price')}</td>
+                        <td><div class="pm-row-actions"><button class="pm-delete-icon" type="button" data-pm-delete="${escapeHtml(current.id)}" aria-label="Delete ${escapeHtml(current.productName || `BIN ${current.mdbCode}`)}" title="Delete"><img src="assets/icons/delete.svg" alt=""></button></div></td>
                     </tr>
                 `);
             });
             pmElements.tableBody.innerHTML = rows.length ? rows.join('') : '<tr><td class="pm-table-empty" colspan="9">No product map selections configured.</td></tr>';
-            const pendingCount = templateImportBackup ? productRows.length : inlineDrafts.length + (inlineEditing ? 1 : 0);
+            const pendingCount = templateImportBackup ? productRows.length : inlineDrafts.length;
             pmElements.visibleCount.textContent = `${productRows.length} selection${productRows.length === 1 ? '' : 's'}`;
             inlineElements.pending.textContent = `${pendingCount} unsaved`;
             inlineElements.status.textContent = templateImportBackup ? `${pendingCount} imported change${pendingCount === 1 ? '' : 's'}` : pendingCount ? `${pendingCount} unsaved change${pendingCount === 1 ? '' : 's'}` : 'All changes saved';
@@ -4276,6 +4433,16 @@ paymentTimeout=180`
             inlineElements.cancel.classList.toggle('hidden', pendingCount === 0);
             inlineElements.add.disabled = Boolean(templateImportBackup);
             inlineElements.addMultiple.disabled = Boolean(templateImportBackup);
+            const stockUnavailable = !productRows.length || hasPendingProductMapChanges();
+            stockElements.fill.disabled = stockUnavailable;
+            stockElements.empty.disabled = stockUnavailable;
+            if(stockUnavailable){
+                stockElements.note.textContent = productRows.length ? 'Save or cancel Product Map changes first.' : 'No BINS are available.';
+                stockElements.note.classList.remove('hidden');
+            } else {
+                stockElements.note.textContent = '';
+                stockElements.note.classList.add('hidden');
+            }
             renderInlineValidationSummary();
         }
         function renderInlineValidationSummary(){
@@ -4289,7 +4456,7 @@ paymentTimeout=180`
             const items = Array.from(inlineErrors.entries()).map(([key, errors]) => {
                 const draftIndex = inlineDrafts.findIndex(draft => draft.key === key);
                 const product = productRows.find(row => row.id === key);
-                const label = draftIndex >= 0 ? `New row ${draftIndex + 1}` : product ? product.productName : 'Edited row';
+                const label = draftIndex >= 0 ? `New row ${draftIndex + 1}` : product ? (product.productName || `BIN ${product.mdbCode}`) : 'Edited row';
                 return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(Object.values(errors).join(' '))}</li>`;
             }).concat(templateIssues.map(issue => {
                 const row = productRows[issue.index];
@@ -4300,7 +4467,6 @@ paymentTimeout=180`
             inlineElements.validation.classList.remove('hidden');
         }
         function getInlineState(key){
-            if(inlineEditing && inlineEditing.id === key) return inlineEditing.raw;
             return inlineDrafts.find(draft => draft.key === key) || null;
         }
         function updateInlinePreview(tableRow, raw){
@@ -4321,7 +4487,6 @@ paymentTimeout=180`
             if(field) field.focus();
         }
         function cancelInlineKey(key){
-            if(inlineEditing && inlineEditing.id === key) inlineEditing = null;
             inlineDrafts = inlineDrafts.filter(draft => draft.key !== key);
             inlineErrors.delete(key);
             renderProductMapInline();
@@ -4364,19 +4529,8 @@ paymentTimeout=180`
                 return;
             }
             inlineErrors.clear();
-            let acceptedEdit = null;
             const acceptedDrafts = [];
             const validationPool = productRows.slice();
-            if(inlineEditing){
-                const editResult = validateProductRaw(inlineEditing.raw, inlineEditing.id, validationPool);
-                if(editResult.valid){
-                    acceptedEdit = { raw: editResult.values, id: inlineEditing.id };
-                    const editIndex = validationPool.findIndex(row => row.id === inlineEditing.id);
-                    if(editIndex >= 0) validationPool[editIndex] = { ...editResult.product, id: inlineEditing.id };
-                } else {
-                    inlineErrors.set(inlineEditing.id, editResult.errors);
-                }
-            }
             inlineDrafts.forEach(draft => {
                 const result = validateProductRaw(draft, null, validationPool.concat(acceptedDrafts.map(item => item.product)));
                 if(result.valid) acceptedDrafts.push({ key: draft.key, raw: result.values, product: result.product });
@@ -4389,10 +4543,6 @@ paymentTimeout=180`
                 return;
             }
             try {
-                if(acceptedEdit){
-                    ensureInlineCatalogSelection(acceptedEdit.raw);
-                    acceptedEdit = { ...makeProductFromRaw(acceptedEdit.raw, acceptedEdit.id), id: acceptedEdit.id };
-                }
                 acceptedDrafts.forEach(item => {
                     ensureInlineCatalogSelection(item.raw);
                     item.product = makeProductFromRaw(item.raw, null);
@@ -4402,16 +4552,12 @@ paymentTimeout=180`
                 return;
             }
             const previousRows = productRows.map(row => ({ ...row }));
-            if(acceptedEdit){
-                productRows = productRows.map(row => row.id === acceptedEdit.id ? acceptedEdit : row);
-            }
             if(acceptedDrafts.length){
                 productRows.unshift(...acceptedDrafts.map(item => ({ ...item.product, id: nextProductId() })));
             }
-            const changeCount = acceptedDrafts.length + (acceptedEdit ? 1 : 0);
+            const changeCount = acceptedDrafts.length;
             if(commitProductRows(`${changeCount} product map change${changeCount === 1 ? '' : 's'} saved.`, previousRows)){
                 inlineDrafts = [];
-                inlineEditing = null;
                 inlineErrors.clear();
                 renderProductMapInline();
             }
@@ -4421,8 +4567,12 @@ paymentTimeout=180`
             quantityField.classList.remove('is-invalid');
             quantityError.textContent = '';
         }
-        inlineElements.add.addEventListener('click', () => addInlineDrafts(1));
+        inlineElements.add.addEventListener('click', () => {
+            closeToolbarMenu(templateElements);
+            addInlineDrafts(1);
+        });
         inlineElements.addMultiple.addEventListener('click', () => {
+            closeToolbarMenu(templateElements, true);
             quantityInput.value = '3';
             clearQuantityError();
             openFeatureModal(quantityModal, '#pmQuantityInput');
@@ -4447,14 +4597,14 @@ paymentTimeout=180`
                 templateImportBackup = null;
                 templateImportMeta = null;
                 inlineDrafts = [];
-                inlineEditing = null;
+                cellEditing = null;
                 inlineErrors.clear();
                 renderProductMapInline();
                 showToast('Imported Product Map discarded. The previous map was restored.');
                 return;
             }
             inlineDrafts = [];
-            inlineEditing = null;
+            cellEditing = null;
             inlineErrors.clear();
             renderProductMapInline();
             showToast('Unsaved Product Map changes discarded.');
@@ -4463,51 +4613,24 @@ paymentTimeout=180`
         function validateImportedRows(rows){
             const errors = new Map();
             rows.forEach(row => {
-                const result = validateProductRaw(rawFromProduct(row), row.id, rows);
+                const result = validateProductRaw(rawFromProduct(row), row.id, rows, { allowBlankProduct: true });
                 const mappedProduct = catalogProductById(row.productId);
                 const mappedCategory = catalogCategoryById(row.categoryId);
                 const rowErrors = { ...result.errors };
                 if(!mappedCategory || !catalogItemActive(mappedCategory)) rowErrors.categoryId = 'Select an Active Product Group.';
-                if(!mappedProduct || !catalogItemActive(mappedProduct)) rowErrors.productId = 'Select an Active Product.';
+                if(row.productId && (!mappedProduct || !catalogItemActive(mappedProduct))) rowErrors.productId = 'Select an Active Product.';
                 if(Object.keys(rowErrors).length) errors.set(row.id, rowErrors);
             });
             return errors;
         }
 
         function saveStagedTemplateImport(){
-            if(inlineEditing){
-                const editResult = validateProductRaw(inlineEditing.raw, inlineEditing.id, productRows);
-                if(editResult.valid){
-                    try {
-                        const selectedCategory = catalogCategoryById(editResult.values.categoryId);
-                        const selectedProduct = catalogProductById(editResult.values.productId);
-                        const selectionErrors = {};
-                        if(!selectedCategory || !catalogItemActive(selectedCategory)) selectionErrors.categoryId = 'Select an existing Active Product Group.';
-                        if(!selectedProduct || !catalogItemActive(selectedProduct)) selectionErrors.productId = 'Select an existing Active Product.';
-                        if(Object.keys(selectionErrors).length){
-                            inlineErrors.set(inlineEditing.id, selectionErrors);
-                            renderProductMapInline();
-                            return;
-                        }
-                        const updated = { ...makeProductFromRaw(editResult.values, inlineEditing.id), id: inlineEditing.id };
-                        productRows = productRows.map(row => row.id === inlineEditing.id ? updated : row);
-                        inlineEditing = null;
-                    } catch(error){
-                        showToast(error && error.message ? error.message : 'The imported row could not be updated.');
-                        return;
-                    }
-                } else {
-                    inlineErrors.set(inlineEditing.id, editResult.errors);
-                    renderProductMapInline();
-                    return;
-                }
-            }
             inlineErrors = validateImportedRows(productRows);
             if(templateImportMeta) templateImportMeta.issues = [];
             if(inlineErrors.size){
                 renderProductMapInline();
                 const firstId = inlineErrors.keys().next().value;
-                const firstButton = pmElements.tableBody.querySelector(`[data-pm-id="${firstId}"] [data-pm-quick-edit]`);
+                const firstButton = pmElements.tableBody.querySelector(`[data-pm-id="${firstId}"] [data-pm-cell-edit]`);
                 if(firstButton) firstButton.focus();
                 return;
             }
@@ -4520,36 +4643,80 @@ paymentTimeout=180`
             }
         }
 
-        function closeTemplateMenu(){
-            templateElements.menu.classList.add('hidden');
-            templateElements.menuButton.setAttribute('aria-expanded', 'false');
+        function closeToolbarMenu(elements, restoreFocus = false){
+            elements.menu.classList.add('hidden');
+            elements.menuButton.setAttribute('aria-expanded', 'false');
+            if(restoreFocus) elements.menuButton.focus();
         }
-        templateElements.menuButton.addEventListener('click', evt => {
-            evt.stopPropagation();
-            const opening = templateElements.menu.classList.contains('hidden');
-            templateElements.menu.classList.toggle('hidden', !opening);
-            templateElements.menuButton.setAttribute('aria-expanded', String(opening));
-            if(opening) templateElements.menu.querySelector('button').focus();
-        });
+        function closeTemplateMenu(){ closeToolbarMenu(templateElements); }
+        function enabledMenuButtons(elements){
+            return Array.from(elements.menu.querySelectorAll('button:not([disabled])'));
+        }
+        function bindToolbarMenu(elements, otherElements){
+            elements.menuButton.addEventListener('click', evt => {
+                evt.stopPropagation();
+                const opening = elements.menu.classList.contains('hidden');
+                closeToolbarMenu(otherElements);
+                elements.menu.classList.toggle('hidden', !opening);
+                elements.menuButton.setAttribute('aria-expanded', String(opening));
+                const first = enabledMenuButtons(elements)[0];
+                if(opening && first) first.focus();
+            });
+            elements.menu.addEventListener('keydown', evt => {
+                const buttons = enabledMenuButtons(elements);
+                const index = buttons.indexOf(document.activeElement);
+                if(evt.key === 'Escape'){
+                    closeToolbarMenu(elements, true);
+                } else if((evt.key === 'ArrowDown' || evt.key === 'ArrowUp') && buttons.length){
+                    evt.preventDefault();
+                    const offset = evt.key === 'ArrowDown' ? 1 : -1;
+                    buttons[(index + offset + buttons.length) % buttons.length].focus();
+                }
+            });
+        }
+        bindToolbarMenu(templateElements, stockElements);
+        bindToolbarMenu(stockElements, templateElements);
         document.addEventListener('click', evt => {
-            if(!evt.target.closest('.pm-map-menu')) closeTemplateMenu();
-        });
-        templateElements.menu.addEventListener('keydown', evt => {
-            const buttons = Array.from(templateElements.menu.querySelectorAll('button'));
-            const index = buttons.indexOf(document.activeElement);
-            if(evt.key === 'Escape'){
-                closeTemplateMenu();
-                templateElements.menuButton.focus();
-            } else if(evt.key === 'ArrowDown' || evt.key === 'ArrowUp'){
-                evt.preventDefault();
-                const offset = evt.key === 'ArrowDown' ? 1 : -1;
-                buttons[(index + offset + buttons.length) % buttons.length].focus();
+            if(!evt.target.closest('.pm-map-menu')){
+                closeToolbarMenu(templateElements);
+                closeToolbarMenu(stockElements);
             }
         });
 
         function hasPendingProductMapChanges(){
-            return Boolean(templateImportBackup || inlineEditing || inlineDrafts.length);
+            return Boolean(templateImportBackup || cellEditing || inlineDrafts.length);
         }
+        function requestStockUpdate(mode){
+            closeToolbarMenu(stockElements, true);
+            if(!productRows.length){
+                showToast('No BINS are available to update.');
+                return;
+            }
+            if(hasPendingProductMapChanges()){
+                showToast('Save or cancel the current Product Map changes before adjusting stock.');
+                return;
+            }
+            const fill = mode === 'fill';
+            requestProductMapConfirmation({
+                title: fill ? 'Fill Machine 100%?' : 'Empty Machine?',
+                message: fill
+                    ? `Set On Hand to PAR for all ${productRows.length} BINS?`
+                    : `Set On Hand to 0 for all ${productRows.length} BINS?`,
+                acceptLabel: fill ? 'Fill Machine' : 'Empty',
+                tone: fill ? 'primary' : 'danger',
+                focusReturn: stockElements.menuButton,
+                action: () => {
+                    const previousRows = productRows.map(row => ({ ...row }));
+                    productRows = productRows.map(row => ({ ...row, onHand: fill ? Number(row.par) : 0 }));
+                    const message = fill
+                        ? `All ${productRows.length} BINS filled to PAR.`
+                        : `All ${productRows.length} BINS emptied.`;
+                    commitProductRows(message, previousRows);
+                }
+            });
+        }
+        stockElements.fill.addEventListener('click', () => requestStockUpdate('fill'));
+        stockElements.empty.addEventListener('click', () => requestStockUpdate('empty'));
         function clearTemplateNameError(){
             templateElements.nameField.classList.remove('is-invalid');
             templateElements.nameError.textContent = '';
@@ -4657,7 +4824,7 @@ paymentTimeout=180`
                 templateImportMeta = { id: instantiated.template.id, name: instantiated.template.name, issues: instantiated.issues || [] };
                 productRows = instantiated.rows.map(materializeProductRow);
                 inlineDrafts = [];
-                inlineEditing = null;
+                cellEditing = null;
                 inlineErrors.clear();
                 closeFeatureModal(templateElements.importModal);
                 renderProductMapInline();
@@ -4667,6 +4834,130 @@ paymentTimeout=180`
                 showToast(error && error.message ? error.message : 'Template could not be applied.');
             }
         });
+        function cellFieldLabel(field){
+            return field === 'categoryId' ? 'Product Group' : field === 'productId' ? 'Product' : field === 'onHand' ? 'On Hand' : field === 'paCode' ? 'PA Code' : field === 'mdbCode' ? 'MDB Code' : field === 'par' ? 'PAR' : 'Price';
+        }
+        function focusActiveCellEditor(){
+            if(!cellEditing) return;
+            const editor = pmElements.tableBody.querySelector(`[data-pm-cell-editor="${cellEditing.id}"][data-pm-cell-field="${cellEditing.field}"]`);
+            if(editor){
+                editor.focus();
+                if(typeof editor.select === 'function') editor.select();
+            }
+        }
+        function startCellEdit(id, field){
+            const row = productRows.find(item => item.id === id);
+            if(!row) return;
+            cellEditing = { id, field, raw: rawFromProduct(row) };
+            inlineErrors.delete(id);
+            renderProductMapInline();
+            focusActiveCellEditor();
+        }
+        function cancelCellEdit(){
+            if(!cellEditing) return;
+            const id = cellEditing.id;
+            const field = cellEditing.field;
+            cellEditing = null;
+            inlineErrors.delete(id);
+            renderProductMapInline();
+            const trigger = pmElements.tableBody.querySelector(`[data-pm-cell-edit="${id}"][data-pm-cell-field="${field}"]`);
+            if(trigger) trigger.focus();
+        }
+        function prepareCellCatalogValue(raw, row, field){
+            if(field === 'categoryId'){
+                const requestedName = String(raw.categoryNameInput || '').trim();
+                let category = catalogCategoryByName(requestedName);
+                if(!category){
+                    if(!requestedName) return;
+                    category = catalogStore.saveCategory({ name: requestedName, code: '', description: '', status: 'active', image: '', vatEntries: [] });
+                }
+                const changed = category.id !== row.categoryId;
+                raw.categoryId = category.id;
+                raw.categoryNameInput = category.name;
+                raw.categoryNameSnapshot = category.name;
+                if(changed){
+                    raw.productId = '';
+                    raw.productNameInput = '';
+                    raw.productNameSnapshot = '';
+                    raw.dexNameSnapshot = '';
+                }
+                return;
+            }
+            if(field !== 'productId') return;
+            const requestedName = String(raw.productNameInput || '').trim();
+            if(!requestedName){
+                raw.productId = '';
+                raw.productNameSnapshot = '';
+                raw.dexNameSnapshot = '';
+                return;
+            }
+            const category = catalogCategoryById(raw.categoryId);
+            if(!category) throw new Error('Select a Product Group before choosing a Product.');
+            let product = catalogProductByName(category.id, requestedName);
+            if(!product){
+                product = catalogStore.saveProduct({
+                    categoryId: category.id,
+                    name: requestedName,
+                    status: 'active',
+                    dexName: '',
+                    prices: { defaultRetailPriceCents: Math.round(Number(raw.price) * 100) }
+                });
+            }
+            raw.productId = product.id;
+            raw.productNameInput = product.name;
+            raw.productNameSnapshot = product.name;
+            raw.dexNameSnapshot = catalogDexName(product);
+            raw.price = (catalogDefaultPrice(product) / 100).toFixed(2);
+        }
+        function commitCellEdit(){
+            if(!cellEditing || cellCommitInProgress) return !cellEditing;
+            cellCommitInProgress = true;
+            const editing = cellEditing;
+            const row = productRows.find(item => item.id === editing.id);
+            if(!row){
+                cellEditing = null;
+                cellCommitInProgress = false;
+                return true;
+            }
+            try {
+                prepareCellCatalogValue(editing.raw, row, editing.field);
+                const result = validateProductRaw(editing.raw, editing.id, productRows, { allowBlankProduct: true });
+                if(!result.valid){
+                    const fieldError = result.errors[editing.field] || Object.values(result.errors)[0] || 'Enter a valid value.';
+                    inlineErrors.set(editing.id, { [editing.field]: fieldError });
+                    renderProductMapInline();
+                    focusActiveCellEditor();
+                    return false;
+                }
+                const updated = { ...makeProductFromRaw(result.values, editing.id), id: editing.id };
+                const previousRows = productRows.map(item => ({ ...item }));
+                productRows = productRows.map(item => item.id === editing.id ? updated : item);
+                if(templateImportBackup){
+                    cellEditing = null;
+                    inlineErrors.delete(editing.id);
+                    renderProductMapInline();
+                    announceProductMap(`${cellFieldLabel(editing.field)} updated. Save Changes to finish the template import.`);
+                    return true;
+                }
+                if(!commitProductRows(`${cellFieldLabel(editing.field)} updated.`, previousRows)){
+                    inlineErrors.set(editing.id, { [editing.field]: 'The change could not be saved.' });
+                    renderProductMapInline();
+                    focusActiveCellEditor();
+                    return false;
+                }
+                cellEditing = null;
+                inlineErrors.delete(editing.id);
+                renderProductMapInline();
+                return true;
+            } catch(error){
+                inlineErrors.set(editing.id, { [editing.field]: error && error.message ? error.message : 'The change could not be saved.' });
+                renderProductMapInline();
+                focusActiveCellEditor();
+                return false;
+            } finally {
+                cellCommitInProgress = false;
+            }
+        }
         function syncInlineCatalogInput(tableRow, state, fieldName, value){
             if(fieldName === 'categoryId'){
                 const previousName = canonicalText(state.categoryNameInput || state.categoryNameSnapshot);
@@ -4748,36 +5039,65 @@ paymentTimeout=180`
             tableRow.querySelectorAll('.pm-inline-input.is-invalid, .pm-inline-select.is-invalid, .pm-inline-combobox.is-invalid').forEach(field => field.classList.remove('is-invalid'));
             renderInlineValidationSummary();
             if(!inlineErrors.size){
-                const pendingCount = inlineDrafts.length + (inlineEditing ? 1 : 0);
+                const pendingCount = inlineDrafts.length;
                 inlineElements.status.textContent = pendingCount ? `${pendingCount} unsaved change${pendingCount === 1 ? '' : 's'}` : 'All changes saved';
             }
             updateInlinePreview(tableRow, state);
         });
+        pmElements.tableBody.addEventListener('input', evt => {
+            const input = evt.target.closest('[data-pm-cell-editor]');
+            if(!input || !cellEditing || input.getAttribute('data-pm-cell-editor') !== cellEditing.id) return;
+            const field = input.getAttribute('data-pm-cell-field');
+            if(field === 'mdbCode') input.value = input.value.replace(/\D/g, '').slice(0, 2);
+            if(field === 'paCode') input.value = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 2);
+            if(field === 'categoryId') cellEditing.raw.categoryNameInput = input.value;
+            else if(field === 'productId') cellEditing.raw.productNameInput = input.value;
+            else cellEditing.raw[field] = input.value;
+            inlineErrors.delete(cellEditing.id);
+            input.classList.remove('is-invalid');
+            renderInlineValidationSummary();
+        });
+        pmElements.tableBody.addEventListener('keydown', evt => {
+            const input = evt.target.closest('[data-pm-cell-editor]');
+            if(!input) return;
+            if(evt.key === 'Escape'){
+                evt.preventDefault();
+                cancelCellEdit();
+            }
+            if(evt.key === 'Enter'){
+                evt.preventDefault();
+                commitCellEdit();
+            }
+        });
+        pmElements.tableBody.addEventListener('focusout', evt => {
+            const input = evt.target.closest('[data-pm-cell-editor]');
+            if(!input) return;
+            const id = input.getAttribute('data-pm-cell-editor');
+            const field = input.getAttribute('data-pm-cell-field');
+            setTimeout(() => {
+                if(!cellEditing || cellEditing.id !== id || cellEditing.field !== field) return;
+                const active = document.activeElement;
+                if(active && active.matches(`[data-pm-cell-editor="${id}"][data-pm-cell-field="${field}"]`)) return;
+                commitCellEdit();
+            }, 0);
+        });
         pmElements.tableBody.addEventListener('click', evt => {
-            const edit = evt.target.closest('[data-pm-inline-edit]');
-            const quickEdit = evt.target.closest('[data-pm-quick-edit]');
+            const cellButton = evt.target.closest('[data-pm-cell-edit]');
             const cancel = evt.target.closest('[data-inline-cancel]');
             const remove = evt.target.closest('[data-pm-delete]');
-            if(edit || quickEdit){
-                const id = edit ? edit.getAttribute('data-pm-inline-edit') : quickEdit.getAttribute('data-pm-quick-edit');
-                const row = productRows.find(item => item.id === id);
-                if(!row) return;
-                if(inlineEditing && inlineEditing.id !== id){
-                    showToast('Finish or cancel the current row edit first.');
-                    return;
-                }
-                inlineEditing = { id, raw: rawFromProduct(row) };
-                inlineErrors.clear();
-                renderProductMapInline();
-                const focusField = quickEdit ? quickEdit.getAttribute('data-pm-quick-field') : 'categoryId';
-                const field = pmElements.tableBody.querySelector(`[data-inline-key="${id}"] [data-inline-field="${focusField}"]`);
-                if(field) field.focus();
+            if(cellButton){
+                const id = cellButton.getAttribute('data-pm-cell-edit');
+                const field = cellButton.getAttribute('data-pm-cell-field');
+                if(cellEditing && cellEditing.id === id && cellEditing.field === field) return;
+                if(cellEditing && !commitCellEdit()) return;
+                startCellEdit(id, field);
             }
             if(cancel) cancelInlineKey(cancel.getAttribute('data-inline-cancel'));
             if(remove){
+                if(cellEditing && !commitCellEdit()) return;
                 const id = remove.getAttribute('data-pm-delete');
                 const row = productRows.find(item => item.id === id);
-                if(row) requestProductDelete([id], `Delete ${row.productName} from this terminal's Product Map?`);
+                if(row) requestProductDelete([id], `Delete ${row.productName || `BIN ${row.mdbCode}`} from this terminal's Product Map?`);
             }
         });
 

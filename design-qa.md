@@ -67,6 +67,57 @@
 
 final result: passed
 
+# Design QA — Product Map Map and Stock Menus
+
+- Source visual truth: the Nayax Product Map toolbar screenshot supplied in the current conversation; normalized source crop from `assets/qa/qa-nayax-product-map-inline-comparison.png` (812 × 675px).
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Browser-rendered evidence:
+  - `assets/qa/qa-product-map-map-menu-stock-toolbar.png` (1710 × 876px)
+  - `assets/qa/qa-product-map-stock-menu.png` (1710 × 876px)
+  - `assets/qa/qa-product-map-stock-confirm.png` (1710 × 876px)
+  - `assets/qa/qa-product-map-stock-empty-confirm.png` (1710 × 876px)
+- Combined focused comparison: `assets/qa/qa-product-map-stock-comparison.png` (1862 × 620px).
+- Viewport: 1710 × 876 CSS pixels at device scale factor 1; source and implementation regions were height-normalized to 620px for comparison.
+- State: saved eight-BIN map with the Stock menu open; additional captures cover the Map menu and Fill Machine confirmation.
+
+## Full-view and focused comparison
+
+![Nayax Map and Stock toolbar compared with the Paywizard implementation](assets/qa/qa-product-map-stock-comparison.png)
+
+- The Paywizard toolbar now follows the Nayax hierarchy with separate adjacent `Map` and `Stock` dropdown controls while retaining the portal's established neutral button treatment.
+- Add BIN and Add Multiple BINS are the first two Map actions, followed by a divider and template actions; the prior standalone controls are absent.
+- Stock exposes Fill Machine 100% and Empty Machine in a compact menu aligned directly beneath its trigger.
+- Focused comparison was required because menu hierarchy, trigger spacing, action density, and inventory-table continuity are the acceptance surfaces.
+
+## Comparison history
+
+- First pass found a P2 confirmation-action sizing mismatch: Cancel rendered at 92 × 36px while the stock action rendered at 112 × 36px.
+- Fix: standardized both confirmation footer actions to 112 × 36px, 13px type, and 700 weight.
+- Follow-up review found a P2 density issue: the redundant header Close action competed with the footer Cancel action, and `Empty Machine` wrapped inside the fixed-width confirmation button.
+- Fix: removed the header Close action while retaining Cancel, Escape, and overlay dismissal; shortened the destructive action to `Empty`.
+- Post-fix evidence: `assets/qa/qa-product-map-stock-confirm.png` and `assets/qa/qa-product-map-stock-empty-confirm.png` show matched single-line actions and compact headers with no table or modal clipping.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing portal family, 12px menu actions, 13px confirmation actions, and established heading hierarchy are preserved: passed.
+- Spacing and layout rhythm: adjacent toolbar triggers, 170px menu content width, divider spacing, popover alignment, and confirmation footer balance match the existing interface density: passed.
+- Colors and tokens: neutral toolbar/menu surfaces, blue focus/active behavior, black primary confirmation, red destructive confirmation, and existing stock progress colors are retained: passed.
+- Image quality and assets: no new raster or icon assets are required; existing caret treatment is reused consistently: not applicable.
+- Copy and content: Map action ordering, Fill Machine 100%, Empty Machine, confirmation descriptions, and saved-status messages match the approved behavior: passed.
+- Accessibility and interaction: mutually exclusive menus, Arrow navigation, Escape, outside-click closure, focus restoration, disabled-state explanation, modal focus trapping, and `aria-expanded` updates: passed.
+- Persistence: Fill saves `On Hand = PAR`; Empty saves `On Hand = 0`; refresh persistence, Missing recalculation, Cancel behavior, and failure rollback are covered: passed.
+- Browser console errors during final interaction pass: 0.
+- Playwright regression suite: 18 passed.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 visual, responsive, accessibility, or interaction findings remain.
+
+final result: passed
+
+---
+
 # Design QA — Product Map Editable Catalog Cells
 
 - Source visual truth: the annotated Product Map validation, Add Multiple BINS, Nayax inline pencil-editing, and editable Product Group screenshots supplied in the current conversation.
@@ -732,6 +783,143 @@ final result: passed
 - Browser console errors during the final capture: 0.
 - Summary-card DOM contract: four cards, two child rows per card: passed.
 - Targeted Playwright template-management test: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Cell-Level Editing
+
+- Source visual truth: the Nayax-style Product Map screenshot supplied in the latest conversation turn, where individual values are edited in place and no row-wide Edit action is present.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap` with shared persistence in `scripts/product-catalog.js`.
+- Browser-rendered evidence: desktop Product Map default state and focused PA Code cell captured in the in-app browser at the existing Paywizard portal viewport.
+- State: eight saved mappings, one active single-cell editor, icon-only row deletion, and no pending Add BIN or template-import changes.
+
+## Visual and interaction comparison
+
+- Clicking Product, Product Group, PA Code, MDB Code, PAR, On Hand, or Price replaces only that cell with a compact 34px editor; the remaining row stays unchanged.
+- The focused editor uses the existing blue focus treatment and table density. Escape restores the display state without changing the value.
+- Product and Product Group retain the existing searchable catalog behavior. A changed group saves immediately, clears Product, and displays the muted `Select product` prompt.
+- Actions contains only the established 32px icon-button treatment with a real local trash asset; the legacy row-wide Edit button is absent.
+- Inventory display returns immediately after saving On Hand, including the progress bar and recalculated Missing value.
+
+## Verification
+
+- Enter, blur, catalog selection, Escape, invalid-field retention, external error summary, and switching between cells: passed.
+- Blank Product persistence, new Product Group/Product creation, default-price behavior, and page reload: passed.
+- Delete icon accessible name/title and confirmation flow: passed.
+- Stock/template locking while a cell is active and Add BIN/template staged-save regression: passed.
+- Desktop and 390px mobile document overflow checks: passed.
+- Browser console errors and warnings during final visual inspection: 0.
+- Full Playwright regression suite: 18 passed.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Simplified Cell Affordance
+
+- Source visual truth: the annotated Product Map crop supplied in the latest conversation turn, specifically requesting removal of the visible per-cell `Edit` label.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshot: `assets/qa/qa-product-map-cell-edit-simplified.png`.
+- Viewport: existing desktop Paywizard portal viewport at device scale factor 1; no density normalization required.
+- State: eight saved mappings in display mode, with cell-level editing available but no active editor.
+
+## Full-view and focused comparison
+
+- Every editable cell now renders only its value. The prior hover/focus `Edit` text has been removed from the visual tree.
+- Hover and keyboard focus retain the existing subtle blue-gray cell background, so editability remains discoverable without adding repeated copy.
+- Clicking Product Group still opens only its compact combobox; Escape closes it and restores display mode.
+- A focused-region comparison is sufficient because this change is limited to the repeated cell affordance inside the Product Map table.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: no auxiliary 10px `Edit` labels remain; product and table value typography is unchanged: passed.
+- Spacing and layout rhythm: removing the trailing label leaves each value aligned consistently without changing row height or column width: passed.
+- Colors and visual tokens: existing neutral display state and subtle hover/focus background are retained: passed.
+- Image quality and assets: no image assets are introduced or changed: not applicable.
+- Copy and content: visible cells contain only Product Map data; accessible names still describe each edit action: passed.
+- Interaction and accessibility: single-cell click editing, combobox opening, Escape cancellation, keyboard focus, and screen-reader labels remain functional: passed.
+- Browser console errors and warnings during final inspection: 0.
+- Visible `.pm-cell-edit-label` elements: 0.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Cell Editor Chevron
+
+- Source visual truth: the annotated Product Group editor crop supplied in the latest conversation turn, where the browser-native dropdown triangle is visually oversized and misaligned.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshot: `assets/qa/qa-product-map-cell-editor-chevron.png`.
+- Viewport: existing desktop Paywizard portal viewport at device scale factor 1; no density normalization required.
+- State: the first saved row has its Product Group cell editor focused.
+
+## Full-view and focused comparison
+
+- The browser-native datalist indicator is visually suppressed and replaced by the 16px Heroicons chevron-down asset rendered at 14px.
+- The chevron is vertically centered 10px from the input edge, uses reduced opacity in the default state, and becomes slightly stronger with `focus-within`.
+- Product Group text keeps a 32px right inset, preventing overlap with the icon while preserving the existing 34px editor height.
+- Focused comparison was required because arrow scale, alignment, contrast, and input padding are the only changed visual surfaces.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: Product Group value sizing, weight, selection highlight, and line height are unchanged: passed.
+- Spacing and layout rhythm: 14px icon, 10px right inset, and 32px text reserve align with the compact table editor: passed.
+- Colors and visual tokens: muted icon opacity supports the existing neutral/blue focus treatment without competing with the value: passed.
+- Image quality and assets: a local, MIT-licensed Heroicons source asset replaces the oversized native glyph; no CSS-drawn or text-glyph icon is used: passed.
+- Copy and content: unchanged: passed.
+- Interaction and accessibility: the input retains its datalist, autocomplete, keyboard behavior, accessible label, and Escape cancellation; the decorative icon has an empty alt: passed.
+- Browser console errors and warnings during final inspection: 0.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Stable Cell Editing Layout
+
+- Source visual truth: the display/edit Product Group crops supplied in the latest conversation turn, showing unwanted row and column expansion after entering edit mode.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshots: `assets/qa/qa-product-map-row-display.png` and `assets/qa/qa-product-map-row-editing-stable.png`.
+- Viewport: existing desktop Paywizard portal viewport at device scale factor 1; both captures use the same dimensions and scroll position.
+- State: identical eight-row map before and after opening the first Product Group editor.
+
+## Full-view and focused comparison
+
+- The Product Map now uses a fixed nine-column layout, so an input's browser intrinsic width cannot resize Product Group or push downstream columns.
+- Saved rows have a stable 44px height. Editing controls use a 30px height inside 7px vertical cell padding, matching the display row's occupied height.
+- The focused editor, chevron, row separator, neighboring rows, and horizontal scroll position stay aligned when edit mode opens.
+- The paired same-viewport captures provide the focused before/after evidence needed to confirm that table geometry no longer shifts.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: unchanged between display and edit states: passed.
+- Spacing and layout rhythm: fixed column tracks, 44px saved rows, 30px editor, and stable surrounding separators remove the prior layout jump: passed.
+- Colors and visual tokens: existing neutral table and blue focus treatment remain unchanged: passed.
+- Image quality and assets: the existing local chevron asset remains sharp at 14px; no new assets are introduced: passed.
+- Copy and content: unchanged: passed.
+- Interaction and accessibility: Product Group opens as a single-cell combobox, Escape closes it without saving, and the table returns to display state: passed.
+- Browser console errors and warnings during final inspection: 0.
+- `git diff --check`: passed.
 
 ## Findings
 
