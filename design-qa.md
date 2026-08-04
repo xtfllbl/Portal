@@ -67,8 +67,6 @@
 
 final result: passed
 
----
-
 # Design QA — Product Map Editable Catalog Cells
 
 - Source visual truth: the annotated Product Map validation, Add Multiple BINS, Nayax inline pencil-editing, and editable Product Group screenshots supplied in the current conversation.
@@ -545,5 +543,198 @@ final result: passed
 ## Findings
 
 - No actionable P0, P1, or P2 visual, responsive, accessibility, or interaction findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Template Save and Import
+
+- Source visual truth: the Product Map screenshot supplied in the current conversation, the established Paywizard terminal shell, and the Nayax-style map-template reuse workflow specified in the approved plan.
+- Implementation targets: `1.terminalmanage_nayax.html?tab=productmap`, `36.product_map_templates.html`, and `scripts/product-catalog.js`.
+- Browser-rendered screenshots:
+  - `assets/qa/qa-product-map-template-menu.png`
+  - `assets/qa/qa-product-map-save-template.png`
+  - `assets/qa/qa-product-map-import-template-preview.png`
+  - `assets/qa/qa-product-map-template-staged.png`
+  - `assets/qa/qa-product-map-template-management.png`
+  - `assets/qa/qa-product-map-template-management-mobile.png`
+- Combined workflow board: `assets/qa/qa-product-map-template-comparison.png`.
+- Viewports: 2048 × 1054 desktop and 390 × 844 phone, device scale factor 1.
+
+## Visual comparison
+
+![Product Map template menu, save, import preview, staged replacement, and Settings library](assets/qa/qa-product-map-template-comparison.png)
+
+- The Map menu aligns with the existing compact Product Map toolbar and uses the established black/white action hierarchy.
+- Save as Template is a compact metadata dialog with balanced read-only summaries, concise fields, and matching action sizes.
+- Import Template keeps search and selection on the left and puts compatibility metadata, ordered rows, and the inventory-reset notice in a readable preview pane.
+- Applied rows use the existing light-blue unsaved state across the full table, while Cancel Changes and Save Changes remain visible in the toolbar.
+- The Settings library follows the Products master/detail layout and preserves independent table scrolling at narrow widths.
+
+## Interaction and regression verification
+
+- Save current map, unique name validation, empty/unsaved-map protection, and template persistence: passed.
+- Search, same-model compatibility, disabled incompatible models, ordered preview, and complete replacement staging: passed.
+- Imported On Hand reset to 0, Missing recalculation, Cancel restore, Save persistence, and target-terminal IDs: passed.
+- Template edit, duplicate, delete confirmation, and product reference protection: passed.
+- v1 session storage migration preserves Products and terminal Product Maps while initializing v2 templates: passed.
+- Keyboard focus, Escape behavior, ARIA state, desktop/mobile layout, and local table overflow: passed.
+- Browser console errors and warnings during final captures: 0.
+- Playwright regression suite: 11 passed.
+- JavaScript syntax and `git diff --check`: passed.
+
+## Required fidelity surfaces
+
+- Typography, spacing, borders, radii, black actions, blue state treatment, and table density match the existing portal: passed.
+- Machine Model, source terminal, BIN count, updated time, codes, PAR, and currency-neutral Price remain legible and correctly grouped: passed.
+- No actionable P0, P1, or P2 visual, responsive, accessibility, data-flow, or interaction findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Template Interaction Refinement
+
+- Source visual truth: the four annotated screenshots supplied in the current conversation and the previously implemented Product Map template states.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap` with shared template metadata from `scripts/product-catalog.js`.
+- Previous-state evidence:
+  - `assets/qa/qa-product-map-template-menu.png`
+  - `assets/qa/qa-product-map-save-template.png`
+  - `assets/qa/qa-product-map-import-template-preview.png`
+- Revised browser-rendered evidence:
+  - `assets/qa/qa-product-map-template-menu-refined.png`
+  - `assets/qa/qa-product-map-save-template-refined.png`
+  - `assets/qa/qa-product-map-import-template-compact.png`
+  - `assets/qa/qa-product-map-import-model-confirm.png`
+  - `assets/qa/qa-product-map-save-template-refined-mobile.png`
+  - `assets/qa/qa-product-map-import-template-compact-mobile.png`
+- Combined before/after board: `assets/qa/qa-product-map-template-refinement-comparison.png`.
+- Viewports: 2048 × 1054 desktop and 390 × 844 phone; device scale factor 1 and matching source/implementation density.
+
+## Full-view and focused comparison
+
+![Previous and refined Map menu, Save as Template, and Import Template states](assets/qa/qa-product-map-template-refinement-comparison.png)
+
+- Map now presents a visible caret, rotates it with `aria-expanded`, and uses a narrower menu aligned to the trigger.
+- Save as Template replaces Machine Model with a full-width Terminal Name summary and keeps Terminal SN and BINS below it.
+- Save and Cancel actions are matched at 124 × 36px with 13px/700 typography and no wrapping.
+- Import Template is a compact single-column card picker with no search field or BIN table; selected-template impact remains visible in a concise summary.
+- Different-model templates remain selectable and require a second, explicit amber confirmation before import.
+- Focused regions were necessary for the caret, action typography, terminal summary wrapping, selected card, and cross-model confirmation; all are readable in the revised captures.
+
+## Comparison history
+
+- Initial revised capture found a P2 typography issue: 112px actions wrapped `Save Template` and `Import Template` onto two lines, and the three-column summary cramped Terminal Name.
+- Fix: actions were changed to matched 124 × 36px no-wrap controls; Terminal Name now spans the summary width, with Terminal SN and BINS on the second row.
+- Post-fix evidence: `qa-product-map-save-template-refined.png` and both mobile captures show single-line actions and stable responsive layout.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing portal family and hierarchy retained; no action labels wrap: passed.
+- Spacing and layout rhythm: dialog width, footer padding, card gaps, radii, and shadows match the existing compact modal language: passed.
+- Colors and tokens: black primary actions, white secondary actions, blue selected state, and amber model-risk state use existing semantic colors: passed.
+- Image quality and assets: this change contains no new raster assets; the existing Paywizard shell remains unchanged: not applicable.
+- Copy and content: Terminal Name, replacement impact, inventory reset, unsaved state, and MDB compatibility risk are explicit without redundant subtitles: passed.
+- Keyboard menu navigation, Escape, focus restoration, ARIA state, same-model import, cross-model two-step confirmation, Cancel Changes, and Save Changes: passed.
+- Mobile document width: 390px for a 390px viewport; no document-level overflow.
+- Browser console errors and warnings during final captures: 0.
+- Playwright regression suite: 11 passed.
+- JavaScript syntax and `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
+# Design QA — Product Map Template Metadata Separation
+
+- Source visual truth: the five annotated screenshots supplied in the latest conversation turn and the preceding template-dialog captures.
+- Implementation targets: `1.terminalmanage_nayax.html?tab=productmap`, `36.product_map_templates.html`, and `scripts/product-catalog.js`.
+- Previous-state evidence: `assets/qa/qa-product-map-save-template-refined.png`, `assets/qa/qa-product-map-import-template-compact.png`, and `assets/qa/qa-product-map-template-management.png`.
+- Revised browser-rendered evidence:
+  - `assets/qa/qa-product-map-save-custom-machine.png` (522 × 554px)
+  - `assets/qa/qa-product-map-import-simple.png` (560 × 234px)
+  - `assets/qa/qa-product-map-template-manager-summary.png` (1144 × 886px)
+  - `assets/qa/qa-product-map-template-manager-mobile.png` (700 × 1497px)
+- Combined before/after evidence: `assets/qa/qa-product-map-template-metadata-comparison.png`.
+- Capture viewports: 1440 × 1000 desktop and 700 × 1000 narrow layout; device scale factor 1. Element captures preserve their rendered CSS size with no density normalization.
+- State: eight-row saved map, Save as Template open, one custom `VENDO 721` template selected for import, and template manager detail selected.
+
+## Full-view and focused comparison
+
+![Product Map template metadata refinement](assets/qa/qa-product-map-template-metadata-comparison.png)
+
+- Save summary keeps Terminal Name, Terminal SN, and BINS in a single desktop row. Long terminal names use a single-line ellipsis and retain the full value in the title attribute.
+- Machine Model is an explicit user-entered vending-machine field. The saved value appears on Import cards and in template management, while payment-terminal `Q3RU` context remains separate.
+- Import consists only of compact selectable template cards and matched footer actions; the prior `BINS ready to import` explanation is absent.
+- Template management removes the Open Product Map action and presents four summary cards: Terminal (Name + SN), Machine Model, BINS, and Updated.
+- Focused comparison was required because metadata alignment, model labeling, card density, and footer button scale are the core acceptance surfaces.
+
+## Comparison history
+
+- Earlier state had a P2 information-model mismatch: the template model was populated from the payment terminal model and import compatibility messaging compared against `Q3RU`.
+- Earlier state also had P2 density drift: terminal metadata wrapped to two rows and import repeated the BIN replacement explanation in a separate module.
+- Fixes: introduced a required vending Machine Model field, stopped passing payment-terminal model into template instantiation, aligned the three terminal facts in one row, removed the explanatory import panel, and restructured the manager summary.
+- Post-fix evidence: the revised captures and combined board show the requested hierarchy without model conflation or redundant modules.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing portal family, 13px form/action sizing, 700 action weight, compact 10–13px metadata hierarchy, and single-line labels are consistent: passed.
+- Spacing and layout rhythm: summary cards share one baseline; modal footer buttons remain 124 × 36px; import cards and manager summaries retain established gaps, borders, and radii: passed.
+- Colors and tokens: existing black primary, white secondary, blue selected state, neutral metadata backgrounds, and border tokens are retained: passed.
+- Image quality and assets: no new visible imagery or icon assets are introduced; existing shell assets remain unchanged: not applicable.
+- Copy and content: the vending-machine model is named only `Machine Model`; payment-terminal model data is no longer surfaced in template selection: passed.
+- Responsiveness: desktop summaries remain four columns and collapse to two columns at narrow width; the wide template table remains inside its local scroll container: passed.
+- Accessibility and interaction: labeled required model input, external validation message, modal focus behavior, selectable-card ARIA state, Escape, and focus restoration remain functional: passed.
+- Browser console errors and warnings during final captures: 0.
+- Playwright regression suite: 11 passed.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+- P3: very long Terminal Name values are visually truncated in the single-row modal summary; the full value remains available on hover and the layout stays stable.
+
+final result: passed
+
+---
+
+# Design QA — Template Header and Summary Density
+
+- Source visual truth: the annotated template-detail crop supplied in the latest conversation turn and `assets/qa/qa-product-map-template-manager-summary.png` as the preceding rendered state.
+- Implementation target: `36.product_map_templates.html`.
+- Implementation screenshot: `assets/qa/qa-product-map-template-sn-header.png` (1144 × 786px element capture).
+- Combined before/after evidence: `assets/qa/qa-product-map-template-header-comparison.png` (1600 × 1000px viewport capture).
+- Viewport: 1440 × 900 desktop, device scale factor 1; element screenshot preserves rendered CSS size without density normalization.
+- State: one selected eight-BIN template with a terminal name, terminal SN, vending-machine model, and updated time.
+
+## Full-view and focused comparison
+
+![Template detail before and after](assets/qa/qa-product-map-template-header-comparison.png)
+
+- Terminal SN now sits beside the template name in the first title row; BINS and Updated remain together on the second title row.
+- The Terminal Name summary card no longer repeats SN, so all four cards contain exactly two child rows: one label and one value.
+- Duplicate is removed from both the rendered actions and event handling; Edit Details and Delete retain the established button hierarchy.
+- The combined board provides both the full detail composition and a readable focused view of header actions and summary-card density.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: title, inline SN, secondary metadata, summary labels, and values preserve existing size/weight hierarchy with stable single-line truncation: passed.
+- Spacing and layout rhythm: inline title gap, two-line header rhythm, equal card heights, four-column grid, and action spacing are balanced: passed.
+- Colors and tokens: muted SN, neutral cards, white secondary action, and red destructive action use existing portal tokens: passed.
+- Image quality and assets: no image or icon assets are introduced or modified: not applicable.
+- Copy and content: SN appears once in the detail area and all summary cells contain only their intended label and value: passed.
+- Accessibility and responsiveness: the title and card values have overflow protection and full-value title attributes; existing responsive grid behavior remains intact: passed.
+- Browser console errors during the final capture: 0.
+- Summary-card DOM contract: four cards, two child rows per card: passed.
+- Targeted Playwright template-management test: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
 
 final result: passed

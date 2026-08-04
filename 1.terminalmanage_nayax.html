@@ -922,6 +922,48 @@
             min-height: 36px;
             padding: 7px 13px;
         }
+        .pm-map-menu { position: relative; }
+        .pm-map-menu-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-weight: 700;
+        }
+        .pm-map-caret {
+            display: inline-block;
+            font-size: 10px;
+            line-height: 1;
+            transform: translateY(-1px);
+            transition: transform .16s ease;
+        }
+        .pm-map-menu-button[aria-expanded="true"] .pm-map-caret { transform: translateY(1px) rotate(180deg); }
+        .pm-map-menu-panel {
+            position: absolute;
+            z-index: 35;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 156px;
+            padding: 6px;
+            border: 1px solid #dfe3e8;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, .16);
+        }
+        .pm-map-menu-panel button {
+            width: 100%;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: #111827;
+            padding: 9px 10px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 750;
+            cursor: pointer;
+        }
+        .pm-map-menu-panel button:hover,
+        .pm-map-menu-panel button:focus-visible { background: #f1f5f9; outline: none; }
         .pm-inline-status {
             color: #64748b;
             font-size: 12px;
@@ -1039,6 +1081,8 @@
             box-shadow: inset 3px 0 0 #3b82f6;
         }
         .pm-inline-edit-row:hover { background: #f3f7fc !important; }
+        .pm-template-import-row { background: #f3f7fc; box-shadow: inset 3px 0 0 #3b82f6; }
+        .pm-template-import-row:hover { background: #eef5fd !important; }
         .pm-inline-edit-row td { padding: 10px 8px !important; vertical-align: top !important; }
         .pm-inline-stack { display: grid; gap: 6px; min-width: 190px; }
         .pm-inline-input,
@@ -1089,6 +1133,83 @@
             font-size: 12px;
             font-weight: 650;
         }
+        .template-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .template-summary-item {
+            min-width: 0;
+            padding: 10px 11px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: #f8fafc;
+        }
+        .template-summary-label { color: #64748b; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+        .template-summary-value { margin-top: 3px; color: #111827; font-size: 13px; font-weight: 800; overflow-wrap: anywhere; }
+        #pmTemplateSourceSummary { font-size: 11px; line-height: 1.25; }
+        #pmTemplateTerminalNameSummary { font-size: 12px; line-height: 1.25; }
+        .template-form { display: grid; gap: 13px; }
+        .template-form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .template-field label { display: block; margin-bottom: 6px; color: #334155; font-size: 12px; font-weight: 800; }
+        .template-field input,
+        .template-field textarea {
+            width: 100%;
+            min-height: 38px;
+            padding: 8px 10px;
+            border: 1px solid #cfd6df;
+            border-radius: 8px;
+            background: #fff;
+            color: #111827;
+            font: inherit;
+            font-size: 13px;
+        }
+        .template-field textarea { min-height: 78px; resize: vertical; }
+        .template-field input[readonly] { background: #f8fafc; color: #475569; }
+        .template-field.is-invalid input { border-color: #dc2626; background: #fffafa; }
+        .template-field-error { min-height: 16px; margin-top: 4px; color: #b91c1c; font-size: 11px; font-weight: 700; }
+        .feature-modal.pm-save-template-modal { width: min(620px, 94vw); }
+        .pm-save-template-modal .template-summary-grid { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1.45fr) minmax(70px, .5fr); }
+        .pm-save-template-modal .template-summary-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: normal; }
+        .pm-template-footer { gap: 10px; padding: 12px 20px; }
+        .feature-modal-footer.pm-template-footer .btn-primary,
+        .feature-modal-footer.pm-template-footer .btn-secondary {
+            width: 124px;
+            min-width: 124px;
+            height: 36px;
+            min-height: 36px;
+            padding: 7px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .feature-modal.pm-import-template-modal { width: min(558px, 94vw); }
+        .template-picker-list {
+            display: grid;
+            gap: 8px;
+            max-height: 286px;
+            overflow: auto;
+            padding: 2px;
+        }
+        .template-picker-option {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #dfe3e8;
+            border-radius: 9px;
+            background: #fff;
+            color: #111827;
+            text-align: left;
+            cursor: pointer;
+        }
+        .template-picker-option:hover { background: #f8fafc; }
+        .template-picker-option.active { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 1px #2563eb; }
+        .template-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .template-picker-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 800; }
+        .template-picker-meta { margin-top: 4px; color: #64748b; font-size: 11px; line-height: 1.35; }
+        .template-model-badge { flex: 0 0 auto; padding: 2px 7px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 800; }
+        .template-empty { padding: 32px 18px; border: 1px dashed #cbd5e1; border-radius: 9px; color: #64748b; text-align: center; font-size: 13px; }
+        .template-empty a { display: inline-block; margin-top: 8px; color: #2563eb; font-weight: 750; text-decoration: none; }
         .dex-snapshot-header {
             display: flex;
             align-items: flex-start;
@@ -1458,6 +1579,10 @@
             .dex-raw-actions button { width: 100% !important; }
             .feature-modal-overlay { padding: 10px; }
             .feature-modal { max-height: calc(100vh - 20px); }
+            .template-picker-list { max-height: 180px; }
+            .template-form-row,
+            .template-summary-grid { grid-template-columns: 1fr; }
+            .pm-save-template-modal .template-summary-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1668,6 +1793,7 @@
                     <div class="sub-item" data-key="settings-branding" data-link="branding.html">Branding</div>
                     <div class="sub-item" data-key="settings-payments">Payment Channels</div>
                     <div class="sub-item" data-key="settings-products" data-link="35.product_management.html">Products</div>
+                    <div class="sub-item" data-key="settings-map-templates" data-link="36.product_map_templates.html">Product Map Templates</div>
                 </div>
             </div>
             </div>
@@ -1724,7 +1850,7 @@
                     <b>Merchant:</b> <span id="bannerMerchant">1 of a Kind World Travel LLC 41381</span> &nbsp;/&nbsp;
                     <b>SN:</b> <span id="bannerSn">WP6267UQ36002376</span> &nbsp;/&nbsp;
                     <b>TID:</b> <span id="bannerTid">UZN10E08</span> &nbsp;/&nbsp;
-                    <b>Model Name:</b> Q3RU
+                    <b>Model Name:</b> <span id="bannerModel">Q3RU</span>
                 </div>
                 <div class="banner-tabs" id="primaryTabs" role="tablist" aria-label="Terminal sections">
                     <button id="primaryTabBasic" class="tab active" data-tab="basic" role="tab" aria-controls="tab-basic" aria-selected="true" tabindex="0">Basic Information</button>
@@ -2196,6 +2322,13 @@
                         <div class="pm-inline-toolbar-group">
                             <button id="pmInlineAddButton" class="btn-primary" type="button">Add BIN</button>
                             <button id="pmInlineBulkAddButton" class="btn-secondary" type="button">Add Multiple BINS</button>
+                            <div class="pm-map-menu">
+                                <button id="pmMapMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmMapMenuPanel">Map <span class="pm-map-caret" aria-hidden="true">▾</span></button>
+                                <div id="pmMapMenuPanel" class="pm-map-menu-panel hidden" role="menu">
+                                    <button id="pmSaveTemplateButton" type="button" role="menuitem">Save as Template</button>
+                                    <button id="pmImportTemplateButton" type="button" role="menuitem">Import Template</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="pm-inline-toolbar-group pm-inline-save-group">
                             <span id="pmInlineStatus" class="pm-inline-status">All changes saved</span>
@@ -2417,6 +2550,58 @@
         </div>
     </div>
 
+    <div id="pmSaveTemplateModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmSaveTemplateTitle">
+        <div class="feature-modal compact pm-save-template-modal">
+            <div class="feature-modal-header">
+                <h2 id="pmSaveTemplateTitle" class="feature-modal-title">Save as Template</h2>
+            </div>
+            <form id="pmSaveTemplateForm" novalidate>
+                <div class="feature-modal-body">
+                    <div class="template-summary-grid">
+                        <div class="template-summary-item"><div class="template-summary-label">Terminal Name</div><div id="pmTemplateTerminalNameSummary" class="template-summary-value">—</div></div>
+                        <div class="template-summary-item"><div class="template-summary-label">Terminal SN</div><div id="pmTemplateSourceSummary" class="template-summary-value">—</div></div>
+                        <div class="template-summary-item"><div class="template-summary-label">BINS</div><div id="pmTemplateBinSummary" class="template-summary-value">0</div></div>
+                    </div>
+                    <div class="template-form">
+                        <div id="pmTemplateNameField" class="template-field">
+                            <label for="pmTemplateName">Template Name</label>
+                            <input id="pmTemplateName" type="text" maxlength="100" autocomplete="off">
+                            <div id="pmTemplateNameError" class="template-field-error" role="alert"></div>
+                        </div>
+                        <div id="pmTemplateMachineModelField" class="template-field">
+                            <label for="pmTemplateMachineModel">Machine Model</label>
+                            <input id="pmTemplateMachineModel" type="text" maxlength="100" autocomplete="off" placeholder="Enter vending machine model">
+                            <div id="pmTemplateMachineModelError" class="template-field-error" role="alert"></div>
+                        </div>
+                        <div class="template-field">
+                            <label for="pmTemplateDescription">Description</label>
+                            <textarea id="pmTemplateDescription" maxlength="1000"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-modal-footer pm-template-footer">
+                    <button class="btn-secondary" type="button" data-feature-close>Cancel</button>
+                    <button id="pmTemplateSaveConfirm" class="btn-primary" type="submit">Save Template</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="pmImportTemplateModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmImportTemplateTitle">
+        <div class="feature-modal pm-import-template-modal">
+            <div class="feature-modal-header">
+                <h2 id="pmImportTemplateTitle" class="feature-modal-title">Import Product Map Template</h2>
+            </div>
+            <div class="feature-modal-body">
+                <div id="pmTemplateList" class="template-picker-list" aria-label="Product Map Templates"></div>
+            </div>
+            <div class="feature-modal-footer pm-template-footer">
+                <button class="btn-secondary" type="button" data-feature-close>Cancel</button>
+                <button id="pmTemplateApply" class="btn-primary" type="button" disabled>Import Template</button>
+            </div>
+        </div>
+    </div>
+
     <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
 <script src="scripts/product-catalog.js"></script>
 <script>
@@ -2425,7 +2610,8 @@
             terminalName: 'Terminal - WP6267UQ36002376',
             sn: 'WP6267UQ36002376',
             tid: 'UZN10E08',
-            merchantName: '1 of a Kind World Travel LLC 41381'
+            merchantName: '1 of a Kind World Travel LLC 41381',
+            machineModel: 'Q3RU'
         };
         const params = new URLSearchParams(window.location.search);
         const pick = key => {
@@ -2436,7 +2622,8 @@
             terminalName: pick('terminalName') || defaults.terminalName,
             sn: pick('sn') || defaults.sn,
             tid: pick('tid') || defaults.tid,
-            merchantName: pick('merchantName') || defaults.merchantName
+            merchantName: pick('merchantName') || defaults.merchantName,
+            machineModel: pick('machineModel') || defaults.machineModel
         };
         const setText = (id, value) => {
             const el = document.getElementById(id);
@@ -2447,6 +2634,7 @@
         setText('bannerMerchant', context.merchantName);
         setText('bannerSn', context.sn);
         setText('bannerTid', context.tid);
+        setText('bannerModel', context.machineModel);
         setText('infoMerchant', context.merchantName);
         setText('infoSn', context.sn);
         setText('infoTid', context.tid);
@@ -3884,7 +4072,12 @@ paymentTimeout=180`
                 const previousRows = productRows.map(row => ({ ...row }));
                 productRows = productRows.filter(row => !validIds.includes(row.id));
                 const count = previousRows.length - productRows.length;
-                commitProductRows(`${count} product map selection${count === 1 ? '' : 's'} deleted.`, previousRows);
+                if(templateImportBackup){
+                    renderProductMapInline();
+                    showToast(`${count} imported selection${count === 1 ? '' : 's'} removed from the pending map.`);
+                } else {
+                    commitProductRows(`${count} product map selection${count === 1 ? '' : 's'} deleted.`, previousRows);
+                }
             };
             openFeatureModal(confirmModal, '#pmConfirmAccept');
         }
@@ -3904,6 +4097,27 @@ paymentTimeout=180`
             pending: byId('pmInlinePendingCount'),
             validation: byId('pmValidationSummary')
         };
+        const templateElements = {
+            menuButton: byId('pmMapMenuButton'),
+            menu: byId('pmMapMenuPanel'),
+            saveButton: byId('pmSaveTemplateButton'),
+            importButton: byId('pmImportTemplateButton'),
+            saveModal: byId('pmSaveTemplateModal'),
+            saveForm: byId('pmSaveTemplateForm'),
+            nameField: byId('pmTemplateNameField'),
+            name: byId('pmTemplateName'),
+            nameError: byId('pmTemplateNameError'),
+            machineModelField: byId('pmTemplateMachineModelField'),
+            machineModel: byId('pmTemplateMachineModel'),
+            machineModelError: byId('pmTemplateMachineModelError'),
+            description: byId('pmTemplateDescription'),
+            terminalNameSummary: byId('pmTemplateTerminalNameSummary'),
+            sourceSummary: byId('pmTemplateSourceSummary'),
+            binSummary: byId('pmTemplateBinSummary'),
+            importModal: byId('pmImportTemplateModal'),
+            list: byId('pmTemplateList'),
+            apply: byId('pmTemplateApply')
+        };
         const quantityModal = byId('pmQuantityModal');
         const quantityForm = byId('pmQuantityForm');
         const quantityInput = byId('pmQuantityInput');
@@ -3913,6 +4127,9 @@ paymentTimeout=180`
         let inlineDrafts = [];
         let inlineEditing = null;
         let inlineErrors = new Map();
+        let selectedTemplateId = '';
+        let templateImportBackup = null;
+        let templateImportMeta = null;
 
         function nextInlineSlot(){
             const occupied = new Set(productRows.concat(inlineDrafts).map(row => canonicalText(row.slot)));
@@ -4037,7 +4254,7 @@ paymentTimeout=180`
                 const mappedCategory = catalogCategoryById(current.categoryId);
                 const inactive = (mappedProduct && !catalogItemActive(mappedProduct)) || (mappedCategory && !catalogItemActive(mappedCategory));
                 rows.push(`
-                    <tr data-pm-id="${escapeHtml(current.id)}">
+                    <tr${templateImportBackup ? ' class="pm-template-import-row"' : ''} data-pm-id="${escapeHtml(current.id)}">
                         <td><button class="pm-cell-edit" type="button" data-pm-quick-edit="${escapeHtml(current.id)}" data-pm-quick-field="productId" aria-label="Quick edit product ${escapeHtml(current.productName)}"><span class="pm-product-name">${escapeHtml(current.productName)}${inactive ? ' <span class="pm-catalog-state">Inactive</span>' : ''}</span><span class="pm-cell-edit-label">Edit</span></button></td>
                         <td><button class="pm-cell-edit" type="button" data-pm-quick-edit="${escapeHtml(current.id)}" data-pm-quick-field="categoryId" aria-label="Quick edit product group ${escapeHtml(current.productGroup)}"><span>${escapeHtml(current.productGroup)}</span><span class="pm-cell-edit-label">Edit</span></button></td>
                         <td><span class="pm-code">${escapeHtml(current.paCode)}</span></td>
@@ -4051,17 +4268,20 @@ paymentTimeout=180`
                 `);
             });
             pmElements.tableBody.innerHTML = rows.length ? rows.join('') : '<tr><td class="pm-table-empty" colspan="9">No product map selections configured.</td></tr>';
-            const pendingCount = inlineDrafts.length + (inlineEditing ? 1 : 0);
+            const pendingCount = templateImportBackup ? productRows.length : inlineDrafts.length + (inlineEditing ? 1 : 0);
             pmElements.visibleCount.textContent = `${productRows.length} selection${productRows.length === 1 ? '' : 's'}`;
             inlineElements.pending.textContent = `${pendingCount} unsaved`;
-            inlineElements.status.textContent = pendingCount ? `${pendingCount} unsaved change${pendingCount === 1 ? '' : 's'}` : 'All changes saved';
+            inlineElements.status.textContent = templateImportBackup ? `${pendingCount} imported change${pendingCount === 1 ? '' : 's'}` : pendingCount ? `${pendingCount} unsaved change${pendingCount === 1 ? '' : 's'}` : 'All changes saved';
             inlineElements.save.classList.toggle('hidden', pendingCount === 0);
             inlineElements.cancel.classList.toggle('hidden', pendingCount === 0);
+            inlineElements.add.disabled = Boolean(templateImportBackup);
+            inlineElements.addMultiple.disabled = Boolean(templateImportBackup);
             renderInlineValidationSummary();
         }
         function renderInlineValidationSummary(){
             if(!inlineElements.validation) return;
-            if(!inlineErrors.size){
+            const templateIssues = templateImportMeta && Array.isArray(templateImportMeta.issues) ? templateImportMeta.issues : [];
+            if(!inlineErrors.size && !templateIssues.length){
                 inlineElements.validation.classList.add('hidden');
                 inlineElements.validation.innerHTML = '';
                 return;
@@ -4071,7 +4291,11 @@ paymentTimeout=180`
                 const product = productRows.find(row => row.id === key);
                 const label = draftIndex >= 0 ? `New row ${draftIndex + 1}` : product ? product.productName : 'Edited row';
                 return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(Object.values(errors).join(' '))}</li>`;
-            }).join('');
+            }).concat(templateIssues.map(issue => {
+                const row = productRows[issue.index];
+                const label = row ? row.productNameSnapshot || row.productName : `Imported row ${issue.index + 1}`;
+                return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(issue.message)}</li>`;
+            })).join('');
             inlineElements.validation.innerHTML = `<div class="pm-validation-summary-title">Please correct the highlighted fields.</div><ul>${items}</ul>`;
             inlineElements.validation.classList.remove('hidden');
         }
@@ -4135,6 +4359,10 @@ paymentTimeout=180`
             return raw;
         }
         function saveInlineChanges(){
+            if(templateImportBackup){
+                saveStagedTemplateImport();
+                return;
+            }
             inlineErrors.clear();
             let acceptedEdit = null;
             const acceptedDrafts = [];
@@ -4214,11 +4442,230 @@ paymentTimeout=180`
         });
         inlineElements.save.addEventListener('click', saveInlineChanges);
         inlineElements.cancel.addEventListener('click', () => {
+            if(templateImportBackup){
+                productRows = templateImportBackup.map(row => ({ ...row }));
+                templateImportBackup = null;
+                templateImportMeta = null;
+                inlineDrafts = [];
+                inlineEditing = null;
+                inlineErrors.clear();
+                renderProductMapInline();
+                showToast('Imported Product Map discarded. The previous map was restored.');
+                return;
+            }
             inlineDrafts = [];
             inlineEditing = null;
             inlineErrors.clear();
             renderProductMapInline();
             showToast('Unsaved Product Map changes discarded.');
+        });
+
+        function validateImportedRows(rows){
+            const errors = new Map();
+            rows.forEach(row => {
+                const result = validateProductRaw(rawFromProduct(row), row.id, rows);
+                const mappedProduct = catalogProductById(row.productId);
+                const mappedCategory = catalogCategoryById(row.categoryId);
+                const rowErrors = { ...result.errors };
+                if(!mappedCategory || !catalogItemActive(mappedCategory)) rowErrors.categoryId = 'Select an Active Product Group.';
+                if(!mappedProduct || !catalogItemActive(mappedProduct)) rowErrors.productId = 'Select an Active Product.';
+                if(Object.keys(rowErrors).length) errors.set(row.id, rowErrors);
+            });
+            return errors;
+        }
+
+        function saveStagedTemplateImport(){
+            if(inlineEditing){
+                const editResult = validateProductRaw(inlineEditing.raw, inlineEditing.id, productRows);
+                if(editResult.valid){
+                    try {
+                        const selectedCategory = catalogCategoryById(editResult.values.categoryId);
+                        const selectedProduct = catalogProductById(editResult.values.productId);
+                        const selectionErrors = {};
+                        if(!selectedCategory || !catalogItemActive(selectedCategory)) selectionErrors.categoryId = 'Select an existing Active Product Group.';
+                        if(!selectedProduct || !catalogItemActive(selectedProduct)) selectionErrors.productId = 'Select an existing Active Product.';
+                        if(Object.keys(selectionErrors).length){
+                            inlineErrors.set(inlineEditing.id, selectionErrors);
+                            renderProductMapInline();
+                            return;
+                        }
+                        const updated = { ...makeProductFromRaw(editResult.values, inlineEditing.id), id: inlineEditing.id };
+                        productRows = productRows.map(row => row.id === inlineEditing.id ? updated : row);
+                        inlineEditing = null;
+                    } catch(error){
+                        showToast(error && error.message ? error.message : 'The imported row could not be updated.');
+                        return;
+                    }
+                } else {
+                    inlineErrors.set(inlineEditing.id, editResult.errors);
+                    renderProductMapInline();
+                    return;
+                }
+            }
+            inlineErrors = validateImportedRows(productRows);
+            if(templateImportMeta) templateImportMeta.issues = [];
+            if(inlineErrors.size){
+                renderProductMapInline();
+                const firstId = inlineErrors.keys().next().value;
+                const firstButton = pmElements.tableBody.querySelector(`[data-pm-id="${firstId}"] [data-pm-quick-edit]`);
+                if(firstButton) firstButton.focus();
+                return;
+            }
+            const importedName = templateImportMeta ? templateImportMeta.name : 'template';
+            if(commitProductRows(`${productRows.length} BINS imported from ${importedName}.`, productRows.map(row => ({ ...row })))){
+                templateImportBackup = null;
+                templateImportMeta = null;
+                inlineErrors.clear();
+                renderProductMapInline();
+            }
+        }
+
+        function closeTemplateMenu(){
+            templateElements.menu.classList.add('hidden');
+            templateElements.menuButton.setAttribute('aria-expanded', 'false');
+        }
+        templateElements.menuButton.addEventListener('click', evt => {
+            evt.stopPropagation();
+            const opening = templateElements.menu.classList.contains('hidden');
+            templateElements.menu.classList.toggle('hidden', !opening);
+            templateElements.menuButton.setAttribute('aria-expanded', String(opening));
+            if(opening) templateElements.menu.querySelector('button').focus();
+        });
+        document.addEventListener('click', evt => {
+            if(!evt.target.closest('.pm-map-menu')) closeTemplateMenu();
+        });
+        templateElements.menu.addEventListener('keydown', evt => {
+            const buttons = Array.from(templateElements.menu.querySelectorAll('button'));
+            const index = buttons.indexOf(document.activeElement);
+            if(evt.key === 'Escape'){
+                closeTemplateMenu();
+                templateElements.menuButton.focus();
+            } else if(evt.key === 'ArrowDown' || evt.key === 'ArrowUp'){
+                evt.preventDefault();
+                const offset = evt.key === 'ArrowDown' ? 1 : -1;
+                buttons[(index + offset + buttons.length) % buttons.length].focus();
+            }
+        });
+
+        function hasPendingProductMapChanges(){
+            return Boolean(templateImportBackup || inlineEditing || inlineDrafts.length);
+        }
+        function clearTemplateNameError(){
+            templateElements.nameField.classList.remove('is-invalid');
+            templateElements.nameError.textContent = '';
+        }
+        function clearTemplateMachineModelError(){
+            templateElements.machineModelField.classList.remove('is-invalid');
+            templateElements.machineModelError.textContent = '';
+        }
+        templateElements.saveButton.addEventListener('click', () => {
+            closeTemplateMenu();
+            if(hasPendingProductMapChanges()){
+                showToast('Save or cancel the current Product Map changes before creating a template.');
+                return;
+            }
+            if(!productRows.length){
+                showToast('Add at least one BIN before creating a template.');
+                return;
+            }
+            templateElements.name.value = '';
+            templateElements.machineModel.value = '';
+            templateElements.description.value = '';
+            templateElements.terminalNameSummary.textContent = terminalContext.terminalName;
+            templateElements.sourceSummary.textContent = terminalContext.sn;
+            templateElements.binSummary.textContent = String(productRows.length);
+            templateElements.terminalNameSummary.title = terminalContext.terminalName;
+            templateElements.sourceSummary.title = terminalContext.sn;
+            clearTemplateNameError();
+            clearTemplateMachineModelError();
+            openFeatureModal(templateElements.saveModal, '#pmTemplateName');
+        });
+        templateElements.name.addEventListener('input', clearTemplateNameError);
+        templateElements.machineModel.addEventListener('input', clearTemplateMachineModelError);
+        templateElements.saveForm.addEventListener('submit', evt => {
+            evt.preventDefault();
+            clearTemplateNameError();
+            clearTemplateMachineModelError();
+            try {
+                const saved = catalogStore.saveProductMapTemplate({
+                    name: templateElements.name.value,
+                    description: templateElements.description.value,
+                    machineModel: templateElements.machineModel.value,
+                    sourceTerminalName: terminalContext.terminalName,
+                    sourceTerminalSn: terminalContext.sn,
+                    rows: getProductRows()
+                });
+                closeFeatureModal(templateElements.saveModal);
+                announceProductMap(`${saved.name} saved as a Product Map Template.`);
+                showToast(`${saved.name} saved as a Product Map Template.`);
+            } catch(error){
+                const fields = error && error.fields ? error.fields : {};
+                if(fields.machineModel){
+                    templateElements.machineModelField.classList.add('is-invalid');
+                    templateElements.machineModelError.textContent = fields.machineModel;
+                }
+                if(fields.name || !fields.machineModel){
+                    templateElements.nameField.classList.add('is-invalid');
+                    templateElements.nameError.textContent = fields.name || (error && error.message ? error.message : 'Template could not be saved.');
+                }
+                (fields.name || !fields.machineModel ? templateElements.name : templateElements.machineModel).focus();
+            }
+        });
+
+        function templateDate(value){
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        function renderTemplatePicker(){
+            const templates = catalogStore.getProductMapTemplates();
+            if(!templates.length){
+                templateElements.list.innerHTML = '<div class="template-empty">No Product Map Templates are available.<br><a href="36.product_map_templates.html">Open Product Map Templates</a></div>';
+                selectedTemplateId = '';
+                templateElements.apply.disabled = true;
+                return;
+            }
+            if(!templates.some(template => template.id === selectedTemplateId)){
+                selectedTemplateId = templates[0].id;
+            }
+            templateElements.list.innerHTML = templates.map(template => {
+                const sourceName = template.sourceTerminalName || template.sourceTerminalSn || 'No source terminal';
+                return `<button class="template-picker-option${template.id === selectedTemplateId ? ' active' : ''}" type="button" data-template-id="${escapeHtml(template.id)}" aria-pressed="${template.id === selectedTemplateId}"><div class="template-picker-heading"><div class="template-picker-name">${escapeHtml(template.name)}</div><span class="template-model-badge">${escapeHtml(template.machineModel)}</span></div><div class="template-picker-meta">${escapeHtml(sourceName)} · ${template.rows.length} BINS · Updated ${escapeHtml(templateDate(template.updatedAt))}</div></button>`;
+            }).join('');
+            templateElements.apply.disabled = !selectedTemplateId;
+        }
+        templateElements.importButton.addEventListener('click', () => {
+            closeTemplateMenu();
+            if(hasPendingProductMapChanges()){
+                showToast('Save or cancel the current Product Map changes before importing a template.');
+                return;
+            }
+            selectedTemplateId = '';
+            renderTemplatePicker();
+            openFeatureModal(templateElements.importModal, '.template-picker-option');
+        });
+        templateElements.list.addEventListener('click', evt => {
+            const option = evt.target.closest('[data-template-id]');
+            if(!option) return;
+            selectedTemplateId = option.getAttribute('data-template-id');
+            renderTemplatePicker();
+        });
+        templateElements.apply.addEventListener('click', () => {
+            if(!selectedTemplateId) return;
+            try {
+                const instantiated = catalogStore.instantiateProductMapTemplate(selectedTemplateId, terminalContext.sn);
+                templateImportBackup = productRows.map(row => ({ ...row }));
+                templateImportMeta = { id: instantiated.template.id, name: instantiated.template.name, issues: instantiated.issues || [] };
+                productRows = instantiated.rows.map(materializeProductRow);
+                inlineDrafts = [];
+                inlineEditing = null;
+                inlineErrors.clear();
+                closeFeatureModal(templateElements.importModal);
+                renderProductMapInline();
+                announceProductMap(`${instantiated.template.name} applied as an unsaved Product Map replacement.`);
+                showToast(`${instantiated.template.name} applied. Review the BINS, then select Save Changes.`);
+            } catch(error){
+                showToast(error && error.message ? error.message : 'Template could not be applied.');
+            }
         });
         function syncInlineCatalogInput(tableRow, state, fieldName, value){
             if(fieldName === 'categoryId'){
@@ -4416,7 +4863,7 @@ paymentTimeout=180`
                 productLines.push(`PA2*${cumulativeQuantity}*${cumulativeValue}*${intervalQuantity}*${intervalValue}*0*0*0*0`);
             });
             const body = [
-                `ID1*${terminalContext.sn}*Q3RU*3.0.0*JFK Terminal 4*PAYWIZARD*41381-001`,
+                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3.0.0*JFK Terminal 4*PAYWIZARD*41381-001`,
                 `VA1*${totals.sales}*${totals.vends}*${totals.intervalSales}*${totals.intervalVends}`,
                 `CA2*${totals.cash}*${totals.cashVends}*${totals.intervalCash}*${totals.intervalCashVends}`,
                 'CA3*2000*900*300*800*82500*35100*20100*27300*800*27300',
@@ -4441,7 +4888,7 @@ paymentTimeout=180`
                 `PA2*63*${63 * changedProduct.priceCents}*3*${3 * changedProduct.priceCents}*0*0*0*0`
             ] : [];
             return wrapDex(control, [
-                `ID1*${terminalContext.sn}*Q3RU*3.0.0*JFK Terminal 4*PAYWIZARD*41381-001`,
+                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3.0.0*JFK Terminal 4*PAYWIZARD*41381-001`,
                 `VA1*${totals.sales}*${totals.vends}*${totals.intervalSales}*${totals.intervalVends}`,
                 `DA2*${totals.card}*${totals.cardVends}*${totals.intervalCard}*${totals.intervalCardVends}`,
                 ...productLines,

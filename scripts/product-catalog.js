@@ -1,13 +1,14 @@
 (function (window) {
   "use strict";
 
-  var VERSION = 1;
-  var STORAGE_KEY = "paywizard.productCatalog.v1";
+  var VERSION = 2;
+  var STORAGE_KEY = "paywizard.productCatalog.v2";
+  var LEGACY_STORAGE_KEY = "paywizard.productCatalog.v1";
   var EVENT_NAME = "paywizard:product-catalog-change";
   var TERMINAL_SN = "WP6267UQ36002376";
   var OPERATOR = { id: "operator-wizarpos", name: "wizarpos" };
   var subscribers = [];
-  var storage = getSessionStorage();
+  var storage = getCatalogStorage();
 
   if (window.PaywizardProductCatalog && window.PaywizardProductCatalog.VERSION === VERSION) {
     return;
@@ -29,9 +30,9 @@
     return JSON.parse(JSON.stringify(value));
   }
 
-  function getSessionStorage() {
+  function availableStorage(name) {
     try {
-      var candidate = window.sessionStorage;
+      var candidate = window[name];
       var testKey = STORAGE_KEY + ".test";
       candidate.setItem(testKey, "1");
       candidate.removeItem(testKey);
@@ -39,6 +40,22 @@
     } catch (error) {
       return null;
     }
+  }
+
+  function getCatalogStorage() {
+    var persistent = availableStorage("localStorage");
+    var session = availableStorage("sessionStorage");
+    if (!persistent) return session;
+
+    // Promote data written by the earlier session-only implementation so a
+    // saved catalog remains available after navigating to another page/tab.
+    if (session && !persistent.getItem(STORAGE_KEY)) {
+      var sessionState = session.getItem(STORAGE_KEY);
+      var legacyState = session.getItem(LEGACY_STORAGE_KEY);
+      if (sessionState) persistent.setItem(STORAGE_KEY, sessionState);
+      else if (legacyState && !persistent.getItem(LEGACY_STORAGE_KEY)) persistent.setItem(LEGACY_STORAGE_KEY, legacyState);
+    }
+    return persistent;
   }
 
   function makeId(prefix) {
@@ -227,6 +244,7 @@
       categories: categories,
       products: products,
       productMaps: productMaps,
+      productMapTemplates: [],
       meta: {
         createdAt: stamp,
         updatedAt: stamp,
@@ -241,6 +259,7 @@
     if (!candidate.operator || candidate.operator.id !== OPERATOR.id) return false;
     if (!Array.isArray(candidate.categories) || !Array.isArray(candidate.products)) return false;
     if (!candidate.productMaps || typeof candidate.productMaps !== "object" || Array.isArray(candidate.productMaps)) return false;
+    if (!Array.isArray(candidate.productMapTemplates)) return false;
     var categoryIds = {};
     var productIds = {};
     if (candidate.categories.some(function (category) {
@@ -266,7 +285,27 @@
         return false;
       });
     })) return false;
+    var templateIds = {};
+    if (candidate.productMapTemplates.some(function (template) {
+      if (!template || !cleanText(template.id) || templateIds[template.id] || !cleanText(template.name) ||
+        !cleanText(template.machineModel) || !Array.isArray(template.rows)) return true;
+      templateIds[template.id] = true;
+      return template.rows.some(function (row) {
+        return !row || !categoryIds[row.categoryId] || !productIds[row.productId];
+      });
+    })) return false;
     return true;
+  }
+
+  function migrateState(candidate) {
+    if (!candidate || typeof candidate !== "object" || candidate.version !== 1) return null;
+    var migrated = clone(candidate);
+    migrated.version = VERSION;
+    migrated.productMapTemplates = [];
+    migrated.meta = migrated.meta && typeof migrated.meta === "object" ? migrated.meta : {};
+    migrated.meta.migratedAt = nowIso();
+    migrated.meta.migratedFrom = 1;
+    return stateIsValid(migrated) ? migrated : null;
   }
 
   function writeInitialState(candidate) {
@@ -289,6 +328,16 @@
     var raw;
     try {
       raw = storage.getItem(STORAGE_KEY);
+      if (!raw) {
+        var legacyRaw = storage.getItem(LEGACY_STORAGE_KEY);
+        if (legacyRaw) {
+          var migrated = migrateState(JSON.parse(legacyRaw));
+          if (migrated) {
+            writeInitialState(migrated);
+            return migrated;
+          }
+        }
+      }
       if (!raw) {
         var initial = createSeedState(null);
         writeInitialState(initial);
@@ -558,9 +607,17 @@
     var categoryCounts = {};
     var productCounts = {};
     var totalMappings = 0;
+    var totalTemplateReferences = 0;
     Object.keys(state.productMaps).forEach(function (terminalSn) {
       state.productMaps[terminalSn].forEach(function (row) {
         totalMappings += 1;
+        if (row.categoryId) categoryCounts[row.categoryId] = (categoryCounts[row.categoryId] || 0) + 1;
+        if (row.productId) productCounts[row.productId] = (productCounts[row.productId] || 0) + 1;
+      });
+    });
+    state.productMapTemplates.forEach(function (template) {
+      template.rows.forEach(function (row) {
+        totalTemplateReferences += 1;
         if (row.categoryId) categoryCounts[row.categoryId] = (categoryCounts[row.categoryId] || 0) + 1;
         if (row.productId) productCounts[row.productId] = (productCounts[row.productId] || 0) + 1;
       });
@@ -576,6 +633,7 @@
     }
     return {
       totalMappings: totalMappings,
+      totalTemplateReferences: totalTemplateReferences,
       categories: clone(categoryCounts),
       products: clone(productCounts),
       categoryId: categoryId,
@@ -705,6 +763,134 @@
     return clone(normalizedRows);
   }
 
+  function getProductMapTemplates() {
+    return state.productMapTemplates
+      .slice()
+      .sort(function (a, b) { return String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")); })
+      .map(clone);
+  }
+
+  function getProductMapTemplate(id) {
+    var template = state.productMapTemplates.find(function (item) { return item.id === id; });
+    return template ? clone(template) : null;
+  }
+
+  function normalizeTemplateRow(input, index, fields) {
+    input = input || {};
+    var prefix = "rows." + index + ".";
+    var product = state.products.find(function (item) { return item.id === input.productId; });
+    var categoryId = cleanText(input.categoryId || (product && product.categoryId));
+    var category = state.categories.find(function (item) { return item.id === categoryId; });
+    var paCode = cleanText(input.paCode).toUpperCase();
+    var mdbCode = cleanText(input.mdbCode);
+    var par = optionalNonNegativeInteger(input.par, prefix + "par", fields);
+    var priceCents = cents(input.priceCents, prefix + "priceCents", fields, true);
+    if (!product) addFieldError(fields, prefix + "productId", "Select a valid product.");
+    if (!category) addFieldError(fields, prefix + "categoryId", "Select a valid Product Group.");
+    if (product && category && product.categoryId !== category.id) addFieldError(fields, prefix + "productId", "The product does not belong to this Product Group.");
+    if (paCode && !/^[A-Z0-9]{2}$/.test(paCode)) addFieldError(fields, prefix + "paCode", "PA Code must be exactly 2 letters or numbers.");
+    if (!/^\d{2}$/.test(mdbCode)) addFieldError(fields, prefix + "mdbCode", "MDB Code must be exactly 2 digits.");
+    if (par === null && !fields[prefix + "par"]) addFieldError(fields, prefix + "par", "PAR is required.");
+    return {
+      slot: cleanText(input.slot).toUpperCase(),
+      categoryId: categoryId,
+      productId: product ? product.id : cleanText(input.productId),
+      productNameSnapshot: cleanText(input.productNameSnapshot || input.productName) || (product ? product.name : ""),
+      categoryNameSnapshot: cleanText(input.categoryNameSnapshot || input.productCategory || input.productGroup) || (category ? category.name : ""),
+      dexNameSnapshot: cleanText(input.dexNameSnapshot || input.dexName) || (product ? (product.dexName || product.name) : ""),
+      paCode: paCode,
+      mdbCode: mdbCode,
+      priceCents: priceCents,
+      par: par
+    };
+  }
+
+  function saveProductMapTemplate(input) {
+    input = input || {};
+    var current = input.id ? state.productMapTemplates.find(function (item) { return item.id === input.id; }) : null;
+    if (input.id && !current) throw catalogError("Product Map Template was not found.", "NOT_FOUND", { id: "Unknown template." });
+    var merged = Object.assign({}, current || {}, input);
+    var fields = {};
+    var name = cleanText(merged.name);
+    var machineModel = cleanText(merged.machineModel).toUpperCase();
+    var rows = Array.isArray(merged.rows) ? merged.rows : [];
+    if (!name) addFieldError(fields, "name", "Template Name is required.");
+    if (name.length > 100) addFieldError(fields, "name", "Template Name must be 100 characters or fewer.");
+    if (!machineModel) addFieldError(fields, "machineModel", "Machine Model is required.");
+    if (cleanText(merged.description).length > 1000) addFieldError(fields, "description", "Description must be 1,000 characters or fewer.");
+    if (!rows.length) addFieldError(fields, "rows", "The Product Map must contain at least one BIN.");
+    if (state.productMapTemplates.some(function (item) {
+      return item.id !== (current && current.id) && canonical(item.name) === canonical(name);
+    })) addFieldError(fields, "name", "A Product Map Template with this name already exists.");
+    var normalizedRows = rows.map(function (row, index) { return normalizeTemplateRow(row, index, fields); });
+    var seenPa = {};
+    var seenMdb = {};
+    normalizedRows.forEach(function (row, index) {
+      if (row.paCode && seenPa[row.paCode]) addFieldError(fields, "rows." + index + ".paCode", "This PA Code is already mapped in the template.");
+      if (seenMdb[row.mdbCode]) addFieldError(fields, "rows." + index + ".mdbCode", "This MDB Code is already mapped in the template.");
+      if (row.paCode) seenPa[row.paCode] = true;
+      seenMdb[row.mdbCode] = true;
+    });
+    if (Object.keys(fields).length) throw catalogError("Fix the highlighted Product Map Template fields.", "VALIDATION_FAILED", fields);
+    var stamp = nowIso();
+    var saved = {
+      id: current ? current.id : makeId("map-template"),
+      name: name,
+      description: cleanText(merged.description),
+      machineModel: machineModel,
+      sourceTerminalName: cleanText(merged.sourceTerminalName),
+      sourceTerminalSn: cleanText(merged.sourceTerminalSn).toUpperCase(),
+      rows: normalizedRows,
+      createdAt: current ? current.createdAt : stamp,
+      updatedAt: stamp
+    };
+    var next = clone(state);
+    if (current) next.productMapTemplates = next.productMapTemplates.map(function (item) { return item.id === saved.id ? saved : item; });
+    else next.productMapTemplates.unshift(saved);
+    commit(next, { type: current ? "product-map-template:updated" : "product-map-template:created", entity: "productMapTemplate", id: saved.id, value: saved });
+    return clone(saved);
+  }
+
+  function deleteProductMapTemplate(id) {
+    var template = state.productMapTemplates.find(function (item) { return item.id === id; });
+    if (!template) throw catalogError("Product Map Template was not found.", "NOT_FOUND", { id: "Unknown template." });
+    var next = clone(state);
+    next.productMapTemplates = next.productMapTemplates.filter(function (item) { return item.id !== id; });
+    commit(next, { type: "product-map-template:deleted", entity: "productMapTemplate", id: id, value: null });
+    return { deleted: true, id: id };
+  }
+
+  function instantiateProductMapTemplate(id, targetTerminalSn, machineModel, options) {
+    options = options || {};
+    var template = state.productMapTemplates.find(function (item) { return item.id === id; });
+    if (!template) throw catalogError("Product Map Template was not found.", "NOT_FOUND", { id: "Unknown template." });
+    var targetSn = normalizeTerminalSn(targetTerminalSn);
+    var normalizedModel = cleanText(machineModel).toUpperCase();
+    if (normalizedModel && template.machineModel !== normalizedModel && options.allowModelMismatch !== true) {
+      throw catalogError("This template is for a different Machine Model.", "MODEL_MISMATCH", { machineModel: "Select a " + normalizedModel + " template." });
+    }
+    var issues = [];
+    var stamp = nowIso();
+    var rows = template.rows.map(function (row, index) {
+      var product = state.products.find(function (item) { return item.id === row.productId; });
+      var category = state.categories.find(function (item) { return item.id === row.categoryId; });
+      if (!category || category.status !== "active") issues.push({ index: index, field: "categoryId", message: "Product Group is missing or inactive." });
+      if (!product || product.status !== "active") issues.push({ index: index, field: "productId", message: "Product is missing or inactive." });
+      return Object.assign({}, row, {
+        id: makeId("map"),
+        terminalSn: targetSn,
+        productName: row.productNameSnapshot,
+        productCategory: row.categoryNameSnapshot,
+        productGroup: row.categoryNameSnapshot,
+        dexName: row.dexNameSnapshot,
+        onHand: 0,
+        createdAt: stamp,
+        updatedAt: stamp
+      });
+    });
+    return { template: clone(template), rows: clone(rows), issues: clone(issues) };
+  }
+
   function subscribe(listener) {
     if (typeof listener !== "function") throw new TypeError("subscribe requires a function.");
     subscribers.push(listener);
@@ -745,6 +931,11 @@
     deleteProduct: deleteProduct,
     getProductMap: getProductMap,
     saveProductMap: saveProductMap,
+    getProductMapTemplates: getProductMapTemplates,
+    getProductMapTemplate: getProductMapTemplate,
+    saveProductMapTemplate: saveProductMapTemplate,
+    deleteProductMapTemplate: deleteProductMapTemplate,
+    instantiateProductMapTemplate: instantiateProductMapTemplate,
     getReferenceCounts: getReferenceCounts,
     subscribe: subscribe
   });

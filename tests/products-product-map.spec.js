@@ -2,10 +2,14 @@ const { test, expect } = require("@playwright/test");
 
 const PRODUCTS_URL = "/35.product_management.html";
 const PRODUCT_MAP_URL = "/1.terminalmanage_nayax.html?tab=productmap";
+const PRODUCT_MAP_TEMPLATES_URL = "/36.product_map_templates.html";
 
 async function resetCatalog(page) {
   await page.goto(PRODUCTS_URL);
-  await page.evaluate(() => window.sessionStorage.clear());
+  await page.evaluate(() => {
+    window.sessionStorage.clear();
+    window.localStorage.clear();
+  });
   await page.reload();
   await expect(page.getByRole("heading", { name: "Products", exact: true })).toBeVisible();
 }
@@ -259,6 +263,8 @@ test("Products and Product Map keep wide content inside local scroll containers 
   await page.goto(PRODUCT_MAP_URL);
   await expectNoDocumentOverflow(page);
   await expect(page.locator(".pm-table-wrap")).toHaveCSS("overflow-x", "auto");
+  await page.goto(PRODUCT_MAP_TEMPLATES_URL);
+  await expectNoDocumentOverflow(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(PRODUCTS_URL);
@@ -275,4 +281,183 @@ test("Products and Product Map keep wide content inside local scroll containers 
     scrollWidth: node.scrollWidth
   }));
   expect(tableWidths.scrollWidth).toBeGreaterThan(tableWidths.clientWidth);
+  await page.goto(PRODUCT_MAP_TEMPLATES_URL);
+  await expectNoDocumentOverflow(page);
+  const templateColumns = await page.locator(".workspace").evaluate((node) =>
+    getComputedStyle(node).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length
+  );
+  expect(templateColumns).toBe(1);
+});
+
+test("saves the current Product Map as a template and imports it into another terminal as a staged replacement", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+
+  const mapButton = page.getByRole("button", { name: "Map", exact: true });
+  await expect(mapButton.locator(".pm-map-caret")).toBeVisible();
+  await mapButton.click();
+  await expect(mapButton).toHaveAttribute("aria-expanded", "true");
+  const mapMenuWidth = await page.locator("#pmMapMenuPanel").evaluate((node) => node.getBoundingClientRect().width);
+  expect(mapMenuWidth).toBeLessThanOrEqual(170);
+  await page.getByRole("menuitem", { name: "Save as Template" }).click();
+  await expect(page.locator("#pmSaveTemplateModal")).toHaveClass(/open/);
+  await expect(page.locator("#pmTemplateTerminalNameSummary")).toHaveText("Terminal - WP6267UQ36002376");
+  await expect(page.locator("#pmTemplateBinSummary")).toHaveText("8");
+  const summaryTopPositions = await page.locator("#pmSaveTemplateModal .template-summary-item").evaluateAll((items) => items.map((item) => Math.round(item.getBoundingClientRect().top)));
+  expect(new Set(summaryTopPositions).size).toBe(1);
+  const saveButtonMetrics = await page.locator("#pmSaveTemplateModal .feature-modal-footer button").evaluateAll((buttons) => buttons.map((button) => ({
+    width: button.getBoundingClientRect().width,
+    height: button.getBoundingClientRect().height,
+    fontSize: getComputedStyle(button).fontSize,
+    fontWeight: getComputedStyle(button).fontWeight
+  })));
+  expect(saveButtonMetrics).toEqual([
+    { width: 124, height: 36, fontSize: "13px", fontWeight: "700" },
+    { width: 124, height: 36, fontSize: "13px", fontWeight: "700" }
+  ]);
+  await page.locator("#pmTemplateName").fill("Q3RU Standard Snacks");
+  await page.locator("#pmTemplateMachineModel").fill("Vendo 721");
+  await page.locator("#pmTemplateDescription").fill("Standard eight-BIN layout");
+  await page.getByRole("button", { name: "Save Template" }).click();
+
+  const template = await page.evaluate(() => window.PaywizardProductCatalog.getProductMapTemplates()[0]);
+  expect(template.name).toBe("Q3RU Standard Snacks");
+  expect(template.machineModel).toBe("VENDO 721");
+  expect(template.sourceTerminalName).toBe("Terminal - WP6267UQ36002376");
+  expect(template.rows).toHaveLength(8);
+  expect(template.rows[0]).not.toHaveProperty("onHand");
+
+  const managerPage = await page.context().newPage();
+  await managerPage.goto(PRODUCT_MAP_TEMPLATES_URL);
+  await expect(managerPage.locator('[data-template-id]', { hasText: "Q3RU Standard Snacks" })).toBeVisible();
+  await managerPage.close();
+
+  const targetUrl = `${PRODUCT_MAP_URL}&sn=TARGET0001&terminalName=Terminal%20-%20TARGET0001`;
+  await page.goto(targetUrl);
+  await expect(page.locator("#pmTableBody tr[data-pm-id]")).toHaveCount(0);
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Import Template" }).click();
+  await expect(page.locator("#pmImportTemplateModal")).toHaveClass(/open/);
+  await expect(page.locator("#pmImportTemplateModal input[type=search]")).toHaveCount(0);
+  await expect(page.locator("#pmImportTemplateModal table")).toHaveCount(0);
+  const importWidth = await page.locator("#pmImportTemplateModal .feature-modal").evaluate((node) => node.getBoundingClientRect().width);
+  expect(importWidth).toBeLessThanOrEqual(560);
+  await expect(page.locator("#pmTemplateList")).toContainText("Q3RU Standard Snacks");
+  await expect(page.locator("#pmTemplateList")).toContainText("VENDO 721");
+  await expect(page.locator("#pmImportTemplateModal")).not.toContainText("ready to import");
+  await expect(page.locator("#pmTemplatePreview")).toHaveCount(0);
+  await page.getByRole("button", { name: "Import Template", exact: true }).click();
+
+  await expect(page.locator("#pmInlineStatus")).toHaveText("8 imported changes");
+  await expect(page.locator("#pmTableBody tr.pm-template-import-row")).toHaveCount(8);
+  await expect(page.locator("#pmTableBody tr[data-pm-id]").first().locator("td").nth(5)).toContainText("0 / 12");
+  await expect(page.locator("#pmInlineAddButton")).toBeDisabled();
+
+  await page.getByRole("button", { name: "Cancel Changes" }).click();
+  await expect(page.locator("#pmTableBody tr[data-pm-id]")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Import Template" }).click();
+  await page.getByRole("button", { name: "Import Template", exact: true }).click();
+  await page.getByRole("button", { name: "Save Changes" }).click();
+  await expect(page.locator("#pmInlineStatus")).toHaveText("All changes saved");
+  await expect(page.locator("#pmTableBody tr[data-pm-id]")).toHaveCount(8);
+  const savedTarget = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("TARGET0001"));
+  expect(savedTarget).toHaveLength(8);
+  expect(savedTarget.every((row) => row.onHand === 0)).toBeTruthy();
+  expect(savedTarget.map((row) => row.mdbCode)).toEqual(template.rows.map((row) => row.mdbCode));
+});
+
+test("protects template creation during unsaved edits and imports templates using their vending machine model", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+  await page.evaluate(() => window.PaywizardProductCatalog.saveProductMapTemplate({
+    name: "Other Model Layout",
+    description: "",
+    machineModel: "VENDO-721",
+    sourceTerminalName: "Other Model Terminal",
+    sourceTerminalSn: "SOURCE-OTHER",
+    rows: window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376")
+  }));
+
+  await addProductMapDraft(page);
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Save as Template" }).click();
+  await expect(page.locator("#pmSaveTemplateModal")).not.toHaveClass(/open/);
+  await expect(page.locator("#prototypeToast")).toContainText("Save or cancel");
+  await page.getByRole("button", { name: "Cancel Changes" }).click();
+
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Import Template" }).click();
+  const incompatible = page.locator('[data-template-id]', { hasText: "Other Model Layout" });
+  await expect(incompatible).toBeEnabled();
+  await expect(incompatible).toContainText("VENDO-721");
+  await expect(incompatible).not.toContainText("Different model");
+  await incompatible.click();
+  await page.getByRole("button", { name: "Import Template", exact: true }).click();
+  await expect(page.locator("#pmInlineStatus")).toHaveText("8 imported changes");
+});
+
+test("manages template details, compact metadata, deletion, and template product references", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+  await page.evaluate(() => window.PaywizardProductCatalog.saveProductMapTemplate({
+    name: "Manage Me",
+    description: "Original description",
+    machineModel: "VENDO-721",
+    sourceTerminalName: "Lobby Vender",
+    sourceTerminalSn: "WP6267UQ36002376",
+    rows: window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376")
+  }));
+
+  await page.goto(PRODUCT_MAP_TEMPLATES_URL);
+  await expect(page.getByRole("heading", { name: "Product Map Templates", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Product Map" })).toHaveCount(0);
+  await expect(page.locator('[data-template-id]', { hasText: "Manage Me" })).toBeVisible();
+  await expect(page.locator(".summary-card")).toHaveCount(4);
+  await expect(page.locator(".summary-card").nth(0)).toContainText("Lobby Vender");
+  await expect(page.locator(".summary-card").nth(1)).toContainText("VENDO-721");
+  await expect(page.locator(".summary-card").nth(2)).toContainText("8");
+  await expect(page.locator(".title-row .terminal-sn")).toHaveText("SN: WP6267UQ36002376");
+  await expect(page.getByRole("button", { name: "Duplicate" })).toHaveCount(0);
+  await expect(page.locator(".summary-card")).toHaveCount(4);
+  await expect(page.locator(".summary-card .summary-sub")).toHaveCount(0);
+  await page.getByRole("button", { name: "Edit Details" }).click();
+  await page.locator("#templateName").fill("Managed Layout");
+  await page.locator("#templateDescription").fill("Updated description");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Managed Layout" })).toBeVisible();
+
+  const archived = await page.evaluate(() => window.PaywizardProductCatalog.deleteProduct("product-trail-mix"));
+  expect(archived.archived).toBeTruthy();
+  const references = await page.evaluate(() => window.PaywizardProductCatalog.getReferenceCounts({ productId: "product-trail-mix" }));
+  expect(references.totalTemplateReferences).toBeGreaterThan(0);
+
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(page.locator("#dialogLayer")).toBeVisible();
+  await page.locator("#dialogConfirm").click();
+  await expect(page.locator('[data-template-id]', { hasText: "Managed Layout" })).toHaveCount(0);
+
+});
+
+test("migrates the v1 session catalog to v2 without losing products or terminal Product Maps", async ({ page }) => {
+  await resetCatalog(page);
+  await page.evaluate(() => {
+    const legacy = window.PaywizardProductCatalog.getState();
+    legacy.version = 1;
+    delete legacy.productMapTemplates;
+    sessionStorage.setItem("paywizard.productCatalog.v1", JSON.stringify(legacy));
+    sessionStorage.removeItem("paywizard.productCatalog.v2");
+    localStorage.removeItem("paywizard.productCatalog.v1");
+    localStorage.removeItem("paywizard.productCatalog.v2");
+  });
+  await page.reload();
+  const migrated = await page.evaluate(() => ({
+    version: window.PaywizardProductCatalog.VERSION,
+    products: window.PaywizardProductCatalog.getProducts().length,
+    rows: window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376").length,
+    templates: window.PaywizardProductCatalog.getProductMapTemplates().length,
+    persisted: Boolean(localStorage.getItem("paywizard.productCatalog.v2"))
+  }));
+  expect(migrated).toEqual({ version: 2, products: 8, rows: 8, templates: 0, persisted: true });
 });
