@@ -69,6 +69,76 @@ final result: passed
 
 ---
 
+# Design QA — DEX Compact History and Settings Layout
+
+- Source visual truth: the user-provided Nayax DEX screenshots and the approved compact flow, supported by the Nayax DEX Administration reference at `https://nayax-u.nayax.com/scenario/overview-of-dex-administration-operations-906`.
+- Implementation target: `1.terminalmanage_nayax.html?tab=dex&sn=WP6267UQ36002376`.
+- Implementation screenshot: `/tmp/paywizard-dex-compact.png`.
+- State: seeded DEX history with the latest parsed read selected; DEX Settings verified separately in Fixed Times mode and at 390 × 844.
+
+## Full-view and focused comparison
+
+- The DEX tab now begins with one left-aligned command row, followed by a single inline automation summary and the history table.
+- The former Machine Audit heading, Snapshot explanation, persistent success banner, five metadata cards, and six KPI cards are absent.
+- Parsed Data / RAW DATA follows the history table directly, matching the requested read-history-first inspection flow.
+- Fixed Times uses a constrained `time input + 36px delete icon` grid; the input and delete control stay within the modal body without overlap.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing Paywizard control and table typography is retained; redundant Snapshot headings and card labels are removed: passed.
+- Spacing and layout rhythm: command row, inline summary, history, and file view form one compact vertical sequence: passed.
+- Colors and visual tokens: existing neutral borders, blue selection state, and status colors are unchanged: passed.
+- Image quality and assets: the time removal action uses the existing local delete SVG asset at 16px: passed.
+- Copy and content: success feedback is delivered by toast; Queued, Reading, Warning, Failed, and No Data remain eligible for the inline status region: passed.
+- Interaction and accessibility: history selection, Parsed/RAW tabs, settings tabs, Escape focus restoration, and responsive modal controls remain available: passed.
+- Fixed-time control geometry: delete button begins at least 6px after the time input and remains inside the scroll body: passed.
+- Mobile modal geometry at 390 × 844: no document overflow and modal bounds remain within the viewport: passed.
+- DEX-focused Playwright tests: 3 passed.
+- Browser visual inspection: compact command row and history-first layout passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
+# Design QA — DEX Automation, Notifications, and Read History
+
+- Source visual truth: the user-approved DEX implementation plan, [Nayax DEX Administration](https://nayax-u.nayax.com/scenario/overview-of-dex-administration-operations-906), and [Nayax DEX/DDCMP attributes](https://nayax-u.nayax.com/article/overview-understanding-machine-attributes-nayax-core-78296#dex).
+- Implementation target: `1.terminalmanage_nayax.html?tab=dex&sn=WP6267UQ36002376`.
+- Implementation screenshots: `/tmp/paywizard-dex-history.png` and `/tmp/paywizard-dex-settings.png`.
+- Viewport: desktop Paywizard portal viewport at device scale factor 1; mobile behavior separately verified at 390 × 844.
+- States: latest read history selected, manual Delta read completed with email status, and the three-tab DEX Settings dialog.
+
+## Full-view and focused comparison
+
+- The Nayax source and implementation were inspected together in one comparison pass. The implementation preserves the current Paywizard black terminal header, white cards, compact controls, and blue selection state while adopting Nayax's schedule, Full/Delta, retry, notify, history, parsed, and RAW-data concepts.
+- The main page reads in the intended order: read actions, automation summary, read history, then the selected snapshot detail. This removes the previous need to scroll past snapshot content before choosing a historical read.
+- The settings dialog remains compact and uses the existing modal button hierarchy; technical controls are separated into Read Schedule, Parsing & Rules, and Email Notifications rather than exposed in one dense form.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing Paywizard sizes, weights, uppercase table headers, and button typography are retained: passed.
+- Spacing and layout rhythm: automation summary, history table, and modal grids align with existing card gutters; the dialog remains inside a 390px viewport: passed.
+- Colors and visual tokens: existing neutral cards, blue selected rows/tabs, green success, yellow warning, and red failure states are reused consistently: passed.
+- Image quality and assets: no new image assets were required; existing portal assets remain unchanged: passed.
+- Copy and content: English labels distinguish Manual/Scheduled, Delta/Full, validation, email delivery, retry, scaling, and RAW attachment behavior: passed.
+- Interaction and accessibility: history selection, settings tabs, Escape/focus restoration, manual status flow, RAW switching, and session persistence are covered by Playwright: passed.
+- Browser console errors and warnings during final inspection: 0.
+- Focused DEX Playwright coverage: 3 passed.
+- Full regression suite: 25 passed.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
 # Design QA — Nayax Terminal Type Details Card
 
 - Source visual truth: the production Terminal Details header, dashboard alignment, and terminal-type states supplied in the current conversation, plus the picker definitions in `12.transaction_list.html`.

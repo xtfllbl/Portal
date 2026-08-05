@@ -876,36 +876,6 @@
             white-space: nowrap;
             border: 0;
         }
-        .dex-kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-        .dex-kpi-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: var(--shadow-xs);
-            padding: 14px;
-            min-width: 0;
-        }
-        .dex-kpi-label {
-            color: #64748b;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-        }
-        .dex-kpi-value {
-            margin-top: 5px;
-            color: #0f172a;
-            font-size: 25px;
-            font-weight: 850;
-            line-height: 1.18;
-            font-variant-numeric: tabular-nums;
-        }
-        .dex-kpi-note { margin-top: 3px; color: #64748b; font-size: 12px; }
         .dex-action-group,
         .dex-raw-actions {
             display: flex;
@@ -1373,50 +1343,25 @@
         .template-model-badge { flex: 0 0 auto; padding: 2px 7px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 800; }
         .template-empty { padding: 32px 18px; border: 1px dashed #cbd5e1; border-radius: 9px; color: #64748b; text-align: center; font-size: 13px; }
         .template-empty a { display: inline-block; margin-top: 8px; color: #2563eb; font-weight: 750; text-decoration: none; }
-        .dex-snapshot-header {
+        .dex-command-bar {
             display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 18px;
-            padding: 16px;
-            margin-bottom: 12px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: var(--shadow-xs);
+            align-items: center;
+            min-height: 48px;
+            padding: 0 0 10px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
         }
-        .dex-eyebrow { color: #2563eb; font-size: 11px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
-        .dex-snapshot-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 3px; }
-        .dex-snapshot-title h2 { margin: 0; font-size: 19px; }
-        .dex-snapshot-copy { margin: 4px 0 0; color: #64748b; font-size: 12px; }
+        .dex-command-bar .dex-action-group { flex: 0 0 auto; }
         .dex-request-status {
-            min-height: 20px;
-            margin: -2px 0 12px;
+            margin: 10px 0 0;
             padding: 9px 12px;
             border-radius: 9px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            color: #475569;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
             font-size: 12px;
             font-weight: 650;
         }
-        .dex-request-status.is-active { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-        .dex-meta-grid {
-            display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .dex-meta-item {
-            min-width: 0;
-            padding: 11px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: #f8fafc;
-        }
-        .dex-meta-label { color: #64748b; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-        .dex-meta-value { margin-top: 4px; color: #0f172a; font-size: 13px; font-weight: 800; overflow-wrap: anywhere; }
-        .dex-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .dex-view-panel {
             background: #fff;
             border: 1px solid var(--border);
@@ -1512,6 +1457,101 @@
         .dex-history-table tbody tr.is-selected { background: #eff6ff; }
         .dex-history-type { color: #334155; font-weight: 800; }
         .dex-history-sub { display: block; margin-top: 2px; color: #64748b; font-size: 11px; }
+        .dex-automation-strip {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 0;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .dex-automation-item { display: flex; align-items: baseline; gap: 6px; min-width: 0; padding: 0 14px; border-right: 1px solid #dfe3e8; }
+        .dex-automation-item:first-child { padding-left: 0; }
+        .dex-automation-item:last-child { border-right: 0; }
+        .dex-automation-label { color: #64748b; font-size: 11px; font-weight: 750; }
+        .dex-automation-value { color: #0f172a; font-size: 11px; font-weight: 800; overflow-wrap: anywhere; }
+        .dex-history-section.dex-history-first {
+            margin: 12px 0;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: var(--shadow-xs);
+        }
+        .dex-history-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+        .dex-history-scroll .table { margin: 0; }
+        .dex-history-email { font-size: 11px; font-weight: 800; white-space: nowrap; }
+        .dex-history-email.sent { color: #15803d; }
+        .dex-history-email.pending { color: #a16207; }
+        .dex-history-email.failed { color: #b91c1c; }
+        .dex-history-email.none { color: #64748b; }
+        .dex-settings-dialog {
+            width: min(600px, calc(100vw - 32px));
+            max-height: calc(100dvh - 32px);
+            display: flex;
+            flex-direction: column;
+        }
+        .dex-settings-dialog .feature-modal-header,
+        .dex-settings-dialog .dex-settings-tabs,
+        .dex-settings-dialog .dex-settings-footer { flex: 0 0 auto; }
+        .dex-settings-dialog .feature-modal-body { min-height: 0; overflow-x: hidden; overflow-y: auto; }
+        .dex-settings-tabs { display: flex; gap: 4px; padding: 0 18px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .dex-settings-tab {
+            flex: 0 0 auto;
+            border: 0;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: #64748b;
+            padding: 11px 9px 9px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .dex-settings-tab.active { color: #111827; border-bottom-color: #2563eb; }
+        .dex-settings-panel { display: none; }
+        .dex-settings-panel.active { display: block; }
+        .dex-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .dex-settings-field { min-width: 0; }
+        .dex-settings-field.full { grid-column: 1 / -1; }
+        .dex-settings-field label,
+        .dex-settings-label { display: block; margin-bottom: 6px; color: #334155; font-size: 12px; font-weight: 800; }
+        .dex-settings-field input,
+        .dex-settings-field select { width: 100%; min-width: 0; height: 38px; box-sizing: border-box; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; color: #111827; font-size: 13px; }
+        .dex-settings-field input:focus,
+        .dex-settings-field select:focus { outline: 2px solid rgba(37, 99, 235, .18); border-color: #2563eb; }
+        .dex-settings-field input:disabled,
+        .dex-settings-field select:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+        .dex-settings-help { margin-top: 5px; color: #64748b; font-size: 11px; line-height: 1.4; }
+        .dex-settings-error { min-height: 16px; margin-top: 4px; color: #b91c1c; font-size: 11px; font-weight: 700; }
+        .dex-switch-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 11px 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; }
+        .dex-switch-copy strong { display: block; color: #0f172a; font-size: 13px; }
+        .dex-switch-copy span { display: block; margin-top: 2px; color: #64748b; font-size: 11px; }
+        .dex-switch { position: relative; width: 40px; height: 22px; flex: 0 0 auto; }
+        .dex-switch input { position: absolute; opacity: 0; pointer-events: none; }
+        .dex-switch-track { display: block; width: 100%; height: 100%; border-radius: 999px; background: #cbd5e1; cursor: pointer; transition: .18s ease; }
+        .dex-switch-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(15,23,42,.25); transition: .18s ease; }
+        .dex-switch input:checked + .dex-switch-track { background: #111827; }
+        .dex-switch input:checked + .dex-switch-track::after { transform: translateX(18px); }
+        .dex-switch input:focus-visible + .dex-switch-track { outline: 2px solid #2563eb; outline-offset: 2px; }
+        .dex-time-list { display: grid; gap: 8px; }
+        .dex-time-row { display: grid; grid-template-columns: minmax(0, 1fr) 36px; gap: 8px; align-items: center; min-width: 0; }
+        .dex-time-row input { min-width: 0; box-sizing: border-box; }
+        .dex-time-remove { display: inline-flex; align-items: center; justify-content: center; width: 36px; min-width: 36px; height: 36px; padding: 0; border: 1px solid #dfe3e8; border-radius: 8px; background: #fff; color: #64748b; cursor: pointer; }
+        .dex-time-remove img { width: 16px; height: 16px; opacity: .68; pointer-events: none; }
+        .dex-time-remove:hover { background: #f8fafc; color: #b91c1c; }
+        .dex-time-remove:hover img { opacity: 1; }
+        .dex-add-time { width: auto; margin-top: 8px; padding: 7px 10px; }
+        .dex-next-read { padding: 10px 12px; border-radius: 9px; background: #eff6ff; color: #1e40af; font-size: 12px; font-weight: 750; }
+        .dex-warning-note { padding: 10px 12px; border: 1px solid #fde68a; border-radius: 9px; background: #fffbeb; color: #92400e; font-size: 11px; line-height: 1.45; }
+        .dex-email-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 38px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; }
+        .dex-email-tags:focus-within { outline: 2px solid rgba(37, 99, 235, .18); border-color: #2563eb; }
+        .dex-email-tag { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 7px; border-radius: 999px; background: #e0e7ff; color: #3730a3; font-size: 11px; font-weight: 750; }
+        .dex-email-tag span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dex-email-tag button { border: 0; background: transparent; color: inherit; padding: 0; cursor: pointer; font-size: 14px; line-height: 1; }
+        .dex-email-input { flex: 1 1 180px; min-width: 130px; height: 24px !important; padding: 1px 4px !important; border: 0 !important; outline: 0 !important; font-size: 12px !important; }
+        .dex-email-preview { padding: 12px; border: 1px solid #e2e8f0; border-radius: 9px; background: #f8fafc; color: #475569; font-size: 11px; line-height: 1.5; }
+        .dex-settings-footer .btn-primary,
+        .dex-settings-footer .btn-secondary { width: 112px; min-width: 112px; min-height: 36px; padding: 7px 12px; font-size: 13px; font-weight: 700; }
 
         /* Shared feature dialogs */
         body.feature-modal-open { overflow: hidden; }
@@ -1732,10 +1772,9 @@
                 padding-left: 18px;
                 padding-right: 18px;
             }
-            .dex-snapshot-header,
             .dex-raw-toolbar { flex-direction: column; align-items: stretch; }
-            .dex-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .dex-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .dex-settings-grid { grid-template-columns: 1fr; }
+            .dex-settings-field.full { grid-column: auto; }
             .pm-inline-toolbar { align-items: flex-start; flex-direction: column; }
             .pm-inline-save-group { width: 100%; justify-content: space-between; }
             .feature-form-grid { grid-template-columns: 1fr; }
@@ -1750,14 +1789,22 @@
             .connection-summary {
                 max-width: calc(100vw - 120px);
             }
-            .dex-kpi-grid,
-            .dex-meta-grid { grid-template-columns: 1fr; }
             .pm-inline-toolbar-group,
-            .dex-action-group,
             .dex-raw-actions { align-items: stretch; flex-direction: column; }
             .pm-inline-toolbar button,
-            .dex-action-group button,
             .dex-raw-actions button { width: 100% !important; }
+            .dex-command-bar { margin: 0 -2px; }
+            .dex-command-bar .dex-action-group { flex-direction: row; align-items: center; }
+            .dex-command-bar .dex-action-group button { width: auto !important; white-space: nowrap; }
+            .dex-automation-strip { align-items: stretch; flex-direction: column; padding: 5px 0; }
+            .dex-automation-item { padding: 5px 0; border-right: 0; }
+            .dex-settings-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+            #dexSettingsModal { padding: 8px; }
+            .dex-settings-tabs { padding: 0 10px; }
+            .dex-settings-dialog .feature-modal-body { padding: 14px; }
+            .dex-settings-footer { gap: 8px; padding: 12px 14px; }
+            .dex-settings-footer .btn-primary,
+            .dex-settings-footer .btn-secondary { flex: 1 1 0; width: auto; min-width: 0; }
             .pm-inline-toolbar > .pm-inline-toolbar-group:first-child {
                 width: 100%;
                 flex-direction: row;
@@ -1772,6 +1819,8 @@
             }
             .feature-modal-overlay { padding: 10px; }
             .feature-modal { max-height: calc(100vh - 20px); }
+            .dex-settings-grid { grid-template-columns: 1fr; }
+            .dex-settings-field.full { grid-column: auto; }
             .template-picker-list { max-height: 180px; }
             .template-form-row,
             .template-summary-grid { grid-template-columns: 1fr; }
@@ -2618,39 +2667,36 @@
 
                 <!-- DEX -->
                 <section id="tab-dex" class="hidden" role="tabpanel" aria-labelledby="primaryTabDex" tabindex="0">
-                    <div class="dex-snapshot-header">
-                        <div>
-                            <div class="dex-eyebrow">Machine Audit</div>
-                            <div class="dex-snapshot-title">
-                                <h2 id="dexSnapshotHeading">Latest DEX Snapshot</h2>
-                                <span id="dexSnapshotStatus" class="dex-status-badge success">Parsed</span>
-                            </div>
-                            <p class="dex-snapshot-copy">DEX is a point-in-time audit from the vending machine. Live connectivity remains visible in the terminal header.</p>
-                        </div>
+                    <div class="dex-command-bar" aria-label="DEX actions">
                         <div class="dex-action-group">
+                            <button id="dexSettingsButton" class="btn-secondary" type="button" aria-haspopup="dialog" aria-controls="dexSettingsModal">DEX Settings</button>
                             <button id="dexRefreshButton" class="btn-secondary" type="button">Refresh</button>
                             <button id="dexReadButton" class="btn-secondary" type="button">Read DEX</button>
                             <button id="dexFullReadButton" class="btn-primary" type="button">Read Full DEX</button>
                         </div>
                     </div>
 
-                    <div id="dexRequestStatus" class="dex-request-status" role="status" aria-live="polite">Showing the latest received audit snapshot.</div>
+                    <div id="dexRequestStatus" class="dex-request-status" role="status" aria-live="polite" hidden></div>
 
-                    <div class="dex-meta-grid" aria-label="Selected DEX snapshot details">
-                        <div class="dex-meta-item"><div class="dex-meta-label">Last Read</div><div id="dexMetaReadAt" class="dex-meta-value">--</div></div>
-                        <div class="dex-meta-item"><div class="dex-meta-label">Data Age</div><div id="dexMetaAge" class="dex-meta-value">--</div></div>
-                        <div class="dex-meta-item"><div class="dex-meta-label">Read Type</div><div id="dexMetaType" class="dex-meta-value">--</div></div>
-                        <div class="dex-meta-item"><div class="dex-meta-label">Source</div><div id="dexMetaSource" class="dex-meta-value">--</div></div>
-                        <div class="dex-meta-item"><div class="dex-meta-label">Validation</div><div id="dexMetaValidation" class="dex-meta-value">--</div></div>
+                    <div class="dex-automation-strip" aria-label="DEX automation summary">
+                        <div class="dex-automation-item"><div class="dex-automation-label">Automatic Read</div><div id="dexAutomationSchedule" class="dex-automation-value">Off</div></div>
+                        <div class="dex-automation-item"><div class="dex-automation-label">Next Read</div><div id="dexAutomationNext" class="dex-automation-value">Not scheduled</div></div>
+                        <div class="dex-automation-item"><div class="dex-automation-label">Email Notify</div><div id="dexAutomationEmail" class="dex-automation-value">Off</div></div>
                     </div>
 
-                    <div class="dex-kpi-grid" aria-label="Parsed DEX summary">
-                        <div class="dex-kpi-card"><div class="dex-kpi-label">Paid Sales</div><div id="dexKpiSales" class="dex-kpi-value">$0.00</div><div class="dex-kpi-note">Cumulative machine value</div></div>
-                        <div class="dex-kpi-card"><div class="dex-kpi-label">Paid Vends</div><div id="dexKpiVends" class="dex-kpi-value">0</div><div class="dex-kpi-note">Cumulative successful vends</div></div>
-                        <div class="dex-kpi-card"><div class="dex-kpi-label">Cash Sales</div><div id="dexKpiCash" class="dex-kpi-value">$0.00</div><div class="dex-kpi-note">Coins and bills</div></div>
-                        <div class="dex-kpi-card"><div class="dex-kpi-label">Card Sales</div><div id="dexKpiCard" class="dex-kpi-value">$0.00</div><div class="dex-kpi-note">Cashless audit total</div></div>
-                        <div class="dex-kpi-card"><div class="dex-kpi-label">Low / Empty</div><div id="dexKpiLowStock" class="dex-kpi-value">0</div><div class="dex-kpi-note">From the current Product Map</div></div>
-                        <div class="dex-kpi-card"><div class="dex-kpi-label">Active Events</div><div id="dexKpiEvents" class="dex-kpi-value">0</div><div class="dex-kpi-note">Open machine conditions</div></div>
+                    <div class="dex-history-section dex-history-first">
+                        <div class="dex-history-head">
+                            <div>
+                                <div class="section-title">DEX Read History</div>
+                                <div class="muted">Select a read to inspect its parsed values and RAW DATA.</div>
+                            </div>
+                        </div>
+                        <div class="dex-history-scroll">
+                            <table class="table dex-history-table">
+                                <thead><tr><th>Read Time</th><th>Type</th><th>Trigger</th><th>Status</th><th>Validation</th><th>Email</th><th>Records</th><th>Actions</th></tr></thead>
+                                <tbody id="dexHistoryBody"></tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <div class="dex-view-panel">
@@ -2663,7 +2709,7 @@
                                 <div id="dexCategoryTabs" class="dex-category-tabs" aria-label="DEX parsed data categories"></div>
                                 <div class="dex-table-wrap">
                                     <table class="table dex-table">
-                                        <thead><tr><th>DEX ID</th><th>Definition</th><th>Last Read</th><th>Selected Read</th><th>Delta</th></tr></thead>
+                                        <thead><tr><th>DEX ID</th><th>Definition</th><th>Selected Value</th><th>Change vs Previous</th></tr></thead>
                                         <tbody id="dexParsedBody"></tbody>
                                     </table>
                                 </div>
@@ -2681,21 +2727,6 @@
                                 </div>
                                 <pre id="dexRawContent" class="dex-raw-pre" tabindex="0" aria-label="Selected DEX raw data"></pre>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="dex-history-section">
-                        <div class="dex-history-head">
-                            <div>
-                                <div class="section-title">DEX Read History</div>
-                                <div class="muted">Select a read to compare it with the latest audit values.</div>
-                            </div>
-                        </div>
-                        <div class="table-wrap" style="overflow-x:auto">
-                            <table class="table dex-history-table">
-                                <thead><tr><th>Read Time</th><th>Type</th><th>Source</th><th>Status</th><th>Validation</th><th>Records</th><th>Actions</th></tr></thead>
-                                <tbody id="dexHistoryBody"></tbody>
-                            </table>
                         </div>
                     </div>
                 </section>
@@ -2866,6 +2897,115 @@
                 <button id="terminalTypeCancel" class="btn-secondary" type="button">Cancel</button>
             </div>
         </div>
+    </div>
+
+    <div id="dexSettingsModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dexSettingsTitle">
+        <form id="dexSettingsForm" class="feature-modal dex-settings-dialog" novalidate>
+            <div class="feature-modal-header">
+                <h2 id="dexSettingsTitle" class="feature-modal-title">DEX Settings</h2>
+            </div>
+            <div id="dexSettingsTabs" class="dex-settings-tabs" role="tablist" aria-label="DEX settings sections">
+                <button id="dexScheduleTab" class="dex-settings-tab active" type="button" role="tab" aria-selected="true" aria-controls="dexSchedulePanel" data-dex-settings-tab="schedule">Read Schedule</button>
+                <button id="dexRulesTab" class="dex-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="dexRulesPanel" tabindex="-1" data-dex-settings-tab="rules">Parsing &amp; Rules</button>
+                <button id="dexEmailTab" class="dex-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="dexEmailPanel" tabindex="-1" data-dex-settings-tab="email">Email Notifications</button>
+            </div>
+            <div class="feature-modal-body">
+                <section id="dexSchedulePanel" class="dex-settings-panel active" role="tabpanel" aria-labelledby="dexScheduleTab" data-dex-settings-panel="schedule">
+                    <div class="dex-settings-grid">
+                        <div class="dex-settings-field full">
+                            <div class="dex-switch-row">
+                                <div class="dex-switch-copy"><strong>Automatic DEX Read</strong><span>Queue reads for this machine using its local time.</span></div>
+                                <label class="dex-switch"><input id="dexScheduleEnabled" type="checkbox"><span class="dex-switch-track"></span><span class="sr-only">Enable automatic DEX reads</span></label>
+                            </div>
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexScheduleMode">Schedule Mode</label>
+                            <select id="dexScheduleMode"><option value="interval">Interval</option><option value="fixed">Fixed Times</option></select>
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexScheduledReadType">Scheduled Read Type</label>
+                            <select id="dexScheduledReadType"><option value="Delta">Delta</option><option value="Full">Full</option></select>
+                        </div>
+                        <div id="dexIntervalField" class="dex-settings-field full">
+                            <label for="dexIntervalMinutes">Read Every</label>
+                            <input id="dexIntervalMinutes" type="number" min="1" max="999" step="1" inputmode="numeric">
+                            <div class="dex-settings-help">Minutes, from 1 to 999.</div>
+                            <div id="dexIntervalError" class="dex-settings-error" role="alert"></div>
+                        </div>
+                        <div id="dexFixedTimesField" class="dex-settings-field full" hidden>
+                            <span class="dex-settings-label">Read Times</span>
+                            <div id="dexFixedTimesList" class="dex-time-list"></div>
+                            <button id="dexAddTimeButton" class="btn-secondary dex-add-time" type="button">Add Time</button>
+                            <div class="dex-settings-help">Add up to 12 times in 24-hour format.</div>
+                            <div id="dexFixedTimesError" class="dex-settings-error" role="alert"></div>
+                        </div>
+                        <div id="dexFullScheduleWarning" class="dex-settings-field full dex-warning-note" hidden>Scheduled Full DEX reads contain all IDs and may use more data than Delta reads.</div>
+                        <div id="dexNextReadPreview" class="dex-settings-field full dex-next-read">Next read: Not scheduled</div>
+                    </div>
+                </section>
+
+                <section id="dexRulesPanel" class="dex-settings-panel" role="tabpanel" aria-labelledby="dexRulesTab" data-dex-settings-panel="rules">
+                    <div class="dex-settings-grid">
+                        <div class="dex-settings-field full">
+                            <label for="dexProtocolType">DEX Type</label>
+                            <select id="dexProtocolType">
+                                <option value="DEX/UCS">DEX/UCS</option>
+                                <option value="DDCMP RS232">DDCMP RS232</option>
+                                <option value="VCCS Printer">VCCS Printer</option>
+                                <option value="Rhea Machine">Rhea Machine</option>
+                            </select>
+                            <div class="dex-settings-help">DEX/UCS is recommended for most vending machines.</div>
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexRetryAttempts">Retry Attempts</label>
+                            <input id="dexRetryAttempts" type="number" min="0" step="1" inputmode="numeric">
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexRetryPeriod">Retry Period (seconds)</label>
+                            <input id="dexRetryPeriod" type="number" min="0" step="1" inputmode="numeric">
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexMultiplyCoins">Multiply Coins By</label>
+                            <input id="dexMultiplyCoins" type="number" min="0.0001" step="0.01" inputmode="decimal">
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexDivideBills">Divide Bills By</label>
+                            <input id="dexDivideBills" type="number" min="0.0001" step="0.01" inputmode="decimal">
+                        </div>
+                        <div class="dex-settings-field">
+                            <label for="dexMultiplyTubes">Multiply Tubes By</label>
+                            <input id="dexMultiplyTubes" type="number" min="0.0001" step="0.01" inputmode="decimal">
+                        </div>
+                        <div id="dexRulesWarning" class="dex-settings-field full dex-warning-note" hidden>Non-default protocol or scaling values can prevent reads from completing or produce incorrect monetary values.</div>
+                        <div id="dexRulesError" class="dex-settings-field full dex-settings-error" role="alert"></div>
+                    </div>
+                </section>
+
+                <section id="dexEmailPanel" class="dex-settings-panel" role="tabpanel" aria-labelledby="dexEmailTab" data-dex-settings-panel="email">
+                    <div class="dex-settings-grid">
+                        <div class="dex-settings-field full">
+                            <div class="dex-switch-row">
+                                <div class="dex-switch-copy"><strong>Email DEX Files</strong><span>Send each received DEX file with a short read summary.</span></div>
+                                <label class="dex-switch"><input id="dexEmailEnabled" type="checkbox"><span class="dex-switch-track"></span><span class="sr-only">Enable DEX email notifications</span></label>
+                            </div>
+                        </div>
+                        <div class="dex-settings-field full">
+                            <label for="dexEmailInput">Recipients</label>
+                            <div id="dexEmailTags" class="dex-email-tags">
+                                <input id="dexEmailInput" class="dex-email-input" type="email" autocomplete="off" placeholder="name@example.com">
+                            </div>
+                            <div class="dex-settings-help">Press Enter or type a comma to add another recipient.</div>
+                            <div id="dexEmailError" class="dex-settings-error" role="alert"></div>
+                        </div>
+                        <div class="dex-settings-field full dex-email-preview"><strong>Email content</strong><br>Terminal name, SN, read time, read type and validation status in the message, with the original .dex.txt file attached.</div>
+                    </div>
+                </section>
+            </div>
+            <div class="feature-modal-footer dex-settings-footer">
+                <button class="btn-secondary" type="button" data-feature-close>Cancel</button>
+                <button id="dexSettingsSave" class="btn-primary" type="submit">Save Settings</button>
+            </div>
+        </form>
     </div>
 
     <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
@@ -5460,23 +5600,11 @@ paymentTimeout=180`
 
         const dexElements = {
             root: byId('tab-dex'),
-            snapshotHeading: byId('dexSnapshotHeading'),
-            snapshotStatus: byId('dexSnapshotStatus'),
             requestStatus: byId('dexRequestStatus'),
+            settingsButton: byId('dexSettingsButton'),
             refresh: byId('dexRefreshButton'),
             read: byId('dexReadButton'),
             fullRead: byId('dexFullReadButton'),
-            metaReadAt: byId('dexMetaReadAt'),
-            metaAge: byId('dexMetaAge'),
-            metaType: byId('dexMetaType'),
-            metaSource: byId('dexMetaSource'),
-            metaValidation: byId('dexMetaValidation'),
-            kpiSales: byId('dexKpiSales'),
-            kpiVends: byId('dexKpiVends'),
-            kpiCash: byId('dexKpiCash'),
-            kpiCard: byId('dexKpiCard'),
-            kpiLowStock: byId('dexKpiLowStock'),
-            kpiEvents: byId('dexKpiEvents'),
             viewTabs: byId('dexViewTabs'),
             parsedPanel: byId('dexParsedPanel'),
             rawPanel: byId('dexRawPanel'),
@@ -5486,7 +5614,39 @@ paymentTimeout=180`
             rawContent: byId('dexRawContent'),
             copyRaw: byId('dexCopyRaw'),
             downloadRaw: byId('dexDownloadRaw'),
-            historyBody: byId('dexHistoryBody')
+            historyBody: byId('dexHistoryBody'),
+            automationSchedule: byId('dexAutomationSchedule'),
+            automationNext: byId('dexAutomationNext'),
+            automationEmail: byId('dexAutomationEmail')
+        };
+        const dexSettingsElements = {
+            modal: byId('dexSettingsModal'),
+            form: byId('dexSettingsForm'),
+            tabs: byId('dexSettingsTabs'),
+            scheduleEnabled: byId('dexScheduleEnabled'),
+            scheduleMode: byId('dexScheduleMode'),
+            scheduledReadType: byId('dexScheduledReadType'),
+            intervalField: byId('dexIntervalField'),
+            intervalMinutes: byId('dexIntervalMinutes'),
+            intervalError: byId('dexIntervalError'),
+            fixedTimesField: byId('dexFixedTimesField'),
+            fixedTimesList: byId('dexFixedTimesList'),
+            fixedTimesError: byId('dexFixedTimesError'),
+            addTime: byId('dexAddTimeButton'),
+            fullWarning: byId('dexFullScheduleWarning'),
+            nextPreview: byId('dexNextReadPreview'),
+            protocolType: byId('dexProtocolType'),
+            retryAttempts: byId('dexRetryAttempts'),
+            retryPeriod: byId('dexRetryPeriod'),
+            multiplyCoins: byId('dexMultiplyCoins'),
+            divideBills: byId('dexDivideBills'),
+            multiplyTubes: byId('dexMultiplyTubes'),
+            rulesWarning: byId('dexRulesWarning'),
+            rulesError: byId('dexRulesError'),
+            emailEnabled: byId('dexEmailEnabled'),
+            emailTags: byId('dexEmailTags'),
+            emailInput: byId('dexEmailInput'),
+            emailError: byId('dexEmailError')
         };
         const dexCategories = [
             { key: 'all', label: 'All' },
@@ -5501,6 +5661,17 @@ paymentTimeout=180`
         let selectedDexId = null;
         let activeDexJobId = null;
         let dexControlSequence = 10;
+        let activeDexSettingsTab = 'schedule';
+        let dexDraftRecipients = [];
+        let dexSchedulerTimer = 0;
+        const dexStorageKey = `paywizard.dex.v1:${terminalContext.sn}`;
+        const defaultDexSettings = {
+            schedule: { enabled: true, mode: 'interval', intervalMinutes: 60, fixedTimes: ['08:00', '12:00', '18:00'], readType: 'Delta' },
+            parsing: { type: 'DEX/UCS', retryAttempts: 2, retryPeriod: 60, multiplyCoinsBy: 1, divideBillsBy: 1, multiplyTubesBy: 1 },
+            email: { enabled: false, recipients: [], channel: 'email', payload: 'raw-summary' }
+        };
+        let dexSettings = JSON.parse(JSON.stringify(defaultDexSettings));
+        let nextScheduledReadAt = null;
 
         function dexStatusClass(status){
             const normalized = canonicalText(status);
@@ -5593,6 +5764,15 @@ paymentTimeout=180`
             }
             return number;
         }
+        function scaleDexCurrency(rawValue, result, label, operation){
+            const number = parseDexNumber(rawValue, result, label);
+            if(number == null) return null;
+            const parsing = dexSettings && dexSettings.parsing ? dexSettings.parsing : defaultDexSettings.parsing;
+            if(operation === 'bills') return Math.round(number / parsing.divideBillsBy);
+            if(operation === 'tubes') return Math.round(number * parsing.multiplyTubesBy);
+            if(operation === 'coins') return Math.round(number * parsing.multiplyCoinsBy);
+            return number;
+        }
         function parseDex(raw, mapSnapshot){
             const result = { records: [], metrics: new Map(), warnings: [], failed: false, error: '', lineCount: 0 };
             const lines = String(raw || '').replace(/\r\n?/g, '\n').split('\n').map(line => line.trim()).filter(Boolean);
@@ -5640,12 +5820,13 @@ paymentTimeout=180`
                 }
                 if(line.id === 'CA2'){
                     const labels = ['Cash vend value since initialization', 'Cash vend count since initialization', 'Cash vend value since reset', 'Cash vend count since reset'];
-                    fields.slice(0, 4).forEach((value, index) => createMetric(result, `CA2.${String(index + 1).padStart(2, '0')}`, `CA2.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexNumber(value, result, `CA2.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
+                    fields.slice(0, 4).forEach((value, index) => createMetric(result, `CA2.${String(index + 1).padStart(2, '0')}`, `CA2.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', index % 2 === 0 ? scaleDexCurrency(value, result, `CA2.${index + 1}`, 'coins') : parseDexNumber(value, result, `CA2.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
                     return;
                 }
                 if(line.id === 'CA3'){
                     const labels = ['Cash in since reset', 'Cash to box since reset', 'Cash to tubes since reset', 'Bills to box since reset', 'Cash in since initialization', 'Cash to box since initialization', 'Cash to tubes since initialization', 'Bills to box since initialization', 'Manual cash dispensed', 'Coin tube value'];
-                    fields.forEach((value, index) => createMetric(result, `CA3.${String(index + 1).padStart(2, '0')}`, `CA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash audit field ${index + 1}`, 'payment', parseDexNumber(value, result, `CA3.${index + 1}`), 'currency'));
+                    const operations = ['coins', 'coins', 'tubes', 'bills', 'coins', 'coins', 'tubes', 'bills', 'coins', 'tubes'];
+                    fields.forEach((value, index) => createMetric(result, `CA3.${String(index + 1).padStart(2, '0')}`, `CA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash audit field ${index + 1}`, 'payment', scaleDexCurrency(value, result, `CA3.${index + 1}`, operations[index]), 'currency'));
                     return;
                 }
                 if(line.id === 'DA2'){
@@ -5704,6 +5885,299 @@ paymentTimeout=180`
             return result;
         }
 
+        function cloneDexSettings(value){
+            return JSON.parse(JSON.stringify(value));
+        }
+        function normalizeDexSettings(value){
+            const source = value && typeof value === 'object' ? value : {};
+            const schedule = source.schedule && typeof source.schedule === 'object' ? source.schedule : {};
+            const parsing = source.parsing && typeof source.parsing === 'object' ? source.parsing : {};
+            const email = source.email && typeof source.email === 'object' ? source.email : {};
+            const fixedTimes = Array.isArray(schedule.fixedTimes)
+                ? Array.from(new Set(schedule.fixedTimes.filter(item => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(item))))).slice(0, 12)
+                : defaultDexSettings.schedule.fixedTimes.slice();
+            const recipients = Array.isArray(email.recipients)
+                ? Array.from(new Set(email.recipients.map(item => canonicalText(item)).filter(isDexEmail))).slice(0, 20)
+                : [];
+            return {
+                schedule: {
+                    enabled: Boolean(schedule.enabled),
+                    mode: schedule.mode === 'fixed' ? 'fixed' : 'interval',
+                    intervalMinutes: Math.min(999, Math.max(1, Math.round(Number(schedule.intervalMinutes) || 60))),
+                    fixedTimes: fixedTimes.length ? fixedTimes : ['08:00'],
+                    readType: schedule.readType === 'Full' ? 'Full' : 'Delta'
+                },
+                parsing: {
+                    type: ['DEX/UCS', 'DDCMP RS232', 'VCCS Printer', 'Rhea Machine'].includes(parsing.type) ? parsing.type : 'DEX/UCS',
+                    retryAttempts: Math.max(0, Math.round(Number(parsing.retryAttempts) || 0)),
+                    retryPeriod: Math.max(0, Math.round(Number(parsing.retryPeriod) || 0)),
+                    multiplyCoinsBy: Number(parsing.multiplyCoinsBy) > 0 ? Number(parsing.multiplyCoinsBy) : 1,
+                    divideBillsBy: Number(parsing.divideBillsBy) > 0 ? Number(parsing.divideBillsBy) : 1,
+                    multiplyTubesBy: Number(parsing.multiplyTubesBy) > 0 ? Number(parsing.multiplyTubesBy) : 1
+                },
+                email: { enabled: Boolean(email.enabled), recipients, channel: 'email', payload: 'raw-summary' }
+            };
+        }
+        function isDexEmail(value){
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+        }
+        function calculateNextDexRead(fromTime){
+            if(!dexSettings.schedule.enabled) return null;
+            const now = new Date(fromTime == null ? Date.now() : fromTime);
+            if(dexSettings.schedule.mode === 'interval') return now.getTime() + dexSettings.schedule.intervalMinutes * 60000;
+            const times = dexSettings.schedule.fixedTimes.slice().sort();
+            for(const value of times){
+                const [hour, minute] = value.split(':').map(Number);
+                const candidate = new Date(now);
+                candidate.setHours(hour, minute, 0, 0);
+                if(candidate.getTime() > now.getTime()) return candidate.getTime();
+            }
+            const [hour, minute] = times[0].split(':').map(Number);
+            const nextDay = new Date(now);
+            nextDay.setDate(nextDay.getDate() + 1);
+            nextDay.setHours(hour, minute, 0, 0);
+            return nextDay.getTime();
+        }
+        function scheduleSummary(){
+            if(!dexSettings.schedule.enabled) return 'Off';
+            const timing = dexSettings.schedule.mode === 'interval'
+                ? `Every ${dexSettings.schedule.intervalMinutes} min`
+                : dexSettings.schedule.fixedTimes.join(', ');
+            return `${timing} · ${dexSettings.schedule.readType}`;
+        }
+        function renderDexAutomation(){
+            dexElements.automationSchedule.textContent = scheduleSummary();
+            dexElements.automationNext.textContent = nextScheduledReadAt ? formatDateTime(nextScheduledReadAt) : 'Not scheduled';
+            dexElements.automationEmail.textContent = dexSettings.email.enabled
+                ? `${dexSettings.email.recipients.length} recipient${dexSettings.email.recipients.length === 1 ? '' : 's'}`
+                : 'Off';
+        }
+        function serializableDexSnapshots(){
+            return dexSnapshots.slice(0, 30).map(snapshot => ({ ...snapshot, parsed: null }));
+        }
+        function persistDexState(){
+            try {
+                sessionStorage.setItem(dexStorageKey, JSON.stringify({
+                    version: 1,
+                    settings: dexSettings,
+                    nextScheduledReadAt,
+                    snapshots: serializableDexSnapshots(),
+                    controlSequence: dexControlSequence
+                }));
+                return true;
+            } catch(error){
+                return false;
+            }
+        }
+        function loadDexState(){
+            try {
+                const raw = sessionStorage.getItem(dexStorageKey);
+                if(!raw) return false;
+                const saved = JSON.parse(raw);
+                if(!saved || saved.version !== 1) return false;
+                dexSettings = normalizeDexSettings(saved.settings);
+                if(Array.isArray(saved.snapshots) && saved.snapshots.length){
+                    dexSnapshots = saved.snapshots.map(snapshot => ({ ...snapshot, parsed: null }));
+                }
+                dexControlSequence = Math.max(10, Number(saved.controlSequence) || 10);
+                nextScheduledReadAt = Number(saved.nextScheduledReadAt) || null;
+                return true;
+            } catch(error){
+                try { sessionStorage.removeItem(dexStorageKey); } catch(removeError){}
+                dexSettings = cloneDexSettings(defaultDexSettings);
+                return false;
+            }
+        }
+        function emailStatusForSnapshot(snapshot){
+            const value = snapshot && snapshot.emailStatus ? snapshot.emailStatus : 'Not Sent';
+            if(value === 'Sent') return { text: 'Sent', className: 'sent' };
+            if(value === 'Pending') return { text: 'Pending', className: 'pending' };
+            if(value === 'Failed') return { text: 'Failed', className: 'failed' };
+            return { text: 'Not Sent', className: 'none' };
+        }
+        function queueDexEmail(snapshot){
+            if(!snapshot || !snapshot.raw || !dexSettings.email.enabled || !dexSettings.email.recipients.length){
+                if(snapshot) snapshot.emailStatus = 'Not Sent';
+                persistDexState();
+                return;
+            }
+            snapshot.emailStatus = 'Pending';
+            snapshot.emailRecipients = dexSettings.email.recipients.slice();
+            persistDexState();
+            renderDexHistory();
+            window.setTimeout(() => {
+                snapshot.emailStatus = 'Sent';
+                snapshot.emailSentAt = Date.now();
+                persistDexState();
+                renderDexHistory();
+                showToast(`DEX file emailed to ${snapshot.emailRecipients.length} recipient${snapshot.emailRecipients.length === 1 ? '' : 's'}.`);
+            }, 450);
+        }
+        function setDexSettingsTab(key, focus){
+            activeDexSettingsTab = ['schedule', 'rules', 'email'].includes(key) ? key : 'schedule';
+            Array.from(dexSettingsElements.tabs.querySelectorAll('[data-dex-settings-tab]')).forEach(tab => {
+                const active = tab.getAttribute('data-dex-settings-tab') === activeDexSettingsTab;
+                tab.classList.toggle('active', active);
+                tab.setAttribute('aria-selected', String(active));
+                tab.setAttribute('tabindex', active ? '0' : '-1');
+                if(active && focus) tab.focus();
+            });
+            Array.from(dexSettingsElements.modal.querySelectorAll('[data-dex-settings-panel]')).forEach(panel => {
+                panel.classList.toggle('active', panel.getAttribute('data-dex-settings-panel') === activeDexSettingsTab);
+            });
+        }
+        function renderDexTimeRows(){
+            const times = Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean);
+            const values = times.length ? times : dexSettings.schedule.fixedTimes.slice();
+            dexSettingsElements.fixedTimesList.innerHTML = values.map((value, index) => `
+                <div class="dex-time-row">
+                    <input type="time" value="${escapeHtml(value)}" aria-label="DEX read time ${index + 1}">
+                    <button class="dex-time-remove" type="button" data-dex-remove-time="${index}" aria-label="Remove ${escapeHtml(value)}"><img src="assets/icons/delete.svg" alt=""></button>
+                </div>
+            `).join('');
+            dexSettingsElements.addTime.disabled = values.length >= 12;
+        }
+        function updateDexSettingsVisibility(){
+            const scheduleOn = dexSettingsElements.scheduleEnabled.checked;
+            const fixed = dexSettingsElements.scheduleMode.value === 'fixed';
+            dexSettingsElements.scheduleMode.disabled = !scheduleOn;
+            dexSettingsElements.scheduledReadType.disabled = !scheduleOn;
+            dexSettingsElements.intervalMinutes.disabled = !scheduleOn || fixed;
+            dexSettingsElements.intervalField.hidden = fixed;
+            dexSettingsElements.fixedTimesField.hidden = !fixed;
+            dexSettingsElements.addTime.disabled = !scheduleOn || dexSettingsElements.fixedTimesList.children.length >= 12;
+            dexSettingsElements.fullWarning.hidden = !scheduleOn || dexSettingsElements.scheduledReadType.value !== 'Full';
+            const retries = Math.max(0, Number(dexSettingsElements.retryAttempts.value) || 0);
+            dexSettingsElements.retryPeriod.disabled = retries === 0;
+            const customRules = dexSettingsElements.protocolType.value !== 'DEX/UCS' || [dexSettingsElements.multiplyCoins.value, dexSettingsElements.divideBills.value, dexSettingsElements.multiplyTubes.value].some(value => Number(value) !== 1);
+            dexSettingsElements.rulesWarning.hidden = !customRules;
+            dexSettingsElements.emailInput.disabled = !dexSettingsElements.emailEnabled.checked;
+            const previewSettings = {
+                schedule: {
+                    enabled: scheduleOn,
+                    mode: dexSettingsElements.scheduleMode.value,
+                    intervalMinutes: Number(dexSettingsElements.intervalMinutes.value) || 60,
+                    fixedTimes: Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean),
+                    readType: dexSettingsElements.scheduledReadType.value
+                }
+            };
+            const originalSchedule = dexSettings.schedule;
+            dexSettings.schedule = normalizeDexSettings(previewSettings).schedule;
+            const previewNext = calculateNextDexRead(Date.now());
+            dexSettings.schedule = originalSchedule;
+            dexSettingsElements.nextPreview.textContent = `Next read: ${previewNext ? formatDateTime(previewNext) : 'Not scheduled'}`;
+        }
+        function renderDexEmailTags(){
+            Array.from(dexSettingsElements.emailTags.querySelectorAll('.dex-email-tag')).forEach(tag => tag.remove());
+            dexDraftRecipients.forEach((email, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'dex-email-tag';
+                tag.innerHTML = `<span>${escapeHtml(email)}</span><button type="button" data-dex-remove-email="${index}" aria-label="Remove ${escapeHtml(email)}">&times;</button>`;
+                dexSettingsElements.emailTags.insertBefore(tag, dexSettingsElements.emailInput);
+            });
+        }
+        function addDexRecipient(rawValue, showError){
+            const values = String(rawValue || '').split(/[;,\s]+/).map(value => canonicalText(value)).filter(Boolean);
+            let invalid = '';
+            values.forEach(value => {
+                if(!isDexEmail(value)) invalid = value;
+                else if(!dexDraftRecipients.includes(value)) dexDraftRecipients.push(value);
+            });
+            dexDraftRecipients = dexDraftRecipients.slice(0, 20);
+            dexSettingsElements.emailInput.value = invalid || '';
+            if(showError) dexSettingsElements.emailError.textContent = invalid ? `Enter a valid email address: ${invalid}` : '';
+            renderDexEmailTags();
+            return !invalid;
+        }
+        function populateDexSettingsForm(){
+            dexSettingsElements.scheduleEnabled.checked = dexSettings.schedule.enabled;
+            dexSettingsElements.scheduleMode.value = dexSettings.schedule.mode;
+            dexSettingsElements.scheduledReadType.value = dexSettings.schedule.readType;
+            dexSettingsElements.intervalMinutes.value = dexSettings.schedule.intervalMinutes;
+            dexSettingsElements.fixedTimesList.innerHTML = '';
+            renderDexTimeRows();
+            dexSettingsElements.protocolType.value = dexSettings.parsing.type;
+            dexSettingsElements.retryAttempts.value = dexSettings.parsing.retryAttempts;
+            dexSettingsElements.retryPeriod.value = dexSettings.parsing.retryPeriod;
+            dexSettingsElements.multiplyCoins.value = dexSettings.parsing.multiplyCoinsBy;
+            dexSettingsElements.divideBills.value = dexSettings.parsing.divideBillsBy;
+            dexSettingsElements.multiplyTubes.value = dexSettings.parsing.multiplyTubesBy;
+            dexSettingsElements.emailEnabled.checked = dexSettings.email.enabled;
+            dexDraftRecipients = dexSettings.email.recipients.slice();
+            dexSettingsElements.emailInput.value = '';
+            dexSettingsElements.intervalError.textContent = '';
+            dexSettingsElements.fixedTimesError.textContent = '';
+            dexSettingsElements.rulesError.textContent = '';
+            dexSettingsElements.emailError.textContent = '';
+            renderDexEmailTags();
+            updateDexSettingsVisibility();
+            setDexSettingsTab('schedule', false);
+        }
+        function validateDexSettingsForm(){
+            addDexRecipient(dexSettingsElements.emailInput.value, true);
+            dexSettingsElements.intervalError.textContent = '';
+            dexSettingsElements.fixedTimesError.textContent = '';
+            dexSettingsElements.rulesError.textContent = '';
+            if(dexSettingsElements.scheduleEnabled.checked){
+                if(dexSettingsElements.scheduleMode.value === 'interval'){
+                    const interval = Number(dexSettingsElements.intervalMinutes.value);
+                    if(!Number.isInteger(interval) || interval < 1 || interval > 999){
+                        dexSettingsElements.intervalError.textContent = 'Enter a whole number from 1 to 999.';
+                        setDexSettingsTab('schedule', false);
+                        dexSettingsElements.intervalMinutes.focus();
+                        return false;
+                    }
+                } else {
+                    const times = Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean);
+                    if(!times.length || new Set(times).size !== times.length){
+                        dexSettingsElements.fixedTimesError.textContent = !times.length ? 'Add at least one read time.' : 'Read times must be unique.';
+                        setDexSettingsTab('schedule', false);
+                        return false;
+                    }
+                }
+            }
+            const retryAttempts = Number(dexSettingsElements.retryAttempts.value);
+            const retryPeriod = Number(dexSettingsElements.retryPeriod.value);
+            const scales = [dexSettingsElements.multiplyCoins, dexSettingsElements.divideBills, dexSettingsElements.multiplyTubes];
+            if(!Number.isInteger(retryAttempts) || retryAttempts < 0 || !Number.isInteger(retryPeriod) || retryPeriod < 0 || scales.some(input => !Number.isFinite(Number(input.value)) || Number(input.value) <= 0)){
+                dexSettingsElements.rulesError.textContent = 'Retries must be non-negative whole numbers and scaling values must be greater than 0.';
+                setDexSettingsTab('rules', false);
+                return false;
+            }
+            if(dexSettingsElements.emailEnabled.checked && !dexDraftRecipients.length){
+                dexSettingsElements.emailError.textContent = 'Add at least one email recipient.';
+                setDexSettingsTab('email', false);
+                dexSettingsElements.emailInput.focus();
+                return false;
+            }
+            return true;
+        }
+        function saveDexSettingsFromForm(){
+            dexSettings = normalizeDexSettings({
+                schedule: {
+                    enabled: dexSettingsElements.scheduleEnabled.checked,
+                    mode: dexSettingsElements.scheduleMode.value,
+                    intervalMinutes: Number(dexSettingsElements.intervalMinutes.value),
+                    fixedTimes: Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean),
+                    readType: dexSettingsElements.scheduledReadType.value
+                },
+                parsing: {
+                    type: dexSettingsElements.protocolType.value,
+                    retryAttempts: Number(dexSettingsElements.retryAttempts.value),
+                    retryPeriod: Number(dexSettingsElements.retryPeriod.value),
+                    multiplyCoinsBy: Number(dexSettingsElements.multiplyCoins.value),
+                    divideBillsBy: Number(dexSettingsElements.divideBills.value),
+                    multiplyTubesBy: Number(dexSettingsElements.multiplyTubes.value)
+                },
+                email: { enabled: dexSettingsElements.emailEnabled.checked, recipients: dexDraftRecipients }
+            });
+            dexSnapshots.forEach(snapshot => { snapshot.parsed = null; });
+            nextScheduledReadAt = calculateNextDexRead(Date.now());
+            persistDexState();
+            renderDexAutomation();
+            renderDex();
+        }
+
         const seedNow = Date.now();
         const seedMap = getProductRows();
         const oldTotals = { sales: 98875, vends: 493, intervalSales: 4275, intervalVends: 21, cash: 36275, cashVends: 190, intervalCash: 1575, intervalCashVends: 8, card: 62600, cardVends: 303, intervalCard: 2700, intervalCardVends: 13 };
@@ -5713,12 +6187,20 @@ paymentTimeout=180`
         const deltaReadAt = seedNow - 34 * 60 * 1000;
         const latestReadAt = seedNow - 4 * 60 * 1000;
         let dexSnapshots = [
-            { id: 'dex-0009', type: 'Full', status: 'Parsed', validation: 'Passed', source: 'Scheduled', requestedAt: latestReadAt - 18000, readAt: latestReadAt, receivedAt: latestReadAt + 12000, raw: buildFullDexRaw(9, latestTotals, seedMap, latestReadAt, false), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-0008', type: 'Delta', status: 'Parsed', validation: 'Passed', source: 'Manual', requestedAt: deltaReadAt - 15000, readAt: deltaReadAt, receivedAt: deltaReadAt + 9000, raw: buildDeltaDexRaw(8, deltaTotals, seedMap, deltaReadAt), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-failed-01', type: 'Delta', status: 'Failed', validation: 'Failed', source: 'Scheduled', requestedAt: seedNow - 48 * 60 * 1000, readAt: seedNow - 47 * 60 * 1000, receivedAt: seedNow - 47 * 60 * 1000, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'No DEX response before the request timeout.' },
-            { id: 'dex-0007', type: 'Full', status: 'Warning', validation: 'Warnings', source: 'Scheduled', requestedAt: oldReadAt - 16000, readAt: oldReadAt, receivedAt: oldReadAt + 10000, raw: buildFullDexRaw(7, oldTotals, seedMap, oldReadAt, true), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-no-data-01', type: 'Delta', status: 'No Data', validation: 'Not received', source: 'Manual', requestedAt: seedNow - 51 * 60 * 60 * 1000, readAt: null, receivedAt: null, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'The machine returned no DEX payload for this request.' }
+            { id: 'dex-0009', type: 'Full', status: 'Parsed', validation: 'Passed', source: 'Scheduled', emailStatus: 'Sent', requestedAt: latestReadAt - 18000, readAt: latestReadAt, receivedAt: latestReadAt + 12000, raw: buildFullDexRaw(9, latestTotals, seedMap, latestReadAt, false), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-0008', type: 'Delta', status: 'Parsed', validation: 'Passed', source: 'Manual', emailStatus: 'Not Sent', requestedAt: deltaReadAt - 15000, readAt: deltaReadAt, receivedAt: deltaReadAt + 9000, raw: buildDeltaDexRaw(8, deltaTotals, seedMap, deltaReadAt), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-failed-01', type: 'Delta', status: 'Failed', validation: 'Failed', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 48 * 60 * 1000, readAt: seedNow - 47 * 60 * 1000, receivedAt: seedNow - 47 * 60 * 1000, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'No DEX response before the request timeout.' },
+            { id: 'dex-0007', type: 'Full', status: 'Warning', validation: 'Warnings', source: 'Scheduled', emailStatus: 'Failed', requestedAt: oldReadAt - 16000, readAt: oldReadAt, receivedAt: oldReadAt + 10000, raw: buildFullDexRaw(7, oldTotals, seedMap, oldReadAt, true), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-no-data-01', type: 'Delta', status: 'No Data', validation: 'Not received', source: 'Manual', emailStatus: 'Not Sent', requestedAt: seedNow - 51 * 60 * 60 * 1000, readAt: null, receivedAt: null, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'The machine returned no DEX payload for this request.' }
         ];
+        const restoredDexState = loadDexState();
+        if(!restoredDexState){
+            dexSettings = cloneDexSettings(defaultDexSettings);
+            nextScheduledReadAt = calculateNextDexRead(seedNow);
+            persistDexState();
+        } else if(dexSettings.schedule.enabled && !nextScheduledReadAt){
+            nextScheduledReadAt = calculateNextDexRead(seedNow);
+        }
         selectedDexId = dexSnapshots[0].id;
 
         function isUsableDexSnapshot(snapshot){
@@ -5795,13 +6277,14 @@ paymentTimeout=180`
         }
         function renderDexHistory(){
             if(!dexSnapshots.length){
-                dexElements.historyBody.innerHTML = '<tr><td colspan="7" class="dex-empty-state">No DEX reads are available for this machine.</td></tr>';
+                dexElements.historyBody.innerHTML = '<tr><td colspan="8" class="dex-empty-state">No DEX reads are available for this machine.</td></tr>';
                 return;
             }
             dexElements.historyBody.innerHTML = dexSnapshots.map(snapshot => {
                 const parsed = ensureDexParsed(snapshot);
                 const count = parsed ? parsed.lineCount : 0;
                 const readTime = snapshot.readAt || snapshot.requestedAt;
+                const email = emailStatusForSnapshot(snapshot);
                 return `
                     <tr class="${snapshot.id === selectedDexId ? 'is-selected' : ''}" data-dex-snapshot="${escapeHtml(snapshot.id)}">
                         <td>${escapeHtml(formatDateTime(readTime))}<span class="dex-history-sub">${escapeHtml(formatDexAge(snapshot.receivedAt || snapshot.requestedAt))}</span></td>
@@ -5809,57 +6292,36 @@ paymentTimeout=180`
                         <td>${escapeHtml(snapshot.source)}</td>
                         <td><span class="dex-status-badge ${dexStatusClass(snapshot.status)}">${escapeHtml(snapshot.status)}</span></td>
                         <td>${escapeHtml(snapshot.validation)}</td>
+                        <td><span class="dex-history-email ${email.className}">${escapeHtml(email.text)}</span></td>
                         <td>${escapeHtml(count)}</td>
                         <td><button class="dex-view-action" type="button" data-dex-view-snapshot="${escapeHtml(snapshot.id)}">View</button></td>
                     </tr>
                 `;
             }).join('');
         }
-        function clearDexKpis(){
-            dexElements.kpiSales.textContent = '--';
-            dexElements.kpiVends.textContent = '--';
-            dexElements.kpiCash.textContent = '--';
-            dexElements.kpiCard.textContent = '--';
-            dexElements.kpiLowStock.textContent = '--';
-            dexElements.kpiEvents.textContent = '--';
-        }
-        function renderDexKpis(effectiveMap){
-            dexElements.kpiSales.textContent = formatUsdFromCents(metricNumber(effectiveMap, 'VA1.01'));
-            dexElements.kpiVends.textContent = new Intl.NumberFormat('en-US').format(metricNumber(effectiveMap, 'VA1.02'));
-            dexElements.kpiCash.textContent = formatUsdFromCents(metricNumber(effectiveMap, 'CA2.01'));
-            dexElements.kpiCard.textContent = formatUsdFromCents(metricNumber(effectiveMap, 'DA2.01'));
-            const lowOrEmpty = productRows.filter(row => getStockStatus(row) !== 'in-stock').length;
-            dexElements.kpiLowStock.textContent = String(lowOrEmpty);
-            const activeEvents = Array.from(effectiveMap.values()).filter(metric => /^EA2\[.+\]\.05$/.test(metric.key) && metric.value === 'Active').length;
-            dexElements.kpiEvents.textContent = String(activeEvents);
-        }
         function renderDexParsed(snapshot){
             const parsed = ensureDexParsed(snapshot);
             if(!snapshot || !isUsableDexSnapshot(snapshot) || !parsed || parsed.failed){
                 const message = snapshot && snapshot.error ? snapshot.error : snapshot && (snapshot.status === 'Queued' || snapshot.status === 'Reading') ? `DEX request is ${snapshot.status.toLowerCase()}. Parsed data will appear when the terminal responds.` : 'No parsed DEX data is available for this read.';
-                dexElements.parsedBody.innerHTML = `<tr><td colspan="5" class="dex-empty-state">${escapeHtml(message)}</td></tr>`;
+                dexElements.parsedBody.innerHTML = `<tr><td colspan="4" class="dex-empty-state">${escapeHtml(message)}</td></tr>`;
                 return;
             }
-            const latest = latestUsableDexSnapshot();
             const previous = previousUsableDexSnapshot(snapshot);
             const selectedEffective = buildEffectiveDexMap(snapshot);
-            const latestEffective = latest ? buildEffectiveDexMap(latest) : new Map();
             const previousEffective = previous ? buildEffectiveDexMap(previous) : new Map();
             const visible = parsed.records.filter(metric => activeDexCategory === 'all' || metric.category === activeDexCategory);
             if(!visible.length){
-                dexElements.parsedBody.innerHTML = '<tr><td colspan="5" class="dex-empty-state">No parsed records are available in this category.</td></tr>';
+                dexElements.parsedBody.innerHTML = '<tr><td colspan="4" class="dex-empty-state">No parsed records are available in this category.</td></tr>';
                 return;
             }
             dexElements.parsedBody.innerHTML = visible.map(metric => {
                 const selectedMetric = selectedEffective.get(metric.key) || metric;
-                const latestMetric = latestEffective.get(metric.key);
                 const previousMetric = previousEffective.get(metric.key);
                 const delta = formatDexDelta(selectedMetric, previousMetric);
                 return `
                     <tr>
                         <td><span class="dex-id-code">${escapeHtml(metric.id)}</span></td>
                         <td><span class="dex-definition">${escapeHtml(metric.label)}</span>${metric.note ? `<span class="dex-definition-note">${escapeHtml(metric.note)}</span>` : ''}</td>
-                        <td class="dex-numeric-value">${escapeHtml(formatDexMetric(latestMetric))}</td>
                         <td class="dex-numeric-value">${escapeHtml(formatDexMetric(selectedMetric))}</td>
                         <td class="dex-numeric-value ${delta.className}">${escapeHtml(delta.text)}</td>
                     </tr>
@@ -5876,32 +6338,23 @@ paymentTimeout=180`
         }
         function renderDex(){
             const snapshot = selectedDexSnapshot();
+            renderDexAutomation();
             renderDexCategoryTabs();
             renderDexHistory();
             if(!snapshot){
-                dexElements.snapshotHeading.textContent = 'Latest DEX Snapshot';
-                dexElements.snapshotStatus.textContent = 'No Data';
-                dexElements.snapshotStatus.className = 'dex-status-badge failed';
-                dexElements.metaReadAt.textContent = '--';
-                dexElements.metaAge.textContent = '--';
-                dexElements.metaType.textContent = '--';
-                dexElements.metaSource.textContent = '--';
-                dexElements.metaValidation.textContent = '--';
-                clearDexKpis();
+                if(!activeDexJobId) setDexRequestMessage('No DEX data is available for this terminal.', true);
                 renderDexParsed(null);
                 renderDexRaw(null);
                 return;
             }
-            dexElements.snapshotHeading.textContent = dexSnapshots[0] && dexSnapshots[0].id === snapshot.id ? 'Latest DEX Snapshot' : 'Historical DEX Snapshot';
-            dexElements.snapshotStatus.textContent = snapshot.status === 'Warning' ? 'Parsed with warnings' : snapshot.status;
-            dexElements.snapshotStatus.className = `dex-status-badge ${dexStatusClass(snapshot.status)}`;
-            dexElements.metaReadAt.textContent = formatDateTime(snapshot.readAt || snapshot.requestedAt);
-            dexElements.metaAge.textContent = formatDexAge(snapshot.receivedAt || snapshot.requestedAt);
-            dexElements.metaType.textContent = snapshot.type;
-            dexElements.metaSource.textContent = snapshot.source;
-            dexElements.metaValidation.textContent = snapshot.validation;
-            if(isUsableDexSnapshot(snapshot)) renderDexKpis(buildEffectiveDexMap(snapshot));
-            else clearDexKpis();
+            if(!activeDexJobId){
+                const statusMessages = {
+                    Warning: 'The selected DEX read was parsed with validation warnings.',
+                    Failed: snapshot.error || 'The selected DEX read failed.',
+                    'No Data': 'No DEX file was received for the selected read.'
+                };
+                setDexRequestMessage(statusMessages[snapshot.status] || '', Boolean(statusMessages[snapshot.status]));
+            }
             renderDexParsed(snapshot);
             renderDexRaw(snapshot);
         }
@@ -5920,7 +6373,7 @@ paymentTimeout=180`
         }
         function setDexRequestMessage(message, active){
             dexElements.requestStatus.textContent = message;
-            dexElements.requestStatus.classList.toggle('is-active', Boolean(active));
+            dexElements.requestStatus.hidden = !active;
         }
         function setDexBusy(busy){
             dexElements.root.setAttribute('aria-busy', String(Boolean(busy)));
@@ -5943,8 +6396,9 @@ paymentTimeout=180`
                 intervalCardVends: metricNumber(map, 'DA2.04', 0)
             };
         }
-        function requestDexRead(type){
+        function requestDexRead(type, source){
             if(activeDexJobId) return;
+            const requestSource = source === 'Scheduled' ? 'Scheduled' : 'Manual';
             const previous = latestUsableDexSnapshot();
             const previousMap = previous ? buildEffectiveDexMap(previous) : new Map();
             const baseTotals = totalsFromEffectiveMap(previousMap);
@@ -5956,7 +6410,8 @@ paymentTimeout=180`
                 type,
                 status: 'Queued',
                 validation: 'Pending',
-                source: 'Manual',
+                source: requestSource,
+                emailStatus: 'Not Sent',
                 requestedAt,
                 readAt: null,
                 receivedAt: null,
@@ -5968,6 +6423,7 @@ paymentTimeout=180`
             dexSnapshots.unshift(snapshot);
             selectedDexId = id;
             activeDexJobId = id;
+            persistDexState();
             setDexBusy(true);
             setDexRequestMessage(`${type === 'Full' ? 'Full DEX' : 'DEX delta'} request queued for ${terminalContext.sn}. The terminal response may take a few minutes in production.`, true);
             renderDex();
@@ -5976,6 +6432,7 @@ paymentTimeout=180`
                 if(activeDexJobId !== id) return;
                 snapshot.status = 'Reading';
                 snapshot.readAt = Date.now();
+                persistDexState();
                 setDexRequestMessage(`Reading ${type === 'Full' ? 'full' : 'delta'} DEX data from the vending machine...`, true);
                 renderDex();
             }, 550);
@@ -6011,12 +6468,96 @@ paymentTimeout=180`
                 snapshot.validation = snapshot.parsed.failed ? 'Failed' : snapshot.parsed.warnings.length ? 'Warnings' : 'Passed';
                 snapshot.error = snapshot.parsed.error || '';
                 activeDexJobId = null;
+                persistDexState();
                 setDexBusy(false);
-                setDexRequestMessage(snapshot.status === 'Parsed' ? `${type} DEX read received and parsed successfully.` : `${type} DEX read completed with validation warnings.`, false);
+                setDexRequestMessage(snapshot.status === 'Parsed' ? '' : `${type} DEX read completed with validation warnings.`, snapshot.status !== 'Parsed');
                 renderDex();
                 showToast(`${type} DEX snapshot added to history.`);
+                if(snapshot.status === 'Parsed' || snapshot.status === 'Warning') queueDexEmail(snapshot);
             }, 1400);
         }
+
+        function runDexScheduleCheck(){
+            if(!dexSettings.schedule.enabled || !nextScheduledReadAt || nextScheduledReadAt > Date.now() || activeDexJobId) return;
+            const scheduledType = dexSettings.schedule.readType;
+            nextScheduledReadAt = calculateNextDexRead(Date.now());
+            persistDexState();
+            renderDexAutomation();
+            requestDexRead(scheduledType, 'Scheduled');
+        }
+
+        dexElements.settingsButton.addEventListener('click', () => {
+            populateDexSettingsForm();
+            openFeatureModal(dexSettingsElements.modal, '[data-dex-settings-tab="schedule"]');
+        });
+        dexSettingsElements.tabs.addEventListener('click', evt => {
+            const tab = evt.target.closest('[data-dex-settings-tab]');
+            if(tab) setDexSettingsTab(tab.getAttribute('data-dex-settings-tab'), false);
+        });
+        dexSettingsElements.tabs.addEventListener('keydown', evt => {
+            if(!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(evt.key)) return;
+            evt.preventDefault();
+            const keys = ['schedule', 'rules', 'email'];
+            let index = keys.indexOf(activeDexSettingsTab);
+            if(evt.key === 'Home') index = 0;
+            else if(evt.key === 'End') index = keys.length - 1;
+            else index = (index + (evt.key === 'ArrowRight' ? 1 : -1) + keys.length) % keys.length;
+            setDexSettingsTab(keys[index], true);
+        });
+        [dexSettingsElements.scheduleEnabled, dexSettingsElements.scheduleMode, dexSettingsElements.scheduledReadType, dexSettingsElements.intervalMinutes, dexSettingsElements.protocolType, dexSettingsElements.retryAttempts, dexSettingsElements.multiplyCoins, dexSettingsElements.divideBills, dexSettingsElements.multiplyTubes, dexSettingsElements.emailEnabled].forEach(control => {
+            control.addEventListener('input', updateDexSettingsVisibility);
+            control.addEventListener('change', updateDexSettingsVisibility);
+        });
+        dexSettingsElements.fixedTimesList.addEventListener('input', updateDexSettingsVisibility);
+        dexSettingsElements.fixedTimesList.addEventListener('click', evt => {
+            const remove = evt.target.closest('[data-dex-remove-time]');
+            if(!remove) return;
+            const rows = Array.from(dexSettingsElements.fixedTimesList.children);
+            if(rows.length <= 1){
+                const input = rows[0] && rows[0].querySelector('input');
+                if(input) input.value = '';
+            } else {
+                remove.closest('.dex-time-row').remove();
+            }
+            updateDexSettingsVisibility();
+        });
+        dexSettingsElements.addTime.addEventListener('click', () => {
+            const current = Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean);
+            if(current.length >= 12) return;
+            const row = document.createElement('div');
+            row.className = 'dex-time-row';
+            const index = dexSettingsElements.fixedTimesList.children.length;
+            row.innerHTML = `<input type="time" aria-label="DEX read time ${index + 1}"><button class="dex-time-remove" type="button" data-dex-remove-time="${index}" aria-label="Remove read time"><img src="assets/icons/delete.svg" alt=""></button>`;
+            dexSettingsElements.fixedTimesList.appendChild(row);
+            updateDexSettingsVisibility();
+            row.querySelector('input').focus();
+        });
+        dexSettingsElements.emailInput.addEventListener('keydown', evt => {
+            if(evt.key === 'Enter' || evt.key === ','){
+                evt.preventDefault();
+                addDexRecipient(dexSettingsElements.emailInput.value, true);
+            } else if(evt.key === 'Backspace' && !dexSettingsElements.emailInput.value && dexDraftRecipients.length){
+                dexDraftRecipients.pop();
+                renderDexEmailTags();
+            }
+        });
+        dexSettingsElements.emailInput.addEventListener('blur', () => {
+            if(dexSettingsElements.emailInput.value.trim()) addDexRecipient(dexSettingsElements.emailInput.value, true);
+        });
+        dexSettingsElements.emailTags.addEventListener('click', evt => {
+            const remove = evt.target.closest('[data-dex-remove-email]');
+            if(!remove) return;
+            dexDraftRecipients.splice(Number(remove.getAttribute('data-dex-remove-email')), 1);
+            renderDexEmailTags();
+            dexSettingsElements.emailInput.focus();
+        });
+        dexSettingsElements.form.addEventListener('submit', evt => {
+            evt.preventDefault();
+            if(!validateDexSettingsForm()) return;
+            saveDexSettingsFromForm();
+            closeFeatureModal(dexSettingsElements.modal);
+            showToast('DEX settings saved.');
+        });
 
         dexElements.categoryTabs.addEventListener('click', evt => {
             const button = evt.target.closest('[data-dex-category]');
@@ -6043,12 +6584,6 @@ paymentTimeout=180`
             selectedDexId = id;
             dexElements.rawSearch.value = '';
             renderDex();
-            const selected = selectedDexSnapshot();
-            if(selected && dexSnapshots[0] && selected.id === dexSnapshots[0].id){
-                setDexRequestMessage('Showing the latest received audit snapshot.', false);
-            } else if(selected){
-                setDexRequestMessage(`Viewing a historical ${selected.type} DEX request from ${formatDateTime(selected.readAt || selected.requestedAt)}.`, false);
-            }
         });
         dexElements.rawSearch.addEventListener('input', () => renderDexRaw(selectedDexSnapshot()));
         dexElements.read.addEventListener('click', () => requestDexRead('Delta'));
@@ -6058,8 +6593,9 @@ paymentTimeout=180`
             setDexRequestMessage('Checking DEX history for newer terminal responses...', true);
             window.setTimeout(() => {
                 dexElements.refresh.disabled = false;
-                setDexRequestMessage('DEX history refreshed. No newer terminal response was found.', false);
+                setDexRequestMessage('', false);
                 renderDex();
+                showToast('DEX history refreshed.');
             }, 450);
         });
         async function copyRawText(text){
@@ -6101,9 +6637,6 @@ paymentTimeout=180`
             window.setTimeout(() => URL.revokeObjectURL(url), 0);
             showToast('DEX RAW DATA downloaded.');
         });
-        document.addEventListener('productmap:changed', () => {
-            if(selectedDexSnapshot()) renderDexKpis(buildEffectiveDexMap(selectedDexSnapshot()));
-        });
         document.addEventListener('terminal:tabchange', evt => {
             if(evt.detail && evt.detail.key === 'dex') renderDex();
         });
@@ -6116,7 +6649,10 @@ paymentTimeout=180`
             }
         });
         setDexView('parsed', false);
+        renderDexAutomation();
         renderDex();
+        runDexScheduleCheck();
+        dexSchedulerTimer = window.setInterval(runDexScheduleCheck, 30000);
 
         renderProductMapInline();
         announceProductMap('Product Map loaded.');
