@@ -18,6 +18,7 @@ test("keeps the header compact and aligns the Terminal Type card with the dashbo
   await expect(card).toBeVisible();
   await expect(page.locator("#terminalTypeAttendance")).toHaveText("Unattended");
   await expect(page.locator("#terminalTypeName")).toHaveText("Vending Machine");
+  await expect(page.locator("#terminalTypeSummary")).toHaveClass(/unattended/);
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
   await expect(trigger).toHaveAttribute("aria-label", "Edit terminal type, current Vending Machine");
   await expect(trigger).toHaveText("");
@@ -30,6 +31,18 @@ test("keeps the header compact and aligns the Terminal Type card with the dashbo
   await expect(page.locator(".terminal-details-card .kv-list")).toContainText("Terminal Name:");
   await expect(page.locator(".terminal-details-card .kv-list")).toContainText("Version:");
   await expect(page.locator(".terminal-details-card")).not.toContainText("View Detail");
+
+  const visualParity = await page.evaluate(() => {
+    const detailsHeader = document.querySelector(".terminal-details-card .panel-title").getBoundingClientRect();
+    const typeHeader = document.querySelector(".terminal-type-card-head").getBoundingClientRect();
+    const summary = getComputedStyle(document.querySelector("#terminalTypeSummary"));
+    return {
+      headerDifference: Math.abs(detailsHeader.height - typeHeader.height),
+      borderWidths: [summary.borderTopWidth, summary.borderRightWidth, summary.borderBottomWidth, summary.borderLeftWidth]
+    };
+  });
+  expect(visualParity.headerDifference).toBeLessThanOrEqual(1);
+  expect(new Set(visualParity.borderWidths).size).toBe(1);
 
   const measureVisibleBottoms = () => page.evaluate(() => {
     const stats = document.querySelector(".stat-grid").getBoundingClientRect();
@@ -59,6 +72,14 @@ test("opens a fixed dialog with all six choices and saves immediately", async ({
   await expect(page.locator("#terminalTypeOptions [data-terminal-type]")).toHaveCount(6);
   await expect(page.getByRole("menuitem", { name: /Vending Machine/ })).toBeDisabled();
   await expect(page.locator("#terminalTypeOptions .terminal-type-current")).toHaveText("Current");
+  const optionSpacing = await page.locator("#terminalTypeOptions [data-terminal-type]").evaluateAll((options) =>
+    options.map((option) => {
+      const icon = option.querySelector(".terminal-type-option-icon").getBoundingClientRect();
+      const label = option.querySelector("strong").getBoundingClientRect();
+      return label.left - icon.right;
+    })
+  );
+  expect(optionSpacing.every((gap) => gap >= 10)).toBe(true);
   const after = await card.boundingBox();
   expect(after.height).toBeCloseTo(before.height, 1);
 
@@ -79,7 +100,12 @@ test("opens a fixed dialog with all six choices and saves immediately", async ({
 });
 
 test("uses URL initialization, lets stored SN state win, and recovers from invalid state", async ({ page }) => {
+  await resetTerminalTypes(page, `${TERMINAL_URL}&terminalType=attended_standalone`);
+  await expect(page.locator("#terminalTypeSummary")).toHaveClass(/attended/);
+  await expect(page.locator("#terminalTypeAttendance")).toHaveText("Attended");
+
   await resetTerminalTypes(page, `${TERMINAL_URL}&terminalType=unattended_ev`);
+  await expect(page.locator("#terminalTypeSummary")).toHaveClass(/unattended/);
   await expect(page.locator("#terminalTypeName")).toHaveText("EV Charging");
 
   await page.evaluate((key) => {

@@ -84,13 +84,14 @@ final result: passed
 - Terminal Details now follows the production reference: gray title strip, centered terminal image, and four compact rows for SN, Terminal Name, Model, and Version. The obsolete PN, Type, placeholder image, and View Detail action were removed.
 - The right stack now relies on Grid stretching rather than a percentage height, preventing the extra gap seen with the collapsed sidebar; Terminal Details uses bounded rows and wraps long values so its image and content remain inside the panel.
 - Attended and Unattended options use the exact six SVG path definitions from Transactions with the same blue/green semantic split.
-- The default card has a subtle green border, pale green surface, stronger current-type hierarchy, and a 32px edit icon, increasing discovery without competing with Terminal Details. Editing opens a fixed dialog; selection saves immediately and closes it.
+- Terminal Type now uses the same neutral gray border, white shell, gray title strip, typography, and compact header height as Terminal Details. Only the inner current-type panel is semantic: Unattended uses a restrained green surface and Attended uses blue, both with a uniform one-pixel border and no decorative accent rail.
+- The edit dialog uses Flex rows with a non-shrinking 36px icon column and a fixed 12px gap before the label. Browser geometry checks across all six rows report no icon/label overlap.
 
 ## Required fidelity surfaces and verification
 
 - Fonts and typography: card title, attendance badge, type name, group labels, and option labels follow the existing Basic Information scale: passed.
 - Spacing and layout rhythm: the visible Terminal Type bottom matches the left statistics bottom in both sidebar states with no forced-height overflow; the fixed dialog preserves dashboard geometry: passed.
-- Colors and visual tokens: attended blue, unattended green, current-selection blue, and black-header contrast match the established Portal semantics: passed.
+- Colors and visual tokens: the outer card matches Terminal Details exactly; attended blue, unattended green, and current-selection blue remain confined to semantic content: passed.
 - Image quality and assets: the six local icon assets reproduce the exact Transactions SVG geometry; the local terminal rendering follows the supplied production device reference; dedicated edit and back assets remain sharp at 16–17px: passed.
 - Copy and content: all six Transactions terminal types and both scenario groups are represented exactly: passed.
 - Interaction and accessibility: dialog open/cancel/backdrop close, direct selection, Escape, arrow keys, Enter, focus trapping/restoration, session persistence, URL initialization, and ARIA states: passed.
