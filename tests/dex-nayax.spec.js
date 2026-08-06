@@ -14,7 +14,10 @@ test("shows automation summary before a selectable DEX read history", async ({ p
   await resetDexState(page);
 
   await expect(page.locator(".dex-command-bar")).toBeVisible();
+  await expect(page.getByRole("button", { name: "DEX Read actions" })).toBeVisible();
   await expect(page.getByRole("button", { name: "DEX Settings" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Refresh History" })).toBeVisible();
+  await expect(page.locator(".dex-command-bar").getByRole("button", { name: "Refresh History" })).toHaveCount(0);
   await expect(page.locator("#dexAutomationSchedule")).toContainText("Delta");
   await expect(page.locator("#dexAutomationNext")).not.toHaveText("Not scheduled");
   await expect(page.locator("#dexAutomationEmail")).toHaveText("Off");
@@ -55,6 +58,7 @@ test("shows automation summary before a selectable DEX read history", async ({ p
 test("saves read, parsing and email settings for the current terminal session", async ({ page }) => {
   await resetDexState(page);
   await page.getByRole("button", { name: "DEX Settings" }).click();
+  await page.getByRole("menuitem", { name: "Read Schedule" }).click();
 
   const dialog = page.getByRole("dialog", { name: "DEX Settings" });
   await expect(dialog).toBeVisible();
@@ -106,7 +110,8 @@ test("runs manual reads through history and keeps the settings dialog usable on 
   page.on("pageerror", (error) => pageErrors.push(error.message));
   await resetDexState(page);
 
-  await page.getByRole("button", { name: "Read DEX", exact: true }).click();
+  await page.getByRole("button", { name: "DEX Read actions" }).click();
+  await page.getByRole("menuitem", { name: "Read DEX", exact: true }).click();
   await expect(page.locator("#dexHistoryBody tr")).toHaveCount(6);
   await expect(page.locator("#dexHistoryBody tr").first()).toContainText("Manual");
   await expect(page.locator("#dexHistoryBody tr").first()).toContainText(/Parsed|Warning/, { timeout: 5000 });
@@ -114,6 +119,7 @@ test("runs manual reads through history and keeps the settings dialog usable on 
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "DEX Settings" }).click();
+  await page.getByRole("menuitem", { name: "Read Schedule" }).click();
   const dialog = page.getByRole("dialog", { name: "DEX Settings" });
   await expect(dialog).toBeVisible();
   const dimensions = await page.evaluate(() => {
@@ -136,4 +142,18 @@ test("runs manual reads through history and keeps the settings dialog usable on 
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("button", { name: "DEX Settings" })).toBeFocused();
   expect(pageErrors).toEqual([]);
+});
+
+test("opens each DEX settings section from the grouped Settings menu", async ({ page }) => {
+  await resetDexState(page);
+
+  await page.getByRole("button", { name: "DEX Settings" }).click();
+  await page.getByRole("menuitem", { name: "Email Notifications" }).click();
+  const dialog = page.getByRole("dialog", { name: "DEX Settings" });
+  await expect(dialog.getByRole("tab", { name: "Email Notifications" })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "DEX Settings" }).click();
+  await page.getByRole("menuitem", { name: "Parsing & Rules" }).click();
+  await expect(dialog.getByRole("tab", { name: "Parsing & Rules" })).toHaveAttribute("aria-selected", "true");
 });

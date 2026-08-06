@@ -1349,9 +1349,32 @@
             min-height: 48px;
             padding: 0 0 10px;
             border-bottom: 1px solid var(--border);
-            overflow-x: auto;
+            overflow: visible;
+            position: relative;
+            z-index: 20;
         }
         .dex-command-bar .dex-action-group { flex: 0 0 auto; }
+        .dex-toolbar-menu .pm-map-menu-panel { width: 214px; }
+        .dex-toolbar-menu .pm-map-menu-button { min-width: 104px; }
+        .dex-history-refresh {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            width: auto;
+            min-height: 34px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .dex-history-refresh img {
+            width: 16px;
+            height: 16px;
+            opacity: .72;
+        }
+        .dex-history-refresh:disabled img { opacity: .45; }
         .dex-request-status {
             margin: 10px 0 0;
             padding: 9px 12px;
@@ -2669,10 +2692,21 @@
                 <section id="tab-dex" class="hidden" role="tabpanel" aria-labelledby="primaryTabDex" tabindex="0">
                     <div class="dex-command-bar" aria-label="DEX actions">
                         <div class="dex-action-group">
-                            <button id="dexSettingsButton" class="btn-secondary" type="button" aria-haspopup="dialog" aria-controls="dexSettingsModal">DEX Settings</button>
-                            <button id="dexRefreshButton" class="btn-secondary" type="button">Refresh</button>
-                            <button id="dexReadButton" class="btn-secondary" type="button">Read DEX</button>
-                            <button id="dexFullReadButton" class="btn-primary" type="button">Read Full DEX</button>
+                            <div class="pm-map-menu dex-toolbar-menu">
+                                <button id="dexReadMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-label="DEX Read actions" aria-haspopup="menu" aria-expanded="false" aria-controls="dexReadMenuPanel"><img class="pm-command-icon" src="assets/icons/receipt_long.svg" alt="" aria-hidden="true"><span>Read</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
+                                <div id="dexReadMenuPanel" class="pm-map-menu-panel hidden" role="menu">
+                                    <button id="dexReadButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/file-download.svg" alt="" aria-hidden="true"><span>Read DEX</span></button>
+                                    <button id="dexFullReadButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Read Full DEX</span></button>
+                                </div>
+                            </div>
+                            <div class="pm-map-menu dex-toolbar-menu">
+                                <button id="dexSettingsMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-label="DEX Settings" aria-haspopup="menu" aria-expanded="false" aria-controls="dexSettingsMenuPanel"><img class="pm-command-icon" src="assets/icons/settings.svg" alt="" aria-hidden="true"><span>Settings</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
+                                <div id="dexSettingsMenuPanel" class="pm-map-menu-panel hidden" role="menu">
+                                    <button type="button" role="menuitem" data-dex-open-settings="schedule"><img class="pm-menu-item-icon" src="assets/icons/task_alt.svg" alt="" aria-hidden="true"><span>Read Schedule</span></button>
+                                    <button type="button" role="menuitem" data-dex-open-settings="rules"><img class="pm-menu-item-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Parsing &amp; Rules</span></button>
+                                    <button type="button" role="menuitem" data-dex-open-settings="email"><img class="pm-menu-item-icon" src="assets/icons/send.svg" alt="" aria-hidden="true"><span>Email Notifications</span></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2690,6 +2724,7 @@
                                 <div class="section-title">DEX Read History</div>
                                 <div class="muted">Select a read to inspect its parsed values and RAW DATA.</div>
                             </div>
+                            <button id="dexRefreshButton" class="btn-secondary dex-history-refresh" type="button"><img src="assets/icons/refresh.svg" alt="" aria-hidden="true"><span>Refresh History</span></button>
                         </div>
                         <div class="dex-history-scroll">
                             <table class="table dex-history-table">
@@ -5601,7 +5636,7 @@ paymentTimeout=180`
         const dexElements = {
             root: byId('tab-dex'),
             requestStatus: byId('dexRequestStatus'),
-            settingsButton: byId('dexSettingsButton'),
+            settingsButton: byId('dexSettingsMenuButton'),
             refresh: byId('dexRefreshButton'),
             read: byId('dexReadButton'),
             fullRead: byId('dexFullReadButton'),
@@ -5618,6 +5653,14 @@ paymentTimeout=180`
             automationSchedule: byId('dexAutomationSchedule'),
             automationNext: byId('dexAutomationNext'),
             automationEmail: byId('dexAutomationEmail')
+        };
+        const dexReadMenuElements = {
+            menuButton: byId('dexReadMenuButton'),
+            menu: byId('dexReadMenuPanel')
+        };
+        const dexSettingsMenuElements = {
+            menuButton: byId('dexSettingsMenuButton'),
+            menu: byId('dexSettingsMenuPanel')
         };
         const dexSettingsElements = {
             modal: byId('dexSettingsModal'),
@@ -6089,7 +6132,7 @@ paymentTimeout=180`
             renderDexEmailTags();
             return !invalid;
         }
-        function populateDexSettingsForm(){
+        function populateDexSettingsForm(initialTab){
             dexSettingsElements.scheduleEnabled.checked = dexSettings.schedule.enabled;
             dexSettingsElements.scheduleMode.value = dexSettings.schedule.mode;
             dexSettingsElements.scheduledReadType.value = dexSettings.schedule.readType;
@@ -6111,7 +6154,7 @@ paymentTimeout=180`
             dexSettingsElements.emailError.textContent = '';
             renderDexEmailTags();
             updateDexSettingsVisibility();
-            setDexSettingsTab('schedule', false);
+            setDexSettingsTab(['schedule', 'rules', 'email'].includes(initialTab) ? initialTab : 'schedule', false);
         }
         function validateDexSettingsForm(){
             addDexRecipient(dexSettingsElements.emailInput.value, true);
@@ -6486,9 +6529,21 @@ paymentTimeout=180`
             requestDexRead(scheduledType, 'Scheduled');
         }
 
-        dexElements.settingsButton.addEventListener('click', () => {
-            populateDexSettingsForm();
-            openFeatureModal(dexSettingsElements.modal, '[data-dex-settings-tab="schedule"]');
+        bindToolbarMenu(dexReadMenuElements, dexSettingsMenuElements);
+        bindToolbarMenu(dexSettingsMenuElements, dexReadMenuElements);
+        document.addEventListener('click', evt => {
+            if(!evt.target.closest('.dex-toolbar-menu')){
+                closeToolbarMenu(dexReadMenuElements);
+                closeToolbarMenu(dexSettingsMenuElements);
+            }
+        });
+        dexSettingsMenuElements.menu.addEventListener('click', evt => {
+            const item = evt.target.closest('[data-dex-open-settings]');
+            if(!item) return;
+            const key = item.getAttribute('data-dex-open-settings');
+            closeToolbarMenu(dexSettingsMenuElements, true);
+            populateDexSettingsForm(key);
+            openFeatureModal(dexSettingsElements.modal, `[data-dex-settings-tab="${key}"]`);
         });
         dexSettingsElements.tabs.addEventListener('click', evt => {
             const tab = evt.target.closest('[data-dex-settings-tab]');
@@ -6586,8 +6641,14 @@ paymentTimeout=180`
             renderDex();
         });
         dexElements.rawSearch.addEventListener('input', () => renderDexRaw(selectedDexSnapshot()));
-        dexElements.read.addEventListener('click', () => requestDexRead('Delta'));
-        dexElements.fullRead.addEventListener('click', () => requestDexRead('Full'));
+        dexElements.read.addEventListener('click', () => {
+            closeToolbarMenu(dexReadMenuElements, true);
+            requestDexRead('Delta');
+        });
+        dexElements.fullRead.addEventListener('click', () => {
+            closeToolbarMenu(dexReadMenuElements, true);
+            requestDexRead('Full');
+        });
         dexElements.refresh.addEventListener('click', () => {
             dexElements.refresh.disabled = true;
             setDexRequestMessage('Checking DEX history for newer terminal responses...', true);

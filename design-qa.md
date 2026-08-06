@@ -69,6 +69,43 @@ final result: passed
 
 ---
 
+# Design QA — DEX Grouped Commands
+
+- Source visual truth: `assets/qa/qa-product-map-toolbar-identification-comparison.png`, used as the established Paywizard/Nayax hybrid command-menu pattern.
+- Implementation target: `1.terminalmanage_nayax.html?tab=dex&sn=WP6267UQ36002376`.
+- Implementation screenshots: `/tmp/qa-dex-toolbar-grouped.png`, `/tmp/qa-dex-read-menu-open.png`, and `/tmp/qa-dex-settings-menu-open.png`.
+- Source image size: 1826 × 620 pixels.
+- Implementation viewport and image size: 1695 × 869 pixels at device scale factor 1.
+- States reviewed: default DEX toolbar, Read menu expanded, Settings menu expanded, and direct settings-tab navigation.
+
+## Full-view and focused comparison
+
+- The DEX toolbar now follows the Product Map command grammar with two compact, icon-led menu buttons instead of four unrelated action buttons.
+- Read operations are grouped under `Read`; configuration is grouped under `Settings`; only a single menu can be open at a time.
+- `Refresh History` is colocated with the history table because it refreshes stored reads rather than requesting a new machine audit.
+- The existing automatic-read summary remains immediately below the toolbar, preserving the compact Nayax-style hierarchy without introducing another card or heading.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: button, menu-item, and summary typography reuse Product Map command styles: passed.
+- Spacing and layout rhythm: equal-height triggers, 214px menus, aligned icons, and a single history-level refresh action remove the previous four-button imbalance: passed.
+- Colors and visual tokens: neutral default controls and blue expanded state match the existing Product Map toolbar: passed.
+- Image quality and assets: all command and refresh icons are local SVG assets; no character glyphs or CSS-drawn icons are used: passed.
+- Copy and content: labels are concise and task-oriented (`Read DEX`, `Read Full DEX`, `Read Schedule`, `Parsing & Rules`, `Email Notifications`, `Refresh History`): passed.
+- Interaction and accessibility: mutual exclusion, outside click, Escape, arrow-key menu navigation, focus restoration, `aria-expanded`, and direct opening of the selected settings tab are retained: passed.
+- Business behavior: existing manual reads, automatic schedule, parsing rules, notifications, snapshot history, Parsed Data, and RAW DATA flows are unchanged: passed.
+- Browser console errors and warnings during final inspection: 0.
+- Chromium DEX regression: 4 tests passed.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
 # Design QA — DEX Compact History and Settings Layout
 
 - Source visual truth: the user-provided Nayax DEX screenshots and the approved compact flow, supported by the Nayax DEX Administration reference at `https://nayax-u.nayax.com/scenario/overview-of-dex-administration-operations-906`.
