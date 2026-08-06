@@ -2989,7 +2989,7 @@
                                 <option value="VCCS Printer">VCCS Printer</option>
                                 <option value="Rhea Machine">Rhea Machine</option>
                             </select>
-                            <div class="dex-settings-help">DEX/UCS is recommended for most vending machines.</div>
+                            <div class="dex-settings-help">Records are parsed per the EVA-DTS 6.1.2 definitions. DEX/UCS is recommended for most vending machines.</div>
                         </div>
                         <div class="dex-settings-field">
                             <label for="dexRetryAttempts">Retry Attempts</label>
@@ -5735,10 +5735,52 @@ paymentTimeout=180`
             const second = String(date.getSeconds()).padStart(2, '0');
             return { date: `${yy}${month}${day}`, time: `${hour}${minute}${second}` };
         }
+        const DEX_EVENT_DESCRIPTIONS = {
+            EGS: 'Door Open',
+            EJJ: 'Refrigeration',
+            EC1F: 'A malfunction has been detected in the selection board',
+            EI: 'General non-specific Communications fault',
+            EJ: 'General non-specific Food & Snack System fault'
+        };
+        function dexEventDescription(code){
+            return DEX_EVENT_DESCRIPTIONS[String(code || '').trim().toUpperCase()] || '';
+        }
+        function dexCrc16(input){
+            const bytes = String(input || '');
+            let crc = 0;
+            for(let i = 0; i < bytes.length; i++){
+                crc ^= (bytes.charCodeAt(i) & 0xff) << 8;
+                for(let bit = 0; bit < 8; bit++){
+                    crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+                    crc &= 0xffff;
+                }
+            }
+            return crc;
+        }
+        function dexCrcHex(input){
+            return dexCrc16(input).toString(16).toUpperCase().padStart(4, '0');
+        }
+        function dexRawLineStart(rawText, prefix){
+            const lines = String(rawText || '').split('\n');
+            let offset = 0;
+            for(const part of lines){
+                const content = part.endsWith('\r') ? part.slice(0, -1) : part;
+                if(content.trimStart().startsWith(prefix)) return offset;
+                offset += part.length + 1;
+            }
+            return -1;
+        }
         function wrapDex(controlNumber, bodyLines){
             const control = String(controlNumber).padStart(4, '0');
-            const lines = [`ST*001*${control}`, ...bodyLines];
-            return [...lines, `SE*${lines.length + 1}*${control}`].join('\r\n');
+            const segments = [`ST*001*0001`, ...bodyLines];
+            const g85 = `G85*${dexCrcHex(segments.join('\r\n') + '\r\n')}`;
+            return [
+                `DXS*${terminalContext.sn}*VA*V0/6*${control}`,
+                ...segments,
+                g85,
+                `SE*${segments.length + 2}*0001`,
+                `DXE*${control}*1`
+            ].join('\r\n');
         }
         function buildFullDexRaw(control, totals, mapSnapshot, readAt, includeUnknown){
             const stamp = dexTimestampParts(readAt);
@@ -5750,20 +5792,22 @@ paymentTimeout=180`
                 const intervalQuantity = index % 4 + 1;
                 const intervalValue = intervalQuantity * row.priceCents;
                 const dexProductName = row.dexNameSnapshot || row.productNameSnapshot || row.productName || '';
-                productLines.push(`PA1*${row.paCode}*${row.priceCents}*${dexProductName}*${row.par}*${row.onHand}*1*1`);
-                productLines.push(`PA2*${cumulativeQuantity}*${cumulativeValue}*${intervalQuantity}*${intervalValue}*0*0*0*0`);
+                productLines.push(`PA1*${row.paCode}*${row.priceCents}*${dexProductName}****0*${row.onHand}*${row.par}`);
+                productLines.push(`PA2*${cumulativeQuantity}*${cumulativeValue}*${intervalQuantity}*${intervalValue}*0*0*0*0*0*0*0*0`);
             });
             const body = [
-                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3.0.0*JFK Terminal 4*PAYWIZARD*41381-001`,
+                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3*JFK Terminal 4**41381-001`,
                 `VA1*${totals.sales}*${totals.vends}*${totals.intervalSales}*${totals.intervalVends}`,
+                'VA3*0*0*0*0',
                 `CA2*${totals.cash}*${totals.cashVends}*${totals.intervalCash}*${totals.intervalCashVends}`,
-                'CA3*2000*900*300*800*82500*35100*20100*27300*800*27300',
+                'CA3*2000*900*300*800*82500*35100*20100*27300*80000*2730000*0*0',
+                'CA4*0*0*0*0*0*0*0*0*0*0',
                 `DA2*${totals.card}*${totals.cardVends}*${totals.intervalCard}*${totals.intervalCardVends}`,
                 ...productLines,
-                `EA1*MJ1*${stamp.date}*${stamp.time}*0*0`,
-                'EA2*MJ1*1*2*Selection motor did not return home*1',
-                `EA3*${control}*${stamp.date}*${stamp.time}*${terminalContext.tid}*260802*142600*${terminalContext.tid}`,
-                'EA4*260802*142600',
+                `EA1*EGS*${stamp.date}*${stamp.time}*0`,
+                'EA2*EGS*1*2**1*5',
+                `EA3*12*${stamp.date}*${stamp.time}*${terminalContext.tid}*260802*142600*${terminalContext.tid}**24*10`,
+                `EA4*260802*142600*${terminalContext.tid}`,
                 'EA7*0*2'
             ];
             if(includeUnknown) body.splice(5, 0, 'ZX1*UNRECOGNIZED*DEMO');
@@ -5775,18 +5819,133 @@ paymentTimeout=180`
             const changedProduct = dexMappedRows.find(row => Number(row.onHand) > 0) || dexMappedRows[0];
             const nextFill = changedProduct ? Math.max(0, Number(changedProduct.onHand) - 1) : 0;
             const productLines = changedProduct ? [
-                `PA1*${changedProduct.paCode}*${changedProduct.priceCents}*${changedProduct.dexNameSnapshot || changedProduct.productNameSnapshot || changedProduct.productName || ''}*${changedProduct.par}*${nextFill}*1*1`,
-                `PA2*63*${63 * changedProduct.priceCents}*3*${3 * changedProduct.priceCents}*0*0*0*0`
+                `PA1*${changedProduct.paCode}*${changedProduct.priceCents}*${changedProduct.dexNameSnapshot || changedProduct.productNameSnapshot || changedProduct.productName || ''}****0*${nextFill}*${changedProduct.par}`,
+                `PA2*63*${63 * changedProduct.priceCents}*3*${3 * changedProduct.priceCents}*0*0*0*0*0*0*0*0`
             ] : [];
             return wrapDex(control, [
-                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3.0.0*JFK Terminal 4*PAYWIZARD*41381-001`,
+                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3*JFK Terminal 4**41381-001`,
                 `VA1*${totals.sales}*${totals.vends}*${totals.intervalSales}*${totals.intervalVends}`,
                 `DA2*${totals.card}*${totals.cardVends}*${totals.intervalCard}*${totals.intervalCardVends}`,
                 ...productLines,
-                `EA1*MJ1*${stamp.date}*${stamp.time}*0*0`,
-                'EA2*MJ1*1*2*Selection motor did not return home*0',
-                `EA3*${control}*${stamp.date}*${stamp.time}*${terminalContext.tid}*260803*102436*${terminalContext.tid}`
+                `EA1*EJJ*${stamp.date}*${stamp.time}*0`,
+                'EA2*EJJ*1*2**0*4',
+                `EA3*11*${stamp.date}*${stamp.time}*${terminalContext.tid}*260803*102436*${terminalContext.tid}**22*9`
             ]);
+        }
+        function buildSqsDexRaw(){
+            return [
+                'DXS*AUTSENSIT3*VA*V0/6*1',
+                'ST*001*0001',
+                'ID1*P138140482*AMS SENSIT III*****6*0',
+                'ID4*2*0178*1',
+                'ID5*200325*0358**NA',
+                'CB1*P138140482*AMS SENSIT III*3426-v1.37*2.50',
+                'VA1*7037419*11431*0*0*3165272*6786*0*0',
+                'CA1*000045003002*ILS-G801-009*3600',
+                'CA2*4110*8*0*0',
+                'CA3*0*0*0*0*1950*0*1950*0*0*0',
+                'CA4*0*0*100*0',
+                'CA6*9823*1014',
+                'CA7*0*0*0*0',
+                'CA8*0*18800',
+                'CA10*0*0',
+                'CA15*0',
+                'BA1*151100011754*XBA-EUR40000*0120',
+                'DA1*332119000155*DMX - 2011*0100',
+                'DA2*7033309*11423*0*0',
+                'DA4*0*0',
+                'DA5*0*0*3165272*6786***31038*220',
+                'DA9*0*0',
+                'PA1*10*550*Kinder Bueno Whi',
+                'PA2*2*1100*0*0',
+                'PA1*11*600*dortos green',
+                'PA2*241*143500*0*0*156*73500*0*0*0*0',
+                'PA1*13*600*Bamba nugget',
+                'PA2*271*161300*0*0*178*94700*0*0*0*0',
+                'PA1*15*450*bamba big',
+                'PA2*504*273000*0*0*375*190037*0*0*20*1700',
+                'PA1*17*600*Chips',
+                'PA2*269*161300*0*0*191*88050*0*0*0*0',
+                'PA1*19*600*Chips',
+                'PA2*196*117300*0*0*145*73350*0*0*0*0',
+                'PA1*21*600*milka',
+                'PA2*282*168900*0*0*149*66800*0*0*34*3400',
+                'PA1*23*350*Bisli Gril',
+                'PA2*453*213350*0*0*315*108300*0*0*5*650',
+                'PA1*25*550*Bisli Gril',
+                'PA2*332*174350*0*0*205*81350*0*0*0*0',
+                'PA1*27*600*nishnushim',
+                'PA2*280*164700*0*0*179*73750*0*0*0*0',
+                'PA1*29*600*Abadi',
+                'PA2*254*135500*0*0*142*54600*0*0*9*900',
+                'PA1*31*600*Click BW',
+                'PA2*363*233500*0*0*179*89050*0*0*22*2100',
+                'PA1*33*700*Click-cariot',
+                'PA2*372*244700*0*0*165*76500*0*0*0*0',
+                'PA1*35*700*Click-BW',
+                'PA2*425*289100*0*0*282*163500*0*0*0*0',
+                'PA1*37*700*Click-Red',
+                'PA2*462*313000*0*0*237*119900*0*0*0*0',
+                'PA1*39*700*crunch red',
+                'PA2*428*292300*0*0*220*118000*0*0*0*0',
+                'PA1*40*550*mekupelet',
+                'PA2*269*151650*0*0*129*50450*0*0*2*1100',
+                'PA1*41*550*Kinder Bueno Whi',
+                'PA2*494*275350*0*0*301*121000*0*0*0*0',
+                'PA1*42*550*Twix',
+                'PA2*353*196800*0*0*261*101387*0*0*0*0',
+                'PA1*43*550*Pesek azman',
+                'PA2*302*167350*0*0*203*91100*0*0*1*550',
+                'PA1*44*600*gardena',
+                'PA2*389*232900*0*0*278*87600*0*0*0*0',
+                'PA1*45*600*Kitkat-Chunky',
+                'PA2*388*232300*0*0*201*78350*0*0*0*0',
+                'PA1*46*600*Mike and Ike',
+                'PA2*370*221400*0*0*233*82950*0*0*0*0',
+                'PA1*47*600*Mentos',
+                'PA2*285*170700*0*0*164*45450*0*0*0*0',
+                'PA1*48*600*must',
+                'PA2*346*205700*0*0*223*104550*0*0*0*0',
+                'PA1*49*500*Must',
+                'PA2*272*119765*0*0*200*83950*0*0*12*5388',
+                'PA1*50*550*bueno',
+                'PA2*432*242150*0*0*216*76350*0*0*0*0',
+                'PA1*51*550*Corny Choco Bana',
+                'PA2*404*226050*0*0*235*76950*0*0*7*350',
+                'PA1*52*600*Corny Chocolate',
+                'PA2*324*184000*0*0*180*77050*0*0*0*0',
+                'PA1*53*1350*EXCE',
+                'PA2*358*343750*0*0*197*193574*0*0*33*2600',
+                'PA1*54*1200*volta ge',
+                'PA2*214*145700*0*0*111*60150*0*0*3*1500',
+                'PA1*55*1350*EXCE',
+                'PA2*408*437050*0*0*235*268737*0*0*67*6300',
+                'PA1*56*500*Fitness',
+                'PA2*288*165800*0*0*115*43050*0*0*5*4500',
+                'PA1*57*500*Fitness',
+                'PA2*227*134600*0*0*102*28100*0*0*0*0',
+                'PA1*58*500*Fitness',
+                'PA2*143*82500*0*0*84*23137*0*0*0*0',
+                'PA1*59*100*Embedded Testing****1',
+                'PA2*31*15004*0*0',
+                'EA1*EGS*200205*0104*58',
+                'EA1*EGT*200205*0112*63',
+                'EA1*EGS*200205*0412*57',
+                'EA1*EGT*200205*0418*66',
+                'EA1*EGS*200205*0454*56',
+                'EA1*EGT*200205*0455*59',
+                'EA1*EGS*200205*0456*62',
+                'EA1*EGT*200205*0457*64',
+                'EA1*EGS*200205*0705*57',
+                'EA1*EGT*200205*0708*63',
+                'EA7*0*151',
+                'EA3*6923*200325*0358*1234567890*200325*0307*1234567890**9823*6923',
+                'EA4*151213*0630*1234567890',
+                'SD1*****AUTO*AUTO',
+                'MA5*TEMP*59*15',
+                'G85*3CE2',
+                'SE*110*0001'
+            ].join('\r\n');
         }
         function createMetric(target, key, id, label, category, value, type, note){
             const metric = { key, id, label, category, value, type: type || 'text', note: note || '' };
@@ -5818,7 +5977,8 @@ paymentTimeout=180`
         }
         function parseDex(raw, mapSnapshot){
             const result = { records: [], metrics: new Map(), warnings: [], failed: false, error: '', lineCount: 0 };
-            const lines = String(raw || '').replace(/\r\n?/g, '\n').split('\n').map(line => line.trim()).filter(Boolean);
+            const rawText = String(raw || '');
+            const lines = rawText.replace(/\r\n?/g, '\n').split('\n').map(line => line.trim()).filter(Boolean);
             result.lineCount = lines.length;
             if(!lines.length){
                 result.failed = true;
@@ -5829,65 +5989,274 @@ paymentTimeout=180`
                 const [id, ...fields] = line.split('*');
                 return { id: String(id || '').trim().toUpperCase(), fields, raw: line, lineNumber: index + 1 };
             });
-            if(parsedLines[0].id !== 'ST') result.warnings.push('The first record is not an ST framing record.');
-            if(parsedLines[parsedLines.length - 1].id !== 'SE') result.warnings.push('The last record is not an SE framing record.');
-            const start = parsedLines.find(line => line.id === 'ST');
-            const end = [...parsedLines].reverse().find(line => line.id === 'SE');
+            const startIndex = parsedLines.findIndex(line => line.id === 'ST');
+            const endIndex = parsedLines.map(line => line.id).lastIndexOf('SE');
+            const start = startIndex >= 0 ? parsedLines[startIndex] : null;
+            const end = endIndex >= 0 ? parsedLines[endIndex] : null;
             if(!start || !end){
                 result.failed = true;
                 result.error = 'The DEX payload is missing required ST/SE framing records.';
                 return result;
             }
-            if(String(start.fields[1] || '') !== String(end.fields[1] || '')) result.warnings.push('ST and SE control numbers do not match.');
+            if(parsedLines.filter(line => line.id === 'ST').length > 1) result.warnings.push('Multiple transaction sets were detected; only the first is parsed in detail.');
+            if(parsedLines[0].id !== 'DXS') result.warnings.push('DXS application header is missing (mandatory in EVA-DTS 6.1.2).');
+            if(parsedLines[parsedLines.length - 1].id !== 'DXE') result.warnings.push('DXE application trailer is missing (mandatory in EVA-DTS 6.1.2).');
+            if(String(start.fields[1] || '') !== String(end.fields[1] || '')) result.warnings.push('ST and SE transaction set control numbers do not match.');
             const expectedCount = parseDexNumber(end.fields[0], result, 'SE.01');
-            if(expectedCount != null && expectedCount !== parsedLines.length) result.warnings.push(`SE.01 reports ${expectedCount} records; ${parsedLines.length} were received.`);
+            const includedCount = endIndex - startIndex + 1;
+            if(expectedCount != null && expectedCount !== includedCount) result.warnings.push(`SE.01 reports ${expectedCount} segments; ${includedCount} segments (ST through SE) were received.`);
+
+            const g85Line = parsedLines.find(line => line.id === 'G85');
+            if(!g85Line) result.warnings.push('G85 record integrity check is missing (mandatory in EVA-DTS 6.1.2).');
+            const crcResult = { status: g85Line ? 'not-validated' : 'missing', expected: '', received: '' };
+            if(g85Line){
+                const stStart = dexRawLineStart(rawText, 'ST*');
+                const g85Start = dexRawLineStart(rawText, 'G85*');
+                if(stStart >= 0 && g85Start > stStart){
+                    crcResult.expected = dexCrcHex(rawText.slice(stStart, g85Start));
+                    crcResult.received = String(g85Line.fields[0] || '').trim().toUpperCase();
+                    crcResult.status = crcResult.expected === crcResult.received ? 'valid' : 'mismatch';
+                    if(crcResult.status === 'mismatch') result.warnings.push(`G85 CRC-16 check failed (expected ${crcResult.expected}, received ${crcResult.received}).`);
+                }
+            }
 
             let pendingProduct = null;
             parsedLines.forEach(line => {
                 const fields = line.fields;
+                if(line.id === 'DXS'){
+                    const labels = ['Communication ID of sender', 'Functional identifier', 'Version', 'Transmission control number', 'Communication ID of recipient', 'Test code status'];
+                    fields.slice(0, labels.length).forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `DXS.${String(index + 1).padStart(2, '0')}`, `DXS.${String(index + 1).padStart(2, '0')}`, labels[index], 'machine', value, 'text');
+                    });
+                    return;
+                }
                 if(line.id === 'ST'){
-                    createMetric(result, 'ST.01', 'ST.01', 'Transmission header', 'machine', fields[0] || '', 'text');
-                    createMetric(result, 'ST.02', 'ST.02', 'Control number', 'machine', fields[1] || '', 'text');
+                    createMetric(result, 'ST.01', 'ST.01', 'Transaction set header', 'machine', fields[0] || '', 'text');
+                    createMetric(result, 'ST.02', 'ST.02', 'Transaction set control number', 'machine', fields[1] || '', 'text');
                     return;
                 }
                 if(line.id === 'ID1'){
-                    const definitions = ['Machine serial number', 'VMC model', 'Software revision', 'Location', 'User data', 'Machine asset ID'];
-                    fields.slice(0, definitions.length).forEach((value, index) => createMetric(result, `ID1.${String(index + 1).padStart(2, '0')}`, `ID1.${String(index + 1).padStart(2, '0')}`, definitions[index], 'machine', value || '', 'text'));
+                    const definitions = [
+                        ['Machine serial number', 'text'],
+                        ['Machine model number', 'text'],
+                        ['Machine build standard', 'number'],
+                        ['Machine location', 'text'],
+                        ['User data (element 05 not defined in EVA-DTS 6.1.2)', 'text'],
+                        ['Machine asset number', 'text']
+                    ];
+                    definitions.forEach((def, index) => {
+                        const value = fields[index] || '';
+                        if(index === 4){
+                            if(value === '') return;
+                            result.warnings.push('ID1 element 05 is not defined in EVA-DTS 6.1.2; the value was preserved as user data.');
+                        }
+                        if(value === '' && index !== 4) return;
+                        const parsedValue = def[1] === 'number' ? parseDexNumber(value, result, `ID1.${index + 1}`) : value;
+                        createMetric(result, `ID1.${String(index + 1).padStart(2, '0')}`, `ID1.${String(index + 1).padStart(2, '0')}`, def[0], 'machine', parsedValue, def[1]);
+                    });
                     if(fields[0] && fields[0] !== terminalContext.sn) result.warnings.push(`DEX serial ${fields[0]} does not match terminal ${terminalContext.sn}.`);
                     return;
                 }
                 if(line.id === 'VA1'){
-                    const labels = ['Paid vend value since initialization', 'Paid vend count since initialization', 'Paid vend value since reset', 'Paid vend count since reset'];
-                    fields.slice(0, 4).forEach((value, index) => createMetric(result, `VA1.${String(index + 1).padStart(2, '0')}`, `VA1.${String(index + 1).padStart(2, '0')}`, labels[index], 'sales', parseDexNumber(value, result, `VA1.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
+                    const labels = ['Value of all paid vend sales since initialization', 'Number of all paid vends since initialization', 'Value of all paid vend sales since last reset', 'Number of all paid vends since last reset', 'Value of all discounted paid vends since initialization', 'Number of all discounted paid vends since initialization', 'Value of all discounted paid vends since last reset', 'Number of all discounted paid vends since last reset', 'Value of all surcharged paid vends since initialization', 'Number of all surcharged paid vends since initialization', 'Value of all surcharged paid vends since last reset', 'Number of all surcharged paid vends since last reset'];
+                    fields.slice(0, 12).forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `VA1.${String(index + 1).padStart(2, '0')}`, `VA1.${String(index + 1).padStart(2, '0')}`, labels[index], 'sales', parseDexNumber(value, result, `VA1.${index + 1}`), index % 2 === 0 ? 'currency' : 'number', index >= 4 ? 'Legacy VA1 extension (discounts/surcharges); EVA-DTS 6.1.2 layout lists VA1.01–04 only' : '');
+                    });
+                    return;
+                }
+                if(line.id === 'VA3'){
+                    const labels = ['Value of free vend sales since initialization', 'Number of free vends since initialization', 'Value of free vend sales since last reset', 'Number of free vends since last reset'];
+                    fields.slice(0, 4).forEach((value, index) => createMetric(result, `VA3.${String(index + 1).padStart(2, '0')}`, `VA3.${String(index + 1).padStart(2, '0')}`, labels[index], 'sales', parseDexNumber(value, result, `VA3.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
                     return;
                 }
                 if(line.id === 'CA2'){
-                    const labels = ['Cash vend value since initialization', 'Cash vend count since initialization', 'Cash vend value since reset', 'Cash vend count since reset'];
+                    const labels = ['Value of cash sales since initialization', 'Number of cash vends since initialization', 'Value of cash sales since last reset', 'Number of cash vends since last reset'];
                     fields.slice(0, 4).forEach((value, index) => createMetric(result, `CA2.${String(index + 1).padStart(2, '0')}`, `CA2.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', index % 2 === 0 ? scaleDexCurrency(value, result, `CA2.${index + 1}`, 'coins') : parseDexNumber(value, result, `CA2.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
                     return;
                 }
                 if(line.id === 'CA3'){
-                    const labels = ['Cash in since reset', 'Cash to box since reset', 'Cash to tubes since reset', 'Bills to box since reset', 'Cash in since initialization', 'Cash to box since initialization', 'Cash to tubes since initialization', 'Bills to box since initialization', 'Manual cash dispensed', 'Coin tube value'];
-                    const operations = ['coins', 'coins', 'tubes', 'bills', 'coins', 'coins', 'tubes', 'bills', 'coins', 'tubes'];
-                    fields.forEach((value, index) => createMetric(result, `CA3.${String(index + 1).padStart(2, '0')}`, `CA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash audit field ${index + 1}`, 'payment', scaleDexCurrency(value, result, `CA3.${index + 1}`, operations[index]), 'currency'));
+                    const labels = ['Value of cash in since last reset', 'Value of cash to cash box since last reset', 'Value of cash to tubes since last reset', 'Value of bills in since last reset', 'Value of cash in since initialization', 'Value of cash to box since initialization', 'Value of cash to tubes since initialization', 'Value of bills in since initialization', 'Value of bills in since last reset (bill value)', 'Value of bills in since initialization (bill value)', 'Value of bills to recycler since last reset', 'Value of bills to recycler since initialization'];
+                    const operations = ['coins', 'coins', 'tubes', 'bills', 'coins', 'coins', 'tubes', 'bills', 'bills', 'bills', 'bills', 'bills'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        const note = index === 3 || index === 7 ? 'Two historical formats exist (N0 count or Nc value); see EVA-DTS 6.1.2 Note 6.' : (index === 8 || index === 9 ? 'Bill value reported as Nc.' : '');
+                        createMetric(result, `CA3.${String(index + 1).padStart(2, '0')}`, `CA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash audit field ${index + 1}`, 'payment', scaleDexCurrency(value, result, `CA3.${index + 1}`, operations[index]), 'currency', note);
+                    });
+                    return;
+                }
+                if(line.id === 'CA4'){
+                    const labels = ['Value of cash dispensed since last reset', 'Value of manual cash dispensed since last reset', 'Value of cash dispensed since initialization', 'Value of manual cash dispensed since initialization', 'Value of bills dispensed since last reset', 'Value of bills manually dispensed since last reset', 'Value of bills transferred to recycler since last reset', 'Value of bills dispensed since initialization', 'Value of bills manually dispensed since initialization', 'Value of bills transferred to recycler since initialization'];
+                    const operations = ['coins', 'coins', 'coins', 'coins', 'bills', 'bills', 'bills', 'bills', 'bills', 'bills'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `CA4.${String(index + 1).padStart(2, '0')}`, `CA4.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash dispensed field ${index + 1}`, 'payment', scaleDexCurrency(value, result, `CA4.${index + 1}`, operations[index]), 'currency');
+                    });
                     return;
                 }
                 if(line.id === 'DA2'){
-                    const labels = ['Card vend value since initialization', 'Card vend count since initialization', 'Card vend value since reset', 'Card vend count since reset'];
+                    const labels = ['Value of cashless 1 (card) sales since initialization', 'Number of cashless 1 (card) sales since initialization', 'Value of cashless 1 (card) sales since last reset', 'Number of cashless 1 (card) sales since last reset'];
                     fields.slice(0, 4).forEach((value, index) => createMetric(result, `DA2.${String(index + 1).padStart(2, '0')}`, `DA2.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexNumber(value, result, `DA2.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
                     return;
                 }
+                if(line.id === 'ID4'){
+                    const labels = ['Decimal point position', 'Currency numeric code', 'Currency alphabetic code'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        const numeric = /^-?\d+$/.test(value);
+                        createMetric(result, `ID4.${String(index + 1).padStart(2, '0')}`, `ID4.${String(index + 1).padStart(2, '0')}`, labels[index] || `ID4 field ${index + 1}`, 'machine', numeric ? parseDexNumber(value, result, `ID4.${index + 1}`) : value, numeric ? 'number' : 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'ID5'){
+                    const labels = ['System date', 'System time', 'System time seconds', 'System daylight savings mode'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `ID5.${String(index + 1).padStart(2, '0')}`, `ID5.${String(index + 1).padStart(2, '0')}`, labels[index] || `ID5 field ${index + 1}`, 'machine', index === 2 && /^-?\d+$/.test(value) ? parseDexNumber(value, result, `ID5.${index + 1}`) : value, index === 2 && /^-?\d+$/.test(value) ? 'number' : 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'CB1'){
+                    const labels = ['VMC control board serial number', 'VMC control board model number', 'VMC control board build standard'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `CB1.${String(index + 1).padStart(2, '0')}`, `CB1.${String(index + 1).padStart(2, '0')}`, labels[index] || `CB1 field ${index + 1}`, 'machine', value, 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'CA1'){
+                    const labels = ['Changer serial number', 'Coin mechanism model number', 'Coin mechanism software revision'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `CA1.${String(index + 1).padStart(2, '0')}`, `CA1.${String(index + 1).padStart(2, '0')}`, labels[index] || `CA1 field ${index + 1}`, 'payment', value, 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'CA6'){
+                    const labels = ['Number of reads performed since initialization', 'Number of door openings since initialization'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `CA6.${String(index + 1).padStart(2, '0')}`, `CA6.${String(index + 1).padStart(2, '0')}`, labels[index] || `CA6 field ${index + 1}`, 'machine', parseDexNumber(value, result, `CA6.${index + 1}`), 'number', 'Superseded by EA301/EA201 in EVA-DTS 6.1.2');
+                    });
+                    return;
+                }
+                if(line.id === 'CA7'){
+                    const labels = ['Value of cash discounts since last reset', 'Value of cash discounts since initialization', 'Number of cash discounts since last reset', 'Number of cash discounts since initialization', 'Value of cash surcharges since last reset', 'Value of cash surcharges since initialization', 'Number of cash surcharges since last reset', 'Number of cash surcharges since initialization'];
+                    const operations = ['coins', 'coins', '', '', 'coins', 'coins', '', ''];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        const currency = index % 2 === 0;
+                        createMetric(result, `CA7.${String(index + 1).padStart(2, '0')}`, `CA7.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', currency ? scaleDexCurrency(value, result, `CA7.${index + 1}`, operations[index]) : parseDexNumber(value, result, `CA7.${index + 1}`), currency ? 'currency' : 'number');
+                    });
+                    return;
+                }
+                if(line.id === 'CA8'){
+                    const labels = ['Value of cash overpay since last reset', 'Value of cash overpay since initialization'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `CA8.${String(index + 1).padStart(2, '0')}`, `CA8.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', scaleDexCurrency(value, result, `CA8.${index + 1}`, 'coins'), 'currency');
+                    });
+                    return;
+                }
+                if(line.id === 'CA10'){
+                    const labels = ['Value of cash filled since last reset', 'Value of cash filled since initialization', 'Value of bills filled since last reset', 'Value of bills filled since initialization'];
+                    const operations = ['coins', 'coins', 'bills', 'bills'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `CA10.${String(index + 1).padStart(2, '0')}`, `CA10.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', scaleDexCurrency(value, result, `CA10.${index + 1}`, operations[index]), 'currency');
+                    });
+                    return;
+                }
+                if(line.id === 'CA15'){
+                    const labels = ['Value of tube contents', 'Tube block number', 'Number of coins in tube 1', 'Number of coins in tube 2', 'Number of coins in tube 3', 'Number of coins in tube 4', 'Number of coins in tube 5', 'Number of coins in tube 6', 'Number of coins in tube 7', 'Number of coins in tube 8'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        if(index === 0) createMetric(result, 'CA15.01', 'CA15.01', labels[0], 'payment', scaleDexCurrency(value, result, 'CA15.01', 'tubes'), 'currency', 'Value of coins stored in all tubes of the changer');
+                        else createMetric(result, `CA15.${String(index + 1).padStart(2, '0')}`, `CA15.${String(index + 1).padStart(2, '0')}`, labels[index] || `CA15 field ${index + 1}`, 'payment', index === 1 ? value : parseDexNumber(value, result, `CA15.${index + 1}`), index === 1 ? 'text' : 'number');
+                    });
+                    return;
+                }
+                if(line.id === 'BA1'){
+                    const labels = ['Bill validator serial number', 'Bill validator model number', 'Bill validator software revision'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `BA1.${String(index + 1).padStart(2, '0')}`, `BA1.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', value, 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'DA1'){
+                    const labels = ['Cashless 1 serial number', 'Cashless 1 model number', 'Cashless 1 software revision'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `DA1.${String(index + 1).padStart(2, '0')}`, `DA1.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', value, 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'DA4'){
+                    const labels = ['Value of credit to cashless 1 since initialization', 'Value of credit to cashless 1 since last reset'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `DA4.${String(index + 1).padStart(2, '0')}`, `DA4.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexNumber(value, result, `DA4.${index + 1}`), 'currency');
+                    });
+                    return;
+                }
+                if(line.id === 'DA5'){
+                    const labels = ['Value of card discounts since last reset', 'Number of card discounts since last reset', 'Value of card discounts since initialization', 'Number of card discounts since initialization', 'Value of card surcharges since last reset', 'Number of card surcharges since last reset', 'Value of card surcharges since initialization', 'Number of card surcharges since initialization'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        const currency = index % 2 === 0;
+                        createMetric(result, `DA5.${String(index + 1).padStart(2, '0')}`, `DA5.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexNumber(value, result, `DA5.${index + 1}`), currency ? 'currency' : 'number');
+                    });
+                    return;
+                }
+                if(line.id === 'DA9'){
+                    const labels = ['Value of cashless overpay since last reset', 'Value of cashless overpay since initialization'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `DA9.${String(index + 1).padStart(2, '0')}`, `DA9.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexNumber(value, result, `DA9.${index + 1}`), 'currency');
+                    });
+                    return;
+                }
+                if(line.id === 'SD1'){
+                    const labels = ['Current password', 'New password', 'Reporting instructions', 'Reset selected data', 'Reset all interval data control', 'Reset events control'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `SD1.${String(index + 1).padStart(2, '0')}`, `SD1.${String(index + 1).padStart(2, '0')}`, labels[index], 'machine', value, 'text');
+                    });
+                    return;
+                }
+                if(line.id === 'MA5'){
+                    const labels = ['Block identifier', 'Specific data block', 'Optional field 2', 'Optional field 3', 'Optional field 4', 'Optional field 5', 'Optional field 6', 'Optional field 7', 'Optional field 8', 'Optional field 9', 'Optional field 10'];
+                    fields.forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `MA5.${String(index + 1).padStart(2, '0')}`, `MA5.${String(index + 1).padStart(2, '0')}`, labels[index], 'machine', value, 'text', index === 0 ? 'Sequential block identifier; LAST marks the final block' : '');
+                    });
+                    return;
+                }
                 if(line.id === 'PA1'){
-                    if(pendingProduct) result.warnings.push(`PA1 ${pendingProduct.paCode} has no following PA2 record.`);
+                    if(pendingProduct) result.warnings.push(`PA1 ${pendingProduct.paCode} has no following PA2/PA7 record.`);
                     const paCode = fields[0] || `line-${line.lineNumber}`;
                     const mapped = (mapSnapshot || []).find(row => canonicalText(row.paCode) === canonicalText(paCode));
                     const note = mapped ? `Mapped to ${mapped.productName} · MDB ${mapped.mdbCode}` : 'No matching PA Code in this snapshot’s Product Map';
                     pendingProduct = { paCode, mapped, note };
-                    const labels = ['PA / selection code', 'Selection price', 'DEX Product Name', 'Maximum capacity', 'Reported fill level', 'Standard dispense quantity', 'Selection status'];
-                    const types = ['text', 'currency', 'text', 'number', 'number', 'number', 'text'];
-                    fields.slice(0, 7).forEach((value, index) => {
-                        const parsedValue = types[index] === 'currency' || types[index] === 'number' ? parseDexNumber(value, result, `PA1[${paCode}].${index + 1}`) : value;
-                        createMetric(result, `PA1[${paCode}].${String(index + 1).padStart(2, '0')}`, `PA1[${paCode}].${String(index + 1).padStart(2, '0')}`, labels[index], 'products', parsedValue, types[index], note);
+                    const definitions = [
+                        ['Product identifier (PA / selection code)', 'text'],
+                        ['Price', 'currency'],
+                        ['Product identification (DEX Product Name)', 'text'],
+                        ['Maximum capacity (legacy field; not defined in EVA-DTS 6.1.2)', 'number'],
+                        ['Reported fill level (legacy field; not defined in EVA-DTS 6.1.2)', 'number'],
+                        ['Standard dispense quantity (legacy field; not defined in EVA-DTS 6.1.2)', 'number'],
+                        ['Selection status (0/blank = present, 1 = not present)', 'text'],
+                        ['Current product level', 'number'],
+                        ['Minimum product level', 'number']
+                    ];
+                    definitions.forEach((def, index) => {
+                        const value = fields[index];
+                        if(value == null || value === '') return;
+                        if(index >= 3 && index <= 5) result.warnings.push(`PA1 element ${String(index + 1).padStart(2, '0')} is not defined in EVA-DTS 6.1.2; legacy DEX/UCS layout detected.`);
+                        const parsedValue = def[1] === 'currency' || def[1] === 'number' ? parseDexNumber(value, result, `PA1[${paCode}].${index + 1}`) : value;
+                        createMetric(result, `PA1[${paCode}].${String(index + 1).padStart(2, '0')}`, `PA1[${paCode}].${String(index + 1).padStart(2, '0')}`, def[0], 'products', parsedValue, def[1], note);
                     });
                     return;
                 }
@@ -5897,34 +6266,141 @@ paymentTimeout=180`
                         return;
                     }
                     const paCode = pendingProduct.paCode;
-                    const labels = ['Paid quantity since initialization', 'Paid value since initialization', 'Paid quantity since reset', 'Paid value since reset', 'Discounted quantity since initialization', 'Discounted value since initialization', 'Discounted quantity since reset', 'Discounted value since reset'];
-                    fields.slice(0, 8).forEach((value, index) => createMetric(result, `PA2[${paCode}].${String(index + 1).padStart(2, '0')}`, `PA2[${paCode}].${String(index + 1).padStart(2, '0')}`, labels[index], 'products', parseDexNumber(value, result, `PA2[${paCode}].${index + 1}`), index % 2 === 1 ? 'currency' : 'number', pendingProduct.note));
+                    const labels = ['Number of paid products vended since initialization', 'Value of paid products vended since initialization', 'Number of paid products vended since last reset', 'Value of paid products vended since last reset', 'Number of discounts since initialization', 'Value of discounts since initialization', 'Number of discounts since last reset', 'Value of discounts since last reset', 'Number of surcharged paid since initialization', 'Value of surcharges paid since initialization', 'Number of surcharged paid since last reset', 'Value of surcharges paid since last reset'];
+                    fields.slice(0, 12).forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `PA2[${paCode}].${String(index + 1).padStart(2, '0')}`, `PA2[${paCode}].${String(index + 1).padStart(2, '0')}`, labels[index], 'products', parseDexNumber(value, result, `PA2[${paCode}].${index + 1}`), index % 2 === 1 ? 'currency' : 'number', `${pendingProduct.note} · Grandfathered in EVA-DTS 6.1.2 (Note 1); PA7 is preferred for new designs`);
+                    });
+                    pendingProduct = null;
+                    return;
+                }
+                if(line.id === 'PA4'){
+                    if(!pendingProduct){
+                        result.warnings.push(`Orphan PA4 record on line ${line.lineNumber}.`);
+                        return;
+                    }
+                    const paCode = pendingProduct.paCode;
+                    const labels = ['Number of free vends since initialization', 'Value of free vends since initialization', 'Number of free vends since last reset', 'Value of free vends since last reset', 'Number of free vends without cup since initialization', 'Number of free vends without cup since last reset'];
+                    fields.slice(0, 6).forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `PA4[${paCode}].${String(index + 1).padStart(2, '0')}`, `PA4[${paCode}].${String(index + 1).padStart(2, '0')}`, labels[index], 'products', parseDexNumber(value, result, `PA4[${paCode}].${index + 1}`), index >= 4 ? 'number' : (index % 2 === 1 ? 'currency' : 'number'), pendingProduct.note);
+                    });
+                    return;
+                }
+                if(line.id === 'PA7'){
+                    if(!pendingProduct){
+                        result.warnings.push(`Orphan PA7 record on line ${line.lineNumber}.`);
+                        return;
+                    }
+                    const paCode = pendingProduct.paCode;
+                    const labels = ['Product number', 'Payment device', 'Price list number', 'Applied price', 'Number of sales since initialization', 'Value of sales since initialization', 'Number of sales since last reset', 'Value of sales since last reset'];
+                    const types = ['text', 'text', 'number', 'currency', 'number', 'currency', 'number', 'currency'];
+                    fields.slice(0, 8).forEach((value, index) => {
+                        if(value === '') return;
+                        const parsedValue = types[index] === 'currency' || types[index] === 'number' ? parseDexNumber(value, result, `PA7[${paCode}].${index + 1}`) : value;
+                        createMetric(result, `PA7[${paCode}].${String(index + 1).padStart(2, '0')}`, `PA7[${paCode}].${String(index + 1).padStart(2, '0')}`, labels[index], 'products', parsedValue, types[index], pendingProduct.note);
+                    });
                     pendingProduct = null;
                     return;
                 }
                 if(/^EA\d+$/.test(line.id)){
                     const eventCode = fields[0] || 'UNKNOWN';
+                    const description = dexEventDescription(eventCode);
+                    const eventNote = description ? `EVA-DTS 6.1.2 Appendix C: ${description}` : 'Event code not found in the EVA-DTS 6.1.2 event list.';
                     if(line.id === 'EA1'){
                         const occurrenceKey = `${eventCode}:${fields[1] || ''}:${fields[2] || ''}`;
-                        createMetric(result, `EA1[${occurrenceKey}].01`, `EA1[${eventCode}].01`, 'Event occurrence', 'events', `${eventCode} · ${fields[1] || '--'} ${fields[2] || '--'}`, 'text');
+                        const labels = ['Event identification', 'Date of event', 'Time of event', 'Duration of event in minutes', 'Duration of event in milliseconds', 'User defined field'];
+                        const types = ['text', 'text', 'text', 'number', 'number', 'text'];
+                        fields.forEach((value, index) => {
+                            if(value === '' && index !== 0) return;
+                            const parsedValue = types[index] === 'number' ? parseDexNumber(value, result, `EA1.${index + 1}`) : (value || '');
+                            createMetric(result, `EA1[${occurrenceKey}].${String(index + 1).padStart(2, '0')}`, `EA1[${eventCode}].${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', parsedValue, types[index] || 'text', index === 0 ? eventNote : '');
+                        });
                     } else if(line.id === 'EA2'){
-                        createMetric(result, `EA2[${eventCode}].01`, `EA2[${eventCode}].01`, 'Event code', 'events', eventCode, 'text');
-                        createMetric(result, `EA2[${eventCode}].04`, `EA2[${eventCode}].04`, 'Event description', 'events', fields[3] || '', 'text');
-                        createMetric(result, `EA2[${eventCode}].05`, `EA2[${eventCode}].05`, 'Event state', 'events', String(fields[4] || '0') === '1' ? 'Active' : 'Resolved', 'status');
+                        const labels = ['Event identification', 'Number of events since last reset', 'Number of events since initialization', 'User defined field', 'Current event activity', 'Duration of event(s) in minutes'];
+                        const types = ['text', 'number', 'number', 'text', 'text', 'number'];
+                        fields.forEach((value, index) => {
+                            if(index === 3 && value === '') return;
+                            if(index === 4){
+                                createMetric(result, `EA2[${eventCode}].05`, `EA2[${eventCode}].05`, labels[4], 'events', String(value || '0') === '1' ? 'Active' : 'Inactive', 'status', eventNote);
+                            } else {
+                                const parsedValue = types[index] === 'number' ? parseDexNumber(value, result, `EA2.${index + 1}`) : (value || '');
+                                createMetric(result, `EA2[${eventCode}].${String(index + 1).padStart(2, '0')}`, `EA2[${eventCode}].${String(index + 1).padStart(2, '0')}`, labels[index], 'events', parsedValue, types[index], index === 0 ? eventNote : '');
+                            }
+                        });
+                    } else if(line.id === 'EA3'){
+                        const labels = ['Number of reads with reset since initialization', 'Date of this readout', 'Time of this readout', 'This terminal / interrogator identification', 'Date of last readout', 'Time of last readout', 'Last terminal / interrogator identification', 'User defined field', 'Number of reads with or without reset since initialization', 'Number of resets since initialization'];
+                        const types = ['number', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'number', 'number'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            const parsedValue = types[index] === 'number' ? parseDexNumber(value, result, `EA3.${index + 1}`) : value;
+                            createMetric(result, `EA3.${String(index + 1).padStart(2, '0')}`, `EA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', parsedValue, types[index] || 'text');
+                        });
+                    } else if(line.id === 'EA4'){
+                        const labels = ['Date of initialization', 'Time of initialization', 'Initialization terminal / interrogator identification', 'User defined field'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            createMetric(result, `EA4.${String(index + 1).padStart(2, '0')}`, `EA4.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', value, 'text');
+                        });
+                    } else if(line.id === 'EA5'){
+                        const labels = ['Date of price setting', 'Time of price setting', 'Interrogator / terminal identification', 'User defined field', 'Number of price alterations'];
+                        const types = ['text', 'text', 'text', 'text', 'number'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            createMetric(result, `EA5.${String(index + 1).padStart(2, '0')}`, `EA5.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', types[index] === 'number' ? parseDexNumber(value, result, `EA5.${index + 1}`) : value, types[index] || 'text');
+                        });
+                    } else if(line.id === 'EA6'){
+                        const labels = ['Date of machine service', 'Time of machine service', 'Interrogator / terminal identification', 'User defined field'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            createMetric(result, `EA6.${String(index + 1).padStart(2, '0')}`, `EA6.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', value, 'text');
+                        });
+                    } else if(line.id === 'EA7'){
+                        const labels = ['Number of power outages since last reset', 'Number of power outages since initialization'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            createMetric(result, `EA7.${String(index + 1).padStart(2, '0')}`, `EA7.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', parseDexNumber(value, result, `EA7.${index + 1}`), 'number');
+                        });
+                    } else if(line.id === 'EA8'){
+                        const labels = ['Repeating event identification', 'Day of repeating event occurrence', 'Hour of repeating event occurrence', 'Minute of repeating event occurrence', 'Millisecond of repeating event occurrence', 'User defined field'];
+                        const types = ['text', 'text', 'number', 'number', 'number', 'text'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            createMetric(result, `EA8.${String(index + 1).padStart(2, '0')}`, `EA8.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', types[index] === 'number' ? parseDexNumber(value, result, `EA8.${index + 1}`) : value, types[index] || 'text');
+                        });
+                    } else if(line.id === 'EA9'){
+                        const labels = ['Machine hours since initialization', 'Total number of products dispensed since initialization', 'User defined field'];
+                        const types = ['number', 'number', 'text'];
+                        fields.forEach((value, index) => {
+                            if(value === '') return;
+                            createMetric(result, `EA9.${String(index + 1).padStart(2, '0')}`, `EA9.${String(index + 1).padStart(2, '0')}`, labels[index] || `Event field ${index + 1}`, 'events', types[index] === 'number' ? parseDexNumber(value, result, `EA9.${index + 1}`) : value, types[index] || 'text');
+                        });
                     } else {
                         fields.forEach((value, index) => createMetric(result, `${line.id}.${String(index + 1).padStart(2, '0')}`, `${line.id}.${String(index + 1).padStart(2, '0')}`, `${line.id} field ${index + 1}`, 'events', /^-?\d+$/.test(value) ? Number(value) : value, /^-?\d+$/.test(value) ? 'number' : 'text'));
                     }
                     return;
                 }
+                if(line.id === 'G85'){
+                    createMetric(result, 'G85.01', 'G85.01', 'Record integrity check (CRC-16)', 'machine', fields[0] || '', 'text', crcResult.status === 'valid' ? 'CRC-16 verified' : crcResult.status === 'mismatch' ? `CRC-16 mismatch (expected ${crcResult.expected})` : 'CRC-16 not validated');
+                    return;
+                }
                 if(line.id === 'SE'){
-                    createMetric(result, 'SE.01', 'SE.01', 'Included record count', 'machine', parseDexNumber(fields[0], result, 'SE.01'), 'number');
-                    createMetric(result, 'SE.02', 'SE.02', 'Ending control number', 'machine', fields[1] || '', 'text');
+                    createMetric(result, 'SE.01', 'SE.01', 'Number of included segments', 'machine', parseDexNumber(fields[0], result, 'SE.01'), 'number');
+                    createMetric(result, 'SE.02', 'SE.02', 'Transaction set control number', 'machine', fields[1] || '', 'text');
+                    return;
+                }
+                if(line.id === 'DXE'){
+                    const labels = ['Transmission control number', 'Number of included sets'];
+                    fields.slice(0, 2).forEach((value, index) => {
+                        if(value === '') return;
+                        createMetric(result, `DXE.${String(index + 1).padStart(2, '0')}`, `DXE.${String(index + 1).padStart(2, '0')}`, labels[index], 'machine', value, 'text');
+                    });
                     return;
                 }
                 result.warnings.push(`Unknown DEX record ${line.id} on line ${line.lineNumber}.`);
                 createMetric(result, `UNKNOWN[${line.lineNumber}]`, line.id || 'UNKNOWN', 'Unrecognized DEX record', 'machine', line.raw, 'text', 'Preserved without interpretation');
             });
-            if(pendingProduct) result.warnings.push(`PA1 ${pendingProduct.paCode} has no following PA2 record.`);
+            if(pendingProduct) result.warnings.push(`PA1 ${pendingProduct.paCode} has no following PA2/PA7 record.`);
             return result;
         }
 
@@ -6230,6 +6706,7 @@ paymentTimeout=180`
         const deltaReadAt = seedNow - 34 * 60 * 1000;
         const latestReadAt = seedNow - 4 * 60 * 1000;
         let dexSnapshots = [
+            { id: 'dex-sqs-001', type: 'Full', status: 'Warning', validation: 'Warnings', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 60 * 1000, readAt: seedNow - 45 * 1000, receivedAt: seedNow - 40 * 1000, raw: buildSqsDexRaw(), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
             { id: 'dex-0009', type: 'Full', status: 'Parsed', validation: 'Passed', source: 'Scheduled', emailStatus: 'Sent', requestedAt: latestReadAt - 18000, readAt: latestReadAt, receivedAt: latestReadAt + 12000, raw: buildFullDexRaw(9, latestTotals, seedMap, latestReadAt, false), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
             { id: 'dex-0008', type: 'Delta', status: 'Parsed', validation: 'Passed', source: 'Manual', emailStatus: 'Not Sent', requestedAt: deltaReadAt - 15000, readAt: deltaReadAt, receivedAt: deltaReadAt + 9000, raw: buildDeltaDexRaw(8, deltaTotals, seedMap, deltaReadAt), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
             { id: 'dex-failed-01', type: 'Delta', status: 'Failed', validation: 'Failed', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 48 * 60 * 1000, readAt: seedNow - 47 * 60 * 1000, receivedAt: seedNow - 47 * 60 * 1000, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'No DEX response before the request timeout.' },
@@ -6305,7 +6782,7 @@ paymentTimeout=180`
             if(!current || !previous || current.value == null || previous.value == null) return { text: '--', className: 'dex-delta-neutral' };
             if((current.type === 'currency' || current.type === 'number') && typeof current.value === 'number' && typeof previous.value === 'number'){
                 const difference = current.value - previous.value;
-                const cumulative = /^(VA1|CA2|CA3|DA2|PA2)/.test(current.key);
+                const cumulative = /^(VA1|VA3|CA2|CA3|CA4|DA2|PA2|PA4|PA7)/.test(current.key);
                 if(difference < 0 && cumulative) return { text: 'Counter reset', className: 'dex-delta-negative' };
                 if(difference === 0) return { text: 'No change', className: 'dex-delta-neutral' };
                 const absolute = current.type === 'currency' ? formatUsdFromCents(Math.abs(difference)) : new Intl.NumberFormat('en-US').format(Math.abs(difference));
