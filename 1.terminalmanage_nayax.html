@@ -1318,6 +1318,56 @@
             white-space: nowrap;
         }
         .feature-modal.pm-import-template-modal { width: min(558px, 94vw); }
+        .feature-modal.compact.pm-pick-list-modal { box-sizing: border-box; width: min(500px, calc(100vw - 20px)); }
+        .pm-pick-list-modal .feature-modal-header { padding: 16px 20px; }
+        .pm-pick-list-modal .feature-modal-body { padding: 18px 20px 16px; }
+        .pm-pick-list-modal .feature-field { gap: 6px; }
+        .pm-pick-list-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            min-height: 58px;
+            padding: 11px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        .pm-pick-list-option-copy strong { display: block; color: #0f172a; font-size: 13px; }
+        .pm-pick-list-option-copy span { display: block; margin-top: 2px; color: #64748b; font-size: 11px; line-height: 1.4; }
+        .pm-pick-list-schedule-fields { margin-top: 14px; }
+        .pm-pick-list-modal .feature-field input {
+            box-sizing: border-box;
+            width: 100%;
+            height: 40px;
+            min-height: 40px;
+            padding: 7px 10px;
+            border: 1px solid #cfd6df;
+            border-radius: 8px;
+            background: #fff;
+            color: #111827;
+            font: inherit;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+        .pm-pick-list-helper { margin-top: 4px; color: #64748b; font-size: 11px; line-height: 1.45; }
+        .pm-pick-list-footer { min-height: 62px; justify-content: space-between; padding: 12px 20px; }
+        .pm-pick-list-footer-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+        .feature-modal-footer.pm-pick-list-footer .btn-primary,
+        .feature-modal-footer.pm-pick-list-footer .btn-secondary {
+            box-sizing: border-box;
+            width: 112px;
+            min-width: 112px;
+            height: 36px;
+            min-height: 36px;
+            padding: 7px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .pm-cancel-scheduled-fill { border: 0; background: transparent; color: #b42318; font-size: 12px; font-weight: 700; cursor: pointer; padding: 7px 0; }
+        .pm-cancel-scheduled-fill:hover { text-decoration: underline; }
         .template-picker-list {
             display: grid;
             gap: 8px;
@@ -1551,8 +1601,8 @@
         .dex-switch-copy strong { display: block; color: #0f172a; font-size: 13px; }
         .dex-switch-copy span { display: block; margin-top: 2px; color: #64748b; font-size: 11px; }
         .dex-switch { position: relative; width: 40px; height: 22px; flex: 0 0 auto; }
-        .dex-switch input { position: absolute; opacity: 0; pointer-events: none; }
-        .dex-switch-track { display: block; width: 100%; height: 100%; border-radius: 999px; background: #cbd5e1; cursor: pointer; transition: .18s ease; }
+        .dex-switch input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+        .dex-switch-track { display: block; width: 100%; height: 100%; border-radius: 999px; background: #cbd5e1; cursor: pointer; pointer-events: none; transition: .18s ease; }
         .dex-switch-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(15,23,42,.25); transition: .18s ease; }
         .dex-switch input:checked + .dex-switch-track { background: #111827; }
         .dex-switch input:checked + .dex-switch-track::after { transform: translateX(18px); }
@@ -2650,6 +2700,9 @@
                             <div class="pm-map-menu">
                                 <button id="pmStockMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pmStockMenuPanel"><img class="pm-command-icon" src="assets/icons/inventory-2.svg" alt="" aria-hidden="true"><span>Stock</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
                                 <div id="pmStockMenuPanel" class="pm-map-menu-panel hidden" role="menu">
+                                    <button id="pmDownloadPickListButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/file-download.svg" alt="" aria-hidden="true"><span>Download Pick List</span></button>
+                                    <button id="pmPickListButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Generate Pick List</span></button>
+                                    <div class="pm-map-menu-divider" role="separator"></div>
                                     <button id="pmStockFillButton" type="button" role="menuitem"><img class="pm-menu-item-icon success" src="assets/icons/inventory-check.svg" alt="" aria-hidden="true"><span>Fill Machine 100%</span></button>
                                     <button id="pmStockEmptyButton" type="button" role="menuitem"><img class="pm-menu-item-icon danger" src="assets/icons/remove-circle-outline.svg" alt="" aria-hidden="true"><span>Empty Machine</span></button>
                                     <div id="pmStockMenuNote" class="pm-menu-note hidden" role="status"></div>
@@ -2869,6 +2922,44 @@
         </div>
     </div>
 
+    <div id="pmPickListModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmPickListTitle">
+        <div class="feature-modal compact pm-pick-list-modal">
+            <div class="feature-modal-header">
+                <h2 id="pmPickListTitle" class="feature-modal-title">Generate Pick List</h2>
+            </div>
+            <form id="pmPickListForm" novalidate>
+                <div class="feature-modal-body">
+                    <div class="pm-pick-list-option">
+                        <div class="pm-pick-list-option-copy">
+                            <strong>Schedule automatic inventory fill</strong>
+                            <span>Set saved stock to PAR at a future time.</span>
+                        </div>
+                        <label class="dex-switch">
+                            <input id="pmPickListScheduleEnabled" type="checkbox" aria-controls="pmPickListScheduleFields">
+                            <span class="dex-switch-track"></span>
+                            <span class="sr-only">Schedule automatic inventory fill</span>
+                        </label>
+                    </div>
+                    <div id="pmPickListScheduleFields" class="pm-pick-list-schedule-fields" hidden>
+                        <div id="pmPickListTimeField" class="feature-field">
+                            <label for="pmPickListTime">Restock completion time</label>
+                            <input id="pmPickListTime" type="datetime-local" aria-describedby="pmPickListTimeHelp pmPickListTimeError">
+                            <div id="pmPickListTimeHelp" class="pm-pick-list-helper">The latest saved Product Map will be filled automatically at this time.</div>
+                            <div id="pmPickListTimeError" class="field-error" role="alert"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-modal-footer pm-pick-list-footer">
+                    <button id="pmPickListCancelSchedule" class="pm-cancel-scheduled-fill" type="button" hidden>Cancel Scheduled Fill</button>
+                    <div class="pm-pick-list-footer-actions">
+                        <button class="btn-secondary" type="button" data-feature-close>Cancel</button>
+                        <button id="pmPickListGenerate" class="btn-primary" type="submit">Generate</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="pmSaveTemplateModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmSaveTemplateTitle">
         <div class="feature-modal compact pm-save-template-modal">
             <div class="feature-modal-header">
@@ -3047,6 +3138,7 @@
 
     <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
 <script src="scripts/product-catalog.js"></script>
+<script src="scripts/pick-list.js"></script>
 <script>
     const terminalContext = (() => {
         const defaults = {
@@ -4495,6 +4587,7 @@ paymentTimeout=180`
         });
 
         const catalogStore = window.PaywizardProductCatalog || null;
+        const pickListStore = window.PaywizardPickList || null;
         function catalogState(){
             if(!catalogStore || typeof catalogStore.getState !== 'function') return { categories: [], products: [] };
             try {
@@ -4782,9 +4875,23 @@ paymentTimeout=180`
         const stockElements = {
             menuButton: byId('pmStockMenuButton'),
             menu: byId('pmStockMenuPanel'),
+            downloadPickList: byId('pmDownloadPickListButton'),
+            pickList: byId('pmPickListButton'),
             fill: byId('pmStockFillButton'),
             empty: byId('pmStockEmptyButton'),
             note: byId('pmStockMenuNote')
+        };
+        const pickListElements = {
+            modal: byId('pmPickListModal'),
+            form: byId('pmPickListForm'),
+            scheduleEnabled: byId('pmPickListScheduleEnabled'),
+            scheduleFields: byId('pmPickListScheduleFields'),
+            field: byId('pmPickListTimeField'),
+            time: byId('pmPickListTime'),
+            help: byId('pmPickListTimeHelp'),
+            error: byId('pmPickListTimeError'),
+            generate: byId('pmPickListGenerate'),
+            cancelSchedule: byId('pmPickListCancelSchedule')
         };
         const quantityModal = byId('pmQuantityModal');
         const quantityForm = byId('pmQuantityForm');
@@ -4969,6 +5076,8 @@ paymentTimeout=180`
             inlineElements.add.disabled = Boolean(templateImportBackup);
             inlineElements.addMultiple.disabled = Boolean(templateImportBackup);
             const stockUnavailable = !productRows.length || hasPendingProductMapChanges();
+            stockElements.downloadPickList.disabled = stockUnavailable;
+            stockElements.pickList.disabled = stockUnavailable;
             stockElements.fill.disabled = stockUnavailable;
             stockElements.empty.disabled = stockUnavailable;
             if(stockUnavailable){
@@ -5221,6 +5330,69 @@ paymentTimeout=180`
         function hasPendingProductMapChanges(){
             return Boolean(templateImportBackup || cellEditing || inlineDrafts.length);
         }
+        function pickListUrl(download = false){
+            const query = new URLSearchParams({
+                sn: terminalContext.sn,
+                tid: terminalContext.tid,
+                merchantName: terminalContext.merchantName,
+                terminalName: terminalContext.terminalName,
+                machineModel: terminalContext.machineModel
+            });
+            if(download) query.set('download', '1');
+            return `37.pick_list.html?${query.toString()}`;
+        }
+        function pickListLocalInputValue(value){
+            if(!value) return '';
+            const date = new Date(value);
+            if(Number.isNaN(date.getTime())) return '';
+            const pad = number => String(number).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+        function clearPickListTimeError(){
+            pickListElements.field.classList.remove('is-invalid');
+            pickListElements.error.textContent = '';
+        }
+        function syncPickListScheduleFields(schedule){
+            const enabled = pickListElements.scheduleEnabled.checked;
+            pickListElements.scheduleFields.hidden = !enabled;
+            pickListElements.generate.textContent = enabled && schedule ? 'Update Pick List' : 'Generate';
+            if(!enabled) clearPickListTimeError();
+        }
+        function openPickListGenerator(){
+            closeToolbarMenu(stockElements, true);
+            if(!productRows.length){
+                showToast('No BINS are available for a Pick List.');
+                return;
+            }
+            if(hasPendingProductMapChanges()){
+                showToast('Save or cancel the current Product Map changes before generating a Pick List.');
+                return;
+            }
+            const schedule = pickListStore ? pickListStore.getSchedule(terminalContext.sn) : null;
+            clearPickListTimeError();
+            pickListElements.time.min = pickListLocalInputValue(new Date(Date.now() + 60000));
+            pickListElements.time.value = schedule ? pickListLocalInputValue(schedule.scheduledFor) : '';
+            pickListElements.scheduleEnabled.checked = Boolean(schedule);
+            syncPickListScheduleFields(schedule);
+            pickListElements.cancelSchedule.hidden = !schedule;
+            pickListElements.help.textContent = schedule && schedule.status === 'failed'
+                ? 'The previous automatic fill failed. Choose a new future time or cancel it.'
+                : 'The latest saved Product Map will be filled automatically at this time.';
+            openFeatureModal(pickListElements.modal, '#pmPickListScheduleEnabled');
+        }
+        function runPickListScheduleCheck(){
+            if(!pickListStore || hasPendingProductMapChanges()) return;
+            const outcome = pickListStore.executeDueSchedule(terminalContext.sn);
+            if(!outcome.executed) return;
+            if(outcome.success){
+                productRows = outcome.result.rows.map(materializeProductRow);
+                renderProductMapInline();
+                announceProductMap('Automatic fill completed. All saved BINS are at PAR.');
+                showToast('Automatic fill completed. All saved BINS are at PAR.');
+            } else {
+                showToast('Automatic fill failed. Inventory was not changed.');
+            }
+        }
         function requestStockUpdate(mode){
             closeToolbarMenu(stockElements, true);
             if(!productRows.length){
@@ -5232,26 +5404,108 @@ paymentTimeout=180`
                 return;
             }
             const fill = mode === 'fill';
+            const schedule = fill && pickListStore ? pickListStore.getSchedule(terminalContext.sn) : null;
             requestProductMapConfirmation({
-                title: fill ? 'Fill Machine 100%?' : 'Empty Machine?',
+                title: fill && schedule ? 'Fill now and cancel schedule?' : fill ? 'Fill Machine 100%?' : 'Empty Machine?',
                 message: fill
-                    ? `Set On Hand to PAR for all ${productRows.length} BINS?`
+                    ? schedule
+                        ? `Set every saved BIN to PAR now and cancel the automatic fill scheduled for ${formatDateTime(schedule.scheduledFor)}?`
+                        : `Set On Hand to PAR for all ${productRows.length} BINS?`
                     : `Set On Hand to 0 for all ${productRows.length} BINS?`,
-                acceptLabel: fill ? 'Fill Machine' : 'Empty',
+                acceptLabel: fill && schedule ? 'Fill Now & Cancel Schedule' : fill ? 'Fill Machine' : 'Empty',
                 tone: fill ? 'primary' : 'danger',
                 focusReturn: stockElements.menuButton,
                 action: () => {
+                    if(fill && catalogStore && typeof catalogStore.fillProductMapToPar === 'function'){
+                        try {
+                            const result = catalogStore.fillProductMapToPar(terminalContext.sn);
+                            productRows = result.rows.map(materializeProductRow);
+                            if(pickListStore) pickListStore.recordManualFill(terminalContext.sn, result);
+                            const message = schedule
+                                ? `All ${productRows.length} BINS filled to PAR. The scheduled fill was cancelled.`
+                                : `All ${productRows.length} BINS filled to PAR.`;
+                            renderProductMapInline();
+                            announceProductMap(message);
+                            showToast(message);
+                        } catch(error){
+                            renderProductMapInline();
+                            showToast(error && error.message ? error.message : 'The machine could not be filled.');
+                        }
+                        return;
+                    }
                     const previousRows = productRows.map(row => ({ ...row }));
-                    productRows = productRows.map(row => ({ ...row, onHand: fill ? Number(row.par) : 0 }));
-                    const message = fill
-                        ? `All ${productRows.length} BINS filled to PAR.`
-                        : `All ${productRows.length} BINS emptied.`;
-                    commitProductRows(message, previousRows);
+                    productRows = productRows.map(row => ({ ...row, onHand: 0 }));
+                    commitProductRows(`All ${productRows.length} BINS emptied.`, previousRows);
                 }
             });
         }
+        stockElements.downloadPickList.addEventListener('click', () => {
+            closeToolbarMenu(stockElements, true);
+            if(!productRows.length || hasPendingProductMapChanges()) return;
+            window.location.href = pickListUrl(true);
+        });
+        stockElements.pickList.addEventListener('click', openPickListGenerator);
         stockElements.fill.addEventListener('click', () => requestStockUpdate('fill'));
         stockElements.empty.addEventListener('click', () => requestStockUpdate('empty'));
+        pickListElements.scheduleEnabled.addEventListener('change', () => {
+            const schedule = pickListStore ? pickListStore.getSchedule(terminalContext.sn) : null;
+            syncPickListScheduleFields(schedule);
+            if(pickListElements.scheduleEnabled.checked) requestAnimationFrame(() => pickListElements.time.focus());
+        });
+        pickListElements.time.addEventListener('input', clearPickListTimeError);
+        pickListElements.form.addEventListener('submit', evt => {
+            evt.preventDefault();
+            clearPickListTimeError();
+            const existing = pickListStore ? pickListStore.getSchedule(terminalContext.sn) : null;
+            const value = pickListElements.time.value;
+            if(pickListElements.scheduleEnabled.checked && !value){
+                pickListElements.field.classList.add('is-invalid');
+                pickListElements.error.textContent = 'Choose a future completion time.';
+                pickListElements.time.focus();
+                return;
+            }
+            if(pickListElements.scheduleEnabled.checked){
+                if(!pickListStore){
+                    pickListElements.field.classList.add('is-invalid');
+                    pickListElements.error.textContent = 'Pick List scheduling is not available in this browser session.';
+                    return;
+                }
+                try {
+                    pickListStore.saveSchedule(terminalContext.sn, value);
+                } catch(error){
+                    pickListElements.field.classList.add('is-invalid');
+                    pickListElements.error.textContent = error && error.message ? error.message : 'Choose a future completion time.';
+                    pickListElements.time.focus();
+                    return;
+                }
+            }
+            window.location.href = pickListUrl();
+        });
+        pickListElements.cancelSchedule.addEventListener('click', () => {
+            const schedule = pickListStore && pickListStore.getSchedule(terminalContext.sn);
+            if(!schedule) return;
+            closeFeatureModal(pickListElements.modal, false);
+            requestProductMapConfirmation({
+                title: 'Cancel automatic fill?',
+                message: 'The future inventory update will be cancelled. Current stock will not change.',
+                acceptLabel: 'Cancel Schedule',
+                tone: 'danger',
+                focusReturn: stockElements.menuButton,
+                action: () => {
+                    pickListStore.cancelSchedule(terminalContext.sn);
+                    showToast('Automatic fill cancelled.');
+                }
+            });
+        });
+        if(pickListStore){
+            pickListStore.subscribe(change => {
+                if(!change || change.terminalSn !== terminalContext.sn) return;
+                if(change.type === 'schedule:completed' && !hasPendingProductMapChanges()){
+                    try { productRows = catalogStore.getProductMap(terminalContext.sn).map(materializeProductRow); } catch(error){ /* Keep the current view. */ }
+                }
+                renderProductMapInline();
+            });
+        }
         function clearTemplateNameError(){
             templateElements.nameField.classList.remove('is-invalid');
             templateElements.nameError.textContent = '';
@@ -7208,6 +7462,8 @@ paymentTimeout=180`
         dexSchedulerTimer = window.setInterval(runDexScheduleCheck, 30000);
 
         renderProductMapInline();
+        runPickListScheduleCheck();
+        window.setInterval(runPickListScheduleCheck, 30000);
         announceProductMap('Product Map loaded.');
     })();
 </script>

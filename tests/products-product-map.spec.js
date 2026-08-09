@@ -476,7 +476,7 @@ test("fills and empties every BIN from the Stock menu with confirmation and imme
   await stockButton.click();
   await expect(mapButton).toHaveAttribute("aria-expanded", "false");
   await expect(stockButton).toHaveAttribute("aria-expanded", "true");
-  await expect(page.getByRole("menuitem", { name: "Fill Machine 100%" })).toBeFocused();
+  await expect(page.getByRole("menuitem", { name: "Download Pick List" })).toBeFocused();
 
   await page.getByRole("menuitem", { name: "Fill Machine 100%" }).click();
   await expect(page.locator("#pmConfirmTitle")).toHaveText("Fill Machine 100%?");
@@ -532,6 +532,8 @@ test("disables Stock actions while Product Map changes are unsaved", async ({ pa
 
   const stockButton = page.getByRole("button", { name: "Stock", exact: true });
   await stockButton.click();
+  await expect(page.getByRole("menuitem", { name: "Download Pick List" })).toBeDisabled();
+  await expect(page.getByRole("menuitem", { name: "Generate Pick List" })).toBeDisabled();
   await expect(page.getByRole("menuitem", { name: "Fill Machine 100%" })).toBeDisabled();
   await expect(page.getByRole("menuitem", { name: "Empty Machine", exact: true })).toBeDisabled();
   await expect(page.locator("#pmStockMenuNote")).toHaveText("Save or cancel Product Map changes first.");

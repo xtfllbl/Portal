@@ -763,6 +763,40 @@
     return clone(normalizedRows);
   }
 
+  function fillProductMapToPar(terminalSn) {
+    var normalizedSn = normalizeTerminalSn(terminalSn);
+    var currentRows = state.productMaps[normalizedSn] || [];
+    if (!currentRows.length) {
+      throw catalogError("No saved BINS are available to fill.", "NO_BINS", { rows: "Add and save at least one BIN first." });
+    }
+    var stamp = nowIso();
+    var binsUpdated = 0;
+    var unitsAdded = 0;
+    var filledRows = currentRows.map(function (row) {
+      var par = Number(row.par);
+      var onHand = Number(row.onHand);
+      if (onHand !== par) {
+        binsUpdated += 1;
+        unitsAdded += Math.max(par - onHand, 0);
+      }
+      return Object.assign({}, row, { onHand: par, updatedAt: stamp });
+    });
+    var next = clone(state);
+    next.productMaps[normalizedSn] = filledRows;
+    commit(next, {
+      type: "product-map:filled-to-par",
+      entity: "productMap",
+      terminalSn: normalizedSn,
+      value: filledRows
+    });
+    return {
+      terminalSn: normalizedSn,
+      binsUpdated: binsUpdated,
+      unitsAdded: unitsAdded,
+      rows: clone(filledRows)
+    };
+  }
+
   function getProductMapTemplates() {
     return state.productMapTemplates
       .slice()
@@ -931,6 +965,7 @@
     deleteProduct: deleteProduct,
     getProductMap: getProductMap,
     saveProductMap: saveProductMap,
+    fillProductMapToPar: fillProductMapToPar,
     getProductMapTemplates: getProductMapTemplates,
     getProductMapTemplate: getProductMapTemplate,
     saveProductMapTemplate: saveProductMapTemplate,

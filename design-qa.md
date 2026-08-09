@@ -69,6 +69,57 @@ final result: passed
 
 ---
 
+# Design QA — Product Map Pick List MVP
+
+- Source visual truth:
+  - `assets/qa/reference-nayax-generate-pick-list.png` (960 × 540)
+  - `assets/qa/reference-nayax-generated-pick-list.png` (960 × 540)
+  - `assets/qa/reference-nayax-download-pick-list.png` (960 × 540)
+- Implementation targets: `1.terminalmanage_nayax.html?tab=productmap` and `37.pick_list.html`.
+- Browser-rendered evidence at device scale factor 1:
+  - `assets/qa/qa-product-map-pick-list-stock.png` (1710 × 917 full page)
+  - `assets/qa/qa-product-map-pick-list-generate.png` (1440 × 900)
+  - `assets/qa/qa-product-map-pick-list-generate-scheduled.png` (1440 × 900)
+  - `assets/qa/qa-pick-list-desktop.png` (1440 × 900)
+  - `assets/qa/qa-pick-list-download.png` (1710 × 876)
+  - `assets/qa/qa-pick-list-mobile.png` (390 × 844 viewport)
+- Combined comparison input: `assets/qa/qa-pick-list-comparison.png` (1710 × 1810). Each source and implementation state is normalized into an equal-size comparison frame without cropping UI content.
+- States reviewed: Stock menu, default Generate Pick List, expanded optional schedule, generated shortage list, Download Pick List, desktop, and 390px responsive layout.
+
+## Full-view and focused comparison
+
+- The Stock menu follows Nayax's command order with `Download Pick List` before `Generate Pick List`, followed by the inventory actions after a divider.
+- The Product Map follows Nayax's light generate-modal flow while preserving Paywizard's established modal, button, type, and spacing tokens. The dialog is 500px wide and both footer actions are 112 × 36px; the 40px datetime control appears only after scheduling is enabled.
+- The Pick List page matches Nayax's sparse table-first hierarchy: terminal context, one download action, and one list. `Fill Pick List`, `Terminal Inventory`, and the `BIN` column are absent; the table is limited to `PA Code`, `MDB Code`, `Product`, `Product Group`, and `Pick Qty`.
+- Generate Pick List now defaults to immediate generation. A single Paywizard-supported `Schedule automatic inventory fill` switch reveals the completion time only when requested; Nayax options that this prototype cannot execute are intentionally omitted.
+- The Download Pick List dialog retains Nayax's two radio choices and Cancel/Download action structure without copying Nayax's legacy colors.
+- Focused modal and table regions are readable in the combined comparison; no additional crop was required.
+- At 390px, actions stack, the wide table scrolls inside its own container, and document width remains exactly 390px.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: Paywizard's existing Segoe UI/Inter-compatible stack, compact uppercase table labels, and button weights remain consistent: passed.
+- Spacing and layout rhythm: compact modal body/footer, single metadata line, one table container, and 8–12px radii match the existing project system: passed.
+- Colors and tokens: existing neutral surfaces, black primary action, blue focus, and muted table header are reused: passed.
+- Image quality and assets: all visible action icons use existing local SVG assets; no placeholders or handcrafted icons were introduced: passed.
+- Copy and content: active feature UI consistently uses `Pick List`, `Generate Pick List`, and `Pick Qty`: passed.
+- States and interactions: keyboard menu navigation, unsaved disabled state, one-time Stock download intent, create/update/cancel schedule, future-time validation, manual conflict, empty state, Excel, print, and overdue execution are automated: passed.
+- Accessibility: labeled dialogs and fields, semantic table structure, focus return, Escape close, and focus-visible states are present: passed.
+- Browser console errors and warnings during desktop/mobile inspection: 0.
+- Pick List Playwright tests: 12 passed.
+- Full Chromium regression: 33 passed, 5 pre-existing unrelated assertions failed in DEX seeded-row counts and Product Map template/detail expectations; all Pick List tests passed.
+
+## Findings and comparison history
+
+- Initial review identified the prior always-visible scheduling/status UI and dense summary layout as P1 design drift from Nayax. The implementation moved scheduling into the Generate Pick List modal and removed all nonessential page sections.
+- Post-fix comparison confirms the Stock, generate, list, and download states now follow Nayax's compact hierarchy while retaining Paywizard styling. The previous oversized datetime field and mismatched action dimensions are resolved.
+- Mobile review found only the existing portal shell's internally scrollable navigation and table behavior; no page-level overflow or blocked Pick List action remains.
+- No actionable P0, P1, or P2 visual, interaction, accessibility, or responsive findings remain.
+
+final result: passed
+
+---
+
 # Design QA — DEX Grouped Commands
 
 - Source visual truth: `assets/qa/qa-product-map-toolbar-identification-comparison.png`, used as the established Paywizard/Nayax hybrid command-menu pattern.
