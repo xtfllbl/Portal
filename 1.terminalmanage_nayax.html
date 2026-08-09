@@ -1343,6 +1343,7 @@
         .template-model-badge { flex: 0 0 auto; padding: 2px 7px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 800; }
         .template-empty { padding: 32px 18px; border: 1px dashed #cbd5e1; border-radius: 9px; color: #64748b; text-align: center; font-size: 13px; }
         .template-empty a { display: inline-block; margin-top: 8px; color: #2563eb; font-weight: 750; text-decoration: none; }
+        .pm-import-overwrite-notice { margin: 12px 0 0; padding: 9px 11px; border: 1px solid #fcd34d; border-radius: 9px; background: #fffbeb; color: #92400e; font-size: 12px; font-weight: 700; line-height: 1.5; }
         .dex-command-bar {
             display: flex;
             align-items: center;
@@ -2912,6 +2913,7 @@
             </div>
             <div class="feature-modal-body">
                 <div id="pmTemplateList" class="template-picker-list" aria-label="Product Map Templates"></div>
+                <p id="pmImportOverwriteNotice" class="pm-import-overwrite-notice" hidden>Importing a template replaces the entire current Product Map — all existing BINS and mappings will be overwritten.</p>
             </div>
             <div class="feature-modal-footer pm-template-footer">
                 <button class="btn-secondary" type="button" data-feature-close>Cancel</button>
@@ -4774,6 +4776,7 @@ paymentTimeout=180`
             binSummary: byId('pmTemplateBinSummary'),
             importModal: byId('pmImportTemplateModal'),
             list: byId('pmTemplateList'),
+            importNotice: byId('pmImportOverwriteNotice'),
             apply: byId('pmTemplateApply')
         };
         const stockElements = {
@@ -5321,6 +5324,7 @@ paymentTimeout=180`
                 templateElements.list.innerHTML = '<div class="template-empty">No Product Map Templates are available.<br><a href="36.product_map_templates.html">Open Product Map Templates</a></div>';
                 selectedTemplateId = '';
                 templateElements.apply.disabled = true;
+                templateElements.importNotice.hidden = true;
                 return;
             }
             if(!templates.some(template => template.id === selectedTemplateId)){
@@ -5331,6 +5335,7 @@ paymentTimeout=180`
                 return `<button class="template-picker-option${template.id === selectedTemplateId ? ' active' : ''}" type="button" data-template-id="${escapeHtml(template.id)}" aria-pressed="${template.id === selectedTemplateId}"><div class="template-picker-heading"><div class="template-picker-name">${escapeHtml(template.name)}</div><span class="template-model-badge">${escapeHtml(template.machineModel)}</span></div><div class="template-picker-meta">${escapeHtml(sourceName)} · ${template.rows.length} BINS · Updated ${escapeHtml(templateDate(template.updatedAt))}</div></button>`;
             }).join('');
             templateElements.apply.disabled = !selectedTemplateId;
+            templateElements.importNotice.hidden = !selectedTemplateId;
         }
         templateElements.importButton.addEventListener('click', () => {
             closeTemplateMenu();
@@ -5350,21 +5355,31 @@ paymentTimeout=180`
         });
         templateElements.apply.addEventListener('click', () => {
             if(!selectedTemplateId) return;
-            try {
-                const instantiated = catalogStore.instantiateProductMapTemplate(selectedTemplateId, terminalContext.sn);
-                templateImportBackup = productRows.map(row => ({ ...row }));
-                templateImportMeta = { id: instantiated.template.id, name: instantiated.template.name, issues: instantiated.issues || [] };
-                productRows = instantiated.rows.map(materializeProductRow);
-                inlineDrafts = [];
-                cellEditing = null;
-                inlineErrors.clear();
-                closeFeatureModal(templateElements.importModal);
-                renderProductMapInline();
-                announceProductMap(`${instantiated.template.name} applied as an unsaved Product Map replacement.`);
-                showToast(`${instantiated.template.name} applied. Review the BINS, then select Save Changes.`);
-            } catch(error){
-                showToast(error && error.message ? error.message : 'Template could not be applied.');
-            }
+            const template = catalogStore.getProductMapTemplates().find(item => item.id === selectedTemplateId);
+            if(!template) return;
+            requestProductMapConfirmation({
+                title: 'Overwrite Product Map?',
+                message: `Importing "${template.name}" will replace the current Product Map. All existing BINS and mappings will be overwritten. Continue?`,
+                acceptLabel: 'Import',
+                tone: 'danger',
+                action: () => {
+                    try {
+                        const instantiated = catalogStore.instantiateProductMapTemplate(selectedTemplateId, terminalContext.sn);
+                        templateImportBackup = productRows.map(row => ({ ...row }));
+                        templateImportMeta = { id: instantiated.template.id, name: instantiated.template.name, issues: instantiated.issues || [] };
+                        productRows = instantiated.rows.map(materializeProductRow);
+                        inlineDrafts = [];
+                        cellEditing = null;
+                        inlineErrors.clear();
+                        closeFeatureModal(templateElements.importModal);
+                        renderProductMapInline();
+                        announceProductMap(`${instantiated.template.name} applied as an unsaved Product Map replacement.`);
+                        showToast(`${instantiated.template.name} applied. Review the BINS, then select Save Changes.`);
+                    } catch(error){
+                        showToast(error && error.message ? error.message : 'Template could not be applied.');
+                    }
+                }
+            });
         });
         function cellFieldLabel(field){
             return field === 'categoryId' ? 'Product Group' : field === 'productId' ? 'Product' : field === 'onHand' ? 'On Hand' : field === 'paCode' ? 'PA Code' : field === 'mdbCode' ? 'MDB Code' : field === 'par' ? 'PAR' : 'Price';
