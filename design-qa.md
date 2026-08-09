@@ -69,6 +69,103 @@ final result: passed
 
 ---
 
+# Design QA — Product Map Scheduled Fill Visibility and Early Fill
+
+- Source visual truth: `assets/qa/qa-product-map-stock-confirm.png` (existing Paywizard stock confirmation, 1710 × 876) and the Product Map screenshots supplied in the latest conversation turn.
+- Implementation target: `1.terminalmanage_nayax.html?tab=productmap`.
+- Implementation screenshots: `assets/qa/qa-product-map-scheduled-fill-status.png` (1440 × 941), `assets/qa/qa-product-map-fill-early-confirmation.png` (1440 × 941), and `assets/qa/qa-product-map-scheduled-fill-mobile.png` (390 × 1679).
+- Combined comparison evidence: `assets/qa/qa-product-map-scheduled-fill-comparison.png` (1440 × 760).
+- Viewports: 1440 × 900 desktop and 390 × 844 mobile, device scale factor 1. Full-page captures account for page height; no density normalization was required.
+- States: future scheduled fill visible on Product Map; manual Fill Machine invoked while that plan exists; mobile scheduled-fill status.
+
+## Full-view and focused comparison
+
+- The schedule is presented as a slim, informational strip directly below the existing Product Map toolbar. It shows only the schedule state and the localized automatic fill time, without reintroducing permanent View / Change / Cancel actions.
+- The scheduled manual-fill confirmation preserves the existing Paywizard modal size, hierarchy, footer, button sizing, dimmed backdrop, and primary-action treatment.
+- The conflict copy now names the existing automatic fill time and explicitly explains both effects of confirmation: filling all saved BINS to PAR early and cancelling the future schedule.
+- The 390px capture verifies that the status becomes a compact two-line block and does not introduce document-level horizontal overflow.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing Paywizard weights, sizes, line height, and hierarchy are retained; the status uses the toolbar's compact text scale: passed.
+- Spacing and layout rhythm: the 38px desktop status strip, 12px gap to the table, existing 500px confirmation modal, and aligned 36px footer controls match surrounding components: passed.
+- Colors and visual tokens: the status uses the existing light-blue informational family; the modal continues to use the neutral/black Paywizard action palette: passed.
+- Image quality and assets: the existing local `task_alt.svg` icon is used at 17px; no text glyph, emoji, CSS drawing, or approximate inline SVG was introduced: passed.
+- Copy and content: status, automatic fill time, early action, plan cancellation, and BIN count are explicit and unambiguous: passed.
+- Interaction and accessibility: live status semantics, keyboard-accessible Stock action, modal focus behavior, cancel path, and confirmation path remain functional: passed.
+- Responsive behavior: mobile document overflow measured at 0px: passed.
+- Primary interactions tested: create future schedule, return to Product Map, open Stock, request Fill Machine, cancel confirmation: passed.
+- Browser console errors and warnings during final inspection: 0.
+
+## Comparison history
+
+- Iteration 1 P2: the schedule label and time appeared visually joined in the first desktop capture. Fix: added a wrapping flex copy container with an 8px horizontal gap and two-line mobile treatment.
+- Iteration 2: the revised desktop, modal, and mobile captures show clear separation, stable alignment, and no actionable P0/P1/P2 mismatch.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+## Follow-up refinement — toolbar placement and immediate-fill wording
+
+- Source visual truth: the annotated Product Map and `Fill Machine Early?` screenshots supplied in the latest conversation turn.
+- Revised implementation screenshots: `assets/qa/qa-product-map-scheduled-fill-toolbar.png` and `assets/qa/qa-product-map-fill-now-confirmation.png`.
+- State and viewport: future schedule at 1440 × 900; same scheduled manual-fill conflict confirmation; device scale factor 1.
+- The schedule indicator now replaces `All changes saved` inside the existing toolbar status area, removing the dedicated full-width row. Pending Product Map changes take priority and temporarily restore the unsaved/save controls.
+- `Fill Machine Early?` / `Fill Early` was replaced with the more direct `Fill Machine Now?` / `Fill Now`; the body separately explains that the future scheduled fill will be cancelled.
+- Desktop alignment, modal hierarchy, and copy passed visual inspection. At 390px, document overflow remains 0px; the status wraps within the existing responsive toolbar group.
+- Browser console errors and warnings during final inspection: 0.
+
+### Comparison history
+
+- Follow-up P2: the prior scheduled-fill status consumed a dedicated content row. Fix: moved it into the toolbar's page-status slot and reduced it to a 32px compact chip.
+- Follow-up P2: “Early” described timing relative to the plan but sounded unnatural as an action. Fix: use the user's immediate action (`Now`) and keep the schedule consequence in explanatory copy.
+- Revised captures have no actionable P0/P1/P2 findings.
+
+final result: passed
+
+---
+
+# Design QA — Pick List Terminal Identity Hierarchy
+
+- Source visual truth: `assets/qa/qa-pick-list-before-terminal-name.png`, representing the user-supplied Pick List state where machine identity was embedded in secondary metadata.
+- Implementation target: `37.pick_list.html`.
+- Implementation screenshots: `assets/qa/qa-pick-list-desktop.png` and `assets/qa/qa-pick-list-mobile.png`.
+- Combined comparison evidence: `assets/qa/qa-pick-list-identity-comparison.png`.
+- Viewports: desktop 1440 × 900 and mobile 390 × 844, device scale factor 1.
+- State: generated Pick List with a visible terminal name, SN, download action, and shortage rows.
+
+## Full-view and focused comparison
+
+- Terminal Name moved from the low-emphasis metadata sentence to the title line: `Pick List | Airport Snacks Machine`.
+- SN is the first and boldest item in the secondary line, followed by Generated Time.
+- The existing sparse table-first hierarchy, download action, navigation, and table columns remain unchanged.
+- The desktop before/after comparison makes the identity priority legible without a separate card; the focused title region is large enough to evaluate type weight, spacing, divider, and alignment without an additional crop.
+- At 390px, the title and terminal name wrap safely, SN remains visible above the download action, and document width remains exactly 390px.
+
+## Required fidelity surfaces and verification
+
+- Fonts and typography: existing Paywizard font stack is preserved; Terminal Name uses a 20px/800 desktop and 18px/800 mobile treatment, while SN uses the existing 13px metadata size with stronger weight: passed.
+- Spacing and layout rhythm: a 10px title-line gap and subtle divider add identity without introducing a summary card or extra vertical section: passed.
+- Colors and visual tokens: existing title, secondary text, border, and neutral divider colors are reused: passed.
+- Image quality and assets: no new imagery or icons are introduced; existing local action icons remain unchanged: passed.
+- Copy and content: Terminal Name is primary, SN is secondary, and Generated Time remains tertiary on page, print, and Excel export: passed.
+- Interaction and accessibility: title order is semantic, the divider is hidden from assistive technology, and the existing download/keyboard behavior is unchanged: passed.
+- Export verification: Excel includes Terminal Name, SN, Generated Time, and optional Completion Time before the five data columns; PDF print preserves the visible title and identity line: passed.
+- Browser console errors and warnings during desktop/mobile inspection: 0.
+- Pick List Playwright tests: 12 passed.
+- `git diff --check`: passed.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain.
+
+final result: passed
+
+---
+
 # Design QA — Product Map Pick List MVP
 
 - Source visual truth:

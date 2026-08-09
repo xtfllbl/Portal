@@ -1037,6 +1037,36 @@
             font-size: 12px;
             font-weight: 700;
         }
+        .pm-scheduled-fill-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 32px;
+            margin: 0;
+            padding: 5px 9px;
+            box-sizing: border-box;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1e3a5f;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .pm-scheduled-fill-status[hidden] { display: none; }
+        .pm-scheduled-fill-status img {
+            width: 15px;
+            height: 15px;
+            flex: 0 0 auto;
+            filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1187%) hue-rotate(194deg) brightness(91%) contrast(91%);
+        }
+        .pm-scheduled-fill-copy {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 4px 6px;
+        }
+        .pm-scheduled-fill-label { font-weight: 800; }
+        .pm-scheduled-fill-time { font-weight: 650; }
         .pm-validation-summary {
             margin: 0 0 12px;
             padding: 11px 13px;
@@ -1406,7 +1436,7 @@
         }
         .dex-command-bar .dex-action-group { flex: 0 0 auto; }
         .dex-toolbar-menu .pm-map-menu-panel { width: 214px; }
-        .dex-toolbar-menu .pm-map-menu-button { min-width: 104px; }
+        .dex-command-bar .pm-map-menu-button { min-width: 104px; }
         .dex-history-refresh {
             display: inline-flex;
             align-items: center;
@@ -1492,11 +1522,7 @@
         .dex-table tbody td { font-size: 13px; }
         .dex-id-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; font-weight: 800; color: #334155; }
         .dex-definition { color: #0f172a; font-weight: 750; }
-        .dex-definition-note { display: block; margin-top: 2px; color: #64748b; font-size: 11px; font-weight: 600; }
         .dex-numeric-value { font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .dex-delta-positive { color: #166534; font-weight: 800; }
-        .dex-delta-negative { color: #b91c1c; font-weight: 800; }
-        .dex-delta-neutral { color: #64748b; }
         .dex-empty-state { padding: 34px 16px; text-align: center; color: #64748b; }
         .dex-raw-toolbar {
             display: flex;
@@ -1529,8 +1555,6 @@
         .dex-history-table tbody tr { cursor: pointer; }
         .dex-history-table tbody tr:hover { background: #f8fafc; }
         .dex-history-table tbody tr.is-selected { background: #eff6ff; }
-        .dex-history-type { color: #334155; font-weight: 800; }
-        .dex-history-sub { display: block; margin-top: 2px; color: #64748b; font-size: 11px; }
         .dex-automation-strip {
             display: flex;
             align-items: center;
@@ -1615,8 +1639,6 @@
         .dex-time-remove:hover { background: #f8fafc; color: #b91c1c; }
         .dex-time-remove:hover img { opacity: 1; }
         .dex-add-time { width: auto; margin-top: 8px; padding: 7px 10px; }
-        .dex-next-read { padding: 10px 12px; border-radius: 9px; background: #eff6ff; color: #1e40af; font-size: 12px; font-weight: 750; }
-        .dex-warning-note { padding: 10px 12px; border: 1px solid #fde68a; border-radius: 9px; background: #fffbeb; color: #92400e; font-size: 11px; line-height: 1.45; }
         .dex-email-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 38px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; }
         .dex-email-tags:focus-within { outline: 2px solid rgba(37, 99, 235, .18); border-color: #2563eb; }
         .dex-email-tag { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 7px; border-radius: 999px; background: #e0e7ff; color: #3730a3; font-size: 11px; font-weight: 750; }
@@ -1891,6 +1913,8 @@
             .pm-inline-toolbar > .pm-inline-toolbar-group:first-child .pm-map-menu-button {
                 width: auto !important;
             }
+            .pm-scheduled-fill-status { align-items: flex-start; }
+            .pm-scheduled-fill-copy { display: flex; gap: 2px 6px; }
             .feature-modal-overlay { padding: 10px; }
             .feature-modal { max-height: calc(100vh - 20px); }
             .dex-settings-grid { grid-template-columns: 1fr; }
@@ -2703,7 +2727,7 @@
                                     <button id="pmDownloadPickListButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/file-download.svg" alt="" aria-hidden="true"><span>Download Pick List</span></button>
                                     <button id="pmPickListButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Generate Pick List</span></button>
                                     <div class="pm-map-menu-divider" role="separator"></div>
-                                    <button id="pmStockFillButton" type="button" role="menuitem"><img class="pm-menu-item-icon success" src="assets/icons/inventory-check.svg" alt="" aria-hidden="true"><span>Fill Machine 100%</span></button>
+                                    <button id="pmStockFillButton" type="button" role="menuitem"><img class="pm-menu-item-icon success" src="assets/icons/inventory-check.svg" alt="" aria-hidden="true"><span>Fill Machine</span></button>
                                     <button id="pmStockEmptyButton" type="button" role="menuitem"><img class="pm-menu-item-icon danger" src="assets/icons/remove-circle-outline.svg" alt="" aria-hidden="true"><span>Empty Machine</span></button>
                                     <div id="pmStockMenuNote" class="pm-menu-note hidden" role="status"></div>
                                 </div>
@@ -2711,6 +2735,13 @@
                         </div>
                         <div class="pm-inline-toolbar-group pm-inline-save-group">
                             <span id="pmInlineStatus" class="pm-inline-status">All changes saved</span>
+                            <span id="pmScheduledFillStatus" class="pm-scheduled-fill-status" role="status" aria-live="polite" hidden>
+                                <img src="assets/icons/task_alt.svg" alt="" aria-hidden="true">
+                                <span class="pm-scheduled-fill-copy">
+                                    <span class="pm-scheduled-fill-label">Automatic fill scheduled</span>
+                                    <span id="pmScheduledFillTime" class="pm-scheduled-fill-time"></span>
+                                </span>
+                            </span>
                             <button id="pmInlineCancelAll" class="btn-secondary hidden" type="button">Cancel Changes</button>
                             <button id="pmInlineSaveAll" class="btn-primary hidden" type="button">Save Changes</button>
                         </div>
@@ -2746,18 +2777,11 @@
                 <section id="tab-dex" class="hidden" role="tabpanel" aria-labelledby="primaryTabDex" tabindex="0">
                     <div class="dex-command-bar" aria-label="DEX actions">
                         <div class="dex-action-group">
-                            <div class="pm-map-menu dex-toolbar-menu">
-                                <button id="dexReadMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-label="DEX Read actions" aria-haspopup="menu" aria-expanded="false" aria-controls="dexReadMenuPanel"><img class="pm-command-icon" src="assets/icons/receipt_long.svg" alt="" aria-hidden="true"><span>Read</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
-                                <div id="dexReadMenuPanel" class="pm-map-menu-panel hidden" role="menu">
-                                    <button id="dexReadButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/file-download.svg" alt="" aria-hidden="true"><span>Read DEX</span></button>
-                                    <button id="dexFullReadButton" type="button" role="menuitem"><img class="pm-menu-item-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Read Full DEX</span></button>
-                                </div>
-                            </div>
+                            <button id="dexReadButton" class="btn-secondary pm-map-menu-button" type="button"><img class="pm-command-icon" src="assets/icons/file-download.svg" alt="" aria-hidden="true"><span>Read DEX</span></button>
                             <div class="pm-map-menu dex-toolbar-menu">
                                 <button id="dexSettingsMenuButton" class="btn-secondary pm-map-menu-button" type="button" aria-label="DEX Settings" aria-haspopup="menu" aria-expanded="false" aria-controls="dexSettingsMenuPanel"><img class="pm-command-icon" src="assets/icons/settings.svg" alt="" aria-hidden="true"><span>Settings</span><img class="pm-map-caret" src="assets/icons/chevron-down.svg" alt="" aria-hidden="true"></button>
                                 <div id="dexSettingsMenuPanel" class="pm-map-menu-panel hidden" role="menu">
                                     <button type="button" role="menuitem" data-dex-open-settings="schedule"><img class="pm-menu-item-icon" src="assets/icons/task_alt.svg" alt="" aria-hidden="true"><span>Read Schedule</span></button>
-                                    <button type="button" role="menuitem" data-dex-open-settings="rules"><img class="pm-menu-item-icon" src="assets/icons/assignment.svg" alt="" aria-hidden="true"><span>Parsing &amp; Rules</span></button>
                                     <button type="button" role="menuitem" data-dex-open-settings="email"><img class="pm-menu-item-icon" src="assets/icons/send.svg" alt="" aria-hidden="true"><span>Email Notifications</span></button>
                                 </div>
                             </div>
@@ -2768,7 +2792,6 @@
 
                     <div class="dex-automation-strip" aria-label="DEX automation summary">
                         <div class="dex-automation-item"><div class="dex-automation-label">Automatic Read</div><div id="dexAutomationSchedule" class="dex-automation-value">Off</div></div>
-                        <div class="dex-automation-item"><div class="dex-automation-label">Next Read</div><div id="dexAutomationNext" class="dex-automation-value">Not scheduled</div></div>
                         <div class="dex-automation-item"><div class="dex-automation-label">Email Notify</div><div id="dexAutomationEmail" class="dex-automation-value">Off</div></div>
                     </div>
 
@@ -2782,7 +2805,7 @@
                         </div>
                         <div class="dex-history-scroll">
                             <table class="table dex-history-table">
-                                <thead><tr><th>Read Time</th><th>Type</th><th>Trigger</th><th>Status</th><th>Validation</th><th>Email</th><th>Records</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Read Time</th><th>Trigger</th><th>Status</th><th>Validation</th><th>Email</th><th>Records</th><th>Actions</th></tr></thead>
                                 <tbody id="dexHistoryBody"></tbody>
                             </table>
                         </div>
@@ -2798,7 +2821,7 @@
                                 <div id="dexCategoryTabs" class="dex-category-tabs" aria-label="DEX parsed data categories"></div>
                                 <div class="dex-table-wrap">
                                     <table class="table dex-table">
-                                        <thead><tr><th>DEX ID</th><th>Definition</th><th>Selected Value</th><th>Change vs Previous</th></tr></thead>
+                                        <thead><tr><th>DEX ID</th><th>Definition</th><th>Value</th></tr></thead>
                                         <tbody id="dexParsedBody"></tbody>
                                     </table>
                                 </div>
@@ -3034,7 +3057,6 @@
             </div>
             <div id="dexSettingsTabs" class="dex-settings-tabs" role="tablist" aria-label="DEX settings sections">
                 <button id="dexScheduleTab" class="dex-settings-tab active" type="button" role="tab" aria-selected="true" aria-controls="dexSchedulePanel" data-dex-settings-tab="schedule">Read Schedule</button>
-                <button id="dexRulesTab" class="dex-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="dexRulesPanel" tabindex="-1" data-dex-settings-tab="rules">Parsing &amp; Rules</button>
                 <button id="dexEmailTab" class="dex-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="dexEmailPanel" tabindex="-1" data-dex-settings-tab="email">Email Notifications</button>
             </div>
             <div class="feature-modal-body">
@@ -3046,13 +3068,9 @@
                                 <label class="dex-switch"><input id="dexScheduleEnabled" type="checkbox"><span class="dex-switch-track"></span><span class="sr-only">Enable automatic DEX reads</span></label>
                             </div>
                         </div>
-                        <div class="dex-settings-field">
+                        <div class="dex-settings-field full">
                             <label for="dexScheduleMode">Schedule Mode</label>
                             <select id="dexScheduleMode"><option value="interval">Interval</option><option value="fixed">Fixed Times</option></select>
-                        </div>
-                        <div class="dex-settings-field">
-                            <label for="dexScheduledReadType">Scheduled Read Type</label>
-                            <select id="dexScheduledReadType"><option value="Delta">Delta</option><option value="Full">Full</option></select>
                         </div>
                         <div id="dexIntervalField" class="dex-settings-field full">
                             <label for="dexIntervalMinutes">Read Every</label>
@@ -3067,45 +3085,6 @@
                             <div class="dex-settings-help">Add up to 12 times in 24-hour format.</div>
                             <div id="dexFixedTimesError" class="dex-settings-error" role="alert"></div>
                         </div>
-                        <div id="dexFullScheduleWarning" class="dex-settings-field full dex-warning-note" hidden>Scheduled Full DEX reads contain all IDs and may use more data than Delta reads.</div>
-                        <div id="dexNextReadPreview" class="dex-settings-field full dex-next-read">Next read: Not scheduled</div>
-                    </div>
-                </section>
-
-                <section id="dexRulesPanel" class="dex-settings-panel" role="tabpanel" aria-labelledby="dexRulesTab" data-dex-settings-panel="rules">
-                    <div class="dex-settings-grid">
-                        <div class="dex-settings-field full">
-                            <label for="dexProtocolType">DEX Type</label>
-                            <select id="dexProtocolType">
-                                <option value="DEX/UCS">DEX/UCS</option>
-                                <option value="DDCMP RS232">DDCMP RS232</option>
-                                <option value="VCCS Printer">VCCS Printer</option>
-                                <option value="Rhea Machine">Rhea Machine</option>
-                            </select>
-                            <div class="dex-settings-help">Records are parsed per the EVA-DTS 6.1.2 definitions. DEX/UCS is recommended for most vending machines.</div>
-                        </div>
-                        <div class="dex-settings-field">
-                            <label for="dexRetryAttempts">Retry Attempts</label>
-                            <input id="dexRetryAttempts" type="number" min="0" step="1" inputmode="numeric">
-                        </div>
-                        <div class="dex-settings-field">
-                            <label for="dexRetryPeriod">Retry Period (seconds)</label>
-                            <input id="dexRetryPeriod" type="number" min="0" step="1" inputmode="numeric">
-                        </div>
-                        <div class="dex-settings-field">
-                            <label for="dexMultiplyCoins">Multiply Coins By</label>
-                            <input id="dexMultiplyCoins" type="number" min="0.0001" step="0.01" inputmode="decimal">
-                        </div>
-                        <div class="dex-settings-field">
-                            <label for="dexDivideBills">Divide Bills By</label>
-                            <input id="dexDivideBills" type="number" min="0.0001" step="0.01" inputmode="decimal">
-                        </div>
-                        <div class="dex-settings-field">
-                            <label for="dexMultiplyTubes">Multiply Tubes By</label>
-                            <input id="dexMultiplyTubes" type="number" min="0.0001" step="0.01" inputmode="decimal">
-                        </div>
-                        <div id="dexRulesWarning" class="dex-settings-field full dex-warning-note" hidden>Non-default protocol or scaling values can prevent reads from completing or produce incorrect monetary values.</div>
-                        <div id="dexRulesError" class="dex-settings-field full dex-settings-error" role="alert"></div>
                     </div>
                 </section>
 
@@ -3125,7 +3104,7 @@
                             <div class="dex-settings-help">Press Enter or type a comma to add another recipient.</div>
                             <div id="dexEmailError" class="dex-settings-error" role="alert"></div>
                         </div>
-                        <div class="dex-settings-field full dex-email-preview"><strong>Email content</strong><br>Terminal name, SN, read time, read type and validation status in the message, with the original .dex.txt file attached.</div>
+                        <div class="dex-settings-field full dex-email-preview"><strong>Email content</strong><br>Terminal name, SN, read time and validation status in the message, with the original .dex.txt file attached.</div>
                     </div>
                 </section>
             </div>
@@ -4891,7 +4870,9 @@ paymentTimeout=180`
             help: byId('pmPickListTimeHelp'),
             error: byId('pmPickListTimeError'),
             generate: byId('pmPickListGenerate'),
-            cancelSchedule: byId('pmPickListCancelSchedule')
+            cancelSchedule: byId('pmPickListCancelSchedule'),
+            scheduleStatus: byId('pmScheduledFillStatus'),
+            scheduleStatusTime: byId('pmScheduledFillTime')
         };
         const quantityModal = byId('pmQuantityModal');
         const quantityForm = byId('pmQuantityForm');
@@ -5087,6 +5068,7 @@ paymentTimeout=180`
                 stockElements.note.textContent = '';
                 stockElements.note.classList.add('hidden');
             }
+            renderScheduledFillStatus();
             renderInlineValidationSummary();
         }
         function renderInlineValidationSummary(){
@@ -5393,6 +5375,24 @@ paymentTimeout=180`
                 showToast('Automatic fill failed. Inventory was not changed.');
             }
         }
+        function renderScheduledFillStatus(){
+            if(!pickListElements.scheduleStatus || !pickListElements.scheduleStatusTime) return;
+            const schedule = getFutureScheduledFill();
+            const scheduledTime = schedule && new Date(schedule.scheduledFor);
+            const isFutureSchedule = Boolean(schedule && scheduledTime && !hasPendingProductMapChanges());
+            pickListElements.scheduleStatus.hidden = !isFutureSchedule;
+            inlineElements.status.classList.toggle('hidden', isFutureSchedule);
+            pickListElements.scheduleStatusTime.textContent = isFutureSchedule
+                ? formatDateTime(schedule.scheduledFor)
+                : '';
+        }
+        function getFutureScheduledFill(){
+            const schedule = pickListStore ? pickListStore.getSchedule(terminalContext.sn) : null;
+            if(!schedule || schedule.status !== 'scheduled') return null;
+            const scheduledTime = new Date(schedule.scheduledFor);
+            if(Number.isNaN(scheduledTime.getTime()) || scheduledTime.getTime() <= Date.now()) return null;
+            return schedule;
+        }
         function requestStockUpdate(mode){
             closeToolbarMenu(stockElements, true);
             if(!productRows.length){
@@ -5404,15 +5404,15 @@ paymentTimeout=180`
                 return;
             }
             const fill = mode === 'fill';
-            const schedule = fill && pickListStore ? pickListStore.getSchedule(terminalContext.sn) : null;
+            const schedule = fill ? getFutureScheduledFill() : null;
             requestProductMapConfirmation({
-                title: fill && schedule ? 'Fill now and cancel schedule?' : fill ? 'Fill Machine 100%?' : 'Empty Machine?',
+                title: fill && schedule ? 'Fill Machine Now?' : fill ? 'Fill Machine?' : 'Empty Machine?',
                 message: fill
                     ? schedule
-                        ? `Set every saved BIN to PAR now and cancel the automatic fill scheduled for ${formatDateTime(schedule.scheduledFor)}?`
+                        ? `An automatic fill is scheduled for ${formatDateTime(schedule.scheduledFor)}. Fill all ${productRows.length} BINS to PAR now? This will cancel the scheduled fill.`
                         : `Set On Hand to PAR for all ${productRows.length} BINS?`
                     : `Set On Hand to 0 for all ${productRows.length} BINS?`,
-                acceptLabel: fill && schedule ? 'Fill Now & Cancel Schedule' : fill ? 'Fill Machine' : 'Empty',
+                acceptLabel: fill && schedule ? 'Fill Now' : fill ? 'Fill Machine' : 'Empty',
                 tone: fill ? 'primary' : 'danger',
                 focusReturn: stockElements.menuButton,
                 action: () => {
@@ -5908,7 +5908,6 @@ paymentTimeout=180`
             settingsButton: byId('dexSettingsMenuButton'),
             refresh: byId('dexRefreshButton'),
             read: byId('dexReadButton'),
-            fullRead: byId('dexFullReadButton'),
             viewTabs: byId('dexViewTabs'),
             parsedPanel: byId('dexParsedPanel'),
             rawPanel: byId('dexRawPanel'),
@@ -5920,12 +5919,7 @@ paymentTimeout=180`
             downloadRaw: byId('dexDownloadRaw'),
             historyBody: byId('dexHistoryBody'),
             automationSchedule: byId('dexAutomationSchedule'),
-            automationNext: byId('dexAutomationNext'),
             automationEmail: byId('dexAutomationEmail')
-        };
-        const dexReadMenuElements = {
-            menuButton: byId('dexReadMenuButton'),
-            menu: byId('dexReadMenuPanel')
         };
         const dexSettingsMenuElements = {
             menuButton: byId('dexSettingsMenuButton'),
@@ -5937,7 +5931,6 @@ paymentTimeout=180`
             tabs: byId('dexSettingsTabs'),
             scheduleEnabled: byId('dexScheduleEnabled'),
             scheduleMode: byId('dexScheduleMode'),
-            scheduledReadType: byId('dexScheduledReadType'),
             intervalField: byId('dexIntervalField'),
             intervalMinutes: byId('dexIntervalMinutes'),
             intervalError: byId('dexIntervalError'),
@@ -5945,16 +5938,6 @@ paymentTimeout=180`
             fixedTimesList: byId('dexFixedTimesList'),
             fixedTimesError: byId('dexFixedTimesError'),
             addTime: byId('dexAddTimeButton'),
-            fullWarning: byId('dexFullScheduleWarning'),
-            nextPreview: byId('dexNextReadPreview'),
-            protocolType: byId('dexProtocolType'),
-            retryAttempts: byId('dexRetryAttempts'),
-            retryPeriod: byId('dexRetryPeriod'),
-            multiplyCoins: byId('dexMultiplyCoins'),
-            divideBills: byId('dexDivideBills'),
-            multiplyTubes: byId('dexMultiplyTubes'),
-            rulesWarning: byId('dexRulesWarning'),
-            rulesError: byId('dexRulesError'),
             emailEnabled: byId('dexEmailEnabled'),
             emailTags: byId('dexEmailTags'),
             emailInput: byId('dexEmailInput'),
@@ -5976,10 +5959,10 @@ paymentTimeout=180`
         let activeDexSettingsTab = 'schedule';
         let dexDraftRecipients = [];
         let dexSchedulerTimer = 0;
-        const dexStorageKey = `paywizard.dex.v1:${terminalContext.sn}`;
+        const legacyDexStorageKey = `paywizard.dex.v1:${terminalContext.sn}`;
+        const dexStorageKey = `paywizard.dex.v2:${terminalContext.sn}`;
         const defaultDexSettings = {
-            schedule: { enabled: true, mode: 'interval', intervalMinutes: 60, fixedTimes: ['08:00', '12:00', '18:00'], readType: 'Delta' },
-            parsing: { type: 'DEX/UCS', retryAttempts: 2, retryPeriod: 60, multiplyCoinsBy: 1, divideBillsBy: 1, multiplyTubesBy: 1 },
+            schedule: { enabled: true, mode: 'interval', intervalMinutes: 60, fixedTimes: ['08:00', '12:00', '18:00'] },
             email: { enabled: false, recipients: [], channel: 'email', payload: 'raw-summary' }
         };
         let dexSettings = JSON.parse(JSON.stringify(defaultDexSettings));
@@ -6051,7 +6034,7 @@ paymentTimeout=180`
                 `DXE*${control}*1`
             ].join('\r\n');
         }
-        function buildFullDexRaw(control, totals, mapSnapshot, readAt, includeUnknown){
+        function buildDexRaw(control, totals, mapSnapshot, readAt, includeUnknown){
             const stamp = dexTimestampParts(readAt);
             const productLines = [];
             mapSnapshot.forEach((row, index) => {
@@ -6081,25 +6064,6 @@ paymentTimeout=180`
             ];
             if(includeUnknown) body.splice(5, 0, 'ZX1*UNRECOGNIZED*DEMO');
             return wrapDex(control, body);
-        }
-        function buildDeltaDexRaw(control, totals, mapSnapshot, readAt){
-            const stamp = dexTimestampParts(readAt);
-            const dexMappedRows = mapSnapshot.filter(row => String(row.paCode || '').trim());
-            const changedProduct = dexMappedRows.find(row => Number(row.onHand) > 0) || dexMappedRows[0];
-            const nextFill = changedProduct ? Math.max(0, Number(changedProduct.onHand) - 1) : 0;
-            const productLines = changedProduct ? [
-                `PA1*${changedProduct.paCode}*${changedProduct.priceCents}*${changedProduct.dexNameSnapshot || changedProduct.productNameSnapshot || changedProduct.productName || ''}****0*${nextFill}*${changedProduct.par}`,
-                `PA2*63*${63 * changedProduct.priceCents}*3*${3 * changedProduct.priceCents}*0*0*0*0*0*0*0*0`
-            ] : [];
-            return wrapDex(control, [
-                `ID1*${terminalContext.sn}*${terminalContext.machineModel}*3*JFK Terminal 4**41381-001`,
-                `VA1*${totals.sales}*${totals.vends}*${totals.intervalSales}*${totals.intervalVends}`,
-                `DA2*${totals.card}*${totals.cardVends}*${totals.intervalCard}*${totals.intervalCardVends}`,
-                ...productLines,
-                `EA1*EJJ*${stamp.date}*${stamp.time}*0`,
-                'EA2*EJJ*1*2**0*4',
-                `EA3*11*${stamp.date}*${stamp.time}*${terminalContext.tid}*260803*102436*${terminalContext.tid}**22*9`
-            ]);
         }
         function buildSqsDexRaw(){
             return [
@@ -6235,14 +6199,8 @@ paymentTimeout=180`
             }
             return number;
         }
-        function scaleDexCurrency(rawValue, result, label, operation){
-            const number = parseDexNumber(rawValue, result, label);
-            if(number == null) return null;
-            const parsing = dexSettings && dexSettings.parsing ? dexSettings.parsing : defaultDexSettings.parsing;
-            if(operation === 'bills') return Math.round(number / parsing.divideBillsBy);
-            if(operation === 'tubes') return Math.round(number * parsing.multiplyTubesBy);
-            if(operation === 'coins') return Math.round(number * parsing.multiplyCoinsBy);
-            return number;
+        function parseDexCurrency(rawValue, result, label){
+            return parseDexNumber(rawValue, result, label);
         }
         function parseDex(raw, mapSnapshot){
             const result = { records: [], metrics: new Map(), warnings: [], failed: false, error: '', lineCount: 0 };
@@ -6342,25 +6300,23 @@ paymentTimeout=180`
                 }
                 if(line.id === 'CA2'){
                     const labels = ['Value of cash sales since initialization', 'Number of cash vends since initialization', 'Value of cash sales since last reset', 'Number of cash vends since last reset'];
-                    fields.slice(0, 4).forEach((value, index) => createMetric(result, `CA2.${String(index + 1).padStart(2, '0')}`, `CA2.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', index % 2 === 0 ? scaleDexCurrency(value, result, `CA2.${index + 1}`, 'coins') : parseDexNumber(value, result, `CA2.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
+                    fields.slice(0, 4).forEach((value, index) => createMetric(result, `CA2.${String(index + 1).padStart(2, '0')}`, `CA2.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', index % 2 === 0 ? parseDexCurrency(value, result, `CA2.${index + 1}`) : parseDexNumber(value, result, `CA2.${index + 1}`), index % 2 === 0 ? 'currency' : 'number'));
                     return;
                 }
                 if(line.id === 'CA3'){
                     const labels = ['Value of cash in since last reset', 'Value of cash to cash box since last reset', 'Value of cash to tubes since last reset', 'Value of bills in since last reset', 'Value of cash in since initialization', 'Value of cash to box since initialization', 'Value of cash to tubes since initialization', 'Value of bills in since initialization', 'Value of bills in since last reset (bill value)', 'Value of bills in since initialization (bill value)', 'Value of bills to recycler since last reset', 'Value of bills to recycler since initialization'];
-                    const operations = ['coins', 'coins', 'tubes', 'bills', 'coins', 'coins', 'tubes', 'bills', 'bills', 'bills', 'bills', 'bills'];
                     fields.forEach((value, index) => {
                         if(value === '') return;
                         const note = index === 3 || index === 7 ? 'Two historical formats exist (N0 count or Nc value); see EVA-DTS 6.1.2 Note 6.' : (index === 8 || index === 9 ? 'Bill value reported as Nc.' : '');
-                        createMetric(result, `CA3.${String(index + 1).padStart(2, '0')}`, `CA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash audit field ${index + 1}`, 'payment', scaleDexCurrency(value, result, `CA3.${index + 1}`, operations[index]), 'currency', note);
+                        createMetric(result, `CA3.${String(index + 1).padStart(2, '0')}`, `CA3.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash audit field ${index + 1}`, 'payment', parseDexCurrency(value, result, `CA3.${index + 1}`), 'currency', note);
                     });
                     return;
                 }
                 if(line.id === 'CA4'){
                     const labels = ['Value of cash dispensed since last reset', 'Value of manual cash dispensed since last reset', 'Value of cash dispensed since initialization', 'Value of manual cash dispensed since initialization', 'Value of bills dispensed since last reset', 'Value of bills manually dispensed since last reset', 'Value of bills transferred to recycler since last reset', 'Value of bills dispensed since initialization', 'Value of bills manually dispensed since initialization', 'Value of bills transferred to recycler since initialization'];
-                    const operations = ['coins', 'coins', 'coins', 'coins', 'bills', 'bills', 'bills', 'bills', 'bills', 'bills'];
                     fields.forEach((value, index) => {
                         if(value === '') return;
-                        createMetric(result, `CA4.${String(index + 1).padStart(2, '0')}`, `CA4.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash dispensed field ${index + 1}`, 'payment', scaleDexCurrency(value, result, `CA4.${index + 1}`, operations[index]), 'currency');
+                        createMetric(result, `CA4.${String(index + 1).padStart(2, '0')}`, `CA4.${String(index + 1).padStart(2, '0')}`, labels[index] || `Cash dispensed field ${index + 1}`, 'payment', parseDexCurrency(value, result, `CA4.${index + 1}`), 'currency');
                     });
                     return;
                 }
@@ -6412,11 +6368,10 @@ paymentTimeout=180`
                 }
                 if(line.id === 'CA7'){
                     const labels = ['Value of cash discounts since last reset', 'Value of cash discounts since initialization', 'Number of cash discounts since last reset', 'Number of cash discounts since initialization', 'Value of cash surcharges since last reset', 'Value of cash surcharges since initialization', 'Number of cash surcharges since last reset', 'Number of cash surcharges since initialization'];
-                    const operations = ['coins', 'coins', '', '', 'coins', 'coins', '', ''];
                     fields.forEach((value, index) => {
                         if(value === '') return;
                         const currency = index % 2 === 0;
-                        createMetric(result, `CA7.${String(index + 1).padStart(2, '0')}`, `CA7.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', currency ? scaleDexCurrency(value, result, `CA7.${index + 1}`, operations[index]) : parseDexNumber(value, result, `CA7.${index + 1}`), currency ? 'currency' : 'number');
+                        createMetric(result, `CA7.${String(index + 1).padStart(2, '0')}`, `CA7.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', currency ? parseDexCurrency(value, result, `CA7.${index + 1}`) : parseDexNumber(value, result, `CA7.${index + 1}`), currency ? 'currency' : 'number');
                     });
                     return;
                 }
@@ -6424,16 +6379,15 @@ paymentTimeout=180`
                     const labels = ['Value of cash overpay since last reset', 'Value of cash overpay since initialization'];
                     fields.forEach((value, index) => {
                         if(value === '') return;
-                        createMetric(result, `CA8.${String(index + 1).padStart(2, '0')}`, `CA8.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', scaleDexCurrency(value, result, `CA8.${index + 1}`, 'coins'), 'currency');
+                        createMetric(result, `CA8.${String(index + 1).padStart(2, '0')}`, `CA8.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexCurrency(value, result, `CA8.${index + 1}`), 'currency');
                     });
                     return;
                 }
                 if(line.id === 'CA10'){
                     const labels = ['Value of cash filled since last reset', 'Value of cash filled since initialization', 'Value of bills filled since last reset', 'Value of bills filled since initialization'];
-                    const operations = ['coins', 'coins', 'bills', 'bills'];
                     fields.forEach((value, index) => {
                         if(value === '') return;
-                        createMetric(result, `CA10.${String(index + 1).padStart(2, '0')}`, `CA10.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', scaleDexCurrency(value, result, `CA10.${index + 1}`, operations[index]), 'currency');
+                        createMetric(result, `CA10.${String(index + 1).padStart(2, '0')}`, `CA10.${String(index + 1).padStart(2, '0')}`, labels[index], 'payment', parseDexCurrency(value, result, `CA10.${index + 1}`), 'currency');
                     });
                     return;
                 }
@@ -6441,7 +6395,7 @@ paymentTimeout=180`
                     const labels = ['Value of tube contents', 'Tube block number', 'Number of coins in tube 1', 'Number of coins in tube 2', 'Number of coins in tube 3', 'Number of coins in tube 4', 'Number of coins in tube 5', 'Number of coins in tube 6', 'Number of coins in tube 7', 'Number of coins in tube 8'];
                     fields.forEach((value, index) => {
                         if(value === '') return;
-                        if(index === 0) createMetric(result, 'CA15.01', 'CA15.01', labels[0], 'payment', scaleDexCurrency(value, result, 'CA15.01', 'tubes'), 'currency', 'Value of coins stored in all tubes of the changer');
+                        if(index === 0) createMetric(result, 'CA15.01', 'CA15.01', labels[0], 'payment', parseDexCurrency(value, result, 'CA15.01'), 'currency', 'Value of coins stored in all tubes of the changer');
                         else createMetric(result, `CA15.${String(index + 1).padStart(2, '0')}`, `CA15.${String(index + 1).padStart(2, '0')}`, labels[index] || `CA15 field ${index + 1}`, 'payment', index === 1 ? value : parseDexNumber(value, result, `CA15.${index + 1}`), index === 1 ? 'text' : 'number');
                     });
                     return;
@@ -6679,7 +6633,6 @@ paymentTimeout=180`
         function normalizeDexSettings(value){
             const source = value && typeof value === 'object' ? value : {};
             const schedule = source.schedule && typeof source.schedule === 'object' ? source.schedule : {};
-            const parsing = source.parsing && typeof source.parsing === 'object' ? source.parsing : {};
             const email = source.email && typeof source.email === 'object' ? source.email : {};
             const fixedTimes = Array.isArray(schedule.fixedTimes)
                 ? Array.from(new Set(schedule.fixedTimes.filter(item => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(item))))).slice(0, 12)
@@ -6692,16 +6645,7 @@ paymentTimeout=180`
                     enabled: Boolean(schedule.enabled),
                     mode: schedule.mode === 'fixed' ? 'fixed' : 'interval',
                     intervalMinutes: Math.min(999, Math.max(1, Math.round(Number(schedule.intervalMinutes) || 60))),
-                    fixedTimes: fixedTimes.length ? fixedTimes : ['08:00'],
-                    readType: schedule.readType === 'Full' ? 'Full' : 'Delta'
-                },
-                parsing: {
-                    type: ['DEX/UCS', 'DDCMP RS232', 'VCCS Printer', 'Rhea Machine'].includes(parsing.type) ? parsing.type : 'DEX/UCS',
-                    retryAttempts: Math.max(0, Math.round(Number(parsing.retryAttempts) || 0)),
-                    retryPeriod: Math.max(0, Math.round(Number(parsing.retryPeriod) || 0)),
-                    multiplyCoinsBy: Number(parsing.multiplyCoinsBy) > 0 ? Number(parsing.multiplyCoinsBy) : 1,
-                    divideBillsBy: Number(parsing.divideBillsBy) > 0 ? Number(parsing.divideBillsBy) : 1,
-                    multiplyTubesBy: Number(parsing.multiplyTubesBy) > 0 ? Number(parsing.multiplyTubesBy) : 1
+                    fixedTimes: fixedTimes.length ? fixedTimes : ['08:00']
                 },
                 email: { enabled: Boolean(email.enabled), recipients, channel: 'email', payload: 'raw-summary' }
             };
@@ -6731,11 +6675,10 @@ paymentTimeout=180`
             const timing = dexSettings.schedule.mode === 'interval'
                 ? `Every ${dexSettings.schedule.intervalMinutes} min`
                 : dexSettings.schedule.fixedTimes.join(', ');
-            return `${timing} · ${dexSettings.schedule.readType}`;
+            return timing;
         }
         function renderDexAutomation(){
             dexElements.automationSchedule.textContent = scheduleSummary();
-            dexElements.automationNext.textContent = nextScheduledReadAt ? formatDateTime(nextScheduledReadAt) : 'Not scheduled';
             dexElements.automationEmail.textContent = dexSettings.email.enabled
                 ? `${dexSettings.email.recipients.length} recipient${dexSettings.email.recipients.length === 1 ? '' : 's'}`
                 : 'Off';
@@ -6746,7 +6689,7 @@ paymentTimeout=180`
         function persistDexState(){
             try {
                 sessionStorage.setItem(dexStorageKey, JSON.stringify({
-                    version: 1,
+                    version: 2,
                     settings: dexSettings,
                     nextScheduledReadAt,
                     snapshots: serializableDexSnapshots(),
@@ -6759,10 +6702,11 @@ paymentTimeout=180`
         }
         function loadDexState(){
             try {
+                sessionStorage.removeItem(legacyDexStorageKey);
                 const raw = sessionStorage.getItem(dexStorageKey);
                 if(!raw) return false;
                 const saved = JSON.parse(raw);
-                if(!saved || saved.version !== 1) return false;
+                if(!saved || saved.version !== 2) return false;
                 dexSettings = normalizeDexSettings(saved.settings);
                 if(Array.isArray(saved.snapshots) && saved.snapshots.length){
                     dexSnapshots = saved.snapshots.map(snapshot => ({ ...snapshot, parsed: null }));
@@ -6802,7 +6746,7 @@ paymentTimeout=180`
             }, 450);
         }
         function setDexSettingsTab(key, focus){
-            activeDexSettingsTab = ['schedule', 'rules', 'email'].includes(key) ? key : 'schedule';
+            activeDexSettingsTab = ['schedule', 'email'].includes(key) ? key : 'schedule';
             Array.from(dexSettingsElements.tabs.querySelectorAll('[data-dex-settings-tab]')).forEach(tab => {
                 const active = tab.getAttribute('data-dex-settings-tab') === activeDexSettingsTab;
                 tab.classList.toggle('active', active);
@@ -6829,31 +6773,11 @@ paymentTimeout=180`
             const scheduleOn = dexSettingsElements.scheduleEnabled.checked;
             const fixed = dexSettingsElements.scheduleMode.value === 'fixed';
             dexSettingsElements.scheduleMode.disabled = !scheduleOn;
-            dexSettingsElements.scheduledReadType.disabled = !scheduleOn;
             dexSettingsElements.intervalMinutes.disabled = !scheduleOn || fixed;
             dexSettingsElements.intervalField.hidden = fixed;
             dexSettingsElements.fixedTimesField.hidden = !fixed;
             dexSettingsElements.addTime.disabled = !scheduleOn || dexSettingsElements.fixedTimesList.children.length >= 12;
-            dexSettingsElements.fullWarning.hidden = !scheduleOn || dexSettingsElements.scheduledReadType.value !== 'Full';
-            const retries = Math.max(0, Number(dexSettingsElements.retryAttempts.value) || 0);
-            dexSettingsElements.retryPeriod.disabled = retries === 0;
-            const customRules = dexSettingsElements.protocolType.value !== 'DEX/UCS' || [dexSettingsElements.multiplyCoins.value, dexSettingsElements.divideBills.value, dexSettingsElements.multiplyTubes.value].some(value => Number(value) !== 1);
-            dexSettingsElements.rulesWarning.hidden = !customRules;
             dexSettingsElements.emailInput.disabled = !dexSettingsElements.emailEnabled.checked;
-            const previewSettings = {
-                schedule: {
-                    enabled: scheduleOn,
-                    mode: dexSettingsElements.scheduleMode.value,
-                    intervalMinutes: Number(dexSettingsElements.intervalMinutes.value) || 60,
-                    fixedTimes: Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean),
-                    readType: dexSettingsElements.scheduledReadType.value
-                }
-            };
-            const originalSchedule = dexSettings.schedule;
-            dexSettings.schedule = normalizeDexSettings(previewSettings).schedule;
-            const previewNext = calculateNextDexRead(Date.now());
-            dexSettings.schedule = originalSchedule;
-            dexSettingsElements.nextPreview.textContent = `Next read: ${previewNext ? formatDateTime(previewNext) : 'Not scheduled'}`;
         }
         function renderDexEmailTags(){
             Array.from(dexSettingsElements.emailTags.querySelectorAll('.dex-email-tag')).forEach(tag => tag.remove());
@@ -6880,32 +6804,23 @@ paymentTimeout=180`
         function populateDexSettingsForm(initialTab){
             dexSettingsElements.scheduleEnabled.checked = dexSettings.schedule.enabled;
             dexSettingsElements.scheduleMode.value = dexSettings.schedule.mode;
-            dexSettingsElements.scheduledReadType.value = dexSettings.schedule.readType;
             dexSettingsElements.intervalMinutes.value = dexSettings.schedule.intervalMinutes;
             dexSettingsElements.fixedTimesList.innerHTML = '';
             renderDexTimeRows();
-            dexSettingsElements.protocolType.value = dexSettings.parsing.type;
-            dexSettingsElements.retryAttempts.value = dexSettings.parsing.retryAttempts;
-            dexSettingsElements.retryPeriod.value = dexSettings.parsing.retryPeriod;
-            dexSettingsElements.multiplyCoins.value = dexSettings.parsing.multiplyCoinsBy;
-            dexSettingsElements.divideBills.value = dexSettings.parsing.divideBillsBy;
-            dexSettingsElements.multiplyTubes.value = dexSettings.parsing.multiplyTubesBy;
             dexSettingsElements.emailEnabled.checked = dexSettings.email.enabled;
             dexDraftRecipients = dexSettings.email.recipients.slice();
             dexSettingsElements.emailInput.value = '';
             dexSettingsElements.intervalError.textContent = '';
             dexSettingsElements.fixedTimesError.textContent = '';
-            dexSettingsElements.rulesError.textContent = '';
             dexSettingsElements.emailError.textContent = '';
             renderDexEmailTags();
             updateDexSettingsVisibility();
-            setDexSettingsTab(['schedule', 'rules', 'email'].includes(initialTab) ? initialTab : 'schedule', false);
+            setDexSettingsTab(['schedule', 'email'].includes(initialTab) ? initialTab : 'schedule', false);
         }
         function validateDexSettingsForm(){
             addDexRecipient(dexSettingsElements.emailInput.value, true);
             dexSettingsElements.intervalError.textContent = '';
             dexSettingsElements.fixedTimesError.textContent = '';
-            dexSettingsElements.rulesError.textContent = '';
             if(dexSettingsElements.scheduleEnabled.checked){
                 if(dexSettingsElements.scheduleMode.value === 'interval'){
                     const interval = Number(dexSettingsElements.intervalMinutes.value);
@@ -6924,14 +6839,6 @@ paymentTimeout=180`
                     }
                 }
             }
-            const retryAttempts = Number(dexSettingsElements.retryAttempts.value);
-            const retryPeriod = Number(dexSettingsElements.retryPeriod.value);
-            const scales = [dexSettingsElements.multiplyCoins, dexSettingsElements.divideBills, dexSettingsElements.multiplyTubes];
-            if(!Number.isInteger(retryAttempts) || retryAttempts < 0 || !Number.isInteger(retryPeriod) || retryPeriod < 0 || scales.some(input => !Number.isFinite(Number(input.value)) || Number(input.value) <= 0)){
-                dexSettingsElements.rulesError.textContent = 'Retries must be non-negative whole numbers and scaling values must be greater than 0.';
-                setDexSettingsTab('rules', false);
-                return false;
-            }
             if(dexSettingsElements.emailEnabled.checked && !dexDraftRecipients.length){
                 dexSettingsElements.emailError.textContent = 'Add at least one email recipient.';
                 setDexSettingsTab('email', false);
@@ -6946,16 +6853,7 @@ paymentTimeout=180`
                     enabled: dexSettingsElements.scheduleEnabled.checked,
                     mode: dexSettingsElements.scheduleMode.value,
                     intervalMinutes: Number(dexSettingsElements.intervalMinutes.value),
-                    fixedTimes: Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean),
-                    readType: dexSettingsElements.scheduledReadType.value
-                },
-                parsing: {
-                    type: dexSettingsElements.protocolType.value,
-                    retryAttempts: Number(dexSettingsElements.retryAttempts.value),
-                    retryPeriod: Number(dexSettingsElements.retryPeriod.value),
-                    multiplyCoinsBy: Number(dexSettingsElements.multiplyCoins.value),
-                    divideBillsBy: Number(dexSettingsElements.divideBills.value),
-                    multiplyTubesBy: Number(dexSettingsElements.multiplyTubes.value)
+                    fixedTimes: Array.from(dexSettingsElements.fixedTimesList.querySelectorAll('input[type="time"]')).map(input => input.value).filter(Boolean)
                 },
                 email: { enabled: dexSettingsElements.emailEnabled.checked, recipients: dexDraftRecipients }
             });
@@ -6969,18 +6867,18 @@ paymentTimeout=180`
         const seedNow = Date.now();
         const seedMap = getProductRows();
         const oldTotals = { sales: 98875, vends: 493, intervalSales: 4275, intervalVends: 21, cash: 36275, cashVends: 190, intervalCash: 1575, intervalCashVends: 8, card: 62600, cardVends: 303, intervalCard: 2700, intervalCardVends: 13 };
-        const deltaTotals = { ...oldTotals, sales: 99075, vends: 494, intervalSales: 4475, intervalVends: 22, card: 62800, cardVends: 304, intervalCard: 2900, intervalCardVends: 14 };
-        const latestTotals = { ...deltaTotals, sales: 100525, vends: 501, intervalSales: 5925, intervalVends: 29, cash: 37025, cashVends: 193, intervalCash: 2325, intervalCashVends: 11, card: 63500, cardVends: 308, intervalCard: 3600, intervalCardVends: 18 };
+        const midTotals = { sales: 99075, vends: 494, intervalSales: 4475, intervalVends: 22, cash: 36275, cashVends: 190, intervalCash: 1575, intervalCashVends: 8, card: 62800, cardVends: 304, intervalCard: 2900, intervalCardVends: 14 };
+        const latestTotals = { sales: 100525, vends: 501, intervalSales: 5925, intervalVends: 29, cash: 37025, cashVends: 193, intervalCash: 2325, intervalCashVends: 11, card: 63500, cardVends: 308, intervalCard: 3600, intervalCardVends: 18 };
         const oldReadAt = seedNow - 27 * 60 * 60 * 1000;
-        const deltaReadAt = seedNow - 34 * 60 * 1000;
+        const midReadAt = seedNow - 34 * 60 * 1000;
         const latestReadAt = seedNow - 4 * 60 * 1000;
         let dexSnapshots = [
-            { id: 'dex-sqs-001', type: 'Full', status: 'Warning', validation: 'Warnings', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 60 * 1000, readAt: seedNow - 45 * 1000, receivedAt: seedNow - 40 * 1000, raw: buildSqsDexRaw(), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-0009', type: 'Full', status: 'Parsed', validation: 'Passed', source: 'Scheduled', emailStatus: 'Sent', requestedAt: latestReadAt - 18000, readAt: latestReadAt, receivedAt: latestReadAt + 12000, raw: buildFullDexRaw(9, latestTotals, seedMap, latestReadAt, false), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-0008', type: 'Delta', status: 'Parsed', validation: 'Passed', source: 'Manual', emailStatus: 'Not Sent', requestedAt: deltaReadAt - 15000, readAt: deltaReadAt, receivedAt: deltaReadAt + 9000, raw: buildDeltaDexRaw(8, deltaTotals, seedMap, deltaReadAt), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-failed-01', type: 'Delta', status: 'Failed', validation: 'Failed', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 48 * 60 * 1000, readAt: seedNow - 47 * 60 * 1000, receivedAt: seedNow - 47 * 60 * 1000, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'No DEX response before the request timeout.' },
-            { id: 'dex-0007', type: 'Full', status: 'Warning', validation: 'Warnings', source: 'Scheduled', emailStatus: 'Failed', requestedAt: oldReadAt - 16000, readAt: oldReadAt, receivedAt: oldReadAt + 10000, raw: buildFullDexRaw(7, oldTotals, seedMap, oldReadAt, true), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
-            { id: 'dex-no-data-01', type: 'Delta', status: 'No Data', validation: 'Not received', source: 'Manual', emailStatus: 'Not Sent', requestedAt: seedNow - 51 * 60 * 60 * 1000, readAt: null, receivedAt: null, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'The machine returned no DEX payload for this request.' }
+            { id: 'dex-sqs-001', status: 'Warning', validation: 'Warnings', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 60 * 1000, readAt: seedNow - 45 * 1000, receivedAt: seedNow - 40 * 1000, raw: buildSqsDexRaw(), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-0009', status: 'Parsed', validation: 'Passed', source: 'Scheduled', emailStatus: 'Sent', requestedAt: latestReadAt - 18000, readAt: latestReadAt, receivedAt: latestReadAt + 12000, raw: buildDexRaw(9, latestTotals, seedMap, latestReadAt, false), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-0008', status: 'Parsed', validation: 'Passed', source: 'Manual', emailStatus: 'Not Sent', requestedAt: midReadAt - 15000, readAt: midReadAt, receivedAt: midReadAt + 9000, raw: buildDexRaw(8, midTotals, seedMap, midReadAt, false), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-failed-01', status: 'Failed', validation: 'Failed', source: 'Scheduled', emailStatus: 'Not Sent', requestedAt: seedNow - 48 * 60 * 1000, readAt: seedNow - 47 * 60 * 1000, receivedAt: seedNow - 47 * 60 * 1000, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'No DEX response before the request timeout.' },
+            { id: 'dex-0007', status: 'Warning', validation: 'Warnings', source: 'Scheduled', emailStatus: 'Failed', requestedAt: oldReadAt - 16000, readAt: oldReadAt, receivedAt: oldReadAt + 10000, raw: buildDexRaw(7, oldTotals, seedMap, oldReadAt, true), productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: '' },
+            { id: 'dex-no-data-01', status: 'No Data', validation: 'Not received', source: 'Manual', emailStatus: 'Not Sent', requestedAt: seedNow - 51 * 60 * 60 * 1000, readAt: null, receivedAt: null, raw: '', productMapSnapshot: seedMap.map(row => ({ ...row })), parsed: null, error: 'The machine returned no DEX payload for this request.' }
         ];
         const restoredDexState = loadDexState();
         if(!restoredDexState){
@@ -7000,45 +6898,8 @@ paymentTimeout=180`
             if(!snapshot.parsed) snapshot.parsed = parseDex(snapshot.raw, snapshot.productMapSnapshot || []);
             return snapshot.parsed;
         }
-        function chronologicalUsableSnapshots(upToSnapshot){
-            const upperTime = upToSnapshot && upToSnapshot.readAt ? upToSnapshot.readAt : Number.POSITIVE_INFINITY;
-            return dexSnapshots
-                .filter(snapshot => isUsableDexSnapshot(snapshot) && snapshot.readAt <= upperTime)
-                .sort((a, b) => a.readAt - b.readAt);
-        }
-        function buildEffectiveDexMap(snapshot){
-            const effective = new Map();
-            chronologicalUsableSnapshots(snapshot).forEach(item => {
-                const parsed = ensureDexParsed(item);
-                if(!parsed || parsed.failed) return;
-                if(item.type === 'Full') effective.clear();
-                parsed.records.forEach(metric => effective.set(metric.key, { ...metric }));
-            });
-            return effective;
-        }
-        function latestUsableDexSnapshot(){
-            return dexSnapshots.filter(isUsableDexSnapshot).sort((a, b) => b.readAt - a.readAt)[0] || null;
-        }
-        function previousUsableDexSnapshot(snapshot){
-            if(!snapshot || !snapshot.readAt) return null;
-            return dexSnapshots.filter(item => isUsableDexSnapshot(item) && item.readAt < snapshot.readAt).sort((a, b) => b.readAt - a.readAt)[0] || null;
-        }
         function selectedDexSnapshot(){
             return dexSnapshots.find(snapshot => snapshot.id === selectedDexId) || dexSnapshots[0] || null;
-        }
-        function metricNumber(map, key, fallback){
-            const metric = map && map.get(key);
-            return metric && typeof metric.value === 'number' && Number.isFinite(metric.value) ? metric.value : (fallback == null ? 0 : fallback);
-        }
-        function formatDexAge(value){
-            if(!value) return '--';
-            const elapsed = Math.max(0, Date.now() - Number(value));
-            const minutes = Math.floor(elapsed / 60000);
-            if(minutes < 1) return 'Just now';
-            if(minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if(hours < 24) return `${hours}h ${minutes % 60}m ago`;
-            return `${Math.floor(hours / 24)}d ago · Stale`;
         }
         function formatDexMetric(metric){
             if(!metric) return '--';
@@ -7047,26 +6908,12 @@ paymentTimeout=180`
             if(metric.type === 'number') return new Intl.NumberFormat('en-US').format(metric.value);
             return String(metric.value || '--');
         }
-        function formatDexDelta(current, previous){
-            if(!current || !previous || current.value == null || previous.value == null) return { text: '--', className: 'dex-delta-neutral' };
-            if((current.type === 'currency' || current.type === 'number') && typeof current.value === 'number' && typeof previous.value === 'number'){
-                const difference = current.value - previous.value;
-                const cumulative = /^(VA1|VA3|CA2|CA3|CA4|DA2|PA2|PA4|PA7)/.test(current.key);
-                if(difference < 0 && cumulative) return { text: 'Counter reset', className: 'dex-delta-negative' };
-                if(difference === 0) return { text: 'No change', className: 'dex-delta-neutral' };
-                const absolute = current.type === 'currency' ? formatUsdFromCents(Math.abs(difference)) : new Intl.NumberFormat('en-US').format(Math.abs(difference));
-                return { text: `${difference > 0 ? '+' : '-'}${absolute}`, className: difference > 0 ? 'dex-delta-positive' : 'dex-delta-negative' };
-            }
-            if(String(current.value) === String(previous.value)) return { text: 'No change', className: 'dex-delta-neutral' };
-            if(current.type === 'status') return { text: current.value === 'Active' ? 'Activated' : 'Resolved', className: current.value === 'Active' ? 'dex-delta-negative' : 'dex-delta-positive' };
-            return { text: 'Changed', className: 'dex-delta-positive' };
-        }
         function renderDexCategoryTabs(){
             dexElements.categoryTabs.innerHTML = dexCategories.map(category => `<button class="dex-category-tab ${activeDexCategory === category.key ? 'active' : ''}" type="button" data-dex-category="${category.key}">${category.label}</button>`).join('');
         }
         function renderDexHistory(){
             if(!dexSnapshots.length){
-                dexElements.historyBody.innerHTML = '<tr><td colspan="8" class="dex-empty-state">No DEX reads are available for this machine.</td></tr>';
+                dexElements.historyBody.innerHTML = '<tr><td colspan="7" class="dex-empty-state">No DEX reads are available for this machine.</td></tr>';
                 return;
             }
             dexElements.historyBody.innerHTML = dexSnapshots.map(snapshot => {
@@ -7076,8 +6923,7 @@ paymentTimeout=180`
                 const email = emailStatusForSnapshot(snapshot);
                 return `
                     <tr class="${snapshot.id === selectedDexId ? 'is-selected' : ''}" data-dex-snapshot="${escapeHtml(snapshot.id)}">
-                        <td>${escapeHtml(formatDateTime(readTime))}<span class="dex-history-sub">${escapeHtml(formatDexAge(snapshot.receivedAt || snapshot.requestedAt))}</span></td>
-                        <td><span class="dex-history-type">${escapeHtml(snapshot.type)}</span></td>
+                        <td>${escapeHtml(formatDateTime(readTime))}</td>
                         <td>${escapeHtml(snapshot.source)}</td>
                         <td><span class="dex-status-badge ${dexStatusClass(snapshot.status)}">${escapeHtml(snapshot.status)}</span></td>
                         <td>${escapeHtml(snapshot.validation)}</td>
@@ -7092,27 +6938,20 @@ paymentTimeout=180`
             const parsed = ensureDexParsed(snapshot);
             if(!snapshot || !isUsableDexSnapshot(snapshot) || !parsed || parsed.failed){
                 const message = snapshot && snapshot.error ? snapshot.error : snapshot && (snapshot.status === 'Queued' || snapshot.status === 'Reading') ? `DEX request is ${snapshot.status.toLowerCase()}. Parsed data will appear when the terminal responds.` : 'No parsed DEX data is available for this read.';
-                dexElements.parsedBody.innerHTML = `<tr><td colspan="4" class="dex-empty-state">${escapeHtml(message)}</td></tr>`;
+                dexElements.parsedBody.innerHTML = `<tr><td colspan="3" class="dex-empty-state">${escapeHtml(message)}</td></tr>`;
                 return;
             }
-            const previous = previousUsableDexSnapshot(snapshot);
-            const selectedEffective = buildEffectiveDexMap(snapshot);
-            const previousEffective = previous ? buildEffectiveDexMap(previous) : new Map();
             const visible = parsed.records.filter(metric => activeDexCategory === 'all' || metric.category === activeDexCategory);
             if(!visible.length){
-                dexElements.parsedBody.innerHTML = '<tr><td colspan="4" class="dex-empty-state">No parsed records are available in this category.</td></tr>';
+                dexElements.parsedBody.innerHTML = '<tr><td colspan="3" class="dex-empty-state">No parsed records are available in this category.</td></tr>';
                 return;
             }
             dexElements.parsedBody.innerHTML = visible.map(metric => {
-                const selectedMetric = selectedEffective.get(metric.key) || metric;
-                const previousMetric = previousEffective.get(metric.key);
-                const delta = formatDexDelta(selectedMetric, previousMetric);
                 return `
                     <tr>
                         <td><span class="dex-id-code">${escapeHtml(metric.id)}</span></td>
-                        <td><span class="dex-definition">${escapeHtml(metric.label)}</span>${metric.note ? `<span class="dex-definition-note">${escapeHtml(metric.note)}</span>` : ''}</td>
-                        <td class="dex-numeric-value">${escapeHtml(formatDexMetric(selectedMetric))}</td>
-                        <td class="dex-numeric-value ${delta.className}">${escapeHtml(delta.text)}</td>
+                        <td><span class="dex-definition">${escapeHtml(metric.label)}</span></td>
+                        <td class="dex-numeric-value">${escapeHtml(formatDexMetric(metric))}</td>
                     </tr>
                 `;
             }).join('');
@@ -7167,36 +7006,33 @@ paymentTimeout=180`
         function setDexBusy(busy){
             dexElements.root.setAttribute('aria-busy', String(Boolean(busy)));
             dexElements.read.disabled = Boolean(busy);
-            dexElements.fullRead.disabled = Boolean(busy);
         }
-        function totalsFromEffectiveMap(map){
+        function buildDexReadTotals(control, amount){
+            const readsSinceSeed = Math.max(1, Number(control) - 8);
+            const addedValue = readsSinceSeed * amount;
             return {
-                sales: metricNumber(map, 'VA1.01', 0),
-                vends: metricNumber(map, 'VA1.02', 0),
-                intervalSales: metricNumber(map, 'VA1.03', 0),
-                intervalVends: metricNumber(map, 'VA1.04', 0),
-                cash: metricNumber(map, 'CA2.01', 0),
-                cashVends: metricNumber(map, 'CA2.02', 0),
-                intervalCash: metricNumber(map, 'CA2.03', 0),
-                intervalCashVends: metricNumber(map, 'CA2.04', 0),
-                card: metricNumber(map, 'DA2.01', 0),
-                cardVends: metricNumber(map, 'DA2.02', 0),
-                intervalCard: metricNumber(map, 'DA2.03', 0),
-                intervalCardVends: metricNumber(map, 'DA2.04', 0)
+                sales: 100525 + addedValue,
+                vends: 501 + readsSinceSeed,
+                intervalSales: 5925 + addedValue,
+                intervalVends: 29 + readsSinceSeed,
+                cash: 37025 + addedValue,
+                cashVends: 193 + readsSinceSeed,
+                intervalCash: 2325 + addedValue,
+                intervalCashVends: 11 + readsSinceSeed,
+                card: 63500,
+                cardVends: 308,
+                intervalCard: 3600,
+                intervalCardVends: 18
             };
         }
-        function requestDexRead(type, source){
+        function requestDexRead(source){
             if(activeDexJobId) return;
             const requestSource = source === 'Scheduled' ? 'Scheduled' : 'Manual';
-            const previous = latestUsableDexSnapshot();
-            const previousMap = previous ? buildEffectiveDexMap(previous) : new Map();
-            const baseTotals = totalsFromEffectiveMap(previousMap);
             const requestedAt = Date.now();
             const control = dexControlSequence++;
             const id = `dex-${String(control).padStart(4, '0')}-${requestedAt}`;
             const snapshot = {
                 id,
-                type,
                 status: 'Queued',
                 validation: 'Pending',
                 source: requestSource,
@@ -7214,7 +7050,7 @@ paymentTimeout=180`
             activeDexJobId = id;
             persistDexState();
             setDexBusy(true);
-            setDexRequestMessage(`${type === 'Full' ? 'Full DEX' : 'DEX delta'} request queued for ${terminalContext.sn}. The terminal response may take a few minutes in production.`, true);
+            setDexRequestMessage(`DEX request queued for ${terminalContext.sn}. The terminal response may take a few minutes in production.`, true);
             renderDex();
 
             window.setTimeout(() => {
@@ -7222,7 +7058,7 @@ paymentTimeout=180`
                 snapshot.status = 'Reading';
                 snapshot.readAt = Date.now();
                 persistDexState();
-                setDexRequestMessage(`Reading ${type === 'Full' ? 'full' : 'delta'} DEX data from the vending machine...`, true);
+                setDexRequestMessage('Reading DEX data from the vending machine...', true);
                 renderDex();
             }, 550);
 
@@ -7231,26 +7067,8 @@ paymentTimeout=180`
                 const mapSnapshot = snapshot.productMapSnapshot;
                 const vendProduct = mapSnapshot.find(row => Number(row.onHand) > 0) || mapSnapshot[0];
                 const amount = vendProduct ? Number(vendProduct.priceCents) : 200;
-                const totals = {
-                    ...baseTotals,
-                    sales: baseTotals.sales + amount,
-                    vends: baseTotals.vends + 1,
-                    intervalSales: baseTotals.intervalSales + amount,
-                    intervalVends: baseTotals.intervalVends + 1
-                };
-                if(type === 'Full'){
-                    totals.cash += amount;
-                    totals.cashVends += 1;
-                    totals.intervalCash += amount;
-                    totals.intervalCashVends += 1;
-                    snapshot.raw = buildFullDexRaw(control, totals, mapSnapshot, snapshot.readAt, false);
-                } else {
-                    totals.card += amount;
-                    totals.cardVends += 1;
-                    totals.intervalCard += amount;
-                    totals.intervalCardVends += 1;
-                    snapshot.raw = buildDeltaDexRaw(control, totals, mapSnapshot, snapshot.readAt);
-                }
+                const totals = buildDexReadTotals(control, amount);
+                snapshot.raw = buildDexRaw(control, totals, mapSnapshot, snapshot.readAt, false);
                 snapshot.receivedAt = Date.now();
                 snapshot.parsed = parseDex(snapshot.raw, mapSnapshot);
                 snapshot.status = snapshot.parsed.failed ? 'Failed' : snapshot.parsed.warnings.length ? 'Warning' : 'Parsed';
@@ -7259,27 +7077,24 @@ paymentTimeout=180`
                 activeDexJobId = null;
                 persistDexState();
                 setDexBusy(false);
-                setDexRequestMessage(snapshot.status === 'Parsed' ? '' : `${type} DEX read completed with validation warnings.`, snapshot.status !== 'Parsed');
+                setDexRequestMessage(snapshot.status === 'Parsed' ? '' : 'DEX read completed with validation warnings.', snapshot.status !== 'Parsed');
                 renderDex();
-                showToast(`${type} DEX snapshot added to history.`);
+                showToast('DEX snapshot added to history.');
                 if(snapshot.status === 'Parsed' || snapshot.status === 'Warning') queueDexEmail(snapshot);
             }, 1400);
         }
 
         function runDexScheduleCheck(){
             if(!dexSettings.schedule.enabled || !nextScheduledReadAt || nextScheduledReadAt > Date.now() || activeDexJobId) return;
-            const scheduledType = dexSettings.schedule.readType;
             nextScheduledReadAt = calculateNextDexRead(Date.now());
             persistDexState();
             renderDexAutomation();
-            requestDexRead(scheduledType, 'Scheduled');
+            requestDexRead('Scheduled');
         }
 
-        bindToolbarMenu(dexReadMenuElements, dexSettingsMenuElements);
-        bindToolbarMenu(dexSettingsMenuElements, dexReadMenuElements);
+        bindToolbarMenu(dexSettingsMenuElements, dexSettingsMenuElements);
         document.addEventListener('click', evt => {
             if(!evt.target.closest('.dex-toolbar-menu')){
-                closeToolbarMenu(dexReadMenuElements);
                 closeToolbarMenu(dexSettingsMenuElements);
             }
         });
@@ -7298,14 +7113,14 @@ paymentTimeout=180`
         dexSettingsElements.tabs.addEventListener('keydown', evt => {
             if(!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(evt.key)) return;
             evt.preventDefault();
-            const keys = ['schedule', 'rules', 'email'];
+            const keys = ['schedule', 'email'];
             let index = keys.indexOf(activeDexSettingsTab);
             if(evt.key === 'Home') index = 0;
             else if(evt.key === 'End') index = keys.length - 1;
             else index = (index + (evt.key === 'ArrowRight' ? 1 : -1) + keys.length) % keys.length;
             setDexSettingsTab(keys[index], true);
         });
-        [dexSettingsElements.scheduleEnabled, dexSettingsElements.scheduleMode, dexSettingsElements.scheduledReadType, dexSettingsElements.intervalMinutes, dexSettingsElements.protocolType, dexSettingsElements.retryAttempts, dexSettingsElements.multiplyCoins, dexSettingsElements.divideBills, dexSettingsElements.multiplyTubes, dexSettingsElements.emailEnabled].forEach(control => {
+        [dexSettingsElements.scheduleEnabled, dexSettingsElements.scheduleMode, dexSettingsElements.intervalMinutes, dexSettingsElements.emailEnabled].forEach(control => {
             control.addEventListener('input', updateDexSettingsVisibility);
             control.addEventListener('change', updateDexSettingsVisibility);
         });
@@ -7388,12 +7203,7 @@ paymentTimeout=180`
         });
         dexElements.rawSearch.addEventListener('input', () => renderDexRaw(selectedDexSnapshot()));
         dexElements.read.addEventListener('click', () => {
-            closeToolbarMenu(dexReadMenuElements, true);
-            requestDexRead('Delta');
-        });
-        dexElements.fullRead.addEventListener('click', () => {
-            closeToolbarMenu(dexReadMenuElements, true);
-            requestDexRead('Full');
+            requestDexRead();
         });
         dexElements.refresh.addEventListener('click', () => {
             dexElements.refresh.disabled = true;

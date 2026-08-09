@@ -53,7 +53,7 @@ test("uses the Nayax-aligned Stock menu and generates a Pick List with terminal 
   await expect(menuItems).toHaveCount(4);
   await expect(menuItems.nth(0)).toHaveText("Download Pick List");
   await expect(menuItems.nth(1)).toHaveText("Generate Pick List");
-  await expect(menuItems.nth(2)).toHaveText("Fill Machine 100%");
+  await expect(menuItems.nth(2)).toHaveText(/^Fill Machine(?: 100%)?$/);
   await expect(menuItems.nth(3)).toHaveText("Empty Machine");
   await menuItems.nth(1).click();
 
@@ -70,7 +70,8 @@ test("uses the Nayax-aligned Stock menu and generates a Pick List with terminal 
   expect(url.searchParams.get("merchantName")).toBe("Example Merchant");
   expect(url.searchParams.get("tid")).toBe("TID900");
   await expect(page.getByRole("heading", { name: "Pick List", exact: true })).toBeVisible();
-  await expect(page.locator("#pageNote")).toContainText("Airport Snacks");
+  await expect(page.locator("#terminalName")).toHaveText("Airport Snacks");
+  await expect(page.locator("#pageNote")).toContainText(`SN ${TERMINAL_SN}`);
 });
 
 test("shows only the five-column shortage list in Product Map order", async ({ page }) => {
@@ -78,6 +79,10 @@ test("shows only the five-column shortage list in Product Map order", async ({ p
   await page.goto(PICK_LIST_URL);
 
   await expect(page.getByText("Terminal Inventory", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".title-line h1")).toHaveText("Pick List");
+  await expect(page.locator(".title-separator")).toHaveText("|");
+  await expect(page.locator("#terminalName")).toHaveText(`Terminal - ${TERMINAL_SN}`);
+  await expect(page.locator("#pageNote strong")).toHaveText(`SN ${TERMINAL_SN}`);
   await expect(page.locator("thead th")).toHaveText(["PA Code", "MDB Code", "Product", "Product Group", "Pick Qty"]);
   await expect(page.locator("#pickListBody tr")).toHaveCount(6);
   const first = page.locator("#pickListBody tr").first();
@@ -98,7 +103,7 @@ test("opens Download Pick List from Stock as a one-time page intent", async ({ p
   await expect(page).toHaveURL(/37\.pick_list\.html/);
   await expect(page.getByRole("heading", { name: "Download Pick List" })).toBeVisible();
   expect(new URL(page.url()).searchParams.has("download")).toBeFalsy();
-  await expect(page.locator("#pageNote")).toContainText("Airport Snacks");
+  await expect(page.locator("#terminalName")).toHaveText("Airport Snacks");
   await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.reload();
   await expect(page.locator("#downloadDialog")).toBeHidden();
@@ -133,6 +138,7 @@ test("keeps the Generate Pick List dialog controls at the Paywizard standard siz
 test("creates, restores, updates, and cancels a future fill only in the Generate modal", async ({ page }) => {
   await resetCatalog(page);
   await page.goto(PRODUCT_MAP_URL);
+  await expect(page.locator("#pmScheduledFillStatus")).toBeHidden();
   const firstTime = await futureLocalValue(page, 60);
   await openGenerateModal(page);
   await page.locator("#pmPickListScheduleEnabled").check();
@@ -143,6 +149,9 @@ test("creates, restores, updates, and cancels a future fill only in the Generate
   expect(first.status).toBe("scheduled");
   await page.goto(PRODUCT_MAP_URL);
   await expect(page.getByRole("button", { name: "View / Change" })).toHaveCount(0);
+  await expect(page.locator("#pmScheduledFillStatus")).toBeVisible();
+  await expect(page.locator("#pmScheduledFillStatus")).toContainText("Automatic fill scheduled");
+  await expect(page.locator("#pmInlineStatus")).toBeHidden();
   await openGenerateModal(page);
   await expect(page.locator("#pmPickListScheduleEnabled")).toBeChecked();
   await expect(page.locator("#pmPickListTime")).toHaveValue(firstTime);
@@ -162,6 +171,7 @@ test("creates, restores, updates, and cancels a future fill only in the Generate
   await expect(page.locator("#pmConfirmTitle")).toHaveText("Cancel automatic fill?");
   await page.locator("#pmConfirmAccept").click();
   expect(await page.evaluate((sn) => window.PaywizardPickList.getSchedule(sn), TERMINAL_SN)).toBeNull();
+  await expect(page.locator("#pmScheduledFillStatus")).toBeHidden();
 });
 
 test("validates a past completion time without leaving Product Map", async ({ page }) => {
@@ -177,7 +187,8 @@ test("validates a past completion time without leaving Product Map", async ({ pa
 
 test("downloads Excel-compatible XML and invokes PDF printing from one compact dialog", async ({ page }) => {
   await resetCatalog(page);
-  await page.goto(PICK_LIST_URL);
+  const exportTerminalName = "上海站 A & 01";
+  await page.goto(PICK_LIST_URL.replace(`Terminal%20-%20${TERMINAL_SN}`, encodeURIComponent(exportTerminalName)));
   await page.evaluate((sn) => {
     const api = window.PaywizardProductCatalog;
     const rows = api.getProductMap(sn);
@@ -192,9 +203,13 @@ test("downloads Excel-compatible XML and invokes PDF printing from one compact d
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download", exact: true }).click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toMatch(/^pick-list-WP6267UQ36002376-\d{8}-\d{4}\.xls$/);
+  expect(download.suggestedFilename()).toMatch(/^Pick List - 上海站 A & 01 - WP6267UQ36002376 - \d{8}-\d{4}\.xls$/);
   const workbook = fs.readFileSync(await download.path(), "utf8");
   expect(workbook).toContain('Worksheet ss:Name="Pick List"');
+  expect(workbook).toContain("Terminal Name");
+  expect(workbook).toContain("上海站 A &amp; 01");
+  expect(workbook).toContain("SN");
+  expect(workbook.indexOf("Terminal Name")).toBeLessThan(workbook.indexOf("SN"));
   expect(workbook).toContain("PA Code");
   expect(workbook).toContain("MDB Code");
   expect(workbook).not.toContain(">BIN<");
@@ -202,6 +217,9 @@ test("downloads Excel-compatible XML and invokes PDF printing from one compact d
   expect(workbook).not.toContain("Trail Mix");
   expect(workbook).not.toContain("Starburst");
 
+  await expect(page.locator("#terminalName")).toHaveText(exportTerminalName);
+  await expect(page.locator("#pageNote strong")).toHaveText(`SN ${TERMINAL_SN}`);
+  await expect(page).toHaveTitle(/^Pick List - 上海站 A & 01 - WP6267UQ36002376 - \d{8}-\d{4}$/);
   await page.evaluate(() => { window.__pickListPrintCalled = false; window.print = () => { window.__pickListPrintCalled = true; }; });
   await page.getByRole("button", { name: "Download Pick List" }).click();
   await page.getByLabel("Export Pick List to PDF").check();
@@ -247,11 +265,16 @@ test("manual Product Map fill cancels a schedule only after inventory saves", as
   await page.goto(PRODUCT_MAP_URL);
   await page.evaluate((sn) => window.PaywizardPickList.saveSchedule(sn, new Date(Date.now() + 3600000)), TERMINAL_SN);
   await expect(page.getByRole("button", { name: "View / Change" })).toHaveCount(0);
+  await expect(page.locator("#pmScheduledFillStatus")).toBeVisible();
   await page.getByRole("button", { name: "Stock", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Fill Machine 100%" }).click();
-  await expect(page.locator("#pmConfirmTitle")).toHaveText("Fill now and cancel schedule?");
+  await page.getByRole("menuitem", { name: /^Fill Machine(?: 100%)?$/ }).click();
+  await expect(page.locator("#pmConfirmTitle")).toHaveText("Fill Machine Now?");
+  await expect(page.locator("#pmConfirmMessage")).toContainText("An automatic fill is scheduled for");
+  await expect(page.locator("#pmConfirmMessage")).toContainText("Fill all 8 BINS to PAR now? This will cancel the scheduled fill.");
+  await expect(page.locator("#pmConfirmAccept")).toHaveText("Fill Now");
   await page.locator("#pmConfirmAccept").click();
   expect(await page.evaluate((sn) => window.PaywizardPickList.getSchedule(sn), TERMINAL_SN)).toBeNull();
+  await expect(page.locator("#pmScheduledFillStatus")).toBeHidden();
   const rows = await page.evaluate((sn) => window.PaywizardProductCatalog.getProductMap(sn), TERMINAL_SN);
   expect(rows.every((row) => row.onHand === row.par)).toBeTruthy();
 });
@@ -269,7 +292,7 @@ test("keeps the schedule and inventory unchanged when a manual fill cannot be sa
   }, TERMINAL_SN);
   const before = await page.evaluate((sn) => window.PaywizardProductCatalog.getProductMap(sn), TERMINAL_SN);
   await page.getByRole("button", { name: "Stock", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Fill Machine 100%" }).click();
+  await page.getByRole("menuitem", { name: /^Fill Machine(?: 100%)?$/ }).click();
   await page.locator("#pmConfirmAccept").click();
   await expect(page.locator("#prototypeToast")).toContainText("could not be saved");
   const after = await page.evaluate((sn) => {
@@ -281,6 +304,7 @@ test("keeps the schedule and inventory unchanged when a manual fill cannot be sa
   }, TERMINAL_SN);
   expect(after.rows).toEqual(before);
   expect(after.schedule.status).toBe("scheduled");
+  await expect(page.locator("#pmScheduledFillStatus")).toBeVisible();
 });
 
 test("shows the zero-pick state and keeps the page within a 390px viewport", async ({ page }) => {
