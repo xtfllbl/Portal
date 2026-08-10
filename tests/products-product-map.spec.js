@@ -571,6 +571,50 @@ test("protects template creation during unsaved edits and imports templates usin
   await expect(page.locator("#pmInlineStatus")).toHaveText("8 imported changes");
 });
 
+test("saves a parameters-only Product Map template when product information is excluded", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Save as Template" }).click();
+
+  const productInfoToggle = page.locator("#pmTemplateIncludeProductInfo");
+  await expect(productInfoToggle).not.toBeChecked();
+  await expect(page.locator("#pmTemplateScopeNote")).toHaveCount(0);
+  await expect(page.locator("#pmSaveTemplateModal")).not.toContainText("Save product name, Product Group, and price with each BIN.");
+
+  await page.locator("#pmTemplateName").fill("Parameters Only");
+  await page.locator("#pmTemplateMachineModel").fill("VENDO-721");
+  await page.getByRole("button", { name: "Save Template" }).click();
+
+  const template = await page.evaluate(() => window.PaywizardProductCatalog.getProductMapTemplates().find(item => item.name === "Parameters Only"));
+  expect(template.includeProductInfo).toBe(false);
+  expect(template.rows).toHaveLength(8);
+  expect(template.rows.every(row => row.paCode !== undefined && row.mdbCode !== undefined && row.par !== undefined)).toBeTruthy();
+  expect(template.rows.every(row => row.productId === undefined && row.categoryId === undefined && row.priceCents === undefined)).toBeTruthy();
+
+  await page.reload();
+  const persisted = await page.evaluate(() => window.PaywizardProductCatalog.getProductMapTemplates().find(item => item.name === "Parameters Only"));
+  expect(persisted.includeProductInfo).toBe(false);
+
+  await page.goto(PRODUCT_MAP_TEMPLATES_URL);
+  await expect(page.locator(".template-scope")).toHaveCount(0);
+  await expect(page.locator(".parameters-note")).toHaveCount(0);
+  await expect(page.locator(".bin-card")).toHaveCount(0);
+  await expect(page.locator("#templateDetail th")).toHaveText(["Product", "Product Group", "PA Code", "MDB Code", "PAR", "Price"]);
+  await expect(page.locator("#templateDetail tbody tr")).toHaveCount(8);
+  await expect(page.locator("#templateDetail tbody tr").first().locator("td")).toHaveText([
+    "—",
+    "—",
+    String(persisted.rows[0].paCode),
+    String(persisted.rows[0].mdbCode),
+    String(persisted.rows[0].par),
+    "—"
+  ]);
+  await expect(page.locator("#templateDetail")).not.toContainText("0.00");
+  await expect(page.locator("#templateDetail")).not.toContainText("PA / MDB / PAR only");
+});
+
 test("manages template details, compact metadata, deletion, and template product references", async ({ page }) => {
   await resetCatalog(page);
   await page.goto(PRODUCT_MAP_URL);

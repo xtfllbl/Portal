@@ -291,6 +291,7 @@
         !cleanText(template.machineModel) || !Array.isArray(template.rows)) return true;
       templateIds[template.id] = true;
       return template.rows.some(function (row) {
+        if (template.includeProductInfo === false) return !row;
         return !row || !categoryIds[row.categoryId] || (cleanText(row.productId) && !productIds[row.productId]);
       });
     })) return false;
@@ -809,34 +810,39 @@
     return template ? clone(template) : null;
   }
 
-  function normalizeTemplateRow(input, index, fields) {
+  function normalizeTemplateRow(input, index, fields, includeProductInfo) {
     input = input || {};
     var prefix = "rows." + index + ".";
-    var product = state.products.find(function (item) { return item.id === input.productId; });
-    var categoryId = cleanText(input.categoryId || (product && product.categoryId));
-    var category = state.categories.find(function (item) { return item.id === categoryId; });
     var paCode = cleanText(input.paCode).toUpperCase();
     var mdbCode = cleanText(input.mdbCode);
     var par = optionalNonNegativeInteger(input.par, prefix + "par", fields);
+    if (paCode && !/^[A-Z0-9]{2}$/.test(paCode)) addFieldError(fields, prefix + "paCode", "PA Code must be exactly 2 letters or numbers.");
+    if (!/^\d{2}$/.test(mdbCode)) addFieldError(fields, prefix + "mdbCode", "MDB Code must be exactly 2 digits.");
+    if (par === null && !fields[prefix + "par"]) addFieldError(fields, prefix + "par", "PAR is required.");
+
+    var normalized = {
+      slot: cleanText(input.slot).toUpperCase(),
+      paCode: paCode,
+      mdbCode: mdbCode,
+      par: par
+    };
+    if (!includeProductInfo) return normalized;
+
+    var product = state.products.find(function (item) { return item.id === input.productId; });
+    var categoryId = cleanText(input.categoryId || (product && product.categoryId));
+    var category = state.categories.find(function (item) { return item.id === categoryId; });
     var priceCents = cents(input.priceCents, prefix + "priceCents", fields, true);
     if (cleanText(input.productId) && !product) addFieldError(fields, prefix + "productId", "Select a valid product.");
     if (!category) addFieldError(fields, prefix + "categoryId", "Select a valid Product Group.");
     if (product && category && product.categoryId !== category.id) addFieldError(fields, prefix + "productId", "The product does not belong to this Product Group.");
-    if (paCode && !/^[A-Z0-9]{2}$/.test(paCode)) addFieldError(fields, prefix + "paCode", "PA Code must be exactly 2 letters or numbers.");
-    if (!/^\d{2}$/.test(mdbCode)) addFieldError(fields, prefix + "mdbCode", "MDB Code must be exactly 2 digits.");
-    if (par === null && !fields[prefix + "par"]) addFieldError(fields, prefix + "par", "PAR is required.");
-    return {
-      slot: cleanText(input.slot).toUpperCase(),
+    return Object.assign(normalized, {
       categoryId: categoryId,
       productId: product ? product.id : "",
       productNameSnapshot: cleanText(input.productNameSnapshot || input.productName) || (product ? product.name : ""),
       categoryNameSnapshot: cleanText(input.categoryNameSnapshot || input.productCategory || input.productGroup) || (category ? category.name : ""),
       dexNameSnapshot: cleanText(input.dexNameSnapshot || input.dexName) || (product ? (product.dexName || product.name) : ""),
-      paCode: paCode,
-      mdbCode: mdbCode,
-      priceCents: priceCents,
-      par: par
-    };
+      priceCents: priceCents
+    });
   }
 
   function saveProductMapTemplate(input) {
@@ -847,6 +853,7 @@
     var fields = {};
     var name = cleanText(merged.name);
     var machineModel = cleanText(merged.machineModel).toUpperCase();
+    var includeProductInfo = merged.includeProductInfo !== false;
     var rows = Array.isArray(merged.rows) ? merged.rows : [];
     if (!name) addFieldError(fields, "name", "Template Name is required.");
     if (name.length > 100) addFieldError(fields, "name", "Template Name must be 100 characters or fewer.");
@@ -856,7 +863,7 @@
     if (state.productMapTemplates.some(function (item) {
       return item.id !== (current && current.id) && canonical(item.name) === canonical(name);
     })) addFieldError(fields, "name", "A Product Map Template with this name already exists.");
-    var normalizedRows = rows.map(function (row, index) { return normalizeTemplateRow(row, index, fields); });
+    var normalizedRows = rows.map(function (row, index) { return normalizeTemplateRow(row, index, fields, includeProductInfo); });
     var seenPa = {};
     var seenMdb = {};
     normalizedRows.forEach(function (row, index) {
@@ -872,6 +879,7 @@
       name: name,
       description: cleanText(merged.description),
       machineModel: machineModel,
+      includeProductInfo: includeProductInfo,
       sourceTerminalName: cleanText(merged.sourceTerminalName),
       sourceTerminalSn: cleanText(merged.sourceTerminalSn).toUpperCase(),
       rows: normalizedRows,
@@ -908,8 +916,12 @@
     var rows = template.rows.map(function (row, index) {
       var product = state.products.find(function (item) { return item.id === row.productId; });
       var category = state.categories.find(function (item) { return item.id === row.categoryId; });
-      if (!category || category.status !== "active") issues.push({ index: index, field: "categoryId", message: "Product Group is missing or inactive." });
-      if (row.productId && (!product || product.status !== "active")) issues.push({ index: index, field: "productId", message: "Product is missing or inactive." });
+      if (template.includeProductInfo === false) {
+        issues.push({ index: index, field: "productInfo", message: "Product information was not saved. Select a Product Group, Product, and Price." });
+      } else {
+        if (!category || category.status !== "active") issues.push({ index: index, field: "categoryId", message: "Product Group is missing or inactive." });
+        if (row.productId && (!product || product.status !== "active")) issues.push({ index: index, field: "productId", message: "Product is missing or inactive." });
+      }
       return Object.assign({}, row, {
         id: makeId("map"),
         terminalSn: targetSn,
