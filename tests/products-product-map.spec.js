@@ -580,6 +580,17 @@ test("saves a parameters-only Product Map template when product information is e
 
   const productInfoToggle = page.locator("#pmTemplateIncludeProductInfo");
   await expect(productInfoToggle).not.toBeChecked();
+  const switchAlignment = await page.locator(".pm-template-content-option").evaluate(row => {
+    const toggle = row.querySelector(".dex-switch");
+    const rowBox = row.getBoundingClientRect();
+    const toggleBox = toggle.getBoundingClientRect();
+    return {
+      centerOffset: (toggleBox.top + toggleBox.height / 2) - (rowBox.top + rowBox.height / 2),
+      marginBottom: getComputedStyle(toggle).marginBottom
+    };
+  });
+  expect(Math.abs(switchAlignment.centerOffset)).toBeLessThan(0.5);
+  expect(switchAlignment.marginBottom).toBe("0px");
   await expect(page.locator("#pmTemplateScopeNote")).toHaveCount(0);
   await expect(page.locator("#pmSaveTemplateModal")).not.toContainText("Save product name, Product Group, and price with each BIN.");
 
