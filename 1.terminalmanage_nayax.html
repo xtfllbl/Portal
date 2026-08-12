@@ -1472,16 +1472,6 @@
             opacity: .72;
         }
         .dex-history-refresh:disabled img { opacity: .45; }
-        .dex-request-status {
-            margin: 10px 0 0;
-            padding: 9px 12px;
-            border-radius: 9px;
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1d4ed8;
-            font-size: 12px;
-            font-weight: 650;
-        }
         .dex-view-panel {
             background: #fff;
             border: 1px solid var(--border);
@@ -2804,7 +2794,7 @@
                         </div>
                     </div>
 
-                    <div id="dexRequestStatus" class="dex-request-status" role="status" aria-live="polite" hidden></div>
+                    <div id="dexLiveRegion" class="sr-only" role="status" aria-live="polite"></div>
 
                     <div class="dex-automation-strip" aria-label="DEX automation summary">
                         <div class="dex-automation-item"><div class="dex-automation-label">Automatic Read</div><div id="dexAutomationSchedule" class="dex-automation-value">Off</div></div>
@@ -2983,7 +2973,7 @@
                         <div id="pmPickListTimeField" class="feature-field">
                             <label for="pmPickListTime">Restock completion time</label>
                             <input id="pmPickListTime" type="datetime-local" aria-describedby="pmPickListTimeHelp pmPickListTimeError">
-                            <div id="pmPickListTimeHelp" class="pm-pick-list-helper">The latest saved Product Map will be filled automatically at this time.</div>
+                            <div id="pmPickListTimeHelp" class="pm-pick-list-helper">Product Map will be filled to PAR automatically at this time.</div>
                             <div id="pmPickListTimeError" class="field-error" role="alert"></div>
                         </div>
                     </div>
@@ -5386,7 +5376,7 @@ paymentTimeout=180`
             pickListElements.cancelSchedule.hidden = !schedule;
             pickListElements.help.textContent = schedule && schedule.status === 'failed'
                 ? 'The previous automatic fill failed. Choose a new future time or cancel it.'
-                : 'The latest saved Product Map will be filled automatically at this time.';
+                : 'Product Map will be filled to PAR automatically at this time.';
             openFeatureModal(pickListElements.modal, '#pmPickListScheduleEnabled');
         }
         function runPickListScheduleCheck(){
@@ -5933,7 +5923,7 @@ paymentTimeout=180`
 
         const dexElements = {
             root: byId('tab-dex'),
-            requestStatus: byId('dexRequestStatus'),
+            requestStatus: byId('dexLiveRegion'),
             settingsButton: byId('dexSettingsMenuButton'),
             refresh: byId('dexRefreshButton'),
             read: byId('dexReadButton'),
@@ -7029,8 +7019,7 @@ paymentTimeout=180`
             if(activeDexView === 'raw') renderDexRaw(selectedDexSnapshot());
         }
         function setDexRequestMessage(message, active){
-            dexElements.requestStatus.textContent = message;
-            dexElements.requestStatus.hidden = !active;
+            dexElements.requestStatus.textContent = active ? message : '';
         }
         function setDexBusy(busy){
             dexElements.root.setAttribute('aria-busy', String(Boolean(busy)));
