@@ -1,3 +1,83 @@
+# Elavon Upload Requirements Follow-up Design QA
+
+## Evidence
+
+- Source visual truth: the three user-provided close-up screenshots in the current request, supported by `tmp/pdfs/elavon-jotform/high-2.png` at 2040 x 2640 px.
+- Implementation: `27.INTL_PSP_merchant_lead_elavon_simplified.html`.
+- Desktop browser screenshot: `/tmp/elavon-onboarding-qa/implementation-upload-requirements-final.png` at 1710 x 952 px from a 1710 x 952 CSS-pixel viewport, device scale factor 1.
+- Mobile screenshot: `/tmp/elavon-onboarding-qa/implementation-mobile.png` at 390 x 5303 px from a 390 x 844 CSS-pixel viewport, device scale factor 1.
+- Focused combined comparison: `/tmp/elavon-onboarding-qa/comparison-upload-requirements-final.png` at 2174 x 952 px. The source PDF's signatory/banking region is cropped and normalized to 952 px high beside the browser-rendered implementation.
+- State: blank form at the Signatory and Banking Information sections; all three upload controls show their default empty state.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: each upload title is now outside its upload card, the red required marker remains attached to the correct title, and every instruction line follows the source wording and requested breaks.
+- Spacing and layout rhythm: the two Signatory uploads are separate vertical blocks in source order, each with its own title, upload surface, and instructions. Bank Transfer Receipt uses the same independent structure. Desktop cards are full width and mobile cards remain within the 390 px viewport.
+- Colors and visual tokens: existing Paywizard neutral borders, dashed upload surfaces, magenta interaction states, and semantic required red remain unchanged.
+- Image quality and assets: all three controls reuse the repository upload icon; it stays centered and sharp at desktop and mobile sizes.
+- Copy and content: passport requirements are no longer combined with second-KYC requirements. Passport, second KYC, and bank receipt each display their own exact explanatory copy, including the requested explicit line breaks.
+- Interaction and accessibility: titles are associated with their file inputs, the whole upload surface remains clickable, multiple-file support remains on the two KYC controls, required validation is unchanged, and selected-file feedback still replaces only the upload prompt.
+
+## Comparison History
+
+1. The previous implementation placed both Signatory upload cards in one two-column group and combined their instructions into one shared sentence. The update split them into independent vertical upload fields and restored the source wording and line breaks.
+2. The first browser comparison found a P2 alignment issue limited to Bank Transfer Receipt: the existing `.field label` rule overrode the upload card's flex layout, pushing its icon and text out of alignment. A scoped `.field label.upload-card` rule restored the centered vertical layout.
+3. The post-fix comparison confirms all three cards use centered column layout, instruction ownership is visually unambiguous, desktop horizontal overflow is 0 px, and the 390 px mobile view has no clipping.
+
+## Verification
+
+- Elavon Playwright suite: 7 tests passed.
+- The new focused test verifies each upload requirement belongs to the correct control and preserves the specified line boundaries.
+- Desktop browser console errors/warnings: none.
+- File-name feedback, required validation, draft exclusion, and complete-form submission continue to pass.
+
+final result: passed
+
+---
+
+# Elavon Onboarding Form Design QA
+
+## Evidence
+
+- Source visual truth: `/Users/beaver/Documents/elavon jotform.pdf` (3-page screenshot PDF).
+- Source renders: `tmp/pdfs/elavon-jotform/high-1.png` through `high-3.png`.
+- Implementation: `27.INTL_PSP_merchant_lead_elavon_simplified.html`.
+- Desktop browser screenshots: `/tmp/elavon-onboarding-qa/implementation-top.png`, `/tmp/elavon-onboarding-qa/implementation-owners.png`, `/tmp/elavon-onboarding-qa/implementation-signatory-banking.png`, and `/tmp/elavon-onboarding-qa/implementation-operation.png` at 1710 x 952 CSS px, device scale factor 1.
+- Full desktop screenshots: `/tmp/elavon-onboarding-qa/implementation-desktop-full-blank.png` and `/tmp/elavon-onboarding-qa/implementation-desktop-full.png`; the latter shows two generated additional-owner rows.
+- Mobile screenshot: `/tmp/elavon-onboarding-qa/implementation-mobile.png` at 390 x 5148 px from a 390 x 844 CSS-pixel viewport.
+- Combined comparisons: `/tmp/elavon-onboarding-qa/comparison-full.png`, `/tmp/elavon-onboarding-qa/comparison-business-owners.png`, and `/tmp/elavon-onboarding-qa/comparison-signatory-operation.png`.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: the existing Paywizard hierarchy is retained, while Elavon section titles, labels, optional markers, helper text, and required markers remain readable on desktop and mobile.
+- Spacing and layout rhythm: the source fields are organized into six compact Paywizard sections, using a two-column desktop grid and a one-column mobile flow. There is no horizontal overflow at 1440 px or 390 px.
+- Colors and visual tokens: neutral cards and inputs, magenta actions/focus treatment, red required markers, and green upload/success feedback remain consistent with the reference Nuvei page.
+- Image quality and assets: the repository's vector Elavon logo and existing Paywizard icons render sharply; no source asset was approximated with text or CSS.
+- Copy and content: all form elements visible in the three-page Elavon source are represented, including business information, configurable beneficial owners, signatory KYC uploads, banking evidence, vending operation fields, and contact-person information. Nuvei-only address, banking-province, and supporting-document fields are absent.
+- Interaction and accessibility: native labels and fieldsets are preserved, required groups validate, connectivity requires at least one option, additional-owner count generates the corresponding required rows, upload cards show selected filenames, invalid fields are revealed and focused, and draft restoration excludes files.
+
+## Primary Interactions Tested
+
+- Additional-owner count creates and removes the exact number of required beneficial-owner rows.
+- Ownership and DBA-title dropdowns preserve the confirmed Nuvei enum values used by Elavon.
+- Connectivity rejects an empty group and accepts WiFi, Cellular, or Ethernet.
+- A complete form submits with only DBA Contact Title, SN Number, and Arrival Time left blank.
+- All three required upload controls participate in validation and expose selected-file feedback.
+- Save Draft restores standard controls, connectivity, owner count, and dynamic rows while intentionally excluding file inputs.
+- Desktop and 390 px mobile layouts have zero horizontal overflow; browser console errors and warnings: none.
+
+## Comparison History
+
+1. Source pages were rendered at high resolution and compared section-by-section against the live browser output.
+2. The first complete implementation comparison found no high-severity structural or visual mismatch; focused owner, signatory/banking, and operation captures confirmed field grouping and copy.
+3. The final mobile pass confirmed responsive stacking, readable uploads and helper text, correct dynamic-owner expansion, and no clipped controls.
+
+final result: passed
+
+---
+
 # Nuvei Configurable List Nesting Design QA
 
 ## Evidence
