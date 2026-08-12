@@ -321,6 +321,13 @@
 
     .field.full { grid-column: 1 / -1; }
 
+    .group-field {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
     .field > label,
     .field-label {
       display: block;
@@ -332,6 +339,13 @@
 
     .required { margin-left: 2px; color: var(--danger); }
     .optional { margin-left: 5px; color: #89909b; font-weight: 400; }
+
+    .field-help {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 9px;
+    }
 
     input,
     select,
@@ -371,6 +385,38 @@
     textarea { min-height: 78px; resize: vertical; }
 
     .split-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .phone-inputs { grid-template-columns: minmax(74px, 0.34fr) minmax(0, 1fr); }
+
+    .owner-count-field {
+      max-width: 320px;
+      margin-top: 12px;
+    }
+
+    .configurable-list {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .configurable-list-title {
+      margin: 0;
+      color: #414650;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .configurable-list-help {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    .additional-owners-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+    }
 
     .radio-row,
     .check-row {
@@ -467,6 +513,9 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
+
+    .upload-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .upload-grid.single { grid-template-columns: minmax(0, 1fr); }
 
     .upload-card {
       position: relative;
@@ -614,7 +663,8 @@
       .nav-parent img { width: 18px; height: 18px; }
       .content { padding-inline: 14px; }
       .page-heading { align-items: flex-start; }
-      .upload-grid { grid-template-columns: 1fr; }
+      .upload-grid,
+      .upload-grid.two { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -632,6 +682,7 @@
       .section-body { padding: 14px; }
       .section-note { display: none; }
       .split-inputs { grid-template-columns: 1fr; }
+      .phone-inputs { grid-template-columns: minmax(72px, 0.34fr) minmax(0, 1fr); }
       .form-actions { flex-direction: column-reverse; align-items: stretch; }
       .form-actions button { width: 100%; }
     }
@@ -713,7 +764,7 @@
                     </select>
                   </div>
                   <div class="field">
-                    <label for="legal-name">Name of Business / Legal Name<span class="required">*</span></label>
+                    <label for="legal-name">Name of Ownership Entity (Legal Name)<span class="required">*</span></label>
                     <input id="legal-name" name="legalName" type="text" autocomplete="organization" required />
                   </div>
                   <div class="field">
@@ -733,7 +784,7 @@
                     <input id="legal-postal" name="legalPostal" type="text" autocomplete="postal-code" required />
                   </div>
                   <div class="field">
-                    <label for="legal-phone">Telephone / Landline<span class="required">*</span></label>
+                    <label for="legal-phone">Telephone # (Landline)<span class="required">*</span></label>
                     <input id="legal-phone" name="legalPhone" type="tel" autocomplete="tel" required />
                   </div>
                   <div class="field">
@@ -752,7 +803,7 @@
               <div class="section-body">
                 <div class="field-grid">
                   <div class="field full">
-                    <label for="dba-name">DBA Name<span class="required">*</span></label>
+                    <label for="dba-name">Business Name<span class="required">*</span></label>
                     <input id="dba-name" name="dbaName" type="text" required />
                   </div>
                   <div class="field">
@@ -776,105 +827,73 @@
                     <input id="dba-phone" name="dbaPhone" type="tel" required />
                   </div>
                   <div class="field">
-                    <label for="time-zone">Time Zone<span class="required">*</span></label>
-                    <select id="time-zone" name="timeZone" required>
+                    <label for="time-zone">Time Zone<span class="optional">optional</span></label>
+                    <select id="time-zone" name="timeZone">
                       <option value="">Please Select</option>
                       <option>Atlantic Time Zone</option><option>Canada Central Time Zone (Saskatchewan)</option><option>Central Time Zone</option><option>Eastern Time Zone</option><option>Mountain Time Zone</option><option>Newfoundland Time Zone</option><option>Pacific Time Zone</option>
                     </select>
                   </div>
-                  <div class="field full">
-                    <span class="field-label">How long in present business?<span class="required">*</span></span>
-                    <div class="split-inputs">
-                      <input name="businessYears" type="number" min="0" max="150" placeholder="Years" aria-label="Years in business" required />
-                      <input name="businessMonths" type="number" min="0" max="11" placeholder="Months" aria-label="Additional months in business" required />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section class="form-section" id="profile" data-section="profile">
-              <header class="section-header">
-                <div class="section-title"><span class="section-number">3</span><h2>Business / Processing Profile</h2></div>
-                <span class="section-note">Underwriting and transaction profile</span>
-              </header>
-              <div class="section-body">
-                <div class="field-grid">
-                  <div class="field full">
-                    <label for="products">Product or Service Being Offered<span class="required">*</span></label>
-                    <textarea id="products" name="products" required></textarea>
+                  <div class="field">
+                    <label for="business-duration">How long in present business? Years, Months<span class="required">*</span></label>
+                    <input id="business-duration" name="businessDuration" type="text" placeholder="e.g. 0 Years, 5 months" required />
                   </div>
                   <div class="field">
-                    <label for="monthly-volume">Average Monthly Card Sales<span class="required">*</span></label>
-                    <input id="monthly-volume" name="monthlyVolume" type="number" min="0" step="0.01" placeholder="$ 0.00" required />
+                    <label for="authorized-contact">Authorized Contact<span class="required">*</span></label>
+                    <input id="authorized-contact" name="authorizedContact" type="text" autocomplete="name" required />
+                    <span class="field-help">Fill in the merchant's contact name.</span>
                   </div>
                   <div class="field">
-                    <label for="average-ticket">Average Customer Transaction<span class="required">*</span></label>
-                    <input id="average-ticket" name="averageTicket" type="number" min="0" step="0.01" placeholder="$ 0.00" required />
+                    <label for="statement-email">Email (Statement)<span class="required">*</span></label>
+                    <input id="statement-email" name="statementEmail" type="email" autocomplete="email" required />
                   </div>
                   <div class="field">
-                    <label for="highest-ticket">Highest Customer Single Transaction<span class="required">*</span></label>
-                    <input id="highest-ticket" name="highestTicket" type="number" min="0" step="0.01" placeholder="$ 0.00" required />
+                    <label for="customer-service-phone">Merchant Customer Service Telephone #<span class="required">*</span></label>
+                    <input id="customer-service-phone" name="merchantCustomerServicePhone" type="tel" autocomplete="tel" required />
                   </div>
-                  <div class="field">
-                    <span class="field-label">Sales by Channel<span class="required">*</span></span>
-                    <div class="split-inputs">
-                      <input name="cardPresentPercent" type="number" min="0" max="100" placeholder="Card present %" aria-label="Card present percentage" required />
-                      <input name="onlinePercent" type="number" min="0" max="100" placeholder="Online / keyed %" aria-label="Online or keyed percentage" required />
-                    </div>
-                  </div>
-                  <div class="field full">
-                    <span class="field-label">Has the business ever been subject to a Visa / Mastercard Risk Program?<span class="required">*</span></span>
+                  <fieldset class="field full group-field">
+                    <legend class="field-label">Have you ever been subject to a Visa/Mastercard Risk Program?<span class="required">*</span></legend>
                     <div class="radio-row">
-                      <label><input type="radio" name="riskProgram" value="yes" required data-toggle="risk-details" /> Yes</label>
-                      <label><input type="radio" name="riskProgram" value="no" data-toggle="risk-details" /> No</label>
+                      <label><input type="radio" name="riskProgram" value="yes" required /> Yes</label>
+                      <label><input type="radio" name="riskProgram" value="no" /> No</label>
                     </div>
-                  </div>
-                  <div class="field full conditional" id="risk-details" hidden>
-                    <label for="risk-program-name">If yes, which program?</label>
-                    <input id="risk-program-name" name="riskProgramName" type="text" />
-                  </div>
+                  </fieldset>
                   <div class="field">
-                    <span class="field-label">Previous Processor?<span class="required">*</span></span>
+                    <label for="federal-registry-number">Federal Registry Number<span class="required">*</span></label>
+                    <input id="federal-registry-number" name="federalRegistryNumber" type="text" required />
+                  </div>
+                  <fieldset class="field full group-field">
+                    <legend class="field-label">Mailing Address<span class="required">*</span></legend>
                     <div class="radio-row">
-                      <label><input type="radio" name="previousProcessor" value="yes" required data-toggle="processor-details" /> Yes</label>
-                      <label><input type="radio" name="previousProcessor" value="no" data-toggle="processor-details" /> No</label>
+                      <label><input type="radio" name="mailingAddress" value="corporate" required /> Corporate Address</label>
+                      <label><input type="radio" name="mailingAddress" value="location" /> Location Address</label>
                     </div>
-                  </div>
-                  <div class="field conditional" id="processor-details" hidden>
-                    <label for="processor-name">Name of Previous Processor</label>
-                    <input id="processor-name" name="processorName" type="text" />
-                  </div>
-                  <div class="field full">
-                    <label for="mailing-address">Mailing Address<span class="required">*</span></label>
-                    <select id="mailing-address" name="mailingAddress" required data-select-toggle="mailing-other">
-                      <option value="">Please select</option><option value="legal">Same as Legal Business</option><option value="dba">Same as DBA</option><option value="other">Other address</option>
-                    </select>
-                  </div>
-                  <div class="field full conditional" id="mailing-other" hidden>
-                    <label for="mailing-other-input">Other Mailing Address</label>
-                    <textarea id="mailing-other-input" name="mailingOther"></textarea>
-                  </div>
+                  </fieldset>
                 </div>
               </div>
             </section>
 
             <section class="form-section" id="owners" data-section="owners">
               <header class="section-header">
-                <div class="section-title"><span class="section-number">4</span><h2>Owners or Officers</h2></div>
-                <span class="section-note">Add each beneficial owner</span>
+                <div class="section-title"><span class="section-number">3</span><h2>Owners or Officers</h2></div>
+                <span class="section-note">Owner and guarantor details</span>
               </header>
               <div class="section-body">
                 <div id="owners-list"></div>
-                <div class="add-owner-row">
-                  <button class="secondary-button" id="add-owner" type="button"><img src="assets/icons/add-box.svg" alt="" />Add Additional Beneficial Owner</button>
+                <div class="configurable-list" role="group" aria-labelledby="configurable-list-title">
+                  <h3 class="configurable-list-title" id="configurable-list-title">Configurable list<span class="required">*</span></h3>
+                  <p class="configurable-list-help" id="configurable-list-help">Enter the number of additional owners or guarantors. The same number of required information rows will appear below.</p>
+                  <div class="field owner-count-field add-owner-row">
+                    <label for="additional-owner-count">Additional Owner/s or Guarantor<span class="required">*</span></label>
+                    <input id="additional-owner-count" name="additionalOwnerCount" type="number" min="0" step="1" value="0" placeholder="e.g. 1" required />
+                  </div>
+                  <div class="additional-owners-list" id="additional-owners-list" aria-live="polite" aria-describedby="configurable-list-help"></div>
                 </div>
               </div>
             </section>
 
             <section class="form-section" id="banking" data-section="banking">
               <header class="section-header">
-                <div class="section-title"><span class="section-number">5</span><h2>Electronic Debit / Credit Authorization (Banking Information)</h2></div>
+                <div class="section-title"><span class="section-number">4</span><h2>Electronic Debit / Credit Authorization (Banking Information)</h2></div>
                 <span class="section-note">Settlement account</span>
               </header>
               <div class="section-body">
@@ -901,9 +920,7 @@
                   </div>
                   <div class="field">
                     <label for="bank-province">Bank Province<span class="required">*</span></label>
-                    <select id="bank-province" name="bankProvince" required>
-                      <option value="">Please select</option><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Nova Scotia</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option>
-                    </select>
+                    <input id="bank-province" name="bankProvince" type="text" autocomplete="address-level1" required />
                   </div>
                   <div class="field">
                     <label for="bank-postal">Bank Postal Code<span class="required">*</span></label>
@@ -913,13 +930,82 @@
               </div>
             </section>
 
+            <section class="form-section" id="terminal" data-section="terminal">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">5</span><h2>Terminal &amp; Vending Machine Information</h2></div>
+                <span class="section-note">Onboarding and machine operations</span>
+              </header>
+              <div class="section-body">
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="terminals-to-onboard">Number of Terminals to be Onboarded<span class="required">*</span></label>
+                    <input id="terminals-to-onboard" name="terminalsToOnboard" type="number" min="1" step="1" value="1" required />
+                  </div>
+                  <div class="field">
+                    <label for="sn-number">SN Number<span class="optional">optional</span></label>
+                    <input id="sn-number" name="snNumber" type="text" placeholder="WizarPOS 16-digit Serial#" aria-describedby="sn-number-help" />
+                    <span class="field-help" id="sn-number-help">Enter the WizarPOS 16-digit Serial#. If it is not yet available, you may skip this section for now. Once confirmed, notify WizarPOS or your device manufacturer.</span>
+                  </div>
+                  <div class="field">
+                    <label for="dispatch-date">Vending Machine Dispatch Time<span class="required">*</span></label>
+                    <input id="dispatch-date" name="dispatchDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="arrival-date">Vending Machine Arrival Time<span class="optional">optional</span></label>
+                    <input id="arrival-date" name="arrivalDate" type="date" />
+                  </div>
+                  <fieldset class="field full group-field" id="connectivity-group">
+                    <legend class="field-label">Will your vending machines operate via Wi-Fi or cellular connectivity?<span class="required">*</span></legend>
+                    <div class="check-row">
+                      <label><input type="checkbox" name="connectivity[]" value="WiFi" /> WiFi</label>
+                      <label><input type="checkbox" name="connectivity[]" value="Cellular" /> Cellular</label>
+                      <label><input type="checkbox" name="connectivity[]" value="Ethernet" /> Ethernet</label>
+                    </div>
+                  </fieldset>
+                  <div class="field">
+                    <label for="average-transaction-amount">What is the average transaction amount per purchase?<span class="required">*</span></label>
+                    <input id="average-transaction-amount" name="averageTransactionAmount" type="text" placeholder="e.g. CAD $5-$20" required />
+                  </div>
+                  <div class="field full">
+                    <label for="vending-products">What products will your vending machines sell?<span class="required">*</span></label>
+                    <textarea id="vending-products" name="vendingProducts" required></textarea>
+                  </div>
+                  <div class="field full">
+                    <div class="upload-grid single">
+                      <label class="upload-card">
+                        <img src="assets/icons/file-download.svg" alt="" />
+                        <strong>On-site Photo (preferred for onboarding) of the Vending Machine<span class="required">*</span></strong>
+                        <span data-file-name>Choose or drop a machine photo</span>
+                        <input name="vendingMachinePhoto" type="file" accept=".jpg,.jpeg,.png,.heic" required />
+                      </label>
+                    </div>
+                    <span class="field-help">If an on-site photo is not available, please share a real time image of the vending machine.</span>
+                  </div>
+                  <fieldset class="field full group-field">
+                    <legend class="field-label">Have you previously worked with any other payment processors for your vending machines?<span class="required">*</span></legend>
+                    <div class="radio-row">
+                      <label><input type="radio" name="previousProcessor" value="yes" required /> Yes</label>
+                      <label><input type="radio" name="previousProcessor" value="no" /> No</label>
+                    </div>
+                  </fieldset>
+                  <fieldset class="field full group-field">
+                    <legend class="field-label">Please select your business structure<span class="required">*</span></legend>
+                    <div class="radio-row">
+                      <label><input type="radio" name="businessStructure" value="Corporation / Limited Company / Partnership" required /> Corporation / Limited Company / Partnership</label>
+                      <label><input type="radio" name="businessStructure" value="Sole Proprietorship" /> Sole Proprietorship</label>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+            </section>
+
             <section class="form-section" id="documents" data-section="documents">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">6</span><h2>Supporting Documents</h2></div>
-                <span class="section-note">PDF, JPG or PNG</span>
+                <span class="section-note">Required verification</span>
               </header>
               <div class="section-body">
-                <div class="upload-grid">
+                <div class="upload-grid two">
                   <label class="upload-card">
                     <img src="assets/icons/file-download.svg" alt="" />
                     <strong>Void Check<span class="required">*</span></strong>
@@ -932,29 +1018,10 @@
                     <span data-file-name>Choose or drop an identity document</span>
                     <input name="driversLicense" type="file" accept=".pdf,.jpg,.jpeg,.png" required />
                   </label>
-                  <label class="upload-card">
-                    <img src="assets/icons/file-download.svg" alt="" />
-                    <strong>Proof of Business</strong>
-                    <span data-file-name>Supporting registration document</span>
-                    <input name="proofOfBusiness" type="file" accept=".pdf,.jpg,.jpeg,.png" />
-                  </label>
                 </div>
-              </div>
-            </section>
-
-            <section class="form-section" id="declaration" data-section="declaration">
-              <header class="section-header">
-                <div class="section-title"><span class="section-number">7</span><h2>Merchant Declaration / Additional Information</h2></div>
-                <span class="section-note">Review and submit</span>
-              </header>
-              <div class="section-body">
-                <div class="field">
-                  <label for="additional-information">Additional Information<span class="optional">optional</span></label>
-                  <textarea id="additional-information" name="additionalInformation" placeholder="Add any information that may help the underwriting review."></textarea>
-                </div>
-                <div class="declaration-list">
-                  <label class="declaration"><input name="certifyAccuracy" type="checkbox" required /><span>I certify that the information provided in this application is complete and accurate to the best of my knowledge.</span></label>
-                  <label class="declaration"><input name="authorizeReview" type="checkbox" required /><span>I authorize Paywizard, Nuvei, and their underwriting partners to review the submitted business, owner, banking, and supporting document information for merchant onboarding.</span></label>
+                <div class="field add-owner-row">
+                  <label for="online-business-validation">Online business validation (Website or social media link confirming your business activity)<span class="required">*</span></label>
+                  <textarea id="online-business-validation" name="onlineBusinessValidation" required></textarea>
                 </div>
                 <div class="form-actions">
                   <button class="secondary-button" id="save-draft" type="button"><img src="assets/icons/bookmark-add.svg" alt="" />Save Draft</button>
@@ -970,11 +1037,10 @@
           <ol>
             <li><a href="#legal" class="active"><span>1.</span><span>Legal Business Information</span></a></li>
             <li><a href="#dba"><span>2.</span><span>DBA Information</span></a></li>
-            <li><a href="#profile"><span>3.</span><span>Business / Processing Profile</span></a></li>
-            <li><a href="#owners"><span>4.</span><span>Owners or Officers</span></a></li>
-            <li><a href="#banking"><span>5.</span><span>Banking Information</span></a></li>
+            <li><a href="#owners"><span>3.</span><span>Owners or Officers</span></a></li>
+            <li><a href="#banking"><span>4.</span><span>Banking Information</span></a></li>
+            <li><a href="#terminal"><span>5.</span><span>Terminal &amp; Vending Machine Information</span></a></li>
             <li><a href="#documents"><span>6.</span><span>Supporting Documents</span></a></li>
-            <li><a href="#declaration"><span>7.</span><span>Merchant Declaration</span></a></li>
           </ol>
         </nav>
       </div>
@@ -991,62 +1057,71 @@
     (function () {
       var form = document.getElementById('nuvei-form');
       var ownersList = document.getElementById('owners-list');
-      var addOwnerButton = document.getElementById('add-owner');
+      var additionalOwnerCount = document.getElementById('additional-owner-count');
+      var additionalOwnersList = document.getElementById('additional-owners-list');
+      var connectivityInputs = Array.prototype.slice.call(form.querySelectorAll('input[name="connectivity[]"]'));
       var saveDraftButton = document.getElementById('save-draft');
       var successBanner = document.getElementById('success-banner');
       var successTitle = document.getElementById('success-title');
       var successMessage = document.getElementById('success-message');
-      var ownerCount = 0;
+      var provinceOptions = '<option value="">Please select</option><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Nova Scotia</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option>';
+      var titleOptions = '<option value="">Please Select</option><option>Owner</option><option>Co owner</option><option>President</option><option>Legal contact</option><option>Secretary/Treasurer</option><option>Partner</option><option>General Manager</option><option>Administrator</option><option>Vice President</option><option>Director</option><option>CEO</option><option>Corporate Office Title</option><option>Principal</option>';
 
-      function ownerTemplate(index) {
-        var number = index + 1;
-        return '<article class="owner-card" data-owner-index="' + index + '">' +
-          '<div class="owner-heading"><h3>Owner #' + number + '</h3>' +
-          (index ? '<button class="text-button remove-owner" type="button"><img src="assets/icons/delete.svg" alt="" />Remove Owner</button>' : '') + '</div>' +
+      function primaryOwnerTemplate() {
+        return '<article class="owner-card" data-owner-index="0">' +
+          '<div class="owner-heading"><h3>Primary Owner or Officer</h3></div>' +
           '<div class="field-grid">' +
-            '<div class="field"><label for="owner-title-' + index + '">DBA Contact Title<span class="required">*</span></label><select id="owner-title-' + index + '" name="owners[' + index + '][title]" required><option value="">Please Select</option><option>Owner</option><option>Co owner</option><option>President</option><option>Legal contact</option><option>Secretary/Treasurer</option><option>Partner</option><option>General Manager</option><option>Administrator</option><option>Vice President</option><option>Director</option><option>CEO</option><option>Corporate Office Title</option><option>Principal</option></select></div>' +
-            '<div class="field"><span class="field-label">Will this owner sign the Personal Guaranty?<span class="required">*</span></span><div class="radio-row"><label><input type="radio" name="owners[' + index + '][guaranty]" value="yes" required /> Yes</label><label><input type="radio" name="owners[' + index + '][guaranty]" value="no" /> No</label></div></div>' +
-            '<div class="field"><label for="owner-first-' + index + '">First Name<span class="required">*</span></label><input id="owner-first-' + index + '" name="owners[' + index + '][firstName]" type="text" autocomplete="given-name" required /></div>' +
-            '<div class="field"><label for="owner-last-' + index + '">Last Name<span class="required">*</span></label><input id="owner-last-' + index + '" name="owners[' + index + '][lastName]" type="text" autocomplete="family-name" required /></div>' +
-            '<div class="field"><label for="owner-email-' + index + '">Email Address<span class="required">*</span></label><input id="owner-email-' + index + '" name="owners[' + index + '][email]" type="email" autocomplete="email" required /></div>' +
-            '<div class="field"><label for="owner-percent-' + index + '">Percent Ownership<span class="required">*</span></label><input id="owner-percent-' + index + '" name="owners[' + index + '][percentOwnership]" type="number" min="0" max="100" required /></div>' +
-            '<div class="field"><label for="owner-dob-' + index + '">Date of Birth<span class="required">*</span></label><input id="owner-dob-' + index + '" name="owners[' + index + '][dob]" type="date" required /></div>' +
-            '<div class="field"><label for="owner-civic-' + index + '">Civic / Road Number<span class="required">*</span></label><input id="owner-civic-' + index + '" name="owners[' + index + '][civic]" type="text" required /></div>' +
-            '<div class="field"><label for="owner-street-' + index + '">Street Name<span class="required">*</span></label><input id="owner-street-' + index + '" name="owners[' + index + '][street]" type="text" required /></div>' +
-            '<div class="field"><label for="owner-city-' + index + '">City<span class="required">*</span></label><input id="owner-city-' + index + '" name="owners[' + index + '][city]" type="text" required /></div>' +
-            '<div class="field"><label for="owner-province-' + index + '">Province<span class="required">*</span></label><select id="owner-province-' + index + '" name="owners[' + index + '][province]" required><option value="">Please select</option><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Nova Scotia</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option></select></div>' +
-            '<div class="field"><label for="owner-postal-' + index + '">Postal Code<span class="required">*</span></label><input id="owner-postal-' + index + '" name="owners[' + index + '][postal]" type="text" required /></div>' +
-            '<div class="field"><label for="owner-residence-' + index + '">Residence Telephone</label><input id="owner-residence-' + index + '" name="owners[' + index + '][residencePhone]" type="tel" /></div>' +
-            '<div class="field"><label for="owner-cell-' + index + '">Cell Phone Number<span class="required">*</span></label><input id="owner-cell-' + index + '" name="owners[' + index + '][cellPhone]" type="tel" required /></div>' +
-            '<div class="field"><label for="owner-id-type-' + index + '">Government ID Type<span class="required">*</span></label><select id="owner-id-type-' + index + '" name="owners[' + index + '][idType]" required><option value="">Please select</option><option>Driver\'s License</option><option>Passport</option><option>Provincial ID Card</option></select></div>' +
-            '<div class="field"><label for="owner-id-number-' + index + '">Government ID Number<span class="required">*</span></label><input id="owner-id-number-' + index + '" name="owners[' + index + '][idNumber]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-title-0">DBA Contact Title<span class="optional">optional</span></label><select id="owner-title-0" name="owners[0][title]">' + titleOptions + '</select></div>' +
+            '<fieldset class="field group-field"><legend class="field-label">Will the owner be signing the Personal Guaranty?<span class="required">*</span></legend><div class="radio-row"><label><input type="radio" name="owners[0][guaranty]" value="yes" required /> Yes</label><label><input type="radio" name="owners[0][guaranty]" value="no" /> No</label></div></fieldset>' +
+            '<div class="field"><label for="owner-first-0">First Name<span class="required">*</span></label><input id="owner-first-0" name="owners[0][firstName]" type="text" autocomplete="given-name" required /></div>' +
+            '<div class="field"><label for="owner-last-0">Last Name<span class="required">*</span></label><input id="owner-last-0" name="owners[0][lastName]" type="text" autocomplete="family-name" required /></div>' +
+            '<div class="field"><label for="owner-email-0">Email Address<span class="required">*</span></label><input id="owner-email-0" name="owners[0][email]" type="email" autocomplete="email" required /></div>' +
+            '<div class="field"><label for="owner-percent-0">Percent Ownership<span class="required">*</span></label><input id="owner-percent-0" name="owners[0][percentOwnership]" type="number" min="0" max="100" required /></div>' +
+            '<div class="field"><label for="owner-dob-0">Date of Birth MM/DD/YYYY<span class="required">*</span></label><input id="owner-dob-0" name="owners[0][dob]" type="date" required /></div>' +
+            '<div class="field"><label for="owner-civic-0">Civic / Road Number<span class="required">*</span></label><input id="owner-civic-0" name="owners[0][civic]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-street-0">Street Name<span class="required">*</span></label><input id="owner-street-0" name="owners[0][street]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-city-0">City<span class="required">*</span></label><input id="owner-city-0" name="owners[0][city]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-province-0">Province<span class="required">*</span></label><select id="owner-province-0" name="owners[0][province]" required>' + provinceOptions + '</select></div>' +
+            '<div class="field"><label for="owner-postal-0">Postal Code<span class="required">*</span></label><input id="owner-postal-0" name="owners[0][postal]" type="text" required /></div>' +
+            '<div class="field"><span class="field-label">Residence Tel. No.<span class="required">*</span></span><div class="split-inputs phone-inputs"><input name="owners[0][residenceCountryCode]" type="tel" inputmode="tel" placeholder="+XX" aria-label="Residence telephone country code" required /><input name="owners[0][residencePhone]" type="tel" inputmode="tel" placeholder="XXXXXX" aria-label="Residence telephone number" required /></div></div>' +
+            '<div class="field"><span class="field-label">Cell Phone No.<span class="required">*</span></span><div class="split-inputs phone-inputs"><input name="owners[0][cellCountryCode]" type="tel" inputmode="tel" placeholder="+XX" aria-label="Cell phone country code" required /><input name="owners[0][cellPhone]" type="tel" inputmode="tel" placeholder="XXXXXX" aria-label="Cell phone number" required /></div></div>' +
           '</div></article>';
       }
 
-      function addOwner() {
-        if (ownerCount >= 4) return;
-        ownersList.insertAdjacentHTML('beforeend', ownerTemplate(ownerCount));
-        ownerCount += 1;
-        addOwnerButton.hidden = ownerCount >= 4;
+      function additionalOwnerTemplate(index) {
+        var position = index + 1;
+        var prefix = 'additionalOwners[' + index + ']';
+        return '<article class="owner-card" data-additional-owner-index="' + index + '">' +
+          '<div class="owner-heading"><h3>Additional Owner or Guarantor #' + position + '</h3></div>' +
+          '<div class="field-grid">' +
+            '<fieldset class="field group-field"><legend class="field-label">Will the owner be signing the Personal Guaranty?<span class="required">*</span></legend><div class="radio-row"><label><input type="radio" name="' + prefix + '[guaranty]" value="yes" required /> Yes</label><label><input type="radio" name="' + prefix + '[guaranty]" value="no" /> No</label></div></fieldset>' +
+            '<div class="field"><label for="additional-full-name-' + index + '">Full Name<span class="required">*</span></label><input id="additional-full-name-' + index + '" name="' + prefix + '[fullName]" type="text" required /></div>' +
+            '<div class="field"><label for="additional-email-' + index + '">Email Address<span class="required">*</span></label><input id="additional-email-' + index + '" name="' + prefix + '[email]" type="email" required /></div>' +
+            '<div class="field"><label for="additional-percent-' + index + '">Ownership Percentage (%)<span class="required">*</span></label><input id="additional-percent-' + index + '" name="' + prefix + '[percentOwnership]" type="number" min="0" max="100" required /></div>' +
+            '<div class="field"><label for="additional-dob-' + index + '">Date of Birth MM/DD/YYYY<span class="required">*</span></label><input id="additional-dob-' + index + '" name="' + prefix + '[dob]" type="date" required /></div>' +
+            '<div class="field"><label for="additional-civic-' + index + '">Civic / Road Number<span class="required">*</span></label><input id="additional-civic-' + index + '" name="' + prefix + '[civic]" type="text" required /></div>' +
+            '<div class="field"><label for="additional-street-' + index + '">Street Name<span class="required">*</span></label><input id="additional-street-' + index + '" name="' + prefix + '[street]" type="text" required /></div>' +
+            '<div class="field"><label for="additional-city-' + index + '">City<span class="required">*</span></label><input id="additional-city-' + index + '" name="' + prefix + '[city]" type="text" required /></div>' +
+            '<div class="field"><label for="additional-province-' + index + '">Province<span class="required">*</span></label><select id="additional-province-' + index + '" name="' + prefix + '[province]" required>' + provinceOptions + '</select></div>' +
+            '<div class="field"><label for="additional-postal-' + index + '">Postal Code<span class="required">*</span></label><input id="additional-postal-' + index + '" name="' + prefix + '[postal]" type="text" required /></div>' +
+            '<div class="field"><span class="field-label">Residence Tel. No.<span class="required">*</span></span><div class="split-inputs phone-inputs"><input name="' + prefix + '[residenceCountryCode]" type="tel" placeholder="+XX" aria-label="Additional owner residence telephone country code" required /><input name="' + prefix + '[residencePhone]" type="tel" placeholder="XXXXXX" aria-label="Additional owner residence telephone number" required /></div></div>' +
+            '<div class="field"><span class="field-label">Cell Phone No.<span class="required">*</span></span><div class="split-inputs phone-inputs"><input name="' + prefix + '[cellCountryCode]" type="tel" placeholder="+XX" aria-label="Additional owner cell phone country code" required /><input name="' + prefix + '[cellPhone]" type="tel" placeholder="XXXXXX" aria-label="Additional owner cell phone number" required /></div></div>' +
+          '</div></article>';
       }
 
-      function syncOwnerHeadings() {
-        var cards = Array.prototype.slice.call(ownersList.querySelectorAll('.owner-card'));
-        cards.forEach(function (card, index) {
-          card.querySelector('h3').textContent = 'Owner #' + (index + 1);
-        });
-        ownerCount = cards.length;
-        addOwnerButton.hidden = ownerCount >= 4;
+      function renderAdditionalOwners(count) {
+        var safeCount = Math.max(0, Math.floor(Number(count) || 0));
+        additionalOwnerCount.value = safeCount;
+        additionalOwnersList.innerHTML = '';
+        for (var index = 0; index < safeCount; index += 1) {
+          additionalOwnersList.insertAdjacentHTML('beforeend', additionalOwnerTemplate(index));
+        }
       }
 
-      function updateConditional(targetId, show) {
-        var target = document.getElementById(targetId);
-        if (!target) return;
-        target.hidden = !show;
-        target.querySelectorAll('input, textarea, select').forEach(function (control) {
-          control.required = show;
-          if (!show) control.value = '';
-        });
+      function validateConnectivity() {
+        var hasSelection = connectivityInputs.some(function (input) { return input.checked; });
+        connectivityInputs[0].setCustomValidity(hasSelection ? '' : 'Select at least one connectivity option.');
+        return hasSelection;
       }
 
       function showBanner(title, message) {
@@ -1055,31 +1130,51 @@
         successBanner.hidden = false;
       }
 
-      addOwner();
+      function collectDraftValues() {
+        var values = {};
+        Array.prototype.forEach.call(form.elements, function (control) {
+          if (!control.name || control.type === 'file' || control.type === 'submit' || control.type === 'button') return;
+          if ((control.type === 'checkbox' || control.type === 'radio') && !control.checked) return;
+          if (Object.prototype.hasOwnProperty.call(values, control.name)) {
+            values[control.name] = Array.isArray(values[control.name]) ? values[control.name].concat(control.value) : [values[control.name], control.value];
+          } else {
+            values[control.name] = control.value;
+          }
+        });
+        return values;
+      }
 
-      addOwnerButton.addEventListener('click', function () {
-        addOwner();
-        var cards = ownersList.querySelectorAll('.owner-card');
-        cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+      function restoreDraftValues(values) {
+        if (!values || typeof values !== 'object') return;
+        if (Object.prototype.hasOwnProperty.call(values, 'additionalOwnerCount')) {
+          renderAdditionalOwners(values.additionalOwnerCount);
+        }
+        Object.keys(values).forEach(function (name) {
+          var controls = Array.prototype.slice.call(form.elements[name] || []);
+          if (!controls.length && form.elements[name]) controls = [form.elements[name]];
+          var saved = Array.isArray(values[name]) ? values[name] : [values[name]];
+          controls.forEach(function (control) {
+            if (control.type === 'checkbox' || control.type === 'radio') {
+              control.checked = saved.indexOf(control.value) !== -1;
+            } else if (control.type !== 'file') {
+              control.value = saved[0];
+            }
+          });
+        });
+        validateConnectivity();
+      }
 
-      ownersList.addEventListener('click', function (event) {
-        var button = event.target.closest('.remove-owner');
-        if (!button) return;
-        button.closest('.owner-card').remove();
-        syncOwnerHeadings();
+      ownersList.innerHTML = primaryOwnerTemplate();
+      renderAdditionalOwners(additionalOwnerCount.value);
+      validateConnectivity();
+
+      additionalOwnerCount.addEventListener('input', function () {
+        renderAdditionalOwners(additionalOwnerCount.value);
       });
 
       form.addEventListener('change', function (event) {
         var target = event.target;
-        if (target.matches('input[type="radio"][data-toggle]')) {
-          var group = form.querySelector('input[name="' + target.name + '"]:checked');
-          updateConditional(target.dataset.toggle, Boolean(group && group.value === 'yes'));
-        }
-
-        if (target.matches('[data-select-toggle]')) {
-          updateConditional(target.dataset.selectToggle, target.value === 'other');
-        }
+        if (target.matches('input[name="connectivity[]"]')) validateConnectivity();
 
         if (target.matches('.upload-card input[type="file"]')) {
           var card = target.closest('.upload-card');
@@ -1095,16 +1190,14 @@
       });
 
       saveDraftButton.addEventListener('click', function () {
-        var values = {};
-        new FormData(form).forEach(function (value, key) {
-          if (typeof value === 'string') values[key] = value;
-        });
+        var values = collectDraftValues();
         localStorage.setItem('paywizard-nuvei-draft', JSON.stringify(values));
         showBanner('Draft saved', 'Your text entries are saved in this browser. File attachments are not retained.');
       });
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();
+        validateConnectivity();
         if (!form.checkValidity()) {
           form.reportValidity();
           var invalid = form.querySelector(':invalid');
@@ -1113,6 +1206,12 @@
         }
         showBanner('Application ready', 'The Nuvei merchant application has passed the prototype validation check.');
       });
+
+      try {
+        restoreDraftValues(JSON.parse(localStorage.getItem('paywizard-nuvei-draft') || 'null'));
+      } catch (error) {
+        localStorage.removeItem('paywizard-nuvei-draft');
+      }
 
       var navLinks = Array.prototype.slice.call(document.querySelectorAll('.section-nav a'));
       var sectionObserver = new IntersectionObserver(function (entries) {

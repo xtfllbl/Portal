@@ -1,3 +1,119 @@
+# Nuvei Configurable List Nesting Design QA
+
+## Evidence
+
+- Source visual truth: the user-provided annotated screenshot in the current request, showing that `Additional Owner/s or Guarantor *` must belong inside `Configurable list *`.
+- Implementation: `27.INTL_PSP_merchant_lead_nuvei_simplified.html`.
+- Focused browser screenshot: `/tmp/nuvei-webpage-audit.aHjX2L/implementation-owner-count-inside-configurable-list.png`.
+- Viewport and pixels: 1920 x 853 CSS px / 1920 x 853 image px, device scale factor 1.
+- State: additional-owner count set to 2 with both generated owner/guarantor rows visible below the nested count control.
+- Full-view evidence: the prior desktop/mobile full-page comparisons remain valid and are retained below; this update changes only the DOM grouping and vertical order inside the existing Owners or Officers section.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: the two required labels retain the existing Paywizard font, weights, hierarchy, and red required markers.
+- Spacing and layout rhythm: `Configurable list *` now leads the group, followed by its explanation, the nested owner-count field, and then the generated rows. The relationship is visually unambiguous and the page has zero horizontal overflow.
+- Colors and visual tokens: borders, focus ring, neutral surfaces, and semantic required color are unchanged.
+- Image quality and assets: no assets were added or modified.
+- Copy and content: the helper now says rows appear below, matching the new order.
+- Interaction and accessibility: `.configurable-list #additional-owner-count` exists exactly once; entering 2 generates two rows, while the existing required validation and draft behavior remain intact.
+
+## Verification
+
+- Nuvei Playwright suite: 6 tests passed.
+- Browser inspection: nested control present, generated row count 2, horizontal overflow 0 px, console errors/warnings none.
+- Focused screenshot confirms the hierarchy against the annotated source screenshot.
+
+final result: passed
+
+---
+
+# Nuvei Follow-up Field Corrections Design QA
+
+## Evidence
+
+- Source visual truth: the four user-provided screenshots in the current request: Bank Province text-entry requirement, SN Number optional state and WizarPOS serial-number prompt, and the populated Configurable list example.
+- Implementation: `27.INTL_PSP_merchant_lead_nuvei_simplified.html`.
+- Browser-rendered focused screenshots: `/tmp/nuvei-webpage-audit.aHjX2L/implementation-owner-configurable-list-v2.png` and `/tmp/nuvei-webpage-audit.aHjX2L/implementation-bank-sn-v2.png`.
+- Viewport and pixel dimensions: 1920 x 853 CSS px / 1920 x 853 image px, device scale factor 1.
+- State: additional-owner count set to 2, producing two dynamic required owner/guarantor rows; banking and terminal sections shown in their blank state.
+- Comparison evidence: the current-turn source screenshots and both focused implementation captures were reviewed together. The existing full-page source/implementation comparisons remain recorded in the following QA section because this update changes only three focused controls.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: `Configurable list *`, the SN placeholder, and helper copy reuse the existing Paywizard type hierarchy and remain legible without changing surrounding labels.
+- Spacing and layout rhythm: the configurable-list heading and explanation form a clear boundary below the owner-count input. Two generated owner cards retain the established two-column desktop grid and produce zero horizontal overflow.
+- Colors and visual tokens: required red markers, neutral borders, white inputs, and magenta focus treatment remain consistent with the page.
+- Image quality and assets: no image assets were added or altered by this update.
+- Copy and content: Bank Province is now a required free-text input; SN Number explicitly prompts for `WizarPOS 16-digit Serial#`; `Configurable list *` is visible and explains that the generated row count follows the additional-owner quantity.
+- Interaction and accessibility: entering 2 generates exactly two rows. Each row exposes 14 required controls across guaranty, identity, ownership, date of birth, address, and split telephone fields. Reducing the count removes surplus rows, and draft restoration continues to rebuild and populate the correct quantity.
+
+## Comparison History
+
+1. Initial automated check used an overly literal accessible-name assertion for the heading and failed to find the red-star text as a separate token; the implementation itself was present and visible.
+2. The assertion was corrected to check the heading's exact rendered text. The focused visual captures then confirmed the heading, dynamic rows, Bank Province input, and SN prompt in the live page.
+
+## Verification
+
+- Nuvei Playwright suite: 6 tests passed.
+- Desktop browser inspection: Bank Province renders as `INPUT`, SN placeholder matches, additional-owner count 2 generates two rows, and horizontal overflow is 0 px.
+- Existing responsive test continues to pass at 390 px.
+
+final result: passed
+
+---
+
+# Nuvei Onboarding Form Design QA
+
+## Evidence
+
+- Source visual truth: `/Users/beaver/Documents/nuvei webpage.pdf` (5-page PDF; pages 1-4 contain the form, page 5 contains the submit footer).
+- Source render: `/tmp/nuvei-webpage-audit.aHjX2L/page-1.png` through `page-5.png`.
+- Implementation: `27.INTL_PSP_merchant_lead_nuvei_simplified.html`.
+- Desktop screenshot: `/tmp/nuvei-webpage-audit.aHjX2L/implementation-desktop-final.png`.
+- Mobile screenshot: `/tmp/nuvei-webpage-audit.aHjX2L/implementation-mobile-final-v2.png`.
+- Desktop viewport: 1440 x 1000 CSS px, device scale factor 1; full-page output 1440 x 3710 px.
+- Mobile viewport: 390 x 844 CSS px, device scale factor 1; full-page output 390 x 5460 px.
+- Source pages: 1530 x 1980 px each. For the full-view comparison, pages 1-4 were normalized to 720 x 932 px and stacked to 720 x 3728 px; the desktop implementation was scaled to the same 3728 px height.
+- Full-view comparison: `/tmp/nuvei-webpage-audit.aHjX2L/comparison-full-overview.png`.
+- Focused comparisons: `/tmp/nuvei-webpage-audit.aHjX2L/comparison-owner-bank.png` and `/tmp/nuvei-webpage-audit.aHjX2L/comparison-terminal-docs.png`.
+- State: blank onboarding form with browser-restored radio choices in the visual capture. Requiredness and blank optional fields were validated independently in automated tests.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: the existing Paywizard Arial-based hierarchy is preserved. Labels, section headings, helper text, and required markers remain readable and consistent at desktop and mobile widths.
+- Spacing and layout rhythm: source fields are grouped into six Paywizard sections with a two-column desktop grid and a one-column mobile flow. Field alignment, card padding, section rhythm, and upload areas are consistent; no horizontal overflow remains at 1440 px or 390 px.
+- Colors and visual tokens: the existing neutral Paywizard surfaces, borders, dark headings, pink focus/action color, red required markers, and green success state are preserved. Contrast is consistent with the existing page.
+- Image quality and assets: existing Paywizard/Nuvei logos and repository icon assets render sharply. No source logo or icon was replaced by CSS, text symbols, or a generated approximation.
+- Copy and content: all source sections, labels, options, required markers, owner/guarantor fields, banking fields, terminal fields, and three required uploads are represented. Non-source processing-profile, government-ID, proof-of-business, additional-information, and declaration fields are removed.
+- Interaction and accessibility: labels/legends are associated with controls, radio groups use fieldsets, dynamic additional-owner rows are announced, connectivity has group-level validation, and native validation moves users to the invalid section. Native date controls may display the browser locale while retaining the source date labels; this is an acceptable P3 browser behavior.
+
+## Comparison History
+
+1. Initial implementation comparison found a P1 structure error: the connectivity fieldset closed with the wrong tag, causing Supporting Documents to escape the form column. The closing tag was corrected and all six sections were rechecked as children of the same form.
+2. The first mobile comparison found a P2 layout issue: the two supporting-document upload cards remained side-by-side at 390 px. The responsive rule now stacks both cards and keeps country-code/phone pairs aligned horizontally.
+3. Post-fix desktop and mobile captures show all six sections in the intended Paywizard frame, correct responsive stacking, zero horizontal overflow, and no browser console errors.
+
+## Primary Interactions Tested
+
+- Additional-owner count creates and removes the correct number of fully required owner rows.
+- Connectivity requires at least one of WiFi, Cellular, or Ethernet.
+- Complete-form validation passes with only Time Zone, DBA Contact Title, SN Number, and Arrival Time blank.
+- Three required file inputs participate in validation and display selected filenames.
+- Save Draft restores new text fields, checkbox selections, owner count, and dynamic-owner values while correctly excluding file attachments.
+- Section navigation, desktop layout, and 390 px mobile layout were checked; browser console errors: none.
+
+## Follow-up Polish
+
+- P3: native date controls use the operating-system locale instead of visually forcing `MM-DD-YYYY`; retain native controls unless a fixed display format becomes a product requirement.
+
+final result: passed
+
+---
+
 # Save as Template Switch Alignment QA
 
 ## Evidence
