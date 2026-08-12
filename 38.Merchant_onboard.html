@@ -465,6 +465,7 @@
     .status-pill.approved { background: #d9fae7; color: #128542; }
     .status-pill.review { background: #dcf2fc; color: #0878b0; }
     .status-pill.awaiting { background: #fff1cc; color: #9a6811; }
+    .status-pill.returned { background: #ffe2df; color: #b42318; }
 
     .row-actions {
       display: flex;
@@ -486,6 +487,8 @@
 
     .action-btn:hover { background: #f7f7f8; }
     .action-btn.edit { border-color: #a9dff8; color: #10a9ee; }
+    .action-btn.review-action { border-color: #9bc8ad; background: #f1fbf5; color: #15814a; }
+    .action-btn.review-action:hover { background: #e4f7eb; }
     .action-btn .material-symbols-rounded { font-size: 18px; }
 
     .empty-state {
@@ -981,6 +984,7 @@
               <option>Under Review</option>
               <option>Merchant Submit</option>
               <option>Awaiting Merchant</option>
+              <option>Returned</option>
             </select>
             <button class="toolbar-icon" id="reset-filters" type="button" aria-label="Reset filters"><span class="material-symbols-rounded" aria-hidden="true">refresh</span></button>
             <button class="toolbar-icon search" id="search-filters" type="button" aria-label="Search onboarding"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
@@ -1127,13 +1131,15 @@
     </section>
   </div>
 
+  <script src="scripts/merchant-onboarding-store.js"></script>
   <script>
     (function () {
       "use strict";
 
       var DRAFT_KEY = "paywizard-merchant-onboarding-draft";
       var APPLICATIONS_KEY = "paywizard-onboarding-applications-v2";
-      var rows = [
+      var Store = window.PaywizardOnboardingStore;
+      var baseRows = [
         { processId: "00000336", spName: "Paywizard UAT", agentName: "", merchantName: "techsupport", mid: "-", email: "maggie-support1@wizarpos.com", lastUpdate: "2026-05-14 14:22:27", status: "Draft" },
         { processId: "00000328", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi123213243234", mid: "mid12320251229", email: "uat2512003@nooboy.com", lastUpdate: "2025-12-29 15:29:41", status: "Approved" },
         { processId: "00000205", spName: "Paywizard UAT", agentName: "", merchantName: "Merchant name1", mid: "-", email: "uat2512002@nooboy.com", lastUpdate: "2025-12-29 14:40:21", status: "Under Review" },
@@ -1145,13 +1151,14 @@
         { processId: "00000098", spName: "Paywizard UAT", agentName: "", merchantName: "MRCHTApply", mid: "-", email: "18892828893@qq.cn", lastUpdate: "2025-01-15 14:06:29", status: "Merchant Submit" },
         { processId: "-", spName: "Paywizard UAT", agentName: "", merchantName: "CESHI", mid: "-", email: "1778883@qq.com", lastUpdate: "2025-01-15 13:57:22", status: "Under Review" }
       ];
+      var rows = [];
 
-      try {
-        var savedApplications = JSON.parse(window.localStorage.getItem(APPLICATIONS_KEY) || "[]");
-        if (Array.isArray(savedApplications)) rows = savedApplications.concat(rows);
-      } catch (error) {
-        window.localStorage.removeItem(APPLICATIONS_KEY);
+      function reloadRows() {
+        var applications = Store ? Store.loadApplications() : [];
+        var processIds = applications.map(function (row) { return row.processId; });
+        rows = applications.concat(baseRows.filter(function (row) { return processIds.indexOf(row.processId) === -1; }));
       }
+      reloadRows();
 
       var listView = document.getElementById("list-view");
       var registrationView = document.getElementById("registration-view");
@@ -1180,10 +1187,15 @@
         if (status === "Approved") return "approved";
         if (status === "Under Review") return "review";
         if (status === "Awaiting Merchant") return "awaiting";
+        if (status === "Returned") return "returned";
         return "";
       }
 
       function rowTemplate(row) {
+        var canReview = Boolean(row.applicationId && row.channel && (row.status === "Merchant Submit" || row.status === "Under Review"));
+        var reviewAction = canReview
+          ? '<button class="action-btn review-action" type="button" data-action="review" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>'
+          : '';
         return '<tr data-process-id="' + escapeHtml(row.processId) + '">' +
           '<td>' + escapeHtml(row.processId) + '</td>' +
           '<td>' + escapeHtml(row.spName) + '</td>' +
@@ -1194,6 +1206,7 @@
           '<td>' + escapeHtml(row.lastUpdate) + '</td>' +
           '<td><span class="status-pill ' + statusClass(row.status) + '">' + escapeHtml(row.status) + '</span></td>' +
           '<td><div class="row-actions">' +
+            reviewAction +
             '<button class="action-btn" type="button" data-action="detail" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>' +
             '<button class="action-btn edit" type="button" data-action="edit" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>' +
             '<button class="action-btn" type="button" data-action="share" aria-label="Share process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>' +
@@ -1307,6 +1320,10 @@
         return channel === "Nuvei" ? "38.Merchant_onboard_nuvei_public.html" : "38.Merchant_onboard_elavon_public.html";
       }
 
+      function reviewPageForChannel(channel) {
+        return channel === "Nuvei" ? "27.Merchant_onboard_nuvei.html" : "27.Merchant_onboard_elavon.html";
+      }
+
       function createShareUrl(values, applicationId) {
         var url = new URL(publicPageForChannel(values.paymentChannel), window.location.href);
         url.hash = "";
@@ -1322,7 +1339,8 @@
 
       function saveApplications() {
         var applications = rows.filter(function (row) { return Boolean(row.applicationId); });
-        window.localStorage.setItem(APPLICATIONS_KEY, JSON.stringify(applications));
+        if (Store) Store.saveApplications(applications);
+        else window.localStorage.setItem(APPLICATIONS_KEY, JSON.stringify(applications));
       }
 
       function addSharedApplication(values) {
@@ -1341,7 +1359,13 @@
           country: values.countryName,
           currency: values.currencyName,
           lastUpdate: currentTimestamp(),
-          status: "Awaiting Merchant"
+          status: "Awaiting Merchant",
+          formData: {},
+          documents: {},
+          submissionVersion: 0,
+          submittedAt: "",
+          reviewedAt: "",
+          review: Store ? Store.createReview(values.paymentChannel) : { sections: {} }
         };
         row.shareUrl = createShareUrl(values, applicationId);
         rows.unshift(row);
@@ -1474,6 +1498,18 @@
           return;
         }
         if (action === "detail") showToast("Process " + processId, "Application details are available from this action in the production portal.");
+        if (action === "review") {
+          var reviewRow = rows.find(function (item) { return item.processId === processId; });
+          if (!reviewRow || !reviewRow.applicationId || !reviewRow.channel) return;
+          reviewRow.status = "Under Review";
+          reviewRow.lastUpdate = currentTimestamp();
+          if (Store) Store.upsertApplication(reviewRow);
+          var reviewUrl = new URL(reviewPageForChannel(reviewRow.channel), window.location.href);
+          reviewUrl.searchParams.set("mode", "review");
+          reviewUrl.searchParams.set("applicationId", reviewRow.applicationId);
+          window.location.href = reviewUrl.href;
+          return;
+        }
         if (action === "share") {
           var shareRow = rows.find(function (item) { return item.processId === processId; });
           if (shareRow && shareRow.shareUrl) openShareDialog(shareRow);
@@ -1484,6 +1520,10 @@
       renderRows();
       syncSelectLabels();
       renderRoute();
+      window.addEventListener("pageshow", function () {
+        reloadRows();
+        renderRows();
+      });
     })();
   </script>
 </body>

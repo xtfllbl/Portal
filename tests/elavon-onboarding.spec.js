@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const ELAVON_URL = "/27.INTL_PSP_merchant_lead_elavon_simplified.html";
+const ELAVON_URL = "/27.Merchant_onboard_elavon.html";
 
 async function openCleanForm(page) {
   await page.goto(ELAVON_URL);
@@ -116,13 +116,13 @@ test("keeps every upload requirement with its own file control and line breaks",
 
   await expect(passportField.locator('.upload-title')).toHaveText("Please Upload All The Owner/s and Signatory's Passport*");
   await expect(passportField.locator('.upload-requirements span')).toHaveText([
-    "* Must be valid, cannot be expired * Information must be clear"
+    "* Must be valid, cannot be expired",
+    "* Information must be clear"
   ]);
   await expect(secondKycField.locator('.upload-title')).toHaveText("Please Upload 2nd KYC for all the Owner/s and Signatory's*");
   await expect(secondKycField.locator('.upload-requirements span')).toHaveText([
-    "* 2nd KYC is a document confirming personal residential address of each owner/s UBOs (e.g., any utility bill e.g.",
-    "electricity bill or phone bill etc. that clearly shows personal residential address) * Must be dated anytime within",
-    "last 3 months"
+    "* 2nd KYC is a document confirming personal residential address of each owner/s UBOs (e.g., any utility bill e.g.electricity bill or phone bill etc. that clearly shows personal residential address)",
+    "* Must be dated anytime within last 3 months"
   ]);
   await expect(receiptField.locator('.upload-title')).toHaveText("Bank Transfer Receipt*");
   await expect(receiptField.locator('.upload-requirements span')).toHaveText([

@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const NUVEI_URL = "/27.INTL_PSP_merchant_lead_nuvei_simplified.html";
+const NUVEI_URL = "/27.Merchant_onboard_nuvei.html";
 
 async function openCleanForm(page) {
   await page.goto(NUVEI_URL);

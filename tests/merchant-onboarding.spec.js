@@ -33,7 +33,9 @@ async function fillApplication(page, channel = "Elavon EU") {
 test("renders and filters the onboarding list", async ({ page }) => {
   await openCleanPage(page);
 
-  await expect(page.locator("#onboarding-rows tr")).toHaveCount(10);
+  await expect(page.locator("#onboarding-rows tr")).toHaveCount(12);
+  await expect(page.getByRole("button", { name: /Review application 00000339/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Review application 00000338/ })).toBeVisible();
   await page.locator("#status-filter").selectOption({ label: "Approved" });
   await expect(page.locator("#onboarding-rows tr")).toHaveCount(3);
 
@@ -43,7 +45,7 @@ test("renders and filters the onboarding list", async ({ page }) => {
   await expect(page.locator("#onboarding-rows tr").first()).toContainText("FISERV PROD TEST");
 
   await page.getByRole("button", { name: "Reset filters" }).click();
-  await expect(page.locator("#onboarding-rows tr")).toHaveCount(10);
+  await expect(page.locator("#onboarding-rows tr")).toHaveCount(12);
 });
 
 test("uses the redesigned application creator without assignment or side rail", async ({ page }) => {
@@ -103,13 +105,13 @@ test("validates, saves, and generates a shareable merchant link", async ({ page 
   await expect(page.locator("#share-link")).toHaveValue(/38\.Merchant_onboard_elavon_public\.html\?/);
 
   const applications = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), APPLICATIONS_KEY);
-  expect(applications).toHaveLength(1);
+  expect(applications).toHaveLength(3);
   expect(applications[0].status).toBe("Awaiting Merchant");
   expect(applications[0].shareUrl).toContain("merchantName=Northstar+Coffee");
 
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();
-  await expect(page.locator("#onboarding-rows tr")).toHaveCount(11);
+  await expect(page.locator("#onboarding-rows tr")).toHaveCount(13);
   await expect(page.locator("#onboarding-rows tr").first()).toContainText("Awaiting Merchant");
 });
 
@@ -150,7 +152,75 @@ for (const merchantPage of [
   });
 }
 
+test("reviews, returns, corrects and resubmits an Elavon application", async ({ page }) => {
+  await openCleanPage(page);
+  await page.getByRole("button", { name: "Review application 00000338" }).click();
+  await expect(page).toHaveURL(/27\.Merchant_onboard_elavon\.html\?mode=review&applicationId=APP-DEMO-ELAVON-01/);
+  await expect(page.getByRole("heading", { name: "Review Elavon EU Application" })).toBeVisible();
+  await expect(page.locator('[name="registeredBusinessName"]')).toHaveValue("Northstar Vending Europe Ltd.");
+  await expect(page.locator('[name="registeredBusinessName"]')).toHaveAttribute("readonly", "");
+  await expect(page.getByRole("button", { name: "Pass", exact: true })).toHaveCount(6);
+  await expect(page.getByRole("button", { name: "Issue", exact: true })).toHaveCount(6);
+  await expect(page.getByRole("button", { name: "Approve Application" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Return to Merchant" })).toBeDisabled();
+
+  const sections = page.locator(".form-section[data-section]");
+  await sections.nth(0).getByRole("button", { name: "Issue" }).click();
+  for (let index = 1; index < 6; index += 1) {
+    await sections.nth(index).getByRole("button", { name: "Pass", exact: true }).click();
+  }
+  await expect(page.getByRole("button", { name: "Return to Merchant" })).toBeDisabled();
+  await sections.nth(0).getByRole("textbox", { name: "Reason for returning this section" }).fill("Please confirm the VAT ID and legal company name.");
+  await expect(page.getByRole("button", { name: "Return to Merchant" })).toBeEnabled();
+  await page.getByRole("button", { name: "Return to Merchant" }).click();
+  await expect(page.getByRole("status")).toContainText("Returned to merchant");
+
+  let application = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).find((item) => item.applicationId === "APP-DEMO-ELAVON-01"), APPLICATIONS_KEY);
+  expect(application.status).toBe("Returned");
+  expect(application.review.sections.business.status).toBe("rejected");
+  expect(application.review.sections.contact.status).toBe("approved");
+
+  await page.goto("/38.Merchant_onboard_elavon_public.html?applicationId=APP-DEMO-ELAVON-01");
+  await expect(page.getByRole("heading", { name: "Complete your Elavon application" })).toBeVisible();
+  await expect(page.locator(".changes-requested")).toContainText("Changes requested");
+  const merchantForm = page.frameLocator("#source-frame");
+  await expect(merchantForm.locator("#business")).toHaveClass(/merchant-review-rejected/);
+  await expect(merchantForm.locator("#business")).toContainText("Please confirm the VAT ID and legal company name.");
+  await expect(merchantForm.locator("#contact")).toHaveClass(/merchant-review-approved/);
+  await expect(merchantForm.locator('[name="registeredBusinessName"]')).toBeEditable();
+  await expect(merchantForm.locator('[name="authorizedContact"]')).toBeDisabled();
+  await merchantForm.locator('[name="vatTaxId"]').fill("IE6388047V-CORRECTED");
+  await merchantForm.getByRole("button", { name: "Submit Application" }).click();
+  await expect(page.locator(".changes-requested")).toContainText("Application resubmitted");
+
+  application = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).find((item) => item.applicationId === "APP-DEMO-ELAVON-01"), APPLICATIONS_KEY);
+  expect(application.status).toBe("Merchant Submit");
+  expect(application.submissionVersion).toBe(2);
+  expect(application.review.sections.business.status).toBe("pending");
+  expect(application.review.sections.business.previousReason).toContain("VAT ID");
+  expect(application.review.sections.contact.status).toBe("approved");
+});
+
+test("approves a Nuvei application only after all six sections pass", async ({ page }) => {
+  await openCleanPage(page);
+  await page.getByRole("button", { name: "Review application 00000339" }).click();
+  await expect(page.getByRole("heading", { name: "Review Nuvei Application" })).toBeVisible();
+  await expect(page.locator('[name="legalName"]')).toHaveValue("Maple Street Coffee Inc.");
+  for (const button of await page.getByRole("button", { name: "Pass", exact: true }).all()) await button.click();
+  await expect(page.getByRole("button", { name: "Approve Application" })).toBeEnabled();
+  await page.getByRole("button", { name: "Approve Application" }).click();
+  await expect(page.getByRole("status")).toContainText("Application approved");
+  const application = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).find((item) => item.applicationId === "APP-DEMO-NUVEI-01"), APPLICATIONS_KEY);
+  expect(application.status).toBe("Approved");
+  expect(Object.values(application.review.sections).every((section) => section.status === "approved")).toBeTruthy();
+});
+
 test("keeps creator and merchant pages responsive", async ({ page }) => {
+  const consoleErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => consoleErrors.push(error.message));
   await page.setViewportSize({ width: 2048, height: 1138 });
   await openCleanPage(page);
   await openCreateApplication(page);
@@ -182,7 +252,17 @@ test("keeps creator and merchant pages responsive", async ({ page }) => {
   expect(cancelBox.y).toBeLessThan(saveBox.y);
   expect(Math.abs(saveBox.y - shareBox.y)).toBeLessThanOrEqual(1);
 
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/27.Merchant_onboard_nuvei.html?mode=review&applicationId=APP-DEMO-NUVEI-01");
+  await expect(page.getByRole("heading", { name: "Review Nuvei Application" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  await expect(page.locator(".application-nav")).toBeHidden();
+
   await page.goto("/38.Merchant_onboard_elavon_public.html?applicationId=APP-MOBILE&merchantName=Mobile+Shop");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
   await expect(page.getByRole("heading", { name: "Complete your Elavon application" })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

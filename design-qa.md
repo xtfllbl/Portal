@@ -1,3 +1,36 @@
+# Merchant Onboarding Review and Return Loop Design QA
+
+## Evidence
+
+- Source visual truth: the current-task Onboarding list, Elavon review-form, and action-button screenshots, plus the approved review/return interaction specification.
+- Implementations: `38.Merchant_onboard.html`, both `27.Merchant_onboard_*.html` channel forms, both `38.Merchant_onboard_*_public.html` public forms, `scripts/merchant-onboarding-store.js`, `scripts/merchant-review-mode.js`, and `scripts/merchant-public-application.js`.
+- Browser-rendered captures: `artifacts/merchant-onboarding-list-review-actions.png`, `artifacts/merchant-onboarding-nuvei-review-mixed.png`, and `artifacts/merchant-onboarding-nuvei-returned-public.png`.
+- States reviewed: seeded Merchant Submit rows, mixed Pass/Issue operator review, required issue reason, Returned public application, locked approved sections, and directly editable rejected section.
+- Full-view comparison evidence: the list capture was compared with the supplied PAYwizard list screenshot; the channel review capture was compared with the supplied 27-page form screenshot; the returned page was reviewed against the previously approved public-page shell.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Information hierarchy: the review action appears only for reviewable application records and is visually distinct without competing with existing view/edit/share actions. Review decisions live in each section header, while final application decisions remain together after the form.
+- Review feedback: approved sections use the existing green semantic range; issue sections use a restrained red surface and place the required correction reason immediately beneath the affected module. The right-side Application Information rail mirrors Pass, Issue, and Pending states.
+- Merchant correction flow: the public page introduces one clear Changes requested banner. Failed sections are red and editable; approved sections are green and locked until the merchant explicitly chooses Edit this section.
+- Data fidelity: Nuvei and Elavon demonstrations contain realistic merchant, owner, banking, terminal/operation, contact, and attachment metadata. Attachment names remain visible without attempting to persist browser `File` objects.
+- Responsive behavior: the portal list, 27 review mode, and public form have no page-level horizontal overflow at the required desktop and 390px viewports. The review side rail hides on mobile and section actions remain usable.
+- Interaction and accessibility: review controls are native buttons with accessible names, reasons are labelled text areas, read-only merchant information cannot be edited by the operator, and the final buttons enforce the six-section decision rules.
+
+## Workflow Verification
+
+- Merchant Submit opens the correct channel-specific review URL and immediately becomes Under Review.
+- All six sections must pass before Approve Application is enabled.
+- Return to Merchant requires all six decisions, at least one Issue, and a non-empty reason for every rejected section.
+- Returned public links preserve prior values and submitted attachment metadata; the merchant can edit failed sections, optionally unlock passed sections, save a draft, and resubmit.
+- Resubmission increments `submissionVersion`, returns rejected or edited-approved sections to pending, preserves unchanged approved sections, and retains the prior comment in `previousReason` for operator comparison.
+- Targeted Playwright regression: 22 tests passed across Onboarding, Nuvei, and Elavon suites. Console/page-error checks and responsive overflow checks passed.
+
+final result: passed
+
+---
+
 # Public Merchant Application Flattening Design QA
 
 ## Evidence
