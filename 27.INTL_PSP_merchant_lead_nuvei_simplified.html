@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuvei Merchant Registration - Paywizard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --surface-soft: #f8f9fb;
+      --ink: #25272d;
+      --muted: #69707d;
+      --line: #d9dde4;
+      --line-strong: #c7ccd5;
+      --nav-active: #29292b;
+      --primary: #e90048;
+      --primary-dark: #c6003c;
+      --primary-soft: #fff0f5;
+      --success: #128249;
+      --success-soft: #ebf8f1;
+      --danger: #d92d20;
+      --focus: rgba(233, 0, 72, 0.14);
+      --sidebar: 236px;
+      --radius: 5px;
+      --shadow: 0 1px 2px rgba(20, 24, 32, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 90px;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select,
+    textarea { font: inherit; }
+
+    button { cursor: pointer; }
+
+    img { display: block; max-width: 100%; }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+      width: var(--sidebar);
+      padding: 18px 12px;
+      overflow-y: auto;
+      border-right: 1px solid #e2e4e8;
+      background: #f7f7f7;
+    }
+
+    .brand {
+      height: 76px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 5px;
+    }
+
+    .brand img { width: 142px; height: auto; }
+
+    .nav-list,
+    .nav-submenu {
+      display: grid;
+      gap: 5px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-group { margin-top: 5px; }
+
+    .nav-item,
+    .nav-parent,
+    .nav-subitem {
+      width: 100%;
+      min-height: 35px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #292d33;
+      text-decoration: none;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .nav-item,
+    .nav-parent { padding: 8px 10px; }
+
+    .nav-item img,
+    .nav-parent img {
+      width: 15px;
+      height: 15px;
+      opacity: 0.76;
+    }
+
+    .nav-parent::after {
+      content: "";
+      width: 7px;
+      height: 7px;
+      margin-left: auto;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translateY(-2px);
+    }
+
+    .nav-parent.open {
+      background: var(--nav-active);
+      color: #fff;
+    }
+
+    .nav-parent.open img { filter: brightness(0) invert(1); opacity: 1; }
+
+    .nav-submenu {
+      margin: 6px 0 2px 18px;
+      padding-left: 12px;
+    }
+
+    .nav-subitem {
+      position: relative;
+      min-height: 31px;
+      padding: 6px 10px 6px 18px;
+      color: #444a55;
+      font-size: 12px;
+    }
+
+    .nav-subitem::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      width: 5px;
+      height: 5px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .nav-subitem.active {
+      background: var(--nav-active);
+      color: #fff;
+    }
+
+    .app-main { margin-left: var(--sidebar); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 22px;
+      border-bottom: 1px solid #e0e3e8;
+      background: rgba(255, 255, 255, 0.97);
+    }
+
+    .breadcrumbs {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #767c87;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .breadcrumbs img { width: 13px; height: 13px; transform: rotate(-90deg); opacity: 0.5; }
+    .breadcrumbs strong { color: #24272d; font-weight: 700; }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+
+    .icon-button,
+    .avatar {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: #f1f2f4;
+    }
+
+    .icon-button img { width: 17px; height: 17px; opacity: 0.7; }
+
+    .notification-count {
+      position: absolute;
+      top: -5px;
+      right: -3px;
+      min-width: 18px;
+      height: 16px;
+      padding: 0 4px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .avatar { background: #0e0f11; color: #fff; font-size: 12px; font-weight: 700; }
+
+    .content { padding: 16px 20px 56px; }
+
+    .page-heading {
+      max-width: 1520px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin: 0 auto 12px;
+    }
+
+    .page-heading h1 { margin: 0; color: #44464c; font-size: 22px; line-height: 1.2; }
+
+    .registration-shell {
+      max-width: 1520px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 222px;
+      gap: 14px;
+      margin: 0 auto;
+    }
+
+    .form-column { min-width: 0; }
+
+    .context-card {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .context-logo {
+      width: 108px;
+      flex: none;
+      padding-right: 18px;
+      border-right: 1px solid var(--line);
+    }
+
+    .context-logo img { width: 88px; }
+
+    .context-copy h2 { margin: 0 0 4px; font-size: 14px; }
+    .context-copy p { margin: 0; color: var(--muted); font-size: 11px; }
+
+    .form-section {
+      min-width: 0;
+      margin: 0 0 14px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfbfc;
+    }
+
+    .section-title { display: flex; align-items: center; gap: 9px; }
+
+    .section-number {
+      width: 23px;
+      height: 23px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      border-radius: 50%;
+      background: #303136;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .section-header h2 { margin: 0; font-size: 13px; line-height: 1.25; }
+    .section-note { color: var(--muted); font-size: 10px; }
+
+    .section-body { padding: 18px; }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 16px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .field > label,
+    .field-label {
+      display: block;
+      margin: 0 0 5px;
+      color: #414650;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .required { margin-left: 2px; color: var(--danger); }
+    .optional { margin-left: 5px; color: #89909b; font-weight: 400; }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: #fff;
+      color: #24272e;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input::placeholder,
+    textarea::placeholder { color: #a2a7b0; }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus);
+    }
+
+    input:disabled { background: #f1f2f4; color: #8a9099; }
+
+    select {
+      appearance: none;
+      padding-right: 34px;
+      background-image: url("assets/icons/chevron-down.svg");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 15px;
+    }
+
+    textarea { min-height: 78px; resize: vertical; }
+
+    .split-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .radio-row,
+    .check-row {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 4px 0;
+    }
+
+    .radio-row label,
+    .check-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      color: #4a505a;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .radio-row input,
+    .check-row input {
+      width: 15px;
+      height: 15px;
+      min-height: 0;
+      margin: 0;
+      accent-color: var(--primary);
+    }
+
+    .conditional[hidden] { display: none; }
+
+    .owner-card {
+      margin-bottom: 14px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fbfbfc;
+    }
+
+    .owner-card:last-of-type { margin-bottom: 0; }
+
+    .owner-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .owner-heading h3 { margin: 0; font-size: 12px; }
+
+    .text-button,
+    .secondary-button,
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 34px;
+      border-radius: 4px;
+      padding: 8px 13px;
+      font-weight: 700;
+    }
+
+    .text-button { border: 0; background: transparent; color: #a90035; font-size: 11px; }
+    .text-button img,
+    .secondary-button img,
+    .primary-button img { width: 15px; height: 15px; }
+    .text-button img { filter: invert(17%) sepia(82%) saturate(3844%) hue-rotate(330deg) brightness(75%); }
+
+    .secondary-button {
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: #383d46;
+      font-size: 11px;
+    }
+
+    .primary-button {
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .primary-button:hover { border-color: var(--primary-dark); background: var(--primary-dark); }
+    .primary-button img { filter: brightness(0) invert(1); }
+
+    .add-owner-row { margin-top: 14px; }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .upload-card {
+      position: relative;
+      min-height: 116px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 14px;
+      border: 1px dashed #b8bec8;
+      border-radius: 5px;
+      background: #fbfbfc;
+      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .upload-card:hover { border-color: var(--primary); background: var(--primary-soft); }
+    .upload-card img { width: 23px; height: 23px; opacity: 0.62; }
+    .upload-card strong { font-size: 11px; }
+    .upload-card span { max-width: 190px; color: var(--muted); font-size: 9px; }
+
+    .upload-card input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-card.has-file { border-style: solid; border-color: #72bf95; background: var(--success-soft); }
+
+    .declaration-list { display: grid; gap: 10px; margin-top: 15px; }
+
+    .declaration {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 9px;
+      align-items: start;
+      color: #4a505a;
+      font-size: 10px;
+    }
+
+    .declaration input {
+      width: 15px;
+      height: 15px;
+      min-height: 0;
+      margin-top: 1px;
+      accent-color: var(--primary);
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-nav {
+      position: sticky;
+      top: 80px;
+      align-self: start;
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .section-nav-title {
+      padding: 12px 13px;
+      border-bottom: 1px solid var(--line);
+      background: #ececef;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .section-nav ol { margin: 0; padding: 6px 0; list-style: none; }
+
+    .section-nav a {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 6px;
+      padding: 8px 12px;
+      color: #6f7580;
+      text-decoration: none;
+      font-size: 10px;
+      line-height: 1.35;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .section-nav a span:first-child { text-align: right; }
+    .section-nav a:hover { background: #f7f7f8; color: #24272e; }
+    .section-nav a.active { background: var(--primary-soft); color: #a70035; font-weight: 700; }
+
+    .success-banner {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 40;
+      width: min(420px, calc(100vw - 32px));
+      display: grid;
+      grid-template-columns: 34px 1fr 28px;
+      gap: 11px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid #99d3b3;
+      border-radius: 7px;
+      background: #fff;
+      box-shadow: 0 14px 36px rgba(24, 44, 34, 0.18);
+    }
+
+    .success-banner[hidden] { display: none; }
+    .success-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--success-soft); }
+    .success-icon img { width: 19px; height: 19px; }
+    .success-banner strong { display: block; margin-bottom: 2px; font-size: 12px; }
+    .success-banner p { margin: 0; color: var(--muted); font-size: 10px; }
+    .success-close { width: 28px; height: 28px; display: grid; place-items: center; border: 0; background: transparent; }
+    .success-close img { width: 16px; height: 16px; opacity: 0.55; }
+
+    @media (max-width: 1120px) {
+      .registration-shell { grid-template-columns: minmax(0, 1fr); }
+      .section-nav { display: none; }
+    }
+
+    @media (max-width: 840px) {
+      :root { --sidebar: 72px; }
+      .sidebar { padding-inline: 9px; }
+      .brand { height: 60px; align-items: center; padding: 0; }
+      .brand img { width: 58px; clip-path: inset(0 0 35% 0); }
+      .nav-item,
+      .nav-parent { justify-content: center; padding-inline: 0; }
+      .nav-item span,
+      .nav-parent span,
+      .nav-parent::after,
+      .nav-submenu { display: none; }
+      .nav-item img,
+      .nav-parent img { width: 18px; height: 18px; }
+      .content { padding-inline: 14px; }
+      .page-heading { align-items: flex-start; }
+      .upload-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      :root { --sidebar: 0px; }
+      .sidebar { display: none; }
+      .topbar { height: 58px; padding-inline: 14px; }
+      .breadcrumbs span:nth-of-type(-n + 2),
+      .breadcrumbs img:nth-of-type(-n + 2) { display: none; }
+      .content { padding: 14px 10px 40px; }
+      .page-heading { flex-direction: column; gap: 8px; }
+      .page-heading h1 { font-size: 19px; }
+      .context-card { align-items: flex-start; }
+      .field-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .section-body { padding: 14px; }
+      .section-note { display: none; }
+      .split-inputs { grid-template-columns: 1fr; }
+      .form-actions { flex-direction: column-reverse; align-items: stretch; }
+      .form-actions button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" aria-label="Primary navigation">
+    <a class="brand" href="#top" aria-label="Paywizard Portal home">
+      <img src="assets/paywizard-logo.png" alt="Paywizard Portal" />
+    </a>
+    <nav>
+      <ul class="nav-list">
+        <li><a class="nav-item" href="#top"><img src="assets/icons/inventory-2.svg" alt="" /><span>Dashboard</span></a></li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/receipt_long.svg" alt="" /><span>Transactions</span></a></li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/assignment.svg" alt="" /><span>Agents</span></a></li>
+        <li class="nav-group">
+          <button class="nav-parent open" type="button" aria-expanded="true"><img src="assets/icons/inventory-check.svg" alt="" /><span>Merchants</span></button>
+          <ul class="nav-submenu">
+            <li><a class="nav-subitem" href="#top">Contact</a></li>
+            <li><a class="nav-subitem" href="#top">Leads</a></li>
+            <li><a class="nav-subitem active" href="#top" aria-current="page">Onboarding</a></li>
+            <li><a class="nav-subitem" href="#top">Merchant List</a></li>
+            <li><a class="nav-subitem" href="#top">Analytics</a></li>
+          </ul>
+        </li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/bookmark-add.svg" alt="" /><span>Partners</span></a></li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/terminal-ev.svg" alt="" /><span>Device Management</span></a></li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/settings.svg" alt="" /><span>Remote Diagnostic</span></a></li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/add-box.svg" alt="" /><span>APP Management</span></a></li>
+        <li><a class="nav-item" href="#top"><img src="assets/icons/add_card.svg" alt="" /><span>Prepaid Cards</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="app-main" id="top">
+    <header class="topbar">
+      <div class="breadcrumbs" aria-label="Breadcrumb">
+        <span>Merchants</span><img src="assets/icons/chevron-down.svg" alt="" />
+        <span>Onboarding</span><img src="assets/icons/chevron-down.svg" alt="" />
+        <strong>Nuvei Merchant Registration</strong>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button" type="button" aria-label="Notifications">
+          <img src="assets/icons/task_alt.svg" alt="" />
+          <span class="notification-count">43</span>
+        </button>
+        <button class="avatar" type="button" aria-label="Open user menu">OP</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-heading">
+        <h1>Nuvei Merchant Registration</h1>
+      </div>
+
+      <div class="registration-shell">
+        <div class="form-column">
+          <section class="context-card" aria-label="Application context">
+            <div class="context-logo"><img src="Nuvei_Organization_logo.png" alt="Nuvei" /></div>
+            <div class="context-copy">
+              <h2>Customer Onboarding Form for Nuvei</h2>
+              <p>Complete the merchant, owner, banking, and supporting document information required for underwriting review.</p>
+            </div>
+          </section>
+
+          <form id="nuvei-form">
+            <section class="form-section" id="legal" data-section="legal">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">1</span><h2>Legal Business Information</h2></div>
+                <span class="section-note">Legal entity details</span>
+              </header>
+              <div class="section-body">
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="ownership-type">Type of Ownership<span class="required">*</span></label>
+                    <select id="ownership-type" name="ownershipType" required>
+                      <option value="">Please Select</option>
+                      <option>Sole Proprietorship</option><option>Partnership</option><option>Publicly Traded</option><option>Not for Profit</option><option>Limited Liability</option><option>Privately Held</option><option>Government</option><option>International Organization</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="legal-name">Name of Business / Legal Name<span class="required">*</span></label>
+                    <input id="legal-name" name="legalName" type="text" autocomplete="organization" required />
+                  </div>
+                  <div class="field">
+                    <label for="legal-civic">Civic / Road Number<span class="required">*</span></label>
+                    <input id="legal-civic" name="legalCivic" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="legal-street">Street Name<span class="required">*</span></label>
+                    <input id="legal-street" name="legalStreet" type="text" autocomplete="address-line1" required />
+                  </div>
+                  <div class="field">
+                    <label for="legal-city">City<span class="required">*</span></label>
+                    <input id="legal-city" name="legalCity" type="text" autocomplete="address-level2" required />
+                  </div>
+                  <div class="field">
+                    <label for="legal-postal">Postal Code<span class="required">*</span></label>
+                    <input id="legal-postal" name="legalPostal" type="text" autocomplete="postal-code" required />
+                  </div>
+                  <div class="field">
+                    <label for="legal-phone">Telephone / Landline<span class="required">*</span></label>
+                    <input id="legal-phone" name="legalPhone" type="tel" autocomplete="tel" required />
+                  </div>
+                  <div class="field">
+                    <label for="legal-mobile">Mobile Phone Number<span class="required">*</span></label>
+                    <input id="legal-mobile" name="legalMobile" type="tel" autocomplete="tel" required />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="dba" data-section="dba">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">2</span><h2>DBA Information</h2></div>
+                <span class="section-note">Trading name and location</span>
+              </header>
+              <div class="section-body">
+                <div class="field-grid">
+                  <div class="field full">
+                    <label for="dba-name">DBA Name<span class="required">*</span></label>
+                    <input id="dba-name" name="dbaName" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="dba-civic">Civic / Road Number<span class="required">*</span></label>
+                    <input id="dba-civic" name="dbaCivic" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="dba-street">Street Name<span class="required">*</span></label>
+                    <input id="dba-street" name="dbaStreet" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="dba-city">City<span class="required">*</span></label>
+                    <input id="dba-city" name="dbaCity" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="dba-postal">Postal Code<span class="required">*</span></label>
+                    <input id="dba-postal" name="dbaPostal" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="dba-phone">Phone Number<span class="required">*</span></label>
+                    <input id="dba-phone" name="dbaPhone" type="tel" required />
+                  </div>
+                  <div class="field">
+                    <label for="time-zone">Time Zone<span class="required">*</span></label>
+                    <select id="time-zone" name="timeZone" required>
+                      <option value="">Please Select</option>
+                      <option>Atlantic Time Zone</option><option>Canada Central Time Zone (Saskatchewan)</option><option>Central Time Zone</option><option>Eastern Time Zone</option><option>Mountain Time Zone</option><option>Newfoundland Time Zone</option><option>Pacific Time Zone</option>
+                    </select>
+                  </div>
+                  <div class="field full">
+                    <span class="field-label">How long in present business?<span class="required">*</span></span>
+                    <div class="split-inputs">
+                      <input name="businessYears" type="number" min="0" max="150" placeholder="Years" aria-label="Years in business" required />
+                      <input name="businessMonths" type="number" min="0" max="11" placeholder="Months" aria-label="Additional months in business" required />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="profile" data-section="profile">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">3</span><h2>Business / Processing Profile</h2></div>
+                <span class="section-note">Underwriting and transaction profile</span>
+              </header>
+              <div class="section-body">
+                <div class="field-grid">
+                  <div class="field full">
+                    <label for="products">Product or Service Being Offered<span class="required">*</span></label>
+                    <textarea id="products" name="products" required></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="monthly-volume">Average Monthly Card Sales<span class="required">*</span></label>
+                    <input id="monthly-volume" name="monthlyVolume" type="number" min="0" step="0.01" placeholder="$ 0.00" required />
+                  </div>
+                  <div class="field">
+                    <label for="average-ticket">Average Customer Transaction<span class="required">*</span></label>
+                    <input id="average-ticket" name="averageTicket" type="number" min="0" step="0.01" placeholder="$ 0.00" required />
+                  </div>
+                  <div class="field">
+                    <label for="highest-ticket">Highest Customer Single Transaction<span class="required">*</span></label>
+                    <input id="highest-ticket" name="highestTicket" type="number" min="0" step="0.01" placeholder="$ 0.00" required />
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Sales by Channel<span class="required">*</span></span>
+                    <div class="split-inputs">
+                      <input name="cardPresentPercent" type="number" min="0" max="100" placeholder="Card present %" aria-label="Card present percentage" required />
+                      <input name="onlinePercent" type="number" min="0" max="100" placeholder="Online / keyed %" aria-label="Online or keyed percentage" required />
+                    </div>
+                  </div>
+                  <div class="field full">
+                    <span class="field-label">Has the business ever been subject to a Visa / Mastercard Risk Program?<span class="required">*</span></span>
+                    <div class="radio-row">
+                      <label><input type="radio" name="riskProgram" value="yes" required data-toggle="risk-details" /> Yes</label>
+                      <label><input type="radio" name="riskProgram" value="no" data-toggle="risk-details" /> No</label>
+                    </div>
+                  </div>
+                  <div class="field full conditional" id="risk-details" hidden>
+                    <label for="risk-program-name">If yes, which program?</label>
+                    <input id="risk-program-name" name="riskProgramName" type="text" />
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Previous Processor?<span class="required">*</span></span>
+                    <div class="radio-row">
+                      <label><input type="radio" name="previousProcessor" value="yes" required data-toggle="processor-details" /> Yes</label>
+                      <label><input type="radio" name="previousProcessor" value="no" data-toggle="processor-details" /> No</label>
+                    </div>
+                  </div>
+                  <div class="field conditional" id="processor-details" hidden>
+                    <label for="processor-name">Name of Previous Processor</label>
+                    <input id="processor-name" name="processorName" type="text" />
+                  </div>
+                  <div class="field full">
+                    <label for="mailing-address">Mailing Address<span class="required">*</span></label>
+                    <select id="mailing-address" name="mailingAddress" required data-select-toggle="mailing-other">
+                      <option value="">Please select</option><option value="legal">Same as Legal Business</option><option value="dba">Same as DBA</option><option value="other">Other address</option>
+                    </select>
+                  </div>
+                  <div class="field full conditional" id="mailing-other" hidden>
+                    <label for="mailing-other-input">Other Mailing Address</label>
+                    <textarea id="mailing-other-input" name="mailingOther"></textarea>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="owners" data-section="owners">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">4</span><h2>Owners or Officers</h2></div>
+                <span class="section-note">Add each beneficial owner</span>
+              </header>
+              <div class="section-body">
+                <div id="owners-list"></div>
+                <div class="add-owner-row">
+                  <button class="secondary-button" id="add-owner" type="button"><img src="assets/icons/add-box.svg" alt="" />Add Additional Beneficial Owner</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="banking" data-section="banking">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">5</span><h2>Electronic Debit / Credit Authorization (Banking Information)</h2></div>
+                <span class="section-note">Settlement account</span>
+              </header>
+              <div class="section-body">
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="bank-holder">Bank Account Holder Name<span class="required">*</span></label>
+                    <input id="bank-holder" name="bankHolder" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="bank-name">Bank Institution Name<span class="required">*</span></label>
+                    <input id="bank-name" name="bankName" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="bank-transit">Bank Transit #<span class="required">*</span></label>
+                    <input id="bank-transit" name="bankTransit" type="text" inputmode="numeric" required />
+                  </div>
+                  <div class="field">
+                    <label for="bank-account">Bank Account #<span class="required">*</span></label>
+                    <input id="bank-account" name="bankAccount" type="text" inputmode="numeric" required />
+                  </div>
+                  <div class="field">
+                    <label for="bank-city">Bank City<span class="required">*</span></label>
+                    <input id="bank-city" name="bankCity" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="bank-province">Bank Province<span class="required">*</span></label>
+                    <select id="bank-province" name="bankProvince" required>
+                      <option value="">Please select</option><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Nova Scotia</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="bank-postal">Bank Postal Code<span class="required">*</span></label>
+                    <input id="bank-postal" name="bankPostal" type="text" required />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="documents" data-section="documents">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">6</span><h2>Supporting Documents</h2></div>
+                <span class="section-note">PDF, JPG or PNG</span>
+              </header>
+              <div class="section-body">
+                <div class="upload-grid">
+                  <label class="upload-card">
+                    <img src="assets/icons/file-download.svg" alt="" />
+                    <strong>Void Check<span class="required">*</span></strong>
+                    <span data-file-name>Choose or drop a bank document</span>
+                    <input name="voidCheck" type="file" accept=".pdf,.jpg,.jpeg,.png" required />
+                  </label>
+                  <label class="upload-card">
+                    <img src="assets/icons/file-download.svg" alt="" />
+                    <strong>Valid Driver's License<span class="required">*</span></strong>
+                    <span data-file-name>Choose or drop an identity document</span>
+                    <input name="driversLicense" type="file" accept=".pdf,.jpg,.jpeg,.png" required />
+                  </label>
+                  <label class="upload-card">
+                    <img src="assets/icons/file-download.svg" alt="" />
+                    <strong>Proof of Business</strong>
+                    <span data-file-name>Supporting registration document</span>
+                    <input name="proofOfBusiness" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="declaration" data-section="declaration">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">7</span><h2>Merchant Declaration / Additional Information</h2></div>
+                <span class="section-note">Review and submit</span>
+              </header>
+              <div class="section-body">
+                <div class="field">
+                  <label for="additional-information">Additional Information<span class="optional">optional</span></label>
+                  <textarea id="additional-information" name="additionalInformation" placeholder="Add any information that may help the underwriting review."></textarea>
+                </div>
+                <div class="declaration-list">
+                  <label class="declaration"><input name="certifyAccuracy" type="checkbox" required /><span>I certify that the information provided in this application is complete and accurate to the best of my knowledge.</span></label>
+                  <label class="declaration"><input name="authorizeReview" type="checkbox" required /><span>I authorize Paywizard, Nuvei, and their underwriting partners to review the submitted business, owner, banking, and supporting document information for merchant onboarding.</span></label>
+                </div>
+                <div class="form-actions">
+                  <button class="secondary-button" id="save-draft" type="button"><img src="assets/icons/bookmark-add.svg" alt="" />Save Draft</button>
+                  <button class="primary-button" type="submit"><img src="assets/icons/send.svg" alt="" />Submit Application</button>
+                </div>
+              </div>
+            </section>
+          </form>
+        </div>
+
+        <nav class="section-nav" aria-label="Application sections">
+          <div class="section-nav-title">Application Information</div>
+          <ol>
+            <li><a href="#legal" class="active"><span>1.</span><span>Legal Business Information</span></a></li>
+            <li><a href="#dba"><span>2.</span><span>DBA Information</span></a></li>
+            <li><a href="#profile"><span>3.</span><span>Business / Processing Profile</span></a></li>
+            <li><a href="#owners"><span>4.</span><span>Owners or Officers</span></a></li>
+            <li><a href="#banking"><span>5.</span><span>Banking Information</span></a></li>
+            <li><a href="#documents"><span>6.</span><span>Supporting Documents</span></a></li>
+            <li><a href="#declaration"><span>7.</span><span>Merchant Declaration</span></a></li>
+          </ol>
+        </nav>
+      </div>
+    </main>
+  </div>
+
+  <aside class="success-banner" id="success-banner" role="status" aria-live="polite" hidden>
+    <span class="success-icon"><img src="assets/icons/task_alt.svg" alt="" /></span>
+    <div><strong id="success-title">Draft saved</strong><p id="success-message">Your information is saved in this browser.</p></div>
+    <button class="success-close" type="button" aria-label="Close message"><img src="assets/icons/close.svg" alt="" /></button>
+  </aside>
+
+  <script>
+    (function () {
+      var form = document.getElementById('nuvei-form');
+      var ownersList = document.getElementById('owners-list');
+      var addOwnerButton = document.getElementById('add-owner');
+      var saveDraftButton = document.getElementById('save-draft');
+      var successBanner = document.getElementById('success-banner');
+      var successTitle = document.getElementById('success-title');
+      var successMessage = document.getElementById('success-message');
+      var ownerCount = 0;
+
+      function ownerTemplate(index) {
+        var number = index + 1;
+        return '<article class="owner-card" data-owner-index="' + index + '">' +
+          '<div class="owner-heading"><h3>Owner #' + number + '</h3>' +
+          (index ? '<button class="text-button remove-owner" type="button"><img src="assets/icons/delete.svg" alt="" />Remove Owner</button>' : '') + '</div>' +
+          '<div class="field-grid">' +
+            '<div class="field"><label for="owner-title-' + index + '">DBA Contact Title<span class="required">*</span></label><select id="owner-title-' + index + '" name="owners[' + index + '][title]" required><option value="">Please Select</option><option>Owner</option><option>Co owner</option><option>President</option><option>Legal contact</option><option>Secretary/Treasurer</option><option>Partner</option><option>General Manager</option><option>Administrator</option><option>Vice President</option><option>Director</option><option>CEO</option><option>Corporate Office Title</option><option>Principal</option></select></div>' +
+            '<div class="field"><span class="field-label">Will this owner sign the Personal Guaranty?<span class="required">*</span></span><div class="radio-row"><label><input type="radio" name="owners[' + index + '][guaranty]" value="yes" required /> Yes</label><label><input type="radio" name="owners[' + index + '][guaranty]" value="no" /> No</label></div></div>' +
+            '<div class="field"><label for="owner-first-' + index + '">First Name<span class="required">*</span></label><input id="owner-first-' + index + '" name="owners[' + index + '][firstName]" type="text" autocomplete="given-name" required /></div>' +
+            '<div class="field"><label for="owner-last-' + index + '">Last Name<span class="required">*</span></label><input id="owner-last-' + index + '" name="owners[' + index + '][lastName]" type="text" autocomplete="family-name" required /></div>' +
+            '<div class="field"><label for="owner-email-' + index + '">Email Address<span class="required">*</span></label><input id="owner-email-' + index + '" name="owners[' + index + '][email]" type="email" autocomplete="email" required /></div>' +
+            '<div class="field"><label for="owner-percent-' + index + '">Percent Ownership<span class="required">*</span></label><input id="owner-percent-' + index + '" name="owners[' + index + '][percentOwnership]" type="number" min="0" max="100" required /></div>' +
+            '<div class="field"><label for="owner-dob-' + index + '">Date of Birth<span class="required">*</span></label><input id="owner-dob-' + index + '" name="owners[' + index + '][dob]" type="date" required /></div>' +
+            '<div class="field"><label for="owner-civic-' + index + '">Civic / Road Number<span class="required">*</span></label><input id="owner-civic-' + index + '" name="owners[' + index + '][civic]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-street-' + index + '">Street Name<span class="required">*</span></label><input id="owner-street-' + index + '" name="owners[' + index + '][street]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-city-' + index + '">City<span class="required">*</span></label><input id="owner-city-' + index + '" name="owners[' + index + '][city]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-province-' + index + '">Province<span class="required">*</span></label><select id="owner-province-' + index + '" name="owners[' + index + '][province]" required><option value="">Please select</option><option>Alberta</option><option>British Columbia</option><option>Manitoba</option><option>New Brunswick</option><option>Newfoundland and Labrador</option><option>Nova Scotia</option><option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option><option>Saskatchewan</option></select></div>' +
+            '<div class="field"><label for="owner-postal-' + index + '">Postal Code<span class="required">*</span></label><input id="owner-postal-' + index + '" name="owners[' + index + '][postal]" type="text" required /></div>' +
+            '<div class="field"><label for="owner-residence-' + index + '">Residence Telephone</label><input id="owner-residence-' + index + '" name="owners[' + index + '][residencePhone]" type="tel" /></div>' +
+            '<div class="field"><label for="owner-cell-' + index + '">Cell Phone Number<span class="required">*</span></label><input id="owner-cell-' + index + '" name="owners[' + index + '][cellPhone]" type="tel" required /></div>' +
+            '<div class="field"><label for="owner-id-type-' + index + '">Government ID Type<span class="required">*</span></label><select id="owner-id-type-' + index + '" name="owners[' + index + '][idType]" required><option value="">Please select</option><option>Driver\'s License</option><option>Passport</option><option>Provincial ID Card</option></select></div>' +
+            '<div class="field"><label for="owner-id-number-' + index + '">Government ID Number<span class="required">*</span></label><input id="owner-id-number-' + index + '" name="owners[' + index + '][idNumber]" type="text" required /></div>' +
+          '</div></article>';
+      }
+
+      function addOwner() {
+        if (ownerCount >= 4) return;
+        ownersList.insertAdjacentHTML('beforeend', ownerTemplate(ownerCount));
+        ownerCount += 1;
+        addOwnerButton.hidden = ownerCount >= 4;
+      }
+
+      function syncOwnerHeadings() {
+        var cards = Array.prototype.slice.call(ownersList.querySelectorAll('.owner-card'));
+        cards.forEach(function (card, index) {
+          card.querySelector('h3').textContent = 'Owner #' + (index + 1);
+        });
+        ownerCount = cards.length;
+        addOwnerButton.hidden = ownerCount >= 4;
+      }
+
+      function updateConditional(targetId, show) {
+        var target = document.getElementById(targetId);
+        if (!target) return;
+        target.hidden = !show;
+        target.querySelectorAll('input, textarea, select').forEach(function (control) {
+          control.required = show;
+          if (!show) control.value = '';
+        });
+      }
+
+      function showBanner(title, message) {
+        successTitle.textContent = title;
+        successMessage.textContent = message;
+        successBanner.hidden = false;
+      }
+
+      addOwner();
+
+      addOwnerButton.addEventListener('click', function () {
+        addOwner();
+        var cards = ownersList.querySelectorAll('.owner-card');
+        cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      ownersList.addEventListener('click', function (event) {
+        var button = event.target.closest('.remove-owner');
+        if (!button) return;
+        button.closest('.owner-card').remove();
+        syncOwnerHeadings();
+      });
+
+      form.addEventListener('change', function (event) {
+        var target = event.target;
+        if (target.matches('input[type="radio"][data-toggle]')) {
+          var group = form.querySelector('input[name="' + target.name + '"]:checked');
+          updateConditional(target.dataset.toggle, Boolean(group && group.value === 'yes'));
+        }
+
+        if (target.matches('[data-select-toggle]')) {
+          updateConditional(target.dataset.selectToggle, target.value === 'other');
+        }
+
+        if (target.matches('.upload-card input[type="file"]')) {
+          var card = target.closest('.upload-card');
+          var fileName = card.querySelector('[data-file-name]');
+          var file = target.files && target.files[0];
+          card.classList.toggle('has-file', Boolean(file));
+          fileName.textContent = file ? file.name : 'Choose or drop a document';
+        }
+      });
+
+      document.querySelector('.success-close').addEventListener('click', function () {
+        successBanner.hidden = true;
+      });
+
+      saveDraftButton.addEventListener('click', function () {
+        var values = {};
+        new FormData(form).forEach(function (value, key) {
+          if (typeof value === 'string') values[key] = value;
+        });
+        localStorage.setItem('paywizard-nuvei-draft', JSON.stringify(values));
+        showBanner('Draft saved', 'Your text entries are saved in this browser. File attachments are not retained.');
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          var invalid = form.querySelector(':invalid');
+          if (invalid) invalid.closest('.form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+        showBanner('Application ready', 'The Nuvei merchant application has passed the prototype validation check.');
+      });
+
+      var navLinks = Array.prototype.slice.call(document.querySelectorAll('.section-nav a'));
+      var sectionObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach(function (link) {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+          });
+        });
+      }, { rootMargin: '-18% 0px -70% 0px', threshold: 0 });
+
+      document.querySelectorAll('[data-section]').forEach(function (section) {
+        sectionObserver.observe(section);
+      });
+    })();
+  </script>
+</body>
+</html>
