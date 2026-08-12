@@ -1,3 +1,53 @@
+# Create Onboarding Application and Merchant Share Pages Design QA
+
+## Evidence
+
+- Source visual truth: the current-task 2048 × 910 PAYwizard Merchant Registration screenshot for portal chrome, spacing, typography and controls; the existing `27.Merchant_onboard_nuvei.html` and `27.Merchant_onboard_elavon.html` channel forms for application content and visual language.
+- Implementation: `38.Merchant_onboard.html`, `38.Merchant_onboard_nuvei_public.html`, `38.Merchant_onboard_elavon_public.html`, `styles/merchant-public-application.css`, and `scripts/merchant-public-application.js`.
+- Platform creator: `assets/qa/38-onboarding-create-2048x910.jpg`, 2048 × 910 image px from a 2048 × 910 CSS-pixel viewport at device scale factor 1.
+- Save-and-share state: `assets/qa/38-onboarding-share-modal-2048x910.jpg`, 2048 × 910 image px at the same viewport and density.
+- Nuvei merchant page: `assets/qa/38-onboarding-nuvei-public-1440x900.jpg`, 1440 × 900 image px from a 1440 × 900 CSS-pixel viewport at device scale factor 1.
+- Elavon merchant page: `assets/qa/38-onboarding-elavon-public-1440x900.jpg`, 1440 × 900 image px at the same viewport and density.
+- Mobile evidence: `assets/qa/38-onboarding-create-390x844.jpg` and `assets/qa/38-onboarding-nuvei-public-390x844.jpg`, each 390 × 844 image px from a 390 × 844 CSS-pixel viewport at device scale factor 1.
+- State: blank platform creator, filled Nuvei share-link modal, and prefilled no-login merchant forms for `Northstar Coffee`.
+- Full-view comparison evidence: the source portal screenshot and the creator capture were reviewed together at 2048 × 910. The public captures were reviewed against the rendered channel forms they embed, with the source platform sidebar/topbar intentionally removed from the iframe presentation.
+- Focused comparison evidence: creator title/breadcrumb, three information groups, bottom actions, share dialog, merchant welcome/guidance/privacy regions, payment-channel logo treatment, prefilled first application section, desktop/mobile overflow and responsive form columns were checked at full resolution.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: Poppins and system fallbacks retain the rounded PAYwizard hierarchy. Page headings, section titles, helper copy, floating labels, modal content and merchant guidance have distinct, readable weights and do not wrap into controls.
+- Spacing and layout rhythm: portal chrome retains the reference sidebar/topbar/content proportions. The redesigned creator uses a full-width contact row followed by application setup and internal terms, removing the sparse left-panel height from the first iteration. Merchant pages use a centered 1240 px shell and collapse cleanly at 390 px; page-level horizontal overflow is 0 px.
+- Colors and visual tokens: white and light-neutral surfaces, charcoal navigation/number tokens, blue sharing actions, green save/security states and red required accents are consistent with the current PAYwizard pages.
+- Image quality and asset fidelity: existing PAYwizard, Nuvei and Elavon logo assets are reused at native aspect ratios. Existing repository icons and Material Symbols are used; no visible logo or icon is recreated with inline SVG, CSS drawing, emoji or placeholder artwork.
+- Copy and content: the portal title is `Create Onboarding Application`; Assign/New Merchant and the Application Information side rail are absent. The creator explains the generated no-login form, clearly separates merchant-visible prefill data from internal commercial terms, and offers `Save` plus `Save & Share`. Public pages add no-login, save-progress, document, privacy and support guidance without exposing platform navigation.
+- Interaction and accessibility: native labels, required validation, channel selection, draft restore, link copy/open, hash routing and responsive controls are keyboard-addressable. Nuvei and Elavon links prefill the supported merchant fields, and internal rates are excluded from the URL.
+
+## Comparison History
+
+1. The first creator comparison found a P2 layout issue: Merchant & Contact Details spanned two grid rows, creating a large empty lower-left area and weakening the information hierarchy. It was changed to a full-width four-column row with Application Setup and Internal Commercial Terms aligned below. The revised 2048 × 910 capture shows balanced density and clear reading order.
+2. The first 390 px creator capture found a P2 responsive issue: a more specific desktop selector kept merchant contact fields in two columns. A scoped mobile override now produces a single 310 px column; the revised mobile capture has no clipping or horizontal overflow.
+3. The merchant-page pass verified both channel wrappers at 1440 × 900 and Nuvei at 390 × 844. Platform chrome is hidden, the branded no-login guidance remains above the form, channel logos are sharp, prefilled fields are visible, and no further P0/P1/P2 correction is required.
+
+## Primary Interactions Tested
+
+- List filtering/reset and opening the creator through `#new-onboarding`.
+- Save and restore with `paywizard-merchant-onboarding-draft`.
+- Required validation, `Save & Share`, generated application persistence and `Awaiting Merchant` list state.
+- Copy/open link dialog and channel-specific routing to the Nuvei or Elavon public page.
+- Nuvei/Elavon no-login presentation, portal-chrome removal and supported field prefill.
+- 1440 px and 390 px responsive layouts with no page-level horizontal overflow.
+- Browser console errors: none across creator, Nuvei and Elavon pages.
+- Playwright suite: 7 tests passed.
+
+## Follow-up Polish
+
+- P3: generated prototype links use the current page origin. After these files are hosted, the same flow automatically produces externally reachable URLs; local `127.0.0.1` links are intentionally limited to local QA.
+
+final result: passed
+
+---
+
 # Merchant Onboarding List and Registration Design QA
 
 ## Evidence

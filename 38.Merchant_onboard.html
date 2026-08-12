@@ -464,6 +464,7 @@
 
     .status-pill.approved { background: #d9fae7; color: #128542; }
     .status-pill.review { background: #dcf2fc; color: #0878b0; }
+    .status-pill.awaiting { background: #fff1cc; color: #9a6811; }
 
     .row-actions {
       display: flex;
@@ -548,85 +549,135 @@
     .page-size { width: 90px; padding: 0 12px; }
     .page-number { width: 52px; padding: 0 10px; text-align: center; }
 
-    .registration-view .panel-header { margin-bottom: 50px; }
-
-    .registration-layout {
-      min-height: 0;
-      flex: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 228px;
-      gap: 16px;
-    }
+    .registration-view .panel-header { margin-bottom: 18px; }
 
     .registration-form {
       min-width: 0;
+      flex: 1;
       display: flex;
       flex-direction: column;
     }
 
-    .form-fieldset {
-      min-width: 0;
-      margin: 0 0 31px;
-      padding: 22px 44px 35px;
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      background: #fff;
+    .create-application-intro {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 16px 18px;
+      border: 1px solid #d8e4ef;
+      border-radius: 9px;
+      background: #f7fafc;
     }
 
-    .form-fieldset.assignment { min-height: 102px; margin-bottom: 37px; }
-    .form-fieldset.application { min-height: 272px; padding-bottom: 28px; }
+    .create-intro-icon {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #e7f2fb;
+      color: #1576ad;
+    }
 
-    .form-fieldset legend {
-      padding: 0 14px;
-      color: #4a4b52;
-      font-size: 13px;
+    .create-intro-icon .material-symbols-rounded { font-size: 28px; }
+    .create-intro-copy h2 { margin: 0 0 4px; color: #35373d; font-size: 14px; }
+    .create-intro-copy p { margin: 0; color: #6c7480; font-size: 11px; }
+
+    .template-badges {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .template-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 27px;
+      padding: 5px 9px;
+      border: 1px solid #d7dbe2;
+      border-radius: 999px;
+      background: #fff;
+      color: #5b606a;
+      font-size: 10px;
       font-weight: 600;
     }
 
-    .switch-row {
+    .template-badge .material-symbols-rounded { color: var(--green); font-size: 15px; }
+
+    .application-sections {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .application-section {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .application-section.merchant-details { grid-column: 1 / -1; }
+
+    .merchant-details .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .application-setup .form-grid.single { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .application-section-header {
       display: flex;
       align-items: center;
-      gap: 11px;
-      color: #555861;
-      font-size: 13px;
+      gap: 10px;
+      min-height: 48px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfbfc;
     }
 
-    .switch {
-      position: relative;
-      width: 42px;
-      height: 25px;
+    .application-section-number {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
       flex: none;
-      margin: 0;
-      appearance: none;
-      border: 0;
-      border-radius: 999px;
-      background: #d3d5dc;
-      outline: none;
-      transition: background 0.18s ease;
-    }
-
-    .switch::after {
-      content: "";
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 17px;
-      height: 17px;
       border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
-      transition: transform 0.18s ease;
+      background: #303136;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
     }
 
-    .switch:checked { background: var(--blue-strong); }
-    .switch:checked::after { transform: translateX(17px); }
-    .switch:focus-visible { box-shadow: 0 0 0 3px rgba(23, 104, 220, 0.18); }
+    .application-section-header h2 { margin: 0; color: #3f4148; font-size: 13px; }
+    .application-section-header p { margin: 2px 0 0; color: #858a94; font-size: 9px; }
+    .application-section-body { padding: 18px 16px; }
+
+    .application-section.internal {
+      background: #fbfbfc;
+    }
+
+    .internal-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin: 12px 0 0;
+      color: #7c818b;
+      font-size: 9px;
+    }
+
+    .internal-note .material-symbols-rounded { flex: none; color: #6c727d; font-size: 16px; }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 19px 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 16px;
     }
+
+    .form-grid.single { grid-template-columns: 1fr; }
 
     .field {
       position: relative;
@@ -694,34 +745,109 @@
       justify-content: center;
       gap: 10px;
       margin-top: auto;
-      padding-top: 8px;
+      padding-top: 14px;
       border-top: 1px solid var(--line);
-    }
-
-    .registration-view .form-actions {
-      position: relative;
-      top: 8px;
     }
 
     .form-actions .btn { min-height: 38px; }
 
-    .section-rail {
-      align-self: start;
-      border-left: 1px solid #55565b;
-      border-radius: 5px;
-      overflow: hidden;
-      background: #e8e8eb;
-      color: #303137;
-      font-size: 11px;
-      font-weight: 600;
-      text-align: center;
-    }
+    .btn.share { border-color: #1768dc; background: #1768dc; color: #fff; }
 
-    .section-rail span {
-      min-height: 30px;
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
       display: grid;
       place-items: center;
-      padding: 6px 10px;
+      padding: 22px;
+      background: rgba(16, 18, 24, 0.48);
+    }
+
+    .share-dialog {
+      width: min(560px, 100%);
+      overflow: hidden;
+      border: 1px solid #d9dce2;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 22px 60px rgba(12, 16, 26, 0.24);
+    }
+
+    .share-dialog-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 19px 20px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .share-dialog-header h2 { margin: 0 0 4px; color: #36383f; font-size: 17px; }
+    .share-dialog-header p { margin: 0; color: #777d88; font-size: 10px; }
+
+    .dialog-close {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      border: 0;
+      border-radius: 7px;
+      background: #f4f4f5;
+      color: #676b74;
+    }
+
+    .share-dialog-body { padding: 18px 20px; }
+
+    .share-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .share-summary div {
+      padding: 10px 12px;
+      border-radius: 7px;
+      background: #f7f8fa;
+    }
+
+    .share-summary span { display: block; color: #8a8e97; font-size: 9px; }
+    .share-summary strong { display: block; margin-top: 3px; color: #41434a; font-size: 11px; }
+
+    .share-link-label { display: block; margin-bottom: 6px; color: #555963; font-size: 10px; font-weight: 600; }
+
+    .share-link-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .share-link-row input {
+      min-width: 0;
+      height: 39px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fbfbfc;
+      color: #555a65;
+      padding: 0 11px;
+      font-size: 10px;
+    }
+
+    .share-help {
+      display: flex;
+      gap: 7px;
+      margin: 13px 0 0;
+      color: #747a84;
+      font-size: 9px;
+    }
+
+    .share-help .material-symbols-rounded { flex: none; color: #22895a; font-size: 16px; }
+
+    .share-dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 13px 20px 18px;
     }
 
     .toast {
@@ -761,7 +887,6 @@
     @media (max-width: 1320px) {
       :root { --sidebar-width: 236px; }
       .filter-control { width: 180px; }
-      .form-fieldset { padding-inline: 28px; }
     }
 
     @media (max-width: 1040px) {
@@ -777,9 +902,14 @@
       .menu-item { justify-content: center; padding-inline: 0; }
       .menu-main { justify-content: center; }
       .panel { padding: 17px; }
-      .registration-layout { grid-template-columns: minmax(0, 1fr); }
-      .section-rail { display: none; }
       .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .merchant-details .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .application-setup .form-grid.single { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .application-sections { grid-template-columns: 1fr; }
+      .application-section.merchant-details { grid-column: auto; }
     }
 
     @media (max-width: 760px) {
@@ -812,11 +942,18 @@
       .pager-main,
       .pager-summary { grid-column: 1; justify-self: center; }
       .pager-summary { display: none; }
-      .registration-view .panel-header { margin-bottom: 23px; }
-      .form-fieldset { margin-bottom: 20px; padding: 18px 16px 22px; }
+      .registration-view .panel-header { margin-bottom: 14px; }
+      .create-application-intro { grid-template-columns: 44px minmax(0, 1fr); padding: 14px; }
+      .create-intro-icon { width: 44px; height: 44px; }
+      .template-badges { grid-column: 1 / -1; justify-content: flex-start; }
+      .application-section-body { padding: 16px 14px; }
       .form-grid { grid-template-columns: 1fr; gap: 16px; }
+      .merchant-details .form-grid { grid-template-columns: 1fr; }
       .form-actions { flex-wrap: wrap; }
-      .registration-view .form-actions { top: 0; }
+      .share-summary { grid-template-columns: 1fr; }
+      .share-link-row { grid-template-columns: 1fr; }
+      .share-link-row .btn { width: 100%; }
+      .share-dialog-actions { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -862,7 +999,7 @@
           <span class="material-symbols-rounded first-separator" aria-hidden="true">chevron_right</span>
           <strong id="breadcrumb-section">Onboarding</strong>
           <span class="material-symbols-rounded" id="registration-separator" aria-hidden="true" hidden>chevron_right</span>
-          <strong id="registration-crumb" hidden>Merchant Registration</strong>
+          <strong id="registration-crumb" hidden>Create Onboarding Application</strong>
         </div>
         <div class="top-actions">
           <button class="round-btn" type="button" aria-label="Notifications">
@@ -892,6 +1029,7 @@
               <option>Approved</option>
               <option>Under Review</option>
               <option>Merchant Submit</option>
+              <option>Awaiting Merchant</option>
             </select>
             <button class="toolbar-icon" id="reset-filters" type="button" aria-label="Reset filters"><span class="material-symbols-rounded" aria-hidden="true">refresh</span></button>
             <button class="toolbar-icon search" id="search-filters" type="button" aria-label="Search onboarding"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
@@ -932,94 +1070,106 @@
 
         <section class="view registration-view" id="registration-view" aria-labelledby="registration-title" hidden>
           <div class="panel-header">
-            <h1 class="page-title" id="registration-title">Merchant Registration</h1>
+            <h1 class="page-title" id="registration-title">Create Onboarding Application</h1>
           </div>
 
-          <div class="registration-layout">
-            <form class="registration-form" id="merchant-form" novalidate>
-              <fieldset class="form-fieldset assignment">
-                <legend>Assign/New Merchant</legend>
-                <label class="switch-row" for="new-merchant">
-                  <span>New Merchant</span>
-                  <input class="switch" id="new-merchant" name="newMerchant" type="checkbox" />
-                </label>
-              </fieldset>
+          <form class="registration-form" id="merchant-form" novalidate>
+            <section class="create-application-intro" aria-label="Create application guidance">
+              <span class="create-intro-icon"><span class="material-symbols-rounded" aria-hidden="true">link</span></span>
+              <div class="create-intro-copy">
+                <h2>Create a channel-specific application for the merchant</h2>
+                <p>Enter the known merchant details and choose a payment channel. PAYwizard will create a secure, no-login form that you can share with the merchant to complete.</p>
+              </div>
+              <div class="template-badges" aria-label="Available merchant application templates">
+                <span class="template-badge"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Nuvei</span>
+                <span class="template-badge"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Elavon EU</span>
+              </div>
+            </section>
 
-              <fieldset class="form-fieldset application">
-                <legend>Application Information</legend>
-                <div class="form-grid">
-                  <div class="field" id="merchant-select-field">
-                    <select id="merchant-name-select" name="merchantNameSelect" aria-label="Merchant Name">
-                      <option value=""></option>
-                      <option>techsupport</option>
-                      <option>ceshi123213243234</option>
-                      <option>Merchant name1</option>
-                      <option>FISERV PROD TEST</option>
-                      <option>IFS Shop Mall</option>
-                    </select>
-                    <label class="field-label" for="merchant-name-select">Merchant Name</label>
-                  </div>
-                  <div class="field" id="merchant-input-field" hidden>
-                    <input id="merchant-name-input" name="merchantNameInput" type="text" placeholder=" " disabled />
-                    <label class="field-label" for="merchant-name-input">Merchant Name</label>
-                  </div>
-
-                  <div class="field">
-                    <input id="merchant-email" name="merchantEmail" type="email" autocomplete="email" placeholder=" " required />
-                    <label class="field-label" for="merchant-email">Merchant Email<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <input id="merchant-phone" name="merchantPhone" type="tel" autocomplete="tel" placeholder=" " required />
-                    <label class="field-label" for="merchant-phone">Merchant Phone<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <input id="contact-name" name="contactName" type="text" autocomplete="name" placeholder=" " required />
-                    <label class="field-label" for="contact-name">Contact Name<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <select id="merchant-permissions" name="merchantPermissions" required aria-label="Merchant Permissions">
-                      <option value=""></option><option>Merchant Admin</option><option>Merchant User</option><option>View Only</option>
-                    </select>
-                    <label class="field-label" for="merchant-permissions">Merchant Permissions<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <select id="currency-name" name="currencyName" required aria-label="Currency Name">
-                      <option value=""></option><option value="USD">USD - US Dollar</option><option value="EUR">EUR - Euro</option><option value="GBP">GBP - Pound Sterling</option><option value="CAD">CAD - Canadian Dollar</option>
-                    </select>
-                    <label class="field-label" for="currency-name">Currency Name<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <select id="country-name" name="countryName" required aria-label="Country Name">
-                      <option value=""></option><option>United States of America</option><option>Canada</option><option>United Kingdom</option><option>France</option><option>Germany</option>
-                    </select>
-                    <label class="field-label" for="country-name">Country Name<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <select id="payment-channel" name="paymentChannel" required aria-label="Payment Channel">
-                      <option value=""></option><option>Elavon EU</option><option>Fiserv</option><option>Nuvei</option><option>TSYS</option>
-                    </select>
-                    <label class="field-label" for="payment-channel">Payment Channel<span class="required">*</span></label>
-                  </div>
-                  <div class="field">
-                    <input id="cost-rate" name="costRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder=" " />
-                    <label class="field-label" for="cost-rate">Cost Rate (%)</label>
-                  </div>
-                  <div class="field">
-                    <input id="fee-cap" name="feeCap" type="number" min="0" step="0.01" inputmode="decimal" placeholder=" " />
-                    <label class="field-label" for="fee-cap">Fee cap</label>
+            <div class="application-sections">
+              <section class="application-section merchant-details" aria-labelledby="merchant-details-title">
+                <header class="application-section-header">
+                  <span class="application-section-number">1</span>
+                  <div><h2 id="merchant-details-title">Merchant &amp; Contact Details</h2><p>These values are prefilled in the merchant-facing form.</p></div>
+                </header>
+                <div class="application-section-body">
+                  <div class="form-grid">
+                    <div class="field">
+                      <input id="merchant-name" name="merchantName" type="text" autocomplete="organization" placeholder=" " required />
+                      <label class="field-label" for="merchant-name">Merchant Name<span class="required">*</span></label>
+                    </div>
+                    <div class="field">
+                      <input id="contact-name" name="contactName" type="text" autocomplete="name" placeholder=" " required />
+                      <label class="field-label" for="contact-name">Primary Contact<span class="required">*</span></label>
+                    </div>
+                    <div class="field">
+                      <input id="merchant-email" name="merchantEmail" type="email" autocomplete="email" placeholder=" " required />
+                      <label class="field-label" for="merchant-email">Merchant Email<span class="required">*</span></label>
+                    </div>
+                    <div class="field">
+                      <input id="merchant-phone" name="merchantPhone" type="tel" autocomplete="tel" placeholder=" " required />
+                      <label class="field-label" for="merchant-phone">Merchant Phone<span class="required">*</span></label>
+                    </div>
                   </div>
                 </div>
-              </fieldset>
+              </section>
 
-              <div class="form-actions">
-                <button class="btn subtle" id="cancel-registration" type="button">Cancel</button>
-                <button class="btn success" id="save-draft" type="button">Save</button>
-                <button class="btn primary" type="submit">Submit</button>
-              </div>
-            </form>
+              <section class="application-section application-setup" aria-labelledby="application-setup-title">
+                <header class="application-section-header">
+                  <span class="application-section-number">2</span>
+                  <div><h2 id="application-setup-title">Application Setup</h2><p>Select which merchant form will be generated.</p></div>
+                </header>
+                <div class="application-section-body">
+                  <div class="form-grid single">
+                    <div class="field">
+                      <select id="payment-channel" name="paymentChannel" required aria-label="Payment Channel">
+                        <option value=""></option><option value="Nuvei">Nuvei</option><option value="Elavon EU">Elavon EU</option>
+                      </select>
+                      <label class="field-label" for="payment-channel">Payment Channel<span class="required">*</span></label>
+                    </div>
+                    <div class="field">
+                      <select id="country-name" name="countryName" required aria-label="Country Name">
+                        <option value=""></option><option>United States of America</option><option>Canada</option><option>United Kingdom</option><option>France</option><option>Germany</option>
+                      </select>
+                      <label class="field-label" for="country-name">Country Name<span class="required">*</span></label>
+                    </div>
+                    <div class="field">
+                      <select id="currency-name" name="currencyName" required aria-label="Currency Name">
+                        <option value=""></option><option value="USD">USD - US Dollar</option><option value="EUR">EUR - Euro</option><option value="GBP">GBP - Pound Sterling</option><option value="CAD">CAD - Canadian Dollar</option>
+                      </select>
+                      <label class="field-label" for="currency-name">Currency Name<span class="required">*</span></label>
+                    </div>
+                  </div>
+                </div>
+              </section>
 
-            <aside class="section-rail" aria-label="Registration section"><span>Application Information</span></aside>
-          </div>
+              <section class="application-section internal" aria-labelledby="commercial-title">
+                <header class="application-section-header">
+                  <span class="application-section-number">3</span>
+                  <div><h2 id="commercial-title">Internal Commercial Terms</h2><p>Optional platform values; not shown to the merchant.</p></div>
+                </header>
+                <div class="application-section-body">
+                  <div class="form-grid">
+                    <div class="field">
+                      <input id="cost-rate" name="costRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder=" " />
+                      <label class="field-label" for="cost-rate">Cost Rate (%)</label>
+                    </div>
+                    <div class="field">
+                      <input id="fee-cap" name="feeCap" type="number" min="0" step="0.01" inputmode="decimal" placeholder=" " />
+                      <label class="field-label" for="fee-cap">Fee cap</label>
+                    </div>
+                  </div>
+                  <p class="internal-note"><span class="material-symbols-rounded" aria-hidden="true">visibility_off</span><span>These terms stay inside PAYwizard and are excluded from the share link.</span></p>
+                </div>
+              </section>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn subtle" id="cancel-registration" type="button">Cancel</button>
+              <button class="btn success" id="save-draft" type="button"><span class="material-symbols-rounded" aria-hidden="true">save</span>Save</button>
+              <button class="btn share" id="save-and-share" type="submit"><span class="material-symbols-rounded" aria-hidden="true">ios_share</span>Save &amp; Share</button>
+            </div>
+          </form>
         </section>
       </main>
     </div>
@@ -1030,11 +1180,37 @@
     <div><strong id="toast-title">Saved</strong><p id="toast-message">Your changes have been saved.</p></div>
   </div>
 
+  <div class="modal-backdrop" id="share-modal" role="presentation" hidden>
+    <section class="share-dialog" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
+      <header class="share-dialog-header">
+        <div><h2 id="share-dialog-title">Merchant application link ready</h2><p>Copy this link and send it to the merchant. No PAYwizard login is required.</p></div>
+        <button class="dialog-close" id="close-share-dialog" type="button" aria-label="Close share dialog"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+      </header>
+      <div class="share-dialog-body">
+        <div class="share-summary">
+          <div><span>Merchant</span><strong id="share-merchant-name">—</strong></div>
+          <div><span>Payment channel</span><strong id="share-payment-channel">—</strong></div>
+        </div>
+        <label class="share-link-label" for="share-link">Shareable application link</label>
+        <div class="share-link-row">
+          <input id="share-link" type="text" readonly />
+          <button class="btn" id="copy-share-link" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link</button>
+        </div>
+        <p class="share-help"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><span>The merchant will see a focused onboarding form with friendly guidance and can save progress before submitting.</span></p>
+      </div>
+      <div class="share-dialog-actions">
+        <button class="btn subtle" id="done-sharing" type="button">Done</button>
+        <a class="btn primary" id="open-merchant-page" href="#" target="_blank" rel="noopener">Open Merchant Page</a>
+      </div>
+    </section>
+  </div>
+
   <script>
     (function () {
       "use strict";
 
       var DRAFT_KEY = "paywizard-merchant-onboarding-draft";
+      var APPLICATIONS_KEY = "paywizard-onboarding-applications-v2";
       var rows = [
         { processId: "00000336", spName: "Paywizard UAT", agentName: "", merchantName: "techsupport", mid: "-", email: "maggie-support1@wizarpos.com", lastUpdate: "2026-05-14 14:22:27", status: "Draft" },
         { processId: "00000328", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi123213243234", mid: "mid12320251229", email: "uat2512003@nooboy.com", lastUpdate: "2025-12-29 15:29:41", status: "Approved" },
@@ -1048,6 +1224,13 @@
         { processId: "-", spName: "Paywizard UAT", agentName: "", merchantName: "CESHI", mid: "-", email: "1778883@qq.com", lastUpdate: "2025-01-15 13:57:22", status: "Under Review" }
       ];
 
+      try {
+        var savedApplications = JSON.parse(window.localStorage.getItem(APPLICATIONS_KEY) || "[]");
+        if (Array.isArray(savedApplications)) rows = savedApplications.concat(rows);
+      } catch (error) {
+        window.localStorage.removeItem(APPLICATIONS_KEY);
+      }
+
       var listView = document.getElementById("list-view");
       var registrationView = document.getElementById("registration-view");
       var registrationSeparator = document.getElementById("registration-separator");
@@ -1059,11 +1242,9 @@
       var processFilter = document.getElementById("process-filter");
       var statusFilter = document.getElementById("status-filter");
       var form = document.getElementById("merchant-form");
-      var newMerchant = document.getElementById("new-merchant");
-      var merchantSelectField = document.getElementById("merchant-select-field");
-      var merchantInputField = document.getElementById("merchant-input-field");
-      var merchantSelect = document.getElementById("merchant-name-select");
-      var merchantInput = document.getElementById("merchant-name-input");
+      var shareModal = document.getElementById("share-modal");
+      var shareLinkInput = document.getElementById("share-link");
+      var openMerchantPage = document.getElementById("open-merchant-page");
       var toast = document.getElementById("toast");
       var toastTimer;
 
@@ -1076,6 +1257,7 @@
       function statusClass(status) {
         if (status === "Approved") return "approved";
         if (status === "Under Review") return "review";
+        if (status === "Awaiting Merchant") return "awaiting";
         return "";
       }
 
@@ -1117,15 +1299,6 @@
         });
       }
 
-      function syncMerchantMode() {
-        var isNew = newMerchant.checked;
-        merchantSelectField.hidden = isNew;
-        merchantSelect.disabled = isNew;
-        merchantInputField.hidden = !isNew;
-        merchantInput.disabled = !isNew;
-        syncSelectLabels();
-      }
-
       function showToast(title, message) {
         document.getElementById("toast-title").textContent = title;
         document.getElementById("toast-message").textContent = message;
@@ -1144,7 +1317,7 @@
         registrationView.hidden = !showRegistration;
         registrationSeparator.hidden = !showRegistration;
         registrationCrumb.hidden = !showRegistration;
-        document.title = showRegistration ? "Merchant Registration - PAYwizard" : "Merchant Onboarding - PAYwizard";
+        document.title = showRegistration ? "Create Onboarding Application - PAYwizard" : "Merchant Onboarding - PAYwizard";
         if (showRegistration) restoreDraft();
         window.scrollTo(0, 0);
       }
@@ -1152,36 +1325,29 @@
       function serializeForm() {
         var values = {};
         new FormData(form).forEach(function (value, key) { values[key] = value; });
-        values.newMerchant = newMerchant.checked;
         return values;
       }
 
       function restoreDraft() {
         var raw = window.localStorage.getItem(DRAFT_KEY);
         if (!raw) {
-          syncMerchantMode();
           syncSelectLabels();
           return;
         }
         try {
           var values = JSON.parse(raw);
           Object.keys(values).forEach(function (key) {
-            if (key === "newMerchant") return;
             var control = form.elements.namedItem(key);
             if (control) control.value = values[key];
           });
-          newMerchant.checked = Boolean(values.newMerchant);
         } catch (error) {
           window.localStorage.removeItem(DRAFT_KEY);
         }
-        syncMerchantMode();
         syncSelectLabels();
       }
 
       function clearForm() {
         form.reset();
-        newMerchant.checked = false;
-        syncMerchantMode();
         syncSelectLabels();
       }
 
@@ -1211,6 +1377,91 @@
         return String(maximum + 1).padStart(8, "0");
       }
 
+      function createApplicationId() {
+        return "APP-" + String(Date.now()).slice(-10);
+      }
+
+      function publicPageForChannel(channel) {
+        return channel === "Nuvei" ? "38.Merchant_onboard_nuvei_public.html" : "38.Merchant_onboard_elavon_public.html";
+      }
+
+      function createShareUrl(values, applicationId) {
+        var url = new URL(publicPageForChannel(values.paymentChannel), window.location.href);
+        url.hash = "";
+        url.searchParams.set("applicationId", applicationId);
+        url.searchParams.set("merchantName", values.merchantName || "");
+        url.searchParams.set("contactName", values.contactName || "");
+        url.searchParams.set("email", values.merchantEmail || "");
+        url.searchParams.set("phone", values.merchantPhone || "");
+        url.searchParams.set("country", values.countryName || "");
+        url.searchParams.set("currency", values.currencyName || "");
+        return url.href;
+      }
+
+      function saveApplications() {
+        var applications = rows.filter(function (row) { return Boolean(row.applicationId); });
+        window.localStorage.setItem(APPLICATIONS_KEY, JSON.stringify(applications));
+      }
+
+      function addSharedApplication(values) {
+        var applicationId = createApplicationId();
+        var row = {
+          applicationId: applicationId,
+          processId: nextProcessId(),
+          spName: "Paywizard UAT",
+          agentName: "",
+          merchantName: values.merchantName,
+          mid: "-",
+          email: values.merchantEmail,
+          phone: values.merchantPhone,
+          contactName: values.contactName,
+          channel: values.paymentChannel,
+          country: values.countryName,
+          currency: values.currencyName,
+          costRate: values.costRate || "",
+          feeCap: values.feeCap || "",
+          lastUpdate: currentTimestamp(),
+          status: "Awaiting Merchant"
+        };
+        row.shareUrl = createShareUrl(values, applicationId);
+        rows.unshift(row);
+        saveApplications();
+        return row;
+      }
+
+      function openShareDialog(row) {
+        document.getElementById("share-merchant-name").textContent = row.merchantName || "—";
+        document.getElementById("share-payment-channel").textContent = row.channel || "—";
+        shareLinkInput.value = row.shareUrl || "";
+        openMerchantPage.href = row.shareUrl || "#";
+        shareModal.hidden = false;
+        document.getElementById("copy-share-link").focus();
+      }
+
+      function closeShareDialog() {
+        shareModal.hidden = true;
+      }
+
+      function restoreApplication(row) {
+        clearForm();
+        var values = {
+          merchantName: row.merchantName,
+          merchantEmail: row.email,
+          merchantPhone: row.phone,
+          contactName: row.contactName,
+          paymentChannel: row.channel,
+          countryName: row.country,
+          currencyName: row.currency,
+          costRate: row.costRate,
+          feeCap: row.feeCap
+        };
+        Object.keys(values).forEach(function (key) {
+          var control = form.elements.namedItem(key);
+          if (control && values[key] != null) control.value = values[key];
+        });
+        syncSelectLabels();
+      }
+
       document.querySelectorAll("[data-menu-toggle]").forEach(function (button) {
         button.addEventListener("click", function () {
           var menu = document.getElementById(button.getAttribute("data-menu-toggle"));
@@ -1238,14 +1489,13 @@
       });
       statusFilter.addEventListener("change", renderRows);
 
-      newMerchant.addEventListener("change", syncMerchantMode);
       document.querySelectorAll(".field select").forEach(function (select) {
         select.addEventListener("change", syncSelectLabels);
       });
 
       document.getElementById("save-draft").addEventListener("click", function () {
         window.localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeForm()));
-        showToast("Draft saved", "Merchant onboarding information is saved in this browser.");
+        showToast("Application draft saved", "You can return and generate the merchant link when the setup is ready.");
       });
 
       form.addEventListener("submit", function (event) {
@@ -1255,26 +1505,42 @@
           return;
         }
 
-        var merchantName = newMerchant.checked ? merchantInput.value.trim() : merchantSelect.value;
-        rows.unshift({
-          processId: nextProcessId(),
-          spName: "Paywizard UAT",
-          agentName: "",
-          merchantName: merchantName || "New Merchant",
-          mid: "-",
-          email: document.getElementById("merchant-email").value.trim(),
-          lastUpdate: currentTimestamp(),
-          status: "Merchant Submit"
-        });
-
+        var application = addSharedApplication(serializeForm());
         window.localStorage.removeItem(DRAFT_KEY);
-        clearForm();
         merchantFilter.value = "";
         processFilter.value = "";
         statusFilter.value = "";
         renderRows();
+        openShareDialog(application);
+      });
+
+      document.getElementById("close-share-dialog").addEventListener("click", closeShareDialog);
+      document.getElementById("done-sharing").addEventListener("click", function () {
+        closeShareDialog();
+        clearForm();
         closeRegistration();
-        showToast("Application submitted", "The new merchant application was added to the onboarding list.");
+        showToast("Application saved", "The share link remains available from the onboarding list.");
+      });
+      shareModal.addEventListener("click", function (event) {
+        if (event.target === shareModal) closeShareDialog();
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !shareModal.hidden) closeShareDialog();
+      });
+      document.getElementById("copy-share-link").addEventListener("click", function () {
+        var copyButton = this;
+        function copied() {
+          copyButton.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">check</span>Copied';
+          showToast("Link copied", "The merchant-facing onboarding URL is ready to share.");
+          window.setTimeout(function () { copyButton.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link'; }, 1800);
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(shareLinkInput.value).then(copied);
+        } else {
+          shareLinkInput.select();
+          document.execCommand("copy");
+          copied();
+        }
       });
 
       tbody.addEventListener("click", function (event) {
@@ -1285,23 +1551,19 @@
         var action = button.getAttribute("data-action");
         if (action === "edit") {
           var row = rows.find(function (item) { return item.processId === processId; });
-          clearForm();
-          if (row) {
-            var existingOption = Array.from(merchantSelect.options).find(function (option) { return option.value === row.merchantName; });
-            if (!existingOption) merchantSelect.add(new Option(row.merchantName, row.merchantName));
-            merchantSelect.value = row.merchantName;
-            document.getElementById("merchant-email").value = row.email;
-          }
-          syncSelectLabels();
+          if (row) restoreApplication(row);
           openRegistration();
           return;
         }
         if (action === "detail") showToast("Process " + processId, "Application details are available from this action in the production portal.");
-        if (action === "share") showToast("Share link ready", "A merchant onboarding link would be generated in the production portal.");
+        if (action === "share") {
+          var shareRow = rows.find(function (item) { return item.processId === processId; });
+          if (shareRow && shareRow.shareUrl) openShareDialog(shareRow);
+          else showToast("No share link yet", "Open the application and use Save & Share to create a merchant-facing link.");
+        }
       });
 
       renderRows();
-      syncMerchantMode();
       syncSelectLabels();
       renderRoute();
     })();
