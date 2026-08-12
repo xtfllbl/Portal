@@ -1557,7 +1557,7 @@
         }
         .dex-history-section { margin-top: 16px; }
         .dex-history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
-        .dex-history-table { min-width: 1020px; }
+        .dex-history-table { min-width: 760px; }
         .dex-history-table tbody tr { cursor: pointer; }
         .dex-history-table tbody tr:hover { background: #f8fafc; }
         .dex-history-table tbody tr.is-selected { background: #eff6ff; }
@@ -2811,7 +2811,7 @@
                         </div>
                         <div class="dex-history-scroll">
                             <table class="table dex-history-table">
-                                <thead><tr><th>Read Time</th><th>Trigger</th><th>Status</th><th>Validation</th><th>Email</th><th>Records</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Read Time</th><th>Trigger</th><th>Email</th><th>Records</th><th>Actions</th></tr></thead>
                                 <tbody id="dexHistoryBody"></tbody>
                             </table>
                         </div>
@@ -6932,7 +6932,7 @@ paymentTimeout=180`
         }
         function renderDexHistory(){
             if(!dexSnapshots.length){
-                dexElements.historyBody.innerHTML = '<tr><td colspan="7" class="dex-empty-state">No DEX reads are available for this machine.</td></tr>';
+                dexElements.historyBody.innerHTML = '<tr><td colspan="5" class="dex-empty-state">No DEX reads are available for this machine.</td></tr>';
                 return;
             }
             dexElements.historyBody.innerHTML = dexSnapshots.map(snapshot => {
@@ -6944,8 +6944,6 @@ paymentTimeout=180`
                     <tr class="${snapshot.id === selectedDexId ? 'is-selected' : ''}" data-dex-snapshot="${escapeHtml(snapshot.id)}">
                         <td>${escapeHtml(formatDateTime(readTime))}</td>
                         <td>${escapeHtml(snapshot.source)}</td>
-                        <td><span class="dex-status-badge ${dexStatusClass(snapshot.status)}">${escapeHtml(snapshot.status)}</span></td>
-                        <td>${escapeHtml(snapshot.validation)}</td>
                         <td><span class="dex-history-email ${email.className}">${escapeHtml(email.text)}</span></td>
                         <td>${escapeHtml(count)}</td>
                         <td><button class="dex-view-action" type="button" data-dex-view-snapshot="${escapeHtml(snapshot.id)}">View</button></td>
