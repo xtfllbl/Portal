@@ -558,60 +558,10 @@
       flex-direction: column;
     }
 
-    .create-application-intro {
-      display: grid;
-      grid-template-columns: 52px minmax(0, 1fr) auto;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 18px;
-      padding: 16px 18px;
-      border: 1px solid #d8e4ef;
-      border-radius: 9px;
-      background: #f7fafc;
-    }
-
-    .create-intro-icon {
-      width: 52px;
-      height: 52px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      background: #e7f2fb;
-      color: #1576ad;
-    }
-
-    .create-intro-icon .material-symbols-rounded { font-size: 28px; }
-    .create-intro-copy h2 { margin: 0 0 4px; color: #35373d; font-size: 14px; }
-    .create-intro-copy p { margin: 0; color: #6c7480; font-size: 11px; }
-
-    .template-badges {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .template-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      min-height: 27px;
-      padding: 5px 9px;
-      border: 1px solid #d7dbe2;
-      border-radius: 999px;
-      background: #fff;
-      color: #5b606a;
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .template-badge .material-symbols-rounded { color: var(--green); font-size: 15px; }
-
     .application-sections {
       display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
-      gap: 14px;
+      grid-template-columns: 1fr;
+      gap: 16px;
       margin-bottom: 18px;
     }
 
@@ -622,8 +572,6 @@
       background: #fff;
       overflow: hidden;
     }
-
-    .application-section.merchant-details { grid-column: 1 / -1; }
 
     .merchant-details .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
@@ -653,23 +601,7 @@
     }
 
     .application-section-header h2 { margin: 0; color: #3f4148; font-size: 13px; }
-    .application-section-header p { margin: 2px 0 0; color: #858a94; font-size: 9px; }
     .application-section-body { padding: 18px 16px; }
-
-    .application-section.internal {
-      background: #fbfbfc;
-    }
-
-    .internal-note {
-      display: flex;
-      align-items: flex-start;
-      gap: 7px;
-      margin: 12px 0 0;
-      color: #7c818b;
-      font-size: 9px;
-    }
-
-    .internal-note .material-symbols-rounded { flex: none; color: #6c727d; font-size: 16px; }
 
     .form-grid {
       display: grid;
@@ -742,14 +674,20 @@
     .form-actions {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: auto;
+      justify-content: space-between;
+      gap: 18px;
       padding-top: 14px;
       border-top: 1px solid var(--line);
     }
 
     .form-actions .btn { min-height: 38px; }
+
+    .form-actions-primary {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
 
     .btn.share { border-color: #1768dc; background: #1768dc; color: #fff; }
 
@@ -907,11 +845,6 @@
       .application-setup .form-grid.single { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 900px) {
-      .application-sections { grid-template-columns: 1fr; }
-      .application-section.merchant-details { grid-column: auto; }
-    }
-
     @media (max-width: 760px) {
       body { background: var(--page-bg); }
       .app-frame {
@@ -943,17 +876,35 @@
       .pager-summary { grid-column: 1; justify-self: center; }
       .pager-summary { display: none; }
       .registration-view .panel-header { margin-bottom: 14px; }
-      .create-application-intro { grid-template-columns: 44px minmax(0, 1fr); padding: 14px; }
-      .create-intro-icon { width: 44px; height: 44px; }
-      .template-badges { grid-column: 1 / -1; justify-content: flex-start; }
       .application-section-body { padding: 16px 14px; }
       .form-grid { grid-template-columns: 1fr; gap: 16px; }
       .merchant-details .form-grid { grid-template-columns: 1fr; }
-      .form-actions { flex-wrap: wrap; }
+      .form-actions { gap: 10px; }
+      .form-actions-primary { gap: 8px; }
       .share-summary { grid-template-columns: 1fr; }
       .share-link-row { grid-template-columns: 1fr; }
       .share-link-row .btn { width: 100%; }
       .share-dialog-actions { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 359px) {
+      .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-actions > .btn { align-self: flex-start; }
+
+      .form-actions-primary {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+      }
+
+      .form-actions-primary .btn {
+        width: 100%;
+        min-width: 0;
+      }
     }
   </style>
 </head>
@@ -1074,23 +1025,11 @@
           </div>
 
           <form class="registration-form" id="merchant-form" novalidate>
-            <section class="create-application-intro" aria-label="Create application guidance">
-              <span class="create-intro-icon"><span class="material-symbols-rounded" aria-hidden="true">link</span></span>
-              <div class="create-intro-copy">
-                <h2>Create a channel-specific application for the merchant</h2>
-                <p>Enter the known merchant details and choose a payment channel. PAYwizard will create a secure, no-login form that you can share with the merchant to complete.</p>
-              </div>
-              <div class="template-badges" aria-label="Available merchant application templates">
-                <span class="template-badge"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Nuvei</span>
-                <span class="template-badge"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Elavon EU</span>
-              </div>
-            </section>
-
             <div class="application-sections">
               <section class="application-section merchant-details" aria-labelledby="merchant-details-title">
                 <header class="application-section-header">
                   <span class="application-section-number">1</span>
-                  <div><h2 id="merchant-details-title">Merchant &amp; Contact Details</h2><p>These values are prefilled in the merchant-facing form.</p></div>
+                  <h2 id="merchant-details-title">Merchant &amp; Contact Details</h2>
                 </header>
                 <div class="application-section-body">
                   <div class="form-grid">
@@ -1117,7 +1056,7 @@
               <section class="application-section application-setup" aria-labelledby="application-setup-title">
                 <header class="application-section-header">
                   <span class="application-section-number">2</span>
-                  <div><h2 id="application-setup-title">Application Setup</h2><p>Select which merchant form will be generated.</p></div>
+                  <h2 id="application-setup-title">Application Setup</h2>
                 </header>
                 <div class="application-section-body">
                   <div class="form-grid single">
@@ -1143,31 +1082,14 @@
                 </div>
               </section>
 
-              <section class="application-section internal" aria-labelledby="commercial-title">
-                <header class="application-section-header">
-                  <span class="application-section-number">3</span>
-                  <div><h2 id="commercial-title">Internal Commercial Terms</h2><p>Optional platform values; not shown to the merchant.</p></div>
-                </header>
-                <div class="application-section-body">
-                  <div class="form-grid">
-                    <div class="field">
-                      <input id="cost-rate" name="costRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder=" " />
-                      <label class="field-label" for="cost-rate">Cost Rate (%)</label>
-                    </div>
-                    <div class="field">
-                      <input id="fee-cap" name="feeCap" type="number" min="0" step="0.01" inputmode="decimal" placeholder=" " />
-                      <label class="field-label" for="fee-cap">Fee cap</label>
-                    </div>
-                  </div>
-                  <p class="internal-note"><span class="material-symbols-rounded" aria-hidden="true">visibility_off</span><span>These terms stay inside PAYwizard and are excluded from the share link.</span></p>
-                </div>
-              </section>
             </div>
 
             <div class="form-actions">
               <button class="btn subtle" id="cancel-registration" type="button">Cancel</button>
-              <button class="btn success" id="save-draft" type="button"><span class="material-symbols-rounded" aria-hidden="true">save</span>Save</button>
-              <button class="btn share" id="save-and-share" type="submit"><span class="material-symbols-rounded" aria-hidden="true">ios_share</span>Save &amp; Share</button>
+              <div class="form-actions-primary">
+                <button class="btn success" id="save-draft" type="button"><span class="material-symbols-rounded" aria-hidden="true">save</span>Save</button>
+                <button class="btn share" id="save-and-share" type="submit"><span class="material-symbols-rounded" aria-hidden="true">ios_share</span>Save &amp; Share</button>
+              </div>
             </div>
           </form>
         </section>
@@ -1418,8 +1340,6 @@
           channel: values.paymentChannel,
           country: values.countryName,
           currency: values.currencyName,
-          costRate: values.costRate || "",
-          feeCap: values.feeCap || "",
           lastUpdate: currentTimestamp(),
           status: "Awaiting Merchant"
         };
@@ -1451,9 +1371,7 @@
           contactName: row.contactName,
           paymentChannel: row.channel,
           countryName: row.country,
-          currencyName: row.currency,
-          costRate: row.costRate,
-          feeCap: row.feeCap
+          currencyName: row.currency
         };
         Object.keys(values).forEach(function (key) {
           var control = form.elements.namedItem(key);

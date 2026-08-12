@@ -1,3 +1,126 @@
+# Public Merchant Application Flattening Design QA
+
+## Evidence
+
+- Source visual truth: the current-task annotated Nuvei screenshot (2048 × 910 px), the focused outer-title screenshot (2048 × 112 px), and the Paywizard logo crop reference (492 × 228 px).
+- Implementations: `38.Merchant_onboard_nuvei_public.html` and `38.Merchant_onboard_elavon_public.html`.
+- Browser-rendered evidence: `artifacts/merchant-public-nuvei-1440.jpg` and `artifacts/merchant-public-elavon-1440.jpg`, each 1710 × 952 image px from the connected browser at a 1710 × 952 CSS viewport. Browser device pixel ratio reported 2; the capture API returned CSS-sized JPEGs, so no further density normalization was needed.
+- State: merchant-prefilled public application at the top of the page, with the first channel-specific form section visible.
+- Full-view comparison evidence: the annotated source and both implementation captures were reviewed together. The two requested red-boxed regions are absent, the channel form now begins directly below the privacy note, and the enlarged Paywizard wordmark has balanced topbar spacing.
+- Focused comparison evidence: the header logo crop, removed status-chip row, removed no-login label, removed onboarding-information heading bar, and the transition from privacy note to the first form section were inspected at full resolution.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: the existing Poppins hierarchy remains consistent; removing the redundant information bar does not leave an orphaned heading or spacing artifact.
+- Spacing and layout rhythm: the iframe container is visually neutral, with no border, radius, shadow, title bar, or inner padding. The first channel section aligns directly with the 1240px public-page content grid.
+- Colors and visual tokens: existing neutral surfaces, green privacy treatment, and channel-brand colors are preserved.
+- Image quality and asset fidelity: the existing `assets/paywizard-logo.png` is reused at a larger scale and intentionally cropped to the PAYwizard wordmark, avoiding the previous undersized logo and excess source-image whitespace. Nuvei and Elavon source logos remain unchanged and sharp.
+- Copy and content: “No login required · Merchant application”, all three metadata chips, and both “onboarding information” wrapper titles/helper text are removed exactly as requested.
+- Interaction and accessibility: merchant prefill, Save Draft, Submit Application, frame resizing, and local application-status updates remain functional. The public iframe retains a descriptive title.
+
+## Comparison History
+
+1. The source showed redundant status/meta content and an additional card around the entire embedded channel form (P2 hierarchy and density issue).
+2. The first implementation pass removed those regions, flattened the iframe container, and enlarged/cropped the supplied Paywizard asset.
+3. Browser inspection of both channels confirmed a clean direct transition into the first form section, no missing form content, and no follow-up P0/P1/P2 issue.
+
+## Primary Interactions Tested
+
+- Nuvei and Elavon merchant data prefill.
+- Embedded Save Draft and Submit handlers remain attached after the visual simplification.
+- 390px responsive regression and page-level overflow coverage.
+- Browser console and page errors: none in the targeted public-page tests.
+- Targeted Playwright suite: 7 tests passed.
+- Full repository suite was also attempted: 37 passed and 22 unrelated existing tests failed (missing legacy source pages and pre-existing DEX/Product Map expectations); the targeted onboarding suite passes independently.
+
+final result: passed
+
+---
+
+# Onboarding Near-Form Action Bar Design QA
+
+## Evidence
+
+- Source visual truth: the current-task 2048 × 1138 screenshot showing the prior bottom-anchored action bar, plus the approved plan to place actions immediately after Application Setup.
+- Implementation: `38.Merchant_onboard.html#new-onboarding`.
+- Desktop captures: `assets/qa/38-onboarding-actions-near-form-2048x1138.jpg` and `assets/qa/38-onboarding-actions-near-form-1440x900.jpg`, captured from matching CSS-pixel viewports at device scale factor 1.
+- Mobile captures: `assets/qa/38-onboarding-actions-near-form-390x844.jpg` and `assets/qa/38-onboarding-actions-near-form-320x844.jpg`, captured from matching CSS-pixel viewports at device scale factor 1.
+- State: blank Create Onboarding Application form with Cancel, Save and Save & Share visible.
+- Full-view comparison evidence: the original screenshot and revised 2048 × 1138 capture were reviewed together. The previous 612px form-to-action gap is replaced by an 18px gap while the full-height white panel remains intact.
+- Focused comparison evidence: action alignment and responsive wrapping were measured in the rendered browser. At 390px all actions share the same row; at 320px Cancel is on the first row and Save/Save & Share share the second row.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: button labels, weights, line heights and icon alignment remain unchanged and readable at every tested viewport.
+- Spacing and layout rhythm: the action bar now follows Application Setup by 18px at both 2048px and 1440px widths. Cancel remains left-aligned and the primary action group remains right-aligned without bottom anchoring.
+- Colors and visual tokens: neutral Cancel, green Save and blue Save & Share preserve the established PAYwizard hierarchy.
+- Image quality and asset fidelity: the existing Paywizard logo and Material Symbols icons are unchanged; no new or approximate assets were introduced.
+- Copy and content: all existing labels and action wording are retained.
+- Interaction and accessibility: action order remains Cancel, Save, Save & Share in the DOM. Native form validation, draft persistence and share-link generation are unchanged.
+
+## Comparison History
+
+1. The pre-fix browser measurement showed a 612px gap caused by `.form-actions { margin-top: auto; }`, visually separating the controls from the form.
+2. Removing the automatic top margin reduced the gap to 18px at 2048 × 1138 and 1440 × 900, resolving the P2 hierarchy issue.
+3. Responsive verification found no follow-up P0/P1/P2 issue: 390px keeps one action row, 320px uses the specified two-row layout, and all four tested viewports have 0px page-level horizontal overflow.
+
+## Primary Interactions Tested
+
+- Cancel returns to the onboarding list.
+- Save persists and restores the draft.
+- Save & Share validates required fields and generates the merchant link.
+- Nuvei and Elavon public-page routing/prefill regression coverage remains green.
+- Browser console errors: none.
+- Playwright suite: 7 tests passed.
+
+final result: passed
+
+---
+
+# Create Onboarding Application Layout Refinement QA
+
+## Evidence
+
+- Source visual truth: the current-task annotated screenshot at 2048 × 1138 px, with red outlines around the guidance banner and Internal Commercial Terms module plus the written instruction to remove subtitles and redistribute the three bottom actions.
+- Implementation: `38.Merchant_onboard.html#new-onboarding`.
+- Desktop implementation: `assets/qa/38-onboarding-create-refined-2048x1138.jpg`, 2048 × 1138 image px from a matching 2048 × 1138 CSS-pixel viewport at device scale factor 1.
+- Additional desktop check: `assets/qa/38-onboarding-create-refined-2048x910.jpg`, 2048 × 910 image px from the screenshot-1 viewport used in the preceding onboarding QA pass.
+- Mobile implementation: `assets/qa/38-onboarding-create-refined-390x844.jpg` and `assets/qa/38-onboarding-create-refined-mobile-actions-390x844.jpg`, each 390 × 844 image px from a 390 × 844 CSS-pixel viewport at device scale factor 1.
+- State: blank Create Onboarding Application form with Merchant & Contact Details, Application Setup and the three bottom actions visible.
+- Full-view comparison evidence: the annotated source screenshot and the 2048 × 1138 implementation capture were reviewed together at matching dimensions. The two red-boxed modules are absent and the remaining content preserves the reference portal frame.
+- Focused comparison evidence: section headers, subtitle removal, four-column and three-column desktop input grids, the bottom action bar, and the 390 px single-column form/action layout were inspected at full resolution. Browser measurements show the mobile action bar from x=25 to x=365, Cancel at x=25, Save at x=131, and Save & Share ending at x=365.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: the existing Poppins hierarchy, weights and antialiasing remain unchanged. Removing the small gray subtitles leaves clean, vertically centered section headings without awkward gaps.
+- Spacing and layout rhythm: the two remaining sections now stack at full width. Merchant details retain four aligned desktop fields, and setup uses three equally spaced selects. Cancel anchors the left edge while Save and Save & Share form a right-aligned primary action group; the mobile view retains the same hierarchy without wrapping or clipping.
+- Colors and visual tokens: no unnecessary color changes were introduced; neutral cards, charcoal section numbers, green Save and blue Save & Share continue to match PAYwizard.
+- Image quality and asset fidelity: the existing PAYwizard logo and repository/Material Symbols icons are unchanged and remain sharp. No new image asset or code-drawn replacement was introduced.
+- Copy and content: the guidance banner, template pills, Internal Commercial Terms, Cost Rate and Fee cap are removed. Section helper subtitles are also removed. Required merchant, contact and application-setup fields remain intact.
+- Interaction and accessibility: Save, Save & Share and Cancel preserve their existing behavior and accessible button names. Draft restore and channel-specific link generation continue to work after removing the internal-only inputs.
+
+## Comparison History
+
+1. The annotated source identified two major unwanted regions: the channel guidance banner and Internal Commercial Terms. Both regions and their associated unused data fields/styles were removed; the revised desktop capture shows only the two requested form sections.
+2. The source showed all three actions clustered at the center, a P2 hierarchy issue for the requested revision. The action bar now uses `space-between`: Cancel is isolated on the left, while Save and Save & Share are grouped on the right. The 2048 × 1138 and 390 × 844 captures confirm the distribution.
+3. The mobile comparison found no follow-up P0/P1/P2 issue: the form is one column, all three actions remain on one line, and page-level horizontal overflow is 0 px.
+
+## Primary Interactions Tested
+
+- Cancel returns to the onboarding list.
+- Save persists and restores all remaining creator fields.
+- Save & Share validates required fields and generates the channel-specific merchant link.
+- Nuvei/Elavon public-page routing and prefill regression tests remain green.
+- Browser console errors: none.
+- Playwright suite: 7 tests passed.
+
+final result: passed
+
+---
+
 # Create Onboarding Application and Merchant Share Pages Design QA
 
 ## Evidence

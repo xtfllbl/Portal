@@ -16,9 +16,12 @@
   document.getElementById("merchant-greeting").textContent = merchantName === "your business"
     ? "We have prepared this application for your business."
     : "We have prepared this application for " + merchantName + ".";
-  document.getElementById("application-reference").textContent = applicationId;
-  document.getElementById("channel-name").textContent = channel;
   document.title = channel + " Merchant Application - PAYwizard";
+
+  function setProgressMessage(message) {
+    var progressMessage = document.getElementById("progress-message");
+    if (progressMessage) progressMessage.textContent = message;
+  }
 
   function setValue(doc, name, value) {
     if (!value) return;
@@ -77,15 +80,15 @@
     style.textContent = [
       ":root{--sidebar:0px!important}",
       "html{scroll-padding-top:16px!important}",
-      "body{min-width:0!important;background:#f5f6f8!important}",
+      "body{min-width:0!important;background:#f4f6f8!important}",
       ".sidebar,.topbar,.page-heading,.context-card,.section-nav{display:none!important}",
       ".app-main{margin-left:0!important}",
-      ".content{padding:14px 14px 48px!important}",
+      ".content{padding:0 0 48px!important}",
       ".registration-shell{max-width:none!important;display:block!important;margin:0!important}",
       ".form-section{border-radius:7px!important}",
       ".form-actions{position:sticky;bottom:0;z-index:10;padding:14px 16px!important;background:rgba(255,255,255,.96)!important;box-shadow:0 -6px 18px rgba(30,35,44,.05)}",
       ".success-banner{position:fixed!important}",
-      "@media(max-width:640px){.content{padding:10px 8px 32px!important}.form-actions{position:static!important;padding-inline:0!important}.section-body{padding:14px!important}}"
+      "@media(max-width:640px){.content{padding:0 0 32px!important}.form-actions{position:static!important;padding-inline:0!important}.section-body{padding:14px!important}}"
     ].join("");
     doc.head.appendChild(style);
 
@@ -95,7 +98,7 @@
     var form = doc.querySelector("form");
     if (saveDraft) {
       saveDraft.addEventListener("click", function () {
-        document.getElementById("progress-message").textContent = "Progress saved in this browser. Keep this link to return later.";
+        setProgressMessage("Progress saved in this browser. Keep this link to return later.");
         resizeFrame(doc);
       });
     }
@@ -108,7 +111,7 @@
           var message = doc.getElementById("success-message");
           if (title) title.textContent = "Thank you — application received";
           if (message) message.textContent = "Your information is ready for the PAYwizard onboarding team to review.";
-          document.getElementById("progress-message").textContent = "Application submitted. The PAYwizard onboarding team can now review your information.";
+          setProgressMessage("Application submitted. The PAYwizard onboarding team can now review your information.");
           updateApplicationStatus("Merchant Submit");
           resizeFrame(doc);
         }, 0);
