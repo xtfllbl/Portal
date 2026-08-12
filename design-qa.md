@@ -1,3 +1,51 @@
+# Merchant Onboarding List and Registration Design QA
+
+## Evidence
+
+- Source visual truth: current-task attachment screenshot 1 (Onboarding list) and screenshot 2 (Merchant Registration), each 2048 × 910 px.
+- Implementation: `38.Merchant_onboard.html`.
+- Desktop list capture: `assets/qa/qa-merchant-onboarding-list.jpg`, 2048 × 910 px from a 2048 × 910 CSS-pixel viewport at device scale factor 1.
+- Desktop registration capture: `assets/qa/qa-merchant-onboarding-registration.jpg`, 2048 × 910 px from the same viewport and density.
+- Mobile list capture: `assets/qa/qa-merchant-onboarding-mobile-list.jpg`, 390 × 844 px from a 390 × 844 CSS-pixel viewport.
+- Mobile registration capture: `assets/qa/qa-merchant-onboarding-mobile-registration.jpg`, 390 × 969 px full-page output from a 390 × 844 CSS-pixel viewport.
+- State: list with the ten reference-aligned mock records and blank Merchant Registration form with New Merchant disabled.
+- Full-view comparison evidence: both user-provided source attachments and the two desktop browser captures were reviewed together in the current visual QA pass at matching 2048 × 910 dimensions.
+- Focused comparison evidence: sidebar navigation density and scroll position, list filters/table/status chips/pagination, registration fieldset bounds, three-column field alignment, section rail, and footer actions were checked at full resolution. The browser-measured final registration bounds are Assign/New Merchant `201.75–303.75px`, Application Information `340.75–622.30px`, and footer actions `834–881px`.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Fonts and typography: Poppins with system fallbacks matches the source's rounded portal typography; heading, breadcrumb, table, label, badge, and button weights preserve the visible hierarchy and wrapping.
+- Spacing and layout rhythm: the 264 px sidebar, 16 px outer frame, 70 px top bar, 16 px workspace gap, compact table rows, fieldset positions, and bottom-centered actions align with the reference. Desktop and mobile page-level horizontal overflow are both 0 px; the mobile table scrolls inside its own container.
+- Colors and visual tokens: neutral page/card surfaces, charcoal active navigation and table header, blue review/submit actions, green approval/save states, and red required/notification accents match the screenshots.
+- Image quality and assets: the existing repository Paywizard raster logo is reused and remains sharp. Icons come from Material Symbols plus the repository chevron asset; no custom inline or handcrafted SVG artwork was introduced.
+- Copy and content: visible navigation, filters, table columns and records, statuses, breadcrumbs, form legends, ten requested fields, and Cancel/Save/Submit actions match the supplied screens.
+- Interaction and accessibility: filters/reset, hash-based view switching, New Merchant control swapping, draft persistence, required validation, submission-to-list, sidebar disclosure controls, labels, status feedback, and responsive stacking all work with keyboard-addressable native controls.
+
+## Comparison History
+
+1. First desktop pass found a P2 sidebar-density mismatch: lower navigation groups sat too high and Prepaid Cards was fully visible instead of reaching the bottom edge. Menu and submenu row heights/margins were adjusted; the final list and registration captures now match the source navigation rhythm.
+2. The first registration pass found a P2 vertical-position mismatch in both fieldsets and the footer actions. Header spacing, assignment/application dimensions, application padding, and action offset were refined. Post-fix browser measurements align the major bounds with screenshot 2 and keep desktop overflow at 0 px.
+3. Mobile captures confirmed the sidebar hides cleanly, the form becomes one column, action buttons remain reachable, table overflow stays contained, and no corrective P0/P1/P2 issue remains.
+
+## Primary Interactions Tested
+
+- Merchant Name, Process ID, and Status filtering plus one-click reset.
+- New Onboarding opens `#new-onboarding`; Cancel and browser hash navigation return to the list.
+- New Merchant toggles between the existing-merchant selector and free-text merchant name.
+- Save persists and restores a draft through `paywizard-merchant-onboarding-draft`.
+- Submit blocks incomplete data, accepts required data, adds a Merchant Submit row, and returns to the list.
+- Browser console errors/warnings: none on desktop or mobile.
+- Playwright suite: 5 tests passed.
+
+## Follow-up Polish
+
+- P3: the source uses a visually near-identical proprietary portal font; Poppins plus system fallbacks is retained to keep the standalone page dependable.
+
+final result: passed
+
+---
+
 # Elavon Upload Requirements Follow-up Design QA
 
 ## Evidence

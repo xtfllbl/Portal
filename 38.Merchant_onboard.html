@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Merchant Onboarding - PAYwizard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: #f5f5f6;
+      --surface: #ffffff;
+      --text: #3c3d43;
+      --muted: #727783;
+      --line: #dedfe3;
+      --line-strong: #cfd1d7;
+      --dark: #17181c;
+      --active: #29292c;
+      --blue: #159ddd;
+      --blue-strong: #1768dc;
+      --green: #0a8a40;
+      --red: #ef4444;
+      --sidebar-width: 264px;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgba(18, 22, 29, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html,
+    body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      background: #090909;
+      color: var(--text);
+      font-family: "Poppins", "Segoe UI", Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    select { font: inherit; }
+
+    button { color: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .material-symbols-rounded {
+      font-family: "Material Symbols Rounded";
+      font-size: 19px;
+      font-weight: normal;
+      font-style: normal;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: "liga";
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: "liga";
+    }
+
+    .app-frame {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      gap: 16px;
+      padding: 16px;
+      overflow: hidden;
+      border-radius: 0 0 20px 20px;
+      background: var(--page-bg);
+    }
+
+    .sidebar,
+    .topbar,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      height: calc(100vh - 32px);
+      padding: 15px 8px 18px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #c9cbd1 transparent;
+    }
+
+    .brand {
+      height: 72px;
+      display: grid;
+      justify-items: center;
+      align-content: start;
+      margin-bottom: 5px;
+    }
+
+    .brand-mark {
+      width: 188px;
+      height: 48px;
+      overflow: hidden;
+    }
+
+    .brand-mark img {
+      width: 188px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-environment {
+      width: 188px;
+      margin-top: -2px;
+      padding-right: 3px;
+      color: #252525;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-align: right;
+    }
+
+    .nav {
+      display: grid;
+      gap: 4px;
+    }
+
+    .menu-item,
+    .sub-item {
+      width: 100%;
+      min-height: 47px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #303036;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .menu-item:hover,
+    .sub-item:hover { background: #f6f6f7; }
+
+    .menu-main {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .menu-main .material-symbols-rounded {
+      width: 17px;
+      font-size: 18px;
+    }
+
+    .menu-item.active,
+    .sub-item.active {
+      background: var(--active);
+      color: #fff;
+    }
+
+    .menu-arrow {
+      font-size: 17px;
+      transition: transform 0.18s ease;
+    }
+
+    .menu-item[aria-expanded="true"] .menu-arrow { transform: rotate(180deg); }
+
+    .sub-menu {
+      display: grid;
+      gap: 0;
+      margin: 2px 0 0 21px;
+    }
+
+    .sub-menu[hidden] { display: none; }
+
+    .sub-item {
+      position: relative;
+      min-height: 47px;
+      padding: 7px 11px 7px 26px;
+      font-size: 13px;
+    }
+
+    .sub-item::before {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+
+    .sub-item.active::before { background: #fff; }
+
+    .workspace {
+      min-width: 0;
+      min-height: calc(100vh - 32px);
+      display: grid;
+      grid-template-rows: 70px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .topbar {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 11px 19px 11px 28px;
+    }
+
+    .breadcrumb {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+      color: #747883;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .breadcrumb .material-symbols-rounded {
+      color: #afb2b9;
+      font-size: 17px;
+    }
+
+    .breadcrumb strong {
+      overflow: hidden;
+      color: #37383e;
+      font-weight: 700;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .round-btn {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: #f4f4f5;
+      color: #535760;
+    }
+
+    .round-btn.dark {
+      background: #050507;
+      color: #fff;
+    }
+
+    .notice-count {
+      position: absolute;
+      top: -7px;
+      right: -5px;
+      min-width: 21px;
+      height: 19px;
+      display: grid;
+      place-items: center;
+      padding: 0 5px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .panel {
+      min-width: 0;
+      min-height: 0;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .view {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      margin: 0;
+      color: #44464d;
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.15;
+    }
+
+    .btn {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #34353b;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #f8f8f9; }
+
+    .btn.dark {
+      border-color: #050507;
+      background: #050507;
+      color: #fff;
+    }
+
+    .btn.dark:hover { background: #232326; }
+    .btn.success { border-color: var(--green); background: var(--green); color: #fff; }
+    .btn.primary { border-color: var(--blue-strong); background: var(--blue-strong); color: #fff; }
+    .btn.subtle { border-color: transparent; background: #f3f3f4; color: #63666f; }
+    .btn .material-symbols-rounded { font-size: 18px; }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+
+    .filter-control {
+      width: 214px;
+      height: 39px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      color: #4f535d;
+      outline: none;
+    }
+
+    .filter-control::placeholder { color: #787d88; }
+
+    .filter-control:focus {
+      border-color: #80c9ed;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    select.filter-control {
+      appearance: none;
+      padding-right: 34px;
+      background-image: url("assets/icons/chevron-down.svg");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+
+    .toolbar-icon {
+      width: 39px;
+      height: 39px;
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #757983;
+    }
+
+    .toolbar-icon.search {
+      border-color: #050507;
+      background: #050507;
+      color: #fff;
+    }
+
+    .table-shell {
+      min-width: 0;
+      flex: 1;
+      overflow: auto;
+      scrollbar-width: thin;
+      border-bottom: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1240px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    th {
+      height: 34px;
+      padding: 7px 9px;
+      border: 0;
+      background: var(--dark);
+      color: #f8f8f8;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    th:first-child { border-radius: 6px 0 0 0; }
+    th:last-child { border-radius: 0 6px 0 0; text-align: center; }
+
+    td {
+      height: 50px;
+      padding: 7px 9px;
+      border-bottom: 1px solid #e2e3e6;
+      color: #4d5059;
+      font-size: 11px;
+      vertical-align: middle;
+      word-break: break-word;
+    }
+
+    tbody tr:hover { background: #fafafa; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: #f2f2f3;
+      color: #45474e;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-pill.approved { background: #d9fae7; color: #128542; }
+    .status-pill.review { background: #dcf2fc; color: #0878b0; }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .action-btn {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #777b83;
+    }
+
+    .action-btn:hover { background: #f7f7f8; }
+    .action-btn.edit { border-color: #a9dff8; color: #10a9ee; }
+    .action-btn .material-symbols-rounded { font-size: 18px; }
+
+    .empty-state {
+      padding: 42px 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .pagination {
+      min-height: 62px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding-top: 10px;
+    }
+
+    .pager-main,
+    .pager-summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pager-main { grid-column: 2; }
+    .pager-summary { grid-column: 3; justify-self: end; color: #92959d; }
+
+    .page-nav {
+      width: 32px;
+      height: 32px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: #a1a4aa;
+    }
+
+    .page-nav:disabled { cursor: default; opacity: 0.65; }
+
+    .page-current {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #050507;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .page-size,
+    .page-number {
+      height: 39px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: #5f626b;
+    }
+
+    .page-size { width: 90px; padding: 0 12px; }
+    .page-number { width: 52px; padding: 0 10px; text-align: center; }
+
+    .registration-view .panel-header { margin-bottom: 50px; }
+
+    .registration-layout {
+      min-height: 0;
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 228px;
+      gap: 16px;
+    }
+
+    .registration-form {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-fieldset {
+      min-width: 0;
+      margin: 0 0 31px;
+      padding: 22px 44px 35px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .form-fieldset.assignment { min-height: 102px; margin-bottom: 37px; }
+    .form-fieldset.application { min-height: 272px; padding-bottom: 28px; }
+
+    .form-fieldset legend {
+      padding: 0 14px;
+      color: #4a4b52;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: #555861;
+      font-size: 13px;
+    }
+
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 25px;
+      flex: none;
+      margin: 0;
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      background: #d3d5dc;
+      outline: none;
+      transition: background 0.18s ease;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+      transition: transform 0.18s ease;
+    }
+
+    .switch:checked { background: var(--blue-strong); }
+    .switch:checked::after { transform: translateX(17px); }
+    .switch:focus-visible { box-shadow: 0 0 0 3px rgba(23, 104, 220, 0.18); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 19px 20px;
+    }
+
+    .field {
+      position: relative;
+      min-width: 0;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 39px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: #4f535d;
+      padding: 0 12px;
+      outline: none;
+    }
+
+    .field select {
+      appearance: none;
+      padding-right: 34px;
+      background-image: url("assets/icons/chevron-down.svg");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #7dc7eb;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .field-label {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      z-index: 1;
+      max-width: calc(100% - 42px);
+      padding: 0 2px;
+      overflow: hidden;
+      background: #fff;
+      color: #777c88;
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      pointer-events: none;
+      transform: translateY(-50%);
+      transition: top 0.14s ease, font-size 0.14s ease;
+    }
+
+    .required { color: #de2d2d; }
+
+    .field input:focus + .field-label,
+    .field input:not(:placeholder-shown) + .field-label,
+    .field.has-value .field-label,
+    .field select:focus + .field-label {
+      top: 0;
+      font-size: 10px;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .registration-view .form-actions {
+      position: relative;
+      top: 8px;
+    }
+
+    .form-actions .btn { min-height: 38px; }
+
+    .section-rail {
+      align-self: start;
+      border-left: 1px solid #55565b;
+      border-radius: 5px;
+      overflow: hidden;
+      background: #e8e8eb;
+      color: #303137;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .section-rail span {
+      min-height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 6px 10px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 50;
+      min-width: 260px;
+      max-width: calc(100vw - 48px);
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 13px 15px;
+      border: 1px solid #a9d8bd;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 14px 36px rgba(20, 34, 27, 0.17);
+    }
+
+    .toast .material-symbols-rounded { color: var(--green); font-size: 27px; }
+    .toast strong { display: block; margin-bottom: 2px; font-size: 12px; }
+    .toast p { margin: 0; color: var(--muted); font-size: 10px; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1320px) {
+      :root { --sidebar-width: 236px; }
+      .filter-control { width: 180px; }
+      .form-fieldset { padding-inline: 28px; }
+    }
+
+    @media (max-width: 1040px) {
+      :root { --sidebar-width: 74px; }
+      .sidebar { padding-inline: 8px; }
+      .brand { height: 56px; align-content: center; }
+      .brand-mark { width: 50px; height: 42px; }
+      .brand-mark img { width: 138px; max-width: none; transform: translate(-5px, -2px); }
+      .brand-environment,
+      .menu-main span:not(.material-symbols-rounded),
+      .menu-arrow,
+      .sub-menu { display: none; }
+      .menu-item { justify-content: center; padding-inline: 0; }
+      .menu-main { justify-content: center; }
+      .panel { padding: 17px; }
+      .registration-layout { grid-template-columns: minmax(0, 1fr); }
+      .section-rail { display: none; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      body { background: var(--page-bg); }
+      .app-frame {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px;
+        border-radius: 0;
+      }
+      .sidebar { display: none; }
+      .workspace {
+        min-height: calc(100vh - 20px);
+        grid-template-rows: 58px minmax(0, 1fr);
+        gap: 10px;
+      }
+      .topbar { padding: 8px 12px; }
+      .round-btn { width: 36px; height: 36px; }
+      .notice-count { top: -5px; right: -4px; }
+      .breadcrumb { font-size: 10px; letter-spacing: 0.04em; }
+      .breadcrumb span:first-child,
+      .breadcrumb .first-separator { display: none; }
+      .panel { padding: 14px; }
+      .panel-header { align-items: flex-start; margin-bottom: 18px; }
+      .page-title { font-size: 21px; }
+      .toolbar { justify-content: stretch; flex-wrap: wrap; gap: 8px; margin-top: 0; }
+      .filter-control { width: calc(50% - 4px); }
+      .toolbar-icon { flex: 1; }
+      .pagination { grid-template-columns: 1fr; justify-items: center; }
+      .pager-main,
+      .pager-summary { grid-column: 1; justify-self: center; }
+      .pager-summary { display: none; }
+      .registration-view .panel-header { margin-bottom: 23px; }
+      .form-fieldset { margin-bottom: 20px; padding: 18px 16px 22px; }
+      .form-grid { grid-template-columns: 1fr; gap: 16px; }
+      .form-actions { flex-wrap: wrap; }
+      .registration-view .form-actions { top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="#" aria-label="PAYwizard home">
+        <span class="brand-mark"><img src="assets/paywizard-logo.png" alt="PAYwizard" /></span>
+        <span class="brand-environment">SANDBOX</span>
+      </a>
+
+      <nav class="nav">
+        <a class="menu-item" href="#"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">dashboard</span><span>Dashboard</span></span></a>
+        <a class="menu-item" href="#"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">credit_card</span><span>Transactions</span></span></a>
+        <button class="menu-item" type="button" aria-expanded="false"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">group</span><span>Agents</span></span><span class="material-symbols-rounded menu-arrow" aria-hidden="true">expand_more</span></button>
+
+        <button class="menu-item active" type="button" aria-expanded="true" data-menu-toggle="merchant-menu"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">store</span><span>Merchants</span></span><span class="material-symbols-rounded menu-arrow" aria-hidden="true">expand_more</span></button>
+        <div class="sub-menu" id="merchant-menu">
+          <a class="sub-item" href="#">Contact</a>
+          <a class="sub-item" href="#">Leads</a>
+          <a class="sub-item active" href="#" aria-current="page">Onboarding</a>
+          <a class="sub-item" href="#">Merchant List</a>
+          <a class="sub-item" href="#">Analytics</a>
+        </div>
+
+        <button class="menu-item" type="button" aria-expanded="true" data-menu-toggle="partner-menu"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">lightbulb</span><span>Partners</span></span><span class="material-symbols-rounded menu-arrow" aria-hidden="true">expand_more</span></button>
+        <div class="sub-menu" id="partner-menu">
+          <a class="sub-item" href="#">Partner List</a>
+          <a class="sub-item" href="#">Hardware</a>
+        </div>
+
+        <a class="menu-item" href="#"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">devices</span><span>Device Management</span></span></a>
+        <a class="menu-item" href="#"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">apps</span><span>APP Management</span></span></a>
+        <a class="menu-item" href="#"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">cast_connected</span><span>Remote Diagnostic</span></span></a>
+        <button class="menu-item" type="button" aria-expanded="false"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">redeem</span><span>Prepaid Cards</span></span><span class="material-symbols-rounded menu-arrow" aria-hidden="true">expand_more</span></button>
+      </nav>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb" aria-label="Breadcrumb">
+          <span>Merchants</span>
+          <span class="material-symbols-rounded first-separator" aria-hidden="true">chevron_right</span>
+          <strong id="breadcrumb-section">Onboarding</strong>
+          <span class="material-symbols-rounded" id="registration-separator" aria-hidden="true" hidden>chevron_right</span>
+          <strong id="registration-crumb" hidden>Merchant Registration</strong>
+        </div>
+        <div class="top-actions">
+          <button class="round-btn" type="button" aria-label="Notifications">
+            <span class="material-symbols-rounded" aria-hidden="true">notifications_none</span>
+            <span class="notice-count">2</span>
+          </button>
+          <button class="round-btn dark" type="button" aria-label="Open user menu"><span class="material-symbols-rounded" aria-hidden="true">person</span></button>
+        </div>
+      </header>
+
+      <main class="panel">
+        <section class="view list-view" id="list-view" aria-labelledby="onboarding-title">
+          <div class="panel-header">
+            <h1 class="page-title" id="onboarding-title">Onboarding</h1>
+            <button class="btn dark" id="new-onboarding" type="button"><span class="material-symbols-rounded" aria-hidden="true">note_add</span>New Onboarding</button>
+          </div>
+
+          <div class="toolbar" role="search" aria-label="Onboarding filters">
+            <label class="sr-only" for="merchant-filter">Merchant Name</label>
+            <input class="filter-control" id="merchant-filter" type="search" placeholder="Merchant Name" />
+            <label class="sr-only" for="process-filter">Process ID</label>
+            <input class="filter-control" id="process-filter" type="search" inputmode="numeric" placeholder="Process ID" />
+            <label class="sr-only" for="status-filter">Status</label>
+            <select class="filter-control" id="status-filter">
+              <option value="">Status</option>
+              <option>Draft</option>
+              <option>Approved</option>
+              <option>Under Review</option>
+              <option>Merchant Submit</option>
+            </select>
+            <button class="toolbar-icon" id="reset-filters" type="button" aria-label="Reset filters"><span class="material-symbols-rounded" aria-hidden="true">refresh</span></button>
+            <button class="toolbar-icon search" id="search-filters" type="button" aria-label="Search onboarding"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
+          </div>
+
+          <div class="table-shell">
+            <table aria-label="Merchant onboarding applications">
+              <colgroup>
+                <col style="width: 10%" /><col style="width: 10%" /><col style="width: 10%" /><col style="width: 12%" /><col style="width: 11%" /><col style="width: 19%" /><col style="width: 12%" /><col style="width: 11%" /><col style="width: 13%" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Process ID</th><th>SP Name</th><th>Agent Name</th><th>Merchant Name</th><th>MID</th><th>Merchant Email</th><th>Last Update</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="onboarding-rows"></tbody>
+            </table>
+            <div class="empty-state" id="empty-state" hidden>No onboarding records match these filters.</div>
+          </div>
+
+          <div class="pagination" aria-label="Pagination">
+            <div class="pager-main">
+              <button class="page-nav" type="button" aria-label="First page" disabled><span class="material-symbols-rounded" aria-hidden="true">keyboard_double_arrow_left</span></button>
+              <button class="page-nav" type="button" aria-label="Previous page" disabled><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
+              <span class="page-current" aria-current="page">1</span>
+              <button class="page-nav" type="button" aria-label="Next page" disabled><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+              <button class="page-nav" type="button" aria-label="Last page" disabled><span class="material-symbols-rounded" aria-hidden="true">keyboard_double_arrow_right</span></button>
+              <label class="sr-only" for="page-size">Rows per page</label>
+              <select class="page-size" id="page-size"><option>20</option><option>50</option></select>
+            </div>
+            <div class="pager-summary">
+              <label class="sr-only" for="page-number">Page number</label>
+              <input class="page-number" id="page-number" type="text" value="1" readonly />
+              <span id="pagination-total">/ 1 (10)</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="view registration-view" id="registration-view" aria-labelledby="registration-title" hidden>
+          <div class="panel-header">
+            <h1 class="page-title" id="registration-title">Merchant Registration</h1>
+          </div>
+
+          <div class="registration-layout">
+            <form class="registration-form" id="merchant-form" novalidate>
+              <fieldset class="form-fieldset assignment">
+                <legend>Assign/New Merchant</legend>
+                <label class="switch-row" for="new-merchant">
+                  <span>New Merchant</span>
+                  <input class="switch" id="new-merchant" name="newMerchant" type="checkbox" />
+                </label>
+              </fieldset>
+
+              <fieldset class="form-fieldset application">
+                <legend>Application Information</legend>
+                <div class="form-grid">
+                  <div class="field" id="merchant-select-field">
+                    <select id="merchant-name-select" name="merchantNameSelect" aria-label="Merchant Name">
+                      <option value=""></option>
+                      <option>techsupport</option>
+                      <option>ceshi123213243234</option>
+                      <option>Merchant name1</option>
+                      <option>FISERV PROD TEST</option>
+                      <option>IFS Shop Mall</option>
+                    </select>
+                    <label class="field-label" for="merchant-name-select">Merchant Name</label>
+                  </div>
+                  <div class="field" id="merchant-input-field" hidden>
+                    <input id="merchant-name-input" name="merchantNameInput" type="text" placeholder=" " disabled />
+                    <label class="field-label" for="merchant-name-input">Merchant Name</label>
+                  </div>
+
+                  <div class="field">
+                    <input id="merchant-email" name="merchantEmail" type="email" autocomplete="email" placeholder=" " required />
+                    <label class="field-label" for="merchant-email">Merchant Email<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <input id="merchant-phone" name="merchantPhone" type="tel" autocomplete="tel" placeholder=" " required />
+                    <label class="field-label" for="merchant-phone">Merchant Phone<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <input id="contact-name" name="contactName" type="text" autocomplete="name" placeholder=" " required />
+                    <label class="field-label" for="contact-name">Contact Name<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <select id="merchant-permissions" name="merchantPermissions" required aria-label="Merchant Permissions">
+                      <option value=""></option><option>Merchant Admin</option><option>Merchant User</option><option>View Only</option>
+                    </select>
+                    <label class="field-label" for="merchant-permissions">Merchant Permissions<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <select id="currency-name" name="currencyName" required aria-label="Currency Name">
+                      <option value=""></option><option value="USD">USD - US Dollar</option><option value="EUR">EUR - Euro</option><option value="GBP">GBP - Pound Sterling</option><option value="CAD">CAD - Canadian Dollar</option>
+                    </select>
+                    <label class="field-label" for="currency-name">Currency Name<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <select id="country-name" name="countryName" required aria-label="Country Name">
+                      <option value=""></option><option>United States of America</option><option>Canada</option><option>United Kingdom</option><option>France</option><option>Germany</option>
+                    </select>
+                    <label class="field-label" for="country-name">Country Name<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <select id="payment-channel" name="paymentChannel" required aria-label="Payment Channel">
+                      <option value=""></option><option>Elavon EU</option><option>Fiserv</option><option>Nuvei</option><option>TSYS</option>
+                    </select>
+                    <label class="field-label" for="payment-channel">Payment Channel<span class="required">*</span></label>
+                  </div>
+                  <div class="field">
+                    <input id="cost-rate" name="costRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder=" " />
+                    <label class="field-label" for="cost-rate">Cost Rate (%)</label>
+                  </div>
+                  <div class="field">
+                    <input id="fee-cap" name="feeCap" type="number" min="0" step="0.01" inputmode="decimal" placeholder=" " />
+                    <label class="field-label" for="fee-cap">Fee cap</label>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="form-actions">
+                <button class="btn subtle" id="cancel-registration" type="button">Cancel</button>
+                <button class="btn success" id="save-draft" type="button">Save</button>
+                <button class="btn primary" type="submit">Submit</button>
+              </div>
+            </form>
+
+            <aside class="section-rail" aria-label="Registration section"><span>Application Information</span></aside>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+    <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+    <div><strong id="toast-title">Saved</strong><p id="toast-message">Your changes have been saved.</p></div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var DRAFT_KEY = "paywizard-merchant-onboarding-draft";
+      var rows = [
+        { processId: "00000336", spName: "Paywizard UAT", agentName: "", merchantName: "techsupport", mid: "-", email: "maggie-support1@wizarpos.com", lastUpdate: "2026-05-14 14:22:27", status: "Draft" },
+        { processId: "00000328", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi123213243234", mid: "mid12320251229", email: "uat2512003@nooboy.com", lastUpdate: "2025-12-29 15:29:41", status: "Approved" },
+        { processId: "00000205", spName: "Paywizard UAT", agentName: "", merchantName: "Merchant name1", mid: "-", email: "uat2512002@nooboy.com", lastUpdate: "2025-12-29 14:40:21", status: "Under Review" },
+        { processId: "00000318", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi251030", mid: "-", email: "ceshi251030@gmail.com", lastUpdate: "2026-01-23 17:36:35", status: "Merchant Submit" },
+        { processId: "00000277", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi001", mid: "-", email: "1212123@163.com", lastUpdate: "2025-09-05 13:17:30", status: "Draft" },
+        { processId: "00000274", spName: "Paywizard UAT", agentName: "", merchantName: "FISERV PROD TEST", mid: "266482540884", email: "2987116030@qq.com", lastUpdate: "2025-07-22 13:13:33", status: "Approved" },
+        { processId: "00000201", spName: "Paywizard UAT", agentName: "", merchantName: "天猫小店", mid: "-", email: "wang@hotmail.com", lastUpdate: "2025-03-19 19:26:53", status: "Draft" },
+        { processId: "00000199", spName: "Paywizard UAT", agentName: "", merchantName: "IFS Shop Mall", mid: "Test20250211", email: "Zhang.Mingle@gmail.com", lastUpdate: "2025-02-11 09:42:34", status: "Approved" },
+        { processId: "00000098", spName: "Paywizard UAT", agentName: "", merchantName: "MRCHTApply", mid: "-", email: "18892828893@qq.cn", lastUpdate: "2025-01-15 14:06:29", status: "Merchant Submit" },
+        { processId: "-", spName: "Paywizard UAT", agentName: "", merchantName: "CESHI", mid: "-", email: "1778883@qq.com", lastUpdate: "2025-01-15 13:57:22", status: "Under Review" }
+      ];
+
+      var listView = document.getElementById("list-view");
+      var registrationView = document.getElementById("registration-view");
+      var registrationSeparator = document.getElementById("registration-separator");
+      var registrationCrumb = document.getElementById("registration-crumb");
+      var tbody = document.getElementById("onboarding-rows");
+      var emptyState = document.getElementById("empty-state");
+      var paginationTotal = document.getElementById("pagination-total");
+      var merchantFilter = document.getElementById("merchant-filter");
+      var processFilter = document.getElementById("process-filter");
+      var statusFilter = document.getElementById("status-filter");
+      var form = document.getElementById("merchant-form");
+      var newMerchant = document.getElementById("new-merchant");
+      var merchantSelectField = document.getElementById("merchant-select-field");
+      var merchantInputField = document.getElementById("merchant-input-field");
+      var merchantSelect = document.getElementById("merchant-name-select");
+      var merchantInput = document.getElementById("merchant-name-input");
+      var toast = document.getElementById("toast");
+      var toastTimer;
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>'"]/g, function (character) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character];
+        });
+      }
+
+      function statusClass(status) {
+        if (status === "Approved") return "approved";
+        if (status === "Under Review") return "review";
+        return "";
+      }
+
+      function rowTemplate(row) {
+        return '<tr data-process-id="' + escapeHtml(row.processId) + '">' +
+          '<td>' + escapeHtml(row.processId) + '</td>' +
+          '<td>' + escapeHtml(row.spName) + '</td>' +
+          '<td>' + escapeHtml(row.agentName) + '</td>' +
+          '<td>' + escapeHtml(row.merchantName) + '</td>' +
+          '<td>' + escapeHtml(row.mid) + '</td>' +
+          '<td>' + escapeHtml(row.email) + '</td>' +
+          '<td>' + escapeHtml(row.lastUpdate) + '</td>' +
+          '<td><span class="status-pill ' + statusClass(row.status) + '">' + escapeHtml(row.status) + '</span></td>' +
+          '<td><div class="row-actions">' +
+            '<button class="action-btn" type="button" data-action="detail" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>' +
+            '<button class="action-btn edit" type="button" data-action="edit" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>' +
+            '<button class="action-btn" type="button" data-action="share" aria-label="Share process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>' +
+          '</div></td></tr>';
+      }
+
+      function renderRows() {
+        var merchantQuery = merchantFilter.value.trim().toLowerCase();
+        var processQuery = processFilter.value.trim().toLowerCase();
+        var selectedStatus = statusFilter.value;
+        var filteredRows = rows.filter(function (row) {
+          return (!merchantQuery || row.merchantName.toLowerCase().indexOf(merchantQuery) >= 0) &&
+            (!processQuery || row.processId.toLowerCase().indexOf(processQuery) >= 0) &&
+            (!selectedStatus || row.status === selectedStatus);
+        });
+
+        tbody.innerHTML = filteredRows.map(rowTemplate).join("");
+        emptyState.hidden = filteredRows.length !== 0;
+        paginationTotal.textContent = "/ 1 (" + filteredRows.length + ")";
+      }
+
+      function syncSelectLabels() {
+        document.querySelectorAll(".field select").forEach(function (select) {
+          select.parentElement.classList.toggle("has-value", Boolean(select.value));
+        });
+      }
+
+      function syncMerchantMode() {
+        var isNew = newMerchant.checked;
+        merchantSelectField.hidden = isNew;
+        merchantSelect.disabled = isNew;
+        merchantInputField.hidden = !isNew;
+        merchantInput.disabled = !isNew;
+        syncSelectLabels();
+      }
+
+      function showToast(title, message) {
+        document.getElementById("toast-title").textContent = title;
+        document.getElementById("toast-message").textContent = message;
+        toast.hidden = false;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () { toast.hidden = true; }, 3200);
+      }
+
+      function isRegistrationRoute() {
+        return window.location.hash === "#new-onboarding";
+      }
+
+      function renderRoute() {
+        var showRegistration = isRegistrationRoute();
+        listView.hidden = showRegistration;
+        registrationView.hidden = !showRegistration;
+        registrationSeparator.hidden = !showRegistration;
+        registrationCrumb.hidden = !showRegistration;
+        document.title = showRegistration ? "Merchant Registration - PAYwizard" : "Merchant Onboarding - PAYwizard";
+        if (showRegistration) restoreDraft();
+        window.scrollTo(0, 0);
+      }
+
+      function serializeForm() {
+        var values = {};
+        new FormData(form).forEach(function (value, key) { values[key] = value; });
+        values.newMerchant = newMerchant.checked;
+        return values;
+      }
+
+      function restoreDraft() {
+        var raw = window.localStorage.getItem(DRAFT_KEY);
+        if (!raw) {
+          syncMerchantMode();
+          syncSelectLabels();
+          return;
+        }
+        try {
+          var values = JSON.parse(raw);
+          Object.keys(values).forEach(function (key) {
+            if (key === "newMerchant") return;
+            var control = form.elements.namedItem(key);
+            if (control) control.value = values[key];
+          });
+          newMerchant.checked = Boolean(values.newMerchant);
+        } catch (error) {
+          window.localStorage.removeItem(DRAFT_KEY);
+        }
+        syncMerchantMode();
+        syncSelectLabels();
+      }
+
+      function clearForm() {
+        form.reset();
+        newMerchant.checked = false;
+        syncMerchantMode();
+        syncSelectLabels();
+      }
+
+      function openRegistration() {
+        window.location.hash = "new-onboarding";
+      }
+
+      function closeRegistration() {
+        if (window.location.hash) {
+          window.location.hash = "";
+        } else {
+          renderRoute();
+        }
+      }
+
+      function currentTimestamp() {
+        var now = new Date();
+        function pad(number) { return String(number).padStart(2, "0"); }
+        return now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+      }
+
+      function nextProcessId() {
+        var maximum = rows.reduce(function (current, row) {
+          var numeric = Number(row.processId);
+          return Number.isFinite(numeric) ? Math.max(current, numeric) : current;
+        }, 0);
+        return String(maximum + 1).padStart(8, "0");
+      }
+
+      document.querySelectorAll("[data-menu-toggle]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var menu = document.getElementById(button.getAttribute("data-menu-toggle"));
+          var expanded = button.getAttribute("aria-expanded") === "true";
+          button.setAttribute("aria-expanded", String(!expanded));
+          menu.hidden = expanded;
+        });
+      });
+
+      document.getElementById("new-onboarding").addEventListener("click", openRegistration);
+      document.getElementById("cancel-registration").addEventListener("click", closeRegistration);
+      window.addEventListener("hashchange", renderRoute);
+
+      document.getElementById("search-filters").addEventListener("click", renderRows);
+      document.getElementById("reset-filters").addEventListener("click", function () {
+        merchantFilter.value = "";
+        processFilter.value = "";
+        statusFilter.value = "";
+        renderRows();
+      });
+      [merchantFilter, processFilter].forEach(function (control) {
+        control.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") renderRows();
+        });
+      });
+      statusFilter.addEventListener("change", renderRows);
+
+      newMerchant.addEventListener("change", syncMerchantMode);
+      document.querySelectorAll(".field select").forEach(function (select) {
+        select.addEventListener("change", syncSelectLabels);
+      });
+
+      document.getElementById("save-draft").addEventListener("click", function () {
+        window.localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeForm()));
+        showToast("Draft saved", "Merchant onboarding information is saved in this browser.");
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        var merchantName = newMerchant.checked ? merchantInput.value.trim() : merchantSelect.value;
+        rows.unshift({
+          processId: nextProcessId(),
+          spName: "Paywizard UAT",
+          agentName: "",
+          merchantName: merchantName || "New Merchant",
+          mid: "-",
+          email: document.getElementById("merchant-email").value.trim(),
+          lastUpdate: currentTimestamp(),
+          status: "Merchant Submit"
+        });
+
+        window.localStorage.removeItem(DRAFT_KEY);
+        clearForm();
+        merchantFilter.value = "";
+        processFilter.value = "";
+        statusFilter.value = "";
+        renderRows();
+        closeRegistration();
+        showToast("Application submitted", "The new merchant application was added to the onboarding list.");
+      });
+
+      tbody.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-action]");
+        if (!button) return;
+        var rowElement = button.closest("tr");
+        var processId = rowElement ? rowElement.getAttribute("data-process-id") : "";
+        var action = button.getAttribute("data-action");
+        if (action === "edit") {
+          var row = rows.find(function (item) { return item.processId === processId; });
+          clearForm();
+          if (row) {
+            var existingOption = Array.from(merchantSelect.options).find(function (option) { return option.value === row.merchantName; });
+            if (!existingOption) merchantSelect.add(new Option(row.merchantName, row.merchantName));
+            merchantSelect.value = row.merchantName;
+            document.getElementById("merchant-email").value = row.email;
+          }
+          syncSelectLabels();
+          openRegistration();
+          return;
+        }
+        if (action === "detail") showToast("Process " + processId, "Application details are available from this action in the production portal.");
+        if (action === "share") showToast("Share link ready", "A merchant onboarding link would be generated in the production portal.");
+      });
+
+      renderRows();
+      syncMerchantMode();
+      syncSelectLabels();
+      renderRoute();
+    })();
+  </script>
+</body>
+</html>
