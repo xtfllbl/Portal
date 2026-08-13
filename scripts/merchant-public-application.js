@@ -66,7 +66,28 @@
     updateApplication(function (item) {
       item.formData = Object.assign({}, item.formData || {}, Store.serializeForm(form));
       item.documents = Store.collectDocuments(form, item.documents || {});
-      if (nextStatus) item.status = nextStatus;
+      if (nextStatus) Store.recordStatus(item, nextStatus, "Merchant", Store.timestamp());
+    });
+  }
+
+  function renderPublicProgress() {
+    var existing = document.getElementById("merchant-application-progress");
+    var visibleStatuses = ["Merchant Submit", "Under Review", "Returned", "Approved"];
+    if (!application || visibleStatuses.indexOf(application.status) === -1 || !window.PaywizardOnboardingProgress) {
+      if (existing) existing.remove();
+      return;
+    }
+    var container = existing || document.createElement("div");
+    container.id = "merchant-application-progress";
+    container.className = "merchant-application-progress";
+    if (!existing) {
+      var anchor = document.getElementById("changes-requested") || document.querySelector(".application-embed");
+      anchor.parentNode.insertBefore(container, anchor);
+    }
+    window.PaywizardOnboardingProgress.render(container, Store.publicProgress(application), {
+      title: "Your Application Progress",
+      description: "Follow the latest onboarding status and the time each milestone was reached.",
+      showActor: true
     });
   }
 
@@ -235,13 +256,14 @@
           storeFormState(form);
           prepareReviewForResubmission();
           updateApplication(function (item) {
-            item.status = "Merchant Submit";
             item.submissionVersion = Number(item.submissionVersion || 0) + 1;
             item.submittedAt = Store.timestamp();
             item.review = application.review;
+            Store.recordStatus(item, "Merchant Submit", "Merchant", item.submittedAt);
           });
           clearReturnedPresentation(doc);
           lockSubmittedApplication(doc, form);
+          renderPublicProgress();
         }
         var title = doc.getElementById("success-title");
         var message = doc.getElementById("success-message");
@@ -266,6 +288,7 @@
   }
 
   addReturnedSummary();
+  renderPublicProgress();
   frame.addEventListener("load", handleFrameLoad);
   if (frame.contentDocument && frame.contentDocument.readyState === "complete") handleFrameLoad();
 })();

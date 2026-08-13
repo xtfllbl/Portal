@@ -705,7 +705,7 @@
     }
 
     .share-dialog {
-      width: min(560px, 100%);
+      width: min(690px, 100%);
       overflow: hidden;
       border: 1px solid #d9dce2;
       border-radius: 12px;
@@ -757,9 +757,23 @@
 
     .share-link-label { display: block; margin-bottom: 6px; color: #555963; font-size: 10px; font-weight: 600; }
 
+    .share-link-block {
+      padding: 13px;
+      border: 1px solid #e1e5ea;
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .share-link-block + .share-link-block { margin-top: 11px; }
+
+    .share-link-block-head { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 10px; }
+    .share-link-block-head .material-symbols-rounded { color: #1768dc; font-size: 19px; }
+    .share-link-block-head strong { display: block; color: #42464e; font-size: 11px; }
+    .share-link-block-head span:last-child { display: block; margin-top: 2px; color: #7c838e; font-size: 9px; }
+
     .share-link-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto auto;
       gap: 8px;
     }
 
@@ -1110,7 +1124,7 @@
   <div class="modal-backdrop" id="share-modal" role="presentation" hidden>
     <section class="share-dialog" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
       <header class="share-dialog-header">
-        <div><h2 id="share-dialog-title">Merchant application link ready</h2><p>Copy this link and send it to the merchant. No PAYwizard login is required.</p></div>
+        <div><h2 id="share-dialog-title">Application links ready</h2><p>Share the merchant form privately, or let other stakeholders follow progress without seeing application data.</p></div>
         <button class="dialog-close" id="close-share-dialog" type="button" aria-label="Close share dialog"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
       </header>
       <div class="share-dialog-body">
@@ -1118,16 +1132,28 @@
           <div><span>Merchant</span><strong id="share-merchant-name">—</strong></div>
           <div><span>Payment channel</span><strong id="share-payment-channel">—</strong></div>
         </div>
-        <label class="share-link-label" for="share-link">Shareable application link</label>
-        <div class="share-link-row">
-          <input id="share-link" type="text" readonly />
-          <button class="btn" id="copy-share-link" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link</button>
+        <div class="share-link-block">
+          <div class="share-link-block-head"><span class="material-symbols-rounded" aria-hidden="true">assignment</span><div><strong>Merchant Application Link</strong><span>Private form for the merchant to complete, save, submit or revise.</span></div></div>
+          <label class="share-link-label" for="share-link">Merchant-facing URL</label>
+          <div class="share-link-row">
+            <input id="share-link" type="text" readonly />
+            <button class="btn" id="copy-share-link" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link</button>
+            <a class="btn primary" id="open-merchant-page" href="#" target="_blank" rel="noopener">Open Page</a>
+          </div>
         </div>
-        <p class="share-help"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><span>The merchant will see a focused onboarding form with friendly guidance and can save progress before submitting.</span></p>
+        <div class="share-link-block">
+          <div class="share-link-block-head"><span class="material-symbols-rounded" aria-hidden="true">timeline</span><div><strong>Application Progress Link</strong><span>Safe read-only status tracking for external stakeholders; application contents stay hidden.</span></div></div>
+          <label class="share-link-label" for="progress-link">Progress-only URL</label>
+          <div class="share-link-row">
+            <input id="progress-link" type="text" readonly />
+            <button class="btn" id="copy-progress-link" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link</button>
+            <a class="btn primary" id="open-progress-page" href="#" target="_blank" rel="noopener">Open Page</a>
+          </div>
+        </div>
+        <p class="share-help"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><span>The progress page exposes only the merchant name, payment channel, Process ID, current status and event times.</span></p>
       </div>
       <div class="share-dialog-actions">
         <button class="btn subtle" id="done-sharing" type="button">Done</button>
-        <a class="btn primary" id="open-merchant-page" href="#" target="_blank" rel="noopener">Open Merchant Page</a>
       </div>
     </section>
   </div>
@@ -1174,7 +1200,9 @@
       var form = document.getElementById("merchant-form");
       var shareModal = document.getElementById("share-modal");
       var shareLinkInput = document.getElementById("share-link");
+      var progressLinkInput = document.getElementById("progress-link");
       var openMerchantPage = document.getElementById("open-merchant-page");
+      var openProgressPage = document.getElementById("open-progress-page");
       var toast = document.getElementById("toast");
       var toastTimer;
       var editingApplicationId = "";
@@ -1357,6 +1385,13 @@
         return url.href;
       }
 
+      function createProgressUrl(applicationId) {
+        var url = new URL("38.Merchant_onboarding_progress.html", window.location.href);
+        url.hash = "";
+        url.searchParams.set("applicationId", applicationId);
+        return url.href;
+      }
+
       function saveApplications() {
         var applications = rows.filter(function (row) { return Boolean(row.applicationId); });
         if (Store) Store.saveApplications(applications);
@@ -1391,6 +1426,7 @@
           review: channelChanged || !existing ? (Store ? Store.createReview(values.paymentChannel) : { sections: {} }) : existing.review
         });
         row.shareUrl = createShareUrl(values, applicationId);
+        if (Store) Store.recordStatus(row, "Draft", "Platform", row.lastUpdate);
         if (Store) row = Store.upsertApplication(row);
         editingApplicationId = applicationId;
         reloadRows();
@@ -1408,8 +1444,11 @@
             }, 0);
             return null;
           }
-          row.status = "Awaiting Merchant";
-          row.lastUpdate = currentTimestamp();
+          if (Store) Store.recordStatus(row, "Awaiting Merchant", "Platform", currentTimestamp());
+          else {
+            row.status = "Awaiting Merchant";
+            row.lastUpdate = currentTimestamp();
+          }
           if (!row.shareUrl) {
             row.shareUrl = createShareUrl({
               merchantName: row.merchantName,
@@ -1433,7 +1472,9 @@
         document.getElementById("share-merchant-name").textContent = row.merchantName || "—";
         document.getElementById("share-payment-channel").textContent = row.channel || "—";
         shareLinkInput.value = row.shareUrl || "";
+        progressLinkInput.value = createProgressUrl(row.applicationId);
         openMerchantPage.href = row.shareUrl || "#";
+        openProgressPage.href = progressLinkInput.value;
         shareModal.hidden = false;
         document.getElementById("copy-share-link").focus();
       }
@@ -1532,20 +1573,25 @@
       document.addEventListener("keydown", function (event) {
         if (event.key === "Escape" && !shareModal.hidden) closeShareDialog();
       });
-      document.getElementById("copy-share-link").addEventListener("click", function () {
-        var copyButton = this;
+      function copyLink(input, copyButton, message) {
         function copied() {
           copyButton.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">check</span>Copied';
-          showToast("Link copied", "The merchant-facing onboarding URL is ready to share.");
+          showToast("Link copied", message);
           window.setTimeout(function () { copyButton.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link'; }, 1800);
         }
         if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(shareLinkInput.value).then(copied);
+          navigator.clipboard.writeText(input.value).then(copied);
         } else {
-          shareLinkInput.select();
+          input.select();
           document.execCommand("copy");
           copied();
         }
+      }
+      document.getElementById("copy-share-link").addEventListener("click", function () {
+        copyLink(shareLinkInput, this, "The merchant-facing onboarding URL is ready to share.");
+      });
+      document.getElementById("copy-progress-link").addEventListener("click", function () {
+        copyLink(progressLinkInput, this, "The progress-only URL is ready for external stakeholders.");
       });
 
       tbody.addEventListener("click", function (event) {

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Application Progress - PAYwizard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/merchant-public-application.css" />
+  <link rel="stylesheet" href="styles/merchant-onboarding-progress.css" />
+  <style>
+    .tracking-shell{width:min(1060px,calc(100% - 32px));margin:32px auto 48px}.tracking-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:16px;padding:24px;border:1px solid var(--public-line);border-radius:12px;background:#fff;box-shadow:0 4px 18px rgba(25,32,42,.05)}
+    .tracking-intro h1{margin:0 0 6px;font-size:25px}.tracking-intro p{margin:0;color:var(--public-muted);font-size:11px}.tracking-reference{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.tracking-reference div{padding:14px 16px;border:1px solid var(--public-line);border-radius:9px;background:#fff}.tracking-reference span{display:block;margin-bottom:3px;color:#828a96;font-size:9px}.tracking-reference strong{display:block;overflow-wrap:anywhere;font-size:11px}.tracking-privacy{margin-top:14px;color:#7c8490;font-size:9px;text-align:center}.tracking-error{padding:30px;border:1px solid #efc2bd;border-radius:12px;background:#fff5f4;color:#9b332b;text-align:center}.tracking-error h1{margin:0 0 6px;font-size:20px}.tracking-error p{margin:0;font-size:11px}
+    @media(max-width:700px){.tracking-shell{width:min(100% - 20px,1060px);margin-top:16px}.tracking-intro{display:grid;padding:20px 17px}.tracking-intro h1{font-size:21px}.tracking-reference{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="public-topbar"><a class="paywizard-brand" href="#top" aria-label="PAYwizard"><img src="assets/paywizard-logo.png" alt="PAYwizard" /></a></header>
+  <main class="tracking-shell" id="top">
+    <div id="tracking-content" hidden>
+      <section class="tracking-intro"><div><h1>Merchant Application Progress</h1><p>This page provides progress updates only. Merchant application details and documents are not available here.</p></div></section>
+      <section class="tracking-reference" aria-label="Application reference">
+        <div><span>Merchant</span><strong id="tracking-merchant"></strong></div>
+        <div><span>Payment channel</span><strong id="tracking-channel"></strong></div>
+        <div><span>Process ID</span><strong id="tracking-process"></strong></div>
+      </section>
+      <div id="tracking-progress"></div>
+      <p class="tracking-privacy">This public tracking view contains status information only.</p>
+    </div>
+    <section class="tracking-error" id="tracking-error" hidden><h1>Progress unavailable</h1><p>This application could not be found in the current prototype session.</p></section>
+  </main>
+  <script src="scripts/merchant-onboarding-store.js"></script>
+  <script src="scripts/merchant-onboarding-progress.js"></script>
+  <script>
+    (function () {
+      var applicationId = new URLSearchParams(window.location.search).get("applicationId") || "";
+      var progress = window.PaywizardOnboardingStore.getPublicProgress(applicationId);
+      if (!progress) { document.getElementById("tracking-error").hidden = false; return; }
+      document.getElementById("tracking-merchant").textContent = progress.merchantName || "—";
+      document.getElementById("tracking-channel").textContent = progress.channel || "—";
+      document.getElementById("tracking-process").textContent = progress.processId || "—";
+      window.PaywizardOnboardingProgress.render(document.getElementById("tracking-progress"), progress, { showActor: false, title: "Application Progress", description: "Follow the latest milestones without viewing the merchant's application data." });
+      document.getElementById("tracking-content").hidden = false;
+    })();
+  </script>
+</body>
+</html>

@@ -1,3 +1,31 @@
+# Merchant Onboarding Progress Tracking and Audit QA
+
+## Coverage
+
+- Added append-only `statusHistory` events for platform creation/share, merchant draft/submission/resubmission, operations review, return, and approval. Repeated saves in the same state update `lastUpdate` without duplicating a lifecycle node.
+- Added the shared five-stage progress component and full chronological event timeline to submitted merchant pages, platform read-only View pages, and the new external progress-only page.
+- Split the share dialog into Merchant Application Link and Application Progress Link sections, each with independent Copy Link and Open Page actions.
+- Confirmed the external page exposes only merchant name, payment channel, Process ID, current status, milestones, and event timestamps. It renders no form, contact details, attachments, section decisions, or review comments.
+- Verified Returned → Merchant Submit → Under Review loops remain visible as separate events and retain submission-version metadata.
+
+## Visual and responsive evidence
+
+- Dual-link share dialog: `assets/qa/qa-onboarding-dual-share-dialog.png`.
+- External desktop progress page: `assets/qa/qa-onboarding-public-progress.png`.
+- External mobile progress page: `assets/qa/qa-onboarding-public-progress-mobile.png`.
+- Platform View with audit history: `assets/qa/qa-onboarding-platform-audit-view.png`.
+- Browser inspection found no actionable P0, P1, or P2 visual issues. The 390 × 844 progress page measured zero horizontal overflow; the timeline converts to a vertical mobile flow while keeping timestamps readable.
+
+## Automated result
+
+- `tests/merchant-onboarding.spec.js`: 15 passed in Chromium.
+- Covered status-event ordering, no duplicate Merchant Draft nodes on repeated saves, dual share links, merchant progress after submission, external-page data minimization, platform audit View, returned/resubmitted history, and responsive overflow.
+- JavaScript syntax checks and `git diff --check` passed with no console/page errors in the targeted browser run.
+
+final result: passed
+
+---
+
 # Merchant Review State Polish QA
 
 ## Evidence

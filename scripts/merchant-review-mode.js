@@ -22,6 +22,7 @@
   var style = document.createElement("style");
   style.textContent = [
     ".application-mode-banner{max-width:1520px;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 auto 14px;padding:13px 16px;border:1px solid #bfd6ee;border-radius:7px;background:#f1f7fd;color:#34495e}",
+    ".platform-application-progress{max-width:1520px;margin:0 auto 14px}",
     ".application-mode-banner strong{display:block;margin-bottom:2px;font-size:12px}.application-mode-banner span{font-size:10px;color:#657789}.application-back-link{flex:none;padding:8px 12px;border:1px solid #b9c7d6;border-radius:6px;background:#fff;color:#334155;font-size:10px;font-weight:700;text-decoration:none}",
     ".form-section.review-approved{border-color:#55b981!important;background:#f2fbf6!important;box-shadow:0 0 0 1px rgba(18,130,73,.08)}",
     ".form-section.review-rejected{border-color:#e36a62!important;background:#fff6f5!important;box-shadow:0 0 0 1px rgba(217,45,32,.08)}",
@@ -67,7 +68,7 @@
   }
 
   function markReviewStarted() {
-    if (application.status === "Merchant Submit") application.status = "Under Review";
+    if (application.status === "Merchant Submit") Store.recordStatus(application, "Under Review", "Operations", Store.timestamp());
   }
 
   function persistReview() {
@@ -145,6 +146,16 @@
   registrationShell.parentNode.insertBefore(modeBanner, registrationShell);
 
   if (!isReview) {
+    if (window.PaywizardOnboardingProgress) {
+      var progress = document.createElement("div");
+      progress.className = "platform-application-progress";
+      registrationShell.parentNode.insertBefore(progress, registrationShell);
+      window.PaywizardOnboardingProgress.render(progress, Store.publicProgress(application), {
+        title: "Application Progress & Audit History",
+        description: "A read-only record of every lifecycle status, submission round, actor and event time.",
+        showActor: true
+      });
+    }
     sections.forEach(function (section) {
       var id = section.getAttribute("data-section");
       var result = sectionReview(id);
@@ -212,9 +223,8 @@
     }
     review.reviewedAt = Store.timestamp();
     application.review = review;
-    application.status = "Approved";
     application.reviewedAt = review.reviewedAt;
-    application.lastUpdate = review.reviewedAt;
+    Store.recordStatus(application, "Approved", "Operations", review.reviewedAt);
     application = Store.upsertApplication(application);
     showResult("Application approved", application.merchantName + " is ready for the next onboarding step. Use Back to Onboarding to return to the list.");
     updateFinalButtons();
@@ -236,9 +246,8 @@
     }
     review.reviewedAt = Store.timestamp();
     application.review = review;
-    application.status = "Returned";
     application.reviewedAt = review.reviewedAt;
-    application.lastUpdate = review.reviewedAt;
+    Store.recordStatus(application, "Returned", "Operations", review.reviewedAt);
     application = Store.upsertApplication(application);
     showResult("Returned to merchant", "The merchant can now open the original link, review your comments and resubmit the application.");
     updateFinalButtons();

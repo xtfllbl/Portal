@@ -71,6 +71,9 @@ test("opens a genuine read-only channel view", async ({ page }) => {
   await expect(page.locator('[name="registeredBusinessName"]')).toHaveAttribute("readonly", "");
   await expect(page.getByRole("button", { name: "Pass", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Issue", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Application Progress & Audit History" })).toBeVisible();
+  await expect(page.locator(".progress-event-list")).toContainText("Application approved");
+  await expect(page.locator(".progress-event-list")).toContainText("Operations");
   await expect(page.getByRole("link", { name: "Back to Onboarding" }).last()).toBeVisible();
 });
 
@@ -79,7 +82,10 @@ test("does not start review until the first reviewer decision", async ({ page })
   await page.getByRole("button", { name: "Review application 00000339" }).click();
   expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Merchant Submit");
   await page.locator('.form-section[data-section="legal"]').getByRole("button", { name: "Pass", exact: true }).click();
-  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Under Review");
+  const reviewState = await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01"));
+  expect(reviewState.status).toBe("Under Review");
+  expect(reviewState.statusHistory.at(-1).status).toBe("Under Review");
+  expect(reviewState.statusHistory.at(-1).actor).toBe("Operations");
 });
 
 test("merchant save creates Merchant Draft and a read-only platform view", async ({ page }) => {
@@ -92,7 +98,10 @@ test("merchant save creates Merchant Draft and a read-only platform view", async
   await page.reload();
   const form = page.frameLocator("#source-frame");
   await form.getByRole("button", { name: "Save Draft" }).click();
-  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Merchant Draft");
+  await form.getByRole("button", { name: "Save Draft" }).click();
+  const merchantDraft = await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01"));
+  expect(merchantDraft.status).toBe("Merchant Draft");
+  expect(merchantDraft.statusHistory.filter((event) => event.status === "Merchant Draft").length).toBe(2);
   await page.goto(ONBOARDING_URL);
   const row = page.locator("#onboarding-rows tr", { hasText: "00000339" });
   await expect(row).toContainText("Merchant Draft");
@@ -155,12 +164,19 @@ test("validates, saves, and generates a shareable merchant link", async ({ page 
   await expect(page.locator("#share-merchant-name")).toHaveText("Northstar Coffee");
   await expect(page.locator("#share-payment-channel")).toHaveText("Elavon EU");
   await expect(page.locator("#share-link")).toHaveValue(/38\.Merchant_onboard_elavon_public\.html\?/);
+  await expect(page.locator("#progress-link")).toHaveValue(/38\.Merchant_onboarding_progress\.html\?applicationId=/);
+  await expect(page.getByText("Merchant Application Link", { exact: true })).toBeVisible();
+  await expect(page.getByText("Application Progress Link", { exact: true })).toBeVisible();
+  await expect(page.locator("#open-merchant-page")).toHaveAttribute("href", /38\.Merchant_onboard_elavon_public\.html/);
+  await expect(page.locator("#open-progress-page")).toHaveAttribute("href", /38\.Merchant_onboarding_progress\.html/);
 
   const applications = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), APPLICATIONS_KEY);
   expect(applications).toHaveLength(13);
   const createdApplication = applications.find((item) => item.merchantName === "Northstar Coffee");
   expect(createdApplication.status).toBe("Awaiting Merchant");
   expect(createdApplication.shareUrl).toContain("merchantName=Northstar+Coffee");
+  expect(createdApplication.statusHistory.map((event) => event.status)).toEqual(["Draft", "Awaiting Merchant"]);
+  expect(createdApplication.statusHistory.map((event) => event.actor)).toEqual(["Platform", "Platform"]);
 
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();
@@ -233,10 +249,13 @@ test("reviews, returns, corrects and resubmits an Elavon application", async ({ 
   expect(application.status).toBe("Returned");
   expect(application.review.sections.business.status).toBe("rejected");
   expect(application.review.sections.contact.status).toBe("approved");
+  expect(application.statusHistory.slice(-2).map((event) => event.status)).toEqual(["Under Review", "Returned"]);
 
   await page.goto("/38.Merchant_onboard_elavon_public.html?applicationId=APP-DEMO-ELAVON-01");
   await expect(page.getByRole("heading", { name: "Complete your Elavon application" })).toBeVisible();
   await expect(page.locator(".changes-requested")).toContainText("Changes requested");
+  await expect(page.getByRole("heading", { name: "Your Application Progress" })).toBeVisible();
+  await expect(page.locator("#merchant-application-progress")).toContainText("Changes requested");
   const merchantForm = page.frameLocator("#source-frame");
   await expect(merchantForm.locator("#business")).toHaveClass(/merchant-review-rejected/);
   await expect(merchantForm.locator("#business")).toContainText("Please confirm the VAT ID and legal company name.");
@@ -253,6 +272,29 @@ test("reviews, returns, corrects and resubmits an Elavon application", async ({ 
   expect(application.review.sections.business.status).toBe("pending");
   expect(application.review.sections.business.previousReason).toContain("VAT ID");
   expect(application.review.sections.contact.status).toBe("approved");
+  expect(application.statusHistory.slice(-3).map((event) => event.status)).toEqual(["Under Review", "Returned", "Merchant Submit"]);
+  expect(application.statusHistory.at(-1).submissionVersion).toBe(2);
+  await expect(page.locator("#merchant-application-progress")).toContainText("Application resubmitted");
+});
+
+test("shows submitted progress on the original merchant link", async ({ page }) => {
+  await page.goto("/38.Merchant_onboard_nuvei_public.html?applicationId=APP-DEMO-NUVEI-01");
+  await expect(page.getByRole("heading", { name: "Your Application Progress" })).toBeVisible();
+  await expect(page.locator(".progress-current")).toHaveText("Merchant Submit");
+  await expect(page.locator(".progress-steps")).toContainText("2026-08-12 16:42:08");
+  await expect(page.locator(".progress-event-list")).toContainText("Submission v1");
+});
+
+test("external progress page exposes status metadata only", async ({ page }) => {
+  await page.goto("/38.Merchant_onboarding_progress.html?applicationId=APP-DEMO-NUVEI-01");
+  await expect(page.getByRole("heading", { name: "Merchant Application Progress" })).toBeVisible();
+  await expect(page.locator("#tracking-merchant")).toHaveText("Maple Street Coffee Inc.");
+  await expect(page.locator("#tracking-channel")).toHaveText("Nuvei");
+  await expect(page.locator("#tracking-process")).toHaveText("00000339");
+  await expect(page.locator(".progress-current")).toHaveText("Merchant Submit");
+  await expect(page.locator("form, iframe, input, textarea, select, .upload-card, .review-reason")).toHaveCount(0);
+  await expect(page.locator("body")).not.toContainText("finance@maplestreetcoffee.ca");
+  await expect(page.locator("body")).not.toContainText("rbc-void-cheque.pdf");
 });
 
 test("approves a Nuvei application only after all six sections pass", async ({ page }) => {
@@ -330,5 +372,9 @@ test("keeps creator and merchant pages responsive", async ({ page }) => {
   await page.goto("/38.Merchant_onboard_elavon_public.html?applicationId=APP-MOBILE&merchantName=Mobile+Shop");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
   await expect(page.getByRole("heading", { name: "Complete your Elavon application" })).toBeVisible();
+
+  await page.goto("/38.Merchant_onboarding_progress.html?applicationId=APP-DEMO-NUVEI-01");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  await expect(page.locator(".progress-steps")).toBeVisible();
   expect(consoleErrors).toEqual([]);
 });

@@ -17,6 +17,63 @@
     return now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
   }
 
+  function statusEvent(status, occurredAt, actor, submissionVersion, suffix) {
+    return {
+      eventId: "EVT-" + String(occurredAt || timestamp()).replace(/\D/g, "") + "-" + (suffix || Math.random().toString(36).slice(2, 8)),
+      status: status,
+      occurredAt: occurredAt || timestamp(),
+      actor: actor || "Platform",
+      submissionVersion: Number(submissionVersion || 0)
+    };
+  }
+
+  function inferHistory(application) {
+    var item = application || {};
+    var events = [];
+    function add(status, occurredAt, actor, version) {
+      if (!occurredAt) return;
+      events.push(statusEvent(status, occurredAt, actor, version, "migrated-" + events.length));
+    }
+    if (item.status === "Draft") add("Draft", item.lastUpdate, "Platform", 0);
+    if (item.status === "Awaiting Merchant") add("Awaiting Merchant", item.lastUpdate, "Platform", 0);
+    if (item.status === "Merchant Draft") add("Merchant Draft", item.lastUpdate, "Merchant", 0);
+    if (item.submittedAt) add("Merchant Submit", item.submittedAt, "Merchant", item.submissionVersion || 1);
+    var sectionTimes = Object.keys((item.review && item.review.sections) || {}).map(function (id) {
+      return item.review.sections[id].reviewedAt || "";
+    }).filter(Boolean).sort();
+    if (item.status === "Under Review") add("Under Review", sectionTimes[0] || item.lastUpdate, "Operations", item.submissionVersion || 1);
+    if (item.status === "Approved" || item.status === "Returned") {
+      if (sectionTimes.length) add("Under Review", sectionTimes[0], "Operations", item.submissionVersion || 1);
+      add(item.status, item.reviewedAt || (item.review && item.review.reviewedAt) || item.lastUpdate, "Operations", item.submissionVersion || 1);
+    }
+    if (!events.length && item.status && item.lastUpdate) add(item.status, item.lastUpdate, item.status.indexOf("Merchant") === 0 ? "Merchant" : "Platform", item.submissionVersion || 0);
+    return events.sort(function (left, right) { return left.occurredAt.localeCompare(right.occurredAt); });
+  }
+
+  function recordStatus(application, nextStatus, actor, occurredAt) {
+    var item = application;
+    item.statusHistory = Array.isArray(item.statusHistory) ? item.statusHistory : [];
+    var currentStatus = item.status;
+    var shouldRecord = currentStatus !== nextStatus || !item.statusHistory.length;
+    item.status = nextStatus;
+    item.lastUpdate = occurredAt || timestamp();
+    if (shouldRecord) item.statusHistory.push(statusEvent(nextStatus, item.lastUpdate, actor, item.submissionVersion));
+    return item;
+  }
+
+  function publicProgress(application) {
+    if (!application) return null;
+    return {
+      applicationId: application.applicationId,
+      processId: application.processId,
+      merchantName: application.merchantName,
+      channel: application.channel,
+      status: application.status,
+      submissionVersion: Number(application.submissionVersion || 0),
+      statusHistory: clone(application.statusHistory || [])
+    };
+  }
+
   function createReview(channel) {
     var sections = {};
     (SECTION_IDS[channel] || []).forEach(function (id) {
@@ -92,6 +149,19 @@
     }
   ];
 
+  DEMO_APPLICATIONS[0].statusHistory = [
+    statusEvent("Draft", "2026-08-08 09:18:12", "Platform", 0, "nuvei-1"),
+    statusEvent("Awaiting Merchant", "2026-08-08 10:02:44", "Platform", 0, "nuvei-2"),
+    statusEvent("Merchant Draft", "2026-08-10 14:27:19", "Merchant", 0, "nuvei-3"),
+    statusEvent("Merchant Submit", "2026-08-12 16:42:08", "Merchant", 1, "nuvei-4")
+  ];
+  DEMO_APPLICATIONS[1].statusHistory = [
+    statusEvent("Draft", "2026-08-07 11:06:30", "Platform", 0, "elavon-1"),
+    statusEvent("Awaiting Merchant", "2026-08-07 11:32:05", "Platform", 0, "elavon-2"),
+    statusEvent("Merchant Draft", "2026-08-09 15:48:51", "Merchant", 0, "elavon-3"),
+    statusEvent("Merchant Submit", "2026-08-12 16:36:24", "Merchant", 1, "elavon-4")
+  ];
+
   var LEGACY_APPLICATIONS = [
     { processId: "00000336", merchantName: "techsupport", email: "maggie-support1@wizarpos.com", status: "Draft", channel: "Nuvei", country: "Canada", currency: "CAD", lastUpdate: "2026-05-14 14:22:27" },
     { processId: "00000328", merchantName: "ceshi123213243234", email: "uat2512003@nooboy.com", mid: "mid12320251229", status: "Approved", channel: "Elavon EU", country: "Ireland", currency: "EUR", lastUpdate: "2025-12-29 15:29:41" },
@@ -130,6 +200,9 @@
       statementEmail: seed.email
     });
     application.review = createReview(seed.channel);
+    application.statusHistory = [];
+    application.submittedAt = seed.status === "Merchant Submit" ? seed.lastUpdate : "";
+    application.submissionVersion = seed.status === "Draft" || seed.status === "Awaiting Merchant" || seed.status === "Merchant Draft" ? 0 : 1;
     if (seed.status === "Approved") {
       Object.keys(application.review.sections).forEach(function (id) {
         application.review.sections[id].status = "approved";
@@ -144,8 +217,6 @@
     }
     application.shareUrl = (seed.channel === "Nuvei" ? "38.Merchant_onboard_nuvei_public.html" : "38.Merchant_onboard_elavon_public.html") + "?applicationId=" + encodeURIComponent(application.applicationId);
     if (seed.status === "Draft") {
-      application.submissionVersion = 0;
-      application.submittedAt = "";
       application.formData = {};
       application.documents = {};
     }
@@ -158,11 +229,12 @@
 
   function normalize(application) {
     var item = Object.assign({
-      formData: {}, documents: {}, submissionVersion: 0, submittedAt: "", reviewedAt: ""
+      formData: {}, documents: {}, submissionVersion: 0, submittedAt: "", reviewedAt: "", statusHistory: []
     }, clone(application || {}));
     var defaultReview = createReview(item.channel);
     item.review = Object.assign(defaultReview, item.review || {});
     item.review.sections = Object.assign(defaultReview.sections, (item.review && item.review.sections) || {});
+    item.statusHistory = Array.isArray(item.statusHistory) && item.statusHistory.length ? item.statusHistory : inferHistory(item);
     return item;
   }
 
@@ -284,6 +356,9 @@
     restoreForm: restoreForm,
     collectDocuments: collectDocuments,
     applyDocuments: applyDocuments,
+    recordStatus: recordStatus,
+    getPublicProgress: function (applicationId) { return publicProgress(findApplication(applicationId)); },
+    publicProgress: publicProgress,
     timestamp: timestamp
   };
 })(window);
