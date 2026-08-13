@@ -1152,6 +1152,7 @@
 
       var DRAFT_KEY = "paywizard-merchant-onboarding-draft";
       var APPLICATIONS_KEY = "paywizard-onboarding-applications-v2";
+      var LEAD_PREFILL_KEY = "paywizard-lead-onboarding-prefill-v1";
       var Store = window.PaywizardOnboardingStore;
       var baseRows = [
         { processId: "00000336", spName: "Paywizard UAT", agentName: "", merchantName: "techsupport", mid: "-", email: "maggie-support1@wizarpos.com", lastUpdate: "2026-05-14 14:22:27", status: "Draft" },
@@ -1193,6 +1194,9 @@
       var toast = document.getElementById("toast");
       var toastTimer;
       var editingApplicationId = "";
+      var routeParams = new URLSearchParams(window.location.search);
+      var sourceLeadProcessId = routeParams.get("source") === "lead" ? (routeParams.get("leadProcessId") || "") : "";
+      var sourceLeadData = null;
 
       function escapeHtml(value) {
         return String(value || "").replace(/[&<>'"]/g, function (character) {
@@ -1281,6 +1285,53 @@
         return window.location.hash === "#new-onboarding" || window.location.hash.indexOf("#edit-onboarding/") === 0;
       }
 
+      function findLeadApplication(processId) {
+        if (!processId) return null;
+        return rows.find(function (row) { return String(row.sourceLeadProcessId || "") === String(processId); }) || null;
+      }
+
+      function readLeadPrefill() {
+        if (!sourceLeadProcessId) return null;
+        try {
+          var value = JSON.parse(window.localStorage.getItem(LEAD_PREFILL_KEY) || "null");
+          return value && String(value.processId || "") === String(sourceLeadProcessId) ? value : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function clearLeadPrefill() {
+        window.localStorage.removeItem(LEAD_PREFILL_KEY);
+      }
+
+      function ensureSelectOption(select, value) {
+        if (!select || !value) return;
+        var exists = Array.prototype.some.call(select.options, function (option) { return option.value === value; });
+        if (!exists) select.add(new Option(value, value));
+      }
+
+      function restoreLeadPrefill(values) {
+        if (!values) return;
+        var countrySelect = form.elements.namedItem("countryName");
+        var currencySelect = form.elements.namedItem("currencyName");
+        ensureSelectOption(countrySelect, values.countryName || "");
+        ensureSelectOption(currencySelect, values.currencyName || "");
+        var fields = {
+          merchantName: values.merchantName || "",
+          contactName: values.contactName || "",
+          merchantEmail: values.merchantEmail || "",
+          countryName: values.countryName || "",
+          merchantPhone: values.merchantPhone || "",
+          paymentChannel: "",
+          currencyName: values.currencyName || ""
+        };
+        Object.keys(fields).forEach(function (key) {
+          var control = form.elements.namedItem(key);
+          if (control) control.value = fields[key];
+        });
+        syncSelectLabels();
+      }
+
       function renderRoute() {
         var showRegistration = isRegistrationRoute();
         listView.hidden = showRegistration;
@@ -1299,6 +1350,24 @@
               editingApplicationId = "";
               window.location.hash = "";
               showToast("Application locked", "Only applications that have not been shared can be edited.");
+              return;
+            }
+          } else if (sourceLeadProcessId) {
+            var duplicateLeadApplication = findLeadApplication(sourceLeadProcessId);
+            if (duplicateLeadApplication) {
+              clearLeadPrefill();
+              sourceLeadData = null;
+              window.history.replaceState(null, "", "38.Merchant_onboard.html");
+              showToast("Application already exists", "Lead " + sourceLeadProcessId + " already has an onboarding application.");
+              renderRoute();
+              return;
+            }
+            sourceLeadData = readLeadPrefill();
+            if (sourceLeadData) restoreLeadPrefill(sourceLeadData);
+            else {
+              window.history.replaceState(null, "", "38.Merchant_onboard.html");
+              showToast("Lead information unavailable", "Return to Leads and choose Onboard again.");
+              renderRoute();
               return;
             }
           } else restoreDraft();
@@ -1341,6 +1410,11 @@
       }
 
       function closeRegistration() {
+        if (sourceLeadProcessId) {
+          clearLeadPrefill();
+          window.location.href = "29.INTL_PSP_merchant_lead_list.html";
+          return;
+        }
         if (window.location.hash) {
           window.location.hash = "";
         } else {
@@ -1409,7 +1483,7 @@
           applicationId: applicationId,
           processId: existing ? existing.processId : nextProcessId(),
           spName: "Paywizard UAT",
-          agentName: (existing && existing.agentName) || "",
+          agentName: (existing && existing.agentName) || (!existing && sourceLeadData && sourceLeadData.leadOwner) || "",
           merchantName: values.merchantName || "Untitled Application",
           mid: (existing && existing.mid) || "-",
           email: values.merchantEmail || "",
@@ -1428,9 +1502,16 @@
           merchantCreatedAt: (existing && existing.merchantCreatedAt) || "",
           review: channelChanged || !existing ? (Store ? Store.createReview(values.paymentChannel) : { sections: {} }) : existing.review
         });
+        if (!existing && sourceLeadData) {
+          row.sourceType = "lead";
+          row.sourceLeadProcessId = sourceLeadData.processId || sourceLeadProcessId;
+          row.sourceLeadPageStyle = sourceLeadData.sourceLeadPageStyle || "UPT";
+          row.sourcePartnerName = sourceLeadData.partnerName || "";
+        }
         row.shareUrl = createShareUrl(values, applicationId);
         if (Store) Store.recordStatus(row, "Draft", "Platform", row.lastUpdate);
         if (Store) row = Store.upsertApplication(row);
+        if (row && row.sourceLeadProcessId) clearLeadPrefill();
         editingApplicationId = applicationId;
         reloadRows();
         return row;

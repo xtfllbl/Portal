@@ -35,6 +35,122 @@ final result: passed
 
 ---
 
+# UPT Lead SN Assignment QA
+
+## Evidence
+
+- Source visual truth: the user-provided `Assign/New Merchant` dialog screenshot, extended by the approved Step 3 SN-selection specification.
+- Desktop browser capture: `artifacts/upt-lead-sn-assignment-modal-visual.png` at 1920 × 853 px, default desktop viewport, device scale factor 1.
+- Mobile browser capture: `artifacts/upt-lead-sn-assignment-modal-390.png` at 390 × 844 CSS/image px, device scale factor 1.
+- State: an unassigned UPT Lead with the Assign/New Merchant dialog open and all available SNs selected.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- **Typography and copy:** The dialog preserves the Poppins hierarchy, compact 21px title, 16px step headings and 11–13px control text used by the unified admin shell. Step 3 clearly separates total and selected counts.
+- **Spacing and layout:** Desktop uses a compact two-column SN grid within the existing 680px dialog. Mobile collapses the grid to one column, keeps the action buttons visible, and reports zero page-level horizontal overflow.
+- **Colors and states:** Unassigned SNs use the normal white selectable card treatment. Persisted assignments use a disabled neutral treatment with their Merchant and Store destination. Error, disabled Save and success-toast states retain existing semantic tokens.
+- **Assets:** No new raster or custom-drawn assets were required; existing Material Symbols and native form controls remain unchanged.
+- **Behavior:** All available SNs are selected on open; Select All and individual checkboxes update the count; subset saves persist by Process ID; assigned SNs cannot be selected again; later saves accumulate without double counting; all-assigned Leads disable Save.
+- **Data consistency:** `Terminal Number` remains the full SN count and the adjacent `Assigned SN` cell is derived from unique persisted assignments. Refreshing the page preserves both assignments and the displayed count.
+
+## Verification
+
+- `tests/merchant-admin-navigation.spec.js`: 20/20 Chromium tests passed after adding batch assignment coverage; combined Admin + Onboarding regression: 39/39 passed.
+- Covered missing Merchant/Store/SN validation, partial first assignment, second-store assignment, locked assigned SNs, all-assigned state, persistence, mobile overflow, Add SN, Onboard prefill, detail SN List and sticky Actions.
+- Browser console warnings/errors: none.
+- `git diff --check`: passed.
+
+## Result
+
+final result: passed
+
+---
+
+# Leads Actions and Onboarding Prefill QA
+
+## Evidence
+
+- Desktop UPT More menu: `artifacts/admin-leads-onboard-menu-1440.png`.
+- Desktop Assign/New Merchant dialog: `artifacts/admin-leads-assign-modal-1440.png`.
+- Mobile UPT action area: `artifacts/admin-leads-onboard-menu-390.png`.
+- Automated coverage: `tests/merchant-admin-navigation.spec.js` (14/14 Chromium tests passed).
+
+## Verified behavior
+
+- Tabs render as `UPT` and `PSP`; existing tab switching, filters, pagination, vertical panel scrolling and horizontal table scrolling remain operational.
+- UPT rows expose exactly View, Edit and More at runtime. PSP rows expose only View.
+- Terminal Number `0` produces `Add SN`; non-zero values produce `Assign/New Merchant`; `Onboard` is always present for UPT.
+- The More menu is a body-level fixed popover and is not clipped by the horizontally scrolling table.
+- Assign/New Merchant supports merchant/store selection, temporary new merchant/store inputs, close, Cancel, backdrop close and Escape. Save intentionally does not persist.
+- Onboard transfers only merchant name, primary contact, email and country through `paywizard-lead-onboarding-prefill-v1`; phone, channel and currency remain empty.
+- Saving creates an independent Onboarding Process ID and persists the Lead source metadata. The temporary prefill payload is then removed.
+- Duplicate checks run before navigation and again in the Onboarding route, preventing a second application for the same Lead regardless of application status.
+- Desktop and 390px checks report zero page-level horizontal overflow. Browser interactions completed without console errors.
+
+## Visual review
+
+- The menu, modal typography, spacing, 8px radius, neutral border treatment and actions follow the compact `38.Merchant_onboard.html` admin language.
+- The modal remains centered above the table, while the menu aligns to the triggering More action and stays readable near the viewport edge.
+- Mobile preserves the compact action matrix and table-local horizontal navigation without expanding document width.
+
+## Result
+
+final result: passed
+
+---
+
+# UPT Lead Shell, Add SN and Onboarding Prefill QA
+
+## Evidence
+
+- Visual source: the user-provided PAYwizard Merchant Information, Add SN, and fixed Actions screenshots, with `38.Merchant_onboard.html` as the shell reference.
+- Desktop shell capture: `artifacts/upt-lead-detail-shell-2048.png` at 2048 × 1138 CSS px.
+- Add SN capture: `artifacts/upt-lead-add-sn-2048.png` at 2048 × 1138 CSS px.
+- Sticky Actions capture: `artifacts/upt-lead-sticky-actions-2048.png` at 2048 × 1138 CSS px.
+- Automated regression: `npx playwright test tests/merchant-admin-navigation.spec.js tests/merchant-onboarding.spec.js --reporter=line` — 38 passed.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- The UPT detail shell now starts at viewport origin and matches the Onboarding shell: 264px desktop sidebar, 70px top bar, 47px menu items, 16px frame spacing, matching logo and breadcrumb treatment.
+- Add SN supports comma/newline batches, uppercase normalization, exact 16-character alphanumeric validation, batch duplication checks, cross-Lead duplication checks, and atomic persistence through `paywizard-upt-lead-overrides-v1`.
+- Persisted SNs update the Lead Terminal Number immediately, survive refresh, change the More action to Assign/New Merchant, and appear in the detail SN List with the same count.
+- Onboard now resolves the merged Lead by Process ID and prefills merchant name, contact, email, phone, country, currency, and Lead Owner; Payment Channel intentionally remains empty.
+- Sticky Actions use matching odd/even/hover backgrounds and a one-pixel separator instead of the previous broad shadow. UPT and PSP business columns continue to scroll independently.
+- The 390px shell/detail layout has no page-level horizontal overflow. Browser console and page error checks were clean.
+
+## Result
+
+final result: passed
+
+---
+
+# UPT Lead Detail and Sticky Actions QA
+
+## Evidence
+
+- Sticky UPT Actions after horizontal scrolling: `artifacts/admin-leads-sticky-actions-1440.png`.
+- UPT Merchant Information detail: `artifacts/upt-lead-detail-1440.png`.
+- SN List modal with five serial numbers: `artifacts/upt-lead-sn-list-1440.png`.
+- Responsive detail view: `artifacts/upt-lead-detail-390.png`.
+- Browser coverage: 2048px, 1440px, 1024px and 390px through `tests/merchant-admin-navigation.spec.js`.
+
+## Findings
+
+- UPT and PSP Actions cells remain pinned to the right edge while all preceding columns move inside the table scroll container. The pinned header and cells use opaque backgrounds, a divider and a light left shadow, so scrolled content does not show through.
+- All 10 visible UPT Leads resolve to distinct `leadProcessId` detail records. The existing list values remain unchanged, while the six read-only information sections contain complete, stable sample data.
+- Every non-zero Terminal Number has the same number of unique 16-character serial numbers. The zero-terminal record opens the same modal with `No Data Found` and `Total Count 0`.
+- The SN dialog closes through Cancel, overlay click or Escape. Invalid IDs show a dedicated not-found state without leaking another Lead's data.
+- At 390px, detail fields collapse to one column, the sidebar is removed according to the shared admin shell, and document width does not exceed the viewport.
+- No browser console errors or page-level horizontal overflow were found.
+
+## Result
+
+final result: passed
+
+---
+
 # Merchant Onboarding Progress Tracking and Audit QA
 
 ## Coverage

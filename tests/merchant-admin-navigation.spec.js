@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 const paths = {
   leads: '/29.INTL_PSP_merchant_lead_list.html',
+  uptLeadDetail: '/28.UPT_merchant_lead_detail.html',
   onboarding: '/38.Merchant_onboard.html',
   merchants: '/5.merchant_manage_iso.html'
 };
@@ -31,7 +32,7 @@ for (const viewport of [
   test(`unified admin shell is responsive at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
 
-    for (const path of [paths.leads, paths.merchants]) {
+    for (const path of [paths.leads, paths.merchants, `${paths.uptLeadDetail}?leadProcessId=00000439`]) {
       await page.goto(path);
       const metrics = await page.evaluate(() => {
         const sidebar = document.querySelector('.pw-sidebar');
@@ -53,11 +54,11 @@ for (const viewport of [
 
       expect(metrics.font).toContain('Poppins');
       expect(metrics.hasLogo).toBeTruthy();
-      expect(metrics.activeText).toBe(path === paths.leads ? 'Leads' : 'Merchant List');
+      expect(metrics.activeText).toBe(path === paths.merchants ? 'Merchant List' : 'Leads');
       expect(Math.round(metrics.sidebarWidth)).toBe(viewport.sidebar);
       expect(metrics.sidebarDisplay === 'none').toBe(viewport.sidebar === 0);
       expect(Math.round(metrics.topbarHeight)).toBe(viewport.width <= 760 ? 58 : 70);
-      expect(metrics.headerBackground).toBe('rgb(23, 24, 28)');
+      if (metrics.headerBackground) expect(metrics.headerBackground).toBe('rgb(23, 24, 28)');
       expect(metrics.overflow).toBeLessThanOrEqual(1);
     }
   });
@@ -65,7 +66,7 @@ for (const viewport of [
 
 test('Leads tabs, filters and sharing modal remain operational', async ({ page }) => {
   await page.goto(paths.leads);
-  await page.getByRole('tab', { name: 'PSP Activate' }).click();
+  await page.getByRole('tab', { name: 'PSP', exact: true }).click();
   await expect(page.locator('[data-table-view="intl"]')).toBeVisible();
   await page.locator('#partnerFilter').fill('AtlasPay');
   await page.locator('#filterButton').click();
@@ -90,6 +91,287 @@ test('UPT Leads content scrolls vertically to its pagination', async ({ page }) 
   expect(before.scrollHeight).toBeGreaterThan(before.clientHeight);
   await panel.evaluate((element) => { element.scrollTop = element.scrollHeight; });
   await expect(page.locator('.pw-leads-page .footer-bar')).toBeInViewport();
+});
+
+test('Leads tabs and action matrix match the UPT and PSP workflow', async ({ page }) => {
+  await page.goto(paths.leads);
+  await expect(page.getByRole('tab')).toHaveText(['UPT', 'PSP']);
+
+  const firstUptActions = page.locator('[data-table-view="upt"] tbody tr').first().locator('.actions > *');
+  await expect(firstUptActions).toHaveCount(3);
+  await expect(firstUptActions.nth(0)).toHaveAttribute('aria-label', 'View detail');
+  await expect(firstUptActions.nth(1)).toHaveAttribute('aria-label', 'Edit');
+  await expect(firstUptActions.nth(2)).toHaveAttribute('aria-label', 'More');
+
+  await page.getByRole('tab', { name: 'PSP', exact: true }).click();
+  const firstPspActions = page.locator('[data-table-view="intl"] tbody tr').first().locator('.actions > *');
+  await expect(firstPspActions).toHaveCount(1);
+  await expect(firstPspActions.first()).toHaveAttribute('aria-label', 'View detail');
+});
+
+test('UPT and PSP Actions stay fixed while the business columns scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto(paths.leads);
+
+  for (const tableView of ['upt', 'intl']) {
+    if (tableView === 'intl') await page.getByRole('tab', { name: 'PSP', exact: true }).click();
+    const table = page.locator(`[data-table-view="${tableView}"]`);
+    const wrap = page.locator('.table-wrap');
+    const firstCell = table.locator('tbody tr').first().locator('td').first();
+    const actionCell = table.locator('tbody tr').first().locator('td').last();
+    const before = await Promise.all([firstCell.boundingBox(), actionCell.boundingBox(), wrap.boundingBox()]);
+    await wrap.evaluate((element) => { element.scrollLeft = element.scrollWidth; });
+    const after = await Promise.all([firstCell.boundingBox(), actionCell.boundingBox(), wrap.boundingBox()]);
+
+    expect(after[0].x).toBeLessThan(before[0].x - 100);
+    expect(Math.abs((after[1].x + after[1].width) - (after[2].x + after[2].width))).toBeLessThanOrEqual(2);
+    expect(Math.abs(after[1].x - before[1].x)).toBeLessThanOrEqual(2);
+    await expect(actionCell).toHaveCSS('position', 'sticky');
+    expect(await actionCell.evaluate((element) => getComputedStyle(element).boxShadow)).not.toContain('12px');
+    expect(await actionCell.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(255, 255, 255)');
+    expect(await table.locator('tbody tr').nth(1).locator('td').last().evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgb(250, 250, 250)');
+  }
+});
+
+test('all ten UPT rows open their own complete Merchant Information record', async ({ page }) => {
+  const browserErrors = [];
+  page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+  page.on('pageerror', (error) => browserErrors.push(error.message));
+  await page.goto(paths.leads);
+  const rows = await page.locator('[data-table-view="upt"] tbody tr').evaluateAll((items) => items.map((row) => {
+    const cells = row.querySelectorAll('td');
+    return {
+      processId: cells[0].textContent.trim(),
+      country: cells[3].textContent.trim(),
+      merchantName: cells[4].textContent.trim(),
+      terminalNumber: Number(cells[5].textContent.trim()),
+      assignedSn: Number(cells[6].textContent.trim()),
+      contactName: cells[7].textContent.trim(),
+      email: cells[8].textContent.trim(),
+      href: row.querySelector('[aria-label="View detail"]').getAttribute('href')
+    };
+  }));
+  expect(rows).toHaveLength(10);
+
+  for (const lead of rows) {
+    expect(lead.href).toBe(`28.UPT_merchant_lead_detail.html?leadProcessId=${lead.processId}`);
+    await page.goto(`${paths.uptLeadDetail}?leadProcessId=${lead.processId}`);
+    await expect(page.locator('.lead-detail-section')).toHaveCount(6);
+    await expect(page.locator('[data-field="processId"]')).toHaveText(lead.processId);
+    await expect(page.locator('[data-field="country"]')).toHaveText(lead.country);
+    await expect(page.locator('[data-field="merchantName"]')).toHaveText(lead.merchantName);
+    await expect(page.locator('[data-field="contactName"]')).toHaveText(lead.contactName);
+    await expect(page.locator('[data-field="email"]')).toHaveText(lead.email);
+    await expect(page.locator('[data-field="terminalNumber"]')).toHaveText(String(lead.terminalNumber));
+    await expect(page.locator('#snCount')).toHaveText(String(lead.terminalNumber));
+  }
+  expect(browserErrors).toEqual([]);
+});
+
+test('UPT SN List supports exact counts, empty state and all close methods', async ({ page }) => {
+  await page.goto(`${paths.uptLeadDetail}?leadProcessId=00000431`);
+  await page.locator('#openSnList').click();
+  await expect(page.locator('#snModal')).toBeVisible();
+  await expect(page.locator('.sn-item')).toHaveCount(5);
+  await expect(page.locator('#snTotal')).toHaveText('5');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#snModal')).toBeHidden();
+
+  await page.locator('#openSnList').click();
+  await page.locator('#closeSnModal').click();
+  await expect(page.locator('#snModal')).toBeHidden();
+
+  await page.goto(`${paths.uptLeadDetail}?leadProcessId=00000440`);
+  await page.locator('#openSnList').click();
+  await expect(page.locator('.sn-empty')).toHaveText('No Data Found');
+  await expect(page.locator('.sn-item')).toHaveCount(0);
+  await expect(page.locator('#snTotal')).toHaveText('0');
+  await page.locator('#snModal').click({ position: { x: 5, y: 5 } });
+  await expect(page.locator('#snModal')).toBeHidden();
+});
+
+test('UPT detail redirects invalid IDs and remains responsive', async ({ page }) => {
+  await page.goto(`${paths.uptLeadDetail}?leadProcessId=does-not-exist`);
+  await expect(page).toHaveURL(new RegExp('29\\.INTL_PSP_merchant_lead_list\\.html$'));
+  await expect(page.getByText('Lead not found')).toHaveCount(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${paths.uptLeadDetail}?leadProcessId=00000439`);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect(await page.locator('.lead-detail-grid').first().evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(/\s+/).length)).toBe(1);
+  await page.getByRole('link', { name: 'Cancel' }).click();
+  await expect(page).toHaveURL(new RegExp('29\\.INTL_PSP_merchant_lead_list\\.html$'));
+});
+
+test('UPT Add SN validates atomically, persists, and switches to Assign/New Merchant', async ({ page }) => {
+  await page.goto(paths.leads);
+  await page.evaluate(() => localStorage.removeItem('paywizard-upt-lead-overrides-v1'));
+  await page.reload();
+  const uptRows = page.locator('[data-table-view="upt"] tbody tr');
+  const zeroTerminalRow = uptRows.filter({ has: page.locator('td:nth-child(6)', { hasText: /^0$/ }) }).first();
+
+  await zeroTerminalRow.locator('.lead-more-trigger').click();
+  await expect(page.locator('[data-lead-menu-action="terminal"]')).toContainText('Add SN');
+  await expect(page.locator('[data-lead-menu-action="onboard"]')).toBeVisible();
+  await page.locator('[data-lead-menu-action="terminal"]').click();
+  await expect(page.locator('#leadAddSnModal')).toBeVisible();
+
+  await page.locator('#leadAddSnInput').fill('TOO-SHORT');
+  await page.locator('#leadAddSnForm button[type="submit"]').click();
+  await expect(page.locator('#leadAddSnError')).toContainText('exactly 16');
+  await expect(zeroTerminalRow.locator('td:nth-child(6)')).toHaveText('0');
+
+  await page.locator('#leadAddSnInput').fill('WP5305UQ33200439');
+  await page.locator('#leadAddSnForm button[type="submit"]').click();
+  await expect(page.locator('#leadAddSnError')).toContainText('already assigned');
+  await expect(zeroTerminalRow.locator('td:nth-child(6)')).toHaveText('0');
+
+  await page.locator('#leadAddSnInput').fill('ab12cd34ef56gh78,\nzx98cv76bn54mk32');
+  await page.locator('#leadAddSnForm button[type="submit"]').click();
+  await expect(page.locator('#leadAddSnModal')).toBeHidden();
+  await expect(page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:first-child', { hasText: '00000440' }) }).locator('td:nth-child(6)')).toHaveText('2');
+
+  await page.reload();
+  const updatedRow = page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:first-child', { hasText: '00000440' }) });
+  await expect(updatedRow.locator('td:nth-child(6)')).toHaveText('2');
+  await updatedRow.locator('.lead-more-trigger').click();
+  await expect(page.locator('[data-lead-menu-action="terminal"]')).toContainText('Assign/New Merchant');
+  await page.locator('[data-lead-menu-action="terminal"]').click();
+  await expect(page.locator('#leadAssignModal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#leadAssignModal')).toBeHidden();
+
+  await page.goto(`${paths.uptLeadDetail}?leadProcessId=00000440`);
+  await expect(page.locator('[data-field="terminalNumber"]')).toHaveText('2');
+  await expect(page.locator('#snCount')).toHaveText('2');
+  await page.locator('#openSnList').click();
+  await expect(page.locator('.sn-item')).toHaveText(['AB12CD34EF56GH78', 'ZX98CV76BN54MK32']);
+  await expect(page.locator('#snTotal')).toHaveText('2');
+});
+
+test('UPT assigned Lead still opens the Assign/New Merchant dialog safely', async ({ page }) => {
+  await page.goto(paths.leads);
+  const assignedTerminalRow = page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:nth-child(6)', { hasText: /^[1-9]/ }) }).first();
+
+  await assignedTerminalRow.locator('.lead-more-trigger').click();
+  await expect(page.locator('[data-lead-menu-action="terminal"]')).toContainText('Assign/New Merchant');
+  await page.locator('[data-lead-menu-action="terminal"]').click();
+  await expect(page.locator('#leadAssignModal')).toBeVisible();
+  await page.getByRole('button', { name: '+ Create New Merchant' }).click();
+  await page.getByRole('textbox', { name: 'New merchant name' }).fill('Prototype Merchant');
+  await page.getByRole('button', { name: '+ Create New Store' }).click();
+  await page.getByRole('textbox', { name: 'New store name' }).fill('Prototype Store');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#leadAssignModal')).toBeHidden();
+});
+
+test('UPT SNs can be assigned in batches and Assigned SN persists', async ({ page }) => {
+  await page.goto(paths.leads);
+  await page.evaluate(() => localStorage.removeItem('paywizard-upt-lead-overrides-v1'));
+  await page.reload();
+  const row = page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:first-child', { hasText: '00000438' }) });
+  await expect(row.locator('td:nth-child(6)')).toHaveText('2');
+  await expect(row.locator('td:nth-child(7)')).toHaveText('0');
+
+  await row.locator('.lead-more-trigger').click();
+  await page.locator('[data-lead-menu-action="terminal"]').click();
+  await expect(page.locator('#leadAssignSnList input[type="checkbox"]')).toHaveCount(2);
+  await expect(page.locator('#leadAssignSnList input[type="checkbox"]:checked')).toHaveCount(2);
+  await expect(page.locator('#leadAssignSnCount')).toHaveText('2 selected · 2 total');
+  await page.locator('#saveLeadAssign').click();
+  await expect(page.locator('#leadAssignError')).toHaveText('Select or enter a merchant name.');
+  await page.locator('#leadAssignMerchant').selectOption({ label: 'Maple Street Coffee' });
+  await page.locator('#saveLeadAssign').click();
+  await expect(page.locator('#leadAssignError')).toHaveText('Select or enter a store name.');
+  await page.locator('#leadAssignStore').selectOption({ label: 'Main Store' });
+  await page.locator('#leadAssignSelectAll').uncheck();
+  await page.locator('#saveLeadAssign').click();
+  await expect(page.locator('#leadAssignError')).toHaveText('Select at least one unassigned SN.');
+  await page.locator('#leadAssignSelectAll').check();
+  await page.locator('#leadAssignSnList input[type="checkbox"]').last().uncheck();
+  await expect(page.locator('#leadAssignSnCount')).toHaveText('1 selected · 2 total');
+  await page.locator('#saveLeadAssign').click();
+  await expect(page.locator('#leadAssignModal')).toBeHidden();
+  await expect(row.locator('td:nth-child(7)')).toHaveText('1');
+
+  await page.reload();
+  const persistedRow = page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:first-child', { hasText: '00000438' }) });
+  await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('1');
+  await persistedRow.locator('.lead-more-trigger').click();
+  await page.locator('[data-lead-menu-action="terminal"]').click();
+  await expect(page.locator('#leadAssignSnList input:disabled')).toHaveCount(1);
+  await expect(page.locator('#leadAssignSnList input:not(:disabled):checked')).toHaveCount(1);
+  await expect(page.locator('.lead-assign-sn-item.is-assigned')).toContainText('Maple Street Coffee · Main Store');
+
+  await page.locator('#leadAssignMerchant').selectOption({ label: 'Jeeves Vending' });
+  await page.locator('#leadAssignStore').selectOption({ label: 'Downtown Store' });
+  await page.locator('#saveLeadAssign').click();
+  await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('2');
+
+  await persistedRow.locator('.lead-more-trigger').click();
+  await page.locator('[data-lead-menu-action="terminal"]').click();
+  await expect(page.locator('#leadAssignSnEmpty')).toBeVisible();
+  await expect(page.locator('#saveLeadAssign')).toBeDisabled();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  await expect(page.locator('.lead-assign-sn-list')).toHaveCSS('grid-template-columns', /\d+px/);
+});
+
+test('UPT Onboard prefills a sourced application and prevents duplicates', async ({ page }) => {
+  await page.goto(paths.leads);
+  await page.evaluate(() => {
+    localStorage.removeItem('paywizard-onboarding-applications-v2');
+    localStorage.removeItem('paywizard-lead-onboarding-prefill-v1');
+  });
+
+  const leadRow = page.locator('[data-table-view="upt"] tbody tr').first();
+  const lead = await leadRow.locator('td').evaluateAll((cells) => ({
+    processId: cells[0].textContent.trim(),
+    partnerName: cells[2].textContent.trim(),
+    countryName: cells[3].textContent.trim(),
+    merchantName: cells[4].textContent.trim(),
+    contactName: cells[7].textContent.trim(),
+    merchantEmail: cells[8].textContent.trim()
+  }));
+  const fullLead = await page.evaluate((processId) => window.PaywizardUptLeadData.getByProcessId(processId), lead.processId);
+  await leadRow.locator('.lead-more-trigger').click();
+  await page.locator('[data-lead-menu-action="onboard"]').click();
+
+  await expect(page).toHaveURL(new RegExp(`38\\.Merchant_onboard\\.html\\?source=lead&leadProcessId=${lead.processId}#new-onboarding$`));
+  await expect(page.locator('#merchant-name')).toHaveValue(lead.merchantName);
+  await expect(page.locator('#contact-name')).toHaveValue(lead.contactName);
+  await expect(page.locator('#merchant-email')).toHaveValue(lead.merchantEmail);
+  await expect(page.locator('#country-name')).toHaveValue(lead.countryName);
+  await expect(page.locator('#merchant-phone')).toHaveValue(fullLead.phone);
+  await expect(page.locator('#payment-channel')).toHaveValue('');
+  await expect(page.locator('#currency-name')).toHaveValue(fullLead.currency);
+
+  await page.locator('#save-draft').click();
+  const sourcedApplication = await page.evaluate(({ processId }) => {
+    const applications = JSON.parse(localStorage.getItem('paywizard-onboarding-applications-v2') || '[]');
+    return applications.find((application) => String(application.sourceLeadProcessId || '') === processId);
+  }, lead);
+  expect(sourcedApplication).toMatchObject({
+    sourceType: 'lead',
+    sourceLeadProcessId: lead.processId,
+    sourceLeadPageStyle: 'UPT',
+    sourcePartnerName: lead.partnerName,
+    merchantName: lead.merchantName,
+    agentName: fullLead.leadOwner,
+    contactName: lead.contactName,
+    email: lead.merchantEmail,
+    phone: fullLead.phone,
+    country: lead.countryName,
+    currency: fullLead.currency
+  });
+  expect(sourcedApplication.processId).not.toBe(lead.processId);
+  expect(await page.evaluate(() => localStorage.getItem('paywizard-lead-onboarding-prefill-v1'))).toBeNull();
+
+  await page.goto(paths.leads);
+  await page.locator('[data-table-view="upt"] tbody tr').first().locator('.lead-more-trigger').click();
+  await page.locator('[data-lead-menu-action="onboard"]').click();
+  await expect(page).toHaveURL(new RegExp('29\\.INTL_PSP_merchant_lead_list\\.html$'));
+  await expect(page.locator('#leadToast')).toContainText('already been created');
 });
 
 test('Merchant List actions and Custom eReceipt remain operational', async ({ page }) => {

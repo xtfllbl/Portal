@@ -856,8 +856,8 @@
         </div>
 
         <div class="lead-tabs" role="tablist" aria-label="Lead page style">
-          <button class="tab-button active" type="button" role="tab" aria-selected="true" data-lead-tab="upt">UPT Leads</button>
-          <button class="tab-button" type="button" role="tab" aria-selected="false" data-lead-tab="intl">PSP Activate</button>
+          <button class="tab-button active" type="button" role="tab" aria-selected="true" data-lead-tab="upt">UPT</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-lead-tab="intl">PSP</button>
         </div>
 
         <div class="toolbar">
@@ -898,6 +898,7 @@
                 <th>Country Name</th>
                 <th>Merchant Name</th>
                 <th>Terminal Number</th>
+                <th>Assigned SN</th>
                 <th>Contact Name</th>
                 <th>Merchant Email</th>
                 <th>Last Update</th>
@@ -914,7 +915,7 @@
                 <td>广州新勇隆智能设备有限公司</td>
                 <td>United States of America</td>
                 <td>Brittney Rodriguez</td>
-                <td>1</td>
+                <td>0</td>
                 <td>Brittney Rodriguez</td>
                 <td>therosebar@outlook.com</td>
                 <td>2026-05-29<br>14:25:04</td>
@@ -1413,7 +1414,106 @@
     </div>
   </div>
 
-	  <script>
+  <div class="lead-more-menu" id="leadMoreMenu" role="menu" hidden>
+    <button type="button" role="menuitem" data-lead-menu-action="terminal">
+      <span class="material-symbols-rounded" aria-hidden="true">add_to_queue</span>
+      <span data-lead-terminal-label>Add SN</span>
+    </button>
+    <button type="button" role="menuitem" data-lead-menu-action="onboard">
+      <span class="material-symbols-rounded" aria-hidden="true">assignment_add</span>
+      <span>Onboard</span>
+    </button>
+  </div>
+
+  <div class="lead-assign-mask" id="leadAssignModal" role="presentation" hidden>
+    <section class="lead-assign-dialog" role="dialog" aria-modal="true" aria-labelledby="leadAssignTitle">
+      <header class="lead-assign-head">
+        <h2 id="leadAssignTitle">Assign/New Merchant</h2>
+        <button class="lead-assign-close" id="closeLeadAssign" type="button" aria-label="Close Assign/New Merchant dialog">
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        </button>
+      </header>
+      <form class="lead-assign-form" id="leadAssignForm">
+        <section class="lead-assign-step">
+          <h3>Step 1: Select Merchant</h3>
+          <div class="lead-assign-field">
+            <label for="leadAssignMerchant">Merchant Name <span class="required-mark">*</span></label>
+            <select id="leadAssignMerchant" aria-label="Merchant Name">
+              <option value="">Merchant Name</option>
+              <option>Maple Street Coffee</option>
+              <option>Retail Tech Pte Ltd</option>
+              <option>Jeeves Vending</option>
+            </select>
+          </div>
+          <button class="lead-assign-create" id="showLeadNewMerchant" type="button">+ Create New Merchant</button>
+          <div class="lead-assign-inline" id="leadNewMerchantWrap" hidden>
+            <input id="leadNewMerchant" type="text" aria-label="New merchant name" placeholder="New merchant name">
+          </div>
+        </section>
+        <section class="lead-assign-step">
+          <h3>Step 2: Select Store</h3>
+          <div class="lead-assign-field">
+            <label for="leadAssignStore">Store Name <span class="required-mark">*</span></label>
+            <select id="leadAssignStore" aria-label="Store Name">
+              <option value="">Store Name</option>
+              <option>Main Store</option>
+              <option>Downtown Store</option>
+              <option>Airport Store</option>
+            </select>
+          </div>
+          <button class="lead-assign-create" id="showLeadNewStore" type="button">+ Create New Store</button>
+          <div class="lead-assign-inline" id="leadNewStoreWrap" hidden>
+            <input id="leadNewStore" type="text" aria-label="New store name" placeholder="New store name">
+          </div>
+        </section>
+        <section class="lead-assign-step lead-assign-sn-step">
+          <div class="lead-assign-sn-heading">
+            <h3>Step 3: Select SN</h3>
+            <span id="leadAssignSnCount">0 selected · 0 total</span>
+          </div>
+          <label class="lead-assign-select-all" for="leadAssignSelectAll">
+            <input id="leadAssignSelectAll" type="checkbox">
+            <span>Select all unassigned SNs</span>
+          </label>
+          <div class="lead-assign-sn-list" id="leadAssignSnList" role="group" aria-label="Serial numbers"></div>
+          <p class="lead-assign-empty" id="leadAssignSnEmpty" hidden>All SNs for this Lead have already been assigned.</p>
+          <p class="lead-sn-error" id="leadAssignError" role="alert" hidden></p>
+        </section>
+        <div class="lead-assign-actions">
+          <button class="btn" id="cancelLeadAssign" type="button">Cancel</button>
+          <button class="btn primary" id="saveLeadAssign" type="submit">Save</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="lead-assign-mask" id="leadAddSnModal" role="presentation" hidden>
+    <section class="lead-assign-dialog lead-sn-dialog" role="dialog" aria-modal="true" aria-labelledby="leadAddSnTitle">
+      <header class="lead-assign-head">
+        <h2 id="leadAddSnTitle">Add SN</h2>
+        <button class="lead-assign-close" id="closeLeadAddSn" type="button" aria-label="Close Add SN dialog">
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        </button>
+      </header>
+      <form class="lead-assign-form" id="leadAddSnForm" novalidate>
+        <div class="lead-assign-field">
+          <label for="leadAddSnInput"><span class="required-mark">*</span> SN</label>
+          <textarea id="leadAddSnInput" aria-describedby="leadAddSnHelp leadAddSnError" required></textarea>
+        </div>
+        <p class="lead-sn-help" id="leadAddSnHelp">SNs are separated by commas or new lines, for example, WP00000000000001, WP00000000000002.</p>
+        <p class="lead-sn-error" id="leadAddSnError" role="alert" hidden></p>
+        <div class="lead-assign-actions">
+          <button class="btn" id="cancelLeadAddSn" type="button">Cancel</button>
+          <button class="btn primary" type="submit">Confirm</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="lead-toast" id="leadToast" role="status" aria-live="polite" hidden></div>
+
+  <script src="scripts/upt-merchant-lead-data.js"></script>
+  <script>
 	    (function () {
 	      var activeTab = "upt";
 	      var tabButtons = Array.prototype.slice.call(document.querySelectorAll("[data-lead-tab]"));
@@ -1433,6 +1533,27 @@
 	      var attendentSpName = document.getElementById("attendentSpName");
 	      var selectSharePartner = document.getElementById("selectSharePartner");
 	      var shareGenericLanding = document.getElementById("shareGenericLanding");
+	      var leadMoreMenu = document.getElementById("leadMoreMenu");
+	      var leadTerminalLabel = leadMoreMenu.querySelector("[data-lead-terminal-label]");
+	      var leadAssignModal = document.getElementById("leadAssignModal");
+	      var leadAssignForm = document.getElementById("leadAssignForm");
+	      var leadAssignSnList = document.getElementById("leadAssignSnList");
+	      var leadAssignSelectAll = document.getElementById("leadAssignSelectAll");
+	      var leadAssignSnCount = document.getElementById("leadAssignSnCount");
+	      var leadAssignSnEmpty = document.getElementById("leadAssignSnEmpty");
+	      var leadAssignError = document.getElementById("leadAssignError");
+	      var saveLeadAssign = document.getElementById("saveLeadAssign");
+	      var leadAddSnModal = document.getElementById("leadAddSnModal");
+	      var leadAddSnForm = document.getElementById("leadAddSnForm");
+	      var leadAddSnInput = document.getElementById("leadAddSnInput");
+	      var leadAddSnError = document.getElementById("leadAddSnError");
+	      var leadToast = document.getElementById("leadToast");
+	      var activeLeadRow = null;
+	      var activeAssignLeadRow = null;
+	      var activeSnLeadRow = null;
+	      var leadToastTimer = 0;
+	      var LEAD_PREFILL_KEY = "paywizard-lead-onboarding-prefill-v1";
+	      var APPLICATIONS_KEY = "paywizard-onboarding-applications-v2";
 	      var totals = {
 	        upt: "1 / 23 (441)",
 	        intl: "1 / 4 (78)"
@@ -1444,6 +1565,260 @@
 
 	      function normalize(value) {
 	        return String(value || "").trim().toLowerCase();
+	      }
+
+	      function showLeadToast(message, tone) {
+	        leadToast.textContent = message;
+	        leadToast.classList.toggle("success", tone === "success");
+	        leadToast.hidden = false;
+	        window.clearTimeout(leadToastTimer);
+	        leadToastTimer = window.setTimeout(function () { leadToast.hidden = true; }, 3200);
+	      }
+
+	      function readApplications() {
+	        try {
+	          var applications = JSON.parse(window.localStorage.getItem(APPLICATIONS_KEY) || "[]");
+	          return Array.isArray(applications) ? applications : [];
+	        } catch (error) {
+	          return [];
+	        }
+	      }
+
+	      function leadDataFromRow(row) {
+	        var cells = row ? row.querySelectorAll("td") : [];
+	        var processId = cells[0] ? cells[0].textContent.trim() : "";
+	        var detail = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(processId);
+	        if (detail) return {
+	          processId: detail.processId,
+	          spName: detail.spName || "",
+	          partnerName: detail.partnerName || "",
+	          countryName: detail.country || "",
+	          merchantName: detail.merchantName || "",
+	          terminalNumber: Number(detail.terminalNumber) || 0,
+	          contactName: detail.contactName || "",
+	          merchantEmail: detail.email || "",
+	          merchantPhone: detail.phone || "",
+	          currencyName: detail.currency || "",
+	          leadOwner: detail.leadOwner || "",
+	          serialNumbers: detail.serialNumbers ? detail.serialNumbers.slice() : [],
+	          sourceLeadPageStyle: "UPT"
+	        };
+	        return {
+	          processId: processId,
+	          partnerName: cells[2] ? cells[2].textContent.trim() : "",
+	          countryName: cells[3] ? cells[3].textContent.trim() : "",
+	          merchantName: cells[4] ? cells[4].textContent.trim() : "",
+	          terminalNumber: Number(cells[5] ? cells[5].textContent.trim() : 0) || 0,
+	          contactName: cells[7] ? cells[7].textContent.trim() : "",
+	          merchantEmail: cells[8] ? cells[8].textContent.trim() : "",
+	          merchantPhone: "",
+	          currencyName: "",
+	          leadOwner: "",
+	          sourceLeadPageStyle: "UPT"
+	        };
+	      }
+
+	      function ensureAssignedSnCell(row) {
+	        var existing = row && row.querySelector(".assigned-sn-count");
+	        if (existing) return existing;
+	        var cells = row ? row.querySelectorAll("td") : [];
+	        if (!cells[6]) return null;
+	        var cell = document.createElement("td");
+	        cell.className = "assigned-sn-count";
+	        cell.textContent = "0";
+	        row.insertBefore(cell, cells[6]);
+	        return cell;
+	      }
+
+	      function hydrateLeadRow(row) {
+	        var assignedCell = ensureAssignedSnCell(row);
+	        var cells = row ? row.querySelectorAll("td") : [];
+	        var processId = cells[0] ? cells[0].textContent.trim() : "";
+	        var detail = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(processId);
+	        if (!detail) return;
+	        if (cells[5]) cells[5].textContent = String(detail.terminalNumber);
+	        if (assignedCell) assignedCell.textContent = String(detail.assignedSnCount || 0);
+	        row.dataset.sn = detail.serialNumbers.join(" ");
+	      }
+
+	      function closeLeadMoreMenu() {
+	        leadMoreMenu.hidden = true;
+	        activeLeadRow = null;
+	        document.querySelectorAll(".lead-more-trigger[aria-expanded=true]").forEach(function (button) {
+	          button.setAttribute("aria-expanded", "false");
+	        });
+	      }
+
+	      function positionLeadMoreMenu(trigger) {
+	        leadMoreMenu.hidden = false;
+	        var triggerRect = trigger.getBoundingClientRect();
+	        var menuRect = leadMoreMenu.getBoundingClientRect();
+	        var left = Math.min(triggerRect.right - menuRect.width, window.innerWidth - menuRect.width - 8);
+	        var top = triggerRect.bottom + 6;
+	        if (top + menuRect.height > window.innerHeight - 8) top = triggerRect.top - menuRect.height - 6;
+	        leadMoreMenu.style.left = Math.max(8, left) + "px";
+	        leadMoreMenu.style.top = Math.max(8, top) + "px";
+	      }
+
+	      function openLeadMoreMenu(trigger, row) {
+	        var lead = leadDataFromRow(row);
+	        closeLeadMoreMenu();
+	        activeLeadRow = row;
+	        leadTerminalLabel.textContent = lead.terminalNumber === 0 ? "Add SN" : "Assign/New Merchant";
+	        trigger.setAttribute("aria-expanded", "true");
+	        positionLeadMoreMenu(trigger);
+	        leadMoreMenu.querySelector("button").focus();
+	      }
+
+	      function resetLeadAssignForm() {
+	        leadAssignForm.reset();
+	        document.getElementById("leadNewMerchantWrap").hidden = true;
+	        document.getElementById("leadNewStoreWrap").hidden = true;
+	        leadAssignSnList.replaceChildren();
+	        leadAssignSnCount.textContent = "0 selected · 0 total";
+	        leadAssignSnEmpty.hidden = true;
+	        leadAssignError.hidden = true;
+	        leadAssignError.textContent = "";
+	        saveLeadAssign.disabled = false;
+	      }
+
+	      function updateLeadAssignSelection() {
+	        var available = Array.prototype.slice.call(leadAssignSnList.querySelectorAll('input[type="checkbox"]:not(:disabled)'));
+	        var selected = available.filter(function (input) { return input.checked; });
+	        var total = leadAssignSnList.querySelectorAll(".lead-assign-sn-item").length;
+	        leadAssignSnCount.textContent = selected.length + " selected · " + total + " total";
+	        leadAssignSelectAll.checked = available.length > 0 && selected.length === available.length;
+	        leadAssignSelectAll.indeterminate = selected.length > 0 && selected.length < available.length;
+	      }
+
+	      function renderLeadAssignSerialNumbers(record) {
+	        leadAssignSnList.replaceChildren();
+	        var assignments = record.snAssignments || {};
+	        var unassignedCount = 0;
+	        record.serialNumbers.forEach(function (serialNumber) {
+	          var assignment = assignments[serialNumber];
+	          var label = document.createElement("label");
+	          label.className = "lead-assign-sn-item" + (assignment ? " is-assigned" : "");
+	          var checkbox = document.createElement("input");
+	          checkbox.type = "checkbox";
+	          checkbox.value = serialNumber;
+	          checkbox.checked = true;
+	          checkbox.disabled = Boolean(assignment);
+	          checkbox.addEventListener("change", updateLeadAssignSelection);
+	          var content = document.createElement("span");
+	          content.className = "lead-assign-sn-content";
+	          var serial = document.createElement("strong");
+	          serial.textContent = serialNumber;
+	          content.appendChild(serial);
+	          if (assignment) {
+	            var destination = document.createElement("small");
+	            destination.textContent = "Assigned to " + assignment.merchantName + " · " + assignment.storeName;
+	            content.appendChild(destination);
+	          } else {
+	            unassignedCount += 1;
+	          }
+	          label.appendChild(checkbox);
+	          label.appendChild(content);
+	          leadAssignSnList.appendChild(label);
+	        });
+	        leadAssignSelectAll.disabled = unassignedCount === 0;
+	        leadAssignSelectAll.checked = unassignedCount > 0;
+	        leadAssignSnEmpty.hidden = unassignedCount !== 0;
+	        saveLeadAssign.disabled = unassignedCount === 0;
+	        updateLeadAssignSelection();
+	      }
+
+	      function openLeadAssignModal(row) {
+	        resetLeadAssignForm();
+	        activeAssignLeadRow = row;
+	        var lead = leadDataFromRow(row);
+	        var record = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(lead.processId);
+	        if (!record) return;
+	        renderLeadAssignSerialNumbers(record);
+	        leadAssignModal.hidden = false;
+	        document.getElementById("leadAssignMerchant").focus();
+	      }
+
+	      function closeLeadAssignModal() {
+	        leadAssignModal.hidden = true;
+	        activeAssignLeadRow = null;
+	        resetLeadAssignForm();
+	      }
+
+	      function openLeadAddSnModal(row) {
+	        activeSnLeadRow = row;
+	        leadAddSnForm.reset();
+	        leadAddSnError.hidden = true;
+	        leadAddSnError.textContent = "";
+	        leadAddSnModal.hidden = false;
+	        leadAddSnInput.focus();
+	      }
+
+	      function closeLeadAddSnModal() {
+	        leadAddSnModal.hidden = true;
+	        activeSnLeadRow = null;
+	        leadAddSnForm.reset();
+	        leadAddSnInput.removeAttribute("aria-invalid");
+	        leadAddSnError.hidden = true;
+	        leadAddSnError.textContent = "";
+	      }
+
+	      function onboardLead(row) {
+	        var lead = leadDataFromRow(row);
+	        var duplicate = readApplications().some(function (application) {
+	          return application && String(application.sourceLeadProcessId || "") === lead.processId;
+	        });
+	        if (duplicate) {
+	          showLeadToast("An onboarding application has already been created for Lead " + lead.processId + ".");
+	          return;
+	        }
+	        window.localStorage.setItem(LEAD_PREFILL_KEY, JSON.stringify(lead));
+	        var target = new URL("38.Merchant_onboard.html", window.location.href);
+	        target.searchParams.set("source", "lead");
+	        target.searchParams.set("leadProcessId", lead.processId);
+	        target.hash = "new-onboarding";
+	        window.location.href = target.href;
+	      }
+
+	      function configureLeadActions() {
+	        document.querySelectorAll('[data-table-view="upt"] tbody tr').forEach(function (row) {
+	          hydrateLeadRow(row);
+	          var actions = row.querySelector(".actions");
+	          if (!actions) return;
+	          var lead = leadDataFromRow(row);
+	          var detailRecord = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(lead.processId);
+	          if (detailRecord) row.dataset.sn = detailRecord.serialNumbers.join(" ");
+	          var buttons = Array.prototype.slice.call(actions.children);
+	          buttons.forEach(function (button) {
+	            var label = button.getAttribute("aria-label") || "";
+	            if (label === "Copy") button.remove();
+	            if (label === "View detail") {
+	              button.setAttribute("data-tooltip", "View detail");
+	              button.setAttribute("href", "28.UPT_merchant_lead_detail.html?leadProcessId=" + encodeURIComponent(lead.processId));
+	            }
+	            if (label === "Edit") button.setAttribute("data-tooltip", "Edit lead");
+	            if (label === "More") {
+	              button.classList.add("lead-more-trigger");
+	              button.setAttribute("data-tooltip", "More actions");
+	              button.setAttribute("aria-haspopup", "menu");
+	              button.setAttribute("aria-expanded", "false");
+	              button.addEventListener("click", function (event) {
+	                event.stopPropagation();
+	                if (!leadMoreMenu.hidden && activeLeadRow === row) closeLeadMoreMenu();
+	                else openLeadMoreMenu(button, row);
+	              });
+	            }
+	          });
+	        });
+
+	        document.querySelectorAll('[data-table-view="intl"] tbody tr').forEach(function (row) {
+	          var actions = row.querySelector(".actions");
+	          if (!actions) return;
+	          Array.prototype.slice.call(actions.children).forEach(function (button, index) {
+	            if (index === 0) button.setAttribute("data-tooltip", "View detail");
+	            else button.remove();
+	          });
+	        });
 	      }
 
 	      function getActiveRows() {
@@ -1574,6 +1949,99 @@
 	        if (event.target === shareLandingModal) closeShareModal();
 	      });
 
+	      leadMoreMenu.addEventListener("click", function (event) {
+	        var action = event.target.closest("[data-lead-menu-action]");
+	        if (!action || !activeLeadRow) return;
+	        var row = activeLeadRow;
+	        var lead = leadDataFromRow(row);
+	        closeLeadMoreMenu();
+	        if (action.dataset.leadMenuAction === "onboard") {
+	          onboardLead(row);
+	          return;
+	        }
+	        if (lead.terminalNumber === 0) openLeadAddSnModal(row);
+	        else openLeadAssignModal(row);
+	      });
+	      document.addEventListener("click", function (event) {
+	        if (!leadMoreMenu.hidden && !leadMoreMenu.contains(event.target)) closeLeadMoreMenu();
+	      });
+	      window.addEventListener("resize", closeLeadMoreMenu);
+	      document.getElementById("closeLeadAssign").addEventListener("click", closeLeadAssignModal);
+	      document.getElementById("cancelLeadAssign").addEventListener("click", closeLeadAssignModal);
+	      leadAssignModal.addEventListener("click", function (event) {
+	        if (event.target === leadAssignModal) closeLeadAssignModal();
+	      });
+	      document.getElementById("closeLeadAddSn").addEventListener("click", closeLeadAddSnModal);
+	      document.getElementById("cancelLeadAddSn").addEventListener("click", closeLeadAddSnModal);
+	      leadAddSnModal.addEventListener("click", function (event) {
+	        if (event.target === leadAddSnModal) closeLeadAddSnModal();
+	      });
+	      leadAddSnForm.addEventListener("submit", function (event) {
+	        event.preventDefault();
+	        if (!activeSnLeadRow || !window.PaywizardUptLeadData) return;
+	        var processId = activeSnLeadRow.querySelector("td").textContent.trim();
+	        var result = window.PaywizardUptLeadData.addSerialNumbers(processId, leadAddSnInput.value);
+	        if (!result.valid) {
+	          leadAddSnError.textContent = result.error;
+	          leadAddSnError.hidden = false;
+	          leadAddSnInput.setAttribute("aria-invalid", "true");
+	          leadAddSnInput.focus();
+	          return;
+	        }
+	        leadAddSnInput.removeAttribute("aria-invalid");
+	        hydrateLeadRow(activeSnLeadRow);
+	        closeLeadAddSnModal();
+	        showLeadToast(result.values.length + (result.values.length === 1 ? " SN was" : " SNs were") + " added successfully.", "success");
+	      });
+	      document.getElementById("showLeadNewMerchant").addEventListener("click", function () {
+	        var wrap = document.getElementById("leadNewMerchantWrap");
+	        wrap.hidden = !wrap.hidden;
+	        if (!wrap.hidden) document.getElementById("leadNewMerchant").focus();
+	      });
+	      document.getElementById("showLeadNewStore").addEventListener("click", function () {
+	        var wrap = document.getElementById("leadNewStoreWrap");
+	        wrap.hidden = !wrap.hidden;
+	        if (!wrap.hidden) document.getElementById("leadNewStore").focus();
+	      });
+	      leadAssignSelectAll.addEventListener("change", function () {
+	        leadAssignSnList.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(function (input) {
+	          input.checked = leadAssignSelectAll.checked;
+	        });
+	        updateLeadAssignSelection();
+	      });
+	      leadAssignForm.addEventListener("submit", function (event) {
+	        event.preventDefault();
+	        if (!activeAssignLeadRow || !window.PaywizardUptLeadData) return;
+	        var processId = activeAssignLeadRow.querySelector("td").textContent.trim();
+	        var merchantSelect = document.getElementById("leadAssignMerchant");
+	        var storeSelect = document.getElementById("leadAssignStore");
+	        var newMerchant = document.getElementById("leadNewMerchant").value.trim();
+	        var newStore = document.getElementById("leadNewStore").value.trim();
+	        var selected = Array.prototype.slice.call(leadAssignSnList.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)'))
+	          .map(function (input) { return input.value; });
+	        var result = window.PaywizardUptLeadData.assignSerialNumbers(
+	          processId,
+	          newMerchant || merchantSelect.value,
+	          newStore || storeSelect.value,
+	          selected
+	        );
+	        if (!result.valid) {
+	          leadAssignError.textContent = result.error;
+	          leadAssignError.hidden = false;
+	          return;
+	        }
+	        hydrateLeadRow(activeAssignLeadRow);
+	        closeLeadAssignModal();
+	        showLeadToast(result.values.length + (result.values.length === 1 ? " SN was" : " SNs were") + " assigned successfully.", "success");
+	      });
+	      document.addEventListener("keydown", function (event) {
+	        if (event.key !== "Escape") return;
+	        if (!leadAddSnModal.hidden) closeLeadAddSnModal();
+	        else if (!leadAssignModal.hidden) closeLeadAssignModal();
+	        else closeLeadMoreMenu();
+	      });
+
+	      configureLeadActions();
 	      setActiveTab(window.location.hash === "#intl" ? "intl" : "upt");
 	    })();
 	  </script>
