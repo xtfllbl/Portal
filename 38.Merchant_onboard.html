@@ -554,126 +554,124 @@
     .page-size { width: 90px; padding: 0 12px; }
     .page-number { width: 52px; padding: 0 10px; text-align: center; }
 
-    .registration-view .panel-header { margin-bottom: 18px; }
+    .registration-view .panel-header {
+      width: 100%;
+      margin: 0 0 28px;
+    }
 
     .registration-form {
+      width: 100%;
       min-width: 0;
+      margin: 0;
       flex: 1;
       display: flex;
       flex-direction: column;
     }
 
     .application-sections {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-bottom: 18px;
+      display: block;
+      min-width: 0;
+      margin-bottom: 20px;
+      padding: 28px 30px 30px;
+      border: 1px solid #d9dce2;
+      border-radius: 8px;
+      background: #fff;
     }
 
     .application-section {
       min-width: 0;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: #fff;
-      overflow: hidden;
     }
 
-    .merchant-details .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .merchant-details { padding: 0; }
+
+    .application-setup {
+      margin-top: 40px;
+      padding: 0;
+      border: 0;
+    }
+
+    .merchant-details .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .application-setup .form-grid.single { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
     .application-section-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-height: 48px;
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfbfc;
+      min-height: 34px;
+      padding: 0 0 16px;
+      border-bottom: 1px solid #e6e8ec;
     }
 
-    .application-section-number {
-      width: 24px;
-      height: 24px;
-      display: grid;
-      place-items: center;
-      flex: none;
-      border-radius: 50%;
-      background: #303136;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
+    .application-section-header h2 {
+      margin: 0;
+      color: #3f4148;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
     }
 
-    .application-section-header h2 { margin: 0; color: #3f4148; font-size: 13px; }
-    .application-section-body { padding: 18px 16px; }
+    .application-section-body { padding: 24px 0 0; }
 
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px 16px;
+      gap: 28px 40px;
     }
 
     .form-grid.single { grid-template-columns: 1fr; }
 
     .field {
-      position: relative;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
     }
 
     .field input,
     .field select {
       width: 100%;
-      height: 39px;
+      height: 44px;
       border: 1px solid var(--line-strong);
       border-radius: 7px;
-      background: #fff;
-      color: #4f535d;
-      padding: 0 12px;
+      background-color: #fff;
+      color: #3f4148;
+      padding: 0 14px;
+      font-size: 14px;
       outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
     .field select {
       appearance: none;
-      padding-right: 34px;
+      padding-right: 38px;
       background-image: url("assets/icons/chevron-down.svg");
       background-repeat: no-repeat;
-      background-position: right 10px center;
+      background-position: right 12px center;
       background-size: 16px;
     }
 
     .field input:focus,
     .field select:focus {
-      border-color: #7dc7eb;
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+      border-color: #68bdeb;
+      box-shadow: 0 0 0 3px rgba(23, 104, 220, 0.1);
     }
 
     .field-label {
-      position: absolute;
-      left: 11px;
-      top: 50%;
-      z-index: 1;
-      max-width: calc(100% - 42px);
-      padding: 0 2px;
-      overflow: hidden;
-      background: #fff;
-      color: #777c88;
-      font-size: 13px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      pointer-events: none;
-      transform: translateY(-50%);
-      transition: top 0.14s ease, font-size 0.14s ease;
+      order: -1;
+      color: #6f7480;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      text-transform: uppercase;
     }
 
     .required { color: #de2d2d; }
 
-    .field input:focus + .field-label,
-    .field input:not(:placeholder-shown) + .field-label,
-    .field.has-value .field-label,
-    .field select:focus + .field-label {
-      top: 0;
-      font-size: 10px;
+    .field input:user-invalid,
+    .field select:user-invalid {
+      border-color: #dc3b35;
+      box-shadow: 0 0 0 3px rgba(220, 59, 53, 0.1);
     }
 
     .form-actions {
@@ -681,8 +679,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 18px;
-      padding-top: 14px;
-      border-top: 1px solid var(--line);
+      padding-top: 0;
+      border-top: 0;
     }
 
     .form-actions .btn { min-height: 38px; }
@@ -848,7 +846,7 @@
       .panel { padding: 17px; }
       .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .merchant-details .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .application-setup .form-grid.single { grid-template-columns: 1fr; }
+      .application-setup .form-grid.single { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 760px) {
@@ -881,10 +879,13 @@
       .pager-main,
       .pager-summary { grid-column: 1; justify-self: center; }
       .pager-summary { display: none; }
-      .registration-view .panel-header { margin-bottom: 14px; }
-      .application-section-body { padding: 16px 14px; }
-      .form-grid { grid-template-columns: 1fr; gap: 16px; }
+      .registration-view .panel-header { margin-bottom: 18px; }
+      .application-sections { padding: 20px; }
+      .application-setup { margin-top: 30px; padding: 0; }
+      .application-section-body { padding-top: 16px; }
+      .form-grid { grid-template-columns: 1fr; gap: 18px; }
       .merchant-details .form-grid { grid-template-columns: 1fr; }
+      .application-setup .form-grid.single { grid-template-columns: 1fr; }
       .form-actions { gap: 10px; }
       .form-actions-primary { gap: 8px; }
       .share-summary { grid-template-columns: 1fr; }
@@ -1037,7 +1038,6 @@
             <div class="application-sections">
               <section class="application-section merchant-details" aria-labelledby="merchant-details-title">
                 <header class="application-section-header">
-                  <span class="application-section-number">1</span>
                   <h2 id="merchant-details-title">Merchant &amp; Contact Details</h2>
                 </header>
                 <div class="application-section-body">
@@ -1064,7 +1064,6 @@
 
               <section class="application-section application-setup" aria-labelledby="application-setup-title">
                 <header class="application-section-header">
-                  <span class="application-section-number">2</span>
                   <h2 id="application-setup-title">Application Setup</h2>
                 </header>
                 <div class="application-section-body">

@@ -35,6 +35,45 @@ final result: passed
 
 ---
 
+# Create Onboarding Application Split Form QA
+
+## Evidence
+
+- Source visual truth: the selected second ImageGen direction, `exec-fc1decee-1647-40dd-be48-5810de152b8a.png`, with the existing `38.Merchant_onboard.html` shell treated as authoritative for brand and navigation.
+- Desktop implementation screenshot: `assets/qa/qa-onboarding-create-split-desktop.png` at 1440 x 900.
+- Mobile implementation screenshot: `assets/qa/qa-onboarding-create-split-mobile.png` at 390 x 844.
+- State: populated `Create Onboarding Application` view opened through `#new-onboarding` with the phone field focused.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- **Structure:** Desktop uses the selected 60/40 split: Merchant & Contact Details on the left and Application Setup on the right, separated by one quiet vertical rule. There are no cards inside either section and no explanatory content was added.
+- **Typography:** The existing Poppins Paywizard hierarchy is retained. Section headings are 16px/600 and field labels are 12px/600 uppercase labels above compact 14px values.
+- **Controls:** Inputs and selects use the portal's compact 40px outlined treatment with 7px radii, neutral borders, blue focus ring, and red invalid state.
+- **Layout:** At 1440px the form measures 1086px, the sections resolve to approximately 60/40, Merchant Details is 2 x 2, and Application Setup is a one-column stack. At 1200px the sections stack, Merchant Details remains two columns, and Application Setup becomes a three-column row.
+- **Actions:** Cancel remains left aligned; Save and Save & Share remain grouped on the right immediately after Application Setup. The action area is not sticky or bottom-pinned.
+- **Responsive behavior:** At 390px both sections and all fields are single-column, the separator becomes horizontal, and the document width equals the viewport width. At 320px the action group wraps without horizontal overflow.
+- **Behavior:** Draft editing, Lead prefill, dynamic country/currency options, required validation, Save, Save & Share, Cancel, URL hash, status transitions, and localStorage behavior remain unchanged.
+
+## Verification
+
+- Focused onboarding Playwright suite: 19 passed.
+- Desktop browser console warnings/errors: none.
+- Computed-style assertions verify 12px/600 labels, 14px control values, white control backgrounds, 1px borders, 7px radii, and the desktop vertical divider.
+- Responsive assertions passed at 2048 x 1138, 1440 x 900, 1200 x 900, 1024 x 900, 390 x 844, and 320 x 844.
+
+## Comparison history
+
+1. The first redesign flattened the form into full-width underline fields, but seven fields remained visually disconnected across a wide page.
+2. The selected second direction reorganized the same fields into a controlled-width 60/40 workspace with compact outlined controls and a single divider.
+3. Same-input comparison against the selected design confirmed the intended hierarchy, density, section relationship, and action placement; responsive review found no overflow.
+
+## Result
+
+final result: passed
+
+---
+
 # UPT Lead SN Assignment QA
 
 ## Evidence

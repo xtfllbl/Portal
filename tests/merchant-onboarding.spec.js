@@ -160,10 +160,61 @@ test("uses the redesigned application creator without assignment or side rail", 
   await expect(page.locator(".create-application-intro")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Merchant & Contact Details" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Application Setup" })).toBeVisible();
+  await expect(page.locator(".application-section-number")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Internal Commercial Terms" })).toHaveCount(0);
   await expect(page.locator(".application-section-header p")).toHaveCount(0);
   await expect(page.locator("#cost-rate, #fee-cap")).toHaveCount(0);
   await expect(page.locator("#payment-channel option")).toHaveText(["", "Nuvei", "Elavon EU"]);
+
+  const creatorStyles = await page.locator("#merchant-name").evaluate((control) => {
+    const field = control.closest(".field");
+    const label = field.querySelector(".field-label");
+    const section = control.closest(".application-section");
+    const header = section.querySelector(".application-section-header");
+    const inputStyle = getComputedStyle(control);
+    const labelStyle = getComputedStyle(label);
+    const sectionStyle = getComputedStyle(section);
+    const headerStyle = getComputedStyle(header);
+    const setupStyle = getComputedStyle(document.querySelector(".application-setup"));
+    return {
+      inputFontSize: inputStyle.fontSize,
+      inputBorderTop: inputStyle.borderTopWidth,
+      inputBorderBottom: inputStyle.borderBottomWidth,
+      inputRadius: inputStyle.borderRadius,
+      inputBackground: inputStyle.backgroundColor,
+      labelFontSize: labelStyle.fontSize,
+      labelWeight: labelStyle.fontWeight,
+      labelTransform: labelStyle.textTransform,
+      sectionBorder: sectionStyle.borderTopWidth,
+      sectionRadius: sectionStyle.borderRadius,
+      headerBackground: headerStyle.backgroundColor,
+      setupDivider: setupStyle.borderLeftWidth,
+      cardBorder: getComputedStyle(document.querySelector(".application-sections")).borderTopWidth,
+      cardRadius: getComputedStyle(document.querySelector(".application-sections")).borderRadius,
+      inputHeight: inputStyle.height,
+    };
+  });
+  expect(creatorStyles).toEqual({
+    inputFontSize: "14px",
+    inputBorderTop: "1px",
+    inputBorderBottom: "1px",
+    inputRadius: "7px",
+    inputBackground: "rgb(255, 255, 255)",
+    labelFontSize: "12px",
+    labelWeight: "600",
+    labelTransform: "uppercase",
+    sectionBorder: "0px",
+    sectionRadius: "0px",
+    headerBackground: "rgba(0, 0, 0, 0)",
+    setupDivider: "0px",
+    cardBorder: "1px",
+    cardRadius: "8px",
+    inputHeight: "44px",
+  });
+
+  await expect(page.locator(".application-sections")).toHaveCSS("display", "block");
+  await expect(page.locator(".merchant-details .form-grid")).toHaveCSS("grid-template-columns", /.+ .+/);
+  await expect(page.locator(".application-setup .form-grid")).toHaveCSS("grid-template-columns", /.+ .+ .+/);
 
   const cancelBox = await page.getByRole("button", { name: "Cancel" }).boundingBox();
   const saveBox = await page.getByRole("button", { name: "Save", exact: true }).boundingBox();
@@ -546,6 +597,7 @@ test("keeps creator and merchant pages responsive", async ({ page }) => {
   await openCleanPage(page);
   await openCreateApplication(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect((await page.locator(".registration-form").boundingBox()).width).toBeGreaterThan(1400);
   let sectionsBox = await page.locator(".application-sections").boundingBox();
   let actionsBox = await page.locator(".form-actions").boundingBox();
   expect(actionsBox.y - (sectionsBox.y + sectionsBox.height)).toBeGreaterThanOrEqual(16);
@@ -553,12 +605,27 @@ test("keeps creator and merchant pages responsive", async ({ page }) => {
 
   await page.setViewportSize({ width: 1440, height: 900 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
-  expect(await page.locator(".application-sections").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(1);
-  expect(await page.locator(".merchant-details .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(4);
+  expect(await page.locator(".application-sections").evaluate((grid) => getComputedStyle(grid).display)).toBe("block");
+  expect(await page.locator(".merchant-details .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(2);
+  expect(await page.locator(".application-setup .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(3);
+
+  await page.setViewportSize({ width: 1200, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect(await page.locator(".application-sections").evaluate((grid) => getComputedStyle(grid).display)).toBe("block");
+  expect(await page.locator(".merchant-details .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(2);
+  expect(await page.locator(".application-setup .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(3);
+
+  await page.setViewportSize({ width: 1024, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect(await page.locator(".application-sections").evaluate((grid) => getComputedStyle(grid).display)).toBe("block");
+  expect(await page.locator(".merchant-details .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(2);
+  expect(await page.locator(".application-setup .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(3);
 
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
-  expect(await page.locator(".application-sections").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(1);
+  expect(await page.locator(".application-sections").evaluate((grid) => getComputedStyle(grid).display)).toBe("block");
+  expect(await page.locator(".merchant-details .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(1);
+  expect(await page.locator(".application-setup .form-grid").evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(1);
   let cancelBox = await page.getByRole("button", { name: "Cancel" }).boundingBox();
   let saveBox = await page.getByRole("button", { name: "Save", exact: true }).boundingBox();
   let shareBox = await page.getByRole("button", { name: "Save & Share" }).boundingBox();
