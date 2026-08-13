@@ -930,9 +930,9 @@
         <button class="menu-item active" type="button" aria-expanded="true" data-menu-toggle="merchant-menu"><span class="menu-main"><span class="material-symbols-rounded" aria-hidden="true">store</span><span>Merchants</span></span><span class="material-symbols-rounded menu-arrow" aria-hidden="true">expand_more</span></button>
         <div class="sub-menu" id="merchant-menu">
           <a class="sub-item" href="#">Contact</a>
-          <a class="sub-item" href="#">Leads</a>
-          <a class="sub-item active" href="#" aria-current="page">Onboarding</a>
-          <a class="sub-item" href="#">Merchant List</a>
+          <a class="sub-item" href="29.INTL_PSP_merchant_lead_list.html">Leads</a>
+          <a class="sub-item active" href="38.Merchant_onboard.html" aria-current="page">Onboarding</a>
+          <a class="sub-item" href="5.merchant_manage_iso.html">Merchant List</a>
           <a class="sub-item" href="#">Analytics</a>
         </div>
 
@@ -1224,18 +1224,18 @@
       function rowTemplate(row) {
         var actions = [];
         if (row.status === "Draft") {
-          actions.push('<button class="action-btn edit" type="button" data-action="edit" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>');
+          actions.push('<button class="action-btn edit" type="button" data-action="edit" data-tooltip="Edit application" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>');
         }
         if (row.status === "Merchant Draft" || row.status === "Approved" || row.status === "Returned" || row.status === "Merchant Created") {
-          actions.push('<button class="action-btn" type="button" data-action="view" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>');
+          actions.push('<button class="action-btn" type="button" data-action="view" data-tooltip="View application" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>');
         }
         if (row.status === "Approved") {
-          actions.push('<button class="action-btn create-merchant-action" type="button" data-action="create-merchant" aria-label="Create merchant for process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">add_business</span></button>');
+          actions.push('<button class="action-btn create-merchant-action" type="button" data-action="create-merchant" data-tooltip="Create merchant" aria-label="Create merchant for process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">add_business</span></button>');
         }
         if (row.status === "Merchant Submit" || row.status === "Under Review") {
-          actions.push('<button class="action-btn review-action" type="button" data-action="review" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>');
+          actions.push('<button class="action-btn review-action" type="button" data-action="review" data-tooltip="' + (row.status === "Under Review" ? "Continue review" : "Review application") + '" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>');
         }
-        actions.push('<button class="action-btn" type="button" data-action="share" aria-label="Share process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>');
+        actions.push('<button class="action-btn" type="button" data-action="share" data-tooltip="Share application links" aria-label="Share process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>');
         return '<tr data-process-id="' + escapeHtml(row.processId) + '" data-application-id="' + escapeHtml(row.applicationId) + '">' +
           '<td>' + escapeHtml(row.processId) + '</td>' +
           '<td>' + escapeHtml(row.spName) + '</td>' +
@@ -1653,5 +1653,6 @@
       });
     })();
   </script>
+  <script src="scripts/action-tooltips.js"></script>
 </body>
 </html>

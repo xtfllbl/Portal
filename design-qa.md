@@ -1,3 +1,40 @@
+# Leads and Merchant List Unified Admin Shell QA
+
+## Coverage
+
+- Rebuilt the Leads and Merchant List shells against `38.Merchant_onboard.html`: Poppins, the supplied Paywizard/SANDBOX asset, Material Symbols, 16px page rhythm, 264px sidebar, 70px topbar, compact menus, 8px surfaces, dark table heads, and matching controls.
+- Removed the Merchant List legacy intrinsic-width conflict that pushed header actions outside the viewport. Wide data remains horizontally scrollable inside the table wrapper without creating page-level overflow.
+- Added real bidirectional Leads, Onboarding, and Merchant List links on all three pages, with one correct `aria-current="page"` state per page.
+- Added viewport-aware Action tooltips across all three tables. Hovering or keyboard-focusing an icon now names View, Edit, Review/Continue Review, Create Merchant, Share, Copy, More, or merchant-detail actions without being clipped by a table scroll container.
+- Matched the remaining content typography to the Onboarding source tokens: 13px base; 25px/600 desktop and 21px/600 mobile titles; 14px/13px navigation; 12px breadcrumb and filters; and 11px/600 table headers with 11px/400 body cells. Leads Process IDs no longer use a mismatched monospace face, and Merchant List DBA links/IDs no longer inherit the legacy oversized 16px/13px rules. Legacy large-radius and large-type rules in both business modals are now explicitly normalized.
+- Rebuilt Merchant List filtering as one ordered toolbar. It renders all six fields plus Reset/Search on one line at 1440px and above, a deliberate 4+4 layout at 1320px/1024px, two columns at 390px, and six single fields followed by a two-button row at 320px.
+- Preserved Leads UPT/PSP tabs, filters, export/share actions and Landing Page modal; preserved Merchant List dynamic records, row actions, Add Merchant, Onboard Wizard, and Custom eReceipt.
+- Applied the shared 236px, 74px icon-rail, and hidden-mobile sidebar behavior at 1320px, 1040px, and 760px respectively.
+- Restored vertical scrolling inside the UPT Leads content panel so the complete table and pagination remain reachable; the table wrapper continues to own horizontal scrolling only.
+- Simplified Merchant List DBA cells to a single 11px semibold blue merchant-name link. Legacy second-line Paywizard IDs were removed from both static rows and dynamically inserted onboarding merchants.
+
+## Visual evidence
+
+- Leads desktop: `artifacts/admin-leads-unified-1440.png`.
+- Merchant List desktop: `artifacts/admin-merchant-list-unified-1440.png`.
+- Merchant List medium-width filter layout: `artifacts/admin-merchant-list-filters-1320.png`.
+- Leads mobile: `artifacts/admin-leads-unified-390.png`.
+- Merchant List mobile: `artifacts/admin-merchant-list-unified-390.png`.
+- Leads pagination after vertical scroll: `artifacts/admin-leads-pagination-1440.png`.
+- Merchant List single-line DBA treatment: `artifacts/admin-merchant-list-dba-1440.png`.
+- Visual review confirms the oversized 310px Merchant List sidebar, oversized logo/menu rows, off-screen page actions, and mobile color-bar artifacts are removed.
+
+## Automated result
+
+- `tests/merchant-admin-navigation.spec.js`: 10 passed in Chromium.
+- Covered three-way navigation, active-menu semantics, exact responsive sidebar/topbar dimensions at 2048px, 1440px, 1024px and 390px, exact title/table font sizes, weights and line heights, Poppins/logo/table-head tokens, zero page-level horizontal overflow, Leads tabs/filter/share modal, and Merchant List Add Merchant/row-menu/Custom eReceipt behavior.
+- Existing `tests/merchant-onboarding.spec.js`: 19 passed after the navigation changes.
+- `git diff --check` and targeted browser console/page-error checks passed.
+
+final result: passed
+
+---
+
 # Merchant Onboarding Progress Tracking and Audit QA
 
 ## Coverage
