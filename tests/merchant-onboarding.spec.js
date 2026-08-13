@@ -48,6 +48,58 @@ test("renders and filters the onboarding list", async ({ page }) => {
   await expect(page.locator("#onboarding-rows tr")).toHaveCount(12);
 });
 
+test("renders the state-specific action matrix", async ({ page }) => {
+  await openCleanPage(page);
+  const draft = page.locator("#onboarding-rows tr", { hasText: "00000336" });
+  await expect(draft.getByRole("button", { name: /Edit process/ })).toBeVisible();
+  await expect(draft.getByRole("button", { name: /View process/ })).toHaveCount(0);
+  const submitted = page.locator("#onboarding-rows tr", { hasText: "00000339" });
+  await expect(submitted.getByRole("button", { name: /Review application/ })).toBeVisible();
+  await expect(submitted.getByRole("button", { name: /View process/ })).toHaveCount(0);
+  const approved = page.locator("#onboarding-rows tr", { hasText: "00000328" });
+  await expect(approved.getByRole("button", { name: /View process/ })).toBeVisible();
+  await expect(approved.getByRole("button", { name: /Edit process/ })).toHaveCount(0);
+  await expect(approved.getByRole("button", { name: /Share process/ })).toBeVisible();
+});
+
+test("opens a genuine read-only channel view", async ({ page }) => {
+  await openCleanPage(page);
+  await page.getByRole("button", { name: "View process 00000328" }).click();
+  await expect(page).toHaveURL(/27\.Merchant_onboard_elavon\.html\?mode=view&applicationId=APP-LEGACY-02/);
+  await expect(page.getByRole("heading", { name: "View Elavon EU Application" })).toBeVisible();
+  await expect(page.locator('[name="registeredBusinessName"]')).toHaveValue("ceshi123213243234");
+  await expect(page.locator('[name="registeredBusinessName"]')).toHaveAttribute("readonly", "");
+  await expect(page.getByRole("button", { name: "Pass", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Issue", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Back to Onboarding" }).last()).toBeVisible();
+});
+
+test("does not start review until the first reviewer decision", async ({ page }) => {
+  await openCleanPage(page);
+  await page.getByRole("button", { name: "Review application 00000339" }).click();
+  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Merchant Submit");
+  await page.locator('.form-section[data-section="legal"]').getByRole("button", { name: "Pass", exact: true }).click();
+  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Under Review");
+});
+
+test("merchant save creates Merchant Draft and a read-only platform view", async ({ page }) => {
+  await page.goto("/38.Merchant_onboard_nuvei_public.html?applicationId=APP-DEMO-NUVEI-01");
+  await page.evaluate((key) => {
+    const item = window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01");
+    item.status = "Awaiting Merchant";
+    localStorage.setItem(key, JSON.stringify([item]));
+  }, APPLICATIONS_KEY);
+  await page.reload();
+  const form = page.frameLocator("#source-frame");
+  await form.getByRole("button", { name: "Save Draft" }).click();
+  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Merchant Draft");
+  await page.goto(ONBOARDING_URL);
+  const row = page.locator("#onboarding-rows tr", { hasText: "00000339" });
+  await expect(row).toContainText("Merchant Draft");
+  await expect(row.getByRole("button", { name: "View process 00000339" })).toBeVisible();
+  await expect(row.getByRole("button", { name: /Review application/ })).toHaveCount(0);
+});
+
 test("uses the redesigned application creator without assignment or side rail", async ({ page }) => {
   await openCleanPage(page);
   await openCreateApplication(page);
@@ -105,9 +157,10 @@ test("validates, saves, and generates a shareable merchant link", async ({ page 
   await expect(page.locator("#share-link")).toHaveValue(/38\.Merchant_onboard_elavon_public\.html\?/);
 
   const applications = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), APPLICATIONS_KEY);
-  expect(applications).toHaveLength(3);
-  expect(applications[0].status).toBe("Awaiting Merchant");
-  expect(applications[0].shareUrl).toContain("merchantName=Northstar+Coffee");
+  expect(applications).toHaveLength(13);
+  const createdApplication = applications.find((item) => item.merchantName === "Northstar Coffee");
+  expect(createdApplication.status).toBe("Awaiting Merchant");
+  expect(createdApplication.shareUrl).toContain("merchantName=Northstar+Coffee");
 
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();

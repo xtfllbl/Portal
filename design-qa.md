@@ -19,6 +19,34 @@ final result: passed
 
 ---
 
+# Merchant Onboarding State Lifecycle QA
+
+## Coverage
+
+- Verified the state-specific action matrix for Draft, Awaiting Merchant, Merchant Draft, Merchant Submit, Under Review, Approved, and Returned.
+- Verified Draft creation/editing, first-share locking, merchant draft persistence, submission, partial review persistence, approval, return, correction, and resubmission.
+- Verified `mode=view` opens the correct Nuvei or Elavon application with all merchant fields and attachments read-only and without review controls.
+- Verified entering review does not change status; the first Pass/Issue interaction changes Merchant Submit to Under Review.
+- Verified Returned public applications remove Save Draft and retain only the resubmission path.
+
+## Visual and responsive checks
+
+- Review Issue styling overrides existing green uploaded-file styling, so the entire rejected module—including upload cards—uses the red issue treatment.
+- Right-rail Pass, Issue, and Pending badges remain on one line.
+- No page-level horizontal overflow at 2048px, 1440px, or 390px in the onboarding creator, review page, and public application page.
+- Targeted browser run completed without console errors.
+
+## Automated result
+
+- `tests/merchant-onboarding.spec.js`: 13 passed.
+- Full Chromium suite: 56 passed and 9 unrelated pre-existing failures in DEX/Product Map tests; no Merchant Onboarding failures.
+
+## Result
+
+final result: passed
+
+---
+
 # Merchant Onboarding Review and Return Loop Design QA
 
 ## Evidence

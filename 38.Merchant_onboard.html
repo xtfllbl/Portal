@@ -983,6 +983,7 @@
               <option>Approved</option>
               <option>Under Review</option>
               <option>Merchant Submit</option>
+              <option>Merchant Draft</option>
               <option>Awaiting Merchant</option>
               <option>Returned</option>
             </select>
@@ -1176,6 +1177,7 @@
       var openMerchantPage = document.getElementById("open-merchant-page");
       var toast = document.getElementById("toast");
       var toastTimer;
+      var editingApplicationId = "";
 
       function escapeHtml(value) {
         return String(value || "").replace(/[&<>'"]/g, function (character) {
@@ -1186,17 +1188,25 @@
       function statusClass(status) {
         if (status === "Approved") return "approved";
         if (status === "Under Review") return "review";
+        if (status === "Merchant Draft") return "review";
         if (status === "Awaiting Merchant") return "awaiting";
         if (status === "Returned") return "returned";
         return "";
       }
 
       function rowTemplate(row) {
-        var canReview = Boolean(row.applicationId && row.channel && (row.status === "Merchant Submit" || row.status === "Under Review"));
-        var reviewAction = canReview
-          ? '<button class="action-btn review-action" type="button" data-action="review" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>'
-          : '';
-        return '<tr data-process-id="' + escapeHtml(row.processId) + '">' +
+        var actions = [];
+        if (row.status === "Draft") {
+          actions.push('<button class="action-btn edit" type="button" data-action="edit" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>');
+        }
+        if (row.status === "Merchant Draft" || row.status === "Approved" || row.status === "Returned") {
+          actions.push('<button class="action-btn" type="button" data-action="view" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>');
+        }
+        if (row.status === "Merchant Submit" || row.status === "Under Review") {
+          actions.push('<button class="action-btn review-action" type="button" data-action="review" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>');
+        }
+        actions.push('<button class="action-btn" type="button" data-action="share" aria-label="Share process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>');
+        return '<tr data-process-id="' + escapeHtml(row.processId) + '" data-application-id="' + escapeHtml(row.applicationId) + '">' +
           '<td>' + escapeHtml(row.processId) + '</td>' +
           '<td>' + escapeHtml(row.spName) + '</td>' +
           '<td>' + escapeHtml(row.agentName) + '</td>' +
@@ -1205,12 +1215,7 @@
           '<td>' + escapeHtml(row.email) + '</td>' +
           '<td>' + escapeHtml(row.lastUpdate) + '</td>' +
           '<td><span class="status-pill ' + statusClass(row.status) + '">' + escapeHtml(row.status) + '</span></td>' +
-          '<td><div class="row-actions">' +
-            reviewAction +
-            '<button class="action-btn" type="button" data-action="detail" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>' +
-            '<button class="action-btn edit" type="button" data-action="edit" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>' +
-            '<button class="action-btn" type="button" data-action="share" aria-label="Share process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>' +
-          '</div></td></tr>';
+          '<td><div class="row-actions">' + actions.join("") + '</div></td></tr>';
       }
 
       function renderRows() {
@@ -1243,7 +1248,7 @@
       }
 
       function isRegistrationRoute() {
-        return window.location.hash === "#new-onboarding";
+        return window.location.hash === "#new-onboarding" || window.location.hash.indexOf("#edit-onboarding/") === 0;
       }
 
       function renderRoute() {
@@ -1253,7 +1258,21 @@
         registrationSeparator.hidden = !showRegistration;
         registrationCrumb.hidden = !showRegistration;
         document.title = showRegistration ? "Create Onboarding Application - PAYwizard" : "Merchant Onboarding - PAYwizard";
-        if (showRegistration) restoreDraft();
+        if (showRegistration) {
+          var editMatch = window.location.hash.match(/^#edit-onboarding\/(.+)$/);
+          editingApplicationId = editMatch ? decodeURIComponent(editMatch[1]) : "";
+          clearForm();
+          if (editingApplicationId) {
+            var editable = Store && Store.findApplication(editingApplicationId);
+            if (editable && editable.status === "Draft") restoreApplication(editable);
+            else {
+              editingApplicationId = "";
+              window.location.hash = "";
+              showToast("Application locked", "Only applications that have not been shared can be edited.");
+              return;
+            }
+          } else restoreDraft();
+        }
         window.scrollTo(0, 0);
       }
 
@@ -1287,6 +1306,7 @@
       }
 
       function openRegistration() {
+        editingApplicationId = "";
         window.location.hash = "new-onboarding";
       }
 
@@ -1343,33 +1363,69 @@
         else window.localStorage.setItem(APPLICATIONS_KEY, JSON.stringify(applications));
       }
 
-      function addSharedApplication(values) {
-        var applicationId = createApplicationId();
-        var row = {
+      function saveDraftApplication(values) {
+        var existing = editingApplicationId && Store ? Store.findApplication(editingApplicationId) : null;
+        if (existing && existing.status !== "Draft") return null;
+        var applicationId = existing ? existing.applicationId : createApplicationId();
+        var channelChanged = Boolean(existing && existing.channel !== values.paymentChannel);
+        var row = Object.assign({}, existing || {}, {
           applicationId: applicationId,
-          processId: nextProcessId(),
+          processId: existing ? existing.processId : nextProcessId(),
           spName: "Paywizard UAT",
-          agentName: "",
-          merchantName: values.merchantName,
-          mid: "-",
-          email: values.merchantEmail,
-          phone: values.merchantPhone,
-          contactName: values.contactName,
-          channel: values.paymentChannel,
-          country: values.countryName,
-          currency: values.currencyName,
+          agentName: (existing && existing.agentName) || "",
+          merchantName: values.merchantName || "Untitled Application",
+          mid: (existing && existing.mid) || "-",
+          email: values.merchantEmail || "",
+          phone: values.merchantPhone || "",
+          contactName: values.contactName || "",
+          channel: values.paymentChannel || (existing && existing.channel) || "",
+          country: values.countryName || "",
+          currency: values.currencyName || "",
           lastUpdate: currentTimestamp(),
-          status: "Awaiting Merchant",
-          formData: {},
-          documents: {},
-          submissionVersion: 0,
-          submittedAt: "",
-          reviewedAt: "",
-          review: Store ? Store.createReview(values.paymentChannel) : { sections: {} }
-        };
+          status: "Draft",
+          formData: (existing && existing.formData) || {},
+          documents: (existing && existing.documents) || {},
+          submissionVersion: (existing && existing.submissionVersion) || 0,
+          submittedAt: (existing && existing.submittedAt) || "",
+          reviewedAt: (existing && existing.reviewedAt) || "",
+          review: channelChanged || !existing ? (Store ? Store.createReview(values.paymentChannel) : { sections: {} }) : existing.review
+        });
         row.shareUrl = createShareUrl(values, applicationId);
-        rows.unshift(row);
-        saveApplications();
+        if (Store) row = Store.upsertApplication(row);
+        editingApplicationId = applicationId;
+        reloadRows();
+        return row;
+      }
+
+      function shareApplication(row) {
+        if (!row) return null;
+        if (row.status === "Draft") {
+          if (!row.merchantName || row.merchantName === "Untitled Application" || !row.email || !row.phone || !row.contactName || !row.channel || !row.country || !row.currency) {
+            window.location.hash = "edit-onboarding/" + encodeURIComponent(row.applicationId);
+            window.setTimeout(function () {
+              showToast("Complete the application setup", "Add all required merchant and payment channel details before sharing.");
+              form.reportValidity();
+            }, 0);
+            return null;
+          }
+          row.status = "Awaiting Merchant";
+          row.lastUpdate = currentTimestamp();
+          if (!row.shareUrl) {
+            row.shareUrl = createShareUrl({
+              merchantName: row.merchantName,
+              contactName: row.contactName,
+              merchantEmail: row.email,
+              merchantPhone: row.phone,
+              paymentChannel: row.channel,
+              countryName: row.country,
+              currencyName: row.currency
+            }, row.applicationId);
+          }
+          if (Store) row = Store.upsertApplication(row);
+          reloadRows();
+          renderRows();
+        }
+        openShareDialog(row);
         return row;
       }
 
@@ -1436,7 +1492,13 @@
       });
 
       document.getElementById("save-draft").addEventListener("click", function () {
-        window.localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeForm()));
+        var values = serializeForm();
+        window.localStorage.setItem(DRAFT_KEY, JSON.stringify(values));
+        var application = saveDraftApplication(values);
+        if (application && window.location.hash === "#new-onboarding") {
+          window.history.replaceState(null, "", "#edit-onboarding/" + encodeURIComponent(application.applicationId));
+        }
+        renderRows();
         showToast("Application draft saved", "You can return and generate the merchant link when the setup is ready.");
       });
 
@@ -1447,13 +1509,14 @@
           return;
         }
 
-        var application = addSharedApplication(serializeForm());
+        var application = saveDraftApplication(serializeForm());
+        if (!application) return;
+        application = shareApplication(application);
         window.localStorage.removeItem(DRAFT_KEY);
         merchantFilter.value = "";
         processFilter.value = "";
         statusFilter.value = "";
         renderRows();
-        openShareDialog(application);
       });
 
       document.getElementById("close-share-dialog").addEventListener("click", closeShareDialog);
@@ -1490,20 +1553,25 @@
         if (!button) return;
         var rowElement = button.closest("tr");
         var processId = rowElement ? rowElement.getAttribute("data-process-id") : "";
+        var applicationId = rowElement ? rowElement.getAttribute("data-application-id") : "";
         var action = button.getAttribute("data-action");
+        var row = rows.find(function (item) { return item.applicationId === applicationId; });
         if (action === "edit") {
-          var row = rows.find(function (item) { return item.processId === processId; });
-          if (row) restoreApplication(row);
-          openRegistration();
+          if (!row || row.status !== "Draft") return;
+          window.location.hash = "edit-onboarding/" + encodeURIComponent(row.applicationId);
           return;
         }
-        if (action === "detail") showToast("Process " + processId, "Application details are available from this action in the production portal.");
+        if (action === "view") {
+          if (!row || !row.applicationId || !row.channel) return;
+          var viewUrl = new URL(reviewPageForChannel(row.channel), window.location.href);
+          viewUrl.searchParams.set("mode", "view");
+          viewUrl.searchParams.set("applicationId", row.applicationId);
+          window.location.href = viewUrl.href;
+          return;
+        }
         if (action === "review") {
-          var reviewRow = rows.find(function (item) { return item.processId === processId; });
+          var reviewRow = row;
           if (!reviewRow || !reviewRow.applicationId || !reviewRow.channel) return;
-          reviewRow.status = "Under Review";
-          reviewRow.lastUpdate = currentTimestamp();
-          if (Store) Store.upsertApplication(reviewRow);
           var reviewUrl = new URL(reviewPageForChannel(reviewRow.channel), window.location.href);
           reviewUrl.searchParams.set("mode", "review");
           reviewUrl.searchParams.set("applicationId", reviewRow.applicationId);
@@ -1511,8 +1579,8 @@
           return;
         }
         if (action === "share") {
-          var shareRow = rows.find(function (item) { return item.processId === processId; });
-          if (shareRow && shareRow.shareUrl) openShareDialog(shareRow);
+          var shareRow = row;
+          if (shareRow && shareRow.shareUrl) shareApplication(shareRow);
           else showToast("No share link yet", "Open the application and use Save & Share to create a merchant-facing link.");
         }
       });

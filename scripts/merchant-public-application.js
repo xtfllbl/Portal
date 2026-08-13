@@ -62,11 +62,23 @@
     return application;
   }
 
-  function storeFormState(form) {
+  function storeFormState(form, nextStatus) {
     updateApplication(function (item) {
       item.formData = Object.assign({}, item.formData || {}, Store.serializeForm(form));
       item.documents = Store.collectDocuments(form, item.documents || {});
+      if (nextStatus) item.status = nextStatus;
     });
+  }
+
+  function lockSubmittedApplication(doc, form) {
+    form.querySelectorAll("input,textarea,select,button[type=submit]").forEach(function (control) {
+      if (control.type === "hidden") return;
+      control.disabled = true;
+    });
+    var actions = form.querySelector(".form-actions");
+    if (actions) {
+      actions.innerHTML = '<div class="public-locked-message"><strong>Application ' + (application.status === "Approved" ? "approved" : "submitted") + '</strong><span>' + (application.status === "Approved" ? "This onboarding application is complete." : "The PAYwizard onboarding team is reviewing this application. Editing is temporarily unavailable.") + '</span></div>';
+    }
   }
 
   function setSectionEditable(section, editable) {
@@ -182,6 +194,7 @@
       ".merchant-review-status{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:9px;font-weight:700}.merchant-review-status img{width:15px;height:15px}.merchant-review-status.approved{color:#137541}.merchant-review-status.rejected{max-width:520px;align-items:flex-start;color:#b42318}.merchant-review-status.rejected span{display:grid;gap:2px}.merchant-review-status.rejected strong{font-size:10px}.edit-approved-section{margin-left:5px;padding:5px 8px;border:1px solid #74bb92;border-radius:5px;background:#fff;color:#137541;font:700 9px inherit;cursor:pointer}",
       ".merchant-review-approved:not(.merchant-review-editing) input,.merchant-review-approved:not(.merchant-review-editing) textarea,.merchant-review-approved:not(.merchant-review-editing) select{background:#f2f5f3!important;color:#626a65!important;opacity:1}.merchant-review-approved:not(.merchant-review-editing) .upload-card{pointer-events:none;background:#f2f5f3!important}",
       ".form-actions{position:sticky;bottom:0;z-index:10;padding:14px 16px!important;background:rgba(255,255,255,.96)!important;box-shadow:0 -6px 18px rgba(30,35,44,.05)}",
+      ".public-locked-message{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#475569}.public-locked-message strong{font-size:11px}.public-locked-message span{font-size:10px}",
       ".success-banner{position:fixed!important}",
       "@media(max-width:760px){.section-header{align-items:flex-start!important;flex-wrap:wrap!important}.merchant-review-status{width:100%;margin:4px 0 0}.merchant-review-status.rejected{max-width:none}.edit-approved-section{margin-left:auto}}",
       "@media(max-width:640px){.content{padding:0 0 32px!important}.form-actions{position:static!important;padding-inline:0!important}.section-body{padding:14px!important}}"
@@ -199,9 +212,13 @@
     addMerchantReviewState(doc, form);
 
     var saveDraft = doc.getElementById("save-draft");
+    var isReturned = Boolean(application && application.status === "Returned");
+    var isLocked = Boolean(application && (application.status === "Merchant Submit" || application.status === "Under Review" || application.status === "Approved"));
+    if (saveDraft && isReturned) saveDraft.remove();
+    if (isLocked) lockSubmittedApplication(doc, form);
     if (saveDraft) {
       saveDraft.addEventListener("click", function () {
-        storeFormState(form);
+        storeFormState(form, "Merchant Draft");
         var title = doc.getElementById("success-title");
         var message = doc.getElementById("success-message");
         if (title) title.textContent = "Draft saved";
@@ -212,6 +229,7 @@
 
     form.addEventListener("submit", function () {
       window.setTimeout(function () {
+        if (isLocked) return;
         if (!form.checkValidity()) return;
         if (application && Store) {
           storeFormState(form);
@@ -223,6 +241,7 @@
             item.review = application.review;
           });
           clearReturnedPresentation(doc);
+          lockSubmittedApplication(doc, form);
         }
         var title = doc.getElementById("success-title");
         var message = doc.getElementById("success-message");

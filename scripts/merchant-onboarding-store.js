@@ -92,8 +92,68 @@
     }
   ];
 
+  var LEGACY_APPLICATIONS = [
+    { processId: "00000336", merchantName: "techsupport", email: "maggie-support1@wizarpos.com", status: "Draft", channel: "Nuvei", country: "Canada", currency: "CAD", lastUpdate: "2026-05-14 14:22:27" },
+    { processId: "00000328", merchantName: "ceshi123213243234", email: "uat2512003@nooboy.com", mid: "mid12320251229", status: "Approved", channel: "Elavon EU", country: "Ireland", currency: "EUR", lastUpdate: "2025-12-29 15:29:41" },
+    { processId: "00000205", merchantName: "Merchant name1", email: "uat2512002@nooboy.com", status: "Under Review", channel: "Nuvei", country: "Canada", currency: "CAD", lastUpdate: "2025-12-29 14:40:21" },
+    { processId: "00000318", merchantName: "ceshi251030", email: "ceshi251030@gmail.com", status: "Merchant Submit", channel: "Elavon EU", country: "Ireland", currency: "EUR", lastUpdate: "2026-01-23 17:36:35" },
+    { processId: "00000277", merchantName: "ceshi001", email: "1212123@163.com", status: "Draft", channel: "Nuvei", country: "Canada", currency: "CAD", lastUpdate: "2025-09-05 13:17:30" },
+    { processId: "00000274", merchantName: "FISERV PROD TEST", email: "2987116030@qq.com", mid: "266482540884", status: "Approved", channel: "Elavon EU", country: "France", currency: "EUR", lastUpdate: "2025-07-22 13:13:33" },
+    { processId: "00000201", merchantName: "天猫小店", email: "wang@hotmail.com", status: "Draft", channel: "Nuvei", country: "Canada", currency: "CAD", lastUpdate: "2025-03-19 19:26:53" },
+    { processId: "00000199", merchantName: "IFS Shop Mall", email: "Zhang.Mingle@gmail.com", mid: "Test20250211", status: "Approved", channel: "Elavon EU", country: "Ireland", currency: "EUR", lastUpdate: "2025-02-11 09:42:34" },
+    { processId: "00000098", merchantName: "MRCHTApply", email: "18892828893@qq.cn", status: "Merchant Submit", channel: "Nuvei", country: "Canada", currency: "CAD", lastUpdate: "2025-01-15 14:06:29" },
+    { processId: "-", merchantName: "CESHI", email: "1778883@qq.com", status: "Under Review", channel: "Elavon EU", country: "Ireland", currency: "EUR", lastUpdate: "2025-01-15 13:57:22" }
+  ];
+
+  LEGACY_APPLICATIONS.forEach(function (seed, index) {
+    var template = DEMO_APPLICATIONS[seed.channel === "Nuvei" ? 0 : 1];
+    var application = clone(template);
+    application.applicationId = "APP-LEGACY-" + String(index + 1).padStart(2, "0");
+    application.processId = seed.processId;
+    application.merchantName = seed.merchantName;
+    application.email = seed.email;
+    application.mid = seed.mid || "-";
+    application.status = seed.status;
+    application.channel = seed.channel;
+    application.country = seed.country;
+    application.currency = seed.currency;
+    application.lastUpdate = seed.lastUpdate;
+    application.contactName = seed.merchantName + " Contact";
+    application.formData = Object.assign({}, application.formData, seed.channel === "Nuvei" ? {
+      legalName: seed.merchantName,
+      dbaName: seed.merchantName,
+      statementEmail: seed.email
+    } : {
+      registeredBusinessName: seed.merchantName,
+      dbaName: seed.merchantName,
+      companyEmail: seed.email,
+      statementEmail: seed.email
+    });
+    application.review = createReview(seed.channel);
+    if (seed.status === "Approved") {
+      Object.keys(application.review.sections).forEach(function (id) {
+        application.review.sections[id].status = "approved";
+        application.review.sections[id].reviewedAt = seed.lastUpdate;
+      });
+      application.review.reviewedAt = seed.lastUpdate;
+      application.reviewedAt = seed.lastUpdate;
+    } else if (seed.status === "Under Review") {
+      var firstSection = Object.keys(application.review.sections)[0];
+      application.review.sections[firstSection].status = "approved";
+      application.review.sections[firstSection].reviewedAt = seed.lastUpdate;
+    }
+    application.shareUrl = (seed.channel === "Nuvei" ? "38.Merchant_onboard_nuvei_public.html" : "38.Merchant_onboard_elavon_public.html") + "?applicationId=" + encodeURIComponent(application.applicationId);
+    if (seed.status === "Draft") {
+      application.submissionVersion = 0;
+      application.submittedAt = "";
+      application.formData = {};
+      application.documents = {};
+    }
+    DEMO_APPLICATIONS.push(application);
+  });
+
   DEMO_APPLICATIONS.forEach(function (application) {
-    application.review = createReview(application.channel);
+    if (!application.review) application.review = createReview(application.channel);
   });
 
   function normalize(application) {
@@ -128,7 +188,9 @@
         })
       }));
     });
-    return Object.keys(merged).map(function (id) { return merged[id]; });
+    return Object.keys(merged).map(function (id) { return merged[id]; }).sort(function (left, right) {
+      return String(right.lastUpdate || "").localeCompare(String(left.lastUpdate || ""));
+    });
   }
 
   function saveApplications(applications) {
