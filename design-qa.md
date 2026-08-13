@@ -2,6 +2,9 @@
 
 ## Coverage
 
+- Fixed the Onboarding table to render by numeric Process ID descending. Status and `lastUpdate` mutations no longer move existing applications; invalid/non-numeric Process IDs remain at the end and newly allocated IDs appear first.
+- Removed the Merchant List success banner and the Add Merchant prefill information strip while retaining the newly created row highlight, source validation errors, and all prefilled values.
+- Moved the shared Status history `Expand` / `Collapse` control directly beside its heading instead of aligning it to the far edge.
 - Added append-only `statusHistory` events for platform creation/share, merchant draft/submission/resubmission, operations review, return, and approval. Repeated saves in the same state update `lastUpdate` without duplicating a lifecycle node.
 - Added the shared six-stage progress component and full chronological event timeline to submitted merchant pages, platform read-only View pages, and the external progress-only page. `Merchant Created` now follows `Approved` as the final platform milestone.
 - Split the share dialog into Merchant Application Link and Application Progress Link sections, each with independent Copy Link and Open Page actions.
@@ -13,7 +16,9 @@
 - Moved returned-section comments from the section header into a full-width `Review feedback` block beneath the section content, with multiline wrapping shared by merchant and platform View modes.
 - Made Status history natively collapsible across all progress surfaces. Merchant and platform View pages default to collapsed; the external progress-only page defaults to expanded and remains user-collapsible.
 - Reduced Status history to two semantic event colors: red only for `Returned`; Draft, Shared, Merchant Started, Submitted, Under Review, resubmission, Approved, and Merchant Created are green.
-- Added the Approved-only `Create Merchant` action, confirmation dialog, stable MID generation, `merchantCreatedAt`, Platform history event, list filter/tag, and repeat-creation guard. After success, Actions collapse back to View and Share.
+- Changed the Approved-only `Create Merchant` action to open the real Add Merchant form with the application ID. The application remains Approved while the operator reviews or edits the prefilled data; `Merchant Created` is written only after a successful form submission.
+- Prefilled DBA, contact, email, split phone number, permissions, owner, country, currency, and reliable Nuvei DBA address fields. Elavon address fields remain blank when the application does not contain a reliable address.
+- Persisted successfully created merchants in `paywizard-platform-merchants-v1`, added them to the top of Merchant List with a success highlight, generated a stable MID without overwriting an existing one, and blocked duplicate creation from the same application.
 - Simplified the share title to `Application links` and removed the merchant progress subtitle while keeping the external tracking page's concise context.
 
 ## Visual and responsive evidence
@@ -29,10 +34,10 @@
 
 ## Automated result
 
-- `tests/merchant-onboarding.spec.js`: 17 passed in Chromium.
-- Combined Onboarding, Nuvei, and Elavon regression: 30 passed in Chromium.
-- Covered status-event ordering, two-color history events, collapsed/expanded history defaults and toggling, six-stage progress, outcome-specific milestone colors and labels, edit-icon Changes Requested state, inferred prerequisite migration, direct-submit Merchant Started synthesis, dual share links, Approved-only Create Merchant confirmation/cancellation/success, generated MID and duplicate prevention, Merchant Created filtering/read-only propagation, post-decision return navigation, guidance visibility, multiline review feedback placement, section corner clipping, external-page data minimization, platform audit View, returned/resubmitted history, and responsive overflow.
-- The repository-wide run reached 60 passing tests; 9 failures remain in unrelated pre-existing DEX/Product Map expectations and do not touch the onboarding files or flows.
+- `tests/merchant-onboarding.spec.js`: 19 passed in Chromium.
+- Added assertions for exact initial Process ID order, stable order after conflicting status/update-time changes, non-numeric IDs at the end, removed prompt modules, retained created-row highlighting, and a maximum 16px title-to-toggle gap.
+- Covered both Nuvei and Elavon prefill mappings, Approved-state preservation before submission, editable prefilled values, required-field validation, successful Merchant Created persistence, Merchant List insertion/highlighting, generated MID, status history, duplicate prevention, ordinary blank Add Merchant access, and 1440px/390px responsive layout.
+- The repository-wide run reached 61 passing tests; 9 failures remain in unrelated pre-existing DEX/Product Map expectations and do not touch the onboarding or Merchant List files changed here.
 - JavaScript syntax checks and `git diff --check` passed with no console/page errors in the targeted browser run.
 
 final result: passed

@@ -3,13 +3,15 @@ const { test, expect } = require("@playwright/test");
 const ONBOARDING_URL = "/38.Merchant_onboard.html";
 const DRAFT_KEY = "paywizard-merchant-onboarding-draft";
 const APPLICATIONS_KEY = "paywizard-onboarding-applications-v2";
+const PLATFORM_MERCHANTS_KEY = "paywizard-platform-merchants-v1";
 
 async function openCleanPage(page) {
   await page.goto(ONBOARDING_URL);
-  await page.evaluate(({ draftKey, applicationsKey }) => {
+  await page.evaluate(({ draftKey, applicationsKey, platformMerchantsKey }) => {
     localStorage.removeItem(draftKey);
     localStorage.removeItem(applicationsKey);
-  }, { draftKey: DRAFT_KEY, applicationsKey: APPLICATIONS_KEY });
+    localStorage.removeItem(platformMerchantsKey);
+  }, { draftKey: DRAFT_KEY, applicationsKey: APPLICATIONS_KEY, platformMerchantsKey: PLATFORM_MERCHANTS_KEY });
   await page.reload();
   await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();
 }
@@ -34,6 +36,8 @@ test("renders and filters the onboarding list", async ({ page }) => {
   await openCleanPage(page);
 
   await expect(page.locator("#onboarding-rows tr")).toHaveCount(12);
+  const processIds = await page.locator("#onboarding-rows tr td:first-child").allTextContents();
+  expect(processIds).toEqual(["00000339", "00000338", "00000336", "00000328", "00000318", "00000277", "00000274", "00000205", "00000201", "00000199", "00000098", "-"]);
   await expect(page.getByRole("button", { name: /Review application 00000339/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Review application 00000338/ })).toBeVisible();
   await page.locator("#status-filter").selectOption({ label: "Approved" });
@@ -46,6 +50,29 @@ test("renders and filters the onboarding list", async ({ page }) => {
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page.locator("#onboarding-rows tr")).toHaveCount(12);
+});
+
+test("keeps Process ID order stable when application states and update times change", async ({ page }) => {
+  await openCleanPage(page);
+  const initialIds = await page.locator("#onboarding-rows tr td:first-child").allTextContents();
+
+  await page.evaluate(() => {
+    const latest = window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01");
+    latest.status = "Merchant Created";
+    latest.lastUpdate = "2020-01-01 00:00:00";
+    window.PaywizardOnboardingStore.upsertApplication(latest);
+
+    const older = window.PaywizardOnboardingStore.findApplication("APP-LEGACY-02");
+    older.status = "Returned";
+    older.lastUpdate = "2099-12-31 23:59:59";
+    window.PaywizardOnboardingStore.upsertApplication(older);
+  });
+  await page.reload();
+
+  const updatedIds = await page.locator("#onboarding-rows tr td:first-child").allTextContents();
+  expect(updatedIds).toEqual(initialIds);
+  await expect(page.locator("#onboarding-rows tr").first()).toContainText("00000339");
+  await expect(page.locator("#onboarding-rows tr").last()).toContainText("-");
 });
 
 test("renders the state-specific action matrix", async ({ page }) => {
@@ -75,6 +102,9 @@ test("opens a genuine read-only channel view", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Application Progress & Audit History" })).toBeVisible();
   await expect(page.locator(".progress-history")).not.toHaveAttribute("open", "");
   await expect(page.locator(".progress-event-list")).toBeHidden();
+  const historyTitleBox = await page.locator(".progress-history-summary > span").first().boundingBox();
+  const historyToggleBox = await page.locator(".progress-history-toggle").boundingBox();
+  expect(historyToggleBox.x - (historyTitleBox.x + historyTitleBox.width)).toBeLessThanOrEqual(16);
   await page.locator(".progress-history-summary").click();
   await expect(page.locator(".progress-event-list")).toBeVisible();
   await expect(page.locator(".progress-event-list")).toContainText("Application approved");
@@ -428,61 +458,82 @@ test("approves a Nuvei application only after all six sections pass", async ({ p
   await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();
 });
 
-test("creates a platform merchant from an approved application exactly once", async ({ page }) => {
+test("prefills and creates a platform merchant from an approved Nuvei application exactly once", async ({ page }) => {
   await openCleanPage(page);
   await page.evaluate(() => {
-    const application = window.PaywizardOnboardingStore.findApplication("APP-LEGACY-02");
+    const application = window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01");
+    application.status = "Approved";
     application.mid = "-";
     window.PaywizardOnboardingStore.upsertApplication(application);
   });
   await page.reload();
 
-  const approvedRow = page.locator('#onboarding-rows tr[data-application-id="APP-LEGACY-02"]');
+  const approvedRow = page.locator('#onboarding-rows tr[data-application-id="APP-DEMO-NUVEI-01"]');
   await expect(approvedRow).toContainText("Approved");
-  await expect(approvedRow.getByRole("button", { name: "Create merchant for process 00000328" })).toBeVisible();
-  await approvedRow.getByRole("button", { name: "Create merchant for process 00000328" }).click();
-  const dialog = page.getByRole("dialog", { name: "Create merchant" });
-  await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("ceshi123213243234");
-  await expect(dialog).toContainText("Elavon EU");
-  await expect(dialog).toContainText("00000328");
+  await approvedRow.getByRole("button", { name: "Create merchant for process 00000339" }).click();
+  await expect(page).toHaveURL(/5\.merchant_add_merchant_only_iso\.html\?source=onboarding&applicationId=APP-DEMO-NUVEI-01/);
+  await expect(page.locator("#merchant-dba")).toHaveValue("Maple Street Coffee");
+  await expect(page.locator("#merchant-contact")).toHaveValue("Sophie Martin");
+  await expect(page.locator("#merchant-email")).toHaveValue("finance@maplestreetcoffee.ca");
+  await expect(page.locator("#merchant-phone-code")).toHaveValue("+1");
+  await expect(page.locator("#merchant-phone")).toHaveValue("416 555 0188");
+  await expect(page.locator("#merchant-address1")).toHaveValue("128 King Street West");
+  await expect(page.locator("#merchant-zip")).toHaveValue("M5H 1J9");
+  await expect(page.locator("#merchant-city")).toHaveValue("Toronto");
+  await expect(page.locator("#merchant-owner")).toHaveValue("Olivia Chen");
+  await expect(page.locator("#merchant-country")).toHaveValue("Canada");
+  await expect(page.locator("#merchant-currency")).toHaveValue("CAD");
+  await expect(page.locator("#merchant-permissions")).toHaveValue("Merchant Admin");
+  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01").status)).toBe("Approved");
 
-  await dialog.getByRole("button", { name: "Cancel" }).click();
-  await expect(dialog).toBeHidden();
-  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-LEGACY-02").status)).toBe("Approved");
+  await page.locator("#merchant-dba").fill("Maple Street Coffee Downtown");
+  await expect(page.locator(".prefill-note")).toHaveCount(0);
+  await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page).toHaveURL(/5\.merchant_manage_iso\.html\?createdMerchantId=/);
+  await expect(page.locator("#createdMerchantBanner")).toHaveCount(0);
+  const createdMerchantRow = page.locator("#merchantTableBody tr.merchant-row-created");
+  await expect(createdMerchantRow).toContainText("Maple Street Coffee Downtown");
+  await expect(createdMerchantRow).toContainText("00000339");
+  await expect(createdMerchantRow).toContainText("Olivia Chen");
 
-  await approvedRow.getByRole("button", { name: "Create merchant for process 00000328" }).click();
-  await dialog.getByRole("button", { name: "Create Merchant", exact: true }).click();
-  await expect(page.getByRole("status")).toContainText("Merchant created");
-  await expect(approvedRow).toContainText("Merchant Created");
-  await expect(approvedRow).toContainText("MID00000328");
-  await expect(approvedRow.getByRole("button", { name: /Create merchant/ })).toHaveCount(0);
-  await expect(approvedRow.getByRole("button", { name: "View process 00000328" })).toBeVisible();
-  await expect(approvedRow.getByRole("button", { name: "Share process 00000328" })).toBeVisible();
+  const savedMerchant = await page.evaluate((key) => JSON.parse(localStorage.getItem(key))[0], PLATFORM_MERCHANTS_KEY);
+  expect(savedMerchant).toMatchObject({
+    applicationId: "APP-DEMO-NUVEI-01",
+    dba: "Maple Street Coffee Downtown",
+    processId: "00000339",
+    permissions: "Merchant Admin",
+    country: "Canada",
+    currency: "CAD"
+  });
 
-  const created = await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-LEGACY-02"));
+  const created = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).find((item) => item.applicationId === "APP-DEMO-NUVEI-01"), APPLICATIONS_KEY);
   expect(created.status).toBe("Merchant Created");
-  expect(created.mid).toBe("MID00000328");
+  expect(created.mid).toBe("MID00000339");
   expect(created.merchantCreatedAt).toBeTruthy();
   expect(created.statusHistory.at(-1)).toMatchObject({ status: "Merchant Created", actor: "Platform" });
   expect(created.statusHistory.filter((event) => event.status === "Merchant Created")).toHaveLength(1);
 
-  await page.locator("#status-filter").selectOption("Merchant Created");
-  await expect(page.locator("#onboarding-rows tr")).toHaveCount(1);
-  await page.getByRole("button", { name: "View process 00000328" }).click();
-  await expect(page).toHaveURL(/mode=view&applicationId=APP-LEGACY-02/);
-  await expect(page.locator(".progress-step").last()).toContainText("Merchant Created");
-  await expect(page.locator(".progress-step").last()).not.toContainText("Not reached");
-  await page.locator(".progress-history-summary").click();
-  await expect(page.locator(".progress-event-list")).toContainText("Merchant created");
+  await page.goto("/5.merchant_add_merchant_only_iso.html?source=onboarding&applicationId=APP-DEMO-NUVEI-01");
+  await expect(page.getByRole("alert")).toContainText("already been created");
+  await expect(page.getByRole("button", { name: "Submit" })).toBeDisabled();
+});
 
-  await page.goto("/38.Merchant_onboard_elavon_public.html?applicationId=APP-LEGACY-02");
-  await expect(page.frameLocator("#source-frame").locator(".public-locked-message")).toContainText("Merchant created");
-  await expect(page.locator(".progress-step").last()).toContainText("Merchant Created");
-
-  await page.goto("/38.Merchant_onboarding_progress.html?applicationId=APP-LEGACY-02");
-  await expect(page.locator(".progress-step").last()).toContainText("Merchant Created");
-  await expect(page.locator(".progress-event-list")).toContainText("Merchant created");
+test("prefills Elavon business data without inventing an address", async ({ page }) => {
+  await openCleanPage(page);
+  const row = page.locator('#onboarding-rows tr[data-application-id="APP-LEGACY-02"]');
+  await row.getByRole("button", { name: "Create merchant for process 00000328" }).click();
+  await expect(page.locator("#merchant-dba")).toHaveValue("ceshi123213243234");
+  await expect(page.locator("#merchant-email")).toHaveValue("uat2512003@nooboy.com");
+  await expect(page.locator("#merchant-address1")).toHaveValue("");
+  await expect(page.locator("#merchant-address2")).toHaveValue("");
+  await expect(page.locator("#merchant-city")).toHaveValue("");
+  await expect(page.locator("#merchant-state")).toHaveValue("");
+  await expect(page.locator("#merchant-zip")).toHaveValue("");
+  await expect(page.locator("#merchant-country")).toHaveValue("Ireland");
+  await expect(page.locator("#merchant-currency")).toHaveValue("EUR");
+  await page.getByRole("link", { name: "Back", exact: true }).click();
+  await expect(page).toHaveURL(/38\.Merchant_onboard\.html$/);
+  expect(await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-LEGACY-02").status)).toBe("Approved");
 });
 
 test("keeps creator and merchant pages responsive", async ({ page }) => {
@@ -543,5 +594,14 @@ test("keeps creator and merchant pages responsive", async ({ page }) => {
   await page.getByRole("button", { name: "Share process 00000339" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/5.merchant_add_merchant_only_iso.html");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect(await page.locator(".wizard-panel .form-grid.three").first().evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(3);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+  expect(await page.locator(".wizard-panel .form-grid.three").first().evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)).toBe(1);
   expect(consoleErrors).toEqual([]);
 });

@@ -793,10 +793,6 @@
       padding: 8px 20px 16px;
     }
 
-    .create-merchant-dialog { width: min(520px, 100%); }
-    .create-merchant-copy { margin: 0 0 14px; color: var(--muted); font-size: 10px; line-height: 1.55; }
-    .create-merchant-dialog .share-dialog-actions { padding-top: 0; }
-    .btn.create-merchant-confirm { border-color: #15814a; background: #15814a; color: #fff; }
 
     .toast {
       position: fixed;
@@ -1149,27 +1145,6 @@
     </section>
   </div>
 
-  <div class="modal-backdrop" id="create-merchant-modal" role="presentation" hidden>
-    <section class="share-dialog create-merchant-dialog" role="dialog" aria-modal="true" aria-labelledby="create-merchant-title">
-      <header class="share-dialog-header">
-        <div><h2 id="create-merchant-title">Create merchant</h2></div>
-        <button class="dialog-close" id="close-create-merchant" type="button" aria-label="Close create merchant dialog"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
-      </header>
-      <div class="share-dialog-body">
-        <p class="create-merchant-copy">This approved application will be used to create a merchant on the PAYwizard platform.</p>
-        <div class="share-summary">
-          <div><span>Merchant</span><strong id="create-merchant-name">—</strong></div>
-          <div><span>Payment channel</span><strong id="create-merchant-channel">—</strong></div>
-          <div><span>Process ID</span><strong id="create-merchant-process">—</strong></div>
-        </div>
-      </div>
-      <div class="share-dialog-actions">
-        <button class="btn subtle" id="cancel-create-merchant" type="button">Cancel</button>
-        <button class="btn create-merchant-confirm" id="confirm-create-merchant" type="button"><span class="material-symbols-rounded" aria-hidden="true">add_business</span>Create Merchant</button>
-      </div>
-    </section>
-  </div>
-
   <script src="scripts/merchant-onboarding-store.js"></script>
   <script>
     (function () {
@@ -1211,7 +1186,6 @@
       var statusFilter = document.getElementById("status-filter");
       var form = document.getElementById("merchant-form");
       var shareModal = document.getElementById("share-modal");
-      var createMerchantModal = document.getElementById("create-merchant-modal");
       var shareLinkInput = document.getElementById("share-link");
       var progressLinkInput = document.getElementById("progress-link");
       var openMerchantPage = document.getElementById("open-merchant-page");
@@ -1219,7 +1193,6 @@
       var toast = document.getElementById("toast");
       var toastTimer;
       var editingApplicationId = "";
-      var creatingMerchantApplicationId = "";
 
       function escapeHtml(value) {
         return String(value || "").replace(/[&<>'"]/g, function (character) {
@@ -1235,6 +1208,17 @@
         if (status === "Awaiting Merchant") return "awaiting";
         if (status === "Returned") return "returned";
         return "";
+      }
+
+      function compareProcessIds(left, right) {
+        var leftValue = String(left.processId || "").trim();
+        var rightValue = String(right.processId || "").trim();
+        var leftIsNumeric = /^\d+$/.test(leftValue);
+        var rightIsNumeric = /^\d+$/.test(rightValue);
+        if (leftIsNumeric && rightIsNumeric) return Number(rightValue) - Number(leftValue);
+        if (leftIsNumeric) return -1;
+        if (rightIsNumeric) return 1;
+        return 0;
       }
 
       function rowTemplate(row) {
@@ -1272,7 +1256,7 @@
           return (!merchantQuery || row.merchantName.toLowerCase().indexOf(merchantQuery) >= 0) &&
             (!processQuery || row.processId.toLowerCase().indexOf(processQuery) >= 0) &&
             (!selectedStatus || row.status === selectedStatus);
-        });
+        }).sort(compareProcessIds);
 
         tbody.innerHTML = filteredRows.map(rowTemplate).join("");
         emptyState.hidden = filteredRows.length !== 0;
@@ -1502,27 +1486,6 @@
         shareModal.hidden = true;
       }
 
-      function openCreateMerchantDialog(row) {
-        if (!row || row.status !== "Approved") return;
-        creatingMerchantApplicationId = row.applicationId;
-        document.getElementById("create-merchant-name").textContent = row.merchantName || "—";
-        document.getElementById("create-merchant-channel").textContent = row.channel || "—";
-        document.getElementById("create-merchant-process").textContent = row.processId || "—";
-        createMerchantModal.hidden = false;
-        document.getElementById("confirm-create-merchant").focus();
-      }
-
-      function closeCreateMerchantDialog() {
-        createMerchantModal.hidden = true;
-        creatingMerchantApplicationId = "";
-      }
-
-      function generatedMid(row) {
-        if (row.mid && row.mid !== "-") return row.mid;
-        var numeric = String(row.processId || "").replace(/\D/g, "");
-        return "MID" + (numeric || String(row.applicationId || "").replace(/\W/g, "").slice(-8).toUpperCase());
-      }
-
       function restoreApplication(row) {
         clearForm();
         var values = {
@@ -1601,29 +1564,6 @@
       });
 
       document.getElementById("close-share-dialog").addEventListener("click", closeShareDialog);
-      document.getElementById("close-create-merchant").addEventListener("click", closeCreateMerchantDialog);
-      document.getElementById("cancel-create-merchant").addEventListener("click", closeCreateMerchantDialog);
-      createMerchantModal.addEventListener("click", function (event) {
-        if (event.target === createMerchantModal) closeCreateMerchantDialog();
-      });
-      document.getElementById("confirm-create-merchant").addEventListener("click", function () {
-        var latest = Store && Store.findApplication(creatingMerchantApplicationId);
-        if (!latest || latest.status !== "Approved") {
-          closeCreateMerchantDialog();
-          reloadRows();
-          renderRows();
-          showToast("Merchant creation unavailable", "Only an approved application can create a merchant.");
-          return;
-        }
-        latest.merchantCreatedAt = currentTimestamp();
-        latest.mid = generatedMid(latest);
-        Store.recordStatus(latest, "Merchant Created", "Platform", latest.merchantCreatedAt);
-        Store.upsertApplication(latest);
-        closeCreateMerchantDialog();
-        reloadRows();
-        renderRows();
-        showToast("Merchant created", latest.merchantName + " has been created on the PAYwizard platform.");
-      });
       document.getElementById("done-sharing").addEventListener("click", function () {
         closeShareDialog();
         clearForm();
@@ -1690,7 +1630,11 @@
           return;
         }
         if (action === "create-merchant") {
-          openCreateMerchantDialog(row);
+          if (!row || row.status !== "Approved" || !row.applicationId) return;
+          var createUrl = new URL("5.merchant_add_merchant_only_iso.html", window.location.href);
+          createUrl.searchParams.set("source", "onboarding");
+          createUrl.searchParams.set("applicationId", row.applicationId);
+          window.location.href = createUrl.href;
           return;
         }
         if (action === "share") {

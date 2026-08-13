@@ -1233,6 +1233,15 @@
             background: #fafbfd;
         }
 
+        .merchant-table tr.merchant-row-created td {
+            background: #eef9f2;
+            border-bottom-color: #b9e1c8;
+        }
+
+        .merchant-table tr.merchant-row-created:hover td {
+            background: #e4f5ea;
+        }
+
         .merchant-table th:first-child {
             border-top-left-radius: 8px;
         }
@@ -2220,7 +2229,7 @@
                                         <th>DBA</th><th>PROCESS ID</th><th>AGENT NAME</th><th>CONTACT PERSON</th><th>LAST UPDATE</th><th>EMAIL</th><th>PHONE</th><th>STORES</th><th>DEVICES</th><th>CURR</th><th>ACTIONS</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="merchantTableBody">
                                     <tr>
                                         <td><a href="5.merchant_detail_iso.html" class="merchant-link">tsytest</a><div class="merchant-meta">10000001116</div></td>
                                         <td>-</td>
@@ -2495,6 +2504,55 @@
         </div>
     </div>
     <script>
+        const PLATFORM_MERCHANTS_KEY = 'paywizard-platform-merchants-v1';
+        const merchantTableBody = document.getElementById('merchantTableBody');
+        const createdMerchantId = new URLSearchParams(window.location.search).get('createdMerchantId') || '';
+        const staticMerchantTemplate = merchantTableBody.querySelector('tr');
+
+        function readPlatformMerchants() {
+            try {
+                const saved = JSON.parse(window.localStorage.getItem(PLATFORM_MERCHANTS_KEY) || '[]');
+                return Array.isArray(saved) ? saved : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function setCellText(cell, value) {
+            cell.textContent = value == null || value === '' ? '-' : String(value);
+        }
+
+        function renderPlatformMerchant(merchant) {
+            if (!staticMerchantTemplate) return;
+            const row = staticMerchantTemplate.cloneNode(true);
+            const cells = row.querySelectorAll('td');
+            const merchantLink = cells[0].querySelector('.merchant-link');
+            const merchantMeta = cells[0].querySelector('.merchant-meta');
+            const dateParts = String(merchant.lastUpdate || merchant.createdAt || '').split(' ');
+
+            row.dataset.platformMerchantId = merchant.merchantId || '';
+            row.classList.toggle('merchant-row-created', merchant.merchantId === createdMerchantId);
+            merchantLink.textContent = merchant.dba || 'Merchant';
+            merchantMeta.textContent = merchant.merchantId || '-';
+            setCellText(cells[1], merchant.processId);
+            setCellText(cells[2], merchant.owner);
+            setCellText(cells[3], merchant.contactName);
+            cells[4].textContent = '';
+            cells[4].append(document.createTextNode(dateParts[0] || '-'));
+            if (dateParts[1]) {
+                cells[4].append(document.createElement('br'));
+                cells[4].append(document.createTextNode(dateParts[1]));
+            }
+            setCellText(cells[5], merchant.email);
+            setCellText(cells[6], [merchant.phoneCountryCode, merchant.phone].filter(Boolean).join(' '));
+            setCellText(cells[7], Number(merchant.stores || 0));
+            setCellText(cells[8], Number(merchant.devices || 0));
+            setCellText(cells[9], merchant.currency);
+            merchantTableBody.prepend(row);
+        }
+
+        const platformMerchants = readPlatformMerchants();
+        platformMerchants.slice().reverse().forEach(renderPlatformMerchant);
         const rowMenuTriggers = document.querySelectorAll('[data-row-menu-trigger]');
         const ereceiptButtons = document.querySelectorAll('[data-open-ereceipt]');
         const ereceiptModal = document.getElementById('ereceiptModal');

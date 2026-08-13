@@ -946,12 +946,51 @@
             gap: 18px;
         }
 
+        .wizard-panel .form-grid + .form-grid {
+            margin-top: 18px;
+        }
+
         .form-grid.two {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .form-grid.three {
             grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .phone-inputs {
+            display: grid;
+            grid-template-columns: 112px minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .source-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            border: 1px solid #f2c6c6;
+            border-radius: 10px;
+            background: #fff6f6;
+            color: #9f2525;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .source-alert[hidden] {
+            display: none;
+        }
+
+        .source-alert strong {
+            display: block;
+            margin-bottom: 2px;
+            color: #7f1d1d;
+        }
+
+        .btn[disabled] {
+            cursor: not-allowed;
+            opacity: 0.48;
         }
 
         .field {
@@ -1381,6 +1420,30 @@
             }
         }
 
+        @media (max-width: 460px) {
+            .page-shell {
+                padding: 10px;
+                gap: 12px;
+            }
+
+            .wizard-shell {
+                padding: 16px 12px 18px;
+            }
+
+            .wizard-panel {
+                padding: 16px 12px 18px;
+            }
+
+            .phone-inputs {
+                grid-template-columns: 92px minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            .wizard-actions .btn {
+                min-width: 0;
+            }
+        }
+
         @media (max-width: 720px) {
             .top-header {
                 flex-direction: column;
@@ -1612,7 +1675,7 @@
 
             <main class="content-area">
                 <div class="content-inner">
-                    <a class="back-link" href="5.merchant_manage_iso.html">Back to Merchant List</a>
+                    <a class="back-link" id="top-back-link" href="5.merchant_manage_iso.html">Back to Merchant List</a>
 
                     <section class="wizard-shell">
                         <div class="wizard-header">
@@ -1628,30 +1691,45 @@
                             <div class="wizard-meta">Fields marked * are required</div>
                         </div>
 
-                        <form class="wizard-form" autocomplete="off">
+                        <form class="wizard-form" id="merchant-form" autocomplete="off">
                             <div class="wizard-panel active">
                                 <h3 class="panel-title">Merchant Info</h3>
                                 <p class="panel-note">Enter the primary merchant contact and business details.</p>
 
-                                <div class="form-grid two">
+                                <div class="source-alert" id="source-alert" role="alert" hidden>
+                                    <div><strong id="source-alert-title">Merchant creation unavailable</strong><span id="source-alert-copy"></span></div>
+                                </div>
+                                <div class="form-grid three">
                                     <div class="field">
                                         <label for="merchant-dba">DBA (MERCHANT NAME) *</label>
-                                        <input class="input-field" id="merchant-dba" type="text" placeholder="Business Name">
+                                        <input class="input-field" id="merchant-dba" type="text" placeholder="Business Name" required>
                                     </div>
                                     <div class="field">
                                         <label for="merchant-contact">Contact Name</label>
                                         <input class="input-field" id="merchant-contact" type="text" placeholder="Full Name">
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-permissions">Merchant Permissions *</label>
+                                        <select class="input-field" id="merchant-permissions" required>
+                                            <option value="">Select Permissions</option>
+                                            <option value="Merchant Admin">Merchant Admin</option>
+                                            <option value="Merchant Operator">Merchant Operator</option>
+                                            <option value="Merchant Viewer">Merchant Viewer</option>
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="merchant-email">Email *</label>
-                                        <input class="input-field" id="merchant-email" type="email" placeholder="name@domain.com">
+                                        <input class="input-field" id="merchant-email" type="email" placeholder="name@domain.com" required>
                                     </div>
                                     <div class="field">
                                         <label for="merchant-phone">Phone Number</label>
-                                        <input class="input-field" id="merchant-phone" type="tel" placeholder="+1 555 555 5555">
+                                        <div class="phone-inputs">
+                                            <input class="input-field" id="merchant-phone-code" type="tel" placeholder="Country Code" aria-label="Phone country code">
+                                            <input class="input-field" id="merchant-phone" type="tel" placeholder="123 456 7890">
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1684,7 +1762,7 @@
                                 <div class="form-grid three">
                                     <div class="field">
                                         <label for="merchant-owner">Owner (Agent) *</label>
-                                        <select class="input-field" id="merchant-owner">
+                                        <select class="input-field" id="merchant-owner" required>
                                             <option value="">Select Owner</option>
                                             <option>Payyou</option>
                                             <option>Valor Training ISO</option>
@@ -1693,7 +1771,7 @@
                                     </div>
                                     <div class="field">
                                         <label for="merchant-country">Country *</label>
-                                        <select class="input-field" id="merchant-country">
+                                        <select class="input-field" id="merchant-country" required>
                                             <option value="">Select Country</option>
                                             <option value="United States">United States</option>
                                             <option value="Canada">Canada</option>
@@ -1723,14 +1801,14 @@
                                     </div>
                                     <div class="field">
                                         <label for="merchant-currency">Currency *</label>
-                                        <input class="input-field" id="merchant-currency" type="text" placeholder="Auto-filled">
+                                        <input class="input-field" id="merchant-currency" type="text" placeholder="Select Currency" required>
                                     </div>
                                 </div>
 
                                 <div class="wizard-actions">
-                                    <a class="btn secondary" href="5.merchant_manage_iso.html">Back</a>
+                                    <a class="btn secondary" id="form-back-link" href="5.merchant_manage_iso.html">Back</a>
                                     <span class="action-group">
-                                        <button class="btn primary finish" type="button">Create Merchant</button>
+                                        <button class="btn primary finish" id="submit-merchant" type="submit">Submit</button>
                                     </span>
                                 </div>
                             </div>
@@ -1741,6 +1819,189 @@
         </div>
     </div>
 
-    
+    <script src="scripts/merchant-onboarding-store.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            var PLATFORM_MERCHANTS_KEY = "paywizard-platform-merchants-v1";
+            var params = new URLSearchParams(window.location.search);
+            var fromOnboarding = params.get("source") === "onboarding";
+            var applicationId = params.get("applicationId") || "";
+            var Store = window.PaywizardOnboardingStore;
+            var sourceApplication = null;
+            var form = document.getElementById("merchant-form");
+            var submitButton = document.getElementById("submit-merchant");
+            var alertBox = document.getElementById("source-alert");
+            var alertCopy = document.getElementById("source-alert-copy");
+
+            function readPlatformMerchants() {
+                try {
+                    var saved = JSON.parse(window.localStorage.getItem(PLATFORM_MERCHANTS_KEY) || "[]");
+                    return Array.isArray(saved) ? saved : [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            function savePlatformMerchants(merchants) {
+                window.localStorage.setItem(PLATFORM_MERCHANTS_KEY, JSON.stringify(merchants));
+            }
+
+            function setValue(id, value) {
+                document.getElementById(id).value = value == null ? "" : String(value);
+            }
+
+            function ensureOption(select, value) {
+                if (!value) return;
+                var exists = Array.prototype.some.call(select.options, function (option) { return option.value === value; });
+                if (!exists) select.add(new Option(value, value));
+                select.value = value;
+            }
+
+            function joinAddress(civic, street) {
+                return [civic, street].filter(Boolean).join(" ").trim();
+            }
+
+            function splitPhone(value) {
+                var phone = String(value || "").trim();
+                var match = phone.match(/^(\+\d{1,4})[\s-]*(.*)$/);
+                return match ? { code: match[1], number: match[2] } : { code: "", number: phone };
+            }
+
+            function stableSuffix(value) {
+                var source = String(value || "");
+                var hash = 0;
+                for (var index = 0; index < source.length; index += 1) hash = ((hash << 5) - hash + source.charCodeAt(index)) >>> 0;
+                return String(hash).padStart(8, "0").slice(-8);
+            }
+
+            function stableMerchantId(application) {
+                var numeric = String(application && application.processId || "").replace(/\D/g, "");
+                return "1000000" + (numeric ? numeric.slice(-5).padStart(5, "0") : stableSuffix(application && application.applicationId));
+            }
+
+            function stableMid(application) {
+                if (application && application.mid && application.mid !== "-") return application.mid;
+                var numeric = String(application && application.processId || "").replace(/\D/g, "");
+                return "MID" + (numeric || stableSuffix(application && application.applicationId));
+            }
+
+            function showUnavailable(message) {
+                alertCopy.textContent = message;
+                alertBox.hidden = false;
+                submitButton.disabled = true;
+                Array.prototype.forEach.call(form.elements, function (control) {
+                    if (control !== submitButton) control.disabled = true;
+                });
+            }
+
+            function prefillFromApplication(application) {
+                var data = application.formData || {};
+                var phone = data.merchantCustomerServicePhone || data.dbaPhone || data.companyPhone || application.phone || "";
+                var parsedPhone = splitPhone(phone);
+                var owner = application.agentName || application.spName || "";
+                var address1 = application.channel === "Nuvei" ? joinAddress(data.dbaCivic, data.dbaStreet) : "";
+                var city = application.channel === "Nuvei" ? (data.dbaCity || "") : "";
+                var zip = application.channel === "Nuvei" ? (data.dbaPostal || "") : "";
+                var state = application.channel === "Nuvei" ? (data.dbaProvince || data.legalProvince || "") : "";
+
+                setValue("merchant-dba", data.dbaName || application.merchantName || data.registeredBusinessName || data.legalName || "");
+                setValue("merchant-contact", data.authorizedContact || application.contactName || [data.signatoryFirstName, data.signatoryLastName].filter(Boolean).join(" "));
+                setValue("merchant-email", data.companyEmail || data.statementEmail || application.email || "");
+                setValue("merchant-phone-code", parsedPhone.code);
+                setValue("merchant-phone", parsedPhone.number);
+                setValue("merchant-address1", address1);
+                setValue("merchant-address2", "");
+                setValue("merchant-zip", zip);
+                setValue("merchant-city", city);
+                setValue("merchant-state", state);
+                ensureOption(document.getElementById("merchant-owner"), owner);
+                ensureOption(document.getElementById("merchant-country"), application.country || "");
+                setValue("merchant-currency", application.currency || "");
+                setValue("merchant-permissions", "Merchant Admin");
+            }
+
+            function formValues() {
+                return {
+                    dba: document.getElementById("merchant-dba").value.trim(),
+                    contactName: document.getElementById("merchant-contact").value.trim(),
+                    permissions: document.getElementById("merchant-permissions").value,
+                    email: document.getElementById("merchant-email").value.trim(),
+                    phoneCountryCode: document.getElementById("merchant-phone-code").value.trim(),
+                    phone: document.getElementById("merchant-phone").value.trim(),
+                    addressLine1: document.getElementById("merchant-address1").value.trim(),
+                    addressLine2: document.getElementById("merchant-address2").value.trim(),
+                    zip: document.getElementById("merchant-zip").value.trim(),
+                    city: document.getElementById("merchant-city").value.trim(),
+                    state: document.getElementById("merchant-state").value.trim(),
+                    owner: document.getElementById("merchant-owner").value,
+                    country: document.getElementById("merchant-country").value,
+                    currency: document.getElementById("merchant-currency").value.trim()
+                };
+            }
+
+            function createMerchantRecord(values, application) {
+                var createdAt = Store ? Store.timestamp() : new Date().toISOString().slice(0, 19).replace("T", " ");
+                var merchantId = application ? stableMerchantId(application) : "1000000" + String(Date.now()).slice(-8);
+                return Object.assign({}, values, {
+                    merchantId: merchantId,
+                    applicationId: application ? application.applicationId : "",
+                    processId: application ? application.processId : "-",
+                    mid: application ? stableMid(application) : "MID" + String(Date.now()).slice(-8),
+                    channel: application ? application.channel : "",
+                    status: "Active",
+                    stores: 0,
+                    devices: 0,
+                    createdAt: createdAt,
+                    lastUpdate: createdAt
+                });
+            }
+
+            if (fromOnboarding) {
+                document.getElementById("top-back-link").href = "38.Merchant_onboard.html";
+                document.getElementById("top-back-link").textContent = "Back to Onboarding";
+                document.getElementById("form-back-link").href = "38.Merchant_onboard.html";
+                sourceApplication = Store && Store.findApplication(applicationId);
+                var duplicate = readPlatformMerchants().some(function (merchant) { return merchant.applicationId === applicationId; });
+                if (!sourceApplication) showUnavailable("The onboarding application could not be found.");
+                else if (duplicate) showUnavailable("A merchant has already been created from this onboarding application.");
+                else if (sourceApplication.status !== "Approved") showUnavailable("Only an approved onboarding application can create a merchant.");
+                else prefillFromApplication(sourceApplication);
+            } else {
+                setValue("merchant-permissions", "Merchant Admin");
+            }
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                if (fromOnboarding) {
+                    sourceApplication = Store && Store.findApplication(applicationId);
+                    if (!sourceApplication || sourceApplication.status !== "Approved" || readPlatformMerchants().some(function (merchant) { return merchant.applicationId === applicationId; })) {
+                        showUnavailable("This application is no longer available for merchant creation. Return to Onboarding and refresh the list.");
+                        return;
+                    }
+                }
+
+                var merchants = readPlatformMerchants();
+                var record = createMerchantRecord(formValues(), sourceApplication);
+                merchants.unshift(record);
+                savePlatformMerchants(merchants);
+
+                if (sourceApplication) {
+                    sourceApplication.mid = record.mid;
+                    sourceApplication.merchantCreatedAt = record.createdAt;
+                    Store.recordStatus(sourceApplication, "Merchant Created", "Platform", record.createdAt);
+                    Store.upsertApplication(sourceApplication);
+                }
+
+                window.location.href = "5.merchant_manage_iso.html?createdMerchantId=" + encodeURIComponent(record.merchantId);
+            });
+        })();
+    </script>
 </body>
 </html>
