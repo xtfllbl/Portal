@@ -138,6 +138,7 @@ for (const merchantPage of [
 
     await expect(page.getByRole("heading", { name: new RegExp(`Complete your ${merchantPage.channel.split(" ")[0]} application`) })).toBeVisible();
     await expect(page.getByText("No login required", { exact: false })).toHaveCount(0);
+    await expect(page.locator(".privacy-note")).toHaveCount(0);
     await expect(page.locator(".application-meta, .application-frame-shell, .application-frame-title")).toHaveCount(0);
     await expect(page.locator(".paywizard-brand")).toBeVisible();
     expect((await page.locator(".paywizard-brand").boundingBox()).width).toBeGreaterThanOrEqual(176);
@@ -206,6 +207,18 @@ test("approves a Nuvei application only after all six sections pass", async ({ p
   await page.getByRole("button", { name: "Review application 00000339" }).click();
   await expect(page.getByRole("heading", { name: "Review Nuvei Application" })).toBeVisible();
   await expect(page.locator('[name="legalName"]')).toHaveValue("Maple Street Coffee Inc.");
+  const terminalSection = page.locator('.form-section[data-section="terminal"]');
+  await terminalSection.getByRole("button", { name: "Issue" }).click();
+  const issueUploadColors = await terminalSection.locator(".upload-card").evaluate((card) => {
+    const style = getComputedStyle(card);
+    return { border: style.borderTopColor, background: style.backgroundColor };
+  });
+  expect(issueUploadColors.border).toBe("rgb(227, 106, 98)");
+  expect(issueUploadColors.background).toBe("rgb(255, 250, 250)");
+  const terminalNav = page.locator('.section-nav a[href="#terminal"]');
+  const terminalBadge = terminalNav.locator(".review-nav-status");
+  expect(await terminalBadge.evaluate((badge) => getComputedStyle(badge).gridColumnStart)).toBe("3");
+  expect(await terminalBadge.evaluate((badge) => getComputedStyle(badge).whiteSpace)).toBe("nowrap");
   for (const button of await page.getByRole("button", { name: "Pass", exact: true }).all()) await button.click();
   await expect(page.getByRole("button", { name: "Approve Application" })).toBeEnabled();
   await page.getByRole("button", { name: "Approve Application" }).click();

@@ -1,3 +1,24 @@
+# Merchant Review State Polish QA
+
+## Evidence
+
+- Source visual truth: the three current-task annotated screenshots covering Issue-state uploads, the Application Information status layout, and the public-page privacy strip.
+- Browser-rendered captures: `artifacts/merchant-review-issue-upload-and-nav-fixed.png` and `artifacts/merchant-public-privacy-note-removed.png`.
+- Channels checked: Nuvei and Elavon review/public variants through the shared review and public-page implementations.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences remain.
+- Issue-state upload cards now inherit the module's red border and neutral-red background, including cards that previously retained the green `has-file` treatment.
+- Pass, Pending, and Issue badges occupy a dedicated right-side grid column on the same navigation row as the section title; badge text does not wrap or fall onto a separate line.
+- The green privacy/security strip was removed from both public merchant pages, closing the gap so the channel form follows the three guidance cards directly.
+- Automated coverage asserts the exact Issue upload colors, navigation badge placement/no-wrap behavior, privacy-strip absence in both channels, and existing responsive/console behavior.
+- Targeted Playwright regression: 22 tests passed across the Onboarding, Nuvei, and Elavon suites.
+
+final result: passed
+
+---
+
 # Merchant Onboarding Review and Return Loop Design QA
 
 ## Evidence
@@ -39,15 +60,15 @@ final result: passed
 - Implementations: `38.Merchant_onboard_nuvei_public.html` and `38.Merchant_onboard_elavon_public.html`.
 - Browser-rendered evidence: `artifacts/merchant-public-nuvei-1440.jpg` and `artifacts/merchant-public-elavon-1440.jpg`, each 1710 × 952 image px from the connected browser at a 1710 × 952 CSS viewport. Browser device pixel ratio reported 2; the capture API returned CSS-sized JPEGs, so no further density normalization was needed.
 - State: merchant-prefilled public application at the top of the page, with the first channel-specific form section visible.
-- Full-view comparison evidence: the annotated source and both implementation captures were reviewed together. The two requested red-boxed regions are absent, the channel form now begins directly below the privacy note, and the enlarged Paywizard wordmark has balanced topbar spacing.
-- Focused comparison evidence: the header logo crop, removed status-chip row, removed no-login label, removed onboarding-information heading bar, and the transition from privacy note to the first form section were inspected at full resolution.
+- Full-view comparison evidence: the annotated source and both implementation captures were reviewed together. The two requested red-boxed regions are absent and the enlarged Paywizard wordmark has balanced topbar spacing. A later requested refinement also removes the privacy strip.
+- Focused comparison evidence: the header logo crop, removed status-chip row, removed no-login label, removed onboarding-information heading bar, and the transition into the first form section were inspected at full resolution.
 
 ## Findings
 
 - No actionable P0, P1, or P2 differences remain.
 - Fonts and typography: the existing Poppins hierarchy remains consistent; removing the redundant information bar does not leave an orphaned heading or spacing artifact.
 - Spacing and layout rhythm: the iframe container is visually neutral, with no border, radius, shadow, title bar, or inner padding. The first channel section aligns directly with the 1240px public-page content grid.
-- Colors and visual tokens: existing neutral surfaces, green privacy treatment, and channel-brand colors are preserved.
+- Colors and visual tokens: existing neutral surfaces and channel-brand colors are preserved; the earlier green privacy treatment was removed in the latest requested refinement.
 - Image quality and asset fidelity: the existing `assets/paywizard-logo.png` is reused at a larger scale and intentionally cropped to the PAYwizard wordmark, avoiding the previous undersized logo and excess source-image whitespace. Nuvei and Elavon source logos remain unchanged and sharp.
 - Copy and content: “No login required · Merchant application”, all three metadata chips, and both “onboarding information” wrapper titles/helper text are removed exactly as requested.
 - Interaction and accessibility: merchant prefill, Save Draft, Submit Application, frame resizing, and local application-status updates remain functional. The public iframe retains a descriptive title.
