@@ -3,10 +3,18 @@
 ## Coverage
 
 - Added append-only `statusHistory` events for platform creation/share, merchant draft/submission/resubmission, operations review, return, and approval. Repeated saves in the same state update `lastUpdate` without duplicating a lifecycle node.
-- Added the shared five-stage progress component and full chronological event timeline to submitted merchant pages, platform read-only View pages, and the new external progress-only page.
+- Added the shared six-stage progress component and full chronological event timeline to submitted merchant pages, platform read-only View pages, and the external progress-only page. `Merchant Created` now follows `Approved` as the final platform milestone.
 - Split the share dialog into Merchant Application Link and Application Progress Link sections, each with independent Copy Link and Open Page actions.
 - Confirmed the external page exposes only merchant name, payment channel, Process ID, current status, milestones, and event timestamps. It renders no form, contact details, attachments, section decisions, or review comments.
 - Verified Returned → Merchant Submit → Under Review loops remain visible as separate events and retain submission-version metadata.
+- Refined the share dialog to titles and controls only, added a post-decision Back to Onboarding action, and removed the merchant guidance cards once an application has been submitted.
+- Added deterministic prerequisite migration for incomplete legacy histories. Inferred events are marked `Migrated estimate` only in the platform audit view.
+- Refined final outcomes so Approved is a reinforced green milestone and Returned is presented as a reinforced red `Changes Requested` milestone with a standard edit icon. Completed prerequisite milestones remain green in both outcomes.
+- Moved returned-section comments from the section header into a full-width `Review feedback` block beneath the section content, with multiline wrapping shared by merchant and platform View modes.
+- Made Status history natively collapsible across all progress surfaces. Merchant and platform View pages default to collapsed; the external progress-only page defaults to expanded and remains user-collapsible.
+- Reduced Status history to two semantic event colors: red only for `Returned`; Draft, Shared, Merchant Started, Submitted, Under Review, resubmission, Approved, and Merchant Created are green.
+- Added the Approved-only `Create Merchant` action, confirmation dialog, stable MID generation, `merchantCreatedAt`, Platform history event, list filter/tag, and repeat-creation guard. After success, Actions collapse back to View and Share.
+- Simplified the share title to `Application links` and removed the merchant progress subtitle while keeping the external tracking page's concise context.
 
 ## Visual and responsive evidence
 
@@ -14,12 +22,17 @@
 - External desktop progress page: `assets/qa/qa-onboarding-public-progress.png`.
 - External mobile progress page: `assets/qa/qa-onboarding-public-progress-mobile.png`.
 - Platform View with audit history: `assets/qa/qa-onboarding-platform-audit-view.png`.
+- Refined Returned merchant progress state: `assets/qa/qa-onboarding-returned-progress-refined.png`.
+- Merchant Created list state: `assets/qa/qa-onboarding-merchant-created.png`.
 - Browser inspection found no actionable P0, P1, or P2 visual issues. The 390 × 844 progress page measured zero horizontal overflow; the timeline converts to a vertical mobile flow while keeping timestamps readable.
+- The refreshed Returned capture confirms a compact default-collapsed history, 20px welcome-to-progress gap, green prerequisite milestones, a red `Changes Requested` outcome, correctly clipped section corners, and long feedback at the bottom of the affected section.
 
 ## Automated result
 
-- `tests/merchant-onboarding.spec.js`: 15 passed in Chromium.
-- Covered status-event ordering, no duplicate Merchant Draft nodes on repeated saves, dual share links, merchant progress after submission, external-page data minimization, platform audit View, returned/resubmitted history, and responsive overflow.
+- `tests/merchant-onboarding.spec.js`: 17 passed in Chromium.
+- Combined Onboarding, Nuvei, and Elavon regression: 30 passed in Chromium.
+- Covered status-event ordering, two-color history events, collapsed/expanded history defaults and toggling, six-stage progress, outcome-specific milestone colors and labels, edit-icon Changes Requested state, inferred prerequisite migration, direct-submit Merchant Started synthesis, dual share links, Approved-only Create Merchant confirmation/cancellation/success, generated MID and duplicate prevention, Merchant Created filtering/read-only propagation, post-decision return navigation, guidance visibility, multiline review feedback placement, section corner clipping, external-page data minimization, platform audit View, returned/resubmitted history, and responsive overflow.
+- The repository-wide run reached 60 passing tests; 9 failures remain in unrelated pre-existing DEX/Product Map expectations and do not touch the onboarding files or flows.
 - JavaScript syntax checks and `git diff --check` passed with no console/page errors in the targeted browser run.
 
 final result: passed

@@ -24,16 +24,18 @@
     ".application-mode-banner{max-width:1520px;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 auto 14px;padding:13px 16px;border:1px solid #bfd6ee;border-radius:7px;background:#f1f7fd;color:#34495e}",
     ".platform-application-progress{max-width:1520px;margin:0 auto 14px}",
     ".application-mode-banner strong{display:block;margin-bottom:2px;font-size:12px}.application-mode-banner span{font-size:10px;color:#657789}.application-back-link{flex:none;padding:8px 12px;border:1px solid #b9c7d6;border-radius:6px;background:#fff;color:#334155;font-size:10px;font-weight:700;text-decoration:none}",
+    ".application-mode-page .form-section{box-sizing:border-box;overflow:hidden}",
+    ".application-mode-page .form-section>.section-header{border-radius:0}",
     ".form-section.review-approved{border-color:#55b981!important;background:#f2fbf6!important;box-shadow:0 0 0 1px rgba(18,130,73,.08)}",
     ".form-section.review-rejected{border-color:#e36a62!important;background:#fff6f5!important;box-shadow:0 0 0 1px rgba(217,45,32,.08)}",
     ".form-section.review-approved>.section-header{background:#eaf8f0!important;border-bottom-color:#b9e1c9!important}.form-section.review-rejected>.section-header{background:#fff0ef!important;border-bottom-color:#f1c1bd!important}",
     ".form-section.review-rejected .upload-card,.form-section.review-rejected .upload-card.has-file{border-color:#e36a62!important;background:#fffafa!important;box-shadow:none!important}",
     ".review-controls{display:flex;align-items:center;gap:7px;margin-left:auto}.review-choice{min-height:31px;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #cfd5dc;border-radius:6px;background:#fff;color:#4d5560;font:600 10px inherit;cursor:pointer}.review-choice img{width:14px;height:14px}.review-choice.pass.is-selected{border-color:#2e9c60;background:#e1f6e9;color:#13733d}.review-choice.reject.is-selected{border-color:#d92d20;background:#ffe6e3;color:#b42318}",
-    ".review-reason,.view-review-result{padding:14px 18px 16px;border-top:1px solid #f0c2be;background:#fff9f8}.review-reason[hidden]{display:none}.review-reason label,.view-review-result strong{display:block;margin-bottom:6px;color:#9f2d25;font-size:10px;font-weight:700}.review-reason textarea{width:100%;min-height:78px;padding:10px 12px;border:1px solid #e49a94;border-radius:6px;background:#fff;color:#363a42;font:11px/1.5 inherit;resize:vertical}.review-reason textarea:focus{outline:2px solid rgba(217,45,32,.13);border-color:#d92d20}.view-review-result p{margin:0;color:#7f312b;font-size:10px;line-height:1.5}",
+    ".review-reason,.view-review-result{padding:14px 18px 16px;border-top:1px solid #f0c2be;background:#fff9f8}.review-reason[hidden]{display:none}.review-reason label,.view-review-result strong{display:block;margin-bottom:6px;color:#9f2d25;font-size:10px;font-weight:700}.review-reason textarea{box-sizing:border-box;width:100%;min-height:78px;padding:10px 12px;border:1px solid #e49a94;border-radius:6px;background:#fff;color:#363a42;font:11px/1.5 inherit;resize:vertical}.review-reason textarea:focus{outline:2px solid rgba(217,45,32,.13);border-color:#d92d20}.view-review-result p{margin:0;color:#7f312b;font-size:10px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}",
     ".review-result-chip{display:inline-flex;align-items:center;gap:5px;margin-left:auto;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:700}.review-result-chip img{width:13px;height:13px}.review-result-chip.approved{background:#dcf7e7;color:#147a41}.review-result-chip.rejected{background:#ffe2df;color:#b42318}",
     ".application-mode-page .section-nav a{grid-template-columns:18px minmax(0,1fr) auto;align-items:center}.review-nav-status{grid-column:3;grid-row:1;margin:0 0 0 5px!important;padding:2px 6px;border-radius:999px;font-size:8px!important;font-weight:700;line-height:1.25;white-space:nowrap}.review-nav-status.approved{background:#dcf7e7;color:#147a41}.review-nav-status.rejected{background:#ffe2df;color:#b42318}.review-nav-status.pending{background:#eceff3;color:#6b7280}",
     ".application-readonly input[readonly],.application-readonly textarea[readonly],.application-readonly select:disabled,.application-readonly input:disabled{background:#f5f6f8!important;color:#50555e!important;cursor:default;opacity:1}.application-readonly .upload-card{pointer-events:none;background:#f5f6f8}",
-    ".review-final-actions,.view-final-actions{display:flex;justify-content:flex-end;gap:10px;width:100%}.review-final-actions button,.view-final-actions a{min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:6px;font:700 11px inherit;text-decoration:none;cursor:pointer}.review-final-actions img{width:15px;height:15px}.review-approve{border:1px solid #128249;background:#128249;color:#fff}.review-return{border:1px solid #d92d20;background:#d92d20;color:#fff}.review-final-actions button:disabled{cursor:not-allowed;opacity:.48}.view-final-actions a{border:1px solid #20242a;background:#20242a;color:#fff}",
+    ".review-final-actions,.view-final-actions{display:flex;justify-content:flex-end;gap:10px;width:100%}.review-final-actions button,.review-final-actions a,.view-final-actions a{min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;border-radius:6px;font:700 11px inherit;text-decoration:none;cursor:pointer}.review-final-actions img{width:15px;height:15px}.review-approve{border:1px solid #128249;background:#128249;color:#fff}.review-return{border:1px solid #d92d20;background:#d92d20;color:#fff}.review-final-actions button:disabled{cursor:not-allowed;opacity:.48}.review-back{border:1px solid #31343a;background:#31343a;color:#fff}.view-final-actions a{border:1px solid #20242a;background:#20242a;color:#fff}",
     "@media(max-width:760px){.application-mode-banner{align-items:flex-start;flex-direction:column}.section-header{align-items:flex-start!important;flex-wrap:wrap!important}.review-controls{width:100%;margin:4px 0 0}.review-choice{flex:1;justify-content:center}.review-result-chip{margin:5px 0 0 36px}.review-final-actions{flex-direction:column}.review-final-actions button{justify-content:center;width:100%}}"
   ].join("");
   document.head.appendChild(style);
@@ -153,13 +155,14 @@
       window.PaywizardOnboardingProgress.render(progress, Store.publicProgress(application), {
         title: "Application Progress & Audit History",
         description: "A read-only record of every lifecycle status, submission round, actor and event time.",
-        showActor: true
+        showActor: true,
+        showInferred: true
       });
     }
     sections.forEach(function (section) {
       var id = section.getAttribute("data-section");
       var result = sectionReview(id);
-      if ((application.status !== "Approved" && application.status !== "Returned") || (result.status !== "approved" && result.status !== "rejected")) return;
+      if ((application.status !== "Approved" && application.status !== "Returned" && application.status !== "Merchant Created") || (result.status !== "approved" && result.status !== "rejected")) return;
       section.classList.add(result.status === "approved" ? "review-approved" : "review-rejected");
       var chip = document.createElement("span");
       chip.className = "review-result-chip " + result.status;
@@ -169,7 +172,7 @@
       if (result.status === "rejected") {
         var resultBox = document.createElement("div");
         resultBox.className = "view-review-result";
-        resultBox.innerHTML = '<strong>Review comment</strong><p></p>';
+        resultBox.innerHTML = '<strong>Review feedback</strong><p></p>';
         resultBox.querySelector("p").textContent = result.reason || result.previousReason || "Changes were requested for this section.";
         section.appendChild(resultBox);
       }
@@ -216,6 +219,19 @@
   formActions.innerHTML = '<div class="review-final-actions"><button class="review-approve" id="review-approve-application" type="button"><img src="assets/icons/task_alt.svg" alt="" />Approve Application</button><button class="review-return" id="review-return-application" type="button"><img src="assets/icons/close.svg" alt="" />Return to Merchant</button></div>';
   updateFinalButtons();
 
+  function finishReviewActions() {
+    var actionGroup = formActions.querySelector(".review-final-actions");
+    actionGroup.querySelectorAll("button").forEach(function (button) { button.disabled = true; });
+    if (!actionGroup.querySelector(".review-back")) {
+      var back = document.createElement("a");
+      back.className = "review-back";
+      back.href = "38.Merchant_onboard.html";
+      back.textContent = "Back to Onboarding";
+      actionGroup.appendChild(back);
+      back.focus();
+    }
+  }
+
   document.getElementById("review-approve-application").addEventListener("click", function () {
     if (!allApproved()) {
       showResult("Review incomplete", "Every section must pass before the application can be approved.");
@@ -227,7 +243,7 @@
     Store.recordStatus(application, "Approved", "Operations", review.reviewedAt);
     application = Store.upsertApplication(application);
     showResult("Application approved", application.merchantName + " is ready for the next onboarding step. Use Back to Onboarding to return to the list.");
-    updateFinalButtons();
+    finishReviewActions();
   });
 
   document.getElementById("review-return-application").addEventListener("click", function () {
@@ -250,6 +266,6 @@
     Store.recordStatus(application, "Returned", "Operations", review.reviewedAt);
     application = Store.upsertApplication(application);
     showResult("Returned to merchant", "The merchant can now open the original link, review your comments and resubmit the application.");
-    updateFinalButtons();
+    finishReviewActions();
   });
 })();

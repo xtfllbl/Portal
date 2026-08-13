@@ -489,6 +489,8 @@
     .action-btn.edit { border-color: #a9dff8; color: #10a9ee; }
     .action-btn.review-action { border-color: #9bc8ad; background: #f1fbf5; color: #15814a; }
     .action-btn.review-action:hover { background: #e4f7eb; }
+    .action-btn.create-merchant-action { border-color: #79bd95; background: #edf9f2; color: #137a46; }
+    .action-btn.create-merchant-action:hover { background: #dcf4e6; }
     .action-btn .material-symbols-rounded { font-size: 18px; }
 
     .empty-state {
@@ -718,12 +720,11 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
-      padding: 19px 20px 14px;
+      padding: 17px 20px;
       border-bottom: 1px solid var(--line);
     }
 
-    .share-dialog-header h2 { margin: 0 0 4px; color: #36383f; font-size: 17px; }
-    .share-dialog-header p { margin: 0; color: #777d88; font-size: 10px; }
+    .share-dialog-header h2 { margin: 0; color: #36383f; font-size: 17px; }
 
     .dialog-close {
       width: 32px;
@@ -737,13 +738,13 @@
       color: #676b74;
     }
 
-    .share-dialog-body { padding: 18px 20px; }
+    .share-dialog-body { padding: 15px 20px; }
 
     .share-summary {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 11px;
     }
 
     .share-summary div {
@@ -755,10 +756,8 @@
     .share-summary span { display: block; color: #8a8e97; font-size: 9px; }
     .share-summary strong { display: block; margin-top: 3px; color: #41434a; font-size: 11px; }
 
-    .share-link-label { display: block; margin-bottom: 6px; color: #555963; font-size: 10px; font-weight: 600; }
-
     .share-link-block {
-      padding: 13px;
+      padding: 11px 12px;
       border: 1px solid #e1e5ea;
       border-radius: 8px;
       background: #fbfcfd;
@@ -766,10 +765,9 @@
 
     .share-link-block + .share-link-block { margin-top: 11px; }
 
-    .share-link-block-head { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 10px; }
+    .share-link-block-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
     .share-link-block-head .material-symbols-rounded { color: #1768dc; font-size: 19px; }
     .share-link-block-head strong { display: block; color: #42464e; font-size: 11px; }
-    .share-link-block-head span:last-child { display: block; margin-top: 2px; color: #7c838e; font-size: 9px; }
 
     .share-link-row {
       display: grid;
@@ -788,22 +786,17 @@
       font-size: 10px;
     }
 
-    .share-help {
-      display: flex;
-      gap: 7px;
-      margin: 13px 0 0;
-      color: #747a84;
-      font-size: 9px;
-    }
-
-    .share-help .material-symbols-rounded { flex: none; color: #22895a; font-size: 16px; }
-
     .share-dialog-actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
-      padding: 13px 20px 18px;
+      padding: 8px 20px 16px;
     }
+
+    .create-merchant-dialog { width: min(520px, 100%); }
+    .create-merchant-copy { margin: 0 0 14px; color: var(--muted); font-size: 10px; line-height: 1.55; }
+    .create-merchant-dialog .share-dialog-actions { padding-top: 0; }
+    .btn.create-merchant-confirm { border-color: #15814a; background: #15814a; color: #fff; }
 
     .toast {
       position: fixed;
@@ -995,6 +988,7 @@
               <option value="">Status</option>
               <option>Draft</option>
               <option>Approved</option>
+              <option>Merchant Created</option>
               <option>Under Review</option>
               <option>Merchant Submit</option>
               <option>Merchant Draft</option>
@@ -1124,7 +1118,7 @@
   <div class="modal-backdrop" id="share-modal" role="presentation" hidden>
     <section class="share-dialog" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
       <header class="share-dialog-header">
-        <div><h2 id="share-dialog-title">Application links ready</h2><p>Share the merchant form privately, or let other stakeholders follow progress without seeing application data.</p></div>
+        <div><h2 id="share-dialog-title">Application links</h2></div>
         <button class="dialog-close" id="close-share-dialog" type="button" aria-label="Close share dialog"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
       </header>
       <div class="share-dialog-body">
@@ -1133,27 +1127,45 @@
           <div><span>Payment channel</span><strong id="share-payment-channel">—</strong></div>
         </div>
         <div class="share-link-block">
-          <div class="share-link-block-head"><span class="material-symbols-rounded" aria-hidden="true">assignment</span><div><strong>Merchant Application Link</strong><span>Private form for the merchant to complete, save, submit or revise.</span></div></div>
-          <label class="share-link-label" for="share-link">Merchant-facing URL</label>
+          <div class="share-link-block-head"><span class="material-symbols-rounded" aria-hidden="true">assignment</span><strong>Merchant Application Link</strong></div>
           <div class="share-link-row">
-            <input id="share-link" type="text" readonly />
+            <input id="share-link" type="text" aria-label="Merchant Application Link" readonly />
             <button class="btn" id="copy-share-link" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link</button>
             <a class="btn primary" id="open-merchant-page" href="#" target="_blank" rel="noopener">Open Page</a>
           </div>
         </div>
         <div class="share-link-block">
-          <div class="share-link-block-head"><span class="material-symbols-rounded" aria-hidden="true">timeline</span><div><strong>Application Progress Link</strong><span>Safe read-only status tracking for external stakeholders; application contents stay hidden.</span></div></div>
-          <label class="share-link-label" for="progress-link">Progress-only URL</label>
+          <div class="share-link-block-head"><span class="material-symbols-rounded" aria-hidden="true">timeline</span><strong>Application Progress Link</strong></div>
           <div class="share-link-row">
-            <input id="progress-link" type="text" readonly />
+            <input id="progress-link" type="text" aria-label="Application Progress Link" readonly />
             <button class="btn" id="copy-progress-link" type="button"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copy Link</button>
             <a class="btn primary" id="open-progress-page" href="#" target="_blank" rel="noopener">Open Page</a>
           </div>
         </div>
-        <p class="share-help"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><span>The progress page exposes only the merchant name, payment channel, Process ID, current status and event times.</span></p>
       </div>
       <div class="share-dialog-actions">
         <button class="btn subtle" id="done-sharing" type="button">Done</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="create-merchant-modal" role="presentation" hidden>
+    <section class="share-dialog create-merchant-dialog" role="dialog" aria-modal="true" aria-labelledby="create-merchant-title">
+      <header class="share-dialog-header">
+        <div><h2 id="create-merchant-title">Create merchant</h2></div>
+        <button class="dialog-close" id="close-create-merchant" type="button" aria-label="Close create merchant dialog"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+      </header>
+      <div class="share-dialog-body">
+        <p class="create-merchant-copy">This approved application will be used to create a merchant on the PAYwizard platform.</p>
+        <div class="share-summary">
+          <div><span>Merchant</span><strong id="create-merchant-name">—</strong></div>
+          <div><span>Payment channel</span><strong id="create-merchant-channel">—</strong></div>
+          <div><span>Process ID</span><strong id="create-merchant-process">—</strong></div>
+        </div>
+      </div>
+      <div class="share-dialog-actions">
+        <button class="btn subtle" id="cancel-create-merchant" type="button">Cancel</button>
+        <button class="btn create-merchant-confirm" id="confirm-create-merchant" type="button"><span class="material-symbols-rounded" aria-hidden="true">add_business</span>Create Merchant</button>
       </div>
     </section>
   </div>
@@ -1199,6 +1211,7 @@
       var statusFilter = document.getElementById("status-filter");
       var form = document.getElementById("merchant-form");
       var shareModal = document.getElementById("share-modal");
+      var createMerchantModal = document.getElementById("create-merchant-modal");
       var shareLinkInput = document.getElementById("share-link");
       var progressLinkInput = document.getElementById("progress-link");
       var openMerchantPage = document.getElementById("open-merchant-page");
@@ -1206,6 +1219,7 @@
       var toast = document.getElementById("toast");
       var toastTimer;
       var editingApplicationId = "";
+      var creatingMerchantApplicationId = "";
 
       function escapeHtml(value) {
         return String(value || "").replace(/[&<>'"]/g, function (character) {
@@ -1215,6 +1229,7 @@
 
       function statusClass(status) {
         if (status === "Approved") return "approved";
+        if (status === "Merchant Created") return "approved";
         if (status === "Under Review") return "review";
         if (status === "Merchant Draft") return "review";
         if (status === "Awaiting Merchant") return "awaiting";
@@ -1227,8 +1242,11 @@
         if (row.status === "Draft") {
           actions.push('<button class="action-btn edit" type="button" data-action="edit" aria-label="Edit process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">edit_square</span></button>');
         }
-        if (row.status === "Merchant Draft" || row.status === "Approved" || row.status === "Returned") {
+        if (row.status === "Merchant Draft" || row.status === "Approved" || row.status === "Returned" || row.status === "Merchant Created") {
           actions.push('<button class="action-btn" type="button" data-action="view" aria-label="View process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">description</span></button>');
+        }
+        if (row.status === "Approved") {
+          actions.push('<button class="action-btn create-merchant-action" type="button" data-action="create-merchant" aria-label="Create merchant for process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">add_business</span></button>');
         }
         if (row.status === "Merchant Submit" || row.status === "Under Review") {
           actions.push('<button class="action-btn review-action" type="button" data-action="review" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>');
@@ -1423,6 +1441,7 @@
           submissionVersion: (existing && existing.submissionVersion) || 0,
           submittedAt: (existing && existing.submittedAt) || "",
           reviewedAt: (existing && existing.reviewedAt) || "",
+          merchantCreatedAt: (existing && existing.merchantCreatedAt) || "",
           review: channelChanged || !existing ? (Store ? Store.createReview(values.paymentChannel) : { sections: {} }) : existing.review
         });
         row.shareUrl = createShareUrl(values, applicationId);
@@ -1481,6 +1500,27 @@
 
       function closeShareDialog() {
         shareModal.hidden = true;
+      }
+
+      function openCreateMerchantDialog(row) {
+        if (!row || row.status !== "Approved") return;
+        creatingMerchantApplicationId = row.applicationId;
+        document.getElementById("create-merchant-name").textContent = row.merchantName || "—";
+        document.getElementById("create-merchant-channel").textContent = row.channel || "—";
+        document.getElementById("create-merchant-process").textContent = row.processId || "—";
+        createMerchantModal.hidden = false;
+        document.getElementById("confirm-create-merchant").focus();
+      }
+
+      function closeCreateMerchantDialog() {
+        createMerchantModal.hidden = true;
+        creatingMerchantApplicationId = "";
+      }
+
+      function generatedMid(row) {
+        if (row.mid && row.mid !== "-") return row.mid;
+        var numeric = String(row.processId || "").replace(/\D/g, "");
+        return "MID" + (numeric || String(row.applicationId || "").replace(/\W/g, "").slice(-8).toUpperCase());
       }
 
       function restoreApplication(row) {
@@ -1561,6 +1601,29 @@
       });
 
       document.getElementById("close-share-dialog").addEventListener("click", closeShareDialog);
+      document.getElementById("close-create-merchant").addEventListener("click", closeCreateMerchantDialog);
+      document.getElementById("cancel-create-merchant").addEventListener("click", closeCreateMerchantDialog);
+      createMerchantModal.addEventListener("click", function (event) {
+        if (event.target === createMerchantModal) closeCreateMerchantDialog();
+      });
+      document.getElementById("confirm-create-merchant").addEventListener("click", function () {
+        var latest = Store && Store.findApplication(creatingMerchantApplicationId);
+        if (!latest || latest.status !== "Approved") {
+          closeCreateMerchantDialog();
+          reloadRows();
+          renderRows();
+          showToast("Merchant creation unavailable", "Only an approved application can create a merchant.");
+          return;
+        }
+        latest.merchantCreatedAt = currentTimestamp();
+        latest.mid = generatedMid(latest);
+        Store.recordStatus(latest, "Merchant Created", "Platform", latest.merchantCreatedAt);
+        Store.upsertApplication(latest);
+        closeCreateMerchantDialog();
+        reloadRows();
+        renderRows();
+        showToast("Merchant created", latest.merchantName + " has been created on the PAYwizard platform.");
+      });
       document.getElementById("done-sharing").addEventListener("click", function () {
         closeShareDialog();
         clearForm();
@@ -1571,7 +1634,9 @@
         if (event.target === shareModal) closeShareDialog();
       });
       document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && !shareModal.hidden) closeShareDialog();
+        if (event.key !== "Escape") return;
+        if (!createMerchantModal.hidden) closeCreateMerchantDialog();
+        else if (!shareModal.hidden) closeShareDialog();
       });
       function copyLink(input, copyButton, message) {
         function copied() {
@@ -1622,6 +1687,10 @@
           reviewUrl.searchParams.set("mode", "review");
           reviewUrl.searchParams.set("applicationId", reviewRow.applicationId);
           window.location.href = reviewUrl.href;
+          return;
+        }
+        if (action === "create-merchant") {
+          openCreateMerchantDialog(row);
           return;
         }
         if (action === "share") {

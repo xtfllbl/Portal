@@ -17,14 +17,90 @@
     return now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
   }
 
-  function statusEvent(status, occurredAt, actor, submissionVersion, suffix) {
-    return {
+  var STATUS_SEQUENCE = ["Draft", "Awaiting Merchant", "Merchant Draft", "Merchant Submit", "Under Review"];
+
+  function statusEvent(status, occurredAt, actor, submissionVersion, suffix, inferred) {
+    var event = {
       eventId: "EVT-" + String(occurredAt || timestamp()).replace(/\D/g, "") + "-" + (suffix || Math.random().toString(36).slice(2, 8)),
       status: status,
       occurredAt: occurredAt || timestamp(),
       actor: actor || "Platform",
       submissionVersion: Number(submissionVersion || 0)
     };
+    if (inferred) event.inferred = true;
+    return event;
+  }
+
+  function parseTimestamp(value) {
+    var parsed = new Date(String(value || "").replace(" ", "T"));
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  function formatTimestamp(date) {
+    function pad(value) { return String(value).padStart(2, "0"); }
+    return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) + " " + pad(date.getHours()) + ":" + pad(date.getMinutes()) + ":" + pad(date.getSeconds());
+  }
+
+  function requiredStatuses(status) {
+    if (status === "Merchant Created") return STATUS_SEQUENCE.concat(["Approved", "Merchant Created"]);
+    var decision = status === "Approved" || status === "Returned" ? status : "";
+    var rank = decision ? STATUS_SEQUENCE.length - 1 : STATUS_SEQUENCE.indexOf(status);
+    if (rank < 0) return [];
+    var statuses = STATUS_SEQUENCE.slice(0, rank + 1);
+    if (decision) statuses.push(decision);
+    return statuses;
+  }
+
+  function actorForStatus(status) {
+    if (status === "Draft" || status === "Awaiting Merchant" || status === "Merchant Created") return "Platform";
+    if (status === "Merchant Draft" || status === "Merchant Submit") return "Merchant";
+    return "Operations";
+  }
+
+  function versionForStatus(application, status) {
+    return status === "Merchant Submit" || status === "Under Review" || status === "Approved" || status === "Returned" || status === "Merchant Created"
+      ? Number(application.submissionVersion || 1) : 0;
+  }
+
+  function inferredTime(events, statuses, missingIndex, fallback) {
+    var previous;
+    var next;
+    events.forEach(function (event) {
+      var eventIndex = statuses.indexOf(event.status);
+      if (eventIndex < 0) return;
+      if (eventIndex < missingIndex && (!previous || eventIndex > previous.index)) previous = { index: eventIndex, event: event };
+      if (eventIndex > missingIndex && (!next || eventIndex < next.index)) next = { index: eventIndex, event: event };
+    });
+    var previousDate = previous && parseTimestamp(previous.event.occurredAt);
+    var nextDate = next && parseTimestamp(next.event.occurredAt);
+    if (previousDate && nextDate && nextDate.getTime() > previousDate.getTime()) {
+      var fraction = (missingIndex - previous.index) / (next.index - previous.index);
+      return formatTimestamp(new Date(previousDate.getTime() + Math.floor((nextDate.getTime() - previousDate.getTime()) * fraction)));
+    }
+    if (nextDate) return formatTimestamp(new Date(nextDate.getTime() - ((next.index - missingIndex) * 60000)));
+    if (previousDate) return formatTimestamp(new Date(previousDate.getTime() + ((missingIndex - previous.index) * 60000)));
+    var fallbackDate = parseTimestamp(fallback) || new Date();
+    return formatTimestamp(new Date(fallbackDate.getTime() - ((statuses.length - 1 - missingIndex) * 60000)));
+  }
+
+  function completeHistory(application) {
+    var statuses = requiredStatuses(application.status);
+    var events = Array.isArray(application.statusHistory) ? application.statusHistory : [];
+    statuses.forEach(function (status, index) {
+      if (events.some(function (event) { return event.status === status; })) return;
+      events.push(statusEvent(
+        status,
+        inferredTime(events, statuses, index, application.lastUpdate),
+        actorForStatus(status),
+        versionForStatus(application, status),
+        "inferred-" + index,
+        true
+      ));
+    });
+    application.statusHistory = events.sort(function (left, right) {
+      return String(left.occurredAt).localeCompare(String(right.occurredAt));
+    });
+    return application;
   }
 
   function inferHistory(application) {
@@ -42,9 +118,14 @@
       return item.review.sections[id].reviewedAt || "";
     }).filter(Boolean).sort();
     if (item.status === "Under Review") add("Under Review", sectionTimes[0] || item.lastUpdate, "Operations", item.submissionVersion || 1);
-    if (item.status === "Approved" || item.status === "Returned") {
+    if (item.status === "Approved" || item.status === "Returned" || item.status === "Merchant Created") {
       if (sectionTimes.length) add("Under Review", sectionTimes[0], "Operations", item.submissionVersion || 1);
-      add(item.status, item.reviewedAt || (item.review && item.review.reviewedAt) || item.lastUpdate, "Operations", item.submissionVersion || 1);
+      if (item.status === "Merchant Created") {
+        add("Approved", item.reviewedAt || (item.review && item.review.reviewedAt), "Operations", item.submissionVersion || 1);
+        add("Merchant Created", item.merchantCreatedAt || item.lastUpdate, "Platform", item.submissionVersion || 1);
+      } else {
+        add(item.status, item.reviewedAt || (item.review && item.review.reviewedAt) || item.lastUpdate, "Operations", item.submissionVersion || 1);
+      }
     }
     if (!events.length && item.status && item.lastUpdate) add(item.status, item.lastUpdate, item.status.indexOf("Merchant") === 0 ? "Merchant" : "Platform", item.submissionVersion || 0);
     return events.sort(function (left, right) { return left.occurredAt.localeCompare(right.occurredAt); });
@@ -58,7 +139,7 @@
     item.status = nextStatus;
     item.lastUpdate = occurredAt || timestamp();
     if (shouldRecord) item.statusHistory.push(statusEvent(nextStatus, item.lastUpdate, actor, item.submissionVersion));
-    return item;
+    return completeHistory(item);
   }
 
   function publicProgress(application) {
@@ -229,12 +310,13 @@
 
   function normalize(application) {
     var item = Object.assign({
-      formData: {}, documents: {}, submissionVersion: 0, submittedAt: "", reviewedAt: "", statusHistory: []
+      formData: {}, documents: {}, submissionVersion: 0, submittedAt: "", reviewedAt: "", merchantCreatedAt: "", statusHistory: []
     }, clone(application || {}));
     var defaultReview = createReview(item.channel);
     item.review = Object.assign(defaultReview, item.review || {});
     item.review.sections = Object.assign(defaultReview.sections, (item.review && item.review.sections) || {});
     item.statusHistory = Array.isArray(item.statusHistory) && item.statusHistory.length ? item.statusHistory : inferHistory(item);
+    completeHistory(item);
     return item;
   }
 

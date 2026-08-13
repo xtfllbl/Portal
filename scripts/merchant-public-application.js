@@ -72,7 +72,7 @@
 
   function renderPublicProgress() {
     var existing = document.getElementById("merchant-application-progress");
-    var visibleStatuses = ["Merchant Submit", "Under Review", "Returned", "Approved"];
+    var visibleStatuses = ["Merchant Submit", "Under Review", "Returned", "Approved", "Merchant Created"];
     if (!application || visibleStatuses.indexOf(application.status) === -1 || !window.PaywizardOnboardingProgress) {
       if (existing) existing.remove();
       return;
@@ -86,9 +86,16 @@
     }
     window.PaywizardOnboardingProgress.render(container, Store.publicProgress(application), {
       title: "Your Application Progress",
-      description: "Follow the latest onboarding status and the time each milestone was reached.",
+      description: "",
       showActor: true
     });
+  }
+
+  function syncGuidanceVisibility() {
+    var guidance = document.querySelector(".guidance-grid");
+    if (!guidance) return;
+    var progressStatuses = ["Merchant Submit", "Under Review", "Returned", "Approved", "Merchant Created"];
+    guidance.hidden = Boolean(application && progressStatuses.indexOf(application.status) !== -1);
   }
 
   function lockSubmittedApplication(doc, form) {
@@ -98,7 +105,9 @@
     });
     var actions = form.querySelector(".form-actions");
     if (actions) {
-      actions.innerHTML = '<div class="public-locked-message"><strong>Application ' + (application.status === "Approved" ? "approved" : "submitted") + '</strong><span>' + (application.status === "Approved" ? "This onboarding application is complete." : "The PAYwizard onboarding team is reviewing this application. Editing is temporarily unavailable.") + '</span></div>';
+      var isCreated = application.status === "Merchant Created";
+      var isApproved = application.status === "Approved";
+      actions.innerHTML = '<div class="public-locked-message"><strong>' + (isCreated ? "Merchant created" : (isApproved ? "Application approved" : "Application submitted")) + '</strong><span>' + (isCreated ? "The merchant account has been created on the PAYwizard platform." : (isApproved ? "This onboarding application is complete." : "The PAYwizard onboarding team is reviewing this application. Editing is temporarily unavailable.")) + '</span></div>';
     }
   }
 
@@ -150,8 +159,13 @@
           resizeFrame(doc);
         });
       } else {
-        status.innerHTML = '<img src="assets/icons/close.svg" alt="" /><span><strong>Changes required</strong>' + (result.reason || result.previousReason || "Please update this section.") + '</span>';
+        status.innerHTML = '<img src="assets/icons/close.svg" alt="" /><span>Changes required</span>';
         section.classList.add("merchant-review-rejected");
+        var feedback = doc.createElement("div");
+        feedback.className = "merchant-review-feedback";
+        feedback.innerHTML = '<strong>Review feedback</strong><p></p>';
+        feedback.querySelector("p").textContent = result.reason || result.previousReason || "Please update this section.";
+        section.appendChild(feedback);
       }
       header.appendChild(status);
     });
@@ -192,6 +206,8 @@
       section.classList.remove("merchant-review-approved", "merchant-review-rejected", "merchant-review-editing");
       var state = section.querySelector(".merchant-review-status");
       if (state) state.remove();
+      var feedback = section.querySelector(".merchant-review-feedback");
+      if (feedback) feedback.remove();
     });
   }
 
@@ -208,16 +224,17 @@
       ".app-main{margin-left:0!important}",
       ".content{padding:0 0 48px!important}",
       ".registration-shell{max-width:none!important;display:block!important;margin:0!important}",
-      ".form-section{border-radius:7px!important;transition:border-color .18s ease,background .18s ease}",
+      ".form-section{box-sizing:border-box!important;overflow:hidden!important;border-radius:7px!important;transition:border-color .18s ease,background .18s ease}",
+      ".form-section>.section-header{border-radius:0!important}",
       ".form-section.merchant-review-approved{border-color:#64bd89!important;background:#f3fbf6!important}.form-section.merchant-review-rejected{border-color:#df655d!important;background:#fff7f6!important}",
       ".merchant-review-approved>.section-header{background:#eaf8f0!important;border-bottom-color:#b8dfc8!important}.merchant-review-rejected>.section-header{background:#fff0ef!important;border-bottom-color:#efbbb7!important}",
       ".form-section.merchant-review-rejected .upload-card,.form-section.merchant-review-rejected .upload-card.has-file{border-color:#df655d!important;background:#fffafa!important;box-shadow:none!important}",
-      ".merchant-review-status{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:9px;font-weight:700}.merchant-review-status img{width:15px;height:15px}.merchant-review-status.approved{color:#137541}.merchant-review-status.rejected{max-width:520px;align-items:flex-start;color:#b42318}.merchant-review-status.rejected span{display:grid;gap:2px}.merchant-review-status.rejected strong{font-size:10px}.edit-approved-section{margin-left:5px;padding:5px 8px;border:1px solid #74bb92;border-radius:5px;background:#fff;color:#137541;font:700 9px inherit;cursor:pointer}",
+      ".merchant-review-status{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:9px;font-weight:700}.merchant-review-status img{width:15px;height:15px}.merchant-review-status.approved{color:#137541}.merchant-review-status.rejected{flex:none;color:#b42318}.merchant-review-feedback{padding:14px 18px 16px;border-top:1px solid #efbbb7;background:#fff9f8}.merchant-review-feedback strong{display:block;margin-bottom:6px;color:#9f2d25;font-size:10px}.merchant-review-feedback p{margin:0;color:#7f312b;font-size:10px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.edit-approved-section{margin-left:5px;padding:5px 8px;border:1px solid #74bb92;border-radius:5px;background:#fff;color:#137541;font:700 9px inherit;cursor:pointer}",
       ".merchant-review-approved:not(.merchant-review-editing) input,.merchant-review-approved:not(.merchant-review-editing) textarea,.merchant-review-approved:not(.merchant-review-editing) select{background:#f2f5f3!important;color:#626a65!important;opacity:1}.merchant-review-approved:not(.merchant-review-editing) .upload-card{pointer-events:none;background:#f2f5f3!important}",
       ".form-actions{position:sticky;bottom:0;z-index:10;padding:14px 16px!important;background:rgba(255,255,255,.96)!important;box-shadow:0 -6px 18px rgba(30,35,44,.05)}",
       ".public-locked-message{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#475569}.public-locked-message strong{font-size:11px}.public-locked-message span{font-size:10px}",
       ".success-banner{position:fixed!important}",
-      "@media(max-width:760px){.section-header{align-items:flex-start!important;flex-wrap:wrap!important}.merchant-review-status{width:100%;margin:4px 0 0}.merchant-review-status.rejected{max-width:none}.edit-approved-section{margin-left:auto}}",
+      "@media(max-width:760px){.section-header{align-items:flex-start!important;flex-wrap:wrap!important}.merchant-review-status{width:100%;margin:4px 0 0}.edit-approved-section{margin-left:auto}.merchant-review-feedback{padding:13px 14px 15px}}",
       "@media(max-width:640px){.content{padding:0 0 32px!important}.form-actions{position:static!important;padding-inline:0!important}.section-body{padding:14px!important}}"
     ].join("");
     doc.head.appendChild(style);
@@ -234,7 +251,7 @@
 
     var saveDraft = doc.getElementById("save-draft");
     var isReturned = Boolean(application && application.status === "Returned");
-    var isLocked = Boolean(application && (application.status === "Merchant Submit" || application.status === "Under Review" || application.status === "Approved"));
+    var isLocked = Boolean(application && (application.status === "Merchant Submit" || application.status === "Under Review" || application.status === "Approved" || application.status === "Merchant Created"));
     if (saveDraft && isReturned) saveDraft.remove();
     if (isLocked) lockSubmittedApplication(doc, form);
     if (saveDraft) {
@@ -263,6 +280,7 @@
           });
           clearReturnedPresentation(doc);
           lockSubmittedApplication(doc, form);
+          syncGuidanceVisibility();
           renderPublicProgress();
         }
         var title = doc.getElementById("success-title");
@@ -288,6 +306,7 @@
   }
 
   addReturnedSummary();
+  syncGuidanceVisibility();
   renderPublicProgress();
   frame.addEventListener("load", handleFrameLoad);
   if (frame.contentDocument && frame.contentDocument.readyState === "complete") handleFrameLoad();
