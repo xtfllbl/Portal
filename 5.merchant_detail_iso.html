@@ -6220,6 +6220,15 @@
         updateCounts();
         setActiveStore(null);
     </script>
+    <script>
+        (function () {
+            var merchantId = new URLSearchParams(window.location.search).get('merchantId') || '';
+            if (!merchantId) return;
+            var url = new URL('5.merchant_detail_no_store_iso.html', window.location.href);
+            url.searchParams.set('merchantId', merchantId);
+            window.location.replace(url.href);
+        })();
+    </script>
     <script src="scripts/merchant-admin-shell.js"></script>
 </body>
 </html>

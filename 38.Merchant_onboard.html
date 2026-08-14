@@ -1145,6 +1145,7 @@
   </div>
 
   <script src="scripts/merchant-onboarding-store.js"></script>
+  <script src="scripts/platform-merchant-store.js"></script>
   <script>
     (function () {
       "use strict";
@@ -1153,6 +1154,7 @@
       var APPLICATIONS_KEY = "paywizard-onboarding-applications-v2";
       var LEAD_PREFILL_KEY = "paywizard-lead-onboarding-prefill-v1";
       var Store = window.PaywizardOnboardingStore;
+      var PlatformStore = window.PaywizardPlatformMerchantStore;
       var baseRows = [
         { processId: "00000336", spName: "Paywizard UAT", agentName: "", merchantName: "techsupport", mid: "-", email: "maggie-support1@wizarpos.com", lastUpdate: "2026-05-14 14:22:27", status: "Draft" },
         { processId: "00000328", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi123213243234", mid: "mid12320251229", email: "uat2512003@nooboy.com", lastUpdate: "2025-12-29 15:29:41", status: "Approved" },
@@ -1234,6 +1236,13 @@
         }
         if (row.status === "Approved") {
           actions.push('<button class="action-btn create-merchant-action" type="button" data-action="create-merchant" data-tooltip="Create merchant" aria-label="Create merchant for process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">add_business</span></button>');
+        }
+        if (row.status === "Merchant Created" && PlatformStore) {
+          var linkedMerchant = PlatformStore.readAll().find(function (merchant) { return merchant.applicationId === row.applicationId; });
+          if (linkedMerchant && PlatformStore.setupState(linkedMerchant) !== "complete") {
+            var storeLabel = PlatformStore.setupLabel(linkedMerchant);
+            actions.push('<button class="action-btn create-merchant-action" type="button" data-action="setup-store" data-tooltip="' + escapeHtml(storeLabel) + '" aria-label="' + escapeHtml(storeLabel) + ' for process ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">storefront</span></button>');
+          }
         }
         if (row.status === "Merchant Submit" || row.status === "Under Review") {
           actions.push('<button class="action-btn review-action" type="button" data-action="review" data-tooltip="' + (row.status === "Under Review" ? "Continue review" : "Review application") + '" aria-label="' + (row.status === "Under Review" ? "Continue review" : "Review application") + ' ' + escapeHtml(row.processId) + '"><span class="material-symbols-rounded" aria-hidden="true">fact_check</span></button>');
@@ -1715,6 +1724,13 @@
           createUrl.searchParams.set("source", "onboarding");
           createUrl.searchParams.set("applicationId", row.applicationId);
           window.location.href = createUrl.href;
+          return;
+        }
+        if (action === "setup-store") {
+          if (!row || row.status !== "Merchant Created" || !PlatformStore) return;
+          var merchant = PlatformStore.readAll().find(function (item) { return item.applicationId === row.applicationId; });
+          if (!merchant) return;
+          window.location.href = PlatformStore.setupUrl(merchant.merchantId, true);
           return;
         }
         if (action === "share") {

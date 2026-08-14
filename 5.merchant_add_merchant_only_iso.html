@@ -988,6 +988,47 @@
             color: #7f1d1d;
         }
 
+        .merchant-success {
+            position: fixed;
+            inset: 0;
+            z-index: 2500;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(29, 33, 41, 0.46);
+            text-align: center;
+        }
+
+        .merchant-success[hidden] { display: none; }
+
+        .merchant-success-dialog {
+            width: min(520px, 100%);
+            padding: 34px 32px 30px;
+            border: 1px solid #dedfe3;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 18px 48px rgba(20, 24, 32, 0.18);
+        }
+
+        body.merchant-success-open { overflow: hidden; }
+
+        .merchant-success-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 18px;
+            color: #0b8f43;
+            background: #e8f8ef;
+        }
+
+        .merchant-success-icon .material-symbols-rounded { font-size: 32px; }
+        .merchant-success h3 { margin: 0; font-size: 22px; font-weight: 600; }
+        .merchant-success p { max-width: 600px; margin: 10px auto 24px; color: var(--text-muted); font-size: 14px; }
+        .merchant-success-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .merchant-success-actions .btn { min-width: 150px; }
+
         .btn[disabled] {
             cursor: not-allowed;
             opacity: 0.48;
@@ -1817,6 +1858,17 @@
                                 </div>
                             </div>
                         </form>
+                        <section class="merchant-success" id="merchant-success" role="dialog" aria-modal="true" aria-labelledby="merchant-success-title" hidden>
+                            <div class="merchant-success-dialog">
+                                <div class="merchant-success-icon"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span></div>
+                                <h3 id="merchant-success-title">Merchant created successfully</h3>
+                                <p><strong id="created-merchant-name">Merchant</strong> is ready. You can create the first store now or return later when the VAR sheet is available.</p>
+                                <div class="merchant-success-actions">
+                                    <a class="btn secondary" id="merchant-later-link" href="5.merchant_manage_iso.html">Do It Later</a>
+                                    <a class="btn primary" id="create-store-now-link" href="#"><span class="material-symbols-rounded" aria-hidden="true">add_business</span>Create Store Now</a>
+                                </div>
+                            </div>
+                        </section>
                     </section>
                 </div>
             </main>
@@ -1824,6 +1876,7 @@
     </div>
 
     <script src="scripts/merchant-onboarding-store.js"></script>
+    <script src="scripts/platform-merchant-store.js"></script>
     <script>
         (function () {
             "use strict";
@@ -1833,11 +1886,13 @@
             var fromOnboarding = params.get("source") === "onboarding";
             var applicationId = params.get("applicationId") || "";
             var Store = window.PaywizardOnboardingStore;
+            var PlatformStore = window.PaywizardPlatformMerchantStore;
             var sourceApplication = null;
             var form = document.getElementById("merchant-form");
             var submitButton = document.getElementById("submit-merchant");
             var alertBox = document.getElementById("source-alert");
             var alertCopy = document.getElementById("source-alert-copy");
+            var successPanel = document.getElementById("merchant-success");
 
             function readPlatformMerchants() {
                 try {
@@ -1993,6 +2048,7 @@
 
                 var merchants = readPlatformMerchants();
                 var record = createMerchantRecord(formValues(), sourceApplication);
+                record.storeRecords = [];
                 merchants.unshift(record);
                 savePlatformMerchants(merchants);
 
@@ -2003,7 +2059,15 @@
                     Store.upsertApplication(sourceApplication);
                 }
 
-                window.location.href = "5.merchant_manage_iso.html?createdMerchantId=" + encodeURIComponent(record.merchantId);
+                submitButton.disabled = true;
+                successPanel.hidden = false;
+                document.body.classList.add("merchant-success-open");
+                document.getElementById("created-merchant-name").textContent = record.dba || "Merchant";
+                document.getElementById("merchant-later-link").href = "5.merchant_manage_iso.html?createdMerchantId=" + encodeURIComponent(record.merchantId);
+                document.getElementById("create-store-now-link").href = PlatformStore
+                    ? PlatformStore.setupUrl(record.merchantId, true)
+                    : "5.merchant_detail_no_store_iso.html?merchantId=" + encodeURIComponent(record.merchantId) + "&openAddStore=1";
+                document.getElementById("create-store-now-link").focus();
             });
         })();
     </script>

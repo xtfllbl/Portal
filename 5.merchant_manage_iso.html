@@ -1307,6 +1307,15 @@
             stroke: none;
         }
 
+        .table-action.store-setup-action {
+            color: #0b8f43;
+            border-color: #8ac9a6;
+            background: #f1fbf5;
+            text-decoration: none;
+        }
+
+        .table-action .material-symbols-rounded { font-size: 20px; }
+
         .row-action-menu {
             position: absolute;
             top: 50px;
@@ -2374,8 +2383,10 @@
             </div>
         </div>
     </div>
+    <script src="scripts/platform-merchant-store.js"></script>
     <script>
         const PLATFORM_MERCHANTS_KEY = 'paywizard-platform-merchants-v1';
+        const platformMerchantStore = window.PaywizardPlatformMerchantStore;
         const merchantTableBody = document.getElementById('merchantTableBody');
         const createdMerchantId = new URLSearchParams(window.location.search).get('createdMerchantId') || '';
         const staticMerchantTemplate = merchantTableBody.querySelector('tr');
@@ -2403,6 +2414,7 @@
             row.dataset.platformMerchantId = merchant.merchantId || '';
             row.classList.toggle('merchant-row-created', merchant.merchantId === createdMerchantId);
             merchantLink.textContent = merchant.dba || 'Merchant';
+            merchantLink.href = `5.merchant_detail_no_store_iso.html?merchantId=${encodeURIComponent(merchant.merchantId || '')}`;
             setCellText(cells[1], merchant.processId);
             setCellText(cells[2], merchant.owner);
             setCellText(cells[3], merchant.contactName);
@@ -2417,6 +2429,20 @@
             setCellText(cells[7], Number(merchant.stores || 0));
             setCellText(cells[8], Number(merchant.devices || 0));
             setCellText(cells[9], merchant.currency);
+            const actionCell = cells[cells.length - 1];
+            const detailAction = actionCell?.querySelector('.table-action[href]');
+            if (detailAction) detailAction.href = merchantLink.href;
+            if (platformMerchantStore && platformMerchantStore.setupState(merchant) !== 'complete') {
+                const actionGroup = actionCell?.querySelector('.action-group');
+                const moreAction = actionGroup?.querySelector('.table-action.more');
+                const storeAction = document.createElement('a');
+                storeAction.className = 'table-action store-setup-action';
+                storeAction.href = platformMerchantStore.setupUrl(merchant.merchantId, true);
+                storeAction.dataset.tooltip = platformMerchantStore.setupLabel(merchant);
+                storeAction.setAttribute('aria-label', `${platformMerchantStore.setupLabel(merchant)} for ${merchant.dba || 'merchant'}`);
+                storeAction.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">add_business</span>';
+                if (actionGroup) actionGroup.insertBefore(storeAction, moreAction || null);
+            }
             merchantTableBody.prepend(row);
         }
 

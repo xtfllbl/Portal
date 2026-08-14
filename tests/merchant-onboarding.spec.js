@@ -540,6 +540,13 @@ test("prefills and creates a platform merchant from an approved Nuvei applicatio
   await page.locator("#merchant-dba").fill("Maple Street Coffee Downtown");
   await expect(page.locator(".prefill-note")).toHaveCount(0);
   await page.getByRole("button", { name: "Submit" }).click();
+  const successDialog = page.getByRole("dialog", { name: "Merchant created successfully" });
+  await expect(successDialog).toBeVisible();
+  await expect(successDialog).toHaveCSS("position", "fixed");
+  await expect(page.locator("body")).toHaveClass(/merchant-success-open/);
+  await expect(page.getByRole("link", { name: "Create Store Now" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Do It Later" })).toBeVisible();
+  await page.getByRole("link", { name: "Do It Later" }).click();
   await expect(page).toHaveURL(/5\.merchant_manage_iso\.html\?createdMerchantId=/);
   await expect(page.locator("#createdMerchantBanner")).toHaveCount(0);
   const createdMerchantRow = page.locator("#merchantTableBody tr.merchant-row-created");
@@ -567,6 +574,75 @@ test("prefills and creates a platform merchant from an approved Nuvei applicatio
   await page.goto("/5.merchant_add_merchant_only_iso.html?source=onboarding&applicationId=APP-DEMO-NUVEI-01");
   await expect(page.getByRole("alert")).toContainText("already been created");
   await expect(page.getByRole("button", { name: "Submit" })).toBeDisabled();
+});
+
+test("creates a store without optional payment setup and completes it later", async ({ page }) => {
+  await openCleanPage(page);
+  await page.evaluate(() => {
+    const application = window.PaywizardOnboardingStore.findApplication("APP-DEMO-NUVEI-01");
+    application.status = "Approved";
+    application.mid = "-";
+    window.PaywizardOnboardingStore.upsertApplication(application);
+  });
+  await page.reload();
+
+  const approvedRow = page.locator('#onboarding-rows tr[data-application-id="APP-DEMO-NUVEI-01"]');
+  await approvedRow.getByRole("button", { name: "Create merchant for process 00000339" }).click();
+  await page.getByRole("button", { name: "Submit" }).click();
+  await page.getByRole("link", { name: "Create Store Now" }).click();
+
+  await expect(page).toHaveURL(/5\.merchant_detail_no_store_iso\.html\?merchantId=.*openAddStore=1/);
+  await expect(page.locator("#store-modal")).toHaveClass(/active/);
+  await expect(page.locator("#store-name-modal")).toHaveValue("Maple Street Coffee");
+  await expect(page.locator("#store-manager-modal")).toHaveValue("Sophie Martin");
+  await expect(page.locator("#store-email-modal")).toHaveValue("finance@maplestreetcoffee.ca");
+  await expect(page.locator("#store-address1-modal")).toHaveValue("128 King Street West");
+  await expect(page.locator("#store-terminal-payment-enabled")).not.toBeChecked();
+  await expect(page.locator("#store-terminal-payment-fields")).toBeHidden();
+  await expect(page.locator("#store-channel-modal")).toHaveValue("Nuvei");
+  await expect(page.locator("#store-mid-modal")).toHaveValue("");
+
+  await page.locator("#store-mcc-modal").selectOption("5812");
+  await page.locator("#store-modal-submit").click();
+  await expect(page.locator(".store-grid-row")).toHaveCount(1);
+  await expect(page.locator(".store-grid-row")).toContainText("Pending Setup");
+  await expect(page.locator(".store-grid-row")).toContainText("MID missing");
+
+  const merchant = await page.evaluate((key) => JSON.parse(localStorage.getItem(key))[0], PLATFORM_MERCHANTS_KEY);
+  expect(merchant.stores).toBe(1);
+  expect(merchant.storeRecords[0]).toMatchObject({
+    name: "Maple Street Coffee",
+    manager: "Sophie Martin",
+    status: "Pending Setup"
+  });
+  expect(merchant.storeRecords[0].paymentChannels).toEqual([]);
+
+  await page.goto(`/5.merchant_manage_iso.html`);
+  const merchantRow = page.locator(`tr[data-platform-merchant-id="${merchant.merchantId}"]`);
+  await expect(merchantRow.getByRole("link", { name: /Complete Store Setup/ })).toBeVisible();
+  await merchantRow.getByRole("link", { name: /Complete Store Setup/ }).click();
+  await expect(page).toHaveURL(/editStoreId=/);
+  await expect(page.locator("#store-modal-title")).toHaveText("Edit Store");
+  await expect(page.locator("#store-terminal-payment-enabled")).toBeChecked();
+  await expect(page.locator("#store-terminal-payment-fields")).toBeVisible();
+  await expect(page.locator("#store-channel-modal")).toHaveValue("Nuvei");
+  await expect(page.locator("#store-channel-modal")).toHaveAttribute("required", "");
+  await expect(page.locator("#store-mid-modal")).toHaveAttribute("required", "");
+  await page.locator("#store-modal-submit").click();
+  await expect(page.locator("#store-modal")).toHaveClass(/active/);
+  await page.locator("#store-mid-modal").fill("NUVEI-MID-1001");
+  await page.locator("#store-modal-submit").click();
+  await expect(page.locator(".store-grid-row")).toContainText("Active");
+  await expect(page.locator(".store-grid-row")).toContainText("NUVEI-MID-1001");
+
+  const completedMerchant = await page.evaluate((key) => JSON.parse(localStorage.getItem(key))[0], PLATFORM_MERCHANTS_KEY);
+  expect(completedMerchant.storeRecords[0].status).toBe("Active");
+  expect(completedMerchant.storeRecords[0].paymentChannels[0].mid).toBe("NUVEI-MID-1001");
+
+  await page.goto("/38.Merchant_onboard.html");
+  const createdRow = page.locator('#onboarding-rows tr[data-application-id="APP-DEMO-NUVEI-01"]');
+  await expect(createdRow).toContainText("Merchant Created");
+  await expect(createdRow.getByRole("button", { name: /Store/ })).toHaveCount(0);
 });
 
 test("prefills Elavon business data without inventing an address", async ({ page }) => {

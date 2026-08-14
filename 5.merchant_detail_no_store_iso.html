@@ -2103,6 +2103,36 @@
             box-shadow: 0 2px 0 0 var(--accent);
         }
 
+        .terminal-payment-option {
+            padding: 14px 16px 16px;
+            border: 1px solid #dedfe3;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .terminal-payment-option .checkline {
+            margin: 0;
+        }
+
+        .terminal-payment-fields {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eceef1;
+        }
+
+        .terminal-payment-fields[hidden] {
+            display: none;
+        }
+
+        .optional-label {
+            margin-left: 8px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
         .input-field[readonly] {
             color: #94a3b8;
             cursor: not-allowed;
@@ -2866,6 +2896,28 @@
                             <input class="input-field" id="store-state-modal" type="text" placeholder="State">
                         </div>
                     </div>
+                    <div class="terminal-payment-option">
+                        <label class="checkline" for="store-terminal-payment-enabled">
+                            <input id="store-terminal-payment-enabled" type="checkbox" aria-controls="store-terminal-payment-fields" aria-expanded="false">
+                            Terminal Payment Setup <span class="optional-label">Optional</span>
+                        </label>
+                        <div class="terminal-payment-fields" id="store-terminal-payment-fields" hidden>
+                            <div class="form-grid two">
+                                <div class="field">
+                                    <label for="store-channel-modal">Payment Channel *</label>
+                                    <select class="input-field" id="store-channel-modal">
+                                        <option value="">Select Payment Channel</option>
+                                        <option value="Nuvei">Nuvei</option>
+                                        <option value="Elavon EU">Elavon EU</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="store-mid-modal">Merchant ID (MID) *</label>
+                                    <input class="input-field" id="store-mid-modal" type="text" placeholder="Enter MID">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button class="btn secondary" type="button" data-close="store-modal">Cancel</button>
@@ -3463,8 +3515,13 @@
             </form>
         </div>
     </div>
+    <script src="scripts/platform-merchant-store.js"></script>
     <script>
         const storeGrid = document.querySelector('.store-grid-head')?.parentElement;
+        const platformStore = window.PaywizardPlatformMerchantStore;
+        const detailParams = new URLSearchParams(window.location.search);
+        const dynamicMerchantId = detailParams.get('merchantId') || '';
+        let dynamicMerchant = dynamicMerchantId && platformStore ? platformStore.find(dynamicMerchantId) : null;
         const deviceGrid = document.querySelector('.device-grid-head')?.parentElement;
         const storeCountEl = document.getElementById('store-count');
         const deviceCountEl = document.getElementById('device-count');
@@ -3502,6 +3559,10 @@
         const storeModalSubmit = document.getElementById('store-modal-submit');
         const storeSameMerchantWrap = document.getElementById('store-same-merchant-wrap');
         const storeSameMerchantInput = document.getElementById('store-same-merchant-modal');
+        const storeTerminalPaymentEnabled = document.getElementById('store-terminal-payment-enabled');
+        const storeTerminalPaymentFields = document.getElementById('store-terminal-payment-fields');
+        const storeChannelInput = document.getElementById('store-channel-modal');
+        const storeMidInput = document.getElementById('store-mid-modal');
         const deviceStoreNameInput = document.getElementById('device-store-name');
         const processorSelect = document.getElementById('device-processor-modal');
         const processorVersionSelect = document.getElementById('processor-version-modal');
@@ -3562,6 +3623,23 @@
             country: 'United States',
             mcc: '5812'
         };
+        if (dynamicMerchant) {
+            Object.assign(merchantState, {
+                id: dynamicMerchant.merchantId || dynamicMerchantId,
+                dba: dynamicMerchant.dba || 'Merchant',
+                contact: dynamicMerchant.contactName || '',
+                email: dynamicMerchant.email || '',
+                phone: [dynamicMerchant.phoneCountryCode, dynamicMerchant.phone].filter(Boolean).join(' '),
+                address1: dynamicMerchant.addressLine1 || '',
+                address2: dynamicMerchant.addressLine2 || '',
+                city: dynamicMerchant.city || '',
+                state: dynamicMerchant.state || '',
+                zip: dynamicMerchant.zip || '',
+                owner: dynamicMerchant.owner || '',
+                country: dynamicMerchant.country || '',
+                mcc: dynamicMerchant.mcc || ''
+            });
+        }
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
         const VALIDATE_TEST_CARDS = [
             {
@@ -3680,8 +3758,21 @@
             zip: getValue('store-zip-modal'),
             city: getValue('store-city-modal'),
             state: getValue('store-state-modal'),
-            storedValueEnabled: Boolean(document.getElementById('store-stored-value-modal')?.checked)
+            storedValueEnabled: Boolean(document.getElementById('store-stored-value-modal')?.checked),
+            country: dynamicMerchant?.country || merchantState.country || '',
+            currency: dynamicMerchant?.currency || '',
+            terminalPaymentEnabled: Boolean(storeTerminalPaymentEnabled?.checked),
+            paymentChannel: storeTerminalPaymentEnabled?.checked ? getValue('store-channel-modal') : '',
+            mid: storeTerminalPaymentEnabled?.checked ? getValue('store-mid-modal') : ''
         });
+
+        const syncTerminalPaymentState = () => {
+            const enabled = Boolean(storeTerminalPaymentEnabled?.checked);
+            if (storeTerminalPaymentFields) storeTerminalPaymentFields.hidden = !enabled;
+            if (storeTerminalPaymentEnabled) storeTerminalPaymentEnabled.setAttribute('aria-expanded', String(enabled));
+            if (storeChannelInput) storeChannelInput.required = enabled;
+            if (storeMidInput) storeMidInput.required = enabled;
+        };
 
         const syncStoreFromMerchant = () => {
             if (!storeSameMerchantInput?.checked) return;
@@ -3695,6 +3786,8 @@
             setValue('store-zip-modal', merchantState.zip);
             setValue('store-city-modal', merchantState.city);
             setValue('store-state-modal', merchantState.state);
+            setValue('store-channel-modal', dynamicMerchant?.channel || '');
+            setValue('store-mid-modal', '');
         };
 
         const applyStoreDataToRow = (row, payload) => {
@@ -3753,7 +3846,15 @@
             if (storedValueInput) storedValueInput.checked = true;
             if (storeEmailInput) storeEmailInput.readOnly = mode === 'edit';
             if (storeSameMerchantInput) storeSameMerchantInput.checked = false;
+            if (storeTerminalPaymentEnabled) storeTerminalPaymentEnabled.checked = false;
             if (storeSameMerchantWrap) storeSameMerchantWrap.hidden = mode !== 'add' || getStoreRows().length > 0;
+
+            if (mode === 'add' && dynamicMerchant) {
+                if (storeSameMerchantInput) storeSameMerchantInput.checked = true;
+                syncStoreFromMerchant();
+            }
+
+            syncTerminalPaymentState();
 
             if (mode !== 'edit' || !row) return;
             setValue('store-mcc-modal', row.dataset.storeMcc || '5812');
@@ -3767,6 +3868,12 @@
             setValue('store-zip-modal', row.dataset.storeZip || '');
             setValue('store-city-modal', row.dataset.storeCity || '');
             setValue('store-state-modal', row.dataset.storeState || '');
+            setValue('store-channel-modal', row.dataset.storePrimaryChannel || dynamicMerchant?.channel || '');
+            setValue('store-mid-modal', row.dataset.storePrimaryMid || '');
+            if (storeTerminalPaymentEnabled) {
+                storeTerminalPaymentEnabled.checked = Boolean(row.dataset.storePrimaryChannel || row.dataset.storePrimaryMid || detailParams.get('editStoreId') === row.dataset.storeId);
+            }
+            syncTerminalPaymentState();
             if (storedValueInput) storedValueInput.checked = row.dataset.storedValue !== 'disabled';
         };
 
@@ -3905,7 +4012,7 @@
 
         const updateStatusBadge = (badge, status) => {
             if (!badge) return;
-            const statusClass = status.toLowerCase();
+            const statusClass = status === 'Pending Setup' ? 'pending' : status.toLowerCase();
             badge.classList.remove('active', 'pending', 'offline');
             badge.classList.add(statusClass);
             badge.textContent = status;
@@ -3966,16 +4073,17 @@
             const overview = document.createElement('div');
             overview.className = 'mid-overview';
 
+            const configuredMids = mids.filter((item) => String(item.mid || item.value || '').trim());
             const count = document.createElement('span');
-            count.className = mids.length ? 'mid-count-badge' : 'mid-count-badge warning';
-            count.textContent = mids.length ? `${mids.length} MID${mids.length === 1 ? '' : 's'}` : 'MID missing';
+            count.className = configuredMids.length ? 'mid-count-badge' : 'mid-count-badge warning';
+            count.textContent = configuredMids.length ? `${configuredMids.length} MID${configuredMids.length === 1 ? '' : 's'}` : 'MID missing';
             overview.appendChild(count);
 
             const action = document.createElement('button');
             action.className = 'mid-summary-action';
             action.type = 'button';
             action.dataset.action = 'payment';
-            action.textContent = mids.length ? 'View / Edit' : 'Set up';
+            action.textContent = configuredMids.length ? 'View / Edit' : 'Complete Payment Setup';
             overview.appendChild(action);
             cell.appendChild(overview);
 
@@ -3990,7 +4098,7 @@
                 type.textContent = mids[0].channel || mids[0].label || 'MID';
                 const value = document.createElement('span');
                 value.className = 'mid-mono';
-                value.textContent = mids[0].mid || mids[0].value || '';
+                value.textContent = mids[0].mid || mids[0].value || 'MID missing';
                 primaryLine.appendChild(caption);
                 primaryLine.appendChild(type);
                 primaryLine.appendChild(value);
@@ -4222,6 +4330,8 @@
                 if (statusBadge) {
                     if (isDisabled) {
                         updateStatusBadge(statusBadge, 'Offline');
+                    } else if (dynamicMerchant) {
+                        updateStatusBadge(statusBadge, String(row.dataset.storePrimaryMid || '').trim() ? 'Active' : 'Pending Setup');
                     } else {
                         let storeStatus = 'Pending';
                         if (summary.statuses.Active) {
@@ -4893,7 +5003,8 @@
                 if (paymentSummaryAction) {
                     event.stopPropagation();
                     const row = paymentSummaryAction.closest('.store-grid-row[data-store-id]');
-                    navigateToStorePayment(row);
+                    if (dynamicMerchant) openStoreModal('edit', row);
+                    else navigateToStorePayment(row);
                     return;
                 }
 
@@ -4917,7 +5028,9 @@
                         return;
                     }
                     if (action === 'payment') {
-                        navigateToStorePayment(row);
+                        closeStoreMenus();
+                        if (dynamicMerchant) openStoreModal('edit', row);
+                        else navigateToStorePayment(row);
                         return;
                     }
                     if (action === 'resend') {
@@ -5120,6 +5233,10 @@
             storeSameMerchantInput.addEventListener('change', syncStoreFromMerchant);
         }
 
+        if (storeTerminalPaymentEnabled) {
+            storeTerminalPaymentEnabled.addEventListener('change', syncTerminalPaymentState);
+        }
+
         if (merchantProfileForm) {
             merchantProfileForm.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -5150,6 +5267,37 @@
                 if (storeFormMode === 'edit') {
                     const row = getStoreRows().find((storeRow) => storeRow.dataset.storeId === editingStoreId);
                     if (row) payload.email = row.dataset.storeEmail || payload.email;
+                    if (dynamicMerchant && platformStore && row) {
+                        const updatedStore = platformStore.saveStore(dynamicMerchantId, {
+                            storeId: editingStoreId,
+                            name: payload.name,
+                            mcc: payload.mcc,
+                            timezone: payload.timezone,
+                            manager: payload.manager,
+                            phone: payload.phone,
+                            email: payload.email,
+                            address1: payload.address1,
+                            address2: payload.address2,
+                            zip: payload.zip,
+                            city: payload.city,
+                            state: payload.state,
+                            country: payload.country,
+                            currency: payload.currency,
+                            storedValueEnabled: payload.storedValueEnabled,
+                            paymentChannels: payload.terminalPaymentEnabled ? [{ type: 'Terminal', channel: payload.paymentChannel, mid: payload.mid }] : []
+                        });
+                        dynamicMerchant = platformStore.find(dynamicMerchantId);
+                        row.dataset.storeMidDetails = JSON.stringify(updatedStore?.paymentChannels || []);
+                        row.dataset.storePrimaryChannel = payload.paymentChannel;
+                        row.dataset.storePrimaryMid = payload.mid;
+                        const oldMidCell = row.querySelector('.mid-summary-cell');
+                        if (oldMidCell) oldMidCell.replaceWith(buildMidSummaryCell({ mids: updatedStore?.paymentChannels || [] }));
+                        const statusBadge = row.querySelector('[data-role="store-status"]');
+                        if (statusBadge) {
+                            statusBadge.className = `status-badge ${payload.mid ? 'active' : 'pending'}`;
+                            statusBadge.textContent = payload.mid ? 'Active' : 'Pending Setup';
+                        }
+                    }
                     applyStoreDataToRow(row, payload);
                     updateCounts();
                     setActiveStore(activeStoreId);
@@ -5158,16 +5306,40 @@
                     return;
                 }
 
-                const storeId = generateStoreId();
+                let savedStore = null;
+                if (dynamicMerchant && platformStore) {
+                    savedStore = platformStore.saveStore(dynamicMerchantId, {
+                        name: payload.name,
+                        mcc: payload.mcc,
+                        timezone: payload.timezone,
+                        manager: payload.manager,
+                        phone: payload.phone,
+                        email: payload.email,
+                        address1: payload.address1,
+                        address2: payload.address2,
+                        zip: payload.zip,
+                        city: payload.city,
+                        state: payload.state,
+                        country: payload.country,
+                        currency: payload.currency,
+                        storedValueEnabled: payload.storedValueEnabled,
+                        paymentChannels: payload.terminalPaymentEnabled ? [{ type: 'Terminal', channel: payload.paymentChannel, mid: payload.mid }] : []
+                    });
+                    dynamicMerchant = platformStore.find(dynamicMerchantId);
+                }
+                const storeId = savedStore?.storeId || generateStoreId();
+                const paymentChannels = savedStore?.paymentChannels || (payload.terminalPaymentEnabled
+                    ? [{ type: 'Terminal', channel: payload.paymentChannel, mid: payload.mid }]
+                    : []);
 
                 const row = document.createElement('div');
                 row.className = 'grid-row store-grid-row';
                 row.dataset.storeId = storeId;
-                row.dataset.storeMids = '';
-                row.dataset.storeMidDetails = '[]';
-                row.dataset.storeMidCount = '0';
-                row.dataset.storePrimaryMid = '';
-                row.dataset.storePrimaryChannel = '';
+                row.dataset.storeMids = payload.mid || '';
+                row.dataset.storeMidDetails = JSON.stringify(paymentChannels);
+                row.dataset.storeMidCount = payload.mid ? '1' : '0';
+                row.dataset.storePrimaryMid = payload.mid || '';
+                row.dataset.storePrimaryChannel = payload.paymentChannel || '';
                 row.setAttribute('role', 'button');
                 row.setAttribute('tabindex', '0');
                 row.setAttribute('aria-pressed', 'false');
@@ -5177,13 +5349,13 @@
 
                 row.appendChild(nameCell);
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: formatStoreAddress(payload) }));
-                row.appendChild(Object.assign(document.createElement('div'), { textContent: formatDateTime() }));
+                row.appendChild(Object.assign(document.createElement('div'), { textContent: savedStore?.createdAt || formatDateTime() }));
 
                 const deviceCell = document.createElement('div');
                 deviceCell.setAttribute('data-role', 'device-count');
                 deviceCell.textContent = '0 Devices';
                 row.appendChild(deviceCell);
-                row.appendChild(buildMidSummaryCell());
+                row.appendChild(buildMidSummaryCell({ mids: paymentChannels }));
 
                 const storedValueCell = document.createElement('div');
                 const storedValueBadge = document.createElement('span');
@@ -5195,9 +5367,9 @@
 
                 const statusCell = document.createElement('div');
                 const statusBadge = document.createElement('span');
-                statusBadge.className = 'status-badge pending';
+                statusBadge.className = `status-badge ${payload.mid ? 'active' : 'pending'}`;
                 statusBadge.setAttribute('data-role', 'store-status');
-                statusBadge.textContent = 'Pending';
+                statusBadge.textContent = payload.mid ? 'Active' : 'Pending Setup';
                 statusCell.appendChild(statusBadge);
                 row.appendChild(statusCell);
 
@@ -5291,14 +5463,85 @@
             });
         }
 
+        const appendStoredStore = (store) => {
+            if (!storeGrid || !store) return null;
+            const payload = {
+                name: store.name || 'Store',
+                mcc: store.mcc || '',
+                timezone: store.timezone || '',
+                manager: store.manager || '',
+                phone: store.phone || '',
+                email: store.email || '',
+                address1: store.address1 || '',
+                address2: store.address2 || '',
+                zip: store.zip || '',
+                city: store.city || '',
+                state: store.state || '',
+                storedValueEnabled: store.storedValueEnabled !== false
+            };
+            const mids = Array.isArray(store.paymentChannels) ? store.paymentChannels : [];
+            const primary = mids.find((item) => item.type === 'Terminal') || mids[0] || {};
+            const row = document.createElement('div');
+            row.className = 'grid-row store-grid-row';
+            row.dataset.storeId = store.storeId;
+            row.dataset.storeMids = primary.mid || '';
+            row.dataset.storeMidDetails = JSON.stringify(mids);
+            row.dataset.storeMidCount = primary.mid ? '1' : '0';
+            row.dataset.storePrimaryMid = primary.mid || '';
+            row.dataset.storePrimaryChannel = primary.channel || '';
+            row.setAttribute('role', 'button');
+            row.setAttribute('tabindex', '0');
+            row.setAttribute('aria-pressed', 'false');
+            row.appendChild(Object.assign(document.createElement('div'), { textContent: payload.name }));
+            row.appendChild(Object.assign(document.createElement('div'), { textContent: formatStoreAddress(payload) }));
+            row.appendChild(Object.assign(document.createElement('div'), { textContent: store.createdAt || '-' }));
+            const deviceCell = document.createElement('div');
+            deviceCell.dataset.role = 'device-count';
+            deviceCell.textContent = `${Number(store.devices || 0)} Devices`;
+            row.appendChild(deviceCell);
+            row.appendChild(buildMidSummaryCell({ mids }));
+            const prepaidCell = document.createElement('div');
+            const prepaidBadge = document.createElement('span');
+            prepaidBadge.className = `status-badge ${payload.storedValueEnabled ? 'active' : 'offline'}`;
+            prepaidBadge.dataset.role = 'store-stored-value';
+            prepaidBadge.textContent = payload.storedValueEnabled ? 'Enabled' : 'Disabled';
+            prepaidCell.appendChild(prepaidBadge);
+            row.appendChild(prepaidCell);
+            const statusCell = document.createElement('div');
+            const statusBadge = document.createElement('span');
+            const isActive = Boolean(primary.mid);
+            statusBadge.className = `status-badge ${isActive ? 'active' : 'pending'}`;
+            statusBadge.dataset.role = 'store-status';
+            statusBadge.textContent = isActive ? 'Active' : 'Pending Setup';
+            statusCell.appendChild(statusBadge);
+            row.appendChild(statusCell);
+            row.appendChild(buildStoreActionsCell());
+            applyStoreDataToRow(row, payload);
+            storeGrid.appendChild(row);
+            return row;
+        };
+
         populateValidateCardOptions();
         syncValidateTrack2();
         enhanceExistingDeviceSettingsControls();
         getDeviceRows().forEach((row) => {
             applyTerminalNameToRow(row, getTerminalNameForRow(row));
         });
+        if (dynamicMerchant) {
+            applyMerchantProfile();
+            document.title = `${dynamicMerchant.dba || 'Merchant'} | Merchant Overview`;
+            const avatar = document.querySelector('.avatar');
+            if (avatar) avatar.textContent = String(dynamicMerchant.dba || 'M').split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase();
+            (dynamicMerchant.storeRecords || []).forEach(appendStoredStore);
+        }
         updateCounts();
         setActiveStore(null);
+        if (dynamicMerchant) {
+            const editStoreId = detailParams.get('editStoreId') || '';
+            const editRow = editStoreId ? getStoreRows().find((row) => row.dataset.storeId === editStoreId) : null;
+            if (editRow) openStoreModal('edit', editRow);
+            else if (detailParams.get('openAddStore') === '1') openStoreModal('add');
+        }
     </script>
     <script src="scripts/merchant-admin-shell.js"></script>
 </body>
