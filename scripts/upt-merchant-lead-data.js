@@ -22,14 +22,14 @@
     {
       processId: "00000439", spName: "wizarpos", partnerName: "上海比至",
       country: "United States of America", region: "Nevada", merchantName: "Jeeves Vending",
-      terminalNumber: 1, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
+      terminalNumber: 12, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
       phone: "+1 702 555 0184", lastUpdate: "2026-05-28 18:04:26", pastDays: 1, status: "-",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Vending",
       attendant: "Unattended", dispatchTime: "2026-05-30", arrivalTime: "2026-06-04",
       vendingMachineType: "Snack and beverage vending machine", outreachContact: "Gary Stryder",
       decisionMaker: { name: "Gary Stryder", email: "Gary@jeevesvending.com", phone: "+1 702 555 0184" },
       secondDecisionMaker: { name: "Lena Brooks", email: "lena@jeevesvending.com", phone: "+1 702 555 0129" },
-      notes: "Pilot terminal for the Las Vegas office campus.",
+      notes: "Twelve terminals are planned across the Las Vegas office campus rollout.",
       attachments: [{ name: "jeeves_machine_photo.jpg", type: "JPG", size: "612 KB" }],
       processing: { averagePrice: "$4.50", minimumPrice: "$1.50", maximumPrice: "$12.00", monthlyVolume: "$8,700", additionalInformation: "Card-present unattended retail profile requested." },
       serialNumbers: ["WP5305UQ33200439"]
@@ -37,14 +37,14 @@
     {
       processId: "00000438", spName: "wizarpos", partnerName: "IMT",
       country: "Mongolia", region: "Ulaanbaatar", merchantName: "Steppe Arena LLC",
-      terminalNumber: 2, contactName: "Khaliun Maitsetseg", email: "khaliun.m@steppeholding.mn",
+      terminalNumber: 14, contactName: "Khaliun Maitsetseg", email: "khaliun.m@steppeholding.mn",
       phone: "+976 7011 4388", lastUpdate: "2026-05-28 15:34:29", pastDays: 2, status: "-",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Entertainment Venue",
       attendant: "Mixed", dispatchTime: "2026-06-01", arrivalTime: "2026-06-08",
       vendingMachineType: "Arena food and merchandise kiosks", outreachContact: "Khaliun Maitsetseg",
       decisionMaker: { name: "Khaliun Maitsetseg", email: "khaliun.m@steppeholding.mn", phone: "+976 7011 4388" },
       secondDecisionMaker: { name: "Temuulen Bat", email: "temuulen.b@steppeholding.mn", phone: "+976 7011 4312" },
-      notes: "Two terminals are allocated to the main concourse pilot.",
+      notes: "Fourteen terminals are allocated across the arena concourse and premium areas.",
       attachments: [{ name: "arena_kiosk_plan.pdf", type: "PDF", size: "428 KB" }],
       processing: { averagePrice: "$11.00", minimumPrice: "$3.00", maximumPrice: "$65.00", monthlyVolume: "$31,000", additionalInformation: "Seasonal event peaks expected during weekends." },
       serialNumbers: ["WP5305UQ33200438", "WP5305UQ33210438"]
@@ -67,14 +67,14 @@
     {
       processId: "00000436", spName: "wizarpos", partnerName: "星云开物",
       country: "Russian Federation", region: "Moscow", merchantName: "OOO ДУН ТУ",
-      terminalNumber: 2, contactName: "Анна", email: "sales1@ogawa-market.ru",
+      terminalNumber: 16, contactName: "Анна", email: "sales1@ogawa-market.ru",
       phone: "+7 495 555 0436", lastUpdate: "2026-05-26 19:10:01", pastDays: 3, status: "-",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Wellness Retail",
       attendant: "Unattended", dispatchTime: "2026-05-31", arrivalTime: "2026-06-07",
       vendingMachineType: "Massage product retail kiosk", outreachContact: "Анна",
       decisionMaker: { name: "Анна Петрова", email: "sales1@ogawa-market.ru", phone: "+7 495 555 0436" },
       secondDecisionMaker: { name: "Иван Соколов", email: "ivan@ogawa-market.ru", phone: "+7 495 555 0476" },
-      notes: "Two kiosks will be installed in separate shopping centers.",
+      notes: "Sixteen kiosks will be installed across multiple shopping centers.",
       attachments: [{ name: "machine_specification.pdf", type: "PDF", size: "356 KB" }],
       processing: { averagePrice: "$35.00", minimumPrice: "$12.00", maximumPrice: "$120.00", monthlyVolume: "$24,500", additionalInformation: "Merchant requests receipt delivery by email." },
       serialNumbers: ["WP5305UQ33200436", "WP5305UQ33210436"]
@@ -82,14 +82,14 @@
     {
       processId: "00000434", spName: "wizarpos", partnerName: "爆米发",
       country: "Indonesia", region: "East Java", merchantName: "PNDW Station",
-      terminalNumber: 1, contactName: "Wahyu Yudhistira Tafrikun", email: "cvlabmanusiawangi@gmail.com",
+      terminalNumber: 18, contactName: "Wahyu Yudhistira Tafrikun", email: "cvlabmanusiawangi@gmail.com",
       phone: "+62 31 555 0434", lastUpdate: "2026-05-23 21:34:43", pastDays: 6, status: "-",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Food and Beverage",
       attendant: "Unattended", dispatchTime: "2026-05-29", arrivalTime: "2026-06-05",
       vendingMachineType: "Popcorn vending machine", outreachContact: "Wahyu Yudhistira Tafrikun",
       decisionMaker: { name: "Wahyu Yudhistira Tafrikun", email: "cvlabmanusiawangi@gmail.com", phone: "+62 31 555 0434" },
       secondDecisionMaker: { name: "Putri Lestari", email: "putri@pndwstation.id", phone: "+62 31 555 0484" },
-      notes: "Single terminal for the Surabaya rail station pilot.",
+      notes: "Eighteen terminals are planned for the Surabaya station network rollout.",
       attachments: [{ name: "pndw_station_site.jpg", type: "JPG", size: "731 KB" }],
       processing: { averagePrice: "$3.25", minimumPrice: "$2.00", maximumPrice: "$7.00", monthlyVolume: "$6,200", additionalInformation: "High evening and weekend transaction concentration." },
       serialNumbers: ["WP5305UQ33200434"]
@@ -127,14 +127,14 @@
     {
       processId: "00000431", spName: "wizarpos", partnerName: "上海比至",
       country: "United States of America", region: "Texas", merchantName: "Jeeves Vending",
-      terminalNumber: 5, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
+      terminalNumber: 20, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
       phone: "+1 214 555 0431", lastUpdate: "2026-05-21 11:52:47", pastDays: 9, status: "-",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Vending",
       attendant: "Unattended", dispatchTime: "2026-05-26", arrivalTime: "2026-06-01",
       vendingMachineType: "Snack, beverage and coffee vending machines", outreachContact: "Gary Stryder",
       decisionMaker: { name: "Gary Stryder", email: "Gary@jeevesvending.com", phone: "+1 214 555 0431" },
       secondDecisionMaker: { name: "Lena Brooks", email: "lena@jeevesvending.com", phone: "+1 214 555 0471" },
-      notes: "Five terminals are assigned across three office campuses.",
+      notes: "Twenty terminals are planned across three office campuses.",
       attachments: [{ name: "jeeves_texas_rollout.pdf", type: "PDF", size: "522 KB" }, { name: "terminal_locations.xlsx", type: "XLSX", size: "108 KB" }],
       processing: { averagePrice: "$4.75", minimumPrice: "$1.25", maximumPrice: "$14.00", monthlyVolume: "$41,300", additionalInformation: "Consolidated reporting requested for all five terminals." },
       serialNumbers: ["WP5305UQ33200431", "WP5305UQ33210431", "WP5305UQ33220431", "WP5305UQ33230431", "WP5305UQ33240431"]
@@ -142,19 +142,41 @@
     {
       processId: "00000430", spName: "wizarpos", partnerName: "河北盛马",
       country: "Singapore", region: "Central Region", merchantName: "LUMINA VOYAGE TECH PTE. LTD",
-      terminalNumber: 1, contactName: "Guoqi Yu", email: "yugq2022@gmail.com",
+      terminalNumber: 24, contactName: "Guoqi Yu", email: "yugq2022@gmail.com",
       phone: "+65 6555 0430", lastUpdate: "2026-05-20 16:54:08", pastDays: 9, status: "Negotiation",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Travel Retail",
       attendant: "Attended", dispatchTime: "2026-05-25", arrivalTime: "2026-05-31",
       vendingMachineType: "Travel accessory retail kiosk", outreachContact: "Guoqi Yu",
       decisionMaker: { name: "Guoqi Yu", email: "yugq2022@gmail.com", phone: "+65 6555 0430" },
       secondDecisionMaker: { name: "Alicia Tan", email: "alicia@luminavoyage.sg", phone: "+65 6555 0470" },
-      notes: "Commercial review is in progress for the airport pilot.",
+      notes: "Commercial review is in progress for a twenty-four-terminal airport rollout.",
       attachments: [{ name: "airport_kiosk_proposal.pdf", type: "PDF", size: "638 KB" }],
       processing: { averagePrice: "$32.00", minimumPrice: "$10.00", maximumPrice: "$140.00", monthlyVolume: "$27,600", additionalInformation: "Attended travel retail setup with SGD settlement." },
       serialNumbers: ["WP5305UQ33200430"]
     }
   ];
+
+  var sampleTerminalTargets = {
+    "00000439": 12,
+    "00000438": 14,
+    "00000436": 16,
+    "00000434": 18,
+    "00000431": 20,
+    "00000430": 24
+  };
+
+  function generatedSerialNumber(processId, ordinal) {
+    return "PW" + String(processId).slice(-6) + String(ordinal).padStart(8, "0");
+  }
+
+  records.forEach(function (record) {
+    var target = sampleTerminalTargets[record.processId];
+    if (!target) return;
+    while (record.serialNumbers.length < target) {
+      record.serialNumbers.push(generatedSerialNumber(record.processId, record.serialNumbers.length + 1));
+    }
+    record.terminalNumber = record.serialNumbers.length;
+  });
 
   var byProcessId = records.reduce(function (result, record) {
     result[record.processId] = record;
@@ -174,6 +196,17 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function mergeSerialNumbers(seedValues, overrideValues) {
+    var seen = {};
+    return (seedValues || []).concat(overrideValues || []).reduce(function (result, value) {
+      var serialNumber = String(value || "").trim().toUpperCase();
+      if (!serialNumber || seen[serialNumber]) return result;
+      seen[serialNumber] = true;
+      result.push(serialNumber);
+      return result;
+    }, []);
+  }
+
   function readOverrides() {
     try {
       var value = JSON.parse(global.localStorage.getItem(STORAGE_KEY) || "{}");
@@ -189,9 +222,10 @@
     if (!seed) return null;
     var override = readOverrides()[id] || {};
     var merged = Object.assign({}, clone(seed), clone(override));
-    merged.serialNumbers = Array.isArray(override.serialNumbers)
-      ? override.serialNumbers.slice()
-      : seed.serialNumbers.slice();
+    merged.serialNumbers = mergeSerialNumbers(
+      seed.serialNumbers,
+      Array.isArray(override.serialNumbers) ? override.serialNumbers : []
+    );
     var savedAssignments = override.snAssignments && typeof override.snAssignments === "object" && !Array.isArray(override.snAssignments)
       ? override.snAssignments
       : {};

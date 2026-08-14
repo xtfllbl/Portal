@@ -133,6 +133,72 @@ test('UPT and PSP Actions stay fixed while the business columns scroll', async (
   }
 });
 
+test('UPT headers have complete non-overlapping column widths', async ({ page }) => {
+  for (const viewport of [
+    { width: 2048, height: 1138 },
+    { width: 1440, height: 900 },
+    { width: 1024, height: 768 },
+    { width: 390, height: 844 }
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(paths.leads);
+    const headers = await page.locator('[data-table-view="upt"] thead th').evaluateAll((cells) => cells.map((cell) => ({
+      text: cell.textContent.trim(),
+      clientWidth: cell.clientWidth,
+      scrollWidth: cell.scrollWidth
+    })));
+    expect(headers).toHaveLength(14);
+    for (const header of headers) expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth + 1);
+    expect(headers[5].text).toBe('Terminal Number');
+    expect(headers[5].clientWidth).toBeGreaterThanOrEqual(124);
+    expect(headers[6].text).toBe('Assigned SN');
+    expect(headers[6].clientWidth).toBeGreaterThanOrEqual(104);
+  }
+});
+
+test('six UPT Leads provide high-volume unique SN samples and merge stored overrides', async ({ page }) => {
+  await page.goto(paths.leads);
+  await page.evaluate(() => localStorage.removeItem('paywizard-upt-lead-overrides-v1'));
+  await page.reload();
+  const sample = await page.evaluate(() => window.PaywizardUptLeadData.getRecords().map((record) => ({
+    processId: record.processId,
+    terminalNumber: record.terminalNumber,
+    serialNumbers: record.serialNumbers
+  })));
+  const expected = {
+    '00000439': 12,
+    '00000438': 14,
+    '00000436': 16,
+    '00000434': 18,
+    '00000431': 20,
+    '00000430': 24
+  };
+  expect(Object.fromEntries(sample.filter((record) => expected[record.processId]).map((record) => [record.processId, record.terminalNumber]))).toEqual(expected);
+  expect(sample.filter((record) => record.terminalNumber >= 10)).toHaveLength(6);
+  const serialNumbers = sample.flatMap((record) => record.serialNumbers);
+  expect(new Set(serialNumbers).size).toBe(serialNumbers.length);
+  expect(serialNumbers.every((serialNumber) => /^[A-Z0-9]{16}$/.test(serialNumber))).toBeTruthy();
+
+  await page.evaluate(() => localStorage.setItem('paywizard-upt-lead-overrides-v1', JSON.stringify({
+    '00000439': {
+      serialNumbers: ['WP5305UQ33200439', 'ZZ00000000000439'],
+      snAssignments: {
+        WP5305UQ33200439: {
+          sn: 'WP5305UQ33200439',
+          merchantName: 'Jeeves Vending',
+          storeName: 'Main Store',
+          assignedAt: '2026-08-14T00:00:00.000Z'
+        }
+      }
+    }
+  })));
+  await page.reload();
+  const merged = await page.evaluate(() => window.PaywizardUptLeadData.getByProcessId('00000439'));
+  expect(merged.terminalNumber).toBe(13);
+  expect(merged.assignedSnCount).toBe(1);
+  expect(merged.serialNumbers).toContain('ZZ00000000000439');
+});
+
 test('all ten UPT rows open their own complete Merchant Information record', async ({ page }) => {
   const browserErrors = [];
   page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
@@ -172,8 +238,8 @@ test('UPT SN List supports exact counts, empty state and all close methods', asy
   await page.goto(`${paths.uptLeadDetail}?leadProcessId=00000431`);
   await page.locator('#openSnList').click();
   await expect(page.locator('#snModal')).toBeVisible();
-  await expect(page.locator('.sn-item')).toHaveCount(5);
-  await expect(page.locator('#snTotal')).toHaveText('5');
+  await expect(page.locator('.sn-item')).toHaveCount(20);
+  await expect(page.locator('#snTotal')).toHaveText('20');
   await page.keyboard.press('Escape');
   await expect(page.locator('#snModal')).toBeHidden();
 
@@ -270,14 +336,14 @@ test('UPT SNs can be assigned in batches and Assigned SN persists', async ({ pag
   await page.evaluate(() => localStorage.removeItem('paywizard-upt-lead-overrides-v1'));
   await page.reload();
   const row = page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:first-child', { hasText: '00000438' }) });
-  await expect(row.locator('td:nth-child(6)')).toHaveText('2');
+  await expect(row.locator('td:nth-child(6)')).toHaveText('14');
   await expect(row.locator('td:nth-child(7)')).toHaveText('0');
 
   await row.locator('.lead-more-trigger').click();
   await page.locator('[data-lead-menu-action="terminal"]').click();
-  await expect(page.locator('#leadAssignSnList input[type="checkbox"]')).toHaveCount(2);
-  await expect(page.locator('#leadAssignSnList input[type="checkbox"]:checked')).toHaveCount(2);
-  await expect(page.locator('#leadAssignSnCount')).toHaveText('2 selected · 2 total');
+  await expect(page.locator('#leadAssignSnList input[type="checkbox"]')).toHaveCount(14);
+  await expect(page.locator('#leadAssignSnList input[type="checkbox"]:checked')).toHaveCount(14);
+  await expect(page.locator('#leadAssignSnCount')).toHaveText('14 selected · 14 total');
   await page.locator('#saveLeadAssign').click();
   await expect(page.locator('#leadAssignError')).toHaveText('Select or enter a merchant name.');
   await page.locator('#leadAssignMerchant').selectOption({ label: 'Maple Street Coffee' });
@@ -287,26 +353,27 @@ test('UPT SNs can be assigned in batches and Assigned SN persists', async ({ pag
   await page.locator('#leadAssignSelectAll').uncheck();
   await page.locator('#saveLeadAssign').click();
   await expect(page.locator('#leadAssignError')).toHaveText('Select at least one unassigned SN.');
-  await page.locator('#leadAssignSelectAll').check();
-  await page.locator('#leadAssignSnList input[type="checkbox"]').last().uncheck();
-  await expect(page.locator('#leadAssignSnCount')).toHaveText('1 selected · 2 total');
+  await page.locator('#leadAssignSnList input[type="checkbox"]').nth(0).check();
+  await page.locator('#leadAssignSnList input[type="checkbox"]').nth(1).check();
+  await page.locator('#leadAssignSnList input[type="checkbox"]').nth(2).check();
+  await expect(page.locator('#leadAssignSnCount')).toHaveText('3 selected · 14 total');
   await page.locator('#saveLeadAssign').click();
   await expect(page.locator('#leadAssignModal')).toBeHidden();
-  await expect(row.locator('td:nth-child(7)')).toHaveText('1');
+  await expect(row.locator('td:nth-child(7)')).toHaveText('3');
 
   await page.reload();
   const persistedRow = page.locator('[data-table-view="upt"] tbody tr').filter({ has: page.locator('td:first-child', { hasText: '00000438' }) });
-  await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('1');
+  await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('3');
   await persistedRow.locator('.lead-more-trigger').click();
   await page.locator('[data-lead-menu-action="terminal"]').click();
-  await expect(page.locator('#leadAssignSnList input:disabled')).toHaveCount(1);
-  await expect(page.locator('#leadAssignSnList input:not(:disabled):checked')).toHaveCount(1);
-  await expect(page.locator('.lead-assign-sn-item.is-assigned')).toContainText('Maple Street Coffee · Main Store');
+  await expect(page.locator('#leadAssignSnList input:disabled')).toHaveCount(3);
+  await expect(page.locator('#leadAssignSnList input:not(:disabled):checked')).toHaveCount(11);
+  await expect(page.locator('.lead-assign-sn-item.is-assigned').first()).toContainText('Maple Street Coffee · Main Store');
 
   await page.locator('#leadAssignMerchant').selectOption({ label: 'Jeeves Vending' });
   await page.locator('#leadAssignStore').selectOption({ label: 'Downtown Store' });
   await page.locator('#saveLeadAssign').click();
-  await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('2');
+  await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('14');
 
   await persistedRow.locator('.lead-more-trigger').click();
   await page.locator('[data-lead-menu-action="terminal"]').click();
