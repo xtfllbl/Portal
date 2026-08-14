@@ -2002,7 +2002,10 @@
 
             function createMerchantRecord(values, application) {
                 var createdAt = Store ? Store.timestamp() : new Date().toISOString().slice(0, 19).replace("T", " ");
-                var merchantId = application ? stableMerchantId(application) : "1000000" + String(Date.now()).slice(-8);
+                var reusableDemo = Boolean(application && application.reusableDemoCreate);
+                var merchantId = application && !reusableDemo
+                    ? stableMerchantId(application)
+                    : "1000000" + String(Date.now()).slice(-8);
                 return Object.assign({}, values, {
                     merchantId: merchantId,
                     applicationId: application ? application.applicationId : "",
@@ -2022,9 +2025,15 @@
                 document.getElementById("top-back-link").textContent = "Back to Onboarding";
                 document.getElementById("form-back-link").href = "38.Merchant_onboard.html";
                 sourceApplication = Store && Store.findApplication(applicationId);
+                var reusableDemo = Boolean(sourceApplication && sourceApplication.reusableDemoCreate);
+                if (reusableDemo && sourceApplication.status !== "Approved") {
+                    sourceApplication.status = "Approved";
+                    sourceApplication.merchantCreatedAt = "";
+                    sourceApplication = Store.upsertApplication(sourceApplication);
+                }
                 var duplicate = readPlatformMerchants().some(function (merchant) { return merchant.applicationId === applicationId; });
                 if (!sourceApplication) showUnavailable("The onboarding application could not be found.");
-                else if (duplicate) showUnavailable("A merchant has already been created from this onboarding application.");
+                else if (duplicate && !reusableDemo) showUnavailable("A merchant has already been created from this onboarding application.");
                 else if (sourceApplication.status !== "Approved") showUnavailable("Only an approved onboarding application can create a merchant.");
                 else prefillFromApplication(sourceApplication);
             } else {
@@ -2040,7 +2049,13 @@
 
                 if (fromOnboarding) {
                     sourceApplication = Store && Store.findApplication(applicationId);
-                    if (!sourceApplication || sourceApplication.status !== "Approved" || readPlatformMerchants().some(function (merchant) { return merchant.applicationId === applicationId; })) {
+                    var reusableDemo = Boolean(sourceApplication && sourceApplication.reusableDemoCreate);
+                    if (reusableDemo && sourceApplication.status !== "Approved") {
+                        sourceApplication.status = "Approved";
+                        sourceApplication.merchantCreatedAt = "";
+                        sourceApplication = Store.upsertApplication(sourceApplication);
+                    }
+                    if (!sourceApplication || sourceApplication.status !== "Approved" || (!reusableDemo && readPlatformMerchants().some(function (merchant) { return merchant.applicationId === applicationId; }))) {
                         showUnavailable("This application is no longer available for merchant creation. Return to Onboarding and refresh the list.");
                         return;
                     }
@@ -2053,9 +2068,14 @@
                 savePlatformMerchants(merchants);
 
                 if (sourceApplication) {
-                    sourceApplication.mid = record.mid;
-                    sourceApplication.merchantCreatedAt = record.createdAt;
-                    Store.recordStatus(sourceApplication, "Merchant Created", "Platform", record.createdAt);
+                    if (!sourceApplication.reusableDemoCreate) {
+                        sourceApplication.mid = record.mid;
+                        sourceApplication.merchantCreatedAt = record.createdAt;
+                        Store.recordStatus(sourceApplication, "Merchant Created", "Platform", record.createdAt);
+                    } else {
+                        sourceApplication.status = "Approved";
+                        sourceApplication.merchantCreatedAt = "";
+                    }
                     Store.upsertApplication(sourceApplication);
                 }
 

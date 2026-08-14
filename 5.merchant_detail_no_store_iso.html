@@ -2034,6 +2034,14 @@
             min-height: 0;
         }
 
+        #store-modal .modal > #add-store-form {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
         .modal-actions {
             padding: 12px 20px 18px;
             border-top: 1px solid #f0f0f0;
@@ -2103,34 +2111,107 @@
             box-shadow: 0 2px 0 0 var(--accent);
         }
 
-        .terminal-payment-option {
-            padding: 14px 16px 16px;
-            border: 1px solid #dedfe3;
-            border-radius: 8px;
-            background: #fff;
+        .store-setup-option {
+            margin-top: 14px;
         }
 
-        .terminal-payment-option .checkline {
-            margin: 0;
-        }
-
-        .terminal-payment-fields {
+        .store-setup-option + .store-setup-option {
             margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #eceef1;
         }
 
-        .terminal-payment-fields[hidden] {
+        .store-setup-option-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .store-setup-option-copy {
+            min-width: 0;
+            padding-top: 2px;
+        }
+
+        .store-setup-option-title {
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .store-setup-option-description {
+            margin: 2px 0 0;
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .store-setup-switch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            flex: none;
+            width: 52px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .store-setup-switch input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+            opacity: 0;
+            accent-color: #111827;
+        }
+
+        .store-setup-switch-track {
+            position: relative;
+            width: 52px;
+            height: 30px;
+            border-radius: 999px;
+            background: #d1d5db;
+            box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.04);
+            transition: background-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .store-setup-switch-track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+            transition: transform 0.18s ease;
+        }
+
+        .store-setup-switch input:checked + .store-setup-switch-track {
+            background: #111827;
+            box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.12);
+        }
+
+        .store-setup-switch input:checked + .store-setup-switch-track::after {
+            transform: translateX(22px);
+        }
+
+        .store-setup-switch input:focus-visible + .store-setup-switch-track {
+            outline: 2px solid #6b7280;
+            outline-offset: 3px;
+        }
+
+        .store-setup-fields {
+            margin-top: 18px;
+        }
+
+        .store-setup-fields[hidden] {
             display: none;
-        }
-
-        .optional-label {
-            margin-left: 8px;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 500;
-            text-transform: none;
-            letter-spacing: 0;
         }
 
         .input-field[readonly] {
@@ -2174,7 +2255,12 @@
         .checkline input {
             width: 18px;
             height: 18px;
-            accent-color: var(--accent);
+            accent-color: #111827;
+        }
+
+        #store-modal .checkline input:focus-visible {
+            outline: 2px solid #6b7280;
+            outline-offset: 2px;
         }
 
         .validate-device-summary {
@@ -2801,7 +2887,7 @@
     </div>
 
     <div class="modal-overlay" id="store-modal" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="store-modal-title">
+        <div class="modal scrollable" role="dialog" aria-modal="true" aria-labelledby="store-modal-title">
             <div class="modal-header">
                 <div>
                     <h3 class="modal-title" id="store-modal-title">Add Store</h3>
@@ -2896,12 +2982,46 @@
                             <input class="input-field" id="store-state-modal" type="text" placeholder="State">
                         </div>
                     </div>
-                    <div class="terminal-payment-option">
-                        <label class="checkline" for="store-terminal-payment-enabled">
-                            <input id="store-terminal-payment-enabled" type="checkbox" aria-controls="store-terminal-payment-fields" aria-expanded="false">
-                            Terminal Payment Setup <span class="optional-label">Optional</span>
-                        </label>
-                        <div class="terminal-payment-fields" id="store-terminal-payment-fields" hidden>
+                    <div class="store-setup-option store-admin-option">
+                        <div class="store-setup-option-head">
+                            <div class="store-setup-option-copy">
+                                <div class="store-setup-option-title">Create store admin</div>
+                                <p class="store-setup-option-description">Enable this to create a dashboard login for the store.</p>
+                            </div>
+                            <label class="store-setup-switch store-admin-switch" for="store-admin-enabled" aria-label="Enable Create store admin">
+                                <input id="store-admin-enabled" type="checkbox" aria-controls="store-admin-fields" aria-expanded="false">
+                                <span class="store-setup-switch-track" aria-hidden="true"></span>
+                            </label>
+                        </div>
+                        <div class="store-setup-fields store-admin-fields" id="store-admin-fields" hidden>
+                            <div class="form-grid two">
+                                <div class="field">
+                                    <label for="store-admin-email">Email *</label>
+                                    <input class="input-field" id="store-admin-email" type="email" placeholder="name@domain.com">
+                                </div>
+                                <div class="field">
+                                    <label for="store-admin-role">Role Type *</label>
+                                    <select class="input-field" id="store-admin-role">
+                                        <option value="">Please select the role type</option>
+                                        <option value="Store Admin">Store Admin</option>
+                                        <option value="Store Operator">Store Operator</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="store-setup-option terminal-payment-option">
+                        <div class="store-setup-option-head">
+                            <div class="store-setup-option-copy">
+                                <div class="store-setup-option-title">Quick Terminal Payment Setup</div>
+                                <p class="store-setup-option-description">Enable this to quick add terminal payments channel.</p>
+                            </div>
+                            <label class="store-setup-switch terminal-payment-switch" for="store-terminal-payment-enabled" aria-label="Enable Terminal Payment Setup">
+                                <input id="store-terminal-payment-enabled" type="checkbox" checked aria-controls="store-terminal-payment-fields" aria-expanded="true">
+                                <span class="store-setup-switch-track" aria-hidden="true"></span>
+                            </label>
+                        </div>
+                        <div class="store-setup-fields terminal-payment-fields" id="store-terminal-payment-fields" hidden>
                             <div class="form-grid two">
                                 <div class="field">
                                     <label for="store-channel-modal">Payment Channel *</label>
@@ -3559,6 +3679,10 @@
         const storeModalSubmit = document.getElementById('store-modal-submit');
         const storeSameMerchantWrap = document.getElementById('store-same-merchant-wrap');
         const storeSameMerchantInput = document.getElementById('store-same-merchant-modal');
+        const storeAdminEnabled = document.getElementById('store-admin-enabled');
+        const storeAdminFields = document.getElementById('store-admin-fields');
+        const storeAdminEmailInput = document.getElementById('store-admin-email');
+        const storeAdminRoleInput = document.getElementById('store-admin-role');
         const storeTerminalPaymentEnabled = document.getElementById('store-terminal-payment-enabled');
         const storeTerminalPaymentFields = document.getElementById('store-terminal-payment-fields');
         const storeChannelInput = document.getElementById('store-channel-modal');
@@ -3774,6 +3898,14 @@
             if (storeMidInput) storeMidInput.required = enabled;
         };
 
+        const syncStoreAdminState = () => {
+            const enabled = Boolean(storeAdminEnabled?.checked);
+            if (storeAdminFields) storeAdminFields.hidden = !enabled;
+            if (storeAdminEnabled) storeAdminEnabled.setAttribute('aria-expanded', String(enabled));
+            if (storeAdminEmailInput) storeAdminEmailInput.required = enabled;
+            if (storeAdminRoleInput) storeAdminRoleInput.required = enabled;
+        };
+
         const syncStoreFromMerchant = () => {
             if (!storeSameMerchantInput?.checked) return;
             setValue('store-mcc-modal', merchantState.mcc);
@@ -3846,7 +3978,8 @@
             if (storedValueInput) storedValueInput.checked = true;
             if (storeEmailInput) storeEmailInput.readOnly = mode === 'edit';
             if (storeSameMerchantInput) storeSameMerchantInput.checked = false;
-            if (storeTerminalPaymentEnabled) storeTerminalPaymentEnabled.checked = false;
+            if (storeAdminEnabled) storeAdminEnabled.checked = false;
+            if (storeTerminalPaymentEnabled) storeTerminalPaymentEnabled.checked = mode === 'add';
             if (storeSameMerchantWrap) storeSameMerchantWrap.hidden = mode !== 'add' || getStoreRows().length > 0;
 
             if (mode === 'add' && dynamicMerchant) {
@@ -3854,6 +3987,7 @@
                 syncStoreFromMerchant();
             }
 
+            syncStoreAdminState();
             syncTerminalPaymentState();
 
             if (mode !== 'edit' || !row) return;
@@ -5231,6 +5365,10 @@
 
         if (storeSameMerchantInput) {
             storeSameMerchantInput.addEventListener('change', syncStoreFromMerchant);
+        }
+
+        if (storeAdminEnabled) {
+            storeAdminEnabled.addEventListener('change', syncStoreAdminState);
         }
 
         if (storeTerminalPaymentEnabled) {

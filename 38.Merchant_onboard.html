@@ -1155,6 +1155,7 @@
       var LEAD_PREFILL_KEY = "paywizard-lead-onboarding-prefill-v1";
       var Store = window.PaywizardOnboardingStore;
       var PlatformStore = window.PaywizardPlatformMerchantStore;
+      var reusableDemoApplicationId = "APP-LEGACY-02";
       var baseRows = [
         { processId: "00000336", spName: "Paywizard UAT", agentName: "", merchantName: "techsupport", mid: "-", email: "maggie-support1@wizarpos.com", lastUpdate: "2026-05-14 14:22:27", status: "Draft" },
         { processId: "00000328", spName: "Paywizard UAT", agentName: "", merchantName: "ceshi123213243234", mid: "mid12320251229", email: "uat2512003@nooboy.com", lastUpdate: "2025-12-29 15:29:41", status: "Approved" },
@@ -1169,8 +1170,28 @@
       ];
       var rows = [];
 
+      function keepReusableDemoApproved(applications) {
+        var demo = applications.find(function (application) {
+          return application.applicationId === reusableDemoApplicationId;
+        });
+        if (!demo || !Store) return applications;
+
+        var history = Array.isArray(demo.statusHistory) ? demo.statusHistory : [];
+        var cleanHistory = history.filter(function (event) { return event.status !== "Merchant Created"; });
+        var changed = demo.reusableDemoCreate !== true || demo.status !== "Approved" || Boolean(demo.merchantCreatedAt) || cleanHistory.length !== history.length;
+        demo.reusableDemoCreate = true;
+        demo.status = "Approved";
+        demo.merchantCreatedAt = "";
+        demo.statusHistory = cleanHistory;
+        if (changed) {
+          Store.upsertApplication(demo);
+          return Store.loadApplications();
+        }
+        return applications;
+      }
+
       function reloadRows() {
-        var applications = Store ? Store.loadApplications() : [];
+        var applications = Store ? keepReusableDemoApproved(Store.loadApplications()) : [];
         var processIds = applications.map(function (row) { return row.processId; });
         rows = applications.concat(baseRows.filter(function (row) { return processIds.indexOf(row.processId) === -1; }));
       }

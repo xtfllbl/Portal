@@ -597,8 +597,55 @@ test("creates a store without optional payment setup and completes it later", as
   await expect(page.locator("#store-manager-modal")).toHaveValue("Sophie Martin");
   await expect(page.locator("#store-email-modal")).toHaveValue("finance@maplestreetcoffee.ca");
   await expect(page.locator("#store-address1-modal")).toHaveValue("128 King Street West");
-  await expect(page.locator("#store-terminal-payment-enabled")).not.toBeChecked();
+  await expect(page.locator("#store-admin-enabled")).not.toBeChecked();
+  await expect(page.locator("#store-admin-fields")).toBeHidden();
+  await expect(page.locator("#store-modal")).toContainText("Create store admin");
+  await expect(page.locator("#store-modal")).toContainText("Enable this to create a dashboard login for the store.");
+  await expect(page.locator("#store-modal")).not.toContainText("Optional");
+  const setupStyleMetrics = await page.locator(".store-setup-option-title").first().evaluate((title) => {
+    const description = title.parentElement.querySelector(".store-setup-option-description");
+    const track = title.closest(".store-setup-option").querySelector(".store-setup-switch-track");
+    return {
+      titleFontSize: Number.parseFloat(getComputedStyle(title).fontSize),
+      descriptionFontSize: Number.parseFloat(getComputedStyle(description).fontSize),
+      switchWidth: track.getBoundingClientRect().width,
+      switchHeight: track.getBoundingClientRect().height
+    };
+  });
+  expect(setupStyleMetrics.titleFontSize).toBeLessThanOrEqual(14);
+  expect(setupStyleMetrics.descriptionFontSize).toBeLessThanOrEqual(12);
+  expect(setupStyleMetrics.switchWidth).toBeLessThanOrEqual(52);
+  expect(setupStyleMetrics.switchHeight).toBeLessThanOrEqual(30);
+  await page.locator(".store-admin-switch").click();
+  await expect(page.locator("#store-admin-fields")).toBeVisible();
+  await expect(page.locator("#store-admin-email")).toHaveAttribute("required", "");
+  await expect(page.locator("#store-admin-role")).toHaveAttribute("required", "");
+  await page.locator("#store-admin-email").fill("store-admin@maplestreetcoffee.ca");
+  await page.locator("#store-admin-role").selectOption("Store Admin");
+  await page.locator(".store-admin-switch").click();
+  await expect(page.locator("#store-admin-fields")).toBeHidden();
+  await expect(page.locator("#store-admin-email")).not.toHaveAttribute("required", "");
+  await expect(page.locator("#store-admin-role")).not.toHaveAttribute("required", "");
+  await page.locator(".store-admin-switch").click();
+  await expect(page.locator("#store-admin-fields")).toBeVisible();
+  await expect(page.locator("#store-admin-email")).toHaveAttribute("required", "");
+  await expect(page.locator("#store-admin-role")).toHaveAttribute("required", "");
+  await expect(page.locator("#store-terminal-payment-enabled")).toBeChecked();
+  await expect(page.locator("#store-terminal-payment-fields")).toBeVisible();
+  await expect(page.locator("#store-modal")).toContainText("Enable this to configure terminal payments for the store.");
+  await expect(page.locator("#store-channel-modal")).toHaveAttribute("required", "");
+  await expect(page.locator("#store-mid-modal")).toHaveAttribute("required", "");
+  const modalCheckboxAccentColors = await page.locator("#store-modal input[type=checkbox]").evaluateAll((inputs) => inputs.map((input) => getComputedStyle(input).accentColor));
+  expect(new Set(modalCheckboxAccentColors)).toEqual(new Set(["rgb(17, 24, 39)"]));
+  await page.locator(".terminal-payment-switch").click();
   await expect(page.locator("#store-terminal-payment-fields")).toBeHidden();
+  await expect(page.locator("#store-channel-modal")).not.toHaveAttribute("required", "");
+  await expect(page.locator("#store-mid-modal")).not.toHaveAttribute("required", "");
+  await page.locator(".terminal-payment-switch").click();
+  await expect(page.locator("#store-terminal-payment-fields")).toBeVisible();
+  await expect(page.locator("#store-channel-modal")).toHaveAttribute("required", "");
+  await expect(page.locator("#store-mid-modal")).toHaveAttribute("required", "");
+  await page.locator(".terminal-payment-switch").click();
   await expect(page.locator("#store-channel-modal")).toHaveValue("Nuvei");
   await expect(page.locator("#store-mid-modal")).toHaveValue("");
 
@@ -616,6 +663,8 @@ test("creates a store without optional payment setup and completes it later", as
     status: "Pending Setup"
   });
   expect(merchant.storeRecords[0].paymentChannels).toEqual([]);
+  expect(merchant.storeRecords[0]).not.toHaveProperty("storeAdminEmail");
+  expect(merchant.storeRecords[0]).not.toHaveProperty("storeAdminRole");
 
   await page.goto(`/5.merchant_manage_iso.html`);
   const merchantRow = page.locator(`tr[data-platform-merchant-id="${merchant.merchantId}"]`);
@@ -623,6 +672,8 @@ test("creates a store without optional payment setup and completes it later", as
   await merchantRow.getByRole("link", { name: /Complete Store Setup/ }).click();
   await expect(page).toHaveURL(/editStoreId=/);
   await expect(page.locator("#store-modal-title")).toHaveText("Edit Store");
+  await expect(page.locator("#store-admin-enabled")).not.toBeChecked();
+  await expect(page.locator("#store-admin-fields")).toBeHidden();
   await expect(page.locator("#store-terminal-payment-enabled")).toBeChecked();
   await expect(page.locator("#store-terminal-payment-fields")).toBeVisible();
   await expect(page.locator("#store-channel-modal")).toHaveValue("Nuvei");
@@ -638,6 +689,22 @@ test("creates a store without optional payment setup and completes it later", as
   const completedMerchant = await page.evaluate((key) => JSON.parse(localStorage.getItem(key))[0], PLATFORM_MERCHANTS_KEY);
   expect(completedMerchant.storeRecords[0].status).toBe("Active");
   expect(completedMerchant.storeRecords[0].paymentChannels[0].mid).toBe("NUVEI-MID-1001");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/5.merchant_detail_no_store_iso.html?merchantId=${completedMerchant.merchantId}&openAddStore=1`);
+  await expect(page.locator("#store-modal")).toHaveClass(/active/);
+  await page.locator(".store-admin-switch").click();
+  await expect(page.locator("#store-admin-fields")).toBeVisible();
+  await expect(page.locator("#store-terminal-payment-fields")).toBeVisible();
+  const storeModalScrollState = await page.locator("#store-modal .modal-body").evaluate((body) => ({
+    clientHeight: body.clientHeight,
+    scrollHeight: body.scrollHeight,
+    overflowY: getComputedStyle(body).overflowY,
+    horizontalOverflow: document.documentElement.scrollWidth - window.innerWidth
+  }));
+  expect(storeModalScrollState.scrollHeight).toBeGreaterThan(storeModalScrollState.clientHeight);
+  expect(storeModalScrollState.overflowY).toContain("auto");
+  expect(storeModalScrollState.horizontalOverflow).toBeLessThanOrEqual(1);
 
   await page.goto("/38.Merchant_onboard.html");
   const createdRow = page.locator('#onboarding-rows tr[data-application-id="APP-DEMO-NUVEI-01"]');

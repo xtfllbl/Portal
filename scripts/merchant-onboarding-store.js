@@ -282,6 +282,7 @@
     });
     application.review = createReview(seed.channel);
     application.statusHistory = [];
+    application.reusableDemoCreate = seed.processId === "00000328";
     application.submittedAt = seed.status === "Merchant Submit" ? seed.lastUpdate : "";
     application.submissionVersion = seed.status === "Draft" || seed.status === "Awaiting Merchant" || seed.status === "Merchant Draft" ? 0 : 1;
     if (seed.status === "Approved") {
