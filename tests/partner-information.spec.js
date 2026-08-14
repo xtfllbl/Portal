@@ -46,6 +46,20 @@ test("uses the unified admin shell and renders the complete terminal lifecycle",
   await expect(page.locator(".terminal-list-table")).not.toContainText("Initial Contact Date");
   await expect(page.locator(".terminal-list-table")).not.toContainText("Onboarding Date");
 
+  const tabTypography = await page.getByRole("tab", { name: "Terminal List" }).evaluate((tab) => {
+    const styles = getComputedStyle(tab);
+    return {
+      fontFamily: styles.fontFamily,
+      fontSize: styles.fontSize,
+      fontWeight: styles.fontWeight,
+      lineHeight: styles.lineHeight
+    };
+  });
+  expect(tabTypography.fontFamily).toContain("Poppins");
+  expect(tabTypography.fontSize).toBe("13px");
+  expect(tabTypography.fontWeight).toBe("600");
+  expect(tabTypography.lineHeight).toBe("17.55px");
+
   await expect(page.locator('[data-terminal-stat="total"]')).toHaveText("64");
   await expect(page.locator('[data-terminal-stat="inventory"]')).toHaveText("36");
   await expect(page.locator('[data-terminal-stat="assigned"]')).toHaveText("18");

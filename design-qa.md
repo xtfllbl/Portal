@@ -64,6 +64,15 @@ final result: passed
 
 ## Blocking evidence limitation
 
+### Partner detail Tab typography follow-up
+
+- Source visual truth: user-provided Partner Profile / Terminal List crop and the shared Poppins UI hierarchy.
+- Implementation screenshot: `/tmp/partner-tabs-typography-final.png`, 1920 x 853 px at a 1920 x 853 CSS viewport and device scale factor 1.
+- Initial P2 finding: `.detail-tab` used 15px / 800, then inherited 400 from the shared button shorthand, making the labels alternately oversized or too light compared with the global interface.
+- Fix: scoped both tabs after the shared stylesheet to Poppins 13px / 600, 17.55px line height, zero letter spacing, dark active text, and muted inactive text while retaining the 48px target height.
+- Post-fix browser evidence: both tabs compute to Poppins 13px / 600; tab switching works and Partner tests pass 4/4.
+- Fonts/typography, spacing, colors, assets, and copy were checked; no remaining P0/P1/P2 implementation mismatch was found in the Tab region.
+
 - Browser security policy rejected navigation to the generated data-URL comparison canvas, and the environment has no ImageMagick montage utility. The two screenshots were opened and reviewed individually, but a single combined comparison image could not be produced without bypassing that policy.
 - No visual P0/P1/P2 implementation issue remains; the block is limited to the required combined-evidence artifact.
 
