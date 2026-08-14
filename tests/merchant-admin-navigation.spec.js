@@ -7,6 +7,15 @@ const paths = {
   merchants: '/5.merchant_manage_iso.html'
 };
 
+const merchantFlowPages = [
+  { path: '/5.merchant_add_iso.html', current: 'New Merchant Onboarding' },
+  { path: '/5.merchant_add_merchant_only_iso.html', current: 'Add Merchant' },
+  { path: '/5.merchant_add_device_iso.html', current: 'Add Device' },
+  { path: '/5.merchant_device_settings_iso.html', current: 'Device Settings' },
+  { path: '/5.merchant_detail_iso.html', current: 'Merchant Overview' },
+  { path: '/5.merchant_detail_no_store_iso.html', current: 'Merchant Overview' }
+];
+
 test('Leads, Onboarding and Merchant List navigation is connected in both directions', async ({ page }) => {
   await page.goto(paths.leads);
   await expect(page.locator('.pw-sidebar [aria-current="page"]')).toHaveText('Leads');
@@ -63,6 +72,124 @@ for (const viewport of [
     }
   });
 }
+
+for (const viewport of [
+  { width: 2048, height: 1138, sidebar: 264 },
+  { width: 1440, height: 900, sidebar: 264 },
+  { width: 1024, height: 768, sidebar: 74 },
+  { width: 390, height: 844, sidebar: 0 }
+]) {
+  test(`all 5.x merchant flow pages share the Merchant List shell at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+
+    for (const target of merchantFlowPages) {
+      const browserErrors = [];
+      page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
+      page.on('pageerror', (error) => browserErrors.push(error.message));
+      await page.goto(target.path);
+
+      const metrics = await page.evaluate(() => {
+        const sidebar = document.querySelector('.pw-sidebar');
+        const topbar = document.querySelector('.pw-topbar');
+        const content = document.querySelector('.pw-flow-content');
+        return {
+          bodyClass: document.body.className,
+          logo: document.querySelector('.pw-brand img')?.getAttribute('src'),
+          sidebarDisplay: getComputedStyle(sidebar).display,
+          sidebarWidth: getComputedStyle(sidebar).display === 'none' ? 0 : sidebar.getBoundingClientRect().width,
+          topbarHeight: topbar.getBoundingClientRect().height,
+          currentBreadcrumb: document.querySelector('.pw-breadcrumb strong')?.textContent.trim(),
+          activeNavigation: document.querySelector('.pw-sub-item[aria-current="page"]')?.textContent.trim(),
+          navigationTargets: [...document.querySelectorAll('.pw-sub-item')].slice(1, 4).map((link) => link.getAttribute('href')),
+          horizontalOverflow: document.documentElement.scrollWidth - window.innerWidth,
+          contentOverflow: getComputedStyle(content).overflowY,
+          contentScrollable: content.scrollHeight > content.clientHeight
+        };
+      });
+
+      expect(metrics.bodyClass).toContain('pw-merchant-flow-page');
+      expect(metrics.logo).toBe('assets/paywizard-logo.png');
+      expect(Math.round(metrics.sidebarWidth)).toBe(viewport.sidebar);
+      expect(metrics.sidebarDisplay === 'none').toBe(viewport.sidebar === 0);
+      expect(Math.round(metrics.topbarHeight)).toBe(viewport.width <= 760 ? 58 : 70);
+      expect(metrics.currentBreadcrumb).toBe(target.current);
+      expect(metrics.activeNavigation).toBe('Merchant List');
+      expect(metrics.navigationTargets).toEqual([
+        '29.INTL_PSP_merchant_lead_list.html',
+        '38.Merchant_onboard.html',
+        '5.merchant_manage_iso.html'
+      ]);
+      expect(metrics.horizontalOverflow).toBeLessThanOrEqual(1);
+      expect(metrics.contentOverflow).toBe(viewport.width <= 760 ? 'visible' : 'auto');
+
+      if (metrics.contentScrollable && viewport.width > 760) {
+        const reachedBottom = await page.locator('.pw-flow-content').evaluate((content) => {
+          content.scrollTop = content.scrollHeight;
+          return Math.abs(content.scrollHeight - content.clientHeight - content.scrollTop) <= 2;
+        });
+        expect(reachedBottom).toBeTruthy();
+      }
+      expect(browserErrors).toEqual([]);
+    }
+  });
+}
+
+test('all 5.x merchant flow pages use the compact Merchant List surface geometry', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  for (const target of merchantFlowPages) {
+    await page.goto(target.path);
+    const geometry = await page.evaluate(() => {
+      const mainSurfaceSelector = [
+        '.wizard-shell', '.merchant-panel', '.detail-panel', '.profile-card', '.section-card'
+      ].join(',');
+      const secondarySurfaceSelector = [
+        '.wizard-panel', '.store-card', '.review-card', '.param-group', '.payment-config',
+        '.source-alert', '.clone-source-banner', '.clone-source-preview', '.compatibility-list',
+        '.clone-bind-summary', '.delete-confirm-summary', '.validate-warning', '.scan-info',
+        '.device-table-shell'
+      ].join(',');
+      const dialogSelector = [
+        '.modal', '.confirm-dialog', '.mid-floating-popover', '.store-settings-menu', '.device-settings-menu'
+      ].join(',');
+      const radii = (selector) => [...document.querySelectorAll(selector)]
+        .map((element) => getComputedStyle(element).borderRadius);
+      return {
+        main: radii(mainSurfaceSelector),
+        secondary: radii(secondarySurfaceSelector),
+        dialogs: radii(dialogSelector),
+        wizardDots: radii('.wizard-dot'),
+        roundButtons: radii('.pw-round-btn')
+      };
+    });
+
+    expect(geometry.main.length).toBeGreaterThan(0);
+    for (const radius of [...geometry.main, ...geometry.secondary, ...geometry.dialogs]) {
+      expect(radius).toBe('8px');
+    }
+    for (const radius of geometry.wizardDots) expect(radius).toBe('50%');
+    for (const radius of geometry.roundButtons) expect(radius).toBe('50%');
+  }
+});
+
+test('merchant flow form controls preserve their original underline and specialized geometry', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  for (const path of ['/5.merchant_add_merchant_only_iso.html', '/5.merchant_add_iso.html']) {
+    await page.goto(path);
+    const underlineControls = page.locator('.input-field');
+    expect(await underlineControls.count()).toBeGreaterThan(0);
+    await expect(underlineControls.first()).toHaveCSS('border-radius', '0px');
+    await expect(underlineControls.first()).toHaveCSS('border-top-style', 'none');
+    await expect(underlineControls.first()).toHaveCSS('border-bottom-style', 'solid');
+  }
+
+  await page.goto('/5.merchant_add_merchant_only_iso.html');
+  const specializedControl = page.locator('.input').first();
+  if (await specializedControl.count()) {
+    await expect(specializedControl).toHaveCSS('border-radius', '12px');
+  }
+});
 
 test('Leads tabs, filters and sharing modal remain operational', async ({ page }) => {
   await page.goto(paths.leads);

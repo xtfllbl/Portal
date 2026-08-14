@@ -35,6 +35,32 @@ final result: passed
 
 ---
 
+# Merchant Flow Control Geometry Correction QA — 2026-08-14
+
+## Scope and evidence
+
+- Corrected the shared Merchant Flow styling so the 8px system applies only to rectangular page surfaces, cards, and dialogs.
+- Removed the global radius override from native inputs, selects, textareas, `.input-field`, `.input`, and specialized search/device controls.
+- Verified screenshot: `assets/qa/merchant-form-controls-restored-1440.png` at 1440 x 900, device scale factor 1.
+- Visual result: Add Merchant fields and selects again use the original straight underline treatment; the outer page and Merchant Info surfaces retain the unified 8px radius.
+
+## Computed-style audit
+
+- `5.merchant_add_iso.html`: 32 underline controls, all `border-radius: 0px`, top border absent, bottom border solid.
+- `5.merchant_add_merchant_only_iso.html`: 14 underline controls, all `border-radius: 0px`, top border absent, bottom border solid.
+- The remaining four `5.*` pages retain their own native control geometries (`0px`, `10px`, `12px`, or semantic pill values) rather than inheriting a forced shared radius.
+- All six pages report zero page-level horizontal overflow at 1440px.
+
+## Regression results
+
+- `tests/merchant-admin-navigation.spec.js` and `tests/merchant-onboarding.spec.js`: 47 passed.
+- Added a regression assertion that underline fields remain square and bottom-border-only, while specialized controls retain their original radius.
+- No P0, P1, or P2 visual or interaction findings remain for this correction.
+
+final result: passed
+
+---
+
 # Create Onboarding Application Split Form QA
 
 ## Evidence

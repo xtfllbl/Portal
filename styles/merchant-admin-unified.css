@@ -276,6 +276,95 @@
 .pw-admin .btn.green { border-color: #0a8a40; background: #0a8a40; color: #fff; }
 .pw-admin .btn svg { width: 16px; height: 16px; }
 
+/* Shared frame for the Merchant List downstream prototype pages. */
+.pw-merchant-flow-page .pw-workspace > .pw-flow-content {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c9cbd1 transparent;
+}
+.pw-merchant-flow-page .pw-topbar {
+  flex-direction: row;
+  align-items: center;
+}
+.pw-merchant-flow-page .pw-flow-content > .content-inner {
+  min-width: 0;
+  padding-right: 0;
+}
+
+/* Merchant flow content surfaces use the same compact geometry as Merchant List. */
+.pw-merchant-flow-page {
+  --pw-flow-radius: 8px;
+  --pw-flow-compact-radius: 6px;
+  --pw-flow-border: #dedfe3;
+  --pw-flow-shadow: 0 1px 2px rgba(18, 22, 29, .04);
+}
+
+.pw-merchant-flow-page :is(
+  .wizard-shell,
+  .merchant-panel,
+  .detail-panel,
+  .profile-card,
+  .section-card
+) {
+  box-sizing: border-box;
+  border-color: var(--pw-flow-border) !important;
+  border-radius: var(--pw-flow-radius) !important;
+  background: #fff;
+  box-shadow: var(--pw-flow-shadow) !important;
+  overflow: hidden;
+}
+
+.pw-merchant-flow-page :is(
+  .wizard-panel,
+  .store-card,
+  .review-card,
+  .param-group,
+  .payment-config,
+  .source-alert,
+  .clone-source-banner,
+  .clone-source-preview,
+  .compatibility-list,
+  .clone-bind-summary,
+  .delete-confirm-summary,
+  .validate-warning,
+  .scan-info,
+  .device-table-shell
+) {
+  box-sizing: border-box;
+  border-color: var(--pw-flow-border) !important;
+  border-radius: var(--pw-flow-radius) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.pw-merchant-flow-page :is(
+  .modal,
+  .confirm-dialog,
+  .mid-floating-popover,
+  .store-settings-menu,
+  .device-settings-menu
+) {
+  box-sizing: border-box;
+  border-color: var(--pw-flow-border) !important;
+  border-radius: var(--pw-flow-radius) !important;
+  overflow: hidden;
+}
+
+.pw-merchant-flow-page :is(
+  .confirm-dialog-head,
+  .modal-header,
+  .modal-actions,
+  .panel-head,
+  .section-head,
+  .device-table-head
+) {
+  border-color: var(--pw-flow-border) !important;
+}
+
 .pw-admin .table-wrap,
 .pw-admin .merchant-table-wrap { max-width: 100%; overflow: auto; border-radius: 8px; }
 .pw-admin table { border-collapse: separate; border-spacing: 0; }
@@ -863,6 +952,9 @@
   .pw-admin .pw-breadcrumb { font-size: 10px; letter-spacing: .04em; }
   .pw-admin .pw-breadcrumb > span { display: none; }
   .pw-admin .pw-breadcrumb > strong { display: inline-block; }
+  .pw-merchant-flow-page .pw-workspace > .pw-flow-content {
+    overflow: visible;
+  }
   .pw-admin .pw-content-panel,
   .pw-merchant-list-page .merchant-panel { padding: 14px; }
   .pw-admin .pw-page-header { align-items: flex-start; margin-bottom: 18px; }
