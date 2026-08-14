@@ -471,7 +471,8 @@ test('Leads and Merchant List typography matches the Onboarding visual tokens', 
   await page.goto(paths.merchants);
   await expect(page.locator('.panel-filters .filter-field').first()).toHaveCSS('height', '39px');
   await expect(page.locator('.panel-tool').first()).toHaveCSS('height', '39px');
-  await expect(page.locator('.merchant-link').first()).toHaveCSS('font-size', '11px');
+  await expect(page.locator('.merchant-link').first()).toHaveCSS('font-size', '14px');
+  await expect(page.locator('.merchant-link').first()).toHaveCSS('text-decoration-line', 'none');
   await expect(page.locator('.merchant-link').first()).toHaveCSS('font-weight', '600');
   await expect(page.locator('#merchantTableBody .merchant-meta')).toHaveCount(0);
 });
