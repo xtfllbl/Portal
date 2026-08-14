@@ -35,6 +35,51 @@ final result: passed
 
 ---
 
+# Partner Information Terminal Lifecycle QA — 2026-08-14
+
+## Evidence
+
+- Source visual truth: the user-provided `26.partner_information.html` Partner List / Terminal List screenshot in this conversation at 3840 × 1936 px, with the existing `5.*` Merchant Administration shell as the required style reference.
+- Browser-rendered desktop implementation: `/tmp/partner-information-terminal-1440.png` at 1440 × 900 CSS/image px, device scale factor 1.
+- Browser-rendered mobile implementation: `/tmp/partner-information-terminal-390.png` at 390 × 844 CSS/image px, device scale factor 1.
+- State: `台州联创电子有限公司` selected, `Terminal List` active, no terminal filters applied.
+- Full-view evidence compared the supplied Partner page composition with the browser-rendered unified shell at matching Terminal List state. The desktop capture keeps the hierarchy, dark Partner hero, tabs, lifecycle statistics, filters, table, and pagination visible together.
+- No separate focused crop was required because status badges, summary values, header labels, date columns, filters, and shell geometry remain readable in the native desktop capture.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- **Fonts and typography:** Poppins, the 25px/600 page title, 14px/13px navigation, 12px breadcrumb, compact table copy, and uppercase table headers match the shared `5.*` administration tokens. Terminal status and statistic labels remain readable without clipping.
+- **Spacing and layout rhythm:** The page uses the shared 16px frame gap, 264px sidebar, 70px top bar, 8px surfaces, low-elevation borders, and compact control geometry. The four desktop statistic cards collapse to two columns at 1040px and one column at 390px.
+- **Colors and visual tokens:** The shared neutral shell and dark active-navigation treatment are preserved. Inbound, Outbound, Assigned, and Activated use distinct semantic badge treatments without introducing unrelated colors.
+- **Image and icon fidelity:** The supplied PAYwizard Sandbox logo is used directly, and the shell uses the same Material Symbols icon family as `5.*`. No new raster placeholders or generated imagery were required.
+- **Copy and content:** `Stock Type` is replaced by `Terminal Status`; `Initial Contact Date` and `Onboarding Date` are removed; `Assigned Date` is placed immediately after `Outbound Date`. The four requested lifecycle summary labels and cumulative Assigned count are present.
+- **Interactions:** SN and status filtering, Enter-to-search, reset, Partner/Profile tab switching, Add Partner, and Edit remain operational. The summary values remain fixed at 11 total, 6 inventory, 3 assigned including activated, and 1 activated while filtering.
+- **Responsive behavior:** Desktop and mobile document overflow is zero. The wide terminal table owns horizontal scrolling, while the page, shell, hierarchy, statistic cards, controls, and pagination remain within the viewport.
+
+## Verification
+
+- `tests/partner-information.spec.js`: 3/3 Chromium tests passed.
+- Combined `partner|merchant|onboarding` run: 64 passed; one unrelated pre-existing Store modal copy expectation failed because the current page says `Quick Terminal Payment Setup` while the old test expects the former terminal description.
+- Browser console warnings/errors: none.
+- `git diff --check`: passed.
+
+## Comparison history
+
+1. The source page used a standalone legacy sidebar/topbar and only Inbound/Outbound terminal rows.
+2. The implementation moved the page onto the shared `5.*` visual shell and added cumulative lifecycle data, four summary cards, the Assigned date column, and working filters.
+3. Desktop and 390px browser passes confirmed the requested shell consistency, readable lifecycle hierarchy, table-local horizontal scrolling, and zero page-level overflow. No further P0/P1/P2 correction was required.
+
+## Follow-up polish
+
+- P3: At medium desktop widths, long Partner names may wrap inside the dark hero while all four action buttons remain on the same row; this is an intentional responsive tradeoff and does not obscure content or controls.
+
+## Result
+
+final result: passed
+
+---
+
 # Merchant Flow Control Geometry Correction QA — 2026-08-14
 
 ## Scope and evidence

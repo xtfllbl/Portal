@@ -1510,63 +1510,203 @@
       }
     }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/merchant-admin-unified.css">
+  <style>
+    .pw-admin.pw-partner-page {
+      --border: var(--pw-line);
+      --card: var(--pw-surface);
+      --text: var(--pw-text);
+      --muted: var(--pw-muted);
+      --black: #050507;
+      background: #090909;
+    }
+
+    .pw-partner-page .pw-flow-content {
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #c9cbd1 transparent;
+    }
+
+    .pw-partner-page .content-inner {
+      width: 100%;
+      min-width: 0;
+      padding: 20px;
+    }
+
+    .pw-partner-page .pw-page-header {
+      margin-bottom: 20px;
+    }
+
+    .pw-partner-page .partner-console {
+      grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .pw-partner-page .hierarchy-panel,
+    .pw-partner-page .detail-panel {
+      border-color: var(--pw-line);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(18, 22, 29, .04);
+    }
+
+    .pw-partner-page .detail-hero,
+    .pw-partner-page .panel-head,
+    .pw-partner-page .tree-toolbar,
+    .pw-partner-page .detail-tabs {
+      border-color: var(--pw-line);
+    }
+
+    .pw-partner-page :is(
+      .type-filter-btn,
+      .hierarchy-add-btn,
+      .search-field,
+      .search-btn,
+      .terminal-outline-btn,
+      .terminal-filter-field,
+      .terminal-search-btn,
+      .detail-action-btn,
+      .modal,
+      .modal-field,
+      .modal-btn
+    ) {
+      border-radius: 8px;
+      font-family: inherit;
+    }
+
+    .terminal-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .terminal-stat-card {
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--pw-line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(18, 22, 29, .03);
+    }
+
+    .terminal-stat-label {
+      display: block;
+      color: #777b85;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .terminal-stat-value {
+      display: block;
+      margin-top: 5px;
+      color: #2f3035;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .terminal-list-table {
+      min-width: 1040px;
+    }
+
+    .terminal-status.assigned {
+      background: #e8f3ff;
+      color: #1d4ed8;
+    }
+
+    .terminal-status.activated {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .terminal-filter-field:focus-visible,
+    .terminal-search-btn:focus-visible,
+    .terminal-outline-btn:focus-visible {
+      outline: 2px solid #6b7280;
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 1100px) {
+      .pw-partner-page .partner-console {
+        grid-template-columns: 1fr;
+      }
+
+      .terminal-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .pw-partner-page .content-inner {
+        padding: 14px;
+      }
+
+      .pw-partner-page .pw-page-header {
+        margin-bottom: 14px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .terminal-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
-<body>
-  <div class="app">
+<body class="pw-admin pw-partner-page">
+  <div class="app pw-app-frame">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-name">PAY<span>wizard</span></div>
-        <div class="brand-sub">PORTAL</div>
-      </div>
-      <nav class="nav">
-        <div class="menu-item">Dashboard</div>
-        <div class="menu-item">Transactions</div>
-        <div class="menu-item">Agents <span class="chevron">▾</span></div>
-        <div class="menu-item">Merchants <span class="chevron">▾</span></div>
-        <div class="sub-menu">
-          <div class="sub-item">Contact</div>
-          <div class="sub-item">Leads</div>
-          <div class="sub-item">Onboarding</div>
-          <div class="sub-item">Merchant List</div>
-          <div class="sub-item">Analytics</div>
+    <aside class="sidebar pw-sidebar" aria-label="Primary navigation">
+      <a class="pw-brand" href="5.merchant_manage_iso.html" aria-label="PAYwizard home">
+        <span class="pw-brand-mark"><img src="assets/paywizard-logo.png" alt="PAYwizard"></span>
+        <span class="pw-brand-environment">SANDBOX</span>
+      </a>
+      <nav class="nav menu pw-nav" aria-label="Main navigation">
+        <a class="menu-item pw-menu-item" href="#"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">dashboard</span><span>Dashboard</span></span></a>
+        <a class="menu-item pw-menu-item" href="#"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">credit_card</span><span>Transactions</span></span></a>
+        <a class="menu-item pw-menu-item" href="#"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">group</span><span>Agents</span></span><span class="material-symbols-rounded pw-menu-arrow" aria-hidden="true">expand_more</span></a>
+        <a class="menu-item pw-menu-item" href="5.merchant_manage_iso.html"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">store</span><span>Merchants</span></span><span class="material-symbols-rounded pw-menu-arrow" aria-hidden="true">expand_more</span></a>
+        <div class="menu-item pw-menu-item active" aria-current="true"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">lightbulb</span><span>Partners</span></span><span class="material-symbols-rounded pw-menu-arrow" aria-hidden="true">expand_more</span></div>
+        <div class="sub-menu pw-sub-menu">
+          <a class="sub-item pw-sub-item active" href="26.partner_information.html" aria-current="page">Partner List</a>
         </div>
-        <div class="menu-item active">Partners <span class="chevron">▾</span></div>
-        <div class="sub-menu">
-          <div class="sub-item active">Partner List</div>
-        </div>
-        <div class="menu-item">Hardware</div>
-        <div class="menu-item">Device Management</div>
-        <div class="menu-item">APP Management</div>
-        <div class="menu-item">User Management</div>
-        <div class="menu-item">Settings <span class="chevron">▾</span></div>
-        <div class="menu-item">Tickets 🎫</div>
+        <a class="menu-item pw-menu-item" href="#"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">devices</span><span>Device Management</span></span></a>
+        <a class="menu-item pw-menu-item" href="#"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">apps</span><span>APP Management</span></span></a>
+        <a class="menu-item pw-menu-item" href="#"><span class="menu-main pw-menu-main"><span class="material-symbols-rounded" aria-hidden="true">cast_connected</span><span>Remote Diagnostic</span></span></a>
       </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="main">
+    <main class="main main-container pw-workspace">
       <!-- Top Bar -->
-      <header class="topbar">
-        <div class="breadcrumb">PARTNERS &nbsp;&gt;&nbsp; <b>PARTNER LIST</b></div>
-        <div class="topbar-right">
-          <button class="notify-btn" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            <span class="notify-badge">New</span>
-          </button>
-          <div class="avatar" aria-label="User">U</div>
+      <header class="topbar top-header pw-topbar">
+        <div class="breadcrumb breadcrumbs pw-breadcrumb">
+          <span>PARTNERS</span>
+          <span class="material-symbols-rounded" aria-hidden="true">chevron_right</span>
+          <strong>PARTNER LIST</strong>
+        </div>
+        <div class="topbar-right user-controls pw-top-actions">
+          <button class="notify-btn icon-circle pw-round-btn" type="button" aria-label="Notifications"><span class="pw-notice-count">2</span><span class="material-symbols-rounded" aria-hidden="true">notifications</span></button>
+          <button class="avatar icon-circle pw-round-btn dark" type="button" aria-label="User"><span class="material-symbols-rounded" aria-hidden="true">person</span></button>
         </div>
       </header>
 
       <!-- Content -->
-      <div class="content-area">
+      <div class="content-area pw-flow-content">
+        <div class="content-inner">
         <!-- Page Header -->
-        <div class="page-header">
+        <div class="page-header pw-page-header">
           <h1 class="page-title">Partner List</h1>
         </div>
 
@@ -1612,6 +1752,7 @@
           <section class="detail-panel" aria-label="Partner Detail">
             <div id="partnerDetail"></div>
           </section>
+        </div>
         </div>
       </div>
     </main>
@@ -1794,8 +1935,10 @@
           phone: "18114726651",
           email: "",
           dateTime: "2026-04-23\n18:36:13",
-          inventoryCount: 10,
-          outboundCount: 1
+          inventoryCount: 6,
+          outboundCount: 5,
+          assignedCount: 3,
+          activatedCount: 1
         },
         {
           id: "a-taizhou-east",
@@ -1997,6 +2140,8 @@
         searchEmail: "",
         styleFilter: "ALL",
         detailTab: "profile",
+        terminalSnQuery: "",
+        terminalStatus: "ALL",
         selectedId: partners[0] ? partners[0].id : "",
         collapsedIds: {}
       };
@@ -2326,39 +2471,54 @@
 
       function renderTerminalListPanel(partner) {
         var rows = buildTerminalInventoryRows(partner);
-        var pageCount = Math.max(1, Math.ceil(rows.length / 20));
-        var tableHtml = rows.length
+        var lifecycleCounts = getTerminalLifecycleCounts(partner);
+        var snQuery = String(state.terminalSnQuery || "").trim().toUpperCase();
+        var filteredRows = rows.filter(function (row) {
+          var matchesSn = !snQuery || row.sn.toUpperCase().indexOf(snQuery) >= 0;
+          var matchesStatus = state.terminalStatus === "ALL" || row.terminalStatus === state.terminalStatus;
+          return matchesSn && matchesStatus;
+        });
+        var pageCount = Math.max(1, Math.ceil(filteredRows.length / 20));
+        var statusOptions = ["Inbound", "Outbound", "Assigned", "Activated"].map(function (status) {
+          return '<option value="' + status + '"' + (state.terminalStatus === status ? ' selected' : '') + '>' + status + '</option>';
+        }).join("");
+        var tableHtml = filteredRows.length
           ? '<div class="terminal-list-wrap"><table class="terminal-list-table">' +
-          '<thead><tr><th>SN</th><th>Partner Name</th><th>Stock Type</th><th>Inbound Date</th><th>Outbound Date</th><th>Initial Contact Date</th><th>Onboarding Date</th><th>Activation Date</th></tr></thead>' +
-          '<tbody>' + rows.map(function (row) {
+          '<thead><tr><th>SN</th><th>Partner Name</th><th>Terminal Status</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
+          '<tbody>' + filteredRows.map(function (row) {
             return '<tr>' +
               '<td>' + escapeHtml(row.sn) + '</td>' +
               '<td>' + escapeHtml(row.partnerName) + '</td>' +
-              '<td><span class="terminal-status' + (row.stockType === "Outbound" ? ' outbound' : '') + '">' + escapeHtml(row.stockType) + '</span></td>' +
+              '<td><span class="terminal-status ' + escapeHtml(row.terminalStatus.toLowerCase()) + '">' + escapeHtml(row.terminalStatus) + '</span></td>' +
               '<td>' + escapeHtml(row.inboundDate) + '</td>' +
               '<td>' + escapeHtml(row.outboundDate) + '</td>' +
-              '<td>' + escapeHtml(row.initialContactDate) + '</td>' +
-              '<td>' + escapeHtml(row.onboardingDate) + '</td>' +
+              '<td>' + escapeHtml(row.assignedDate) + '</td>' +
               '<td>' + escapeHtml(row.activationDate) + '</td>' +
               '</tr>';
           }).join("") + '</tbody></table></div>'
-          : '<div class="terminal-empty">No terminal records for this partner.</div>';
+          : '<div class="terminal-empty">' + (rows.length ? 'No terminals match the current filters.' : 'No terminal records for this partner.') + '</div>';
 
         return '<div class="terminal-tab-panel">' +
+          '<div class="terminal-stats" aria-label="Terminal lifecycle summary">' +
+          '<div class="terminal-stat-card"><span class="terminal-stat-label">Total Terminals</span><strong class="terminal-stat-value" data-terminal-stat="total">' + lifecycleCounts.total + '</strong></div>' +
+          '<div class="terminal-stat-card"><span class="terminal-stat-label">Inventory</span><strong class="terminal-stat-value" data-terminal-stat="inventory">' + lifecycleCounts.inventory + '</strong></div>' +
+          '<div class="terminal-stat-card"><span class="terminal-stat-label">Assigned</span><strong class="terminal-stat-value" data-terminal-stat="assigned">' + lifecycleCounts.assignedTotal + '</strong></div>' +
+          '<div class="terminal-stat-card"><span class="terminal-stat-label">Activated</span><strong class="terminal-stat-value" data-terminal-stat="activated">' + lifecycleCounts.activated + '</strong></div>' +
+          '</div>' +
           '<div class="terminal-tab-toolbar">' +
           '<div class="terminal-tab-actions">' +
           '<button class="terminal-outline-btn blue" type="button">Bulk Upload</button>' +
           '<button class="terminal-outline-btn orange" type="button">Bulk Upload Results</button>' +
           '</div>' +
           '<div class="terminal-filter-group">' +
-          '<input class="terminal-filter-field" type="text" placeholder="SN">' +
-          '<select class="terminal-filter-field"><option>Stock Type</option><option>Inbound</option><option>Outbound</option></select>' +
-          '<button class="terminal-search-btn light" type="button" title="Clear">' + iconSvg("refresh") + '</button>' +
-          '<button class="terminal-search-btn" type="button" title="Search">' + iconSvg("search") + '</button>' +
+          '<input class="terminal-filter-field" id="terminalSnFilter" type="text" placeholder="SN" aria-label="Terminal SN" value="' + escapeHtml(state.terminalSnQuery) + '">' +
+          '<select class="terminal-filter-field" id="terminalStatusFilter" aria-label="Terminal Status"><option value="ALL">Terminal Status</option>' + statusOptions + '</select>' +
+          '<button class="terminal-search-btn light" type="button" title="Clear" aria-label="Clear terminal filters" data-terminal-filter-clear>' + iconSvg("refresh") + '</button>' +
+          '<button class="terminal-search-btn" type="button" title="Search" aria-label="Search terminals" data-terminal-filter-search>' + iconSvg("search") + '</button>' +
           '</div>' +
           '</div>' +
           tableHtml +
-          (rows.length ? '<div class="terminal-pager"><span>«</span><span>‹</span><span class="terminal-page-dot active">1</span><span>›</span><span>»</span><span style="margin-left: 12px;">20 / ' + pageCount + ' (' + rows.length + ')</span></div>' : '') +
+          (filteredRows.length ? '<div class="terminal-pager"><span>«</span><span>‹</span><span class="terminal-page-dot active">1</span><span>›</span><span>»</span><span style="margin-left: 12px;">20 / ' + pageCount + ' (' + filteredRows.length + ')</span></div>' : '') +
           '</div>';
       }
 
@@ -2449,6 +2609,22 @@
           return;
         }
 
+        var terminalFilterSearch = e.target.closest("[data-terminal-filter-search]");
+        if (terminalFilterSearch) {
+          state.terminalSnQuery = document.getElementById("terminalSnFilter").value.trim();
+          state.terminalStatus = document.getElementById("terminalStatusFilter").value;
+          renderDetail();
+          return;
+        }
+
+        var terminalFilterClear = e.target.closest("[data-terminal-filter-clear]");
+        if (terminalFilterClear) {
+          state.terminalSnQuery = "";
+          state.terminalStatus = "ALL";
+          renderDetail();
+          return;
+        }
+
         var addChildBtn = e.target.closest("[data-add-child-id]");
         if (addChildBtn) {
           openAddModal(addChildBtn.getAttribute("data-add-child-id"));
@@ -2473,26 +2649,60 @@
         }
       });
 
+      detailEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" || !e.target.matches("#terminalSnFilter, #terminalStatusFilter")) return;
+        e.preventDefault();
+        var terminalSearch = detailEl.querySelector("[data-terminal-filter-search]");
+        if (terminalSearch) terminalSearch.click();
+      });
+
+      function getTerminalLifecycleCounts(partner) {
+        var inventory = Math.max(0, Number(partner.inventoryCount || 0));
+        var outboundTotal = Math.max(0, Number(partner.outboundCount || 0));
+        var assignedTotal = Math.min(outboundTotal, Math.max(0, Number(partner.assignedCount || 0)));
+        var activated = Math.min(assignedTotal, Math.max(0, Number(partner.activatedCount || 0)));
+        return {
+          total: inventory + outboundTotal,
+          inventory: inventory,
+          outbound: outboundTotal - assignedTotal,
+          assigned: assignedTotal - activated,
+          assignedTotal: assignedTotal,
+          activated: activated
+        };
+      }
+
+      function formatTerminalDate(value) {
+        var pad = function (number) { return String(number).padStart(2, "0"); };
+        return value.getUTCFullYear() + "-" +
+          pad(value.getUTCMonth() + 1) + "-" +
+          pad(value.getUTCDate()) + " " +
+          pad(value.getUTCHours()) + ":" +
+          pad(value.getUTCMinutes()) + ":" +
+          pad(value.getUTCSeconds());
+      }
+
       function buildTerminalInventoryRows(partner) {
-        var inventoryCount = Number(partner.inventoryCount || 0);
-        var outboundCount = Number(partner.outboundCount || 0);
-        var count = inventoryCount + outboundCount;
+        var counts = getTerminalLifecycleCounts(partner);
         var prefix = partner.id.replace(/[^a-z0-9]/gi, "").slice(-4).toUpperCase() || "UPT";
         var rows = [];
-        for (var i = 0; i < count; i++) {
-          var seq = String(i + 1).padStart(2, "0");
-          var isOutbound = i < outboundCount;
-          var day = String(10 + (i % 18)).padStart(2, "0");
-          var inboundDate = "2026-05-" + day + " 09:" + String(20 + (i % 30)).padStart(2, "0") + ":10";
+        for (var i = 0; i < counts.total; i++) {
+          var terminalStatus = i < counts.activated
+            ? "Activated"
+            : (i < counts.assignedTotal
+              ? "Assigned"
+              : (i < counts.assignedTotal + counts.outbound ? "Outbound" : "Inbound"));
+          var inboundAt = new Date(Date.UTC(2026, 4, 10, 9, 20, 10) + (i * 86400000));
+          var outboundAt = new Date(inboundAt.getTime() + 14400000);
+          var assignedAt = new Date(outboundAt.getTime() + 86400000);
+          var activatedAt = new Date(assignedAt.getTime() + 86400000);
           rows.push({
-            sn: "WP" + prefix + "Q" + String(33200000 + i * 11 + count),
+            sn: "WP" + prefix + "Q" + String(33200000 + i * 11 + counts.total),
             partnerName: partner.name.replace(/\n/g, " "),
-            inboundDate: inboundDate,
-            outboundDate: isOutbound ? "2026-05-" + String(18 + (i % 9)).padStart(2, "0") + " 13:" + String(10 + (i % 40)).padStart(2, "0") + ":27" : "-",
-            initialContactDate: "-",
-            onboardingDate: "-",
-            activationDate: "-",
-            stockType: isOutbound ? "Outbound" : "Inbound"
+            terminalStatus: terminalStatus,
+            inboundDate: formatTerminalDate(inboundAt),
+            outboundDate: terminalStatus === "Inbound" ? "-" : formatTerminalDate(outboundAt),
+            assignedDate: terminalStatus === "Assigned" || terminalStatus === "Activated" ? formatTerminalDate(assignedAt) : "-",
+            activationDate: terminalStatus === "Activated" ? formatTerminalDate(activatedAt) : "-"
           });
         }
         return rows;
@@ -2714,7 +2924,9 @@
           dateTime: dateStr,
           updateTime: dateStr,
           inventoryCount: 0,
-          outboundCount: 0
+          outboundCount: 0,
+          assignedCount: 0,
+          activatedCount: 0
         };
 
         if (parent) {
