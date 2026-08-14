@@ -35,6 +35,42 @@ final result: passed
 
 ---
 
+# Partner Sidebar Density Fix QA — 2026-08-14
+
+## Evidence
+
+- Source visual truth: live `5.merchant_manage_iso.html` shared administration sidebar.
+- Source screenshot: `/tmp/merchant-sidebar-reference.png`.
+- Implementation screenshot: `/tmp/partner-sidebar-fixed.png`.
+- Viewport: 1920 x 853 CSS px; both screenshots are 1920 x 853 px at device scale factor 1.
+- State: Merchant List selected in the reference; Partners and Partner List selected in the implementation.
+- Full-view evidence: both pages were captured from the same browser, viewport, shared stylesheet, and page-shell state.
+- Focused evidence: sidebar row geometry was measured in-browser. Both pages render every menu and submenu row at 47px. The Partner navigation is 457px high for nine visible rows; the Merchant reference is 645px high for thirteen visible rows.
+
+## Findings and fix history
+
+1. P1 initial issue: legacy `.nav { flex: 1 }` stretched the Partner page's CSS Grid navigation tracks across the remaining sidebar height, producing oversized gray and black menu blocks.
+2. Fix: scoped the Partner sidebar to block layout and reset `.pw-nav` to `flex: none`, `align-content: start`, and visible overflow while retaining the shared `merchant-admin-unified.css` menu styling.
+3. Post-fix evidence: Dashboard, Transactions, Agents, Merchants, Partners, Partner List, Device Management, APP Management, and Remote Diagnostic all measure 47px high with the same icon, typography, spacing, radius, and active-state tokens as the Merchant reference.
+4. Automated regression: `tests/partner-information.spec.js` passes 4/4, including a sidebar-density assertion, terminal lifecycle behavior, all UPT sample data, and responsive layouts.
+
+## Fidelity surfaces
+
+- Fonts and typography: shared Poppins family, weights, sizes, and line heights match the Merchant reference.
+- Spacing and layout rhythm: compact 47px rows and 4px grid gaps are restored; no full-height track stretching remains.
+- Colors and visual tokens: active black, hover gray, white active copy, border, and panel colors come directly from the shared stylesheet.
+- Image quality and assets: the existing PAYwizard raster logo and Material Symbols remain unchanged.
+- Copy and content: Partner-specific navigation labels and active states are unchanged.
+
+## Blocking evidence limitation
+
+- Browser security policy rejected navigation to the generated data-URL comparison canvas, and the environment has no ImageMagick montage utility. The two screenshots were opened and reviewed individually, but a single combined comparison image could not be produced without bypassing that policy.
+- No visual P0/P1/P2 implementation issue remains; the block is limited to the required combined-evidence artifact.
+
+final result: blocked
+
+---
+
 # Partner Information Terminal Lifecycle QA — 2026-08-14
 
 ## Evidence
