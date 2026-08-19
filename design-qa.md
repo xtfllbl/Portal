@@ -35,6 +35,40 @@ final result: passed
 
 ---
 
+# Transaction List Density and Shell Alignment QA — 2026-08-19
+
+## Evidence
+
+- Source visual truth: `38.Merchant_onboard.html`, rendered in the Codex in-app browser at 1280 × 720 CSS px.
+- Source screenshot: `/tmp/merchant-onboard-reference.png`.
+- Implementation screenshot: `/tmp/transaction-list-compact.png`.
+- Combined same-viewport comparison: `/tmp/transaction-style-comparison.png`.
+- Interaction screenshots: `/tmp/transaction-list-filters.png` and `/tmp/transaction-list-columns.png`.
+
+## Findings and corrections
+
+- No remaining P0, P1, or P2 visual findings.
+- **Shell:** The Transaction page now uses the same 16px frame rhythm, compact 264/236px sidebar behavior, 70px top bar, 8px surfaces, low-elevation border treatment, supplied PAYwizard logo, and 47px navigation rows as the Onboarding reference.
+- **Typography and controls:** Base copy is 13px; the page title is 25px; tabs are 14px; filter fields are 40px high; primary and secondary filter actions are 38px high. The former oversized 54px fields, 50px actions, large radii, and excessive title-to-toolbar gap are removed.
+- **Filter density:** All 17 filters remain available in a compact four-column desktop grid. Opening the panel still leaves the table header and first data row visible at 1280 × 720.
+- **Column settings:** The editor is reduced from a 1048px oversized surface to a 780px scrollable panel with compact view cards, actions, checkboxes, and two-column ordering controls.
+- **Table:** The header uses `border-collapse: separate`, zero cell borders, and a low-contrast dark inset divider. The previously conspicuous white header splits are gone; first and last cells retain the reference-style 6px outer rounding.
+- **Responsive behavior:** The sidebar narrows to 236px at 1320px, becomes a 74px icon rail at 1040px, and hides below 880px. Filters collapse from four to three, two, and one columns without introducing page-level control overflow.
+- **Functional regression:** TCI filtering, Completed/Failed switching, Saved Column Views, column visibility/reordering controls, export controls, and the existing transaction table remain operational. TCI is intentionally displayed as a non-sortable column. Compact pagination supports Previous/Next, numbered pages, 10/20/50-row page sizes, and automatic page reset after filtering or tab changes. A transaction row can now be selected with pointer or keyboard and keeps a full-width neutral highlight while the table scrolls horizontally; links and row controls do not alter the selection.
+
+## Verification
+
+- In-app browser visual comparison completed against `38.Merchant_onboard.html` at the same viewport.
+- Filtering `TC26042703` returned one matching row and excluded `TC26042704`.
+- Pagination was verified with 60 Completed and 11 Failed simulated transactions: Completed advances from pages 1 to 2 and changes from 6 to 3 pages at 20 rows per page; Failed advances across 2 pages at 10 rows per page.
+- Row selection was verified for select, deselect, switch-to-another-row, and interaction isolation when using the terminal-type control.
+- Inline JavaScript syntax validation passed for the page's script.
+- `git diff --check` passed.
+
+final result: passed
+
+---
+
 # Partner Sidebar Density Fix QA — 2026-08-14
 
 ## Evidence
