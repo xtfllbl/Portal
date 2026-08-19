@@ -166,6 +166,13 @@
     .sticky-table-head.show{display:block}
     .sticky-table-head table{min-width:0;width:max-content}
     .sticky-table-head th:first-child,.sticky-table-head th:last-child{border-radius:0}
+    .floating-hscroll{position:fixed;left:0;bottom:8px;z-index:116;display:none;height:14px;padding:3px 2px;overflow:hidden;border-radius:999px;background:#eff2f7;box-shadow:0 0 0 4px rgba(255,255,255,.94),0 6px 18px rgba(23,30,47,.18);box-sizing:border-box;cursor:pointer;touch-action:none;user-select:none}
+    .floating-hscroll.show{display:block}
+    .floating-hscroll:focus-visible{outline:2px solid #657187;outline-offset:4px}
+    .floating-hscroll-inner{position:relative;width:100%;height:8px;border-radius:999px;background:#e5e9f0}
+    .floating-hscroll-thumb{position:absolute;top:0;left:0;height:8px;min-width:48px;border-radius:999px;background:#aeb6c5;box-shadow:inset 0 0 0 1px rgba(91,101,120,.14);cursor:grab;transition:background .15s ease}
+    .floating-hscroll-thumb:hover{background:#929cab}
+    .floating-hscroll.dragging .floating-hscroll-thumb{background:#7e899a;cursor:grabbing}
     table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;background:#fff}
     th{height:36px;position:sticky;top:0;z-index:2;background:var(--dark);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;white-space:nowrap;text-align:left;padding:7px 10px;border:0}
     th+th{box-shadow:inset 1px 0 #2d2e34}
@@ -380,6 +387,7 @@
     .scroll::-webkit-scrollbar-track,.nav::-webkit-scrollbar-track,.cols::-webkit-scrollbar-track{background:#eff2f7;border-radius:999px}
     @media (max-width:1320px){.side{width:236px;flex-basis:236px}.cols{right:-34px}}
     @media (max-width:1040px){.side{width:74px;flex-basis:74px;padding-inline:8px}.brand{height:56px;align-content:center;justify-items:start;overflow:hidden}.brand img{width:138px;max-width:none;transform:translate(-5px,-2px)}.brand p{display:none}.item{justify-content:center;padding-inline:0}.item b{font-size:0}.item b svg{width:18px;height:18px}.item .caret{display:none}.panel{padding:17px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.cols{right:-50px}}
+    @media (max-width:880px),(pointer:coarse){.floating-hscroll{display:none!important}}
     @media (max-width:880px){.app{height:auto;min-height:100vh;overflow:visible;gap:10px;padding:10px}.app.filters-open .main{min-height:calc(100vh - 20px);grid-template-rows:58px auto}.side{display:none}.main{min-height:calc(100vh - 20px);grid-template-rows:58px minmax(0,1fr);gap:10px}.top{padding:8px 12px}.circle{width:36px;height:36px}.panel{padding:14px}.app.filters-open .panel{min-height:calc(100vh - 88px)}.panel h2{font-size:21px}.bar{margin-top:16px}.tabs{min-width:0}.tab{padding-left:10px;padding-right:10px}.acts{width:100%;gap:8px;flex-wrap:wrap}.datefield{flex:1;min-width:210px}.date{width:100%}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filterhead,.fbtns,.row.head{align-items:stretch}.btns{justify-content:flex-end}.cols{position:fixed;left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:calc(100vh - 80px)}.cols:before,.cols:after{display:none}}
     @media (max-width:560px){.grid{grid-template-columns:1fr}.app.filters-open .filterpanel.show{max-height:1120px}.filterhead,.fbtns,.row.head{flex-direction:column}.btns{display:grid;grid-template-columns:1fr 1fr}.search{grid-column:1/-1}.ghost,.search{width:100%}.list{grid-template-columns:1fr}.pagination{align-items:flex-start;flex-direction:column}.page-tools{justify-content:flex-start}.page-number:nth-of-type(n+5){display:none}.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.ledger-head{display:grid}.ledger-table{overflow:auto}.ledger-row{min-width:420px}.routing-head{display:grid;gap:8px}.routing-mode{display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-selected,.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
   </style>
@@ -532,6 +540,11 @@
               <thead><tr id="headRow"></tr></thead>
               <tbody id="bodyRows"></tbody>
             </table>
+          </div>
+        </div>
+        <div class="floating-hscroll" id="floatingHScroll" role="scrollbar" aria-label="Scroll transaction columns horizontally" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-hidden="true" tabindex="-1">
+          <div class="floating-hscroll-inner" id="floatingHScrollInner">
+            <div class="floating-hscroll-thumb" id="floatingHScrollThumb"></div>
           </div>
         </div>
         <div class="pagination" id="pagination" aria-label="Transaction pagination">
@@ -772,6 +785,7 @@
       const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
       const appShell=document.querySelector(".app"),tableWrap=document.querySelector(".tablewrap");
       const tableScroll=tableWrap.querySelector(".scroll"),stickyTableHead=document.getElementById("stickyTableHead"),stickyHeadRow=document.getElementById("stickyHeadRow");
+      const floatingHScroll=document.getElementById("floatingHScroll"),floatingHScrollInner=document.getElementById("floatingHScrollInner"),floatingHScrollThumb=document.getElementById("floatingHScrollThumb");
       const colEditorTitle=document.getElementById("colEditorTitle");
       const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
       const presetList=document.getElementById("presetList"),presetMeta=document.getElementById("presetMeta"),presetNote=document.getElementById("presetNote");
@@ -1709,12 +1723,41 @@
         stickyTable.style.width=`${tableScroll.scrollWidth}px`;
         stickyTable.style.transform=`translateX(${-tableScroll.scrollLeft}px)`;
       };
+      const floatingScrollSupported=()=>window.matchMedia("(min-width: 881px) and (pointer: fine)").matches;
+      const syncFloatingHScroll=()=>{
+        const wrapRect=tableWrap.getBoundingClientRect();
+        const hasHorizontalOverflow=tableScroll.scrollWidth>tableScroll.clientWidth+1;
+        const intersectsViewport=wrapRect.top<window.innerHeight&&wrapRect.bottom>0;
+        const nativeScrollbarBelowViewport=wrapRect.bottom>window.innerHeight-4;
+        const visible=floatingScrollSupported()&&hasHorizontalOverflow&&intersectsViewport&&nativeScrollbarBelowViewport;
+        floatingHScroll.classList.toggle("show",visible);
+        floatingHScroll.setAttribute("aria-hidden",visible?"false":"true");
+        floatingHScroll.tabIndex=visible?0:-1;
+        if(!visible) return;
+        const viewportLeft=Math.max(0,wrapRect.left);
+        const viewportRight=Math.min(window.innerWidth,wrapRect.right);
+        floatingHScroll.style.left=`${viewportLeft}px`;
+        floatingHScroll.style.width=`${Math.max(0,viewportRight-viewportLeft)}px`;
+        const maxScroll=Math.max(0,tableScroll.scrollWidth-tableScroll.clientWidth);
+        const trackWidth=floatingHScrollInner.clientWidth;
+        const thumbWidth=Math.max(48,Math.min(trackWidth,trackWidth*(tableScroll.clientWidth/tableScroll.scrollWidth)));
+        const thumbTravel=Math.max(0,trackWidth-thumbWidth);
+        const thumbLeft=maxScroll?thumbTravel*(tableScroll.scrollLeft/maxScroll):0;
+        floatingHScrollThumb.style.width=`${thumbWidth}px`;
+        floatingHScrollThumb.style.transform=`translateX(${thumbLeft}px)`;
+        floatingHScroll.setAttribute("aria-valuemax",String(Math.round(maxScroll)));
+        floatingHScroll.setAttribute("aria-valuenow",String(Math.round(tableScroll.scrollLeft)));
+      };
+      const syncTableViewportUi=()=>{
+        syncStickyHead();
+        syncFloatingHScroll();
+      };
       const toggleFilters=force=>{
         const open=typeof force==="boolean"?force:!filtersPanel.classList.contains("show");
         filtersPanel.classList.toggle("show",open);
         document.body.classList.toggle("filters-open",open);
         appShell.classList.toggle("filters-open",open);
-        requestAnimationFrame(syncStickyHead);
+        requestAnimationFrame(syncTableViewportUi);
         updateFilterUi();
       };
       const closeDateRange=()=>{
@@ -1850,7 +1893,7 @@
         closeSnDetail();
         closeSnPicker();
         updateFilterUi();
-        requestAnimationFrame(syncStickyHead);
+        requestAnimationFrame(syncTableViewportUi);
       };
       const renderCols=()=>{
         updateColumnEditorTitle();
@@ -1939,9 +1982,57 @@
       document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); markColumnsCustom(); renderCols(); renderTable();};
       document.getElementById("resetCols").onclick=resetCols;
       Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault(); applyFilters(true);}}));
-      window.addEventListener("scroll",syncStickyHead,{passive:true});
-      window.addEventListener("resize",syncStickyHead);
-      tableScroll.addEventListener("scroll",syncStickyHead,{passive:true});
+      window.addEventListener("scroll",syncTableViewportUi,{passive:true});
+      window.addEventListener("resize",syncTableViewportUi);
+      tableScroll.addEventListener("scroll",syncTableViewportUi,{passive:true});
+      let floatingPointerState=null;
+      const setHorizontalScroll=value=>{
+        const maxScroll=Math.max(0,tableScroll.scrollWidth-tableScroll.clientWidth);
+        tableScroll.scrollLeft=Math.max(0,Math.min(maxScroll,value));
+        syncTableViewportUi();
+      };
+      floatingHScroll.addEventListener("pointerdown",e=>{
+        if(e.button!==0) return;
+        e.preventDefault();
+        floatingHScroll.focus({preventScroll:true});
+        const trackRect=floatingHScrollInner.getBoundingClientRect();
+        const thumbRect=floatingHScrollThumb.getBoundingClientRect();
+        const maxScroll=Math.max(0,tableScroll.scrollWidth-tableScroll.clientWidth);
+        const travel=Math.max(1,trackRect.width-thumbRect.width);
+        if(e.target===floatingHScrollThumb){
+          floatingPointerState={id:e.pointerId,startX:e.clientX,startScroll:tableScroll.scrollLeft,maxScroll,travel};
+          floatingHScroll.classList.add("dragging");
+          floatingHScroll.setPointerCapture(e.pointerId);
+          return;
+        }
+        const targetLeft=Math.max(0,Math.min(travel,e.clientX-trackRect.left-thumbRect.width/2));
+        setHorizontalScroll((targetLeft/travel)*maxScroll);
+      });
+      floatingHScroll.addEventListener("pointermove",e=>{
+        const drag=floatingPointerState;
+        if(!drag||drag.id!==e.pointerId) return;
+        e.preventDefault();
+        setHorizontalScroll(drag.startScroll+((e.clientX-drag.startX)/drag.travel)*drag.maxScroll);
+      });
+      const endFloatingDrag=e=>{
+        if(!floatingPointerState||floatingPointerState.id!==e.pointerId) return;
+        floatingPointerState=null;
+        floatingHScroll.classList.remove("dragging");
+        if(floatingHScroll.hasPointerCapture(e.pointerId)) floatingHScroll.releasePointerCapture(e.pointerId);
+      };
+      floatingHScroll.addEventListener("pointerup",endFloatingDrag);
+      floatingHScroll.addEventListener("pointercancel",endFloatingDrag);
+      floatingHScroll.addEventListener("keydown",e=>{
+        const maxScroll=Math.max(0,tableScroll.scrollWidth-tableScroll.clientWidth);
+        let next=null;
+        if(e.key==="ArrowLeft") next=tableScroll.scrollLeft-(e.shiftKey?240:80);
+        if(e.key==="ArrowRight") next=tableScroll.scrollLeft+(e.shiftKey?240:80);
+        if(e.key==="Home") next=0;
+        if(e.key==="End") next=maxScroll;
+        if(next===null) return;
+        e.preventDefault();
+        setHorizontalScroll(next);
+      });
       body.addEventListener("mouseover",e=>{
         const link=e.target.closest(".sn-main-link");
         if(!link||link.contains(e.relatedTarget)) return;

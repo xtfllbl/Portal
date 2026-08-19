@@ -1,3 +1,40 @@
+# Transaction Floating Horizontal Scroll QA — 2026-08-19
+
+## Evidence
+
+- Source visual truth: `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-6af9fdc6-4b31-430d-a9bc-cbedb67c80fb.png`, showing the previously visible but non-interactive bottom track.
+- Browser-rendered implementation: `transaction-floating-scroll-qa.png` at a 1280 × 720 CSS viewport and device scale factor 1.
+- Combined source/implementation comparison: `transaction-floating-scroll-comparison.png`; both images were proportionally contained in equal 900 × 600 cells without stretching.
+- State: Completed transactions, NAYAX-style filters open, table in the middle of its natural page scroll, horizontally positioned near the final columns.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- **Mouse interaction:** The floating control now has a persistent 8px custom thumb. The thumb can be grabbed and dragged with the primary mouse button; clicking elsewhere on the track centers the thumb at that position and moves the table immediately.
+- **Synchronization:** Track click moved the canonical table from `scrollLeft 0` to `1095`; a subsequent pointer drag moved it to `1867`. The thumb position, table content, sticky cloned header, and `aria-valuenow` remained synchronized.
+- **Layout:** The control remains 14px high, fixed 8px above the viewport bottom, and aligned to the visible table bounds (954px wide at 1280px). It does not extend over the sidebar.
+- **Visual tokens:** The established neutral gray track, subtle white surround, low shadow, pill geometry, and existing table/sidebar styling remain unchanged. Hover and drag states darken the thumb without introducing a new accent color.
+- **Accessibility:** The control remains focusable only while visible, keeps `role="scrollbar"` and current min/max/value attributes, and supports Arrow Left/Right, Shift+Arrow, Home, and End.
+- **Responsive behavior:** The control remains enabled at 1280px and 1024px fine-pointer layouts. At 390px and coarse-pointer layouts it stays hidden so native touch scrolling remains the only horizontal gesture.
+
+## Regression verification
+
+- The floating control hides when the original table scrollbar enters the viewport and reappears when the user scrolls back into the table body.
+- No-overflow column configurations hide the floating control; resetting columns restores it with a recalculated thumb width.
+- Existing filter behavior, natural vertical page scroll, pagination, row selection, table horizontal scrolling, and sticky header behavior remain unchanged.
+- Browser console warnings/errors: none.
+- Inline JavaScript syntax validation and `git diff --check`: passed.
+
+## Comparison history
+
+1. Initial floating implementation relied on the operating system's overlay scrollbar, which could render a track-like surface without a reliably visible or mouse-grabbable thumb (P1 usability issue).
+2. Replaced the native overlay dependency with an explicit synchronized thumb, pointer capture for dragging, and track-click positioning.
+3. Browser verification confirms direct track clicking and mouse dragging both move the transaction table and maintain synchronized visual/ARIA state.
+
+final result: passed
+
+---
+
 # Transaction Natural Scroll Layout QA — 2026-08-19
 
 ## Evidence
