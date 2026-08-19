@@ -4665,6 +4665,7 @@ paymentTimeout=180`
         const canonicalMdb = value => String(value == null ? '' : value).trim().replace(/^0+(?=\d)/, '');
         const nextProductId = () => `pm-${String(productSequence++).padStart(3, '0')}`;
         function getStockStatus(row){
+            if(row.par == null) return Number(row.onHand) === 0 ? 'out-of-stock' : 'in-stock';
             if(Number(row.onHand) === 0) return 'out-of-stock';
             if(Number(row.par) > 0 && Number(row.onHand) / Number(row.par) <= .25) return 'low-stock';
             return 'in-stock';
@@ -4710,8 +4711,8 @@ paymentTimeout=180`
                 productNameSnapshot: productName,
                 categoryNameSnapshot: categoryName,
                 dexNameSnapshot: dexName,
-                priceCents: Math.round(Number(raw.price || 0) * 100),
-                par: Number(raw.par),
+                priceCents: String(raw.price == null ? '' : raw.price).trim() === '' ? null : Math.round(Number(raw.price) * 100),
+                par: String(raw.par == null ? '' : raw.par).trim() === '' ? null : Number(raw.par),
                 onHand: Number(raw.onHand)
             };
         }
@@ -4743,24 +4744,23 @@ paymentTimeout=180`
             const existing = ignoreId ? productRows.find(row => row.id === ignoreId) : null;
             const keepsExistingCategory = Boolean(existing && existing.categoryId === values.categoryId);
             const keepsExistingProduct = Boolean(existing && existing.productId === values.productId);
-            if(!values.categoryNameInput) errors.categoryId = 'Enter or select a Product Group.';
-            else if(values.categoryNameInput.length > 100) errors.categoryId = 'Product Group Name must be 100 characters or fewer.';
+            if(values.categoryNameInput.length > 100) errors.categoryId = 'Product Group Name must be 100 characters or fewer.';
             else if(selectedCategory && !catalogItemActive(selectedCategory) && !keepsExistingCategory) errors.categoryId = 'Select an Active Product Group.';
-            if(!values.productNameInput && !options.allowBlankProduct) errors.productId = 'Enter or select a Product.';
-            else if(values.productNameInput.length > 100) errors.productId = 'Product Name must be 100 characters or fewer.';
+            if(values.productNameInput.length > 100) errors.productId = 'Product Name must be 100 characters or fewer.';
+            else if(values.productNameInput && !values.categoryNameInput) errors.productId = 'Select a Product Group before entering a Product.';
             else if(selectedProduct && selectedCategory && selectedProduct.categoryId !== selectedCategory.id) errors.productId = 'The selected Product does not belong to this Product Group.';
             else if(selectedProduct && !catalogItemActive(selectedProduct) && !keepsExistingProduct) errors.productId = 'Select an Active Product.';
-            if(!/^(0|[1-9]\d*)(\.\d{1,2})?$/.test(values.price)) errors.price = 'Enter a non-negative price with up to 2 decimals.';
-            if(!/^(0|[1-9]\d*)$/.test(values.par)) errors.par = 'PAR must be a non-negative whole number.';
+            if(values.price && !/^(0|[1-9]\d*)(\.\d{1,2})?$/.test(values.price)) errors.price = 'Enter a non-negative price with up to 2 decimals.';
+            if(values.par && !/^(0|[1-9]\d*)$/.test(values.par)) errors.par = 'PAR must be a non-negative whole number.';
             if(!/^(0|[1-9]\d*)$/.test(values.onHand)) errors.onHand = 'On Hand must be a non-negative whole number.';
 
-            const parNumber = Number(values.par);
+            const parNumber = values.par === '' ? null : Number(values.par);
             const onHandNumber = Number(values.onHand);
-            if(!errors.par && !Number.isSafeInteger(parNumber)) errors.par = 'PAR is too large.';
+            if(values.par && !errors.par && !Number.isSafeInteger(parNumber)) errors.par = 'PAR is too large.';
             if(!errors.onHand && !Number.isSafeInteger(onHandNumber)) errors.onHand = 'On Hand is too large.';
-            if(!errors.par && !errors.onHand && onHandNumber > parNumber) errors.onHand = 'On Hand cannot exceed PAR.';
-            const priceCents = Math.round(Number(values.price) * 100);
-            if(!errors.price && !Number.isSafeInteger(priceCents)) errors.price = 'Price is too large.';
+            if(values.par && !errors.par && !errors.onHand && onHandNumber > parNumber) errors.onHand = 'On Hand cannot exceed PAR.';
+            const priceCents = values.price === '' ? null : Math.round(Number(values.price) * 100);
+            if(values.price && !errors.price && !Number.isSafeInteger(priceCents)) errors.price = 'Price is too large.';
 
             const pool = (againstRows || productRows).filter(row => row.id !== ignoreId);
             if(!errors.slot && pool.some(row => canonicalText(row.slot) === canonicalText(values.slot))) errors.slot = 'This BIN / Slot is already mapped.';
@@ -4944,7 +4944,7 @@ paymentTimeout=180`
                 dexNameSnapshot: current.dexNameSnapshot || current.productName,
                 paCode: current.paCode,
                 mdbCode: current.mdbCode,
-                par: String(current.par),
+                par: current.par == null ? '' : String(current.par),
                 onHand: String(current.onHand),
                 price: current.priceCents == null ? '' : (current.priceCents / 100).toFixed(2)
             };
@@ -5045,7 +5045,7 @@ paymentTimeout=180`
             productRows.forEach(row => {
                 const current = materializeProductRow(row);
                 const status = getStockStatus(current);
-                const missing = Math.max(Number(current.par) - Number(current.onHand), 0);
+                const missing = current.par == null ? '—' : Math.max(Number(current.par) - Number(current.onHand), 0);
                 const progress = Number(current.par) > 0 ? Math.min(100, Math.round((Number(current.onHand) / Number(current.par)) * 100)) : 0;
                 const mappedProduct = catalogProductById(current.productId);
                 const mappedCategory = catalogCategoryById(current.categoryId);
@@ -5053,11 +5053,11 @@ paymentTimeout=180`
                 rows.push(`
                     <tr${templateImportBackup ? ' class="pm-template-import-row"' : ''} data-pm-id="${escapeHtml(current.id)}">
                         <td>${savedCellButton(current, 'productId', `<span class="pm-product-name">${escapeHtml(current.productName || 'Select product')}${inactive ? ' <span class="pm-catalog-state">Inactive</span>' : ''}</span>`, `Product ${current.productName || 'selection'}`, !current.productName)}</td>
-                        <td>${savedCellButton(current, 'categoryId', escapeHtml(current.productGroup), `Product Group ${current.productGroup}`)}</td>
+                        <td>${savedCellButton(current, 'categoryId', escapeHtml(current.productGroup || 'Select group'), `Product Group ${current.productGroup || 'selection'}`, !current.productGroup)}</td>
                         <td>${savedCellButton(current, 'paCode', `<span class="pm-code">${escapeHtml(current.paCode || '—')}</span>`, 'PA Code', !current.paCode)}</td>
                         <td>${savedCellButton(current, 'mdbCode', `<span class="pm-code">${escapeHtml(current.mdbCode)}</span>`, 'MDB Code')}</td>
-                        <td>${savedCellButton(current, 'par', escapeHtml(current.par), 'PAR')}</td>
-                        <td class="pm-inventory-cell">${cellEditing && cellEditing.id === current.id && cellEditing.field === 'onHand' ? renderSavedCellEditor(current, 'onHand') : savedCellButton(current, 'onHand', `<span class="pm-stock-value">${escapeHtml(current.onHand)} / ${escapeHtml(current.par)}</span><span class="pm-stock-track"><span class="pm-stock-fill ${status === 'low-stock' ? 'low' : status === 'out-of-stock' ? 'out' : ''}" style="width:${progress}%"></span></span>`, 'On Hand')}</td>
+                        <td>${savedCellButton(current, 'par', escapeHtml(current.par == null ? 'Set PAR' : current.par), 'PAR', current.par == null)}</td>
+                        <td class="pm-inventory-cell">${cellEditing && cellEditing.id === current.id && cellEditing.field === 'onHand' ? renderSavedCellEditor(current, 'onHand') : savedCellButton(current, 'onHand', `<span class="pm-stock-value">${escapeHtml(current.onHand)} / ${escapeHtml(current.par == null ? '—' : current.par)}</span><span class="pm-stock-track"><span class="pm-stock-fill ${status === 'low-stock' ? 'low' : status === 'out-of-stock' ? 'out' : ''}" style="width:${progress}%"></span></span>`, 'On Hand')}</td>
                         <td>${escapeHtml(missing)}</td>
                         <td>${savedCellButton(current, 'price', escapeHtml(current.priceCents == null ? 'Set price' : formatProtocolPriceFromCents(current.priceCents)), 'Price', current.priceCents == null)}</td>
                         <td><div class="pm-row-actions"><button class="pm-delete-icon" type="button" data-pm-delete="${escapeHtml(current.id)}" aria-label="Delete ${escapeHtml(current.productName || `BIN ${current.mdbCode}`)}" title="Delete"><img src="assets/icons/delete.svg" alt=""></button></div></td>
@@ -5137,10 +5137,30 @@ paymentTimeout=180`
         function ensureInlineCatalogSelection(raw){
             const groupName = String(raw.categoryNameInput || '').trim();
             const productName = String(raw.productNameInput || '').trim();
+            if(!groupName){
+                raw.categoryId = '';
+                raw.productId = '';
+                raw.categoryNameInput = '';
+                raw.productNameInput = '';
+                raw.categoryNameSnapshot = '';
+                raw.productNameSnapshot = '';
+                raw.dexNameSnapshot = '';
+                return raw;
+            }
             let category = catalogCategoryById(raw.categoryId) || catalogCategoryByName(groupName);
             if(!category){
                 if(!catalogStore || typeof catalogStore.saveCategory !== 'function') throw new Error('A new Product Group cannot be created in this browser session.');
                 category = catalogStore.saveCategory({ name: groupName, code: '', description: '', status: 'active', image: '', vatEntries: [] });
+            }
+            if(!productName){
+                raw.categoryId = category.id;
+                raw.productId = '';
+                raw.categoryNameInput = category.name;
+                raw.productNameInput = '';
+                raw.categoryNameSnapshot = category.name;
+                raw.productNameSnapshot = '';
+                raw.dexNameSnapshot = '';
+                return raw;
             }
             let product = catalogProductById(raw.productId);
             if(!product || product.categoryId !== category.id || canonicalText(product.name) !== canonicalText(productName)){
@@ -5260,7 +5280,7 @@ paymentTimeout=180`
                 const mappedProduct = catalogProductById(row.productId);
                 const mappedCategory = catalogCategoryById(row.categoryId);
                 const rowErrors = { ...result.errors };
-                if(!mappedCategory || !catalogItemActive(mappedCategory)) rowErrors.categoryId = 'Select an Active Product Group.';
+                if(row.categoryId && (!mappedCategory || !catalogItemActive(mappedCategory))) rowErrors.categoryId = 'Select an Active Product Group.';
                 if(row.productId && (!mappedProduct || !catalogItemActive(mappedProduct))) rowErrors.productId = 'Select an Active Product.';
                 if(Object.keys(rowErrors).length) errors.set(row.id, rowErrors);
             });
@@ -5688,7 +5708,16 @@ paymentTimeout=180`
                 const requestedName = String(raw.categoryNameInput || '').trim();
                 let category = catalogCategoryByName(requestedName);
                 if(!category){
-                    if(!requestedName) return;
+                    if(!requestedName){
+                        raw.categoryId = '';
+                        raw.categoryNameInput = '';
+                        raw.categoryNameSnapshot = '';
+                        raw.productId = '';
+                        raw.productNameInput = '';
+                        raw.productNameSnapshot = '';
+                        raw.dexNameSnapshot = '';
+                        return;
+                    }
                     category = catalogStore.saveCategory({ name: requestedName, code: '', description: '', status: 'active', image: '', vatEntries: [] });
                 }
                 const changed = category.id !== row.categoryId;

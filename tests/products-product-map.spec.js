@@ -170,6 +170,26 @@ test("keeps Product Map validation outside the table, allows blank PA Code, and 
   await expect(activeDraft.locator('[data-inline-field="mdbCode"]')).toHaveClass(/is-invalid/);
 });
 
+test("saves a Product Map row with only MDB Code while product details, PAR, and price are blank", async ({ page }) => {
+  await resetCatalog(page);
+  await page.goto(PRODUCT_MAP_URL);
+
+  const draft = await addProductMapDraft(page);
+  await draft.locator('[data-inline-field="mdbCode"]').fill("42");
+  await page.locator("#pmInlineSaveAll").click();
+
+  await expect(page.locator("#pmValidationSummary")).toBeHidden();
+  const savedRow = page.locator('#pmTableBody tr[data-pm-id]', { has: page.locator('[data-pm-cell-field="mdbCode"]', { hasText: "42" }) });
+  await expect(savedRow).toBeVisible();
+  await expect(savedRow.locator('[data-pm-cell-field="productId"]')).toContainText("Select product");
+  await expect(savedRow.locator('[data-pm-cell-field="categoryId"]')).toContainText("Select group");
+  await expect(savedRow.locator('[data-pm-cell-field="par"]')).toContainText("Set PAR");
+  await expect(savedRow.locator('[data-pm-cell-field="price"]')).toContainText("Set price");
+
+  const storedRow = await page.evaluate(() => window.PaywizardProductCatalog.getProductMap("WP6267UQ36002376").find((row) => row.mdbCode === "42"));
+  expect(storedRow).toMatchObject({ categoryId: "", productId: "", par: null, priceCents: null, mdbCode: "42" });
+});
+
 test("Add Multiple BINS modal focuses its quantity input, traps focus, closes with Escape, and restores the trigger", async ({ page }) => {
   await resetCatalog(page);
   await page.goto(PRODUCT_MAP_URL);
