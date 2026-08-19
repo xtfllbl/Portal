@@ -19,6 +19,11 @@
     button,input,select{font:inherit}
     button{cursor:pointer}
     .app{height:100vh;min-height:680px;display:flex;gap:16px;padding:16px;overflow:hidden}
+    body.filters-open{overflow-y:auto}
+    .app.filters-open{height:auto;min-height:100vh;overflow:visible;align-items:stretch}
+    .app.filters-open .side{position:sticky;top:16px;height:calc(100vh - 32px);align-self:flex-start}
+    .app.filters-open .main{min-height:calc(100vh - 32px);grid-template-rows:70px auto}
+    .app.filters-open .panel{min-height:calc(100vh - 118px)}
     .side{width:264px;flex:0 0 264px;display:flex;flex-direction:column;padding:15px 8px 18px;overflow:auto}
     .brand{height:77px;display:grid;justify-items:center;align-content:start;margin-bottom:5px;text-decoration:none}
     .brand img{display:block;width:188px;height:auto}
@@ -155,6 +160,12 @@
     .mitem:hover{background:#f4f6fa}
     .tablewrap{flex:1;min-height:0;margin-top:14px;border-radius:6px;overflow:hidden}
     .scroll{height:100%;overflow:auto;padding-bottom:2px}
+    .app.filters-open .tablewrap{flex:none;min-height:0;height:auto;overflow:visible;scroll-margin-top:12px}
+    .app.filters-open .scroll{height:auto;max-height:none;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain}
+    .sticky-table-head{position:fixed;top:0;z-index:120;display:none;overflow:hidden;background:var(--dark);box-shadow:0 5px 14px rgba(23,30,47,.16);pointer-events:none}
+    .sticky-table-head.show{display:block}
+    .sticky-table-head table{min-width:0;width:max-content}
+    .sticky-table-head th:first-child,.sticky-table-head th:last-child{border-radius:0}
     table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;background:#fff}
     th{height:36px;position:sticky;top:0;z-index:2;background:var(--dark);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;white-space:nowrap;text-align:left;padding:7px 10px;border:0}
     th+th{box-shadow:inset 1px 0 #2d2e34}
@@ -369,8 +380,8 @@
     .scroll::-webkit-scrollbar-track,.nav::-webkit-scrollbar-track,.cols::-webkit-scrollbar-track{background:#eff2f7;border-radius:999px}
     @media (max-width:1320px){.side{width:236px;flex-basis:236px}.cols{right:-34px}}
     @media (max-width:1040px){.side{width:74px;flex-basis:74px;padding-inline:8px}.brand{height:56px;align-content:center;justify-items:start;overflow:hidden}.brand img{width:138px;max-width:none;transform:translate(-5px,-2px)}.brand p{display:none}.item{justify-content:center;padding-inline:0}.item b{font-size:0}.item b svg{width:18px;height:18px}.item .caret{display:none}.panel{padding:17px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.cols{right:-50px}}
-    @media (max-width:880px){.app{height:auto;min-height:100vh;overflow:visible;gap:10px;padding:10px}.side{display:none}.main{min-height:calc(100vh - 20px);grid-template-rows:58px minmax(0,1fr);gap:10px}.top{padding:8px 12px}.circle{width:36px;height:36px}.panel{padding:14px}.panel h2{font-size:21px}.bar{margin-top:16px}.tabs{min-width:0}.tab{padding-left:10px;padding-right:10px}.acts{width:100%;gap:8px;flex-wrap:wrap}.datefield{flex:1;min-width:210px}.date{width:100%}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filterhead,.fbtns,.row.head{align-items:stretch}.btns{justify-content:flex-end}.cols{position:fixed;left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:calc(100vh - 80px)}.cols:before,.cols:after{display:none}}
-    @media (max-width:560px){.grid{grid-template-columns:1fr}.filterhead,.fbtns,.row.head{flex-direction:column}.btns{display:grid;grid-template-columns:1fr 1fr}.search{grid-column:1/-1}.ghost,.search{width:100%}.list{grid-template-columns:1fr}.pagination{align-items:flex-start;flex-direction:column}.page-tools{justify-content:flex-start}.page-number:nth-of-type(n+5){display:none}.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.ledger-head{display:grid}.ledger-table{overflow:auto}.ledger-row{min-width:420px}.routing-head{display:grid;gap:8px}.routing-mode{display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-selected,.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
+    @media (max-width:880px){.app{height:auto;min-height:100vh;overflow:visible;gap:10px;padding:10px}.app.filters-open .main{min-height:calc(100vh - 20px);grid-template-rows:58px auto}.side{display:none}.main{min-height:calc(100vh - 20px);grid-template-rows:58px minmax(0,1fr);gap:10px}.top{padding:8px 12px}.circle{width:36px;height:36px}.panel{padding:14px}.app.filters-open .panel{min-height:calc(100vh - 88px)}.panel h2{font-size:21px}.bar{margin-top:16px}.tabs{min-width:0}.tab{padding-left:10px;padding-right:10px}.acts{width:100%;gap:8px;flex-wrap:wrap}.datefield{flex:1;min-width:210px}.date{width:100%}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filterhead,.fbtns,.row.head{align-items:stretch}.btns{justify-content:flex-end}.cols{position:fixed;left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:calc(100vh - 80px)}.cols:before,.cols:after{display:none}}
+    @media (max-width:560px){.grid{grid-template-columns:1fr}.app.filters-open .filterpanel.show{max-height:1120px}.filterhead,.fbtns,.row.head{flex-direction:column}.btns{display:grid;grid-template-columns:1fr 1fr}.search{grid-column:1/-1}.ghost,.search{width:100%}.list{grid-template-columns:1fr}.pagination{align-items:flex-start;flex-direction:column}.page-tools{justify-content:flex-start}.page-number:nth-of-type(n+5){display:none}.followup-backdrop{padding:12px;align-items:flex-end}.followup-modal{max-height:calc(100vh - 24px);border-radius:18px 18px 0 0}.followup-summary{grid-template-columns:1fr}.followup-summary-item{grid-template-columns:104px minmax(0,1fr)}.ledger-head{display:grid}.ledger-table{overflow:auto}.ledger-row{min-width:420px}.routing-head{display:grid;gap:8px}.routing-mode{display:grid;grid-template-columns:1fr 1fr}.routing-mode-btn{width:100%}.routing-selected,.routing-option{grid-template-columns:1fr}.followup-actions{display:grid;grid-template-columns:1fr 1fr}.followup-btn{width:100%}.row-action-pop{width:min(258px,calc(100vw - 24px))}}
   </style>
 </head>
 <body>
@@ -431,7 +442,7 @@
                 </div>
               </div>
             </div>
-            <button class="tool" id="filterBtn" aria-label="Toggle filters" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V20l4 2v-9.5L22 3z"></path></svg><span class="badge" id="filterBadge">0</span></button>
+            <button class="tool" id="filterBtn" aria-label="Toggle filters" aria-controls="filtersPanel" aria-expanded="false" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V20l4 2v-9.5L22 3z"></path></svg><span class="badge" id="filterBadge">0</span></button>
             <div class="anchor">
               <button class="tool" id="colsBtn" aria-label="Columns"><svg viewBox="0 0 24 24"><line x1="6" y1="4" x2="6" y2="20"></line><circle cx="6" cy="9" r="2"></circle><line x1="12" y1="4" x2="12" y2="20"></line><circle cx="12" cy="15" r="2"></circle><line x1="18" y1="4" x2="18" y2="20"></line><circle cx="18" cy="8" r="2"></circle></svg></button>
               <div class="pop cols" id="colsPop">
@@ -512,6 +523,9 @@
             </div>
           </div>
         </section>
+        <div class="sticky-table-head" id="stickyTableHead" aria-hidden="true">
+          <table><thead><tr id="stickyHeadRow"></tr></thead></table>
+        </div>
         <div class="tablewrap">
           <div class="scroll">
             <table>
@@ -756,6 +770,8 @@
       const filterBtn=document.getElementById("filterBtn"),colsBtn=document.getElementById("colsBtn"),menuBtn=document.getElementById("menuBtn"),exportBtn=document.getElementById("exportBtn");
       const dateRangeBtn=document.getElementById("dateRangeBtn"),dateRangePop=document.getElementById("dateRangePop");
       const filtersPanel=document.getElementById("filtersPanel"),colsPop=document.getElementById("colsPop"),menuPop=document.getElementById("menuPop");
+      const appShell=document.querySelector(".app"),tableWrap=document.querySelector(".tablewrap");
+      const tableScroll=tableWrap.querySelector(".scroll"),stickyTableHead=document.getElementById("stickyTableHead"),stickyHeadRow=document.getElementById("stickyHeadRow");
       const colEditorTitle=document.getElementById("colEditorTitle");
       const filterBadge=document.getElementById("filterBadge"),filterState=document.getElementById("filterState"),filterSummary=document.getElementById("filterSummary"),filterResultLabel=document.getElementById("filterResultLabel");
       const presetList=document.getElementById("presetList"),presetMeta=document.getElementById("presetMeta"),presetNote=document.getElementById("presetNote");
@@ -1665,15 +1681,40 @@
         if(filterResultLabel) filterResultLabel.textContent=count?`Showing filtered rows in the ${state.tab} tab.`:`Showing all rows in the current tab.`;
         filterBtn.classList.toggle("active",filtersPanel.classList.contains("show"));
         filterBtn.setAttribute("aria-pressed",filtersPanel.classList.contains("show")?"true":"false");
+        filterBtn.setAttribute("aria-expanded",filtersPanel.classList.contains("show")?"true":"false");
       };
       const setPop=k=>{
         ["cols","menu"].forEach(x=>({cols:colsPop,menu:menuPop}[x]).classList.toggle("show",x===k));
         colsBtn.classList.toggle("open",k==="cols");
         menuBtn.classList.toggle("open",k==="menu");
       };
+      const syncStickyHead=()=>{
+        const open=filtersPanel.classList.contains("show");
+        const wrapRect=tableWrap.getBoundingClientRect();
+        const originalHeaders=Array.from(head.children);
+        const headerHeight=originalHeaders[0]?.getBoundingClientRect().height||36;
+        const visible=open&&originalHeaders.length>0&&wrapRect.top<0&&wrapRect.bottom>headerHeight;
+        stickyTableHead.classList.toggle("show",visible);
+        if(!visible) return;
+        const viewportLeft=Math.max(0,wrapRect.left);
+        const viewportRight=Math.min(window.innerWidth,wrapRect.right);
+        stickyTableHead.style.left=`${viewportLeft}px`;
+        stickyTableHead.style.width=`${Math.max(0,viewportRight-viewportLeft)}px`;
+        stickyTableHead.style.height=`${headerHeight}px`;
+        stickyHeadRow.innerHTML=originalHeaders.map(header=>{
+          const width=header.getBoundingClientRect().width;
+          return `<th style="width:${width}px;min-width:${width}px;max-width:${width}px">${header.innerHTML}</th>`;
+        }).join("");
+        const stickyTable=stickyTableHead.querySelector("table");
+        stickyTable.style.width=`${tableScroll.scrollWidth}px`;
+        stickyTable.style.transform=`translateX(${-tableScroll.scrollLeft}px)`;
+      };
       const toggleFilters=force=>{
         const open=typeof force==="boolean"?force:!filtersPanel.classList.contains("show");
         filtersPanel.classList.toggle("show",open);
+        document.body.classList.toggle("filters-open",open);
+        appShell.classList.toggle("filters-open",open);
+        requestAnimationFrame(syncStickyHead);
         updateFilterUi();
       };
       const closeDateRange=()=>{
@@ -1809,6 +1850,7 @@
         closeSnDetail();
         closeSnPicker();
         updateFilterUi();
+        requestAnimationFrame(syncStickyHead);
       };
       const renderCols=()=>{
         updateColumnEditorTitle();
@@ -1816,16 +1858,24 @@
         renderPresets();
       };
       const syncFilters=()=>Object.keys(fields).forEach(k=>fields[k].value=state.filters[k]);
+      const scrollToResults=()=>{
+        if(!filtersPanel.classList.contains("show")) return;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>tableWrap.scrollIntoView({
+          behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
+          block:"start"
+        })));
+      };
       const resetFilters=()=>{
         Object.keys(state.filters).forEach(k=>state.filters[k]="");
         state.page=1;
         syncFilters();
         renderTable();
       };
-      const applyFilters=()=>{
+      const applyFilters=(focusResults=false)=>{
         Object.keys(fields).forEach(k=>state.filters[k]=fields[k].value.trim());
         state.page=1;
         renderTable();
+        if(focusResults) scrollToResults();
       };
       const resetCols=()=>{
         setColumns(defaultColumns(),systemViews[0].id);
@@ -1883,12 +1933,15 @@
       menuBtn.onclick=e=>{e.stopPropagation(); closeDateRange(); closeSnDetail(); closeSnPicker(); setPop(menuPop.classList.contains("show")?"":"menu");};
       colsPop.addEventListener("click",e=>e.stopPropagation());
       exportBtn.onclick=()=>exportRows("csv");
-      document.getElementById("searchBtn").onclick=()=>{closeSnDetail(); closeSnPicker(); applyFilters(); setPop("");};
+      document.getElementById("searchBtn").onclick=()=>{closeSnDetail(); closeSnPicker(); applyFilters(true); setPop("");};
       document.getElementById("resetFilters").onclick=resetFilters;
       document.getElementById("openCols").onclick=e=>{e.stopPropagation(); closeSnDetail(); closeSnPicker(); applyFilters(); setPop("cols");};
       document.getElementById("selectAll").onclick=()=>{state.columns.forEach(c=>c.visible=true); markColumnsCustom(); renderCols(); renderTable();};
       document.getElementById("resetCols").onclick=resetCols;
-      Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter") applyFilters();}));
+      Object.values(fields).forEach(field=>field.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault(); applyFilters(true);}}));
+      window.addEventListener("scroll",syncStickyHead,{passive:true});
+      window.addEventListener("resize",syncStickyHead);
+      tableScroll.addEventListener("scroll",syncStickyHead,{passive:true});
       body.addEventListener("mouseover",e=>{
         const link=e.target.closest(".sn-main-link");
         if(!link||link.contains(e.relatedTarget)) return;

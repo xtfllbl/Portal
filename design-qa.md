@@ -1,3 +1,43 @@
+# Transaction Natural Scroll Layout QA — 2026-08-19
+
+## Evidence
+
+- Source visual truth: `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-774f0f17-0a43-48c5-8e13-b8576695c53b.png` (1466 × 856 px), showing the accepted NAYAX-style four-column filter state.
+- Browser-rendered implementation: `/tmp/transaction-natural-scroll-filter-open-1280.png` at a 1280 × 720 CSS viewport and device scale factor 1.
+- Scrolled results state with the synchronized sticky header: `/tmp/transaction-natural-scroll-open-1280.png` at 1280 × 720 px.
+- Combined comparison: `/tmp/transaction-natural-scroll-comparison.png`; the source crop and implementation viewport were proportionally contained in equal 900 × 600 comparison cells without stretching.
+- State: Completed transactions, filter panel open, 17 filter controls present, default 10-row page.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- **Fonts and typography:** Existing Poppins family, weights, sizes, line heights, placeholders, button labels, and table hierarchy remain unchanged from the accepted filter design.
+- **Spacing and layout rhythm:** The accepted four-column filter grid and control geometry are unchanged. Opening filters now changes the page shell from a fixed viewport to natural height; the table expands to its full 10-row content height instead of collapsing.
+- **Colors and visual tokens:** Existing neutral surfaces, borders, dark table header, active filter button, semantic row colors, and focus treatments are unchanged.
+- **Image quality and assets:** Existing PAYwizard raster brand asset and established UI icons are unchanged; no replacement or generated asset was introduced.
+- **Copy and content:** All 17 filter labels, Active Count, Settings, Reset, Search, table columns, pagination copy, and transaction data remain unchanged.
+- **Scrolling:** At 1280 × 720 the expanded document measures about 1465px high, the table measures about 782px, renders 10 rows, and has no internal vertical overflow. Pagination remains in normal page flow. The fixed cloned header appears at `top: 0` only after the original header leaves the viewport and mirrors horizontal table scroll.
+- **Responsive behavior:** At 1024 × 720 the filter remains a three-column grid and the table retains full height without internal vertical overflow. At 390 × 844 the existing one-column filter layout exposes all 17 fields, the final field remains inside the panel, and the page uses natural vertical scrolling.
+
+## Interaction and regression verification
+
+- Search and Enter both apply filters while preserving the open panel and smoothly position the table header near the top of the viewport.
+- Closing filters restores the original 720px one-screen document, 407px table region, zero page scroll, hidden sticky header, and `aria-expanded="false"`.
+- Columns, export menu, Completed/Failed tabs, and Date Range dialog remain functional.
+- Filter button now exposes `aria-controls` and synchronized `aria-expanded` state.
+- Browser console warnings/errors: none.
+- Inline JavaScript syntax validation and `git diff --check`: passed.
+
+## Comparison history
+
+1. Initial implementation passed the natural-page-scroll and no-inner-vertical-scroll checks, but native sticky table headers were trapped by the horizontal scroll container (P2).
+2. Added a read-only cloned header synchronized to the table's measured column widths and horizontal scroll position.
+3. Post-fix browser evidence shows the sticky header visible at `top: 0`, 954px wide, while the original table continues beneath it; no remaining P0/P1/P2 issue was found.
+
+final result: passed
+
+---
+
 # Leads and Merchant List Unified Admin Shell QA
 
 ## Coverage
