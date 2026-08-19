@@ -931,7 +931,7 @@
             align-items: center;
             gap: 6px;
             padding: 6px 12px;
-            border-radius: 999px;
+            border-radius: 10px;
             border: 1px solid #d9d9d9;
             background: #fff;
             font-size: 12px;
@@ -1299,7 +1299,7 @@
         .action-button {
             width: 32px;
             height: 32px;
-            border-radius: 999px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: #fff;
             display: inline-flex;
@@ -1447,8 +1447,8 @@
 
         .device-grid-head,
         .device-grid-row {
-            grid-template-columns: minmax(145px, 1fr) minmax(125px, 0.85fr) minmax(180px, 1.25fr) minmax(90px, 0.7fr) minmax(210px, 1.45fr) minmax(145px, 0.9fr) minmax(170px, max-content);
-            min-width: 1210px;
+            grid-template-columns: minmax(145px, 1fr) minmax(125px, 0.85fr) minmax(180px, 1.25fr) minmax(90px, 0.7fr) minmax(210px, 1.45fr) minmax(112px, 0.75fr) minmax(145px, 0.9fr) minmax(170px, max-content);
+            min-width: 1340px;
             column-gap: 18px;
         }
 
@@ -1481,6 +1481,41 @@
         .device-tci-cell {
             font-weight: 700;
             letter-spacing: 0.025em;
+        }
+
+        .device-online-status {
+            width: fit-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 9px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .device-online-status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            flex: 0 0 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .device-online-status.online {
+            border-color: #bbf7d0;
+            background: #ecfdf3;
+            color: #15803d;
+        }
+
+        .device-online-status.offline {
+            border-color: #e5e7eb;
+            background: #f3f4f6;
+            color: #6b7280;
         }
 
         .device-terminal-cell {
@@ -1585,7 +1620,7 @@
             align-items: center;
             gap: 6px;
             padding: 6px 12px;
-            border-radius: 999px;
+            border-radius: 10px;
             border: 1px solid #d9d9d9;
             background: #fff;
             font-size: 12px;
@@ -2895,10 +2930,11 @@
                                     <div>SN</div>
                                     <div>MODEL</div>
                                     <div>TERMINAL NAME</div>
+                                    <div>SERVICES</div>
                                     <div>ADDED AT</div>
                                     <div>ACTIONS</div>
                                 </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-tci="TC36000934" data-sn="WP6267UQ36000934" data-model="P3" data-processor="TSYS" data-version="v1.3.121" data-scenario="Standalone Terminal" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="OPC_ATTENDED_TCP">
+                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-tci="TC36000934" data-sn="WP6267UQ36000934" data-model="P3" data-processor="TSYS" data-version="v1.3.121" data-scenario="Standalone Terminal" data-label="Front Counter" data-manufacturer="WizarPOS" data-template="Retail - Quick Start" data-paywizard="OPC_ATTENDED_TCP" data-device-status="Active" data-online-status="Online">
                                     <div data-role="store-name">Downtown Location</div>
                                     <div class="device-cell-mono device-tci-cell" data-role="device-tci">TC36000934</div>
                                     <div class="device-cell-mono" data-role="device-sn">WP6267UQ36000934</div>
@@ -2915,6 +2951,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div><span class="device-online-status online" data-role="device-online-status">Online</span></div>
                                     <div>2026-04-03 10:22</div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -2937,7 +2974,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-tci="TC36000932" data-sn="WP6267UQ36000932" data-model="P2" data-processor="FISERV" data-version="1.0.34_20260622" data-scenario="Terminal + ECR" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="OPC_ATTENDED_TCP">
+                                <div class="grid-row device-grid-row" data-store-id="st_123" data-store-name="Downtown Location" data-tci="TC36000932" data-sn="WP6267UQ36000932" data-model="P2" data-processor="FISERV" data-version="1.0.34_20260622" data-scenario="Terminal + ECR" data-label="Side Bar" data-manufacturer="WizarPOS" data-template="Restaurant - Full Service" data-paywizard="OPC_ATTENDED_TCP" data-device-status="Active" data-online-status="Offline">
                                     <div data-role="store-name">Downtown Location</div>
                                     <div class="device-cell-mono device-tci-cell" data-role="device-tci">TC36000932</div>
                                     <div class="device-cell-mono" data-role="device-sn">WP6267UQ36000932</div>
@@ -2954,6 +2991,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div><span class="device-online-status offline" data-role="device-online-status">Offline</span></div>
                                     <div>2026-04-05 16:08</div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -2976,7 +3014,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-tci="TC36000933" data-sn="WP6267UQ36000933" data-model="VT #1" data-processor="OXPAY" data-version="v1.0.19_260609" data-scenario="Standalone Terminal" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="OPC_VENDING_STANDARD">
+                                <div class="grid-row device-grid-row" data-store-id="st_204" data-store-name="Midtown Location" data-tci="TC36000933" data-sn="WP6267UQ36000933" data-model="VT #1" data-processor="OXPAY" data-version="v1.0.19_260609" data-scenario="Standalone Terminal" data-label="Register 1" data-manufacturer="WizarPOS" data-template="Convenience - Express" data-paywizard="OPC_VENDING_STANDARD" data-device-status="Active" data-online-status="Online">
                                     <div data-role="store-name">Midtown Location</div>
                                     <div class="device-cell-mono device-tci-cell" data-role="device-tci">TC36000933</div>
                                     <div class="device-cell-mono" data-role="device-sn">WP6267UQ36000933</div>
@@ -2993,6 +3031,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div><span class="device-online-status online" data-role="device-online-status">Online</span></div>
                                     <div>2026-04-15 11:47</div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -4622,6 +4661,18 @@
             window.location.href = `23.payment_channel_setting.html?${params.toString()}`;
         };
 
+        const createDeviceOnlineStatusCell = (status = 'Offline') => {
+            const normalizedStatus = String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
+            const cell = document.createElement('div');
+            const badge = document.createElement('span');
+            badge.className = 'device-online-status ' + normalizedStatus.toLowerCase();
+            badge.setAttribute('data-role', 'device-online-status');
+            badge.setAttribute('aria-label', 'Terminal is ' + normalizedStatus.toLowerCase());
+            badge.textContent = normalizedStatus;
+            cell.appendChild(badge);
+            return cell;
+        };
+
         const buildDeviceSettingsControl = () => {
             const settingsWrap = document.createElement('div');
             settingsWrap.className = 'device-settings';
@@ -4704,6 +4755,8 @@
             row.dataset.paywizard = device.paywizard || 'OPC_VENDING_STANDARD';
             row.dataset.deployAppSelected = device.deployAppSelected ?? 'true';
             row.dataset.injectKeySelected = device.injectKeySelected ?? 'true';
+            row.dataset.deviceStatus = device.status || 'Active';
+            row.dataset.onlineStatus = device.onlineStatus || (device.status === 'Pending' ? 'Offline' : 'Online');
 
             const storeCell = document.createElement('div');
             storeCell.setAttribute('data-role', 'store-name');
@@ -4728,6 +4781,7 @@
             row.appendChild(modelCell);
 
             row.appendChild(createDeviceTerminalCell(device.label));
+            row.appendChild(createDeviceOnlineStatusCell(row.dataset.onlineStatus));
             row.appendChild(Object.assign(document.createElement('div'), { textContent: device.addedAt }));
 
             row.appendChild(buildDeviceActionsCell());
@@ -6170,6 +6224,8 @@
                 row.dataset.paywizard = paywizard;
                 row.dataset.deployAppSelected = 'true';
                 row.dataset.injectKeySelected = 'true';
+                row.dataset.deviceStatus = 'Active';
+                row.dataset.onlineStatus = 'Offline';
 
                 const storeCell = document.createElement('div');
                 storeCell.setAttribute('data-role', 'store-name');
@@ -6194,6 +6250,7 @@
                 row.appendChild(modelCell);
 
                 row.appendChild(createDeviceTerminalCell(label));
+                row.appendChild(createDeviceOnlineStatusCell(row.dataset.onlineStatus));
                 row.appendChild(Object.assign(document.createElement('div'), { textContent: formatDateTime() }));
 
                 row.appendChild(buildDeviceActionsCell());
