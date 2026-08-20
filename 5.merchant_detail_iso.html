@@ -1484,38 +1484,33 @@
         }
 
         .device-online-status {
-            width: fit-content;
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 5px 9px;
-            border: 1px solid transparent;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 1;
-            white-space: nowrap;
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .14);
+            vertical-align: middle;
         }
 
         .device-online-status::before {
-            content: "";
-            width: 8px;
-            height: 8px;
-            flex: 0 0 8px;
-            border-radius: 50%;
-            background: currentColor;
+            content: none;
         }
 
         .device-online-status.online {
-            border-color: #bbf7d0;
-            background: #ecfdf3;
-            color: #15803d;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .14);
         }
 
         .device-online-status.offline {
-            border-color: #e5e7eb;
-            background: #f3f4f6;
-            color: #6b7280;
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .14);
+        }
+
+        .device-grid-head > div:nth-child(6),
+        .device-grid-row > div:nth-child(6) {
+            justify-self: center;
+            text-align: center;
         }
 
         .device-terminal-cell {
@@ -2930,7 +2925,7 @@
                                     <div>SN</div>
                                     <div>MODEL</div>
                                     <div>TERMINAL NAME</div>
-                                    <div>SERVICES</div>
+                                    <div>PAYMENT SERVICE</div>
                                     <div>ADDED AT</div>
                                     <div>ACTIONS</div>
                                 </div>
@@ -2951,7 +2946,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div><span class="device-online-status online" data-role="device-online-status">Online</span></div>
+                                    <div><span class="device-online-status terminal-service-status payment online" data-role="device-online-status" data-service="payment" data-service-status="Online" role="img" title="Online" aria-label="Payment Service: Online"></span></div>
                                     <div>2026-04-03 10:22</div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -2991,7 +2986,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div><span class="device-online-status offline" data-role="device-online-status">Offline</span></div>
+                                    <div><span class="device-online-status terminal-service-status payment offline" data-role="device-online-status" data-service="payment" data-service-status="Offline" role="img" title="Offline" aria-label="Payment Service: Offline"></span></div>
                                     <div>2026-04-05 16:08</div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -3031,7 +3026,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div><span class="device-online-status online" data-role="device-online-status">Online</span></div>
+                                    <div><span class="device-online-status terminal-service-status payment online" data-role="device-online-status" data-service="payment" data-service-status="Online" role="img" title="Online" aria-label="Payment Service: Online"></span></div>
                                     <div>2026-04-15 11:47</div>
                                     <div class="device-actions-cell">
                                         <div class="device-row-actions">
@@ -4665,10 +4660,13 @@
             const normalizedStatus = String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
             const cell = document.createElement('div');
             const badge = document.createElement('span');
-            badge.className = 'device-online-status ' + normalizedStatus.toLowerCase();
+            badge.className = 'device-online-status terminal-service-status payment ' + normalizedStatus.toLowerCase();
             badge.setAttribute('data-role', 'device-online-status');
-            badge.setAttribute('aria-label', 'Terminal is ' + normalizedStatus.toLowerCase());
-            badge.textContent = normalizedStatus;
+            badge.setAttribute('data-service', 'payment');
+            badge.setAttribute('data-service-status', normalizedStatus);
+            badge.setAttribute('role', 'img');
+            badge.setAttribute('title', normalizedStatus);
+            badge.setAttribute('aria-label', 'Payment Service: ' + normalizedStatus);
             cell.appendChild(badge);
             return cell;
         };
