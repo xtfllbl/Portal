@@ -42,6 +42,12 @@
 - Merchant Detail OPC implementation: `/tmp/merchant-detail-opc-dot-1920x853.png`
 - Merchant Detail OPC focused implementation: `/tmp/merchant-detail-opc-dot-focused.png`
 - Merchant Detail OPC comparison: `/tmp/merchant-detail-opc-comparison.png`
+- Transaction TCI implementation: `/tmp/transaction-sn-tci-1920x853.png`
+- Transaction TCI comparison: `/tmp/transaction-sn-tci-comparison.png`
+- Transaction value-only TCI implementation: `/tmp/transaction-sn-tci-value-only-full.png`
+- Transaction value-only TCI comparison: `/tmp/transaction-sn-tci-value-only-comparison.png`
+- Nayax TCI implementation: `/tmp/nayax-terminal-tci-1773x774.png`
+- Nayax TCI comparison: `/tmp/nayax-terminal-tci-comparison.png`
 - Viewport: 1920 × 853 CSS px, device scale factor 1.
 - Source pixels: 3840 × 1706 px, normalized from 2× to the 1920 × 853 implementation viewport.
 - State: Service Provider `wizarpos`, Terminal List active, filters closed, first table page.
@@ -104,5 +110,14 @@ The wide Terminal List now uses two synchronized controls for the same `.table-w
 - Every status retains `.online` or `.offline`, `.payment`, `data-service="payment"`, `data-service-status`, `title`, `role="img"`, and a full `aria-label`.
 - Static rows and dynamically created rows use the same factory contract. Automated checks found 19 device rows and 19 status dots, including both online and offline states, with no console or page-script errors.
 - The full merchant administration navigation regression suite passed at desktop, tablet, and mobile sizes. No P0, P1, or P2 visual issue remains.
+
+## Transaction and Nayax TCI consistency
+
+- The Transaction SN detail header uses its upper-right space for the `TC########` identifier only, without a redundant `TCI` caption. The terminal title and owner remain unchanged, while the identifier is right-aligned, bold, and monospaced; changing the hovered SN updates the value from that transaction row.
+- At the 390 px viewport the title block and TCI wrap without overlap, and the existing 92vw popup cap prevents document-level overflow.
+- The Nayax banner shows TCI immediately after Model Name, and Terminal Details shows the same value immediately after Version. Both are populated from `terminalContext.tci`, with the URL parameter taking precedence over deterministic SN derivation.
+- The Transaction List link carries TCI together with the existing SN, TID, terminal, merchant, and store context. Explicit, derived, and unavailable fallback states all pass.
+- Same-viewport comparisons confirm that both annotated gaps are filled without moving or clipping surrounding controls. No P0, P1, or P2 visual issue remains.
+- Value-only follow-up: the redundant `TCI` caption was removed from the Transaction popup. The normalized header comparison confirms that the `TC########` value remains anchored in the upper-right with the original title, owner line, divider, and popup dimensions unchanged. No P0, P1, or P2 visual issue remains.
 
 final result: passed

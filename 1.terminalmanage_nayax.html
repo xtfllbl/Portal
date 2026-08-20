@@ -2199,7 +2199,8 @@
                     <b>Merchant:</b> <span id="bannerMerchant">1 of a Kind World Travel LLC 41381</span> &nbsp;/&nbsp;
                     <b>SN:</b> <span id="bannerSn">WP6267UQ36002376</span> &nbsp;/&nbsp;
                     <b>TID:</b> <span id="bannerTid">UZN10E08</span> &nbsp;/&nbsp;
-                    <b>Model Name:</b> <span id="bannerModel">Q3RU</span>
+                    <b>Model Name:</b> <span id="bannerModel">Q3RU</span> &nbsp;/&nbsp;
+                    <b>TCI:</b> <span id="bannerTci">TC36002376</span>
                 </div>
                 <div class="banner-tabs" id="primaryTabs" role="tablist" aria-label="Terminal sections">
                     <button id="primaryTabBasic" class="tab active" data-tab="basic" role="tab" aria-controls="tab-basic" aria-selected="true" tabindex="0">Basic Information</button>
@@ -2439,6 +2440,7 @@
                                         <dt>Terminal Name:</dt><dd id="detailsTerminalName">Terminal - WP6267UQ36002376</dd>
                                         <dt>Model:</dt><dd id="detailsModel">Q3RU</dd>
                                         <dt>Version:</dt><dd>1.0.40-1176</dd>
+                                        <dt>TCI:</dt><dd id="detailsTci">TC36002376</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -3140,6 +3142,7 @@
             terminalName: 'Terminal - WP6267UQ36002376',
             sn: 'WP6267UQ36002376',
             tid: 'UZN10E08',
+            tci: 'TC36002376',
             merchantName: '1 of a Kind World Travel LLC 41381',
             machineModel: 'Q3RU'
         };
@@ -3148,13 +3151,19 @@
             const value = params.get(key);
             return value ? value.trim() : '';
         };
+        const deriveTci = sn => {
+            const digits = String(sn || '').replace(/\D/g, '');
+            return digits.length >= 8 ? `TC${digits.slice(-8)}` : '-';
+        };
         const context = {
             terminalName: pick('terminalName') || defaults.terminalName,
             sn: pick('sn') || defaults.sn,
             tid: pick('tid') || defaults.tid,
+            tci: '',
             merchantName: pick('merchantName') || defaults.merchantName,
             machineModel: pick('machineModel') || defaults.machineModel
         };
+        context.tci = pick('tci') || deriveTci(context.sn) || defaults.tci;
         const setText = (id, value) => {
             const el = document.getElementById(id);
             if(el) el.textContent = value;
@@ -3164,17 +3173,20 @@
         setText('bannerSn', context.sn);
         setText('bannerTid', context.tid);
         setText('bannerModel', context.machineModel);
+        setText('bannerTci', context.tci);
         setText('infoMerchant', context.merchantName);
         setText('infoSn', context.sn);
         setText('infoTid', context.tid);
         setText('detailsSn', context.sn);
         setText('detailsTerminalName', context.terminalName);
         setText('detailsModel', context.machineModel);
+        setText('detailsTci', context.tci);
         const viewTransactionsLink = document.getElementById('viewTerminalTransactionsLink');
         if(viewTransactionsLink){
             const query = new URLSearchParams({
                 sn: context.sn,
                 tid: context.tid,
+                tci: context.tci,
                 merchantName: context.merchantName,
                 terminalName: context.terminalName
             });
