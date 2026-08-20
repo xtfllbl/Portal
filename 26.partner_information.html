@@ -1332,15 +1332,15 @@
       height: 24px;
       padding: 0 9px;
       border-radius: 999px;
-      background: #ecfdf3;
-      color: #027a48;
+      background: #eef2f6;
+      color: #475569;
       font-size: 12px;
       font-weight: 800;
     }
 
     .terminal-status.outbound {
-      background: #fee2e2;
-      color: #b91c1c;
+      background: #f3f0eb;
+      color: #625c52;
     }
 
     .terminal-empty {
@@ -1603,14 +1603,15 @@
 
     .terminal-stats {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-bottom: 14px;
     }
 
     .terminal-stat-card {
       min-width: 0;
-      padding: 13px 14px;
+      min-height: 82px;
+      padding: 14px 16px;
       border: 1px solid var(--pw-line);
       border-radius: 8px;
       background: #fff;
@@ -1636,8 +1637,73 @@
       line-height: 1;
     }
 
+    .terminal-paired-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      height: 100%;
+    }
+
+    .terminal-paired-metric {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .terminal-paired-metric:first-child {
+      padding-right: 12px;
+    }
+
+    .terminal-paired-metric + .terminal-paired-metric {
+      border-left: 1px solid var(--pw-line);
+      padding-left: 12px;
+    }
+
+    .terminal-connectivity-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #777b85;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      line-height: 1.35;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .terminal-connectivity-label::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ef4444;
+      content: "";
+      flex: 0 0 auto;
+    }
+
+    .terminal-connectivity-label.online::before {
+      background: #22c55e;
+    }
+
+    .terminal-connectivity-label.offline::before {
+      background: #ef4444;
+    }
+
+    .terminal-connectivity-value {
+      margin-top: 4px;
+      color: #2f3035;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
     .terminal-list-table {
-      min-width: 1040px;
+      min-width: 1180px;
+    }
+
+    .terminal-list-table .terminal-service-column {
+      width: 110px;
+      text-align: center;
     }
 
     .terminal-status.assigned {
@@ -1648,6 +1714,21 @@
     .terminal-status.activated {
       background: #dcfce7;
       color: #166534;
+    }
+
+    .terminal-service-status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .14);
+      vertical-align: middle;
+    }
+
+    .terminal-service-status.online {
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, .14);
     }
 
     .terminal-filter-field:focus-visible,
@@ -1681,6 +1762,7 @@
       .terminal-stats {
         grid-template-columns: 1fr;
       }
+
     }
   </style>
 </head>
@@ -2515,18 +2597,22 @@
           var matchesStatus = state.terminalStatus === "ALL" || row.terminalStatus === state.terminalStatus;
           return matchesSn && matchesStatus;
         });
+        var deviceOnlineCount = rows.filter(function (row) { return row.deviceStatus === "Online"; }).length;
+        var deviceOfflineCount = rows.length - deviceOnlineCount;
         var pageCount = Math.max(1, Math.ceil(filteredRows.length / 20));
         var statusOptions = ["Inbound", "Outbound", "Assigned", "Activated"].map(function (status) {
           return '<option value="' + status + '"' + (state.terminalStatus === status ? ' selected' : '') + '>' + status + '</option>';
         }).join("");
         var tableHtml = filteredRows.length
           ? '<div class="terminal-list-wrap"><table class="terminal-list-table">' +
-          '<thead><tr><th>SN</th><th>Partner Name</th><th>Terminal Status</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
+          '<thead><tr><th>SN</th><th>Partner Name</th><th>Terminal Status</th><th class="terminal-service-column">Device Service</th><th class="terminal-service-column">Payment Service</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
           '<tbody>' + filteredRows.map(function (row) {
             return '<tr>' +
               '<td>' + escapeHtml(row.sn) + '</td>' +
               '<td>' + escapeHtml(row.partnerName) + '</td>' +
               '<td><span class="terminal-status ' + escapeHtml(row.terminalStatus.toLowerCase()) + '">' + escapeHtml(row.terminalStatus) + '</span></td>' +
+              '<td class="terminal-service-column"><span class="terminal-service-status device ' + escapeHtml(row.deviceStatus.toLowerCase()) + '" data-service="device" data-service-status="' + escapeHtml(row.deviceStatus) + '" role="img" title="' + escapeHtml(row.deviceStatus) + '" aria-label="Device Service: ' + escapeHtml(row.deviceStatus) + '"></span></td>' +
+              '<td class="terminal-service-column"><span class="terminal-service-status payment ' + escapeHtml(row.paymentStatus.toLowerCase()) + '" data-service="payment" data-service-status="' + escapeHtml(row.paymentStatus) + '" role="img" title="' + escapeHtml(row.paymentStatus) + '" aria-label="Payment Service: ' + escapeHtml(row.paymentStatus) + '"></span></td>' +
               '<td>' + escapeHtml(row.inboundDate) + '</td>' +
               '<td>' + escapeHtml(row.outboundDate) + '</td>' +
               '<td>' + escapeHtml(row.assignedDate) + '</td>' +
@@ -2537,10 +2623,18 @@
 
         return '<div class="terminal-tab-panel">' +
           '<div class="terminal-stats" aria-label="Terminal lifecycle summary">' +
-          '<div class="terminal-stat-card"><span class="terminal-stat-label">Total Terminals</span><strong class="terminal-stat-value" data-terminal-stat="total">' + lifecycleCounts.total + '</strong></div>' +
-          '<div class="terminal-stat-card"><span class="terminal-stat-label">Inventory</span><strong class="terminal-stat-value" data-terminal-stat="inventory">' + lifecycleCounts.inventory + '</strong></div>' +
-          '<div class="terminal-stat-card"><span class="terminal-stat-label">Assigned</span><strong class="terminal-stat-value" data-terminal-stat="assigned">' + lifecycleCounts.assignedTotal + '</strong></div>' +
-          '<div class="terminal-stat-card"><span class="terminal-stat-label">Activated</span><strong class="terminal-stat-value" data-terminal-stat="activated">' + lifecycleCounts.activated + '</strong></div>' +
+          '<div class="terminal-stat-card paired"><div class="terminal-paired-summary" aria-label="Total and inventory terminals">' +
+          '<div class="terminal-paired-metric"><span class="terminal-stat-label">Total</span><strong class="terminal-stat-value" data-terminal-stat="total">' + lifecycleCounts.total + '</strong></div>' +
+          '<div class="terminal-paired-metric"><span class="terminal-stat-label">Inventory</span><strong class="terminal-stat-value" data-terminal-stat="inventory">' + lifecycleCounts.inventory + '</strong></div>' +
+          '</div></div>' +
+          '<div class="terminal-stat-card paired"><div class="terminal-paired-summary" aria-label="Device service status">' +
+          '<div class="terminal-paired-metric"><span class="terminal-connectivity-label online">Device Online</span><strong class="terminal-connectivity-value" data-terminal-stat="device-online">' + deviceOnlineCount + '</strong></div>' +
+          '<div class="terminal-paired-metric"><span class="terminal-connectivity-label offline">Device Offline</span><strong class="terminal-connectivity-value" data-terminal-stat="device-offline">' + deviceOfflineCount + '</strong></div>' +
+          '</div></div>' +
+          '<div class="terminal-stat-card paired"><div class="terminal-paired-summary" aria-label="Assigned and activated terminals">' +
+          '<div class="terminal-paired-metric"><span class="terminal-stat-label">Assigned</span><strong class="terminal-stat-value" data-terminal-stat="assigned">' + lifecycleCounts.assignedTotal + '</strong></div>' +
+          '<div class="terminal-paired-metric"><span class="terminal-stat-label">Activated</span><strong class="terminal-stat-value" data-terminal-stat="activated">' + lifecycleCounts.activated + '</strong></div>' +
+          '</div></div>' +
           '</div>' +
           '<div class="terminal-tab-toolbar">' +
           '<div class="terminal-tab-actions">' +
@@ -2732,10 +2826,17 @@
           var outboundAt = new Date(inboundAt.getTime() + 14400000);
           var assignedAt = new Date(outboundAt.getTime() + 86400000);
           var activatedAt = new Date(assignedAt.getTime() + 86400000);
+          var servicePattern = i % 6;
+          var deviceStatus = servicePattern === 3 || servicePattern === 5 ? "Offline" : "Online";
+          var paymentStatus = terminalStatus === "Activated" && i % 3 !== 2
+            ? "Online"
+            : (terminalStatus === "Assigned" && i % 5 === 0 ? "Online" : "Offline");
           rows.push({
             sn: "WP" + prefix + "Q" + String(33200000 + i * 11 + counts.total),
             partnerName: partner.name.replace(/\n/g, " "),
             terminalStatus: terminalStatus,
+            deviceStatus: deviceStatus,
+            paymentStatus: paymentStatus,
             inboundDate: formatTerminalDate(inboundAt),
             outboundDate: terminalStatus === "Inbound" ? "-" : formatTerminalDate(outboundAt),
             assignedDate: terminalStatus === "Assigned" || terminalStatus === "Activated" ? formatTerminalDate(assignedAt) : "-",
