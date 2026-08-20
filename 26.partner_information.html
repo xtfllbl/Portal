@@ -1313,6 +1313,13 @@
       border-bottom: 1px solid #e5e7eb;
     }
 
+    .pw-partner-page .terminal-list-table thead,
+    .pw-partner-page .terminal-list-table thead tr,
+    .pw-partner-page .terminal-list-table thead th {
+      background: #f4f5f7 !important;
+      color: #4b5563 !important;
+    }
+
     .terminal-list-table td {
       padding: 12px;
       border-bottom: 1px solid #f1f2f4;
@@ -1394,6 +1401,11 @@
 
     .modal-btn.save:hover {
       background: #333;
+    }
+
+    .modal-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
 
     @media (max-width: 1100px) {
@@ -1698,7 +1710,7 @@
     }
 
     .terminal-list-table {
-      min-width: 1180px;
+      min-width: 1080px;
     }
 
     .terminal-list-table .terminal-service-column {
@@ -1715,6 +1727,76 @@
       background: #dcfce7;
       color: #166534;
     }
+
+    .terminal-status.inventory { background: #ecfdf3; color: #067647; }
+
+    .terminal-transfer-btn {
+      min-height: 34px; padding: 0 13px; border: 1px solid #111827; border-radius: 8px;
+      background: #111827; color: #fff; font-family: inherit; font-size: 12px;
+      font-weight: 700; cursor: pointer;
+    }
+    .terminal-transfer-btn:disabled {
+      border-color: #d1d5db; background: #f3f4f6; color: #9ca3af; cursor: not-allowed;
+    }
+    .terminal-check-cell { width: 42px; text-align: center !important; }
+    .terminal-check { width: 16px; height: 16px; accent-color: #111827; cursor: pointer; }
+    .terminal-check:disabled { cursor: not-allowed; }
+    .transfer-modal { width: min(720px, calc(100vw - 32px)); }
+    .transfer-modal .modal-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 6px;
+    }
+    .modal-close-btn {
+      width: 34px; height: 34px; border: 0; border-radius: 8px; background: transparent;
+      color: #667085; display: grid; place-items: center; cursor: pointer;
+    }
+    .modal-close-btn:hover { background: #f3f4f6; }
+    .transfer-selection-summary {
+      border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; padding: 12px 14px;
+    }
+    .transfer-section-label {
+      color: #667085; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .transfer-selection-count {
+      display: block; color: #111827; font-size: 18px; font-weight: 700; line-height: 1.35;
+    }
+    .transfer-sn-list {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px;
+      max-height: 112px; margin-top: 8px; overflow-y: auto;
+    }
+    .transfer-sn-row {
+      min-width: 0; padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 6px;
+      background: #fff; color: #475467; font-size: 11px; font-weight: 650;
+      line-height: 1.25; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .partner-picker { border: 1px solid #d4d4d8; border-radius: 8px; overflow: hidden; background: #fff; }
+    .partner-picker-list { max-height: 210px; overflow-y: auto; padding: 6px; }
+    .partner-picker-option {
+      display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+      min-height: 38px; padding: 6px 9px 6px calc(9px + var(--picker-depth, 0) * 16px);
+      border-radius: 7px; color: #344054; cursor: pointer; font-size: 13px; font-weight: 600;
+    }
+    .partner-picker-option:hover, .partner-picker-option.selected { background: #f2f4f7; color: #101828; }
+    .partner-picker-option input { accent-color: #111827; }
+    .picker-level { color: #98a2b3; font-size: 11px; font-weight: 700; }
+    .transfer-message {
+      display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px;
+      border: 1px solid #fed7aa; border-radius: 8px; background: #fff7ed; color: #9a3412;
+      font-size: 12px; font-weight: 600; line-height: 1.45;
+    }
+    .transfer-message.error { border-color: #fecaca; background: #fef2f2; color: #b42318; }
+    .transfer-message[hidden] { display: none; }
+    .toast-region {
+      position: fixed; top: 70px; right: 22px; z-index: 90; display: grid; gap: 8px; pointer-events: none;
+    }
+    .app-toast {
+      min-width: 300px; max-width: 420px; padding: 12px 14px; border: 1px solid #a7f3d0;
+      border-radius: 9px; background: #ecfdf3; color: #067647;
+      box-shadow: 0 12px 32px rgba(16, 24, 40, .14); font-size: 13px; font-weight: 700;
+      animation: toast-in .18s ease-out;
+    }
+    .app-toast.error { border-color: #fecaca; background: #fef2f2; color: #b42318; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
     .terminal-service-status {
       display: inline-block;
@@ -1962,6 +2044,37 @@
       </form>
     </div>
   </div>
+
+  <!-- Terminal Transfer Modal -->
+  <div class="modal-mask" id="transferModal" aria-hidden="true">
+    <div class="modal transfer-modal" role="dialog" aria-modal="true" aria-labelledby="transferModalTitle">
+      <div class="modal-head">
+        <div>
+          <div id="transferModalTitle">Terminal Transfer</div>
+        </div>
+        <button class="modal-close-btn" type="button" data-close-transfer aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="transfer-selection-summary">
+          <strong class="transfer-selection-count" id="transferSelectedCount">0 terminals selected</strong>
+          <div class="transfer-sn-list" id="transferSnSummary"></div>
+        </div>
+        <div>
+          <div class="transfer-section-label" style="margin-bottom:8px;">Target Partner</div>
+          <div class="partner-picker">
+            <div class="partner-picker-list" id="transferPartnerList" role="radiogroup" aria-label="Target partners in this UPT hierarchy"></div>
+          </div>
+        </div>
+        <div class="transfer-message error" id="transferValidationError" hidden></div>
+      </div>
+      <div class="modal-foot">
+        <button class="modal-btn" type="button" data-close-transfer>Cancel</button>
+        <button class="modal-btn save" type="button" id="submitTransferBtn" disabled>Transfer Terminals</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
   <script>
     (function () {
@@ -2261,9 +2374,16 @@
         detailTab: "profile",
         terminalSnQuery: "",
         terminalStatus: "ALL",
+        selectedTerminalIds: {},
+        transferTargetId: "",
+        transferUptRootId: "",
+        transferSubmitting: false,
         selectedId: partners[0] ? partners[0].id : "",
         collapsedIds: {}
       };
+
+      var terminalRecords = [];
+      var terminalRecordsReady = false;
 
       var treeEl = document.getElementById("partnerTree");
       var detailEl = document.getElementById("partnerDetail");
@@ -2304,6 +2424,13 @@
       var sharePageStyle = document.getElementById("sharePageStyle");
       var sharePaymentChannelField = document.getElementById("sharePaymentChannelField");
       var sharePaymentChannel = document.getElementById("sharePaymentChannel");
+      var transferModal = document.getElementById("transferModal");
+      var transferSelectedCount = document.getElementById("transferSelectedCount");
+      var transferSnSummary = document.getElementById("transferSnSummary");
+      var transferPartnerList = document.getElementById("transferPartnerList");
+      var transferValidationError = document.getElementById("transferValidationError");
+      var submitTransferBtn = document.getElementById("submitTransferBtn");
+      var toastRegion = document.getElementById("toastRegion");
 
       function escapeHtml(str) {
         return String(str == null ? "" : str)
@@ -2541,7 +2668,15 @@
       }
 
       function canShowTerminalListTab(partner) {
-        return partner.level === 1 && getPartnerStyle(partner) === "UPT";
+        return getPartnerStyle(partner) === "UPT";
+      }
+
+      function isUptRootPartner(partner) {
+        return !!partner && partner.level === 1 && getPartnerStyle(partner) === "UPT";
+      }
+
+      function canInitiateTerminalTransfer(partner) {
+        return !!partner && getPartnerStyle(partner) === "UPT";
       }
 
       function getActiveDetailTab(partner) {
@@ -2554,6 +2689,45 @@
           '<button class="detail-tab' + (activeTab === "profile" ? ' active' : '') + '" type="button" data-detail-tab="profile" role="tab">Partner Profile</button>' +
           '<button class="detail-tab' + (activeTab === "terminal-list" ? ' active' : '') + '" type="button" data-detail-tab="terminal-list" role="tab">Terminal List</button>' +
           '</div>';
+      }
+
+      function ensureTerminalRecords() {
+        if (terminalRecordsReady) return;
+        partners.forEach(function (owner) {
+          if (getPartnerStyle(owner) !== "UPT") return;
+          buildTerminalInventoryRows(owner).forEach(function (row) {
+            row.id = row.sn;
+            row.ownerId = owner.id;
+            terminalRecords.push(row);
+          });
+        });
+        terminalRecordsReady = true;
+      }
+
+      function getDescendantIds(partnerId) {
+        var ids = [];
+        getChildren(partnerId).forEach(function (child) {
+          ids.push(child.id);
+          ids = ids.concat(getDescendantIds(child.id));
+        });
+        return ids;
+      }
+
+      function getTerminalRowsForDetail(partner) {
+        ensureTerminalRecords();
+        var ownerIds = isUptRootPartner(partner)
+          ? [partner.id].concat(getDescendantIds(partner.id))
+          : [partner.id];
+        return terminalRecords.filter(function (row) {
+          return ownerIds.indexOf(row.ownerId) >= 0;
+        });
+      }
+
+      function getSelectedTerminals() {
+        ensureTerminalRecords();
+        return terminalRecords.filter(function (row) {
+          return !!state.selectedTerminalIds[row.id];
+        });
       }
 
       function renderProfilePanel(partner) {
@@ -2589,27 +2763,41 @@
       }
 
       function renderTerminalListPanel(partner) {
-        var rows = buildTerminalInventoryRows(partner);
-        var lifecycleCounts = getTerminalLifecycleCounts(partner);
+        var rows = getTerminalRowsForDetail(partner);
+        var canTransfer = canInitiateTerminalTransfer(partner);
         var snQuery = String(state.terminalSnQuery || "").trim().toUpperCase();
         var filteredRows = rows.filter(function (row) {
           var matchesSn = !snQuery || row.sn.toUpperCase().indexOf(snQuery) >= 0;
           var matchesStatus = state.terminalStatus === "ALL" || row.terminalStatus === state.terminalStatus;
           return matchesSn && matchesStatus;
         });
+        var lifecycleCounts = {
+          total: rows.length,
+          inventory: rows.filter(function (row) { return row.terminalStatus === "Inventory"; }).length,
+          assignedTotal: rows.filter(function (row) { return row.terminalStatus === "Assigned" || row.terminalStatus === "Activated"; }).length,
+          activated: rows.filter(function (row) { return row.terminalStatus === "Activated"; }).length
+        };
         var deviceOnlineCount = rows.filter(function (row) { return row.deviceStatus === "Online"; }).length;
         var deviceOfflineCount = rows.length - deviceOnlineCount;
         var pageCount = Math.max(1, Math.ceil(filteredRows.length / 20));
-        var statusOptions = ["Inbound", "Outbound", "Assigned", "Activated"].map(function (status) {
+        var statusOptions = ["Inventory", "Outbound", "Assigned", "Activated"].map(function (status) {
           return '<option value="' + status + '"' + (state.terminalStatus === status ? ' selected' : '') + '>' + status + '</option>';
         }).join("");
+        var selectedRows = getSelectedTerminals();
+        var visibleInventoryRows = filteredRows.filter(function (row) { return row.terminalStatus === "Inventory"; });
+        var allVisibleSelected = visibleInventoryRows.length > 0 && visibleInventoryRows.every(function (row) {
+          return !!state.selectedTerminalIds[row.id];
+        });
         var tableHtml = filteredRows.length
           ? '<div class="terminal-list-wrap"><table class="terminal-list-table">' +
-          '<thead><tr><th>SN</th><th>Partner Name</th><th>Terminal Status</th><th class="terminal-service-column">Device Service</th><th class="terminal-service-column">Payment Service</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
+          '<thead><tr>' + (canTransfer ? '<th class="terminal-check-cell"><input class="terminal-check" type="checkbox" data-select-all-terminals aria-label="Select all inventory terminals"' + (allVisibleSelected ? ' checked' : '') + (visibleInventoryRows.length ? '' : ' disabled') + '></th>' : '') + '<th>SN</th><th>Partner Name</th><th>Terminal Status</th><th class="terminal-service-column">Device Service</th><th class="terminal-service-column">Payment Service</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
           '<tbody>' + filteredRows.map(function (row) {
+            var transferable = row.terminalStatus === "Inventory";
+            var owner = getPartnerById(row.ownerId);
             return '<tr>' +
+              (canTransfer ? '<td class="terminal-check-cell"><input class="terminal-check" type="checkbox" data-terminal-check="' + escapeHtml(row.id) + '" aria-label="Select ' + escapeHtml(row.sn) + '"' + (state.selectedTerminalIds[row.id] ? ' checked' : '') + (transferable ? '' : ' disabled title="Only inventory terminals can be transferred"') + '></td>' : '') +
               '<td>' + escapeHtml(row.sn) + '</td>' +
-              '<td>' + escapeHtml(row.partnerName) + '</td>' +
+              '<td>' + escapeHtml(owner ? owner.name.replace(/\n/g, " ") : row.partnerName) + '</td>' +
               '<td><span class="terminal-status ' + escapeHtml(row.terminalStatus.toLowerCase()) + '">' + escapeHtml(row.terminalStatus) + '</span></td>' +
               '<td class="terminal-service-column"><span class="terminal-service-status device ' + escapeHtml(row.deviceStatus.toLowerCase()) + '" data-service="device" data-service-status="' + escapeHtml(row.deviceStatus) + '" role="img" title="' + escapeHtml(row.deviceStatus) + '" aria-label="Device Service: ' + escapeHtml(row.deviceStatus) + '"></span></td>' +
               '<td class="terminal-service-column"><span class="terminal-service-status payment ' + escapeHtml(row.paymentStatus.toLowerCase()) + '" data-service="payment" data-service-status="' + escapeHtml(row.paymentStatus) + '" role="img" title="' + escapeHtml(row.paymentStatus) + '" aria-label="Payment Service: ' + escapeHtml(row.paymentStatus) + '"></span></td>' +
@@ -2640,6 +2828,7 @@
           '<div class="terminal-tab-actions">' +
           '<button class="terminal-outline-btn blue" type="button">Bulk Upload</button>' +
           '<button class="terminal-outline-btn orange" type="button">Bulk Upload Results</button>' +
+          (canTransfer ? '<button class="terminal-transfer-btn" type="button" data-transfer-selected' + (selectedRows.length ? '' : ' disabled') + '>Transfer Terminal (' + selectedRows.length + ')</button>' : '') +
           '</div>' +
           '<div class="terminal-filter-group">' +
           '<input class="terminal-filter-field" id="terminalSnFilter" type="text" placeholder="SN" aria-label="Terminal SN" value="' + escapeHtml(state.terminalSnQuery) + '">' +
@@ -2685,6 +2874,27 @@
           '</div>';
       }
 
+      function syncTerminalSelectionControls() {
+        var selectedCount = getSelectedTerminals().length;
+        var transferButton = detailEl.querySelector("[data-transfer-selected]");
+        if (transferButton) {
+          transferButton.textContent = "Transfer Terminal (" + selectedCount + ")";
+          transferButton.disabled = selectedCount === 0;
+        }
+
+        var enabledChecks = Array.prototype.slice.call(detailEl.querySelectorAll("[data-terminal-check]:not(:disabled)"));
+        enabledChecks.forEach(function (checkbox) {
+          checkbox.checked = !!state.selectedTerminalIds[checkbox.getAttribute("data-terminal-check")];
+        });
+
+        var selectAll = detailEl.querySelector("[data-select-all-terminals]");
+        if (selectAll) {
+          var selectedVisibleCount = enabledChecks.filter(function (checkbox) { return checkbox.checked; }).length;
+          selectAll.checked = enabledChecks.length > 0 && selectedVisibleCount === enabledChecks.length;
+          selectAll.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < enabledChecks.length;
+        }
+      }
+
       // Search
       searchBtn.addEventListener("click", function () {
         state.searchName = searchNameInput.value.trim();
@@ -2728,6 +2938,7 @@
         if (node) {
           state.selectedId = node.getAttribute("data-select-id");
           state.detailTab = "profile";
+          state.selectedTerminalIds = {};
           renderTree();
         }
       });
@@ -2753,6 +2964,32 @@
           state.terminalSnQuery = "";
           state.terminalStatus = "ALL";
           renderDetail();
+          return;
+        }
+
+        var terminalCheck = e.target.closest("[data-terminal-check]");
+        if (terminalCheck) {
+          var checkedTerminalId = terminalCheck.getAttribute("data-terminal-check");
+          if (terminalCheck.checked) state.selectedTerminalIds[checkedTerminalId] = true;
+          else delete state.selectedTerminalIds[checkedTerminalId];
+          syncTerminalSelectionControls();
+          return;
+        }
+
+        var selectAllTerminals = e.target.closest("[data-select-all-terminals]");
+        if (selectAllTerminals) {
+          detailEl.querySelectorAll("[data-terminal-check]:not(:disabled)").forEach(function (checkbox) {
+            var terminalId = checkbox.getAttribute("data-terminal-check");
+            if (selectAllTerminals.checked) state.selectedTerminalIds[terminalId] = true;
+            else delete state.selectedTerminalIds[terminalId];
+          });
+          syncTerminalSelectionControls();
+          return;
+        }
+
+        var transferSelected = e.target.closest("[data-transfer-selected]");
+        if (transferSelected && !transferSelected.disabled) {
+          openTransferModal();
           return;
         }
 
@@ -2821,7 +3058,7 @@
             ? "Activated"
             : (i < counts.assignedTotal
               ? "Assigned"
-              : (i < counts.assignedTotal + counts.outbound ? "Outbound" : "Inbound"));
+              : (i < counts.assignedTotal + counts.outbound ? "Outbound" : "Inventory"));
           var inboundAt = new Date(Date.UTC(2026, 4, 10, 9, 20, 10) + (i * 86400000));
           var outboundAt = new Date(inboundAt.getTime() + 14400000);
           var assignedAt = new Date(outboundAt.getTime() + 86400000);
@@ -2838,13 +3075,180 @@
             deviceStatus: deviceStatus,
             paymentStatus: paymentStatus,
             inboundDate: formatTerminalDate(inboundAt),
-            outboundDate: terminalStatus === "Inbound" ? "-" : formatTerminalDate(outboundAt),
+            outboundDate: terminalStatus === "Inventory" ? "-" : formatTerminalDate(outboundAt),
             assignedDate: terminalStatus === "Assigned" || terminalStatus === "Activated" ? formatTerminalDate(assignedAt) : "-",
             activationDate: terminalStatus === "Activated" ? formatTerminalDate(activatedAt) : "-"
           });
         }
         return rows;
       }
+
+      function getTransferUptTargets() {
+        var root = getPartnerById(state.transferUptRootId);
+        if (!isUptRootPartner(root)) return [];
+        var targetIds = [root.id].concat(getDescendantIds(root.id));
+        return flattenPartners({ ignoreCollapse: true }).filter(function (partner) {
+          return targetIds.indexOf(partner.id) >= 0;
+        });
+      }
+
+      function getEligibleTransferTargets(selectedRows) {
+        if (!selectedRows.length) return [];
+        return getTransferUptTargets().filter(function (partner) {
+          return !selectedRows.every(function (row) {
+            return row.ownerId === partner.id;
+          });
+        });
+      }
+
+      function selectedRowsBelongToTransferUpt(selectedRows) {
+        var targetIds = getTransferUptTargets().map(function (partner) { return partner.id; });
+        return selectedRows.every(function (row) { return targetIds.indexOf(row.ownerId) >= 0; });
+      }
+
+      function renderTransferSnRows(selectedRows) {
+        if (!selectedRows.length) return '<div class="terminal-empty">No terminals selected.</div>';
+        return selectedRows.map(function (row) {
+          return '<div class="transfer-sn-row" title="' + escapeHtml(row.sn) + '">' + escapeHtml(row.sn) + '</div>';
+        }).join("");
+      }
+
+      function showToast(message, type) {
+        var toast = document.createElement("div");
+        toast.className = "app-toast" + (type === "error" ? " error" : "");
+        toast.textContent = message;
+        toastRegion.appendChild(toast);
+        window.setTimeout(function () { toast.remove(); }, 4200);
+      }
+
+      function renderTransferPartnerOptions() {
+        var selectedRows = getSelectedTerminals();
+        var targets = getEligibleTransferTargets(selectedRows);
+        if (state.transferTargetId && !targets.some(function (partner) { return partner.id === state.transferTargetId; })) {
+          state.transferTargetId = "";
+        }
+        transferPartnerList.innerHTML = targets.length
+          ? targets.map(function (partner) {
+            var selected = state.transferTargetId === partner.id;
+            return '<label class="partner-picker-option' + (selected ? ' selected' : '') + '" style="--picker-depth:' + Math.max(0, partner.level - 1) + '">' +
+              '<input type="radio" name="transferTarget" value="' + escapeHtml(partner.id) + '"' + (selected ? ' checked' : '') + '>' +
+              '<span>' + formatName(partner.name) + '</span>' +
+              '<span class="picker-level">L' + partner.level + '</span>' +
+              '</label>';
+          }).join("")
+          : '<div class="terminal-empty">No other Partners are available for this selection.</div>';
+        submitTransferBtn.disabled = !state.transferTargetId || !selectedRows.length || !targets.length;
+      }
+
+      function renderTransferModalData() {
+        var selectedRows = getSelectedTerminals();
+        transferSelectedCount.textContent = selectedRows.length + (selectedRows.length === 1 ? " terminal selected" : " terminals selected");
+        transferSnSummary.innerHTML = renderTransferSnRows(selectedRows);
+        renderTransferPartnerOptions();
+      }
+
+      function openTransferModal() {
+        var selectedRows = getSelectedTerminals();
+        if (!selectedRows.length) return;
+        var invalidRows = selectedRows.filter(function (row) { return row.terminalStatus !== "Inventory"; });
+        if (invalidRows.length) {
+          showToast("Only inventory terminals can be transferred.", "error");
+          return;
+        }
+        var currentPartner = getPartnerById(state.selectedId);
+        var uptRoot = getRootPartner(currentPartner);
+        if (!isUptRootPartner(uptRoot)) {
+          showToast("Terminal transfer is only available in a UPT hierarchy.", "error");
+          return;
+        }
+        state.transferUptRootId = uptRoot.id;
+        if (!selectedRowsBelongToTransferUpt(selectedRows)) {
+          showToast("Selected terminals must belong to the current UPT hierarchy.", "error");
+          return;
+        }
+        state.transferTargetId = "";
+        transferValidationError.hidden = true;
+        renderTransferModalData();
+        transferModal.classList.add("show");
+        transferModal.setAttribute("aria-hidden", "false");
+        window.setTimeout(function () {
+          var firstTarget = transferPartnerList.querySelector('input[name="transferTarget"]');
+          if (firstTarget) firstTarget.focus();
+        }, 0);
+      }
+
+      function closeTransferModal() {
+        transferModal.classList.remove("show");
+        transferModal.setAttribute("aria-hidden", "true");
+      }
+
+      function syncPartnerInventoryCounts() {
+        partners.forEach(function (partner) {
+          partner.inventoryCount = terminalRecords.filter(function (row) {
+            return row.ownerId === partner.id && row.terminalStatus === "Inventory";
+          }).length;
+        });
+      }
+
+      function submitTerminalTransfer() {
+        if (state.transferSubmitting) return;
+        var selectedRows = getSelectedTerminals();
+        var target = getPartnerById(state.transferTargetId);
+        var invalidRows = selectedRows.filter(function (row) { return row.terminalStatus !== "Inventory"; });
+        var transferTargets = getEligibleTransferTargets(selectedRows);
+        if (invalidRows.length) {
+          transferValidationError.textContent = "Transfer blocked. These terminals are no longer Inventory: " + invalidRows.map(function (row) { return row.sn; }).join(", ") + ". Refresh the list and try again.";
+          transferValidationError.hidden = false;
+          return;
+        }
+        if (!selectedRowsBelongToTransferUpt(selectedRows)) {
+          transferValidationError.textContent = "Transfer blocked because one or more terminals no longer belong to this UPT hierarchy. Refresh the list and try again.";
+          transferValidationError.hidden = false;
+          return;
+        }
+        if (!selectedRows.length || !target || !transferTargets.some(function (partner) { return partner.id === target.id; })) {
+          transferValidationError.textContent = "Transfer blocked because the selection or target is no longer valid. Review your selection and try again.";
+          transferValidationError.hidden = false;
+          return;
+        }
+        state.transferSubmitting = true;
+        submitTransferBtn.disabled = true;
+        submitTransferBtn.textContent = "Transferring…";
+        window.setTimeout(function () {
+          try {
+            selectedRows.forEach(function (row) {
+              row.ownerId = target.id;
+              row.partnerName = target.name.replace(/\n/g, " ");
+            });
+            syncPartnerInventoryCounts();
+            state.selectedTerminalIds = {};
+            closeTransferModal();
+            renderDetail();
+            showToast(selectedRows.length + (selectedRows.length === 1 ? " terminal transferred to " : " terminals transferred to ") + target.name.replace(/\n/g, " ") + ".");
+          } catch (error) {
+            transferValidationError.textContent = "Transfer failed. No terminal ownership was changed. Please try again.";
+            transferValidationError.hidden = false;
+          } finally {
+            state.transferSubmitting = false;
+            submitTransferBtn.disabled = false;
+            submitTransferBtn.textContent = "Transfer Terminals";
+          }
+        }, 650);
+      }
+
+      document.querySelectorAll("[data-close-transfer]").forEach(function (button) {
+        button.addEventListener("click", closeTransferModal);
+      });
+      transferPartnerList.addEventListener("change", function (event) {
+        if (!event.target.matches('input[name="transferTarget"]')) return;
+        state.transferTargetId = event.target.value;
+        transferValidationError.hidden = true;
+        renderTransferPartnerOptions();
+      });
+      submitTransferBtn.addEventListener("click", submitTerminalTransfer);
+      transferModal.addEventListener("click", function (event) {
+        if (event.target === transferModal && !state.transferSubmitting) closeTransferModal();
+      });
 
       function syncAddModalContext(parentId) {
         addParentSelect.value = parentId || "";
