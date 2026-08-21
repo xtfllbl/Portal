@@ -1,46 +1,53 @@
-# Design QA — Terminal List Light Header
+# Design QA — Partner Workspace Alignment
 
-- Source visual truth: current user-message reference screenshot (light gray table-header crop; the chat attachment has no exposed filesystem path)
-- Implementation screenshot: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/terminal-header-light-qa.png`
-- Viewport: desktop, 1920 × 797 CSS px, device scale factor 1
-- State: L3 Agent `黄角湾城市代理` → `Terminal List`, default filters, no terminal selected
-- Density normalization: source and implementation were reviewed at native desktop density; the focused header treatment was compared directly
+- Source visual truth: current user-message screenshot with annotated topbar left/right guide lines; the chat attachment has no exposed filesystem path
+- Implementation screenshot: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/partner-layout-alignment-qa.png`
+- Viewport: desktop, 1920 × 853 CSS px, device scale factor 1
+- State: `黄角湾` L1 Partner → Partner Profile, hierarchy expanded
+- Density normalization: source and implementation reviewed at native desktop density
 
 ## Full-view comparison evidence
 
-The Terminal List keeps the existing layout, column widths, toolbar, rows, status indicators, and selection behavior. Only the table header changes from the dark surface to the requested light neutral surface.
+The hierarchy panel and detail panel now share the same outer left and right boundaries as the topbar. The internal 16 px gap between the hierarchy and detail panels is unchanged, and no component proportions or interaction states were redesigned.
 
 ## Focused comparison evidence
 
-The rendered header uses `rgb(244, 245, 247)` with `rgb(75, 85, 99)` text, matching the reference's shallow gray background and dark gray labels. The header boundary remains a subtle gray divider and all labels remain legible without changing table density.
+Browser measurements after the change:
+
+- Topbar: left `296`, right `1904`, width `1608` CSS px.
+- Content wrapper: left `296`, right `1904`, width `1608` CSS px.
+- Partner console: left `296`, right `1904`, width `1608` CSS px.
+
+Before the change, the Partner console was inset by 20 px on both sides (`316`–`1884`).
 
 ## Required fidelity surfaces
 
-- Fonts and typography: existing family, uppercase labels, size, weight, letter spacing, and no-wrap behavior are preserved.
-- Spacing and layout rhythm: header padding, column alignment, table radius, and row density are unchanged.
-- Colors and visual tokens: the header now uses a light neutral background and dark neutral foreground as shown in the reference.
-- Image quality and assets: no image or icon assets were added or replaced.
-- Copy and content: all column labels and terminal data remain unchanged.
+- Fonts and typography: unchanged.
+- Spacing and layout rhythm: removed only the redundant horizontal content padding; retained 20 px desktop and 14 px narrow-screen vertical spacing.
+- Colors and visual tokens: unchanged.
+- Image quality and assets: no assets added or replaced.
+- Copy and content: unchanged.
 
 ## Interaction verification
 
-- Header and row select-all/individual checkboxes remain operable.
-- Inventory selection and Transfer button behavior are unchanged.
-- The table renders without clipping at the tested desktop viewport.
+- Partner tree selection and Profile/Terminal List tabs remain functional.
+- Expanded hierarchy remains scrollable within the existing page shell.
+- Desktop panels align exactly with the topbar outer boundaries.
+- Narrow-screen media rule also keeps horizontal padding at zero.
 - Inline script syntax and tracked-file whitespace checks pass.
 
 ## Findings
 
-No actionable P0, P1, or P2 visual differences remain for the requested table-header treatment.
+No actionable P0, P1, or P2 differences remain for the requested outer-edge alignment.
 
 ## Comparison history
 
-- Initial state: dark header was a P1 mismatch against the supplied light-header reference.
-- Fix: added a page-scoped, high-specificity light header rule for `thead`, its row, and header cells.
-- Post-fix evidence: browser-rendered header is light gray with dark gray text and preserves all existing geometry.
+- Initial P2: Partner console was inset 20 px from both topbar sides.
+- Fix: changed the Partner page content wrapper from uniform padding to vertical-only padding.
+- Post-fix: measured left and right boundaries are identical across topbar, content wrapper, page header, and Partner console.
 
 ## Follow-up polish
 
-No P3 follow-up is required for this scoped change.
+No P3 follow-up is required for this scoped layout correction.
 
 final result: passed
