@@ -1333,6 +1333,15 @@
       border-bottom: 0;
     }
 
+    .terminal-list-table .terminal-empty-row td {
+      height: 112px;
+      background: #fff;
+      color: #9ca3af;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
     .terminal-status {
       display: inline-flex;
       align-items: center;
@@ -2201,6 +2210,22 @@
           activatedCount: 5
         },
         {
+          id: "p-hangzhou-yunfan",
+          parentId: "",
+          level: 1,
+          partnerType: "UPT",
+          name: "杭州云帆终端科技有限公司",
+          nameEn: "Hangzhou Yunfan Terminal Technology Co., Ltd.",
+          contacts: "陈舟",
+          phone: "18857162026",
+          email: "chenzhou@yunfan-terminal.com",
+          dateTime: "2026-08-20\n10:30:00",
+          inventoryCount: 0,
+          outboundCount: 0,
+          assignedCount: 0,
+          activatedCount: 0
+        },
+        {
           id: "p-atlaspay-europe",
           parentId: "",
           level: 1,
@@ -2788,10 +2813,9 @@
         var allVisibleSelected = visibleInventoryRows.length > 0 && visibleInventoryRows.every(function (row) {
           return !!state.selectedTerminalIds[row.id];
         });
-        var tableHtml = filteredRows.length
-          ? '<div class="terminal-list-wrap"><table class="terminal-list-table">' +
-          '<thead><tr>' + (canTransfer ? '<th class="terminal-check-cell"><input class="terminal-check" type="checkbox" data-select-all-terminals aria-label="Select all inventory terminals"' + (allVisibleSelected ? ' checked' : '') + (visibleInventoryRows.length ? '' : ' disabled') + '></th>' : '') + '<th>SN</th><th>Partner Name</th><th>Terminal Status</th><th class="terminal-service-column">Device Service</th><th class="terminal-service-column">Payment Service</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
-          '<tbody>' + filteredRows.map(function (row) {
+        var emptyMessage = rows.length ? 'No terminals match the current filters.' : 'No terminal records for this partner.';
+        var tableBodyHtml = filteredRows.length
+          ? filteredRows.map(function (row) {
             var transferable = row.terminalStatus === "Inventory";
             var owner = getPartnerById(row.ownerId);
             return '<tr>' +
@@ -2806,8 +2830,11 @@
               '<td>' + escapeHtml(row.assignedDate) + '</td>' +
               '<td>' + escapeHtml(row.activationDate) + '</td>' +
               '</tr>';
-          }).join("") + '</tbody></table></div>'
-          : '<div class="terminal-empty">' + (rows.length ? 'No terminals match the current filters.' : 'No terminal records for this partner.') + '</div>';
+          }).join("")
+          : '<tr class="terminal-empty-row"><td colspan="' + (canTransfer ? 10 : 9) + '">' + escapeHtml(emptyMessage) + '</td></tr>';
+        var tableHtml = '<div class="terminal-list-wrap"><table class="terminal-list-table">' +
+          '<thead><tr>' + (canTransfer ? '<th class="terminal-check-cell"><input class="terminal-check" type="checkbox" data-select-all-terminals aria-label="Select all inventory terminals"' + (allVisibleSelected ? ' checked' : '') + (visibleInventoryRows.length ? '' : ' disabled') + '></th>' : '') + '<th>SN</th><th>Partner Name</th><th>Terminal Status</th><th class="terminal-service-column">Device Service</th><th class="terminal-service-column">Payment Service</th><th>Inbound Date</th><th>Outbound Date</th><th>Assigned Date</th><th>Activation Date</th></tr></thead>' +
+          '<tbody>' + tableBodyHtml + '</tbody></table></div>';
 
         return '<div class="terminal-tab-panel">' +
           '<div class="terminal-stats" aria-label="Terminal lifecycle summary">' +
