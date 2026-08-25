@@ -989,6 +989,22 @@
             box-shadow: 0 2px 0 0 var(--accent);
         }
 
+        .input-field[aria-invalid="true"] {
+            border-bottom-color: #d92d20;
+            box-shadow: 0 2px 0 0 #d92d20;
+        }
+
+        .assignment-error {
+            color: #d92d20;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        .assignment-error[hidden] {
+            display: none;
+        }
+
         .input-field[readonly] {
             color: #94a3b8;
         }
@@ -2080,7 +2096,8 @@
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="device-tpn">Terminal S/N (Hardware Serial Number)</label>
-                                        <input class="input-field" id="device-tpn" type="text" placeholder="Enter S/N to assign a terminal">
+                                        <input class="input-field" id="device-tpn" type="text" placeholder="Enter S/N to assign a terminal" aria-describedby="device-tpn-error">
+                                        <div class="assignment-error" id="device-tpn-error" role="alert" hidden></div>
                                     </div>
                                     <div class="field">
                                         <label for="device-label">Terminal Name (Device Label)</label>
@@ -2928,11 +2945,13 @@
     <script>
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
         const DEVICE_SN_ASSIGNMENT_KEY = 'pw_device_sn_assignments';
+        const DEVICE_BINDING_HISTORY_KEY = 'pw_device_binding_history';
         const storeNameEl = document.getElementById('store-context-name');
         const params = new URLSearchParams(window.location.search);
         const storeName = params.get('storeName') || 'Selected Store';
         const storeId = params.get('storeId');
         const requestedDeviceSn = params.get('sn') || '';
+        const requestedAddedAt = params.get('addedAt') || '';
         const requestedTciDigits = (params.get('tci') || '').replace(/^TC/i, '').replace(/\D/g, '').slice(0, 8);
         const fallbackTciDigits = requestedDeviceSn.replace(/\D/g, '').slice(-8).padStart(8, '0');
         const deviceTci = `TC${requestedTciDigits.length === 8 ? requestedTciDigits : fallbackTciDigits}`;
@@ -2947,8 +2966,58 @@
         const saveDeviceSnAssignment = (tci, sn) => {
             if (!tci || !sn) return;
             const assignments = loadDeviceSnAssignments();
-            assignments[tci] = sn;
+            assignments[tci] = sn.trim();
             localStorage.setItem(DEVICE_SN_ASSIGNMENT_KEY, JSON.stringify(assignments));
+        };
+        const validateTerminalAssignmentSn = (tci, value) => {
+            const nextSn = (value || '').trim();
+            if (!nextSn) return 'Enter the terminal S/N.';
+            const normalizedSn = nextSn.toLowerCase();
+            const duplicate = Object.entries(loadDeviceSnAssignments()).some(([candidateTci, candidateSn]) => {
+                return candidateTci !== tci && String(candidateSn || '').trim().toLowerCase() === normalizedSn;
+            });
+            return duplicate ? 'This terminal S/N is already bound to another TCI.' : '';
+        };
+        const loadBindingHistory = () => {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(DEVICE_BINDING_HISTORY_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                return {};
+            }
+        };
+        const formatBindingDateTime = (date = new Date()) => {
+            const pad = (value) => String(value).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        };
+        const saveAdminAssignmentHistory = (tci, sn) => {
+            if (!tci || !sn) return;
+            const history = loadBindingHistory();
+            if (!Array.isArray(history[tci]) || history[tci].length === 0) {
+                history[tci] = [{
+                    id: `initial-${tci}`,
+                    recordedAt: requestedAddedAt || formatBindingDateTime(),
+                    action: 'Configuration Created',
+                    previousSn: '-',
+                    newSn: '-',
+                    reason: 'Saved without terminal',
+                    disposition: '-',
+                    operator: 'System',
+                    result: 'Configuration Saved'
+                }];
+            }
+            history[tci].unshift({
+                id: `binding-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                recordedAt: formatBindingDateTime(),
+                action: 'Assigned',
+                previousSn: '-',
+                newSn: sn,
+                reason: 'Admin Portal Assignment',
+                disposition: '-',
+                operator: 'Current User',
+                result: 'Deployment Started'
+            });
+            localStorage.setItem(DEVICE_BINDING_HISTORY_KEY, JSON.stringify(history));
         };
         const deviceSn = requestedDeviceSn || loadDeviceSnAssignments()[deviceTci] || '';
         const loadTerminalNames = () => {
@@ -2983,6 +3052,7 @@
         const deviceManufacturer = document.getElementById('device-manufacturer');
         const deviceTciInput = document.getElementById('device-tci');
         const deviceTpn = document.getElementById('device-tpn');
+        const deviceTpnError = document.getElementById('device-tpn-error');
         const deviceLabel = document.getElementById('device-label');
         const deviceModel = document.getElementById('device-model');
         const deviceTerminalScenario = document.getElementById('device-terminal-scenario');
@@ -3684,6 +3754,26 @@
             return (deviceTpn?.value || '').trim();
         }
 
+        function clearTerminalAssignmentError() {
+            if (deviceTpn) deviceTpn.removeAttribute('aria-invalid');
+            if (deviceTpnError) {
+                deviceTpnError.hidden = true;
+                deviceTpnError.textContent = '';
+            }
+        }
+
+        function showTerminalAssignmentError(message) {
+            if (!message) return;
+            if (deviceTpn) {
+                deviceTpn.setAttribute('aria-invalid', 'true');
+                deviceTpn.focus();
+            }
+            if (deviceTpnError) {
+                deviceTpnError.textContent = message;
+                deviceTpnError.hidden = false;
+            }
+        }
+
         function hasTerminalSn() {
             return Boolean(getEnteredTerminalSn());
         }
@@ -3917,6 +4007,7 @@
         }
         if (deviceTpn) {
             deviceTpn.addEventListener('input', () => {
+                clearTerminalAssignmentError();
                 syncTerminalAssignmentUi();
                 syncProvisionStatus();
             });
@@ -4032,6 +4123,13 @@
             const summary = buildDevicePushSummary();
             const assignmentMode = isPendingTerminalAssignment();
             const saveOnlyMode = !deviceValues.sn && !hasTerminalSn();
+            if (assignmentMode) {
+                const validationError = validateTerminalAssignmentSn(deviceValues.tci, summary.sn);
+                if (validationError) {
+                    showTerminalAssignmentError(validationError);
+                    return;
+                }
+            }
             if (saveDeviceConfirmTitle) {
                 saveDeviceConfirmTitle.textContent = assignmentMode
                     ? 'Confirm Terminal Assignment'
@@ -4179,7 +4277,14 @@
                 const assignmentMode = isPendingTerminalAssignment();
                 const assignedSn = getEnteredTerminalSn();
                 if (assignmentMode) {
+                    const validationError = validateTerminalAssignmentSn(deviceValues.tci, assignedSn);
+                    if (validationError) {
+                        closeSaveDeviceConfirmModal();
+                        showTerminalAssignmentError(validationError);
+                        return;
+                    }
                     saveDeviceSnAssignment(deviceValues.tci, assignedSn);
+                    saveAdminAssignmentHistory(deviceValues.tci, assignedSn);
                     deviceValues.sn = assignedSn;
                     if (deviceTpn) deviceTpn.readOnly = true;
                     if (deviceLabel) saveTerminalName(assignedSn, deviceLabel.value);

@@ -2158,6 +2158,160 @@
             word-break: break-word;
         }
 
+        .binding-summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fafafa;
+        }
+
+        .binding-summary-item {
+            min-width: 0;
+        }
+
+        .binding-summary-label {
+            margin-bottom: 4px;
+            color: var(--text-dim);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .binding-summary-value {
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .binding-summary-value.mono,
+        .binding-history-table .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
+
+        .binding-warning {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 12px 14px;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            background: #fffbeb;
+            color: #92400e;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .binding-warning[hidden],
+        .binding-form-error[hidden] {
+            display: none;
+        }
+
+        .binding-warning strong {
+            font-size: 13px;
+        }
+
+        .binding-option-list {
+            display: grid;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .binding-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .binding-option input {
+            margin-top: 2px;
+        }
+
+        .binding-form-error {
+            color: #b91c1c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .binding-modal-form {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .binding-history-wrap {
+            overflow-x: auto;
+        }
+
+        .binding-history-dialog {
+            width: min(1080px, 100%);
+        }
+
+        .binding-history-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .binding-history-table th,
+        .binding-history-table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #eceff3;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .binding-history-table th {
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .binding-history-table td {
+            color: var(--text-main);
+        }
+
+        .binding-history-action {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .binding-toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 160;
+            max-width: min(440px, calc(100vw - 32px));
+            padding: 13px 16px;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            background: #f0fdf4;
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18);
+            color: #166534;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .binding-toast[hidden] {
+            display: none;
+        }
+
         .modal-section-title {
             font-size: 14px;
             font-weight: 600;
@@ -2414,6 +2568,57 @@
             .device-search-field.sn-search {
                 width: auto;
                 flex: 1 1 180px;
+            }
+
+            .binding-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .binding-history-table {
+                min-width: 0;
+            }
+
+            .binding-history-table thead {
+                display: none;
+            }
+
+            .binding-history-table,
+            .binding-history-table tbody,
+            .binding-history-table tr,
+            .binding-history-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .binding-history-table tr {
+                margin-bottom: 12px;
+                padding: 12px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: #fafafa;
+            }
+
+            .binding-history-table td {
+                display: grid;
+                grid-template-columns: 112px minmax(0, 1fr);
+                gap: 10px;
+                padding: 5px 0;
+                border: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .binding-history-table td::before {
+                content: attr(data-label);
+                color: var(--text-dim);
+                font-size: 10px;
+                font-weight: 800;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+
+            .binding-toast {
+                right: 16px;
+                bottom: 16px;
             }
         }
     </style>
@@ -3490,6 +3695,259 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="replace-terminal-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="replace-terminal-title" style="max-width: 680px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="replace-terminal-title">Replace Terminal</h3>
+                    <p class="modal-note">Move this saved configuration to a replacement terminal and start deployment.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="replace-terminal-modal" aria-label="Close"></button>
+            </div>
+            <form class="binding-modal-form" id="replace-terminal-form" autocomplete="off" novalidate>
+                <div class="modal-body">
+                    <div class="binding-summary">
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">TCI</div>
+                            <div class="binding-summary-value mono" id="replace-terminal-tci">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Current S/N</div>
+                            <div class="binding-summary-value mono" id="replace-terminal-current-sn">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Store</div>
+                            <div class="binding-summary-value" id="replace-terminal-store">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Terminal Name</div>
+                            <div class="binding-summary-value" id="replace-terminal-name">-</div>
+                        </div>
+                    </div>
+                    <div class="binding-warning" id="replace-terminal-offline-warning" hidden>
+                        <strong>Old terminal is offline</strong>
+                        <span>Paywizard cannot confirm that locally installed applications, parameters, or keys have been removed. Follow the repair or lost-device handling process for the old terminal.</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="replace-terminal-new-sn">New Terminal S/N <span class="required">*</span></label>
+                            <input class="input-field" id="replace-terminal-new-sn" type="text" maxlength="64" placeholder="Enter replacement terminal S/N" aria-describedby="replace-terminal-error" required>
+                            <div class="binding-form-error" id="replace-terminal-error" role="alert" hidden></div>
+                        </div>
+                    </div>
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="replace-terminal-reason">Replacement Reason</label>
+                            <select class="input-field" id="replace-terminal-reason">
+                                <option value="Hardware Failure" selected>Hardware Failure</option>
+                                <option value="Upgrade">Upgrade</option>
+                                <option value="Lost / Stolen">Lost / Stolen</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="replace-terminal-disposition">Old Device Disposition</label>
+                            <select class="input-field" id="replace-terminal-disposition">
+                                <option value="Repair" selected>Repair</option>
+                                <option value="Return to Inventory">Return to Inventory</option>
+                                <option value="Retired">Retired</option>
+                                <option value="Lost">Lost</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="modal-section-title">Deployment</h4>
+                        <p class="modal-section-note">Use the saved configuration selections for the replacement terminal.</p>
+                        <div class="binding-option-list">
+                            <label class="binding-option">
+                                <input id="replace-terminal-deploy-app" type="checkbox">
+                                <span>Deploy app &amp; parameters</span>
+                            </label>
+                            <label class="binding-option">
+                                <input id="replace-terminal-inject-key" type="checkbox">
+                                <span>Inject key</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="replace-terminal-modal">Cancel</button>
+                    <button class="btn primary" type="submit" id="replace-terminal-confirm">Replace &amp; Deploy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="assign-terminal-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="assign-terminal-title" style="max-width: 680px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="assign-terminal-title">Assign Terminal</h3>
+                    <p class="modal-note">Bind this saved TCI configuration to a terminal before it comes online.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="assign-terminal-modal" aria-label="Close"></button>
+            </div>
+            <form class="binding-modal-form" id="assign-terminal-form" autocomplete="off" novalidate>
+                <div class="modal-body">
+                    <div class="binding-summary">
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">TCI</div>
+                            <div class="binding-summary-value mono" id="assign-terminal-tci">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Store</div>
+                            <div class="binding-summary-value" id="assign-terminal-store">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Terminal Name</div>
+                            <div class="binding-summary-value" id="assign-terminal-name">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Payment Service</div>
+                            <div class="binding-summary-value" id="assign-terminal-payment-service">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">App Version</div>
+                            <div class="binding-summary-value mono" id="assign-terminal-app-version">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Integration Mode</div>
+                            <div class="binding-summary-value mono" id="assign-terminal-integration-mode">-</div>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="assign-terminal-sn">Terminal S/N <span class="required">*</span></label>
+                            <input class="input-field" id="assign-terminal-sn" type="text" maxlength="64" placeholder="Enter terminal S/N" aria-describedby="assign-terminal-error" required>
+                            <div class="binding-form-error" id="assign-terminal-error" role="alert" hidden></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="modal-section-title">Initial Deployment</h4>
+                        <p class="modal-section-note">The terminal will discover this binding when it comes online and download the selected configuration automatically.</p>
+                        <div class="binding-option-list">
+                            <label class="binding-option">
+                                <input id="assign-terminal-deploy-app" type="checkbox">
+                                <span>Deploy app &amp; parameters</span>
+                            </label>
+                            <label class="binding-option">
+                                <input id="assign-terminal-inject-key" type="checkbox">
+                                <span>Inject key</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="assign-terminal-modal">Cancel</button>
+                    <button class="btn primary" type="submit" id="assign-terminal-confirm">Assign &amp; Deploy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="unassign-terminal-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="unassign-terminal-title" style="max-width: 640px;">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="unassign-terminal-title">Unassign Terminal</h3>
+                    <p class="modal-note">Remove the physical terminal while keeping the saved TCI configuration.</p>
+                </div>
+                <button class="modal-close" type="button" data-close="unassign-terminal-modal" aria-label="Close"></button>
+            </div>
+            <form class="binding-modal-form" id="unassign-terminal-form" autocomplete="off">
+                <div class="modal-body">
+                    <div class="binding-summary">
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">TCI</div>
+                            <div class="binding-summary-value mono" id="unassign-terminal-tci">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Current S/N</div>
+                            <div class="binding-summary-value mono" id="unassign-terminal-current-sn">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Store</div>
+                            <div class="binding-summary-value" id="unassign-terminal-store">-</div>
+                        </div>
+                        <div class="binding-summary-item">
+                            <div class="binding-summary-label">Terminal Name</div>
+                            <div class="binding-summary-value" id="unassign-terminal-name">-</div>
+                        </div>
+                    </div>
+                    <div class="binding-warning">
+                        <strong>The configuration will be retained</strong>
+                        <span>The old terminal will no longer be allowed to fetch configuration updates for this TCI. You can assign a new S/N later from Device Settings.</span>
+                    </div>
+                    <div class="binding-warning" id="unassign-terminal-offline-warning" hidden>
+                        <strong>Old terminal is offline</strong>
+                        <span>Paywizard cannot confirm that locally installed applications, parameters, or keys have been removed.</span>
+                    </div>
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="unassign-terminal-reason">Reason</label>
+                            <select class="input-field" id="unassign-terminal-reason">
+                                <option value="Return to Inventory" selected>Return to Inventory</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Retired">Retired</option>
+                                <option value="Lost / Stolen">Lost / Stolen</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="unassign-terminal-disposition">Old Device Disposition</label>
+                            <select class="input-field" id="unassign-terminal-disposition">
+                                <option value="Return to Inventory" selected>Return to Inventory</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Retired">Retired</option>
+                                <option value="Lost">Lost</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn secondary" type="button" data-close="unassign-terminal-modal">Cancel</button>
+                    <button class="btn danger" type="submit" id="unassign-terminal-confirm">Unassign Terminal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="binding-history-modal" aria-hidden="true">
+        <div class="modal scrollable binding-history-dialog" role="dialog" aria-modal="true" aria-labelledby="binding-history-title">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="binding-history-title">Binding History</h3>
+                    <p class="modal-note" id="binding-history-subtitle">TCI: -</p>
+                </div>
+                <button class="modal-close" type="button" data-close="binding-history-modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="binding-history-wrap">
+                    <table class="binding-history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Action</th>
+                                <th>Previous S/N</th>
+                                <th>New S/N</th>
+                                <th>Reason</th>
+                                <th>Disposition</th>
+                                <th>Operator</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="binding-history-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn primary" type="button" data-close="binding-history-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="binding-toast" id="binding-toast" role="status" aria-live="polite" hidden></div>
+
     <div class="modal-overlay" id="device-validate-modal" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="device-validate-title" style="max-width: 720px;">
             <div class="modal-header">
@@ -3988,6 +4446,44 @@
         const deleteDeviceSn = document.getElementById('delete-device-sn');
         const deleteDeviceStore = document.getElementById('delete-device-store');
         const deleteDeviceConfirm = document.getElementById('delete-device-confirm');
+        const assignTerminalModal = document.getElementById('assign-terminal-modal');
+        const assignTerminalForm = document.getElementById('assign-terminal-form');
+        const assignTerminalTci = document.getElementById('assign-terminal-tci');
+        const assignTerminalStore = document.getElementById('assign-terminal-store');
+        const assignTerminalName = document.getElementById('assign-terminal-name');
+        const assignTerminalPaymentService = document.getElementById('assign-terminal-payment-service');
+        const assignTerminalAppVersion = document.getElementById('assign-terminal-app-version');
+        const assignTerminalIntegrationMode = document.getElementById('assign-terminal-integration-mode');
+        const assignTerminalSn = document.getElementById('assign-terminal-sn');
+        const assignTerminalDeployApp = document.getElementById('assign-terminal-deploy-app');
+        const assignTerminalInjectKey = document.getElementById('assign-terminal-inject-key');
+        const assignTerminalError = document.getElementById('assign-terminal-error');
+        const replaceTerminalModal = document.getElementById('replace-terminal-modal');
+        const replaceTerminalForm = document.getElementById('replace-terminal-form');
+        const replaceTerminalTci = document.getElementById('replace-terminal-tci');
+        const replaceTerminalCurrentSn = document.getElementById('replace-terminal-current-sn');
+        const replaceTerminalStore = document.getElementById('replace-terminal-store');
+        const replaceTerminalName = document.getElementById('replace-terminal-name');
+        const replaceTerminalNewSn = document.getElementById('replace-terminal-new-sn');
+        const replaceTerminalReason = document.getElementById('replace-terminal-reason');
+        const replaceTerminalDisposition = document.getElementById('replace-terminal-disposition');
+        const replaceTerminalDeployApp = document.getElementById('replace-terminal-deploy-app');
+        const replaceTerminalInjectKey = document.getElementById('replace-terminal-inject-key');
+        const replaceTerminalError = document.getElementById('replace-terminal-error');
+        const replaceTerminalOfflineWarning = document.getElementById('replace-terminal-offline-warning');
+        const unassignTerminalModal = document.getElementById('unassign-terminal-modal');
+        const unassignTerminalForm = document.getElementById('unassign-terminal-form');
+        const unassignTerminalTci = document.getElementById('unassign-terminal-tci');
+        const unassignTerminalCurrentSn = document.getElementById('unassign-terminal-current-sn');
+        const unassignTerminalStore = document.getElementById('unassign-terminal-store');
+        const unassignTerminalName = document.getElementById('unassign-terminal-name');
+        const unassignTerminalReason = document.getElementById('unassign-terminal-reason');
+        const unassignTerminalDisposition = document.getElementById('unassign-terminal-disposition');
+        const unassignTerminalOfflineWarning = document.getElementById('unassign-terminal-offline-warning');
+        const bindingHistoryModal = document.getElementById('binding-history-modal');
+        const bindingHistorySubtitle = document.getElementById('binding-history-subtitle');
+        const bindingHistoryBody = document.getElementById('binding-history-body');
+        const bindingToast = document.getElementById('binding-toast');
         const validateModal = document.getElementById('device-validate-modal');
         const storePaymentModal = document.getElementById('store-payment-modal');
         const storePaymentEditModal = document.getElementById('store-payment-edit-modal');
@@ -4048,6 +4544,10 @@
         let scanFormMode = 'add';
         let pendingDeleteDeviceRow = null;
         let pendingCloneDeviceRow = null;
+        let pendingAssignTerminalRow = null;
+        let pendingReplaceTerminalRow = null;
+        let pendingUnassignTerminalRow = null;
+        let bindingToastTimer = null;
         const merchantState = {
             id: '82910293',
             dba: 'Tasty Treats (NYC)',
@@ -4065,6 +4565,7 @@
         };
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
         const DEVICE_SN_ASSIGNMENT_KEY = 'pw_device_sn_assignments';
+        const DEVICE_BINDING_HISTORY_KEY = 'pw_device_binding_history';
         const VALIDATE_TEST_CARDS = [
             {
                 id: 'validate-card-1',
@@ -4101,20 +4602,115 @@
         const getStoreRows = () => Array.from(document.querySelectorAll('.store-grid-row[data-store-id]'));
         const getDeviceRows = () => Array.from(document.querySelectorAll('.device-grid-row[data-store-id]'));
 
-        const applyStoredDeviceSnAssignments = () => {
-            let assignments = {};
+        const loadDeviceSnAssignments = () => {
             try {
-                assignments = JSON.parse(localStorage.getItem(DEVICE_SN_ASSIGNMENT_KEY) || '{}');
+                const parsed = JSON.parse(localStorage.getItem(DEVICE_SN_ASSIGNMENT_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
             } catch (error) {
-                assignments = {};
+                return {};
             }
+        };
+
+        const saveDeviceSnAssignments = (assignments) => {
+            localStorage.setItem(DEVICE_SN_ASSIGNMENT_KEY, JSON.stringify(assignments));
+        };
+
+        const setDeviceSnAssignment = (tci, sn) => {
+            if (!tci) return;
+            const assignments = loadDeviceSnAssignments();
+            assignments[tci] = sn || '';
+            saveDeviceSnAssignments(assignments);
+        };
+
+        const seedKnownDeviceSnAssignments = () => {
+            const assignments = loadDeviceSnAssignments();
+            let changed = false;
             getDeviceRows().forEach((row) => {
-                const assignedSn = assignments[row.dataset.tci || ''];
-                if (!assignedSn) return;
+                const tci = row.dataset.tci || '';
+                if (!tci || Object.prototype.hasOwnProperty.call(assignments, tci)) return;
+                assignments[tci] = row.dataset.sn || '';
+                changed = true;
+            });
+            if (changed) saveDeviceSnAssignments(assignments);
+        };
+
+        const applyStoredDeviceSnAssignments = () => {
+            const assignments = loadDeviceSnAssignments();
+            getDeviceRows().forEach((row) => {
+                const tci = row.dataset.tci || '';
+                if (!Object.prototype.hasOwnProperty.call(assignments, tci)) return;
+                const assignedSn = assignments[tci] || '';
                 row.dataset.sn = assignedSn;
                 const snCell = row.querySelector('[data-role="device-sn"]');
-                if (snCell) snCell.textContent = assignedSn;
+                if (snCell) snCell.textContent = assignedSn || '-';
+                if (!assignedSn) {
+                    row.dataset.deviceStatus = 'Pending';
+                    setDeviceOnlineStatus(row, 'Offline');
+                    return;
+                }
+                const latestBinding = loadBindingHistory()[tci]?.[0];
+                if (latestBinding?.result === 'Deployment Started') {
+                    row.dataset.deviceStatus = 'Pending';
+                    setDeviceOnlineStatus(row, 'Offline');
+                }
             });
+        };
+
+        const loadBindingHistory = () => {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(DEVICE_BINDING_HISTORY_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                return {};
+            }
+        };
+
+        const saveBindingHistory = (history) => {
+            localStorage.setItem(DEVICE_BINDING_HISTORY_KEY, JSON.stringify(history));
+        };
+
+        const getInitialBindingHistoryRecord = (row) => {
+            const sn = row?.dataset.sn || '';
+            const addedAt = row?.dataset.addedAt || row?.children?.[6]?.textContent?.trim() || formatDateTime();
+            return {
+                id: `initial-${row?.dataset.tci || 'configuration'}`,
+                recordedAt: addedAt,
+                action: sn ? 'Assigned' : 'Configuration Created',
+                previousSn: '-',
+                newSn: sn || '-',
+                reason: sn ? 'Initial assignment' : 'Saved without terminal',
+                disposition: '-',
+                operator: 'System',
+                result: sn ? 'Active' : 'Configuration Saved'
+            };
+        };
+
+        const getBindingHistoryForRow = (row) => {
+            if (!row) return [];
+            const tci = row.dataset.tci || '';
+            const history = loadBindingHistory();
+            if (!Array.isArray(history[tci]) || history[tci].length === 0) {
+                history[tci] = [getInitialBindingHistoryRecord(row)];
+                saveBindingHistory(history);
+            }
+            return history[tci];
+        };
+
+        const addBindingHistoryRecord = (row, record) => {
+            if (!row) return;
+            const tci = row.dataset.tci || '';
+            const history = loadBindingHistory();
+            const records = Array.isArray(history[tci]) && history[tci].length
+                ? history[tci]
+                : [getInitialBindingHistoryRecord(row)];
+            records.unshift({
+                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                recordedAt: formatDateTime(),
+                operator: 'Current User',
+                ...record
+            });
+            history[tci] = records;
+            saveBindingHistory(history);
         };
 
         const formatDate = (value) => {
@@ -4671,6 +5267,19 @@
             return cell;
         };
 
+        const setDeviceOnlineStatus = (row, status = 'Offline') => {
+            if (!row) return;
+            const normalizedStatus = String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
+            row.dataset.onlineStatus = normalizedStatus;
+            const badge = row.querySelector('[data-role="device-online-status"]');
+            if (!badge) return;
+            badge.classList.toggle('online', normalizedStatus === 'Online');
+            badge.classList.toggle('offline', normalizedStatus === 'Offline');
+            badge.dataset.serviceStatus = normalizedStatus;
+            badge.title = normalizedStatus;
+            badge.setAttribute('aria-label', `Payment Service: ${normalizedStatus}`);
+        };
+
         const buildDeviceSettingsControl = () => {
             const settingsWrap = document.createElement('div');
             settingsWrap.className = 'device-settings';
@@ -4687,16 +5296,21 @@
             menu.setAttribute('role', 'menu');
             menu.setAttribute('aria-hidden', 'true');
 
-            const makeItem = (label, action) => {
+            const makeItem = (label, action, bindingVisibility = 'always') => {
                 const item = document.createElement('button');
                 item.type = 'button';
                 item.className = 'device-settings-item';
                 item.dataset.action = action;
+                item.dataset.bindingVisibility = bindingVisibility;
                 item.textContent = label;
                 return item;
             };
 
             menu.appendChild(makeItem('Edit Params', 'edit-device-params'));
+            menu.appendChild(makeItem('Assign Terminal', 'assign-terminal', 'unbound'));
+            menu.appendChild(makeItem('Replace Terminal', 'replace-terminal', 'bound'));
+            menu.appendChild(makeItem('Unassign Terminal', 'unassign-terminal', 'bound'));
+            menu.appendChild(makeItem('Binding History', 'binding-history'));
             menu.appendChild(makeItem('Copy Configuration', 'use-configuration'));
             menu.appendChild(makeItem('Validate', 'validate-device'));
 
@@ -4705,9 +5319,21 @@
             return settingsWrap;
         };
 
+        const syncDeviceSettingsActions = (row) => {
+            if (!row) return;
+            const isBound = Boolean((row.dataset.sn || '').trim());
+            row.querySelectorAll('.device-settings-item[data-binding-visibility]').forEach((item) => {
+                const visibility = item.dataset.bindingVisibility;
+                item.hidden = (visibility === 'bound' && !isBound) || (visibility === 'unbound' && isBound);
+            });
+        };
+
         const enhanceExistingDeviceSettingsControls = () => {
             document.querySelectorAll('.device-row-actions > .device-settings-button[data-action="device-settings"]').forEach((button) => {
-                button.replaceWith(buildDeviceSettingsControl());
+                const row = button.closest('.device-grid-row');
+                const control = buildDeviceSettingsControl();
+                button.replaceWith(control);
+                syncDeviceSettingsActions(row);
             });
         };
 
@@ -4755,6 +5381,7 @@
             row.dataset.injectKeySelected = device.injectKeySelected ?? 'true';
             row.dataset.deviceStatus = device.status || 'Active';
             row.dataset.onlineStatus = device.onlineStatus || (device.status === 'Pending' ? 'Offline' : 'Online');
+            row.dataset.addedAt = device.addedAt || '';
 
             const storeCell = document.createElement('div');
             storeCell.setAttribute('data-role', 'store-name');
@@ -4783,6 +5410,7 @@
             row.appendChild(Object.assign(document.createElement('div'), { textContent: device.addedAt }));
 
             row.appendChild(buildDeviceActionsCell());
+            syncDeviceSettingsActions(row);
             deviceGrid.appendChild(row);
             setStoredTerminalName(device.sn, device.label);
         };
@@ -5247,6 +5875,26 @@
             if (modal === deviceDeleteModal) {
                 pendingDeleteDeviceRow = null;
             }
+            if (modal === assignTerminalModal) {
+                pendingAssignTerminalRow = null;
+                if (assignTerminalForm) assignTerminalForm.reset();
+                if (assignTerminalError) {
+                    assignTerminalError.hidden = true;
+                    assignTerminalError.textContent = '';
+                }
+            }
+            if (modal === replaceTerminalModal) {
+                pendingReplaceTerminalRow = null;
+                if (replaceTerminalForm) replaceTerminalForm.reset();
+                if (replaceTerminalError) {
+                    replaceTerminalError.hidden = true;
+                    replaceTerminalError.textContent = '';
+                }
+            }
+            if (modal === unassignTerminalModal) {
+                pendingUnassignTerminalRow = null;
+                if (unassignTerminalForm) unassignTerminalForm.reset();
+            }
             if (modal === cloneStoreModal) {
                 pendingCloneDeviceRow = null;
                 if (cloneStoreForm) cloneStoreForm.reset();
@@ -5279,6 +5927,254 @@
             closeModal(deviceDeleteModal);
             updateCounts();
             refreshDeviceGrid();
+        };
+
+        const showBindingToast = (message) => {
+            if (!bindingToast) return;
+            window.clearTimeout(bindingToastTimer);
+            bindingToast.textContent = message;
+            bindingToast.hidden = false;
+            bindingToastTimer = window.setTimeout(() => {
+                bindingToast.hidden = true;
+            }, 4800);
+        };
+
+        const setBindingSummary = (prefix, row) => {
+            if (!row) return;
+            const values = {
+                tci: row.dataset.tci || '-',
+                'current-sn': row.dataset.sn || '-',
+                store: row.dataset.storeName || '-',
+                name: getTerminalNameForRow(row) || '-',
+                'payment-service': row.dataset.processor || '-',
+                'app-version': row.dataset.version || '-',
+                'integration-mode': row.dataset.paywizard || '-'
+            };
+            Object.entries(values).forEach(([key, value]) => {
+                const element = document.getElementById(`${prefix}-${key}`);
+                if (element) element.textContent = value;
+            });
+        };
+
+        const isSnBoundToAnotherTci = (tci, value) => {
+            const normalizedSn = (value || '').trim().toLowerCase();
+            if (!normalizedSn) return false;
+            const storedDuplicate = Object.entries(loadDeviceSnAssignments()).some(([candidateTci, candidateSn]) => {
+                return candidateTci !== tci && String(candidateSn || '').trim().toLowerCase() === normalizedSn;
+            });
+            if (storedDuplicate) return true;
+            return getDeviceRows().some((candidate) => {
+                return candidate.dataset.tci !== tci && (candidate.dataset.sn || '').trim().toLowerCase() === normalizedSn;
+            });
+        };
+
+        const validateAssignmentSn = (row, value) => {
+            const nextSn = (value || '').trim();
+            if (!nextSn) return 'Enter the terminal S/N.';
+            return isSnBoundToAnotherTci(row?.dataset.tci || '', nextSn)
+                ? 'This terminal S/N is already bound to another TCI.'
+                : '';
+        };
+
+        const openAssignTerminalModal = (row) => {
+            if (!assignTerminalModal || !assignTerminalForm || !row || row.dataset.sn) return;
+            pendingAssignTerminalRow = row;
+            assignTerminalForm.reset();
+            setBindingSummary('assign-terminal', row);
+            if (assignTerminalDeployApp) assignTerminalDeployApp.checked = row.dataset.deployAppSelected !== 'false';
+            if (assignTerminalInjectKey) assignTerminalInjectKey.checked = row.dataset.injectKeySelected !== 'false';
+            if (assignTerminalError) {
+                assignTerminalError.hidden = true;
+                assignTerminalError.textContent = '';
+            }
+            if (assignTerminalSn) assignTerminalSn.removeAttribute('aria-invalid');
+            openModal(assignTerminalModal);
+            if (assignTerminalSn) assignTerminalSn.focus();
+        };
+
+        const submitAssignTerminal = (event) => {
+            event.preventDefault();
+            const row = pendingAssignTerminalRow;
+            if (!row || !assignTerminalSn) return;
+            const nextSn = assignTerminalSn.value.trim();
+            const validationError = validateAssignmentSn(row, nextSn);
+            if (validationError) {
+                assignTerminalError.textContent = validationError;
+                assignTerminalError.hidden = false;
+                assignTerminalSn.setAttribute('aria-invalid', 'true');
+                assignTerminalSn.focus();
+                return;
+            }
+
+            const terminalName = getTerminalNameForRow(row);
+            getBindingHistoryForRow(row);
+            addBindingHistoryRecord(row, {
+                action: 'Assigned',
+                previousSn: '-',
+                newSn: nextSn,
+                reason: 'Admin Portal Assignment',
+                disposition: '-',
+                result: 'Deployment Started'
+            });
+
+            setDeviceSnAssignment(row.dataset.tci || '', nextSn);
+            setStoredTerminalName(nextSn, terminalName);
+            row.dataset.sn = nextSn;
+            row.dataset.deviceStatus = 'Pending';
+            row.dataset.deployAppSelected = assignTerminalDeployApp?.checked ? 'true' : 'false';
+            row.dataset.injectKeySelected = assignTerminalInjectKey?.checked ? 'true' : 'false';
+            const snCell = row.querySelector('[data-role="device-sn"]');
+            if (snCell) snCell.textContent = nextSn;
+            setDeviceOnlineStatus(row, 'Offline');
+            syncDeviceSettingsActions(row);
+            closeModal(assignTerminalModal);
+            updateCounts();
+            refreshDeviceGrid();
+            showBindingToast(`Terminal ${nextSn} is now bound to ${row.dataset.tci}. Deployment has started and will continue when the terminal comes online.`);
+        };
+
+        const openReplaceTerminalModal = (row) => {
+            if (!replaceTerminalModal || !replaceTerminalForm || !row || !row.dataset.sn) return;
+            pendingReplaceTerminalRow = row;
+            replaceTerminalForm.reset();
+            setBindingSummary('replace-terminal', row);
+            if (replaceTerminalDeployApp) replaceTerminalDeployApp.checked = row.dataset.deployAppSelected !== 'false';
+            if (replaceTerminalInjectKey) replaceTerminalInjectKey.checked = row.dataset.injectKeySelected !== 'false';
+            if (replaceTerminalOfflineWarning) replaceTerminalOfflineWarning.hidden = row.dataset.onlineStatus !== 'Offline';
+            if (replaceTerminalError) {
+                replaceTerminalError.hidden = true;
+                replaceTerminalError.textContent = '';
+            }
+            if (replaceTerminalNewSn) replaceTerminalNewSn.removeAttribute('aria-invalid');
+            openModal(replaceTerminalModal);
+            if (replaceTerminalNewSn) replaceTerminalNewSn.focus();
+        };
+
+        const validateReplacementSn = (row, value) => {
+            const nextSn = (value || '').trim();
+            if (!nextSn) return 'Enter the replacement terminal S/N.';
+            const normalizedSn = nextSn.toLowerCase();
+            if (normalizedSn === (row?.dataset.sn || '').trim().toLowerCase()) {
+                return 'The replacement S/N must be different from the current terminal S/N.';
+            }
+            return isSnBoundToAnotherTci(row?.dataset.tci || '', nextSn)
+                ? 'This terminal S/N is already bound to another TCI.'
+                : '';
+        };
+
+        const submitReplaceTerminal = (event) => {
+            event.preventDefault();
+            const row = pendingReplaceTerminalRow;
+            if (!row || !replaceTerminalNewSn) return;
+            const nextSn = replaceTerminalNewSn.value.trim();
+            const validationError = validateReplacementSn(row, nextSn);
+            if (validationError) {
+                replaceTerminalError.textContent = validationError;
+                replaceTerminalError.hidden = false;
+                replaceTerminalNewSn.setAttribute('aria-invalid', 'true');
+                replaceTerminalNewSn.focus();
+                return;
+            }
+
+            const previousSn = row.dataset.sn || '';
+            const terminalName = getTerminalNameForRow(row);
+            getBindingHistoryForRow(row);
+            addBindingHistoryRecord(row, {
+                action: 'Replaced',
+                previousSn: previousSn || '-',
+                newSn: nextSn,
+                reason: replaceTerminalReason?.value || 'Hardware Failure',
+                disposition: replaceTerminalDisposition?.value || 'Repair',
+                result: 'Deployment Started'
+            });
+
+            setDeviceSnAssignment(row.dataset.tci || '', nextSn);
+            setStoredTerminalName(previousSn, '');
+            setStoredTerminalName(nextSn, terminalName);
+            row.dataset.sn = nextSn;
+            row.dataset.deviceStatus = 'Pending';
+            row.dataset.deployAppSelected = replaceTerminalDeployApp?.checked ? 'true' : 'false';
+            row.dataset.injectKeySelected = replaceTerminalInjectKey?.checked ? 'true' : 'false';
+            const snCell = row.querySelector('[data-role="device-sn"]');
+            if (snCell) snCell.textContent = nextSn;
+            setDeviceOnlineStatus(row, 'Offline');
+            syncDeviceSettingsActions(row);
+            closeModal(replaceTerminalModal);
+            updateCounts();
+            refreshDeviceGrid();
+            showBindingToast(`Terminal ${nextSn} is now bound to ${row.dataset.tci}. Deployment has started.`);
+        };
+
+        const openUnassignTerminalModal = (row) => {
+            if (!unassignTerminalModal || !unassignTerminalForm || !row || !row.dataset.sn) return;
+            pendingUnassignTerminalRow = row;
+            unassignTerminalForm.reset();
+            setBindingSummary('unassign-terminal', row);
+            if (unassignTerminalOfflineWarning) unassignTerminalOfflineWarning.hidden = row.dataset.onlineStatus !== 'Offline';
+            openModal(unassignTerminalModal);
+            if (unassignTerminalReason) unassignTerminalReason.focus();
+        };
+
+        const submitUnassignTerminal = (event) => {
+            event.preventDefault();
+            const row = pendingUnassignTerminalRow;
+            if (!row) return;
+            const previousSn = row.dataset.sn || '';
+            const terminalName = getTerminalNameForRow(row);
+            getBindingHistoryForRow(row);
+            addBindingHistoryRecord(row, {
+                action: 'Unassigned',
+                previousSn: previousSn || '-',
+                newSn: '-',
+                reason: unassignTerminalReason?.value || 'Return to Inventory',
+                disposition: unassignTerminalDisposition?.value || 'Return to Inventory',
+                result: 'Configuration Retained'
+            });
+
+            setDeviceSnAssignment(row.dataset.tci || '', '');
+            setStoredTerminalName(previousSn, '');
+            row.dataset.sn = '';
+            row.dataset.label = terminalName;
+            row.dataset.deviceStatus = 'Pending';
+            const snCell = row.querySelector('[data-role="device-sn"]');
+            if (snCell) snCell.textContent = '-';
+            setDeviceOnlineStatus(row, 'Offline');
+            syncDeviceSettingsActions(row);
+            closeModal(unassignTerminalModal);
+            updateCounts();
+            refreshDeviceGrid();
+            showBindingToast(`${row.dataset.tci} is now saved without a physical terminal.`);
+        };
+
+        const appendBindingHistoryCell = (row, label, value, className = '') => {
+            const cell = document.createElement('td');
+            cell.dataset.label = label;
+            cell.textContent = value || '-';
+            if (className) cell.className = className;
+            row.appendChild(cell);
+        };
+
+        const openBindingHistoryModal = (row) => {
+            if (!bindingHistoryModal || !bindingHistoryBody || !row) return;
+            const records = getBindingHistoryForRow(row);
+            if (bindingHistorySubtitle) {
+                bindingHistorySubtitle.textContent = `TCI: ${row.dataset.tci || '-'} · ${getTerminalNameForRow(row) || 'Saved Configuration'}`;
+            }
+            bindingHistoryBody.innerHTML = '';
+            records.forEach((record) => {
+                const tableRow = document.createElement('tr');
+                appendBindingHistoryCell(tableRow, 'Date', record.recordedAt);
+                appendBindingHistoryCell(tableRow, 'Action', record.action, 'binding-history-action');
+                appendBindingHistoryCell(tableRow, 'Previous S/N', record.previousSn, 'mono');
+                appendBindingHistoryCell(tableRow, 'New S/N', record.newSn, 'mono');
+                appendBindingHistoryCell(tableRow, 'Reason', record.reason);
+                appendBindingHistoryCell(tableRow, 'Disposition', record.disposition);
+                appendBindingHistoryCell(tableRow, 'Operator', record.operator);
+                appendBindingHistoryCell(tableRow, 'Result', record.result);
+                bindingHistoryBody.appendChild(tableRow);
+            });
+            openModal(bindingHistoryModal);
+            bindingHistoryModal.querySelector('[data-close="binding-history-modal"]')?.focus();
         };
 
         const populateValidateCardOptions = () => {
@@ -5511,6 +6407,8 @@
 
         const toggleDeviceMenu = (button) => {
             if (!button) return;
+            const row = button.closest('.device-grid-row');
+            syncDeviceSettingsActions(row);
             const menu = button.closest('.device-settings')?.querySelector('.device-settings-menu');
             if (!menu) return;
             const willOpen = !menu.classList.contains('show');
@@ -5539,6 +6437,7 @@
                 template: row.dataset.template || '',
                 paywizard: row.dataset.paywizard || '',
                 manufacturer: row.dataset.manufacturer || '',
+                addedAt: row.dataset.addedAt || '',
                 deployAppSelected: row.dataset.deployAppSelected || 'true',
                 injectKeySelected: row.dataset.injectKeySelected || 'true'
             });
@@ -5792,6 +6691,38 @@
             deleteDeviceConfirm.addEventListener('click', confirmDeleteDevice);
         }
 
+        if (assignTerminalForm) {
+            assignTerminalForm.addEventListener('submit', submitAssignTerminal);
+        }
+
+        if (assignTerminalSn) {
+            assignTerminalSn.addEventListener('input', () => {
+                assignTerminalSn.removeAttribute('aria-invalid');
+                if (assignTerminalError) {
+                    assignTerminalError.hidden = true;
+                    assignTerminalError.textContent = '';
+                }
+            });
+        }
+
+        if (replaceTerminalForm) {
+            replaceTerminalForm.addEventListener('submit', submitReplaceTerminal);
+        }
+
+        if (replaceTerminalNewSn) {
+            replaceTerminalNewSn.addEventListener('input', () => {
+                replaceTerminalNewSn.removeAttribute('aria-invalid');
+                if (replaceTerminalError) {
+                    replaceTerminalError.hidden = true;
+                    replaceTerminalError.textContent = '';
+                }
+            });
+        }
+
+        if (unassignTerminalForm) {
+            unassignTerminalForm.addEventListener('submit', submitUnassignTerminal);
+        }
+
         document.querySelectorAll('[data-close]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-close');
@@ -5800,6 +6731,10 @@
                 if (target === 'device-modal') closeModal(deviceModal);
                 if (target === 'clone-store-modal') closeModal(cloneStoreModal);
                 if (target === 'device-delete-modal') closeModal(deviceDeleteModal);
+                if (target === 'assign-terminal-modal') closeModal(assignTerminalModal);
+                if (target === 'replace-terminal-modal') closeModal(replaceTerminalModal);
+                if (target === 'unassign-terminal-modal') closeModal(unassignTerminalModal);
+                if (target === 'binding-history-modal') closeModal(bindingHistoryModal);
                 if (target === 'device-validate-modal') closeModal(validateModal);
                 if (target === 'store-payment-modal') closeModal(storePaymentModal);
                 if (target === 'store-payment-edit-modal') closeModal(storePaymentEditModal);
@@ -5807,7 +6742,7 @@
             });
         });
 
-        [merchantProfileModal, storeModal, deviceModal, cloneStoreModal, deviceDeleteModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
+        [merchantProfileModal, storeModal, deviceModal, cloneStoreModal, deviceDeleteModal, assignTerminalModal, replaceTerminalModal, unassignTerminalModal, bindingHistoryModal, validateModal, storePaymentModal, storePaymentEditModal, storeScanModal].forEach((modal) => {
             if (!modal) return;
             modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
@@ -5823,6 +6758,10 @@
             if (deviceModal?.classList.contains('active')) closeModal(deviceModal);
             if (cloneStoreModal?.classList.contains('active')) closeModal(cloneStoreModal);
             if (deviceDeleteModal?.classList.contains('active')) closeModal(deviceDeleteModal);
+            if (assignTerminalModal?.classList.contains('active')) closeModal(assignTerminalModal);
+            if (replaceTerminalModal?.classList.contains('active')) closeModal(replaceTerminalModal);
+            if (unassignTerminalModal?.classList.contains('active')) closeModal(unassignTerminalModal);
+            if (bindingHistoryModal?.classList.contains('active')) closeModal(bindingHistoryModal);
             if (validateModal?.classList.contains('active')) closeModal(validateModal);
             if (storePaymentModal?.classList.contains('active')) closeModal(storePaymentModal);
             if (storePaymentEditModal?.classList.contains('active')) closeModal(storePaymentEditModal);
@@ -5948,6 +6887,30 @@
                     if (action === 'edit-device-params') {
                         closeDeviceMenus();
                         openDeviceSettingsPage(row);
+                        return;
+                    }
+
+                    if (action === 'assign-terminal') {
+                        closeDeviceMenus();
+                        openAssignTerminalModal(row);
+                        return;
+                    }
+
+                    if (action === 'replace-terminal') {
+                        closeDeviceMenus();
+                        openReplaceTerminalModal(row);
+                        return;
+                    }
+
+                    if (action === 'unassign-terminal') {
+                        closeDeviceMenus();
+                        openUnassignTerminalModal(row);
+                        return;
+                    }
+
+                    if (action === 'binding-history') {
+                        closeDeviceMenus();
+                        openBindingHistoryModal(row);
                         return;
                     }
 
@@ -6254,6 +7217,7 @@
                 row.appendChild(buildDeviceActionsCell());
 
                 deviceGrid.appendChild(row);
+                setDeviceSnAssignment(tci, tpn);
                 setStoredTerminalName(tpn, label);
 
                 updateCounts();
@@ -6267,6 +7231,7 @@
         populateValidateCardOptions();
         syncValidateTrack2();
         seedDemoDeviceRows();
+        seedKnownDeviceSnAssignments();
         applyStoredDeviceSnAssignments();
         enhanceExistingDeviceSettingsControls();
         getDeviceRows().forEach((row) => {
