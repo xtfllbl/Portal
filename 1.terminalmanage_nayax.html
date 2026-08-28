@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal Management</title>
     <link rel="stylesheet" href="styles/na-theme.css">
+    <link rel="stylesheet" href="styles/customer-alerts.css">
     <style>
         :root {
             --banner: #111111;   /* near-black header */
@@ -2136,6 +2137,7 @@
                     <span class="chevron" aria-hidden="true">></span>
                 </div>
                 <div class="sub-menu" data-parent="settings">
+                    <div class="sub-item" data-key="settings-alerts" data-link="39.customer_alerts.html">Alerts</div>
                     <div class="sub-item" data-key="settings-branding" data-link="branding.html">Branding</div>
                     <div class="sub-item" data-key="settings-payments">Payment Channels</div>
                     <div class="sub-item" data-key="settings-products" data-link="35.product_management.html">Products</div>
@@ -2208,6 +2210,7 @@
                     <button id="primaryTabPush" class="tab" data-tab="push" role="tab" aria-controls="tab-push" aria-selected="false" tabindex="-1">Push Task</button>
                     <button id="primaryTabProductMap" class="tab" data-tab="productmap" role="tab" aria-controls="tab-productmap" aria-selected="false" tabindex="-1">Product Map</button>
                     <button id="primaryTabDex" class="tab" data-tab="dex" role="tab" aria-controls="tab-dex" aria-selected="false" tabindex="-1">DEX</button>
+                    <button id="primaryTabAlerts" class="tab" data-tab="alerts" role="tab" aria-controls="tab-alerts" aria-selected="false" tabindex="-1">Alerts</button>
                 </div>
                 <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
             </div>
@@ -2850,6 +2853,58 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Customer Alerts -->
+                <section id="tab-alerts" class="hidden customer-alerts-surface" role="tabpanel" aria-labelledby="primaryTabAlerts" tabindex="0" data-alert-page="terminal">
+                    <div class="alerts-page-head">
+                        <div>
+                            <div class="alerts-eyebrow">TERMINAL CONTEXT</div>
+                            <h2 class="section-title">Terminal Alerts</h2>
+                            <p class="alerts-page-copy">Rules and visible incidents for <strong data-alert-terminal-name>Terminal - WP6267UQ36002376</strong>. Changes are shared with the Alert Center.</p>
+                        </div>
+                        <button class="btn-primary" type="button" data-alert-create>Create Alert Rule</button>
+                    </div>
+
+                    <div class="alert-signal-grid" aria-label="Terminal monitoring status">
+                        <article class="alert-signal-card">
+                            <div class="alert-signal-icon is-good" aria-hidden="true">✓</div>
+                            <div><span>Payment Service</span><strong>Available</strong><small>Last update 2 min ago</small></div>
+                        </article>
+                        <article class="alert-signal-card">
+                            <div class="alert-signal-icon is-warn" aria-hidden="true">$</div>
+                            <div><span>Last Approved Transaction</span><strong>3h 18m ago</strong><small>Outside expected cadence</small></div>
+                        </article>
+                        <article class="alert-signal-card">
+                            <div class="alert-signal-icon is-good" aria-hidden="true">18</div>
+                            <div><span>Product Map</span><strong>18 / 24 On Hand</strong><small>75% of total PAR</small></div>
+                        </article>
+                        <article class="alert-signal-card">
+                            <div class="alert-signal-icon is-info" aria-hidden="true">°</div>
+                            <div><span>Temperature</span><strong>4.8 °C · Fresh</strong><small>15 min cadence · read 6 min ago</small></div>
+                        </article>
+                    </div>
+
+                    <div class="alerts-section-head">
+                        <div><h3>Visible Incidents</h3><p>One continuous occurrence per rule and Terminal.</p></div>
+                        <a class="alerts-text-link" href="39.customer_alerts.html?view=incidents">Open Alert Center</a>
+                    </div>
+                    <div class="alerts-table-wrap">
+                        <table class="table alerts-table">
+                            <thead><tr><th>State</th><th>Condition</th><th>Evidence</th><th>Opened</th><th>Source</th><th>Action</th></tr></thead>
+                            <tbody data-alert-incidents></tbody>
+                        </table>
+                    </div>
+
+                    <div class="alerts-section-head alerts-section-spaced">
+                        <div><h3>Alert Rules</h3><p>Organization-owned rules targeting this Terminal.</p></div>
+                    </div>
+                    <div class="alerts-table-wrap">
+                        <table class="table alerts-table">
+                            <thead><tr><th>Condition</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
+                            <tbody data-alert-rules></tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
@@ -3134,8 +3189,40 @@
     </div>
 
     <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
+    <div class="alert-modal-overlay" data-alert-modal aria-hidden="true">
+        <section class="alert-modal" role="dialog" aria-modal="true" aria-labelledby="alertRuleDialogTitle">
+            <form data-alert-form novalidate>
+                <div class="alert-modal-head">
+                    <div><div class="alerts-eyebrow">GUIDED RULE SETUP</div><h2 id="alertRuleDialogTitle">Create Alert Rule</h2></div>
+                    <button class="alert-modal-close" type="button" aria-label="Close" data-alert-close>&times;</button>
+                </div>
+                <div class="alert-modal-body">
+                    <div class="alert-step"><span>1</span><div><strong>Choose one condition</strong><small>Each rule has an independent incident lifecycle.</small></div></div>
+                    <div class="alert-field full"><label for="terminalAlertCondition">Condition</label><select id="terminalAlertCondition" data-alert-condition></select></div>
+                    <div class="alert-field full"><label for="terminalAlertTarget">Monitoring Target</label><input id="terminalAlertTarget" data-alert-target readonly><small>This Terminal is preselected. Create Store rules in the Alert Center.</small></div>
+                    <div class="alert-condition-fields" data-alert-condition-fields></div>
+                    <div class="alert-step"><span>2</span><div><strong>Confirm coverage</strong><small data-alert-coverage>1 eligible Terminal · dynamic capability checks enabled</small></div></div>
+                    <div class="alert-coverage-card" data-alert-coverage-card></div>
+                    <div class="alert-step"><span>3</span><div><strong>Choose notifications</strong><small>Opening and Recovery are sent by default.</small></div></div>
+                    <fieldset class="alert-channel-group"><legend>Channels</legend><label><input type="checkbox" value="Portal Inbox" data-alert-channel checked> Portal Inbox</label><label><input type="checkbox" value="Email" data-alert-channel> Email</label></fieldset>
+                    <div class="alert-field full"><label for="terminalAlertPortalUser">Verified portal user</label><div class="alert-inline-field"><select id="terminalAlertPortalUser" data-alert-portal-recipient><option value="Alex Morgan (Store Manager)">Alex Morgan (Store Manager)</option><option value="Jamie Lee (Operations)">Jamie Lee (Operations)</option></select><button class="btn-secondary" type="button" data-alert-add-portal-recipient>Add portal user</button></div></div>
+                    <div class="alert-field full"><label for="terminalAlertRecipient">External email recipient</label><div class="alert-inline-field"><input id="terminalAlertRecipient" type="email" data-alert-recipient-input placeholder="name@example.com"><button class="btn-secondary" type="button" data-alert-add-recipient>Add recipient</button></div><div class="alert-recipient-tags" data-alert-recipient-tags></div><div class="alert-field-error" data-alert-recipient-error role="alert"></div></div>
+                    <label class="alert-check-row"><input type="checkbox" data-alert-repeat> Repeat while Open <select aria-label="Repeat interval" data-alert-repeat-interval disabled><option value="2">Every 2 hours</option><option value="4">Every 4 hours</option><option value="8">Every 8 hours</option></select></label>
+                </div>
+                <div class="alert-modal-actions"><button class="btn-secondary" type="button" data-alert-close>Cancel</button><button class="btn-primary" type="submit">Save Rule</button></div>
+            </form>
+        </section>
+    </div>
+    <div class="alert-modal-overlay" data-alert-incident-modal aria-hidden="true">
+        <section class="alert-modal alert-incident-dialog" role="dialog" aria-modal="true" aria-labelledby="terminalIncidentTitle">
+            <div class="alert-modal-head"><div><div class="alerts-eyebrow">INCIDENT TIMELINE</div><h2 id="terminalIncidentTitle" data-alert-incident-title>Alert Incident</h2></div><button class="alert-modal-close" type="button" aria-label="Close incident details" data-alert-incident-close>&times;</button></div>
+            <div class="alert-modal-body alert-incident-body" data-alert-incident-body></div>
+            <div class="alert-modal-actions"><button class="btn-secondary" type="button" data-alert-incident-close>Close</button></div>
+        </section>
+    </div>
 <script src="scripts/product-catalog.js"></script>
 <script src="scripts/pick-list.js"></script>
+<script src="scripts/customer-alerts.js" defer></script>
 <script>
     const terminalContext = (() => {
         const defaults = {
@@ -3195,6 +3282,7 @@
         document.title = `${context.terminalName} - Terminal Management`;
         return context;
     })();
+    window.terminalContext = terminalContext;
 
     (function(){
         'use strict';
@@ -3404,7 +3492,8 @@
             appfw: document.getElementById('tab-appfw'),
             push: document.getElementById('tab-push'),
             productmap: document.getElementById('tab-productmap'),
-            dex: document.getElementById('tab-dex')
+            dex: document.getElementById('tab-dex'),
+            alerts: document.getElementById('tab-alerts')
         };
 
         function showTab(key, updateUrl) {

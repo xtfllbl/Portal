@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alert Center | Paywizard Portal</title>
+  <link rel="stylesheet" href="styles/na-theme.css">
+  <link rel="stylesheet" href="styles/customer-alerts.css">
+</head>
+<body class="alerts-shell">
+  <header class="top-header">
+    <div class="shell-brand"><div class="shell-brand-logo">PW</div><div>Paywizard Console</div></div>
+    <div class="shell-header-actions">
+      <button class="shell-icon-button" aria-label="Notifications"><span>!</span><span class="badge">5</span></button>
+      <button class="shell-icon-button" aria-label="Settings">*</button>
+      <div class="shell-user-chip"><div class="shell-user-avatar">R</div><span>robasz</span></div>
+    </div>
+  </header>
+
+  <div class="main-body">
+    <aside class="sidebar" aria-label="Portal navigation">
+      <div class="sidebar-brand"><strong>PAYwizard</strong><span>portal</span></div>
+      <nav class="nav-card">
+        <div class="menu-item">Dashboard</div>
+        <div class="menu-item">Transactions</div>
+        <div class="menu-item">Batches</div>
+        <div class="menu-item">Security</div>
+        <div class="menu-item">Agents <span aria-hidden="true">&gt;</span></div>
+        <div class="menu-item">Merchants <span aria-hidden="true">&gt;</span></div>
+        <div class="menu-item">Partners <span aria-hidden="true">&gt;</span></div>
+        <div class="menu-item">Device Management <span aria-hidden="true">&gt;</span></div>
+        <div class="menu-item">APP Management</div>
+        <div class="menu-item">User Management <span aria-hidden="true">&gt;</span></div>
+        <div class="menu-item active">Settings <span aria-hidden="true">v</span></div>
+        <div class="sub-menu">
+          <a class="sub-item active" href="39.customer_alerts.html" aria-current="page">Alerts</a>
+          <a class="sub-item" href="#">Branding</a>
+          <a class="sub-item" href="#">Payment Channels</a>
+          <a class="sub-item" href="35.product_management.html">Products</a>
+        </div>
+      </nav>
+    </aside>
+
+    <div class="workspace">
+      <main class="alert-center-main" data-alert-page="center">
+        <div class="crumbs">SETTINGS &gt; <span>ALERTS</span></div>
+        <section class="alert-center-hero">
+          <div class="alerts-page-head">
+            <div>
+              <div class="alerts-eyebrow">CUSTOMER OPERATIONS</div>
+              <h1>Alert Center</h1>
+              <p>Respond to visible incidents across your permitted Stores and Terminals, and manage Alert Rules owned by 1 of a Kind World Travel LLC.</p>
+            </div>
+            <button class="btn-primary" type="button" data-alert-create>Create Alert Rule</button>
+          </div>
+        </section>
+
+        <section class="alert-kpi-grid" aria-label="Alert summary">
+          <article class="alert-kpi-card"><span>Open</span><strong data-alert-count="open">0</strong><small>Needs response</small></article>
+          <article class="alert-kpi-card"><span>Acknowledged</span><strong data-alert-count="acknowledged">0</strong><small>Seen, not recovered</small></article>
+          <article class="alert-kpi-card"><span>Resolved</span><strong data-alert-count="resolved">0</strong><small>Last 30 days</small></article>
+          <article class="alert-kpi-card"><span>Active Rules</span><strong data-alert-count="rules">0</strong><small>Owned by this organization</small></article>
+        </section>
+
+        <section class="alert-center-card">
+          <div class="alert-center-view-tabs" role="tablist" aria-label="Alert Center views">
+            <button class="alert-center-view-tab active" type="button" role="tab" aria-selected="true" aria-controls="alertCenterIncidents" data-alert-view-tab="incidents">Visible Incidents</button>
+            <button class="alert-center-view-tab" type="button" role="tab" aria-selected="false" aria-controls="alertCenterRules" data-alert-view-tab="rules">Alert Rules</button>
+          </div>
+
+          <div class="alert-center-toolbar">
+            <div class="alert-filter-group">
+              <input type="search" aria-label="Search alerts" placeholder="Search condition, Store or Terminal" data-alert-search>
+              <select aria-label="Incident state" data-alert-state-filter><option value="all">All states</option><option>Open</option><option>Acknowledged</option><option>Resolved</option></select>
+              <select aria-label="Store" data-alert-store-filter><option value="all">All Stores</option><option>Midtown Store</option><option>Boston Office</option></select>
+              <select aria-label="Terminal" data-alert-terminal-filter><option value="all">All Terminals</option><option value="WP6267UQ36002376">Terminal - WP6267UQ36002376</option><option value="NYC-Q3-0042">Lobby Vending Q3</option><option value="NYC-Q3-0043">Breakroom Cooler Q3</option><option value="BOS-Q3-0018">Cafeteria Q3</option></select>
+              <select aria-label="Condition" data-alert-condition-filter><option value="all">All conditions</option><option value="opc_offline">OPC Offline</option><option value="no_approved_transaction">No Approved Transaction</option><option value="machine_stock">Machine Stock Below % PAR</option><option value="any_bin">Any BIN Below Quantity</option><option value="selected_product">Selected Product / BIN Below % PAR</option><option value="sold_out">Sold Out</option><option value="temperature_range">Temperature Out of Range</option><option value="refrigeration_fault">Refrigeration Fault</option><option value="temperature_unavailable">Temperature Data Unavailable</option></select>
+              <select aria-label="Source" data-alert-source-filter><option value="all">All sources</option><option>My organization</option><option>Customer Alert · Managed by Service Provider</option><option>Platform-managed Alert</option></select>
+            </div>
+            <span class="alerts-page-copy">Role scope: Merchant Admin · Manage Alerts</span>
+          </div>
+
+          <div id="alertCenterIncidents" class="alert-center-panel" role="tabpanel" data-alert-view-panel="incidents">
+            <div class="alerts-table-wrap">
+              <table class="table alerts-table">
+                <thead><tr><th>State</th><th>Condition / Target</th><th>Observed evidence</th><th>Opened</th><th>Source</th><th>Action</th></tr></thead>
+                <tbody data-alert-incidents></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="alertCenterRules" class="alert-center-panel hidden" role="tabpanel" data-alert-view-panel="rules">
+            <div class="alerts-section-head"><div><h3>Organization-owned Alert Rules</h3><p>Higher-level and Platform-managed rule definitions are not shown.</p></div></div>
+            <div class="alerts-table-wrap">
+              <table class="table alerts-table">
+                <thead><tr><th>Condition / Target</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
+                <tbody data-alert-rules></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="alert-modal-overlay" data-alert-modal aria-hidden="true">
+    <section class="alert-modal" role="dialog" aria-modal="true" aria-labelledby="centerAlertRuleDialogTitle">
+      <form data-alert-form novalidate>
+        <div class="alert-modal-head">
+          <div><div class="alerts-eyebrow">GUIDED RULE SETUP</div><h2 id="centerAlertRuleDialogTitle">Create Alert Rule</h2></div>
+          <button class="alert-modal-close" type="button" aria-label="Close" data-alert-close>&times;</button>
+        </div>
+        <div class="alert-modal-body">
+          <div class="alert-step"><span>1</span><div><strong>Choose one condition and target</strong><small>One rule monitors one Store or one Terminal.</small></div></div>
+          <div class="alert-field full"><label for="centerAlertCondition">Condition</label><select id="centerAlertCondition" data-alert-condition></select></div>
+          <div class="alert-field full"><label for="centerAlertTarget">Monitoring Target</label><select id="centerAlertTarget" data-alert-target><option value="Store|s-midtown|Midtown Store">Store · Midtown Store (3 Terminals)</option><option value="Store|s-boston|Boston Office">Store · Boston Office (1 Terminal)</option><option value="Terminal|WP6267UQ36002376|Terminal - WP6267UQ36002376">Terminal · WP6267UQ36002376</option><option value="Terminal|NYC-Q3-0042|Lobby Vending Q3">Terminal · Lobby Vending Q3</option><option value="Terminal|NYC-Q3-0043|Breakroom Cooler Q3">Terminal · Breakroom Cooler Q3</option><option value="Terminal|BOS-Q3-0018|Cafeteria Q3">Terminal · Cafeteria Q3</option></select><small>Store targets follow current membership; Terminal targets follow the selected Terminal.</small></div>
+          <div class="alert-condition-fields" data-alert-condition-fields></div>
+          <div class="alert-step"><span>2</span><div><strong>Review coverage</strong><small data-alert-coverage>Current Store membership checked</small></div></div>
+          <div class="alert-coverage-card" data-alert-coverage-card></div>
+          <div class="alert-step"><span>3</span><div><strong>Choose notifications</strong><small>Opening and Recovery are sent by default.</small></div></div>
+          <fieldset class="alert-channel-group"><legend>Channels</legend><label><input type="checkbox" value="Portal Inbox" data-alert-channel checked> Portal Inbox</label><label><input type="checkbox" value="Email" data-alert-channel> Email</label></fieldset>
+          <div class="alert-field full"><label for="centerAlertPortalUser">Verified portal user</label><div class="alert-inline-field"><select id="centerAlertPortalUser" data-alert-portal-recipient><option value="Alex Morgan (Store Manager)">Alex Morgan (Store Manager)</option><option value="Jamie Lee (Operations)">Jamie Lee (Operations)</option></select><button class="btn-secondary" type="button" data-alert-add-portal-recipient>Add portal user</button></div></div>
+          <div class="alert-field full"><label for="centerAlertRecipient">External email recipient</label><div class="alert-inline-field"><input id="centerAlertRecipient" type="email" data-alert-recipient-input placeholder="name@example.com"><button class="btn-secondary" type="button" data-alert-add-recipient>Add recipient</button></div><div class="alert-recipient-tags" data-alert-recipient-tags></div><div class="alert-field-error" data-alert-recipient-error role="alert"></div></div>
+          <label class="alert-check-row"><input type="checkbox" data-alert-repeat> Repeat while Open <select aria-label="Repeat interval" data-alert-repeat-interval disabled><option value="2">Every 2 hours</option><option value="4">Every 4 hours</option><option value="8">Every 8 hours</option></select></label>
+        </div>
+        <div class="alert-modal-actions"><button class="btn-secondary" type="button" data-alert-close>Cancel</button><button class="btn-primary" type="submit">Save Rule</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="alert-modal-overlay" data-alert-incident-modal aria-hidden="true">
+    <section class="alert-modal alert-incident-dialog" role="dialog" aria-modal="true" aria-labelledby="centerIncidentTitle">
+      <div class="alert-modal-head"><div><div class="alerts-eyebrow">INCIDENT TIMELINE</div><h2 id="centerIncidentTitle" data-alert-incident-title>Alert Incident</h2></div><button class="alert-modal-close" type="button" aria-label="Close incident details" data-alert-incident-close>&times;</button></div>
+      <div class="alert-modal-body alert-incident-body" data-alert-incident-body></div>
+      <div class="alert-modal-actions"><button class="btn-secondary" type="button" data-alert-incident-close>Close</button></div>
+    </section>
+  </div>
+  <script src="scripts/customer-alerts.js"></script>
+</body>
+</html>
