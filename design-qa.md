@@ -1,3 +1,95 @@
+# Design QA — Alerts Monitoring Target refactor
+
+- Source visual truth: Monitor Range in `32.sla_alert_rules.html`; the existing compact Alerts dialog treatment for field density and fixed actions
+- Implementation: Terminal and Alert Center Create/Edit Alert Rule dialogs in `1.terminalmanage_nayax.html` and `39.customer_alerts.html`
+- States reviewed: fixed Terminal target, incomplete Alert Center range, Merchant/Store/Terminal scopes, direct-provider agent, capability-supported and unsupported targets, historical unmatched target, and mobile dialog scrolling
+- Viewports and density: 1440 × 900 and 390 × 844 CSS px at 1×; existing 2048 × 1049 page comparisons remain valid because the surrounding shells were not changed
+
+## Comparison evidence
+
+- SLA Monitor Range and final Alert Center dialog combined at the same viewport: `/tmp/qa4-compare-range-1440.png`
+- Source capture: `/tmp/qa4-source-sla-modal-1440.png`
+- Alert Center captures: `/tmp/qa4-center-modal-1440.png`, `/tmp/qa4-center-modal-390.png`
+- Final Terminal captures: `/tmp/qa4-terminal-modal-1440-final.png`, `/tmp/qa4-terminal-modal-390-final.png`
+
+The reference and implementation were combined before judgment. The Alert Center retains the SLA range hierarchy and two-column rhythm while using the existing Alerts step markers, compact fields, and fixed footer.
+
+## Visual and interaction review
+
+- Terminal dialogs no longer render a Monitoring Target field. The current SN is aligned with the condition-step title on desktop and wraps below it on mobile without becoming a second field.
+- Alert Center starts with Service Provider, Agent, Monitor Scope, Merchant, Store, and Terminal. Merchant/Store/Terminal scopes progressively collapse downstream controls to All stores or All terminals.
+- The center dialog is 860 px on desktop and a single scrollable column on mobile. The Terminal dialog remains 680 px. Both retain visible fixed footers and equal mobile actions.
+- `Portal Alerts` is the only visible portal-channel name; the compatible stored value remains `Portal Inbox`.
+- No subtitles or table-cell secondary lines were introduced. Capability coverage remains a visually hidden live status.
+- Browser captures reported no document-level horizontal overflow and no page or console errors.
+
+## Verification
+
+- Alerts E2E: 5/5 passed, including hierarchy reset, all three scopes, dynamic Merchant capability aggregation, edit backfill, unknown historical targets, permissions, persistence, and responsive geometry.
+- Alerts plus Terminal Type, DEX, and Product Map regression: 19/28 passed. The nine failures are the unchanged stale DEX/Product Map baseline expectations.
+- Full E2E: 112/125 passed. The 13 failures are the same existing four DEX, five Product Map, one Merchant Onboarding, and three Partner Information baseline failures; none target Alerts.
+- Static checks: `node --check scripts/customer-alerts.js` and `git diff --check` passed.
+
+## Iteration history
+
+- Pass 1: implemented the full cascade, target-scope persistence, reverse resolution, display-name compatibility, and responsive layouts.
+- Pass 2: combined the SLA and Alerts captures and found that the generic step-number selector was also styling the SN context as a black circle.
+- Pass 3: narrowed the selector to the first step span, recaptured desktop and mobile Terminal dialogs, and confirmed no remaining actionable P0, P1, or P2 defects.
+
+## Findings
+
+No actionable P0, P1, or P2 issues remain for the Monitoring Target refactor.
+
+final result: passed
+
+---
+
+# Design QA — Alerts tab and notification refinement
+
+- Source visual truth: Product Map in `1.terminalmanage_nayax.html` for Terminal content rhythm; DEX Settings for dialog geometry; `38.Merchant_onboard.html` for the portal shell
+- Implementation: the Alerts tab in `1.terminalmanage_nayax.html`, `39.customer_alerts.html`, `styles/customer-alerts.css`, and `scripts/customer-alerts.js`
+- States reviewed: Terminal incident tab, Terminal rule tab, Terminal Create Alert Rule dialog, central incident view, and central mobile dialog
+- Viewports and density: 2048 × 1049, 1440 × 900, and 390 × 844 CSS px at 1×
+
+## Comparison evidence
+
+- Terminal Alerts against Product Map: `/tmp/qa3-compare-terminal-2048.png`
+- Alert dialog against DEX Settings: `/tmp/qa3-compare-modal-1440.png`
+- Alert Center against Merchant Onboarding: `/tmp/qa3-compare-center-2048.png`
+- Mobile Alert Center against Merchant Onboarding: `/tmp/qa3-compare-center-390.png`
+- Final implementation captures: `/tmp/qa3-terminal-incidents-2048.png`, `/tmp/qa3-terminal-rules-1440.png`, `/tmp/qa3-terminal-modal-1440.png`, `/tmp/qa3-center-2048.png`, `/tmp/qa3-center-390.png`, `/tmp/qa3-center-modal-390.png`
+
+The source and implementation captures were combined at matching viewport sizes before judgment. The focused dialog comparison verifies density, control alignment, footer geometry, and the removal of the portal-user row.
+
+## Visual and interaction review
+
+- Open Alert Center now has no underline in default, visited, hover, or focus states and retains the Product Map secondary-button geometry.
+- Terminal incidents and rules are mutually exclusive Tab panels. The active Tab uses the existing Alerts tab treatment, while the table remains the only bordered data surface.
+- The Terminal incident table no longer exposes the organization/source column. The central page preserves provenance with shorter account, service-provider, and platform labels while retaining the original stored values for filtering.
+- The verified portal-user selector and Add portal user action are absent from both dialogs. Portal Inbox now targets the role account inbox directly; Email continues to require and validate an external recipient.
+- Dialog width is 680 px on desktop; its header, body gaps, controls, channels, and recipient action are more compact. Desktop footer actions remain 112 × 36 px and mobile footer actions remain equal width.
+- Rule creation/editing, permission checks, capability-disabled Save, incident acknowledgement, timeline, shared state, filtering, Escape, and focus restoration remain functional.
+- No document-level horizontal overflow was observed at 390 px. Browser capture reported no page or console errors.
+
+## Verification
+
+- Alerts E2E: 4/4 passed.
+- Alerts plus Terminal Type regression: 8/8 passed.
+- Static checks: `node --check scripts/customer-alerts.js` and `git diff --check` passed.
+
+## Iteration history
+
+- Pass 1: removed the link underline, introduced Terminal incident/rule Tabs, removed the user-specific Portal Inbox controls, and compacted the dialog.
+- Pass 2: reviewed matching combined captures, shortened central provenance labels, removed Terminal provenance, and confirmed no remaining actionable P0, P1, or P2 visual defects.
+
+## Findings
+
+No actionable P0, P1, or P2 issues remain for this refinement.
+
+final result: passed
+
+---
+
 # Design QA — Merchant Terminal Pre-binding
 
 - Source visual truth: `artifacts/tci-binding/replace-terminal-desktop.png` and the existing Merchant Detail settings menu

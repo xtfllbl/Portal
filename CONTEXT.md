@@ -17,7 +17,7 @@ A single monitored condition applied to a single Monitoring Target, including th
 _Avoid_: Multi-condition rule, Alert Incident
 
 **Monitoring Target**:
-The resource whose state an Alert Rule evaluates; the first customer-alert release supports a Store or one Terminal.
+The resource whose state an Alert Rule evaluates; Customer Alerts supports a Merchant, a Store, or one Terminal.
 _Avoid_: Recipient, Rule Owner
 
 **Rule Owner**:
@@ -31,6 +31,10 @@ _Avoid_: Rule Owner
 **Dynamic Store Target**:
 A Store Monitoring Target that evaluates each terminal currently assigned to the Store, automatically includes future assignments, and stops evaluating terminals removed from the Store.
 _Avoid_: Terminal snapshot, Store inventory aggregate
+
+**Dynamic Merchant Target**:
+A Merchant Monitoring Target that evaluates each terminal currently assigned through any of the Merchant's Stores, automatically following future Store and Terminal assignments.
+_Avoid_: Merchant snapshot, fixed terminal list
 
 **Payment Service**:
 The terminal service channel that represents connectivity to OPC; its unavailability is the customer-relevant offline condition.

@@ -2864,22 +2864,21 @@
                         <a class="btn-secondary pm-map-menu-button alerts-command-link" href="39.customer_alerts.html?view=incidents">Open Alert Center</a>
                     </div>
 
-                    <div class="alerts-terminal-panel">
-                        <div class="alerts-section-head">
-                            <h3>Visible Incidents</h3>
-                        </div>
+                    <div class="alert-center-view-tabs alerts-terminal-tabs" role="tablist" aria-label="Terminal Alert views">
+                        <button class="alert-center-view-tab active" type="button" role="tab" aria-selected="true" aria-controls="terminalAlertIncidents" data-alert-view-tab="incidents">Visible Incidents</button>
+                        <button class="alert-center-view-tab" type="button" role="tab" aria-selected="false" aria-controls="terminalAlertRules" data-alert-view-tab="rules">Alert Rules</button>
+                    </div>
+
+                    <div id="terminalAlertIncidents" class="alerts-terminal-panel" role="tabpanel" data-alert-view-panel="incidents">
                         <div class="alerts-table-wrap">
                             <table class="table alerts-table">
-                                <thead><tr><th>State</th><th>Condition</th><th>Evidence</th><th>Opened</th><th>Source</th><th>Action</th></tr></thead>
+                                <thead><tr><th>State</th><th>Condition</th><th>Evidence</th><th>Opened</th><th>Action</th></tr></thead>
                                 <tbody data-alert-incidents></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="alerts-terminal-panel">
-                        <div class="alerts-section-head">
-                            <h3>Alert Rules</h3>
-                        </div>
+                    <div id="terminalAlertRules" class="alerts-terminal-panel hidden" role="tabpanel" data-alert-view-panel="rules">
                         <div class="alerts-table-wrap">
                             <table class="table alerts-table">
                                 <thead><tr><th>Condition</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
@@ -3180,15 +3179,14 @@
                     <button class="alert-modal-close" type="button" aria-label="Close" data-alert-close><img src="assets/icons/close.svg" alt="" aria-hidden="true"></button>
                 </div>
                 <div class="alert-modal-body">
-                    <div class="alert-step"><span>1</span><strong>Choose one condition</strong></div>
+                    <div class="alert-step"><span>1</span><strong>Choose one condition</strong><span class="alert-step-context">SN: <b data-alert-terminal-sn>WP6267UQ36002376</b></span></div>
                     <div class="alert-field full"><label for="terminalAlertCondition">Condition</label><select id="terminalAlertCondition" data-alert-condition></select></div>
-                    <div class="alert-field full"><label for="terminalAlertTarget">Monitoring Target</label><input id="terminalAlertTarget" data-alert-target readonly></div>
+                    <input id="terminalAlertTarget" type="hidden" value="WP6267UQ36002376" data-alert-target>
                     <div class="alert-condition-fields" data-alert-condition-fields></div>
                     <span class="sr-only" data-alert-coverage role="status" aria-live="polite">1 eligible Terminal · dynamic capability checks enabled</span>
                     <div class="sr-only" data-alert-coverage-card role="status" aria-live="polite"></div>
                     <div class="alert-step"><span>2</span><strong>Choose notifications</strong></div>
-                    <fieldset class="alert-channel-group"><legend>Channels</legend><label><input type="checkbox" value="Portal Inbox" data-alert-channel checked> Portal Inbox</label><label><input type="checkbox" value="Email" data-alert-channel> Email</label></fieldset>
-                    <div class="alert-field full"><label for="terminalAlertPortalUser">Verified portal user</label><div class="alert-inline-field"><select id="terminalAlertPortalUser" data-alert-portal-recipient><option value="Alex Morgan (Store Manager)">Alex Morgan (Store Manager)</option><option value="Jamie Lee (Operations)">Jamie Lee (Operations)</option></select><button class="btn-secondary" type="button" data-alert-add-portal-recipient>Add portal user</button></div></div>
+                    <fieldset class="alert-channel-group"><legend>Channels</legend><label><input type="checkbox" value="Portal Inbox" data-alert-channel checked> Portal Alerts</label><label><input type="checkbox" value="Email" data-alert-channel> Email</label></fieldset>
                     <div class="alert-field full"><label for="terminalAlertRecipient">External email recipient</label><div class="alert-inline-field"><input id="terminalAlertRecipient" type="email" data-alert-recipient-input placeholder="name@example.com"><button class="btn-secondary" type="button" data-alert-add-recipient>Add recipient</button></div><div class="alert-recipient-tags" data-alert-recipient-tags></div><div class="alert-field-error" data-alert-recipient-error role="alert"></div></div>
                     <label class="alert-check-row"><input type="checkbox" data-alert-repeat> Repeat while Open <select aria-label="Repeat interval" data-alert-repeat-interval disabled><option value="2">Every 2 hours</option><option value="4">Every 4 hours</option><option value="8">Every 8 hours</option></select></label>
                 </div>

@@ -18,12 +18,70 @@
     temperature_unavailable: { label: "Temperature Data Unavailable", hint: "Expected signal becomes stale or faulty", criteria: "Temperature data exceeds expected freshness", fields: [] }
   };
 
-  const terminalCapabilities = {
-    WP6267UQ36002376: { name: "Terminal - WP6267UQ36002376", storeId: "s-midtown", temperature: ["temperature_range", "refrigeration_fault", "temperature_unavailable"] },
-    "NYC-Q3-0042": { name: "Lobby Vending Q3", storeId: "s-midtown", temperature: [] },
-    "NYC-Q3-0043": { name: "Breakroom Cooler Q3", storeId: "s-midtown", temperature: ["temperature_range", "temperature_unavailable"] },
-    "BOS-Q3-0018": { name: "Cafeteria Q3", storeId: "s-boston", temperature: ["temperature_range", "refrigeration_fault", "temperature_unavailable"] }
-  };
+  const fullTemperatureCapabilities = ["temperature_range", "refrigeration_fault", "temperature_unavailable"];
+  const monitoringHierarchy = [
+    {
+      id: "sp-universal", name: "Universal Processing", agents: [], merchants: [
+        { id: "merchant-kind-world", name: "1 of a Kind World Travel LLC", stores: [
+          { id: "s-midtown", name: "Midtown Store", terminals: [
+            { id: "WP6267UQ36002376", name: "Terminal - WP6267UQ36002376", temperature: fullTemperatureCapabilities },
+            { id: "NYC-Q3-0042", name: "Lobby Vending Q3", temperature: [] },
+            { id: "NYC-Q3-0043", name: "Breakroom Cooler Q3", temperature: ["temperature_range", "temperature_unavailable"] }
+          ] },
+          { id: "s-boston", name: "Boston Office", terminals: [
+            { id: "BOS-Q3-0018", name: "Cafeteria Q3", temperature: fullTemperatureCapabilities }
+          ] }
+        ] }
+      ]
+    },
+    {
+      id: "sp-eu-direct", name: "Europe Direct", agents: [], merchants: [
+        { id: "demo-cafe-berlin", name: "Demo Cafe Berlin", stores: [
+          { id: "berlin-mitte", name: "Berlin Mitte", terminals: [
+            { id: "WP44907Q33200398", name: "Retail shop T1", temperature: fullTemperatureCapabilities },
+            { id: "WP44907Q33200412", name: "Retail shop T2", temperature: ["temperature_range", "temperature_unavailable"] }
+          ] }
+        ] }
+      ]
+    },
+    {
+      id: "sp-north-america", name: "North America Ops", agents: [
+        { id: "agent-seattle", name: "Seattle Field Agent", merchants: [
+          { id: "seattle-central", name: "Seattle Central", stores: [
+            { id: "ev-charger-hub", name: "EV Charger Hub", terminals: [
+              { id: "WP7300EV33001088", name: "EV Charger Bay 07", temperature: fullTemperatureCapabilities }
+            ] }
+          ] }
+        ] },
+        { id: "agent-waou", name: "Waou Distribution", merchants: [
+          { id: "waou-terminal", name: "Waou Terminal", stores: [
+            { id: "waou-main", name: "Waou Main Store", terminals: [
+              { id: "WP52205Q33000977", name: "Waou Terminal 01", temperature: fullTemperatureCapabilities },
+              { id: "WP52205Q33000981", name: "Waou Terminal 05", temperature: [] }
+            ] }
+          ] }
+        ] }
+      ], merchants: []
+    },
+    {
+      id: "sp-poland", name: "Poland Service Hub", agents: [], merchants: [
+        { id: "cartpoland-01", name: "CARTPOLAND-01", stores: [
+          { id: "warsaw-vending", name: "Warsaw Vending Area", terminals: [
+            { id: "WP2013Q321000014", name: "Vending Machine 04", temperature: [] },
+            { id: "WP2013Q321000018", name: "Vending Machine 08", temperature: ["temperature_range", "temperature_unavailable"] }
+          ] }
+        ] }
+      ]
+    }
+  ];
+
+  const terminalCapabilities = {};
+  monitoringHierarchy.forEach((provider) => {
+    const merchantGroups = provider.agents.length ? provider.agents.map((agent) => agent.merchants) : [provider.merchants];
+    merchantGroups.flat().forEach((merchant) => merchant.stores.forEach((store) => store.terminals.forEach((terminal) => {
+      terminalCapabilities[terminal.id] = { name: terminal.name, storeId: store.id, temperature: terminal.temperature || [] };
+    })));
+  });
 
   const nowLabel = "2026-08-28 10:42";
   const defaultState = () => ({
@@ -40,6 +98,40 @@
 
   const escapeHtml = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const recipeFor = (key) => recipes[key] || recipes.opc_offline;
+  const notificationLabel = (value) => value === "Portal Inbox" ? "Portal Alerts" : value;
+  const sourceLabel = (source) => ({
+    "My organization": "Account rule",
+    "Customer Alert · Managed by Service Provider": "Service provider rule",
+    "Platform-managed Alert": "Platform rule"
+  }[source] || source);
+
+  function providerFor(id) { return monitoringHierarchy.find((provider) => provider.id === id) || null; }
+  function agentFor(providerId, agentId) { return providerFor(providerId)?.agents.find((agent) => agent.id === agentId) || null; }
+  function merchantsFor(providerId, agentId) {
+    const provider = providerFor(providerId);
+    if (!provider) return [];
+    return provider.agents.length ? (agentFor(providerId, agentId)?.merchants || []) : provider.merchants;
+  }
+  function merchantFor(providerId, agentId, merchantId) { return merchantsFor(providerId, agentId).find((merchant) => merchant.id === merchantId) || null; }
+  function storeFor(providerId, agentId, merchantId, storeId) { return merchantFor(providerId, agentId, merchantId)?.stores.find((store) => store.id === storeId) || null; }
+  function terminalFor(providerId, agentId, merchantId, storeId, terminalId) { return storeFor(providerId, agentId, merchantId, storeId)?.terminals.find((terminal) => terminal.id === terminalId) || null; }
+  function findTargetPath(targetType, targetId) {
+    for (const provider of monitoringHierarchy) {
+      const agents = provider.agents.length ? provider.agents : [null];
+      for (const agent of agents) {
+        const merchants = agent ? agent.merchants : provider.merchants;
+        for (const merchant of merchants) {
+          if (targetType === "Merchant" && merchant.id === targetId) return { provider, agent, merchant, store: null, terminal: null };
+          for (const store of merchant.stores) {
+            if (targetType === "Store" && store.id === targetId) return { provider, agent, merchant, store, terminal: null };
+            const terminal = store.terminals.find((item) => item.id === targetId);
+            if (targetType === "Terminal" && terminal) return { provider, agent, merchant, store, terminal };
+          }
+        }
+      }
+    }
+    return null;
+  }
   function readState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -90,16 +182,17 @@
     const items = visibleIncidents();
     body.innerHTML = items.length ? items.map((item) => {
       const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.terminalName)} · ${escapeHtml(item.store)}</td>` : "";
+      const sourceCell = pageType === "center" ? `<td><span class="alert-source">${escapeHtml(sourceLabel(item.source))}</span></td>` : "";
       const opened = `${escapeHtml(item.opened)}${item.duration ? ` · ${escapeHtml(item.duration)}` : ""}`;
       return `
         <tr data-incident-id="${escapeHtml(item.id)}">
           <td><span class="alert-status ${item.state.toLowerCase()}">${escapeHtml(item.state)}</span></td>
           <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
           ${targetCell}
-          <td>${escapeHtml(item.evidence)}</td><td>${opened}</td><td><span class="alert-source">${escapeHtml(item.source)}</span></td>
+          <td>${escapeHtml(item.evidence)}</td><td>${opened}</td>${sourceCell}
           <td>${item.state === "Open" ? `<button class="alert-table-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}">Acknowledge</button>` : ""}<button class="alert-table-button" type="button" data-alert-view="${escapeHtml(item.id)}">View timeline</button></td>
         </tr>`;
-    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 6}">No incidents match the current filters.</td></tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 5}">No incidents match the current filters.</td></tr>`;
   }
 
   function renderRules() {
@@ -110,7 +203,7 @@
       <tr data-rule-id="${escapeHtml(item.id)}">
         <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
         ${pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.targetType)} · ${escapeHtml(item.targetName)}</td>` : ""}
-        <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
+        <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.map(notificationLabel).join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
         <td>${canManageAlerts ? `<button class="alert-table-button" type="button" data-alert-toggle="${escapeHtml(item.id)}">${item.status === "Active" ? "Pause" : "Resume"}</button><button class="alert-table-button" type="button" data-alert-edit="${escapeHtml(item.id)}">Edit</button>` : '<span class="alerts-page-copy">View only</span>'}</td>
       </tr>`).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 6}">No organization-owned rules match this context.</td></tr>`;
   }
@@ -136,12 +229,136 @@
   const saveButton = modal.querySelector('[type="submit"]');
   const repeat = modal.querySelector("[data-alert-repeat]");
   const repeatInterval = modal.querySelector("[data-alert-repeat-interval]");
-  const portalRecipient = modal.querySelector("[data-alert-portal-recipient]");
+  const providerSelect = modal.querySelector("[data-alert-provider]");
+  const agentSelect = modal.querySelector("[data-alert-agent]");
+  const scopeSelect = modal.querySelector("[data-alert-scope]");
+  const merchantSelect = modal.querySelector("[data-alert-merchant]");
+  const storeSelect = modal.querySelector("[data-alert-store]");
+  const terminalSelect = modal.querySelector("[data-alert-terminal]");
+  const targetError = modal.querySelector("[data-alert-target-error]");
   const incidentModal = document.querySelector("[data-alert-incident-modal]");
 
   surface.querySelectorAll("[data-alert-create]").forEach((button) => { if (!canManageAlerts) button.hidden = true; });
 
   conditionSelect.innerHTML = Object.entries(recipes).map(([key, recipe]) => `<option value="${key}">${escapeHtml(recipe.label)}</option>`).join("");
+  modal.querySelectorAll("[data-alert-terminal-sn]").forEach((node) => { node.textContent = terminalId; });
+
+  function setSelectOptions(select, placeholder, items, selectedValue = "") {
+    if (!select) return;
+    select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` + items.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selectedValue ? " selected" : ""}>${escapeHtml(item.name)}</option>`).join("");
+    select.value = selectedValue;
+  }
+
+  function populateProviders(selectedValue = "") {
+    setSelectOptions(providerSelect, "Select service provider", monitoringHierarchy, selectedValue);
+  }
+
+  function populateAgents(selectedValue = "") {
+    const provider = providerFor(providerSelect?.value);
+    if (!agentSelect) return;
+    agentSelect.required = Boolean(provider?.agents.length);
+    if (!provider) {
+      setSelectOptions(agentSelect, "Select service provider first", []);
+      agentSelect.disabled = true;
+    } else if (!provider.agents.length) {
+      setSelectOptions(agentSelect, "No agent required", []);
+      agentSelect.disabled = true;
+    } else {
+      setSelectOptions(agentSelect, "Select agent", provider.agents, selectedValue);
+      agentSelect.disabled = false;
+    }
+  }
+
+  function populateMerchants(selectedValue = "") {
+    if (!merchantSelect) return;
+    const provider = providerFor(providerSelect?.value);
+    const agentId = agentSelect?.disabled ? "" : agentSelect?.value;
+    const items = merchantsFor(provider?.id, agentId);
+    const ready = Boolean(provider && (!provider.agents.length || agentId));
+    setSelectOptions(merchantSelect, ready ? "Select merchant" : "Select previous level first", ready ? items : [], selectedValue);
+    merchantSelect.disabled = !ready;
+  }
+
+  function populateStores(selectedValue = "") {
+    if (!storeSelect) return;
+    const agentId = agentSelect?.disabled ? "" : agentSelect?.value;
+    const merchant = merchantFor(providerSelect?.value, agentId, merchantSelect?.value);
+    setSelectOptions(storeSelect, merchant ? "Select store" : "Select merchant first", merchant?.stores || [], selectedValue);
+    storeSelect.disabled = !merchant;
+  }
+
+  function populateTerminals(selectedValue = "") {
+    if (!terminalSelect) return;
+    const agentId = agentSelect?.disabled ? "" : agentSelect?.value;
+    const store = storeFor(providerSelect?.value, agentId, merchantSelect?.value, storeSelect?.value);
+    setSelectOptions(terminalSelect, store ? "Select terminal" : "Select store first", store?.terminals || [], selectedValue);
+    terminalSelect.disabled = !store;
+  }
+
+  function rangeMetadata() {
+    if (pageType !== "center") return null;
+    const providerId = providerSelect?.value;
+    const provider = providerFor(providerId);
+    const agentId = agentSelect?.disabled ? "" : agentSelect?.value;
+    const merchant = merchantFor(providerId, agentId, merchantSelect?.value);
+    const type = scopeSelect?.value || "Terminal";
+    if (!provider || (provider.agents.length && !agentId) || !merchant) return null;
+    if (type === "Merchant") return { type, id: merchant.id, name: merchant.name };
+    const store = storeFor(providerId, agentId, merchant.id, storeSelect?.value);
+    if (!store) return null;
+    if (type === "Store") return { type, id: store.id, name: store.name };
+    const terminal = terminalFor(providerId, agentId, merchant.id, store.id, terminalSelect?.value);
+    return terminal ? { type: "Terminal", id: terminal.id, name: terminal.name } : null;
+  }
+
+  function syncScopeControls(selectedStoreId = "", selectedTerminalId = "") {
+    if (pageType !== "center") return;
+    const scope = scopeSelect.value || "Terminal";
+    const agentId = agentSelect.disabled ? "" : agentSelect.value;
+    const merchant = merchantFor(providerSelect.value, agentId, merchantSelect.value);
+    storeSelect.required = scope !== "Merchant";
+    terminalSelect.required = scope === "Terminal";
+    if (scope === "Merchant") {
+      setSelectOptions(storeSelect, "All stores", []);
+      setSelectOptions(terminalSelect, "All terminals", []);
+      storeSelect.disabled = true;
+      terminalSelect.disabled = true;
+    } else {
+      populateStores(selectedStoreId);
+      if (!merchant) {
+        setSelectOptions(terminalSelect, "Select store first", []);
+        terminalSelect.disabled = true;
+      } else if (scope === "Store") {
+        setSelectOptions(terminalSelect, "All terminals", []);
+        terminalSelect.disabled = true;
+      } else {
+        populateTerminals(selectedTerminalId);
+      }
+    }
+    updateRangeTarget();
+  }
+
+  function initializeRange(rule = null) {
+    if (pageType !== "center") return true;
+    const path = rule ? findTargetPath(rule.targetType, rule.targetId) : null;
+    populateProviders(path?.provider.id || "");
+    providerSelect.value = path?.provider.id || "";
+    populateAgents(path?.agent?.id || "");
+    if (path?.agent) agentSelect.value = path.agent.id;
+    populateMerchants(path?.merchant.id || "");
+    if (path?.merchant) merchantSelect.value = path.merchant.id;
+    scopeSelect.value = rule?.targetType && ["Merchant", "Store", "Terminal"].includes(rule.targetType) ? rule.targetType : "Terminal";
+    syncScopeControls(path?.store?.id || "", path?.terminal?.id || "");
+    if (rule && !path) {
+      targetError.textContent = `Saved target ${rule.targetName} is no longer available. Choose a monitoring range.`;
+      target.value = "";
+      conditionSelect.disabled = true;
+      conditionFields.innerHTML = "";
+      saveButton.disabled = true;
+      return false;
+    }
+    return Boolean(rangeMetadata());
+  }
 
   function fieldMarkup(field, current = {}) {
     const value = current[field.key] ?? field.value;
@@ -151,13 +368,25 @@
   }
 
   function renderConditionFields(current = {}) {
+    const selectedTarget = targetMetadata();
+    if (!selectedTarget) {
+      conditionFields.innerHTML = "";
+      coverage.textContent = "Select a monitoring range.";
+      coverageCard.textContent = "";
+      saveButton.disabled = true;
+      saveButton.title = "Choose a complete monitoring range.";
+      return;
+    }
     const recipe = recipeFor(conditionSelect.value);
     conditionFields.innerHTML = recipe.fields.length ? recipe.fields.map((field) => fieldMarkup(field, current)).join("") : "";
     const isTemperature = conditionSelect.value.startsWith("temperature") || conditionSelect.value === "refrigeration_fault";
-    const selectedTarget = targetMetadata();
-    const inventory = selectedTarget.type === "Store"
-      ? Object.entries(terminalCapabilities).filter(([, item]) => item.storeId === selectedTarget.id).map(([id, item]) => ({ id, ...item }))
-      : [{ id: selectedTarget.id, ...(terminalCapabilities[selectedTarget.id] || { name: selectedTarget.name, temperature: ["temperature_range", "refrigeration_fault", "temperature_unavailable"] }) }];
+    const path = findTargetPath(selectedTarget.type, selectedTarget.id);
+    let inventory = [];
+    if (selectedTarget.type === "Merchant" && path) inventory = path.merchant.stores.flatMap((store) => store.terminals);
+    else if (selectedTarget.type === "Store" && path) inventory = path.store.terminals;
+    else if (selectedTarget.type === "Terminal" && path) inventory = [path.terminal];
+    else if (selectedTarget.type === "Store") inventory = Object.entries(terminalCapabilities).filter(([, item]) => item.storeId === selectedTarget.id).map(([id, item]) => ({ id, ...item }));
+    else inventory = [{ id: selectedTarget.id, ...(terminalCapabilities[selectedTarget.id] || { name: selectedTarget.name, temperature: fullTemperatureCapabilities }) }];
     const eligible = isTemperature ? inventory.filter((item) => item.temperature.includes(conditionSelect.value)) : inventory;
     const unsupported = inventory.filter((item) => !eligible.includes(item));
     coverage.textContent = `${eligible.length} eligible Terminal${eligible.length === 1 ? "" : "s"} · ${unsupported.length} unsupported`;
@@ -181,16 +410,18 @@
     recipientInput.value = "";
     renderRecipientTags();
   }
-  function addPortalRecipient() {
-    const value = portalRecipient?.value;
-    if (value && !recipients.includes(value)) recipients.push(value);
-    renderRecipientTags();
-  }
-
   function targetMetadata() {
     if (pageType === "terminal") return { type: "Terminal", id: terminalId, name: terminalName };
-    const [type, id, name] = String(target.value).split("|");
-    return { type: type || "Store", id: id || "s-midtown", name: name || "Midtown Store" };
+    return rangeMetadata();
+  }
+
+  function updateRangeTarget() {
+    if (pageType !== "center") return;
+    const metadata = rangeMetadata();
+    target.value = metadata ? `${metadata.type}|${metadata.id}|${metadata.name}` : "";
+    targetError.textContent = "";
+    conditionSelect.disabled = Boolean(editingId) || !metadata;
+    renderConditionFields();
   }
 
   function openModal(ruleId) {
@@ -199,19 +430,26 @@
     const rule = editingId ? state.rules.find((item) => item.id === editingId) : null;
     modal.querySelector("h2").textContent = rule ? "Edit Alert Rule" : "Create Alert Rule";
     conditionSelect.value = rule?.condition || "opc_offline";
-    conditionSelect.disabled = Boolean(rule);
-    if (pageType === "terminal") target.value = terminalId;
-    else target.value = rule ? `${rule.targetType}|${rule.targetId}|${rule.targetName}` : "Store|s-midtown|Midtown Store";
-    recipients = rule ? rule.recipients.filter((item) => item !== "Portal Inbox") : ["Alex Morgan (Store Manager)"];
+    if (pageType === "terminal") {
+      target.value = terminalId;
+      conditionSelect.disabled = Boolean(rule);
+    } else {
+      conditionSelect.disabled = true;
+      initializeRange(rule);
+    }
+    modal.querySelectorAll("[data-alert-channel]").forEach((input) => {
+      input.checked = rule ? rule.channels.includes(input.value) : input.value === "Portal Inbox";
+    });
+    recipients = rule ? rule.recipients.filter((item) => item !== "Portal Inbox" && item.includes("@")) : [];
     renderRecipientTags();
-    renderConditionFields(rule?.parameters || {});
+    if (pageType === "terminal" || targetMetadata()) renderConditionFields(rule?.parameters || {});
     repeat.checked = Boolean(rule?.repeatHours);
     repeatInterval.disabled = !repeat.checked;
     repeatInterval.value = String(rule?.repeatHours || 2);
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    window.setTimeout(() => conditionSelect.focus(), 0);
+    window.setTimeout(() => (pageType === "center" ? providerSelect : conditionSelect).focus(), 0);
   }
   function closeModal() {
     modal.classList.remove("open");
@@ -229,11 +467,15 @@
     conditionFields.querySelectorAll("[data-alert-param]").forEach((field) => { parameters[field.dataset.alertParam] = field.type === "number" ? Number(field.value) : field.value; });
     const channels = [...modal.querySelectorAll("[data-alert-channel]:checked")].map((input) => input.value);
     if (!channels.length) { modal.querySelector("[data-alert-channel]").focus(); return; }
-    if (channels.includes("Portal Inbox") && !recipients.some((item) => !item.includes("@"))) { recipientError.textContent = "Add a verified portal user for Portal Inbox."; portalRecipient?.focus(); return; }
     if (channels.includes("Email") && !recipients.some((item) => item.includes("@"))) { recipientError.textContent = "Add an external email recipient for Email."; recipientInput.focus(); return; }
     const condition = conditionSelect.value;
     const existing = editingId ? state.rules.find((item) => item.id === editingId) : null;
     const monitoringTarget = targetMetadata();
+    if (!monitoringTarget) {
+      if (targetError) targetError.textContent = "Choose a complete monitoring range.";
+      providerSelect?.focus();
+      return;
+    }
     const rule = {
       id: existing?.id || `r-${Date.now()}`, condition, parameters,
       targetType: monitoringTarget.type, targetId: monitoringTarget.id,
@@ -255,7 +497,7 @@
         <div><span>State</span><strong>${escapeHtml(incident.state)}</strong></div>
         <div><span>Terminal</span><strong>${escapeHtml(incident.terminalName)}</strong></div>
         <div><span>Duration</span><strong>${escapeHtml(incident.duration || "Ongoing")}</strong></div>
-        <div><span>Source</span><strong>${escapeHtml(incident.source)}</strong></div>
+        ${pageType === "center" ? `<div><span>Source</span><strong>${escapeHtml(sourceLabel(incident.source))}</strong></div>` : ""}
       </div>
       <div class="alert-timeline">
         <div><span></span><p><strong>${escapeHtml(incident.opened)} · Opened</strong><span class="alert-timeline-evidence">${escapeHtml(incident.evidence)}</span></p></div>
@@ -295,9 +537,25 @@
   surface.addEventListener("input", (event) => { if (event.target.matches("[data-alert-search], [data-alert-state-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter], [data-alert-source-filter]")) renderAll(); });
   surface.addEventListener("change", (event) => { if (event.target.matches("[data-alert-state-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter], [data-alert-source-filter]")) renderAll(); });
   conditionSelect.addEventListener("change", () => renderConditionFields());
-  target.addEventListener("change", () => renderConditionFields());
+  if (pageType === "center") {
+    providerSelect.addEventListener("change", () => {
+      populateAgents();
+      populateMerchants();
+      syncScopeControls();
+    });
+    agentSelect.addEventListener("change", () => {
+      populateMerchants();
+      syncScopeControls();
+    });
+    merchantSelect.addEventListener("change", () => syncScopeControls());
+    scopeSelect.addEventListener("change", () => syncScopeControls());
+    storeSelect.addEventListener("change", () => {
+      if (scopeSelect.value === "Terminal") populateTerminals();
+      updateRangeTarget();
+    });
+    terminalSelect.addEventListener("change", updateRangeTarget);
+  }
   modal.querySelector("[data-alert-add-recipient]").addEventListener("click", addRecipient);
-  modal.querySelector("[data-alert-add-portal-recipient]")?.addEventListener("click", addPortalRecipient);
   recipientTags.addEventListener("click", (event) => { const remove = event.target.closest("[data-alert-remove-recipient]"); if (!remove) return; recipients.splice(Number(remove.dataset.alertRemoveRecipient), 1); renderRecipientTags(); });
   recipientInput.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); addRecipient(); } });
   repeat.addEventListener("change", () => { repeatInterval.disabled = !repeat.checked; });
