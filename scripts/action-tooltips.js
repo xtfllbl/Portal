@@ -53,6 +53,7 @@
   function show(target) {
     var text = getText(target);
     if (!text) return;
+    if (activeTarget && activeTarget !== target) hide(activeTarget);
     if (target.hasAttribute("title")) {
       target.dataset.nativeTitle = target.getAttribute("title");
       target.removeAttribute("title");
@@ -66,7 +67,13 @@
 
   function hide(target) {
     if (target && target !== activeTarget) return;
-    if (activeTarget) activeTarget.removeAttribute("aria-describedby");
+    if (activeTarget) {
+      activeTarget.removeAttribute("aria-describedby");
+      if (activeTarget.dataset.nativeTitle) {
+        activeTarget.setAttribute("title", activeTarget.dataset.nativeTitle);
+        delete activeTarget.dataset.nativeTitle;
+      }
+    }
     activeTarget = null;
     tooltip.classList.remove("is-visible");
   }

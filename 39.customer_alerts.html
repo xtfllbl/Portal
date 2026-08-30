@@ -59,37 +59,46 @@
             <div>
               <h1 class="alerts-page-title" id="alertsPageTitle">Alerts</h1>
             </div>
-            <button class="alert-btn dark" type="button" data-alert-create><span class="material-symbols-rounded" aria-hidden="true">add_alert</span>Create Alert Rule</button>
+            <div class="alerts-panel-actions">
+              <label class="alerts-role-switcher">
+                <span class="sr-only">View Alerts as</span>
+                <select aria-label="Alerts role" data-alert-role-switcher>
+                  <option value="service-provider">Service Provider · Universal Processing</option>
+                  <option value="agent">Agent · Seattle Field Agent</option>
+                  <option value="merchant">Merchant · 1 of a Kind World Travel LLC</option>
+                  <option value="store">Store · Midtown Store</option>
+                </select>
+              </label>
+              <button class="alert-btn dark" type="button" data-alert-create><span class="material-symbols-rounded" aria-hidden="true">add_alert</span>Create Alert Rule</button>
+            </div>
           </div>
 
-          <section class="alert-kpi-grid" aria-label="Alert summary">
-            <article class="alert-kpi-card"><span>Open</span><strong data-alert-count="open">0</strong></article>
-            <article class="alert-kpi-card"><span>Acknowledged</span><strong data-alert-count="acknowledged">0</strong></article>
-            <article class="alert-kpi-card"><span>Resolved</span><strong data-alert-count="resolved">0</strong></article>
+          <section class="alert-kpi-grid alert-kpi-grid-compact" aria-label="Alert summary">
+            <article class="alert-kpi-card"><span>Active Alerts</span><strong data-alert-count="active">0</strong></article>
             <article class="alert-kpi-card"><span>Active Rules</span><strong data-alert-count="rules">0</strong></article>
           </section>
 
           <section class="alert-center-card">
             <div class="alert-center-view-tabs" role="tablist" aria-label="Alert Center views">
-              <button class="alert-center-view-tab active" type="button" role="tab" aria-selected="true" aria-controls="alertCenterIncidents" data-alert-view-tab="incidents">Visible Incidents</button>
-              <button class="alert-center-view-tab" type="button" role="tab" aria-selected="false" aria-controls="alertCenterRules" data-alert-view-tab="rules">Alert Rules</button>
+              <button class="alert-center-view-tab active" type="button" role="tab" aria-selected="true" aria-controls="alertCenterIncidents" data-alert-view-tab="incidents">Alerts</button>
+              <button class="alert-center-view-tab" type="button" role="tab" aria-selected="false" aria-controls="alertCenterRules" data-alert-view-tab="rules">Rules</button>
             </div>
 
             <div class="alert-center-toolbar" role="search" aria-label="Alert filters">
               <div class="alert-filter-group">
                 <input class="alert-filter-control alert-search-control" type="search" aria-label="Search alerts" placeholder="Condition, Store or Terminal" data-alert-search>
-                <select class="alert-filter-control" aria-label="Incident state" data-alert-state-filter><option value="all">All states</option><option>Open</option><option>Acknowledged</option><option>Resolved</option></select>
+                <select class="alert-filter-control" aria-label="Incident state" data-alert-state-filter><option value="all">All states</option><option>Active</option><option>Resolved</option><option>Closed</option></select>
+                <select class="alert-filter-control" aria-label="Acknowledgement" data-alert-ack-filter><option value="all">All acknowledgements</option><option value="unacknowledged">Needs acknowledgement</option><option value="acknowledged">Acknowledged</option></select>
                 <select class="alert-filter-control" aria-label="Store" data-alert-store-filter><option value="all">All Stores</option><option>Midtown Store</option><option>Boston Office</option></select>
                 <select class="alert-filter-control" aria-label="Terminal" data-alert-terminal-filter><option value="all">All Terminals</option><option value="WP6267UQ36002376">Terminal - WP6267UQ36002376</option><option value="NYC-Q3-0042">Lobby Vending Q3</option><option value="NYC-Q3-0043">Breakroom Cooler Q3</option><option value="BOS-Q3-0018">Cafeteria Q3</option></select>
                 <select class="alert-filter-control" aria-label="Condition" data-alert-condition-filter><option value="all">All conditions</option><option value="opc_offline">OPC Offline</option><option value="no_approved_transaction">No Approved Transaction</option><option value="machine_stock">Machine Stock Below % PAR</option><option value="any_bin">Any BIN Below Quantity</option><option value="selected_product">Selected Product / BIN Below % PAR</option><option value="sold_out">Sold Out</option><option value="temperature_range">Temperature Out of Range</option><option value="refrigeration_fault">Refrigeration Fault</option><option value="temperature_unavailable">Temperature Data Unavailable</option></select>
-                <select class="alert-filter-control" aria-label="Source" data-alert-source-filter><option value="all">All sources</option><option value="My organization">Account rules</option><option value="Customer Alert · Managed by Service Provider">Service provider rules</option><option value="Platform-managed Alert">Platform rules</option></select>
               </div>
             </div>
 
             <div id="alertCenterIncidents" class="alert-center-panel" role="tabpanel" data-alert-view-panel="incidents">
               <div class="alerts-table-wrap">
                 <table class="alerts-table">
-                  <thead><tr><th>State</th><th>Condition</th><th>Target</th><th>Observed evidence</th><th>Opened</th><th>Source</th><th>Action</th></tr></thead>
+                  <thead><tr><th>State</th><th>Condition</th><th>Target</th><th>Observed evidence</th><th>Opened</th><th>Actions</th></tr></thead>
                   <tbody data-alert-incidents></tbody>
                 </table>
               </div>
@@ -116,25 +125,37 @@
           <h2 id="centerAlertRuleDialogTitle">Create Alert Rule</h2>
           <button class="alert-modal-close" type="button" aria-label="Close" data-alert-close><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
         </div>
-        <div class="alert-modal-body">
-          <div class="alert-step"><span>1</span><strong>Choose monitoring range</strong></div>
-          <div class="alert-field"><label for="centerAlertProvider">Service Provider</label><select id="centerAlertProvider" data-alert-provider required></select></div>
-          <div class="alert-field"><label for="centerAlertAgent">Agent</label><select id="centerAlertAgent" data-alert-agent disabled></select></div>
-          <div class="alert-field full"><label for="centerAlertScope">Monitor Scope</label><select id="centerAlertScope" data-alert-scope><option value="Terminal">Terminal</option><option value="Store">Store</option><option value="Merchant">Merchant</option></select></div>
-          <div class="alert-field"><label for="centerAlertMerchant">Merchant</label><select id="centerAlertMerchant" data-alert-merchant required disabled></select></div>
-          <div class="alert-field"><label for="centerAlertStore">Store</label><select id="centerAlertStore" data-alert-store required disabled></select></div>
-          <div class="alert-field full"><label for="centerAlertTerminal">Terminal</label><select id="centerAlertTerminal" data-alert-terminal required disabled></select></div>
-          <div class="alert-field-error full" data-alert-target-error role="alert"></div>
-          <input type="hidden" data-alert-target>
-          <div class="alert-step"><span>2</span><strong>Choose one condition</strong></div>
-          <div class="alert-field full"><label for="centerAlertCondition">Condition</label><select id="centerAlertCondition" data-alert-condition></select></div>
-          <div class="alert-condition-fields" data-alert-condition-fields></div>
-          <span class="sr-only" data-alert-coverage role="status" aria-live="polite">Current Store membership checked</span>
-          <div class="sr-only" data-alert-coverage-card role="status" aria-live="polite"></div>
-          <div class="alert-step"><span>3</span><strong>Choose notifications</strong></div>
-          <fieldset class="alert-channel-group"><legend>Channels</legend><label><input type="checkbox" value="Portal Inbox" data-alert-channel checked> Portal Alerts</label><label><input type="checkbox" value="Email" data-alert-channel> Email</label></fieldset>
-          <div class="alert-field full"><label for="centerAlertRecipient">External email recipient</label><div class="alert-inline-field"><input id="centerAlertRecipient" type="email" data-alert-recipient-input placeholder="name@example.com"><button class="alert-btn" type="button" data-alert-add-recipient>Add recipient</button></div><div class="alert-recipient-tags" data-alert-recipient-tags></div><div class="alert-field-error" data-alert-recipient-error role="alert"></div></div>
-          <label class="alert-check-row"><input type="checkbox" data-alert-repeat> Repeat while Open <select aria-label="Repeat interval" data-alert-repeat-interval disabled><option value="2">Every 2 hours</option><option value="4">Every 4 hours</option><option value="8">Every 8 hours</option></select></label>
+        <div class="alert-modal-body alert-rule-body">
+          <section class="alert-form-section">
+            <div class="alert-section-head"><h3 id="centerRangeHeading">Monitoring Range</h3></div>
+            <div class="alert-form-grid alert-range-grid">
+              <div class="alert-field" data-alert-range-field="provider"><label for="centerAlertProvider">Service Provider</label><select id="centerAlertProvider" data-alert-provider required></select></div>
+              <div class="alert-field" data-alert-range-field="agent"><label for="centerAlertAgent">Agent</label><select id="centerAlertAgent" data-alert-agent disabled></select></div>
+              <div class="alert-field full" data-alert-range-field="scope"><label for="centerAlertScope">Monitor Scope</label><select id="centerAlertScope" data-alert-scope></select></div>
+              <div class="alert-field" data-alert-range-field="merchant"><label for="centerAlertMerchant">Merchant</label><select id="centerAlertMerchant" data-alert-merchant required disabled></select></div>
+              <div class="alert-field" data-alert-range-field="store"><label for="centerAlertStore">Store</label><select id="centerAlertStore" data-alert-store required disabled></select></div>
+              <div class="alert-field full" data-alert-range-field="terminal"><label for="centerAlertTerminal">Terminal</label><select id="centerAlertTerminal" data-alert-terminal required disabled></select></div>
+              <div class="alert-field-error full" data-alert-target-error role="alert"></div>
+              <input type="hidden" data-alert-target>
+            </div>
+          </section>
+          <section class="alert-form-section">
+            <div class="alert-section-head"><h3 id="centerConditionHeading">Condition</h3></div>
+            <div class="alert-form-grid">
+              <div class="alert-field"><label for="centerAlertCondition">Condition</label><select id="centerAlertCondition" data-alert-condition></select></div>
+              <div class="alert-condition-fields" data-alert-condition-fields></div>
+              <span class="sr-only" data-alert-coverage role="status" aria-live="polite">Current Store membership checked</span>
+              <div class="sr-only" data-alert-coverage-card role="status" aria-live="polite"></div>
+            </div>
+          </section>
+          <section class="alert-form-section">
+            <div class="alert-section-head"><h3 id="centerNotificationsHeading">Notifications</h3></div>
+            <div class="alert-form-grid">
+              <fieldset class="alert-channel-group"><legend class="sr-only">Notification channels</legend><label><input type="checkbox" value="Portal Inbox" data-alert-channel checked> Portal Alerts</label><label><input type="checkbox" value="Email" data-alert-channel> Email</label></fieldset>
+              <div class="alert-field" data-alert-email-fields hidden><label for="centerAlertRecipient">External email recipient</label><div class="alert-inline-field"><input id="centerAlertRecipient" type="email" data-alert-recipient-input placeholder="name@example.com"><button class="alert-btn" type="button" data-alert-add-recipient>Add recipient</button></div><div class="alert-recipient-tags" data-alert-recipient-tags></div><div class="alert-field-error" data-alert-recipient-error role="alert"></div></div>
+              <label class="alert-check-row"><input type="checkbox" data-alert-repeat> Repeat while Open <select aria-label="Repeat interval" data-alert-repeat-interval disabled hidden><option value="2">Every 2 hours</option><option value="4">Every 4 hours</option><option value="8">Every 8 hours</option></select></label>
+            </div>
+          </section>
         </div>
         <div class="alert-modal-actions"><button class="alert-btn subtle" type="button" data-alert-close>Cancel</button><button class="alert-btn dark" type="submit">Save Rule</button></div>
       </form>
@@ -145,9 +166,23 @@
     <section class="alert-modal alert-incident-dialog" role="dialog" aria-modal="true" aria-labelledby="centerIncidentTitle">
       <div class="alert-modal-head"><h2 id="centerIncidentTitle" data-alert-incident-title>Alert Incident</h2><button class="alert-modal-close" type="button" aria-label="Close incident details" data-alert-incident-close><span class="material-symbols-rounded" aria-hidden="true">close</span></button></div>
       <div class="alert-modal-body alert-incident-body" data-alert-incident-body></div>
-      <div class="alert-modal-actions"><button class="alert-btn subtle" type="button" data-alert-incident-close>Close</button></div>
+      <div class="alert-modal-actions" data-alert-incident-actions></div>
+    </section>
+  </div>
+
+  <div class="alert-modal-overlay" data-alert-close-modal aria-hidden="true">
+    <section class="alert-modal alert-close-dialog" role="dialog" aria-modal="true" aria-labelledby="centerCloseIncidentTitle">
+      <form data-alert-close-form novalidate>
+        <div class="alert-modal-head"><h2 id="centerCloseIncidentTitle">Close Incident</h2><button class="alert-modal-close" type="button" aria-label="Close manual closure dialog" data-alert-close-cancel><span class="material-symbols-rounded" aria-hidden="true">close</span></button></div>
+        <div class="alert-modal-body">
+          <div class="alert-field full"><label for="centerCloseReason">Reason</label><select id="centerCloseReason" data-alert-close-reason required><option value="">Choose reason</option><option>Planned maintenance</option><option>Replenishment in progress</option><option>False positive</option><option>Duplicate incident</option><option>Other</option></select></div>
+          <div class="alert-field full"><label for="centerCloseNote">Note</label><textarea id="centerCloseNote" data-alert-close-note rows="3"></textarea><div class="alert-field-error" data-alert-close-error role="alert"></div></div>
+        </div>
+        <div class="alert-modal-actions"><button class="alert-btn subtle" type="button" data-alert-close-cancel>Cancel</button><button class="alert-btn dark" type="submit">Close Incident</button></div>
+      </form>
     </section>
   </div>
   <script src="scripts/customer-alerts.js"></script>
+  <script src="scripts/action-tooltips.js"></script>
 </body>
 </html>

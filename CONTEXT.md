@@ -24,6 +24,10 @@ _Avoid_: Recipient, Rule Owner
 The service provider, agent, or merchant organization that controls an Alert Rule through users granted Manage Alerts permission.
 _Avoid_: Rule creator, Monitoring Target, Recipient
 
+**Alert Visibility Scope**:
+The Merchant, Store, and Terminal subtree accessible from the user's current service provider, agent, merchant, or store role context; resources above or outside that context are not exposed.
+_Avoid_: Monitoring Target, Rule Owner
+
 **Rule Creator**:
 The individual user recorded in the audit trail as creating an Alert Rule; creating a rule does not make it that user's personal property.
 _Avoid_: Rule Owner
@@ -60,6 +64,10 @@ _Avoid_: Temperature Out of Range, Refrigeration Fault
 One continuous occurrence of an Alert Rule's abnormal condition, tracked independently from other conditions on the same target.
 _Avoid_: Alert Rule, Notification
 
+**Incident Monitoring State**:
+The observed condition state of an Alert Incident: Active, Resolved, or Closed; it is independent from whether a user has acknowledged the incident. An Incident remains Active while Recovery Checks are in progress and becomes Resolved only after the Recovery requirements are satisfied.
+_Avoid_: Acknowledgement status, Rule status
+
 **Customer-visible Incident**:
 An Alert Incident that a customer user may view because that user is an intended recipient or Paywizard explicitly exposed a Platform-managed Alert Incident; visibility does not reveal the owning rule.
 _Avoid_: Visible Alert Rule
@@ -69,9 +77,21 @@ One delivery about an Alert Incident to a recipient through a configured channel
 _Avoid_: Alert Incident
 
 **Acknowledgement**:
-A customer user's confirmation that an open Alert Incident has been seen; it does not mean that the monitored condition has recovered.
+A customer user's confirmation that an Alert Incident has been seen; it does not change the Incident Monitoring State or mean that the condition has recovered.
 _Avoid_: Recovery, Resolution
 
 **Recovery**:
 The observed return of an Alert Incident's monitored condition to normal.
 _Avoid_: Acknowledgement
+
+**Recovery Check**:
+One monitoring evaluation that finds an Alert Incident's condition normal; consecutive Recovery Checks protect Resolution from transient signal changes.
+_Avoid_: Acknowledgement, Manual Closure
+
+**Resolution**:
+The system-confirmed end of an Alert Incident after its configured Recovery requirements are satisfied.
+_Avoid_: Manual Closure, Acknowledgement
+
+**Manual Closure**:
+An authorized user's decision to end handling of an Alert Incident without claiming that its monitored condition has recovered.
+_Avoid_: Resolution, Recovery
