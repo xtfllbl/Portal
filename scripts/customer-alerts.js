@@ -88,13 +88,18 @@
     const body = surface.querySelector("[data-alert-incidents]");
     if (!body) return;
     const items = visibleIncidents();
-    body.innerHTML = items.length ? items.map((item) => `
-      <tr data-incident-id="${escapeHtml(item.id)}">
-        <td><span class="alert-status ${item.state.toLowerCase()}">${escapeHtml(item.state)}</span></td>
-        <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong><small>${escapeHtml(item.terminalName)} · ${escapeHtml(item.store)}</small></div></td>
-        <td>${escapeHtml(item.evidence)}</td><td>${escapeHtml(item.opened)}<br><small>${escapeHtml(item.duration || "--")}</small></td><td><span class="alert-source">${escapeHtml(item.source)}</span></td>
-        <td>${item.state === "Open" ? `<button class="alert-table-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}">Acknowledge</button>` : ""}<button class="alert-table-button" type="button" data-alert-view="${escapeHtml(item.id)}">View timeline</button></td>
-      </tr>`).join("") : '<tr><td class="alert-empty" colspan="7">No incidents match the current filters.</td></tr>';
+    body.innerHTML = items.length ? items.map((item) => {
+      const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.terminalName)} · ${escapeHtml(item.store)}</td>` : "";
+      const opened = `${escapeHtml(item.opened)}${item.duration ? ` · ${escapeHtml(item.duration)}` : ""}`;
+      return `
+        <tr data-incident-id="${escapeHtml(item.id)}">
+          <td><span class="alert-status ${item.state.toLowerCase()}">${escapeHtml(item.state)}</span></td>
+          <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
+          ${targetCell}
+          <td>${escapeHtml(item.evidence)}</td><td>${opened}</td><td><span class="alert-source">${escapeHtml(item.source)}</span></td>
+          <td>${item.state === "Open" ? `<button class="alert-table-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}">Acknowledge</button>` : ""}<button class="alert-table-button" type="button" data-alert-view="${escapeHtml(item.id)}">View timeline</button></td>
+        </tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 6}">No incidents match the current filters.</td></tr>`;
   }
 
   function renderRules() {
@@ -103,10 +108,11 @@
     const items = visibleRules();
     body.innerHTML = items.length ? items.map((item) => `
       <tr data-rule-id="${escapeHtml(item.id)}">
-        <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong>${pageType === "center" ? `<small>${escapeHtml(item.targetType)} · ${escapeHtml(item.targetName)}</small>` : `<small>${escapeHtml(recipeFor(item.condition).hint)}</small>`}</div></td>
+        <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
+        ${pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.targetType)} · ${escapeHtml(item.targetName)}</td>` : ""}
         <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
         <td>${canManageAlerts ? `<button class="alert-table-button" type="button" data-alert-toggle="${escapeHtml(item.id)}">${item.status === "Active" ? "Pause" : "Resume"}</button><button class="alert-table-button" type="button" data-alert-edit="${escapeHtml(item.id)}">Edit</button>` : '<span class="alerts-page-copy">View only</span>'}</td>
-      </tr>`).join("") : '<tr><td class="alert-empty" colspan="6">No organization-owned rules match this context.</td></tr>';
+      </tr>`).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 6}">No organization-owned rules match this context.</td></tr>`;
   }
 
   function renderCounts() {
@@ -139,13 +145,14 @@
 
   function fieldMarkup(field, current = {}) {
     const value = current[field.key] ?? field.value;
-    if (field.type === "select") return `<div class="alert-field"><label for="alert-param-${field.key}">${escapeHtml(field.label)}</label><select id="alert-param-${field.key}" data-alert-param="${field.key}">${field.options.map((option) => `<option${option === value ? " selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select></div>`;
-    return `<div class="alert-field"><label for="alert-param-${field.key}">${escapeHtml(field.label)}</label><input id="alert-param-${field.key}" type="number" value="${escapeHtml(value)}" ${field.min != null ? `min="${field.min}"` : ""} ${field.max != null ? `max="${field.max}"` : ""} data-alert-param="${field.key}" required><small>${escapeHtml(field.suffix || "")}</small></div>`;
+    const label = `${field.label}${field.suffix ? ` (${field.suffix})` : ""}`;
+    if (field.type === "select") return `<div class="alert-field"><label for="alert-param-${field.key}">${escapeHtml(label)}</label><select id="alert-param-${field.key}" data-alert-param="${field.key}">${field.options.map((option) => `<option${option === value ? " selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select></div>`;
+    return `<div class="alert-field"><label for="alert-param-${field.key}">${escapeHtml(label)}</label><input id="alert-param-${field.key}" type="number" value="${escapeHtml(value)}" ${field.min != null ? `min="${field.min}"` : ""} ${field.max != null ? `max="${field.max}"` : ""} data-alert-param="${field.key}" required></div>`;
   }
 
   function renderConditionFields(current = {}) {
     const recipe = recipeFor(conditionSelect.value);
-    conditionFields.innerHTML = recipe.fields.length ? recipe.fields.map((field) => fieldMarkup(field, current)).join("") : `<div class="alert-coverage-card">No threshold is required. Paywizard evaluates the normalized ${escapeHtml(recipe.hint.toLowerCase())} signal.</div>`;
+    conditionFields.innerHTML = recipe.fields.length ? recipe.fields.map((field) => fieldMarkup(field, current)).join("") : "";
     const isTemperature = conditionSelect.value.startsWith("temperature") || conditionSelect.value === "refrigeration_fault";
     const selectedTarget = targetMetadata();
     const inventory = selectedTarget.type === "Store"
@@ -251,9 +258,9 @@
         <div><span>Source</span><strong>${escapeHtml(incident.source)}</strong></div>
       </div>
       <div class="alert-timeline">
-        <div><span></span><p><strong>${escapeHtml(incident.opened)} · Opened</strong><small>${escapeHtml(incident.evidence)}</small></p></div>
-        ${incident.acknowledged || incident.state === "Acknowledged" ? `<div><span></span><p><strong>${escapeHtml(incident.acknowledged || "2026-08-28 08:02 by Alex Morgan")} · Acknowledged</strong><small>The incident was seen; monitoring continued until observed Recovery.</small></p></div>` : ""}
-        ${incident.recovered ? `<div><span></span><p><strong>${escapeHtml(incident.recovered)} · Recovery observed</strong><small>${escapeHtml(incident.evidence)}</small></p></div>` : ""}
+        <div><span></span><p><strong>${escapeHtml(incident.opened)} · Opened</strong><span class="alert-timeline-evidence">${escapeHtml(incident.evidence)}</span></p></div>
+        ${incident.acknowledged || incident.state === "Acknowledged" ? `<div><span></span><p><strong>${escapeHtml(incident.acknowledged || "2026-08-28 08:02 by Alex Morgan")} · Acknowledged</strong><span class="alert-timeline-evidence">The incident was seen; monitoring continued until observed Recovery.</span></p></div>` : ""}
+        ${incident.recovered ? `<div><span></span><p><strong>${escapeHtml(incident.recovered)} · Recovery observed</strong><span class="alert-timeline-evidence">${escapeHtml(incident.evidence)}</span></p></div>` : ""}
       </div>`;
     incidentModal.classList.add("open");
     incidentModal.setAttribute("aria-hidden", "false");
