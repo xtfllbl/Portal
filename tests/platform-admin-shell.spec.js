@@ -57,10 +57,38 @@ test("all numbered back-office pages mount one shared platform shell", async ({ 
     await expect(page.locator(".pw-platform-sidebar"), file).toHaveCount(1);
     await expect(page.locator(".pw-platform-topbar"), file).toHaveCount(1);
     await expect(page.locator(".pw-platform-content"), file).toHaveCount(1);
-    await expect(page.locator('.pw-platform-brand img[alt="PAYwizard"]'), file).toHaveCount(1);
+    await expect(page.locator('.pw-platform-brand img[alt="PAYwizard"]'), file).toHaveAttribute("src", "assets/paywizard-logo-sidebar.png");
     await expect(page.locator(".pw-platform-brand .brand-environment"), file).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), file).toBeLessThanOrEqual(1);
     expect(browserErrors, file).toEqual([]);
+  }
+});
+
+test("shared sidebar logo is compact, centered, and keeps its natural ratio", async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900, logoWidth: 188 },
+    { width: 1024, height: 768, logoWidth: 56 }
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/38.Merchant_onboard.html");
+
+    const metrics = await page.locator(".pw-platform-brand").evaluate((brand) => {
+      const image = brand.querySelector("img");
+      const brandBox = brand.getBoundingClientRect();
+      const imageBox = image.getBoundingClientRect();
+      return {
+        brandCenter: brandBox.left + brandBox.width / 2,
+        imageCenter: imageBox.left + imageBox.width / 2,
+        imageWidth: imageBox.width,
+        imageRatio: imageBox.width / imageBox.height,
+        naturalRatio: image.naturalWidth / image.naturalHeight
+      };
+    });
+
+    expect(Math.round(metrics.imageWidth)).toBe(viewport.logoWidth);
+    expect(Math.abs(metrics.brandCenter - metrics.imageCenter)).toBeLessThanOrEqual(1);
+    expect(metrics.imageRatio).toBeCloseTo(362 / 106, 2);
+    expect(metrics.imageRatio).toBeCloseTo(metrics.naturalRatio, 2);
   }
 });
 

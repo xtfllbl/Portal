@@ -15,7 +15,7 @@ test("uses the unified device-management shell and renders service status dots",
   await openTerminalPage(page);
 
   await expect(page.locator("body")).toHaveClass(/pw-admin/);
-  await expect(page.locator(".pw-brand img")).toHaveAttribute("src", "assets/paywizard-logo.png");
+  await expect(page.locator(".pw-brand img")).toHaveAttribute("src", "assets/paywizard-logo-sidebar.png");
   await expect(page.locator(".pw-brand-environment")).toHaveText("SANDBOX");
   await expect(page.locator(".pw-menu-item.active")).toContainText("Device Management");
   await expect(page.locator(".pw-menu-item.active")).toHaveAttribute("aria-current", "page");

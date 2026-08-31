@@ -47,7 +47,7 @@ for (const viewport of [
         const sidebar = document.querySelector('.pw-sidebar');
         const topbar = document.querySelector('.pw-topbar');
         const active = document.querySelector('.pw-sidebar [aria-current="page"]');
-        const logo = document.querySelector('.pw-sidebar img[src="assets/paywizard-logo.png"]');
+        const logo = document.querySelector('.pw-sidebar img[src="assets/paywizard-logo-sidebar.png"]');
         const header = document.querySelector('table thead th');
         return {
           font: getComputedStyle(document.body).fontFamily,
@@ -108,7 +108,7 @@ for (const viewport of [
       });
 
       expect(metrics.bodyClass).toContain('pw-merchant-flow-page');
-      expect(metrics.logo).toBe('assets/paywizard-logo.png');
+      expect(metrics.logo).toBe('assets/paywizard-logo-sidebar.png');
       expect(Math.round(metrics.sidebarWidth)).toBe(viewport.sidebar);
       expect(metrics.sidebarDisplay === 'none').toBe(viewport.sidebar === 0);
       expect(Math.round(metrics.topbarHeight)).toBe(viewport.width <= 760 ? 58 : 70);

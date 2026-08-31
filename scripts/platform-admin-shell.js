@@ -244,7 +244,7 @@
   var frame = document.createElement("div");
   frame.className = "pw-platform-frame pw-app-frame app-frame";
   frame.innerHTML = '<aside class="pw-platform-sidebar pw-sidebar sidebar" aria-label="Primary navigation">' +
-    '<div class="pw-platform-brand pw-brand"><span class="brand-mark"><img src="assets/paywizard-logo.png" alt="PAYwizard"></span></div>' +
+    '<div class="pw-platform-brand pw-brand"><span class="brand-mark"><img src="assets/paywizard-logo-sidebar.png" alt="PAYwizard"></span></div>' +
     '<nav class="pw-platform-nav pw-nav nav" aria-label="Main navigation">' + buildNavigation() + '</nav></aside>' +
     '<div class="pw-platform-workspace pw-workspace"><header class="pw-platform-topbar pw-topbar topbar">' +
     '<button class="pw-platform-mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>' +

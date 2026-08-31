@@ -428,7 +428,7 @@ test("matches the portal and DEX layout geometry on desktop and mobile", async (
   await page.reload();
 
   await expect(page.locator(".alerts-app-frame")).toBeVisible();
-  await expect(page.locator(".alerts-sidebar .brand-mark img")).toHaveAttribute("src", "assets/paywizard-logo.png");
+  await expect(page.locator(".alerts-sidebar .brand-mark img")).toHaveAttribute("src", "assets/paywizard-logo-sidebar.png");
   const centerGeometry = await page.evaluate(() => {
     const create = document.querySelector("[data-alert-create]").getBoundingClientRect();
     const filters = [...document.querySelectorAll(".alert-filter-control")].map((node) => node.getBoundingClientRect());

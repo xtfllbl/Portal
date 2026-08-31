@@ -16,7 +16,7 @@ test("uses the unified admin shell and renders the complete terminal lifecycle",
   await openTerminalList(page);
 
   await expect(page.locator("body")).toHaveClass(/pw-admin/);
-  await expect(page.locator(".pw-brand img")).toHaveAttribute("src", "assets/paywizard-logo.png");
+  await expect(page.locator(".pw-brand img")).toHaveAttribute("src", "assets/paywizard-logo-sidebar.png");
   await expect(page.locator(".pw-menu-item.active")).toContainText("Partners");
   await expect(page.locator(".pw-sub-item.active")).toHaveText("Partner List");
   await expect(page.locator(".pw-breadcrumb")).toContainText("PARTNERS");

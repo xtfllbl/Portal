@@ -21,7 +21,7 @@
     sidebar.setAttribute("aria-label", "Primary navigation");
     sidebar.innerHTML = [
       '<a class="pw-brand" href="5.merchant_manage_iso.html" aria-label="PAYwizard Merchant List">',
-      '  <span class="pw-brand-mark"><img src="assets/paywizard-logo.png" alt="PAYwizard"></span>',
+      '  <span class="pw-brand-mark"><img src="assets/paywizard-logo-sidebar.png" alt="PAYwizard"></span>',
       '  <span class="pw-brand-environment">SANDBOX</span>',
       '</a>',
       '<nav class="menu pw-nav" aria-label="Main navigation">',
