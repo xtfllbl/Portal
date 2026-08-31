@@ -85,11 +85,12 @@
 
   const nowLabel = "2026-08-28 10:42";
   const demoRules = [
-    { id: "r-provider-universal", condition: "opc_offline", targetType: "Merchant", targetId: "merchant-kind-world", targetName: "1 of a Kind World Travel LLC", criteria: "Unavailable for 15 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 11:15", owner: "Universal Processing", parameters: { duration: 15 }, recoveryChecksRequired: 2 },
+    { id: "r-provider-universal", condition: "opc_offline", targetType: "Store", targetId: "s-midtown", targetName: "Midtown Store", criteria: "Unavailable for 15 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 11:15", owner: "Universal Processing", parameters: { duration: 15 }, recoveryChecksRequired: 2 },
+    { id: "r-provider-universal--s-boston", condition: "opc_offline", targetType: "Store", targetId: "s-boston", targetName: "Boston Office", criteria: "Unavailable for 15 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 11:15", owner: "Universal Processing", parameters: { duration: 15 }, recoveryChecksRequired: 2 },
     { id: "r-provider-boston-soldout", condition: "sold_out", targetType: "Store", targetId: "s-boston", targetName: "Boston Office", criteria: "Any monitored BIN has On Hand = 0", recipients: ["Portal Inbox", "upt.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 16:05", owner: "Universal Processing", parameters: {}, recoveryChecksRequired: 2 },
     { id: "r-provider-boston-fault", condition: "refrigeration_fault", targetType: "Terminal", targetId: "BOS-Q3-0018", targetName: "Cafeteria Q3", criteria: "Normalized refrigeration fault is active", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Paused", modified: "2026-08-23 08:30", owner: "Universal Processing", parameters: {}, recoveryChecksRequired: 2 },
     { id: "r-agent-seattle", condition: "opc_offline", targetType: "Terminal", targetId: "WP7300EV33001088", targetName: "EV Charger Bay 07", criteria: "Unavailable for 10 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 09:40", owner: "Seattle Field Agent", parameters: { duration: 10 }, recoveryChecksRequired: 2 },
-    { id: "r-agent-seattle-transaction", condition: "no_approved_transaction", targetType: "Merchant", targetId: "seattle-central", targetName: "Seattle Central", criteria: "No approved transaction for 4 hours", recipients: ["Portal Inbox", "seattle.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 12:10", owner: "Seattle Field Agent", parameters: { duration: 4, grace: 30, schedule: "Store business hours" }, recoveryChecksRequired: 2 },
+    { id: "r-agent-seattle-transaction", condition: "no_approved_transaction", targetType: "Store", targetId: "ev-charger-hub", targetName: "EV Charger Hub", criteria: "No approved transaction for 4 hours", recipients: ["Portal Inbox", "seattle.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 12:10", owner: "Seattle Field Agent", parameters: { duration: 4, grace: 30, schedule: "Store business hours" }, recoveryChecksRequired: 2 },
     { id: "r-agent-seattle-temperature", condition: "temperature_unavailable", targetType: "Store", targetId: "ev-charger-hub", targetName: "EV Charger Hub", criteria: "Temperature data exceeds expected freshness", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Paused", modified: "2026-08-22 18:25", owner: "Seattle Field Agent", parameters: {}, recoveryChecksRequired: 2 },
     { id: "r-stock", condition: "machine_stock", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Machine stock below 25% PAR", recipients: ["Portal Inbox", "ops@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-27 16:20", owner: "1 of a Kind World Travel LLC", parameters: { threshold: 25 }, recoveryChecksRequired: 2 },
     { id: "r-merchant-no-transaction", condition: "no_approved_transaction", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "No approved transaction for 2 hours", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 14:12", owner: "1 of a Kind World Travel LLC", parameters: { duration: 2, grace: 30, schedule: "Store business hours" }, recoveryChecksRequired: 2 },
@@ -127,7 +128,7 @@
     demoIncident({ id: "i-break-03", ruleId: "r-stock", monitoringState: "Resolved", condition: "machine_stock", terminalId: "NYC-Q3-0043", terminalName: "Breakroom Cooler Q3", store: "Midtown Store", evidence: "Stock restored to 81% PAR", opened: "2026-08-27 09:30", duration: "3h 15m", recoveryHitCount: 2, recoveredAt: "2026-08-27 12:45", nextChecks: [] }),
     demoIncident({ id: "i-boston-01", ruleId: "r-provider-boston-fault", monitoringState: "Active", condition: "refrigeration_fault", terminalId: "BOS-Q3-0018", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "Normalized refrigeration fault is active", opened: "2026-08-28 09:12", duration: "1h 30m", acknowledgedAt: "2026-08-28 09:25", nextChecks: ["abnormal", "normal", "normal"] }),
     demoIncident({ id: "i-boston-02", ruleId: "r-provider-boston-soldout", monitoringState: "Resolved", condition: "sold_out", terminalId: "BOS-Q3-0018", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "All monitored BINs have stock", opened: "2026-08-27 21:04", duration: "42m", acknowledgedAt: "2026-08-27 21:10", recoveryHitCount: 2, recoveredAt: "2026-08-27 21:46", nextChecks: [] }),
-    demoIncident({ id: "i-boston-03", ruleId: "r-provider-universal", monitoringState: "Closed", condition: "opc_offline", terminalId: "BOS-Q3-0018", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "Payment Service unavailable", opened: "2026-08-26 10:05", duration: "24m", closedAt: "2026-08-26 10:12", closedBy: "robasz", closeReason: "Duplicate incident", recoveredAt: "2026-08-26 10:29", nextChecks: [] }),
+    demoIncident({ id: "i-boston-03", ruleId: "r-provider-universal--s-boston", monitoringState: "Closed", condition: "opc_offline", terminalId: "BOS-Q3-0018", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "Payment Service unavailable", opened: "2026-08-26 10:05", duration: "24m", closedAt: "2026-08-26 10:12", closedBy: "robasz", closeReason: "Duplicate incident", recoveredAt: "2026-08-26 10:29", nextChecks: [] }),
     demoIncident({ id: "i-seattle-01", ruleId: "r-agent-seattle", monitoringState: "Active", condition: "opc_offline", terminalId: "WP7300EV33001088", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "Payment Service unavailable for 18 minutes", opened: "2026-08-28 10:24", duration: "18m", nextChecks: ["normal", "normal"] }),
     demoIncident({ id: "i-seattle-02", ruleId: "r-agent-seattle-transaction", monitoringState: "Active", condition: "no_approved_transaction", terminalId: "WP7300EV33001088", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "No approved transaction for 4h 22m", opened: "2026-08-28 06:20", duration: "4h 22m", acknowledgedAt: "2026-08-28 06:35", nextChecks: ["normal", "abnormal", "normal", "normal"] }),
     demoIncident({ id: "i-seattle-03", ruleId: "r-agent-seattle-temperature", monitoringState: "Active", condition: "temperature_unavailable", terminalId: "WP7300EV33001088", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "Temperature telemetry resumed", opened: "2026-08-28 05:15", duration: "5h 27m", recoveryHitCount: 1, nextChecks: ["normal"] }),
@@ -143,9 +144,9 @@
   const notificationLabel = (value) => value === "Portal Inbox" ? "Portal Alerts" : value;
 
   const roleContexts = {
-    "service-provider": { providerId: "sp-universal", agentId: "", merchantId: "", storeId: "", ownerName: "Universal Processing", scopes: ["Merchant", "Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
-    agent: { providerId: "sp-north-america", agentId: "agent-seattle", merchantId: "", storeId: "", ownerName: "Seattle Field Agent", scopes: ["Merchant", "Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
-    merchant: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "", ownerName: "1 of a Kind World Travel LLC", scopes: ["Merchant", "Store", "Terminal"], visibleFields: ["scope", "store", "terminal"] },
+    "service-provider": { providerId: "sp-universal", agentId: "", merchantId: "", storeId: "", ownerName: "Universal Processing", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
+    agent: { providerId: "sp-north-america", agentId: "agent-seattle", merchantId: "", storeId: "", ownerName: "Seattle Field Agent", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
+    merchant: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "", ownerName: "1 of a Kind World Travel LLC", scopes: ["Store", "Terminal"], visibleFields: ["scope", "store", "terminal"] },
     store: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "s-midtown", ownerName: "1 of a Kind World Travel LLC", scopes: ["Store", "Terminal"], visibleFields: ["scope", "terminal"] }
   };
 
@@ -179,6 +180,37 @@
 
   function migrateRule(rule) {
     return { ...rule, recoveryChecksRequired: Number(rule.recoveryChecksRequired) > 0 ? Number(rule.recoveryChecksRequired) : 2 };
+  }
+
+  function migrateMerchantTargets(rules, incidents) {
+    const mappings = new Map();
+    const migratedRules = [];
+    let changed = false;
+    rules.forEach((rule) => {
+      if (rule.targetType !== "Merchant") {
+        migratedRules.push(rule);
+        return;
+      }
+      changed = true;
+      const merchantPath = findTargetPath("Merchant", rule.targetId);
+      const stores = merchantPath?.merchant?.stores || [];
+      if (!stores.length) return;
+      const byStoreId = new Map();
+      stores.forEach((store, index) => {
+        const id = index === 0 ? rule.id : `${rule.id}--${store.id}`;
+        byStoreId.set(store.id, id);
+        migratedRules.push({ ...rule, id, targetType: "Store", targetId: store.id, targetName: store.name });
+      });
+      mappings.set(rule.id, { firstId: rule.id, byStoreId });
+    });
+    const migratedIncidents = incidents.map((incident) => {
+      const mapping = mappings.get(incident.ruleId);
+      if (!mapping) return incident;
+      const terminalPath = findTargetPath("Terminal", incident.terminalId);
+      const storeId = terminalPath?.store?.id || [...mapping.byStoreId.keys()].find((id) => findTargetPath("Store", id)?.store?.name === incident.store);
+      return { ...incident, ruleId: mapping.byStoreId.get(storeId) || mapping.firstId };
+    });
+    return { rules: migratedRules, incidents: migratedIncidents, changed };
   }
 
   function migrateIncident(incident) {
@@ -231,6 +263,10 @@
         if (JSON.stringify(migrated) !== JSON.stringify(incident)) changed = true;
         return migrated;
       });
+      const targetMigration = migrateMerchantTargets(parsed.rules, parsed.incidents);
+      parsed.rules = targetMigration.rules;
+      parsed.incidents = targetMigration.incidents;
+      if (targetMigration.changed) changed = true;
       demoRules.forEach((rule) => {
         if (!parsed.rules.some((item) => item.id === rule.id)) { parsed.rules.push(migrateRule({ ...rule })); changed = true; }
       });
@@ -271,9 +307,9 @@
     const path = findTargetPath(item.targetType, item.targetId);
     if (!path) return false;
     const resources = roleResources();
-    if (item.targetType === "Merchant") return resources.merchants.some((merchant) => merchant.id === item.targetId);
     if (item.targetType === "Store") return resources.stores.some((store) => store.id === item.targetId);
-    return resources.terminals.some((terminal) => terminal.id === item.targetId);
+    if (item.targetType === "Terminal") return resources.terminals.some((terminal) => terminal.id === item.targetId);
+    return false;
   }
 
   function roleVisibleIncidents() {
@@ -476,7 +512,6 @@
     const merchant = merchantFor(providerId, agentId, merchantId);
     const type = scopeSelect?.value || "Terminal";
     if (!provider || !merchant || !currentRole.scopes.includes(type)) return null;
-    if (type === "Merchant") return { type, id: merchant.id, name: merchant.name };
     const storeId = currentRole.storeId || storeSelect?.value;
     const store = storeFor(providerId, agentId, merchant.id, storeId);
     if (!store) return null;
@@ -490,24 +525,19 @@
     const scope = scopeSelect.value || "Terminal";
     const merchantId = currentRole.merchantId || merchantSelect.value;
     const merchant = merchantFor(currentRole.providerId, currentRole.agentId, merchantId);
-    storeSelect.required = scope !== "Merchant";
+    const terminalField = modal.querySelector('[data-alert-range-field="terminal"]');
+    storeSelect.required = true;
     terminalSelect.required = scope === "Terminal";
-    if (scope === "Merchant") {
-      setSelectOptions(storeSelect, "All stores", []);
-      setSelectOptions(terminalSelect, "All terminals", []);
-      storeSelect.disabled = true;
+    if (terminalField) terminalField.hidden = scope !== "Terminal" || !currentRole.visibleFields.includes("terminal");
+    populateStores(currentRole.storeId || selectedStoreId);
+    if (!merchant) {
+      setSelectOptions(terminalSelect, "Select store first", []);
+      terminalSelect.disabled = true;
+    } else if (scope === "Store") {
+      setSelectOptions(terminalSelect, "Select Terminal scope to choose a terminal", []);
       terminalSelect.disabled = true;
     } else {
-      populateStores(currentRole.storeId || selectedStoreId);
-      if (!merchant) {
-        setSelectOptions(terminalSelect, "Select store first", []);
-        terminalSelect.disabled = true;
-      } else if (scope === "Store") {
-        setSelectOptions(terminalSelect, "All terminals", []);
-        terminalSelect.disabled = true;
-      } else {
-        populateTerminals(selectedTerminalId);
-      }
+      populateTerminals(selectedTerminalId);
     }
     updateRangeTarget();
   }
@@ -560,8 +590,7 @@
     const isTemperature = conditionSelect.value.startsWith("temperature") || conditionSelect.value === "refrigeration_fault";
     const path = findTargetPath(selectedTarget.type, selectedTarget.id);
     let inventory = [];
-    if (selectedTarget.type === "Merchant" && path) inventory = path.merchant.stores.flatMap((store) => store.terminals);
-    else if (selectedTarget.type === "Store" && path) inventory = path.store.terminals;
+    if (selectedTarget.type === "Store" && path) inventory = path.store.terminals;
     else if (selectedTarget.type === "Terminal" && path) inventory = [path.terminal];
     else if (selectedTarget.type === "Store") inventory = Object.entries(terminalCapabilities).filter(([, item]) => item.storeId === selectedTarget.id).map(([id, item]) => ({ id, ...item }));
     else inventory = [{ id: selectedTarget.id, ...(terminalCapabilities[selectedTarget.id] || { name: selectedTarget.name, temperature: fullTemperatureCapabilities }) }];

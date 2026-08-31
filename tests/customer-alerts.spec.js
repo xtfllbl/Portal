@@ -13,7 +13,7 @@ async function selectAlertRange(dialog, { provider = "sp-universal", agent = "",
   if (agent && await dialog.getByLabel("Agent").isVisible()) await dialog.getByLabel("Agent").selectOption(agent);
   if (await dialog.getByLabel("Merchant").isVisible()) await dialog.getByLabel("Merchant").selectOption(merchant);
   await dialog.getByLabel("Monitor Scope").selectOption(scope);
-  if (scope !== "Merchant" && await dialog.getByLabel("Store").isVisible()) await dialog.getByLabel("Store").selectOption(store);
+  if (await dialog.getByLabel("Store").isVisible()) await dialog.getByLabel("Store").selectOption(store);
   if (scope === "Terminal") await dialog.getByLabel("Terminal").selectOption(terminal);
 }
 
@@ -286,9 +286,9 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   await expect(page.getByRole("button", { name: "Pause" })).toHaveCount(0);
 
   const matrices = [
-    { role: "service-provider", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Merchant", "Store", "Terminal"], row: /1 of a Kind World Travel LLC/ },
-    { role: "agent", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Merchant", "Store", "Terminal"], row: /EV Charger Bay 07/ },
-    { role: "merchant", visible: ["Store", "Terminal"], hidden: ["Service Provider", "Agent", "Merchant"], scopes: ["Merchant", "Store", "Terminal"], row: /Machine Stock Below/ },
+    { role: "service-provider", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Store", "Terminal"], row: /Midtown Store/ },
+    { role: "agent", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Store", "Terminal"], row: /EV Charger Bay 07/ },
+    { role: "merchant", visible: ["Store", "Terminal"], hidden: ["Service Provider", "Agent", "Merchant"], scopes: ["Store", "Terminal"], row: /Machine Stock Below/ },
     { role: "store", visible: ["Terminal"], hidden: ["Service Provider", "Agent", "Merchant", "Store"], scopes: ["Store", "Terminal"], row: /Machine Stock Below/ }
   ];
   for (const matrix of matrices) {
@@ -310,19 +310,24 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   await page.goto("/39.customer_alerts.html?role=merchant");
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
   const dialog = page.getByRole("dialog", { name: "Create Alert Rule" });
-  await dialog.getByLabel("Monitor Scope").selectOption("Merchant");
+  await expect(dialog.getByLabel("Monitor Scope")).toHaveValue("Terminal");
+  await expect(dialog.getByLabel("Terminal")).toBeVisible();
+  await dialog.getByLabel("Monitor Scope").selectOption("Store");
+  await expect(dialog.getByLabel("Terminal")).toBeHidden();
+  await dialog.getByLabel("Store").selectOption("s-boston");
   await dialog.getByLabel("Condition").selectOption("temperature_range");
-  await expect(dialog.locator("[data-alert-coverage]")).toContainText("3 eligible Terminals · 1 unsupported");
+  await expect(dialog.locator("[data-alert-coverage]")).toContainText("1 eligible Terminal · 0 unsupported");
   await expect(dialog.getByRole("button", { name: "Save Rule" })).toBeEnabled();
   await dialog.getByRole("button", { name: "Save Rule" }).click();
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
-  const merchantRule = page.getByRole("row", { name: /Temperature Out of Range.*Merchant/ });
-  await expect(merchantRule).toContainText("1 of a Kind World Travel LLC");
-  await merchantRule.getByRole("button", { name: "Edit" }).click();
+  const storeRule = page.getByRole("row", { name: /Temperature Out of Range.*Store/ });
+  await expect(storeRule).toContainText("Boston Office");
+  await storeRule.getByRole("button", { name: "Edit" }).click();
   const editDialog = page.getByRole("dialog", { name: "Edit Alert Rule" });
   await expect(editDialog.getByLabel("Service Provider")).toBeHidden();
   await expect(editDialog.getByLabel("Merchant")).toBeHidden();
-  await expect(editDialog.getByLabel("Monitor Scope")).toHaveValue("Merchant");
+  await expect(editDialog.getByLabel("Monitor Scope")).toHaveValue("Store");
+  await expect(editDialog.getByLabel("Terminal")).toBeHidden();
   await editDialog.getByRole("button", { name: "Cancel" }).click();
 
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
@@ -351,6 +356,8 @@ test("keeps the selected tab while switching roles, resets filters, and removes 
   await page.goto("/39.customer_alerts.html?role=merchant");
   await page.evaluate((key) => {
     const state = JSON.parse(localStorage.getItem(key));
+    state.rules.push({ id: "r-legacy-merchant", condition: "opc_offline", targetType: "Merchant", targetId: "merchant-kind-world", targetName: "1 of a Kind World Travel LLC", criteria: "Unavailable for 15 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 11:15", owner: "Universal Processing", parameters: { duration: 15 }, recoveryChecksRequired: 2 });
+    state.incidents.find((incident) => incident.id === "i-boston-03").ruleId = "r-legacy-merchant";
     state.incidents[0].source = "Legacy source";
     state.incidents[0].state = "Acknowledged";
     state.incidents[0].acknowledged = "2026-08-28 08:02";
@@ -371,6 +378,18 @@ test("keeps the selected tab while switching roles, resets filters, and removes 
   expect(migratedIncident).toMatchObject({ monitoringState: "Active", acknowledgedAt: "2026-08-28 08:02", recoveryChecksRequired: 2 });
   const migratedRecoveringIncident = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).incidents[1], ALERT_STATE_KEY);
   expect(migratedRecoveringIncident).toMatchObject({ monitoringState: "Active", recoveryHitCount: 1, nextChecks: ["normal"] });
+  const migratedTargets = await page.evaluate((key) => {
+    const state = JSON.parse(localStorage.getItem(key));
+    return {
+      rules: state.rules.filter((rule) => rule.id.startsWith("r-legacy-merchant")),
+      incident: state.incidents.find((item) => item.id === "i-boston-03")
+    };
+  }, ALERT_STATE_KEY);
+  expect(migratedTargets.rules).toMatchObject([
+    { id: "r-legacy-merchant", targetType: "Store", targetId: "s-midtown", targetName: "Midtown Store" },
+    { id: "r-legacy-merchant--s-boston", targetType: "Store", targetId: "s-boston", targetName: "Boston Office" }
+  ]);
+  expect(migratedTargets.incident.ruleId).toBe("r-legacy-merchant--s-boston");
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
   await page.getByLabel("Search alerts").fill("Machine");
   await page.getByRole("search", { name: "Alert filters" }).getByLabel("Store").selectOption("Midtown Store");
@@ -384,13 +403,14 @@ test("keeps the selected tab while switching roles, resets filters, and removes 
   await expect(page.getByLabel("Alerts role")).toHaveValue("agent");
 });
 
-test("seeds twelve rules and twenty-four lifecycle incidents", async ({ page }) => {
+test("seeds Store and Terminal rules with twenty-four lifecycle incidents", async ({ page }) => {
   await resetAlertState(page);
   const seeded = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), ALERT_STATE_KEY);
-  expect(seeded.rules).toHaveLength(12);
+  expect(seeded.rules).toHaveLength(13);
   expect(seeded.incidents).toHaveLength(24);
   expect(new Set(seeded.rules.map((rule) => rule.condition)).size).toBe(9);
   expect(seeded.rules.filter((rule) => rule.targetType === "Terminal" && rule.targetId === "WP6267UQ36002376")).toHaveLength(5);
+  expect(seeded.rules.every((rule) => ["Store", "Terminal"].includes(rule.targetType))).toBe(true);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "WP6267UQ36002376")).toHaveLength(8);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0042")).toHaveLength(4);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0043")).toHaveLength(3);

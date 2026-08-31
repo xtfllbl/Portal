@@ -16,7 +16,7 @@
 
 ## 2. 产品目标
 
-1. 让有权限的客户侧用户针对 Merchant、Store 或 Terminal 配置 Customer Alert Rule。
+1. 让有权限的客户侧用户针对 Store 或 Terminal 配置 Customer Alert Rule。
 2. 在单终端页面提供与当前终端直接相关的告警和规则，缩短定位路径。
 3. 在 Alert Center 汇总当前角色可见资源范围内的告警和当前账户拥有的规则。
 4. 将“异常是否仍存在”“用户是否已经查看”“用户是否结束处理”明确区分，避免把确认或人工关闭误认为系统恢复。
@@ -36,7 +36,7 @@
 | 术语 | 定义 |
 | --- | --- |
 | Alert Rule | 对单一 Monitoring Target 持续评估一个 Condition 的规则，包含触发、恢复及通知配置。 |
-| Monitoring Target | 被监控资源，支持 Merchant、Store 或单个 Terminal。 |
+| Monitoring Target | 被监控资源，仅支持一个 Store 或一个 Terminal；Merchant 只作为授权上下文或 Rule Owner。 |
 | Alert Incident | 同一规则异常条件的一次连续发生过程。 |
 | Rule Owner | 通过 Manage Alerts 权限控制规则的服务商、代理商或商户账户。 |
 | Acknowledgement | 用户确认已看到告警，不改变告警监控状态。 |
@@ -58,12 +58,12 @@
 
 | 当前角色 | 系统自动注入且不展示的上下文 | 可选 Monitor Scope | 可见目标字段 |
 | --- | --- | --- | --- |
-| Service Provider | 当前 Service Provider；直连商户场景不显示 Agent | Merchant、Store、Terminal | Merchant、Store、Terminal |
-| Agent | 当前 Service Provider、Agent | Merchant、Store、Terminal | Merchant、Store、Terminal |
-| Merchant | 当前 Service Provider、Agent、Merchant | Merchant、Store、Terminal | Store、Terminal |
+| Service Provider | 当前 Service Provider；直连商户场景不显示 Agent | Store、Terminal | Merchant、Store、Terminal |
+| Agent | 当前 Service Provider、Agent | Store、Terminal | Merchant、Store、Terminal |
+| Merchant | 当前 Service Provider、Agent、Merchant | Store、Terminal | Store、Terminal |
 | Store | 当前 Service Provider、Agent、Merchant、Store | Store、Terminal | Terminal |
 
-Merchant Target 和 Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Merchant 或 Store 的 Terminal；资源移出范围后停止评估。
+Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Store 的 Terminal；Terminal 移出该 Store 后停止评估。Store 角色选择 Store Scope 时，系统自动使用当前 Store。
 
 ### 5.3 权限规则
 
@@ -127,8 +127,8 @@ Merchant Target 和 Store Target 为动态范围：规则自动覆盖当前及�
 
 - 表单顺序为 Monitoring Range、Condition、Notifications。
 - Monitoring Range 按当前角色显示允许的下级字段。
-- 默认 Monitor Scope 为 Terminal；Store 角色默认可在 Store、Terminal 中选择。
-- Merchant Scope 不要求 Store 或 Terminal；Store Scope 必须选择 Store；Terminal Scope 必须选择 Store 和 Terminal。
+- Monitor Scope 仅提供 Store 和 Terminal，默认选择 Terminal。
+- Store Scope 必须选择 Store；Terminal Scope 必须选择 Store 和 Terminal。
 - 上级字段变化时必须清空所有失效的下游值。
 - Target 未完整选择前，Condition 和 Save Rule 必须禁用。
 - 编辑规则时仅可回填当前角色范围内的 Target；历史 Target 无法匹配时必须阻止保存，直至用户重新选择有效范围。
@@ -139,7 +139,7 @@ Merchant Target 和 Store Target 为动态范围：规则自动覆盖当前及�
 | --- | --- |
 | FR-010 | 一条规则只能配置一个 Condition 和一个 Monitoring Target。 |
 | FR-011 | 系统必须依据目标下 Terminal 的能力判断 Condition 是否可用。 |
-| FR-012 | Merchant 或 Store Target 的能力检查必须动态聚合其下所有 Terminal。 |
+| FR-012 | Store Target 的能力检查必须动态聚合其下所有 Terminal。 |
 | FR-013 | 当没有任何 Terminal 支持所选 Condition 时，Save Rule 必须禁用。 |
 | FR-014 | 保存后规则状态默认为 Active，并记录 Rule Owner、Rule Creator 和 Modified 时间。 |
 | FR-015 | Pause 后停止新异常评估和通知；Resume 后恢复评估。Pause 不改变既有 Incident 状态。 |
@@ -262,7 +262,7 @@ Timeline 是 Incident 的审计流程查看器：
 - `id`
 - `condition`
 - `parameters`
-- `targetType`：Merchant / Store / Terminal
+- `targetType`：Store / Terminal
 - `targetId`
 - `targetName`
 - `criteria`
@@ -333,7 +333,8 @@ Timeline 是 Incident 的审计流程查看器：
 
 - 不同角色只能看到其资源子树内的 KPI、Alerts、Rules 和筛选项。
 - Monitoring Range 不展示当前角色的上级或已知固定层级。
-- Merchant、Store、Terminal 三种目标可以正确创建并在刷新后回填。
+- Store、Terminal 两种目标可以正确创建并在刷新后回填，Monitor Scope 中不出现 Merchant。
+- 存量 Merchant Target 规则在读取时按当前 Store 拆分；首个 Store 保留原规则 ID，其余规则使用稳定派生 ID，已有 Incident 按所属 Store 重新关联。
 - 角色范围外的历史规则不得被覆盖保存。
 - Source 不出现在筛选、表格、详情或存储数据中。
 
@@ -373,4 +374,3 @@ Timeline 是 Incident 的审计流程查看器：
 5. Email 退信、通知失败、重复通知失败后的重试和用户可见状态。
 6. Platform-managed Incident 对客户可见时的脱敏范围和责任边界。
 7. Closed Incident 后台确认恢复的最长追踪周期。
-
