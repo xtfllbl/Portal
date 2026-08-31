@@ -149,7 +149,68 @@ test("shared navigation uses real destinations and the agreed module entries", a
   await expect(page.locator('[data-pw-menu="merchants"]')).toContainText("Split Rules");
   await expect(page.locator('[data-pw-menu="settings"]')).toContainText("SLA Alerts");
   await expect(page.locator('[data-pw-menu="settings"]')).toContainText("Alerts");
-  await expect(page.locator('.pw-platform-disabled[aria-disabled="true"]')).toHaveCount(4);
+  await expect(page.locator('.pw-platform-disabled[aria-disabled="true"]')).toHaveCount(3);
+});
+
+test("shared navigation exposes prepaid and user management submenus", async ({ page }) => {
+  await page.goto("/38.Merchant_onboard.html");
+
+  const prepaidToggle = page.locator('[data-pw-menu-toggle="prepaid"]');
+  await prepaidToggle.click();
+  await expect(page.locator('[data-pw-menu="prepaid"] a')).toHaveText([
+    "Card List",
+    "Activation",
+    "Balance Adjustment",
+    "Loss & Replacement"
+  ]);
+  expect(await page.locator('[data-pw-menu="prepaid"] a').evaluateAll((links) => links.map((link) => link.getAttribute("href")))).toEqual([
+    "14.prepaid_card_list.html",
+    "15.prepaid_card_activation.html",
+    "16.prepaid_credit_adjustment.html",
+    "17.prepaid_loss_replacement.html"
+  ]);
+
+  const userToggle = page.locator('[data-pw-menu-toggle="users"]');
+  await userToggle.click();
+  await expect(page.locator('[data-pw-menu="users"] .pw-platform-unavailable-sub')).toHaveText([
+    "User List",
+    "Role Management",
+    "Appeals"
+  ]);
+  await expect(page.locator('[data-pw-menu="users"] a')).toHaveCount(0);
+});
+
+test("prepaid pages select their matching submenu destination", async ({ page }) => {
+  const routes = [
+    ["/14.prepaid_card_list.html", "Card List"],
+    ["/15.prepaid_card_activation.html", "Activation"],
+    ["/16.prepaid_credit_adjustment.html", "Balance Adjustment"],
+    ["/17.prepaid_loss_replacement.html", "Loss & Replacement"],
+    ["/19.prepaid_card_detail.html", "Card List"]
+  ];
+
+  for (const [route, label] of routes) {
+    await page.goto(route);
+    await expect(page.locator('[data-pw-menu-toggle="prepaid"]')).toHaveClass(/active/);
+    await expect(page.locator('[data-pw-menu="prepaid"]')).toBeVisible();
+    await expect(page.locator('[data-pw-menu="prepaid"] .pw-platform-sub-item.active')).toHaveText(label);
+  }
+});
+
+test("primary menu typography and hover treatment are consistent", async ({ page }) => {
+  await page.goto("/38.Merchant_onboard.html");
+  const rootItems = page.locator(".pw-platform-nav > .pw-platform-menu-item, .pw-platform-nav > .pw-platform-menu-toggle, .pw-platform-nav > .pw-platform-menu-row .pw-platform-menu-link");
+  const styles = await rootItems.evaluateAll((items) => items.map((item) => ({
+    weight: getComputedStyle(item.querySelector(".pw-platform-menu-label")).fontWeight,
+    decoration: getComputedStyle(item).textDecorationLine
+  })));
+  expect(new Set(styles.map((style) => style.weight))).toEqual(new Set(["700"]));
+  expect(styles.every((style) => style.decoration === "none")).toBeTruthy();
+
+  const unavailable = page.locator(".pw-platform-disabled").first();
+  await expect(unavailable).toHaveCSS("color", "rgb(48, 48, 54)");
+  await unavailable.hover();
+  await expect(unavailable).toHaveCSS("background-color", "rgb(243, 243, 244)");
 });
 
 test("mobile navigation opens as a drawer without horizontal overflow", async ({ page }) => {

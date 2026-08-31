@@ -25,11 +25,11 @@
     "11.transaction_detail_redesign.html": page(".shell > .work", "transactions", "transactions", ["Transactions", "Transaction Details"], ["body > .top", "body > .shell"]),
     "12.transaction_list.html": page(".app > section.main > main.panel", "transactions", "transactions", ["Transactions"], ["body > .app"]),
     "13.remote_control.html": page(".main-container > main.content-area", "remote", "remote", ["Remote Diagnostic"], ["body > .page-shell"]),
-    "14.prepaid_card_list.html": page(".main-container > .content-area", "prepaid", "prepaid", ["Prepaid Cards"], ["body > .page-shell"]),
-    "15.prepaid_card_activation.html": page(".main-container > .content-area", "prepaid", "prepaid", ["Prepaid Cards", "Activation"], ["body > .page-shell"]),
-    "16.prepaid_credit_adjustment.html": page(".main-container > .content-area", "prepaid", "prepaid", ["Prepaid Cards", "Balance Adjustment"], ["body > .page-shell"]),
-    "17.prepaid_loss_replacement.html": page(".main-container > .content-area", "prepaid", "prepaid", ["Prepaid Cards", "Loss & Replacement"], ["body > .page-shell"]),
-    "19.prepaid_card_detail.html": page(".main-container > .content-area", "prepaid", "prepaid", ["Prepaid Cards", "Card Details"], ["body > .page-shell"]),
+    "14.prepaid_card_list.html": page(".main-container > .content-area", "prepaid", "prepaid-card-list", ["Prepaid Cards", "Card List"], ["body > .page-shell"]),
+    "15.prepaid_card_activation.html": page(".main-container > .content-area", "prepaid", "prepaid-activation", ["Prepaid Cards", "Activation"], ["body > .page-shell"]),
+    "16.prepaid_credit_adjustment.html": page(".main-container > .content-area", "prepaid", "prepaid-balance-adjustment", ["Prepaid Cards", "Balance Adjustment"], ["body > .page-shell"]),
+    "17.prepaid_loss_replacement.html": page(".main-container > .content-area", "prepaid", "prepaid-loss-replacement", ["Prepaid Cards", "Loss & Replacement"], ["body > .page-shell"]),
+    "19.prepaid_card_detail.html": page(".main-container > .content-area", "prepaid", "prepaid-card-list", ["Prepaid Cards", "Card List", "Card Details"], ["body > .page-shell"]),
     "20.provider_custom_email_service.html": page(".page-shell > main.content-panel", "settings", "branding", ["Settings", "Branding"], ["body > .page-shell"]),
     "21.service_provider.html": page(".page-shell > main.content-panel", "settings", "service-providers", ["Settings", "Service Providers"], ["body > .page-shell"]),
     "22.sp_payment_channel_setting.html": page(".page-shell > main.content-panel", "settings", "service-providers", ["Settings", "Service Providers", "SP Payment Channel Setting"], ["body > .page-shell"]),
@@ -106,6 +106,10 @@
       icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span></span>';
   }
 
+  function unavailableSub(label) {
+    return '<span class="pw-platform-sub-item pw-platform-unavailable-sub pw-sub-item sub-item" aria-disabled="true">' + label + '</span>';
+  }
+
   function sub(label, href, key) {
     var active = config.active === key;
     return '<a class="pw-platform-sub-item pw-sub-item sub-item' + (active ? ' active' : '') + '" href="' + href + '"' +
@@ -134,6 +138,17 @@
       sub("Terminal Management", "1.terminalmanage_nayax.html", "terminal"),
       sub("Card Readers", "34.card_reader_management.html", "card-readers")
     ].join("");
+    var prepaidItems = [
+      sub("Card List", "14.prepaid_card_list.html", "prepaid-card-list"),
+      sub("Activation", "15.prepaid_card_activation.html", "prepaid-activation"),
+      sub("Balance Adjustment", "16.prepaid_credit_adjustment.html", "prepaid-balance-adjustment"),
+      sub("Loss & Replacement", "17.prepaid_loss_replacement.html", "prepaid-loss-replacement")
+    ].join("");
+    var userItems = [
+      unavailableSub("User List"),
+      unavailableSub("Role Management"),
+      unavailableSub("Appeals")
+    ].join("");
     var settingsItems = [
       sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts"),
       sub("Alerts", "39.customer_alerts.html", "alerts"),
@@ -161,8 +176,8 @@
       device,
       link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps"),
       link("Remote Diagnostic", "13.remote_control.html", "cast_connected", "remote"),
-      link("Prepaid Cards", "14.prepaid_card_list.html", "redeem", "prepaid"),
-      disabled("User Management", "manage_accounts"),
+      group("Prepaid Cards", "redeem", "prepaid", prepaidItems),
+      group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
       disabled("Tickets", "support_agent"),
       disabled("Developer Center", "code_blocks")
@@ -185,6 +200,10 @@
     "APP Management": "10.customer_app_upload_manage.html",
     "Remote Diagnostic": "13.remote_control.html",
     "Prepaid Cards": "14.prepaid_card_list.html",
+    "Card List": "14.prepaid_card_list.html",
+    "Activation": "15.prepaid_card_activation.html",
+    "Balance Adjustment": "16.prepaid_credit_adjustment.html",
+    "Loss & Replacement": "17.prepaid_loss_replacement.html",
     "Settings": "39.customer_alerts.html",
     "SLA Alerts": "32.sla_alert_rules.html",
     "Alerts": "39.customer_alerts.html",

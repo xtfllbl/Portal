@@ -16,6 +16,10 @@ _Avoid_: Platform Back-office Page
 The primary destination for a back-office module in shared navigation; detail, edit, and task pages remain part of the module but are not separate navigation destinations.
 _Avoid_: every page in a module
 
+**Prepaid Cards Module**:
+A back-office module comprising Card List, Activation, Balance Adjustment, and Loss & Replacement. Card Details belongs to the Card List flow rather than being a separate navigation destination.
+_Avoid_: single prepaid card page
+
 **Customer Alert**:
 An alert owned and configured by an authorized customer-side user for resources within that user's permitted scope.
 _Avoid_: Customer SLA Alert

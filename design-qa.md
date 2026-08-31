@@ -1,3 +1,48 @@
+# Shared Sidebar Navigation Design QA
+
+## Evidence
+
+- Source visual truth: the five user-attached sidebar reference screenshots in this conversation; the attachment surface does not expose local filesystem paths.
+- Source pixels: 558 × 1626, 462 × 260, 549 × 580, 504 × 479, and 496 × 790.
+- Implementation: `artifacts/sidebar-prepaid-expanded-2026-08-31.jpg`, `artifacts/sidebar-user-expanded-2026-08-31.jpg`, and `artifacts/sidebar-settings-expanded-2026-08-31.jpg`.
+- Implementation pixels / CSS size: each focused sidebar capture is 264 × 920 at a 1710 × 952 browser viewport; the browser-reported device scale factor is 2 and the capture API normalized output to CSS pixels.
+- Compared states: Prepaid Cards expanded with Card List selected; User Management expanded with Appeals hovered; Settings expanded with its existing children unchanged.
+- Combined comparison input: the attached source screenshots and browser-rendered sidebar captures were opened in the active visual review context.
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain for the requested sidebar unification.
+
+- Fonts and typography: every primary menu label renders at the same Poppins 700 weight. Submenu labels retain a consistent smaller hierarchy, and no menu item renders an underline in default, hover, focus, visited, or selected states.
+- Spacing and layout rhythm: all primary items share the same 47 px minimum height, padding, 8 px radius, icon alignment, and four-pixel navigation rhythm. Expanded submenus follow the existing shared-shell indentation and circular marker treatment without horizontal overflow.
+- Colors and visual tokens: primary and unavailable destinations use the same dark foreground. Hover uses one `#f3f3f4` background, while the current module and destination use the existing dark active token with white foreground.
+- Image and icon fidelity: the repository PAYwizard logo remains unchanged and Material Symbols supplies the menu icons. No placeholder or newly fabricated assets were introduced.
+- Copy and content: Prepaid Cards contains Card List, Activation, Balance Adjustment, and Loss & Replacement, mapped to pages 14–17. User Management contains User List, Role Management, and Appeals without false links. The Settings submenu remains unchanged.
+
+## Focused Comparison
+
+The sidebar itself is the complete requested component, so each 264 × 920 implementation capture is both the full target view and the focused comparison. Additional page-content crops would not add evidence for typography, menu hierarchy, hover, or selected-state fidelity.
+
+## Comparison History
+
+1. Initial implementation captures showed the Prepaid, User Management, and Settings expanded states with consistent primary typography and interaction styling.
+2. No P0/P1/P2 visual mismatch was found, so no visual correction loop was required.
+
+## Functional Verification
+
+- Opened Prepaid Cards, User Management, and Settings in the browser and verified their expanded state and content.
+- Verified Card List is selected on page 14 and Card Details; pages 15–17 select their matching submenu destination.
+- Verified unavailable destinations remain dark, show the shared hover treatment, and do not navigate.
+- Verified Settings still contains SLA Alerts, Alerts, Branding, Service Providers, Payment Channels, Application Parameters, Products, and Product Map Templates.
+- Browser console warnings/errors checked: none. Document horizontal overflow: 0 px.
+- Automated result: all 12 shared platform-shell tests passed across 47 back-office pages and responsive breakpoints.
+
+## Final Result
+
+final result: passed
+
+---
+
 # Notifications Design QA
 
 ## Evidence
