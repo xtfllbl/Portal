@@ -903,4 +903,17 @@
 
   populateCenterFilters();
   renderAll();
+  const deepLinkedIncidentId = query.get("incident");
+  if (pageType === "center" && deepLinkedIncidentId && visibleIncidents().some((item) => item.id === deepLinkedIncidentId)) {
+    const incidentsTab = surface.querySelector('[data-alert-view-tab="incidents"]');
+    if (incidentsTab) {
+      surface.querySelectorAll("[data-alert-view-tab]").forEach((tab) => {
+        const active = tab === incidentsTab;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", String(active));
+      });
+      surface.querySelectorAll("[data-alert-view-panel]").forEach((panel) => panel.classList.toggle("hidden", panel.dataset.alertViewPanel !== "incidents"));
+    }
+    openIncident(deepLinkedIncidentId);
+  }
 })();
