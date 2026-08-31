@@ -4,6 +4,18 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Platform Back-office Page**:
+A page used by authorized Paywizard operators or organization users to manage platform resources and workflows within the shared administrative navigation context.
+_Avoid_: Public Onboarding Page, prototype index
+
+**Public Onboarding Page**:
+A customer- or merchant-facing page that supports lead submission, merchant application, or application-progress tracking without exposing the platform administrative navigation context.
+_Avoid_: Platform Back-office Page
+
+**Module Entry Page**:
+The primary destination for a back-office module in shared navigation; detail, edit, and task pages remain part of the module but are not separate navigation destinations.
+_Avoid_: every page in a module
+
 **Customer Alert**:
 An alert owned and configured by an authorized customer-side user for resources within that user's permitted scope.
 _Avoid_: Customer SLA Alert
