@@ -73,6 +73,70 @@ test("mobile navigation opens as a drawer without horizontal overflow", async ({
   }
 });
 
+test("1.* terminal pages fill the available workspace on wide screens", async ({ page }) => {
+  const routes = [
+    "/1.terminalmanage.html",
+    "/1.terminalmanage_CardReader.html",
+    "/1.terminalmanage_nayax.html?tab=dex&sn=WP6267UQ36002376"
+  ];
+
+  for (const width of [2048, 3420]) {
+    await page.setViewportSize({ width, height: 1050 });
+    for (const route of routes) {
+      await page.goto(route);
+      const metrics = await page.evaluate(() => {
+        const workspace = document.querySelector(".pw-platform-content").getBoundingClientRect();
+        const pageWrap = document.querySelector(".page-wrap").getBoundingClientRect();
+        const card = document.querySelector(".terminal-card").getBoundingClientRect();
+        return {
+          pageWrapWidth: pageWrap.width,
+          workspaceWidth: workspace.width,
+          leftGutter: card.left - workspace.left,
+          rightGutter: workspace.right - card.right,
+          documentOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+      });
+
+      expect(Math.abs(metrics.pageWrapWidth - metrics.workspaceWidth), `${route} at ${width}px`).toBeLessThanOrEqual(1);
+      expect(metrics.leftGutter, `${route} at ${width}px`).toBeGreaterThanOrEqual(19);
+      expect(metrics.leftGutter, `${route} at ${width}px`).toBeLessThanOrEqual(21);
+      expect(metrics.rightGutter, `${route} at ${width}px`).toBeGreaterThanOrEqual(19);
+      expect(metrics.rightGutter, `${route} at ${width}px`).toBeLessThanOrEqual(21);
+      expect(metrics.documentOverflow, `${route} at ${width}px`).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
+test("1.* terminal pages remain contained at responsive breakpoints", async ({ page }) => {
+  const routes = [
+    "/1.terminalmanage.html",
+    "/1.terminalmanage_CardReader.html",
+    "/1.terminalmanage_nayax.html?tab=dex&sn=WP6267UQ36002376"
+  ];
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 768 },
+    { width: 390, height: 844 }
+  ]) {
+    await page.setViewportSize(viewport);
+    for (const route of routes) {
+      await page.goto(route);
+      const metrics = await page.evaluate(() => {
+        const workspace = document.querySelector(".pw-platform-content").getBoundingClientRect();
+        const card = document.querySelector(".terminal-card").getBoundingClientRect();
+        return {
+          cardContained: card.left >= workspace.left - 1 && card.right <= workspace.right + 1,
+          documentOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+      });
+
+      expect(metrics.cardContained, `${route} at ${viewport.width}px`).toBeTruthy();
+      expect(metrics.documentOverflow, `${route} at ${viewport.width}px`).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
 test("notification action shares unread state and opens Notifications", async ({ page }) => {
   await page.goto("/38.Merchant_onboard.html");
   await page.evaluate(() => {

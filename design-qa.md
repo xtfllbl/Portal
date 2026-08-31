@@ -57,3 +57,42 @@ The dense notification region was reviewed separately using `artifacts/notificat
 ## Final Result
 
 final result: passed
+
+---
+
+# Terminal Management Width Design QA
+
+## Evidence
+
+- Source visual truth: the user-provided annotated Terminal Management screenshot in this conversation (original 3420 × 1752; normalized preview 2048 × 1049).
+- Compared implementation: `1.terminalmanage_nayax.html?tab=dex&sn=WP6267UQ36002376` with DEX selected.
+- Desktop evidence: `artifacts/terminal-width-after-2048.png` at 2048 × 1049 and `artifacts/terminal-width-after-3420.png` at 3420 × 1752.
+- Responsive evidence: `artifacts/terminal-width-after-mobile-390.png` at 390 × 844.
+- Combined comparison input: the annotated source image and both wide-screen browser captures were reviewed together in the active visual context.
+
+## Findings
+
+No actionable P0, P1, or P2 differences remain for the requested width correction.
+
+- Layout and spacing: `.page-wrap` now matches the full platform workspace width, while the terminal card keeps exactly 20 px left and right safety gutters at both wide-screen viewports.
+- Overflow: document-level horizontal overflow is 0 px at 3420, 2048, 1440, 1024, and 390 px. Wide tables and Product Map content retain their existing local overflow behavior.
+- Responsive behavior: the existing desktop, tablet, and mobile breakpoints remain intact. The Nayax mobile page continues to remove its additional page padding, and the platform drawer opens and closes normally.
+- Preserved surfaces: typography, colors, assets, copy, table data, navigation, and business interactions were not changed.
+
+## Comparison History
+
+1. Source screenshot: the 1120 px maximum width centered the terminal card and created large empty bands on both sides of the workspace.
+2. Fix: removed the maximum-width constraint, made `.page-wrap` fill the workspace, retained 20 px desktop padding, and made border-box sizing explicit on all three `1.*` pages.
+3. Final wide-screen captures: the annotated empty bands are eliminated; measured terminal-card gutters are 20 px on each side and document overflow remains 0 px.
+
+## Functional Verification
+
+- Confirmed the DEX tab remains selected from the query string.
+- Opened the DEX Settings menu successfully.
+- Opened and closed the mobile navigation drawer successfully.
+- Browser console errors checked: none.
+- Automated width assertions cover all three pages at 3420, 2048, 1440, 1024, and 390 px.
+
+## Final Result
+
+final result: passed
