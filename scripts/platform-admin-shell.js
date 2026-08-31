@@ -55,6 +55,35 @@
   var config = pageMap[fileName];
   if (!config || !document.body) return;
 
+  var selfGutteredPages = new Set([
+    "1.terminalmanage.html",
+    "1.terminalmanage_CardReader.html",
+    "1.terminalmanage_nayax.html"
+  ]);
+  var panelPages = new Set([
+    "2.agent_list_iso.html",
+    "7.merchant_contact.html",
+    "8.splitbill.html",
+    "12.transaction_list.html",
+    "20.provider_custom_email_service.html",
+    "21.service_provider.html",
+    "22.sp_payment_channel_setting.html",
+    "23.payment_channel_setting.html",
+    "23.sp_merchant_list.html",
+    "24.maintain_terminal_log.html",
+    "28.UPT_merchant_lead_detail.html",
+    "29.INTL_PSP_merchant_lead_list.html",
+    "35.product_management.html",
+    "36.product_map_templates.html",
+    "37.pick_list.html",
+    "38.Merchant_onboard.html",
+    "39.customer_alerts.html",
+    "40.notifications.html"
+  ]);
+  var layoutMode = selfGutteredPages.has(fileName)
+    ? "self-guttered"
+    : panelPages.has(fileName) ? "panel" : "canvas";
+
   function page(source, module, active, breadcrumb, remove) {
     return { source: source, module: module, active: active, breadcrumb: breadcrumb, remove: remove };
   }
@@ -208,6 +237,7 @@
     '</div></header><div class="pw-platform-content-host"></div></div>';
 
   var host = frame.querySelector(".pw-platform-content-host");
+  host.classList.add("pw-layout-" + layoutMode);
   source.classList.add("pw-platform-content", "pw-flow-content");
   host.appendChild(source);
 

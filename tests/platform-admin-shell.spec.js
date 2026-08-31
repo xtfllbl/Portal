@@ -20,6 +20,27 @@ const routeFor = (file) => file === "28.UPT_merchant_lead_detail.html"
   ? `/${file}?leadProcessId=00000439`
   : `/${file}`;
 
+const panelPages = new Set([
+  "2.agent_list_iso.html",
+  "7.merchant_contact.html",
+  "8.splitbill.html",
+  "12.transaction_list.html",
+  "20.provider_custom_email_service.html",
+  "21.service_provider.html",
+  "22.sp_payment_channel_setting.html",
+  "23.payment_channel_setting.html",
+  "23.sp_merchant_list.html",
+  "24.maintain_terminal_log.html",
+  "28.UPT_merchant_lead_detail.html",
+  "29.INTL_PSP_merchant_lead_list.html",
+  "35.product_management.html",
+  "36.product_map_templates.html",
+  "37.pick_list.html",
+  "38.Merchant_onboard.html",
+  "39.customer_alerts.html",
+  "40.notifications.html"
+]);
+
 test("all numbered back-office pages mount one shared platform shell", async ({ page }) => {
   expect(includedPages).toHaveLength(47);
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -40,6 +61,78 @@ test("all numbered back-office pages mount one shared platform shell", async ({ 
     await expect(page.locator(".pw-platform-brand .brand-environment"), file).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), file).toBeLessThanOrEqual(1);
     expect(browserErrors, file).toEqual([]);
+  }
+});
+
+test("shared content aligns with the topbar on one neutral canvas", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  for (const file of includedPages) {
+    await page.goto(routeFor(file));
+    const metrics = await page.evaluate(() => {
+      const host = document.querySelector(".pw-platform-content-host");
+      const source = document.querySelector(".pw-platform-content");
+      const hostStyle = getComputedStyle(host);
+      const sourceStyle = getComputedStyle(source);
+      const hostRect = host.getBoundingClientRect();
+      const sourceRect = source.getBoundingClientRect();
+      return {
+        hostClass: host.className,
+        hostBackground: hostStyle.backgroundColor,
+        hostBorderWidth: hostStyle.borderLeftWidth,
+        hostShadow: hostStyle.boxShadow,
+        hostPadding: parseFloat(hostStyle.paddingLeft),
+        sourceBackground: sourceStyle.backgroundColor,
+        sourcePadding: sourceStyle.padding,
+        sourceInset: sourceRect.left - hostRect.left,
+        overflow: document.documentElement.scrollWidth - innerWidth
+      };
+    });
+
+    expect(metrics.hostBackground, file).toBe("rgb(245, 245, 246)");
+    expect(metrics.hostBorderWidth, file).toBe("0px");
+    expect(metrics.hostShadow, file).toBe("none");
+    expect(metrics.overflow, file).toBeLessThanOrEqual(1);
+
+    expect(metrics.hostPadding, file).toBe(0);
+    expect(Math.abs(metrics.sourceInset), file).toBeLessThanOrEqual(1);
+
+    if (/^1\./.test(file)) expect(metrics.hostClass, file).toContain("pw-layout-self-guttered");
+
+    if (panelPages.has(file)) {
+      expect(metrics.hostClass, file).toContain("pw-layout-panel");
+      expect(metrics.sourceBackground, file).toBe("rgb(255, 255, 255)");
+    } else if (!/^1\./.test(file)) {
+      expect(metrics.hostClass, file).toContain("pw-layout-canvas");
+      expect(metrics.sourcePadding, file).toBe("0px");
+    }
+  }
+});
+
+test("shared content stays aligned with the mobile topbar", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  for (const route of [
+    "/13.remote_control.html",
+    "/14.prepaid_card_list.html",
+    "/29.INTL_PSP_merchant_lead_list.html",
+    "/40.notifications.html"
+  ]) {
+    await page.goto(route);
+    const metrics = await page.evaluate(() => {
+      const host = document.querySelector(".pw-platform-content-host");
+      const source = document.querySelector(".pw-platform-content");
+      const hostRect = host.getBoundingClientRect();
+      const sourceRect = source.getBoundingClientRect();
+      return {
+        padding: parseFloat(getComputedStyle(host).paddingLeft),
+        sourceInset: sourceRect.left - hostRect.left,
+        overflow: document.documentElement.scrollWidth - innerWidth
+      };
+    });
+    expect(metrics.padding, route).toBe(0);
+    expect(Math.abs(metrics.sourceInset), route).toBeLessThanOrEqual(1);
+    expect(metrics.overflow, route).toBeLessThanOrEqual(1);
   }
 });
 
@@ -98,10 +191,8 @@ test("1.* terminal pages fill the available workspace on wide screens", async ({
       });
 
       expect(Math.abs(metrics.pageWrapWidth - metrics.workspaceWidth), `${route} at ${width}px`).toBeLessThanOrEqual(1);
-      expect(metrics.leftGutter, `${route} at ${width}px`).toBeGreaterThanOrEqual(19);
-      expect(metrics.leftGutter, `${route} at ${width}px`).toBeLessThanOrEqual(21);
-      expect(metrics.rightGutter, `${route} at ${width}px`).toBeGreaterThanOrEqual(19);
-      expect(metrics.rightGutter, `${route} at ${width}px`).toBeLessThanOrEqual(21);
+      expect(Math.abs(metrics.leftGutter), `${route} at ${width}px`).toBeLessThanOrEqual(1);
+      expect(Math.abs(metrics.rightGutter), `${route} at ${width}px`).toBeLessThanOrEqual(1);
       expect(metrics.documentOverflow, `${route} at ${width}px`).toBeLessThanOrEqual(1);
     }
   }
