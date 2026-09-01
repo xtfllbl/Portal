@@ -273,6 +273,7 @@ test("1.* terminal pages fill the available workspace on wide screens", async ({
         return {
           pageWrapWidth: pageWrap.width,
           workspaceWidth: workspace.width,
+          topGutter: card.top - workspace.top,
           leftGutter: card.left - workspace.left,
           rightGutter: workspace.right - card.right,
           documentOverflow: document.documentElement.scrollWidth - innerWidth
@@ -280,10 +281,49 @@ test("1.* terminal pages fill the available workspace on wide screens", async ({
       });
 
       expect(Math.abs(metrics.pageWrapWidth - metrics.workspaceWidth), `${route} at ${width}px`).toBeLessThanOrEqual(1);
+      expect(Math.abs(metrics.topGutter), `${route} at ${width}px`).toBeLessThanOrEqual(1);
       expect(Math.abs(metrics.leftGutter), `${route} at ${width}px`).toBeLessThanOrEqual(1);
       expect(Math.abs(metrics.rightGutter), `${route} at ${width}px`).toBeLessThanOrEqual(1);
       expect(metrics.documentOverflow, `${route} at ${width}px`).toBeLessThanOrEqual(1);
     }
+  }
+});
+
+test("APP Management uses the shared heading and fills the content host", async ({ page }) => {
+  for (const width of [1440, 2048, 3420]) {
+    await page.setViewportSize({ width, height: 1050 });
+    await page.goto("/10.customer_app_upload_manage.html");
+
+    await expect(page.locator(".pw-platform-breadcrumb strong")).toHaveText("APP Management");
+    await expect(page.locator(".pw-platform-content .crumbs, .pw-platform-content .card-head")).toHaveCount(0);
+    await expect(page.locator("#appFile")).toBeAttached();
+    await expect(page.locator('label[for="appFile"]')).toHaveText("Choose APK");
+    await page.locator("#appFile").setInputFiles({
+      name: "upt-retail-plus-2.6.2.apk",
+      mimeType: "application/vnd.android.package-archive",
+      buffer: Buffer.from("test apk")
+    });
+    await expect(page.locator('label[for="appFile"]')).toHaveText("upt-retail-plus-2.6.2.apk");
+
+    const metrics = await page.evaluate(() => {
+      const workspace = document.querySelector(".pw-platform-content").getBoundingClientRect();
+      const pageWrap = document.querySelector(".page-wrap").getBoundingClientRect();
+      const card = document.querySelector(".card").getBoundingClientRect();
+      return {
+        pageWrapWidth: pageWrap.width,
+        workspaceWidth: workspace.width,
+        topGutter: card.top - workspace.top,
+        leftGutter: card.left - workspace.left,
+        rightGutter: workspace.right - card.right,
+        documentOverflow: document.documentElement.scrollWidth - innerWidth
+      };
+    });
+
+    expect(Math.abs(metrics.pageWrapWidth - metrics.workspaceWidth), `${width}px`).toBeLessThanOrEqual(1);
+    expect(Math.abs(metrics.topGutter), `${width}px`).toBeLessThanOrEqual(1);
+    expect(Math.abs(metrics.leftGutter), `${width}px`).toBeLessThanOrEqual(1);
+    expect(Math.abs(metrics.rightGutter), `${width}px`).toBeLessThanOrEqual(1);
+    expect(metrics.documentOverflow, `${width}px`).toBeLessThanOrEqual(1);
   }
 });
 

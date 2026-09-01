@@ -19,7 +19,7 @@
 
     .main-body { display: flex; min-height: calc(100vh - 56px); align-items: flex-start; gap: 20px; padding: 20px; }
     .workspace { flex: 1; min-width: 0; }
-    .page-wrap { max-width: 1200px; margin: 0 auto; }
+    .page-wrap { width: 100%; max-width: none; margin: 0; }
     .crumbs { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin: 6px 0 12px; text-transform: uppercase; }
     .crumbs span { color: #0f172a; }
 
@@ -62,9 +62,10 @@
     .dropzone { border: 1px dashed #cbd5e1; border-radius: 16px; min-height: 250px; background: radial-gradient(circle at top right, #dbeafe, transparent 32%), linear-gradient(180deg, #f8fbff 0%, #f8fafc 100%); display: grid; place-items: center; text-align: center; color: #475569; padding: 18px; }
     .dropzone-copy { max-width: 290px; }
     .dropzone strong { display: block; margin-bottom: 8px; font-size: 24px; color: #111827; }
-    .dropzone-input { margin-top: 14px; }
-    .dropzone input { width: 100%; }
-    .selected-file { margin: 12px auto 0; display: inline-flex; align-items: center; min-height: 34px; padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid #dbe3ef; color: #334155; font-size: 13px; font-weight: 600; max-width: 100%; word-break: break-all; }
+    .selected-file { margin: 12px auto 0; display: inline-flex; align-items: center; min-height: 34px; padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid #dbe3ef; color: #334155; font-size: 13px; font-weight: 600; max-width: 100%; word-break: break-all; cursor: pointer; }
+    .selected-file:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .file-input-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    .file-input-visually-hidden:focus-visible + .selected-file { outline: 2px solid #2563eb; outline-offset: 2px; }
     .app-preview-card { border: 1px solid #dbe3ef; border-radius: 16px; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); padding: 16px; display: flex; flex-direction: column; gap: 14px; min-height: 250px; }
     .preview-kicker { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; }
     .preview-head { display: flex; align-items: center; gap: 14px; }
@@ -194,9 +195,7 @@
 
     <div class="workspace">
       <div class="page-wrap">
-        <div class="crumbs"><span>APP Management</span></div>
         <section class="card">
-          <div class="card-head"><h1>APP Management</h1></div>
           <div class="card-tabs" id="tabs">
             <button class="tab-btn active" data-tab="upload" type="button">Upload APP</button>
             <button class="tab-btn" data-tab="manage" type="button">Manage APP</button>
@@ -211,8 +210,8 @@
                     <div class="dropzone-copy">
                       <strong>Drop APK Here</strong>
                       <div>or choose file from local disk</div>
-                      <div id="selectedFileName" class="selected-file">No APK selected</div>
-                      <div class="dropzone-input"><input id="appFile" type="file" accept=".apk"></div>
+                      <input id="appFile" class="file-input-visually-hidden" type="file" accept=".apk">
+                      <label id="selectedFileName" class="selected-file" for="appFile">Choose APK</label>
                     </div>
                   </div>
                   <div class="app-preview-card">
@@ -301,8 +300,8 @@
                     <div class="modal-upload-copy">
                       <strong>Select New APK</strong>
                       <div>Upload a higher version APK for this package.</div>
-                      <div id="updateSelectedFileName" class="selected-file modal-selected-file">No APK selected</div>
-                      <div class="dropzone-input"><input id="updateFileInput" type="file" accept=".apk"></div>
+                      <input id="updateFileInput" class="file-input-visually-hidden" type="file" accept=".apk">
+                      <label id="updateSelectedFileName" class="selected-file modal-selected-file" for="updateFileInput">Choose APK</label>
                     </div>
                   </div>
                   <div class="app-preview-card">
@@ -546,7 +545,7 @@
         if(uploadPreviewIcon) uploadPreviewIcon.innerHTML = renderAppIcon(current, 'app-icon-mark');
         if(selectedFileName){
           const file = appFile.files && appFile.files[0];
-          selectedFileName.textContent = file ? file.name : 'No APK selected';
+          selectedFileName.textContent = file ? file.name : 'Choose APK';
         }
       }
 
@@ -566,7 +565,7 @@
         if(updatePreviewIcon) updatePreviewIcon.innerHTML = renderAppIcon(current, 'app-icon-mark');
         if(updateSelectedFileName){
           const file = updateFileInput.files && updateFileInput.files[0];
-          updateSelectedFileName.textContent = file ? file.name : 'No APK selected';
+          updateSelectedFileName.textContent = file ? file.name : 'Choose APK';
         }
       }
 
