@@ -107,7 +107,7 @@ test("prepaid controls use the shared compact geometry without changing Card Lis
   await expect(firstActions.getByText("Replace Card", { exact: true })).toBeHidden();
 });
 
-test("prepaid segmented tabs share styling, ARIA state, and keyboard navigation", async ({ page }) => {
+test("prepaid tabs use the APP Management underline pattern with ARIA keyboard navigation", async ({ page }) => {
   for (const [route, tabName] of [
     ["/15.prepaid_card_activation.html", "Single Card"],
     ["/17.prepaid_loss_replacement.html", "Replace Card"],
@@ -115,9 +115,14 @@ test("prepaid segmented tabs share styling, ARIA state, and keyboard navigation"
   ]) {
     await page.goto(route);
     const tabs = page.getByRole("tablist");
-    await expect(tabs).toHaveCSS("border-radius", "8px");
+    await expect(page.locator(".content-inner > .tabbed-card")).toHaveCSS("border-radius", "8px");
+    await expect(tabs).toHaveCSS("border-radius", "0px");
+    await expect(tabs).toHaveCSS("border-bottom-width", "1px");
     await expect(tabs).toHaveCSS("display", "flex");
-    await expect(page.getByRole("tab", { name: tabName })).toHaveAttribute("aria-selected", "true");
+    const activeTab = page.getByRole("tab", { name: tabName });
+    await expect(activeTab).toHaveAttribute("aria-selected", "true");
+    await expect(activeTab).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(activeTab).toHaveCSS("border-bottom-width", "2px");
   }
 
   await page.goto("/15.prepaid_card_activation.html");
@@ -130,6 +135,13 @@ test("prepaid segmented tabs share styling, ARIA state, and keyboard navigation"
   await expect(singleTab).toHaveAttribute("aria-selected", "false");
   await expect(page.locator("#batchImport")).toBeVisible();
   await expect(page.locator("#singleActivation")).toBeHidden();
+
+  await page.goto("/19.prepaid_card_detail.html");
+  const contextSummary = page.locator(".card-context-summary");
+  await expect(contextSummary).toBeVisible();
+  await page.getByRole("tab", { name: "History" }).click();
+  await expect(contextSummary).toBeVisible();
+  await expect(page.locator("#balanceHistoryTab")).toBeVisible();
 });
 
 test("Card List action deep links select the intended prepaid card", async ({ page }) => {

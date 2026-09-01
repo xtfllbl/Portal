@@ -373,7 +373,7 @@ test("priority pages use compact primary radii and Activation is one workflow su
     ["/2.agent_list_iso.html", ".content"],
     ["/10.customer_app_upload_manage.html", ".card"],
     ["/13.remote_control.html", ".card.panel"],
-    ["/15.prepaid_card_activation.html", ".content-inner > .tabs"],
+    ["/15.prepaid_card_activation.html", ".content-inner > .tabbed-card"],
     ["/34.card_reader_management.html", ".management-card"]
   ]) {
     await page.goto(route);
@@ -382,7 +382,8 @@ test("priority pages use compact primary radii and Activation is one workflow su
 
   await page.goto("/15.prepaid_card_activation.html");
   const workflow = page.locator("#singleActivation > .content-inner");
-  await expect(workflow).toHaveCSS("border-radius", "8px");
+  await expect(workflow).toHaveCSS("border-radius", "0px");
+  await expect(workflow).toHaveCSS("border-top-width", "0px");
   await expect(workflow.locator(":scope > .section").first()).toHaveCSS("border-radius", "0px");
   await expect(page.locator(".section-note").filter({ hasText: "same currency" })).toBeVisible();
 });
