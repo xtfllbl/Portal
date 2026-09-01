@@ -2269,6 +2269,12 @@
       document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(followupBackdrop.classList.contains("show")) closeFollowupModal(); closeDateRange(); closeRowActionMenu(); closeSnDetail(); closeSnPicker(); closeSnSwitchConfirm(); setPop(""); toggleFilters(false);}});
       window.addEventListener("resize",()=>{if(rowActionPop.classList.contains("show")) positionRowActionMenu(); if(snDetailState.open) positionSnDetail(); if(snPickerState.open) positionSnPicker();});
       document.addEventListener("scroll",()=>{closeRowActionMenu(); if(snDetailState.open) closeSnDetail(); if(snPickerState.open) positionSnPicker();},{capture:true,passive:true});
+      const incomingCardUid=new URLSearchParams(window.location.search).get("cardUid");
+      if(incomingCardUid&&incomingCardUid.trim()){
+        state.filters.cardPan=incomingCardUid.trim();
+        syncFilters();
+        toggleFilters(true);
+      }
       renderCols();
       renderTable();
     })();

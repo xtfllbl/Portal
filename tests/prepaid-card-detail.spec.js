@@ -89,3 +89,90 @@ test("custom merchant scope save opens confirmation with selected merchants", as
   await expect(modal.locator("[data-scope-confirm-summary]")).toContainText("Merchant Level, 5 selected / 5 available");
   await expect(modal.locator("[data-scope-confirm-rows] tr")).toHaveCount(5);
 });
+
+test("prepaid controls use the shared compact geometry without changing Card List actions", async ({ page }) => {
+  await page.goto("/14.prepaid_card_list.html");
+
+  await expect(page.getByRole("link", { name: "Add New Card" })).toHaveCSS("border-radius", "8px");
+  await expect(page.getByRole("link", { name: "Add New Card" })).toHaveCSS("background-color", "rgb(15, 15, 16)");
+  await expect(page.locator(".summary").first()).toHaveCSS("border-radius", "8px");
+
+  const firstActions = page.locator("tbody tr").first().locator(".icon-actions");
+  await expect(firstActions.locator(".icon-action")).toHaveCount(3);
+  await expect(firstActions.locator(".icon-action").first()).toHaveCSS("width", "34px");
+  await expect(firstActions.locator(".icon-action").first()).toHaveCSS("height", "34px");
+  await expect(firstActions.locator(".icon-action").first()).toHaveCSS("border-radius", "8px");
+  await expect(firstActions.getByRole("link", { name: /View transactions/ })).toBeVisible();
+  await expect(firstActions.getByRole("link", { name: /Adjust balance/ })).toBeVisible();
+  await expect(firstActions.getByText("Replace Card", { exact: true })).toBeHidden();
+});
+
+test("prepaid segmented tabs share styling, ARIA state, and keyboard navigation", async ({ page }) => {
+  for (const [route, tabName] of [
+    ["/15.prepaid_card_activation.html", "Single Card"],
+    ["/17.prepaid_loss_replacement.html", "Replace Card"],
+    ["/19.prepaid_card_detail.html", "General"]
+  ]) {
+    await page.goto(route);
+    const tabs = page.getByRole("tablist");
+    await expect(tabs).toHaveCSS("border-radius", "8px");
+    await expect(tabs).toHaveCSS("display", "flex");
+    await expect(page.getByRole("tab", { name: tabName })).toHaveAttribute("aria-selected", "true");
+  }
+
+  await page.goto("/15.prepaid_card_activation.html");
+  const singleTab = page.getByRole("tab", { name: "Single Card" });
+  const batchTab = page.getByRole("tab", { name: "Batch Import" });
+  await singleTab.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(batchTab).toBeFocused();
+  await expect(batchTab).toHaveAttribute("aria-selected", "true");
+  await expect(singleTab).toHaveAttribute("aria-selected", "false");
+  await expect(page.locator("#batchImport")).toBeVisible();
+  await expect(page.locator("#singleActivation")).toBeHidden();
+});
+
+test("Card List action deep links select the intended prepaid card", async ({ page }) => {
+  const cardUid = "0418E6AA923B11";
+
+  await page.goto(`/12.transaction_list.html?cardUid=${cardUid}`);
+  await expect(page.locator("#filtersPanel")).toHaveClass(/show/);
+  await expect(page.locator("#fCardPan")).toHaveValue(cardUid);
+  const transactionRows = page.locator("#bodyRows .transaction-row");
+  expect(await transactionRows.count()).toBeGreaterThan(0);
+  expect(await page.locator("#bodyRows .account-main").allTextContents()).toEqual(
+    Array(await transactionRows.count()).fill(cardUid)
+  );
+
+  await page.goto(`/16.prepaid_credit_adjustment.html?cardUid=${cardUid}`);
+  await expect(page.locator("#cardLookup")).toHaveValue(cardUid);
+  await expect(page.locator("#readonlyUid")).toHaveValue(cardUid);
+  await expect(page.locator("[data-selected-card-holder]")).toHaveText("Marcus Hill");
+  await expect(page.locator("[data-balance-display]")).toContainText("7.60");
+
+  await page.goto(`/17.prepaid_loss_replacement.html?cardUid=${cardUid}`);
+  await expect(page.locator("#lostLookup")).toHaveValue(cardUid);
+  await expect(page.locator("#oldUid")).toHaveValue(cardUid);
+  await expect(page.locator("#oldDisplay")).toHaveValue("EMP-CARD-002106");
+  await expect(page.locator("[data-selected-card-holder]")).toHaveText("Marcus Hill");
+});
+
+test("prepaid tabs and actions stay usable at a narrow viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/15.prepaid_card_activation.html");
+
+  const tabBounds = await page.getByRole("tablist").boundingBox();
+  expect(tabBounds).not.toBeNull();
+  expect(tabBounds.width).toBeLessThanOrEqual(390);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+
+  await page.goto("/14.prepaid_card_list.html");
+  await page.locator("tbody tr").first().locator("summary.icon-action").click();
+  const replacementAction = page.locator("tbody tr").first().getByText("Replace Card", { exact: true });
+  await expect(replacementAction).toBeVisible();
+  const actionBounds = await replacementAction.boundingBox();
+  expect(actionBounds).not.toBeNull();
+  expect(actionBounds.x).toBeGreaterThanOrEqual(0);
+  expect(actionBounds.x + actionBounds.width).toBeLessThanOrEqual(390);
+});

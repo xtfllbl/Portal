@@ -296,6 +296,7 @@ test("APP Management uses the shared heading and fills the content host", async 
 
     await expect(page.locator(".pw-platform-breadcrumb strong")).toHaveText("APP Management");
     await expect(page.locator(".pw-platform-content .crumbs, .pw-platform-content .card-head")).toHaveCount(0);
+    await expect(page.locator(".pw-platform-content h1.pw-module-page-title")).toHaveText("APP Management");
     await expect(page.locator("#appFile")).toBeAttached();
     await expect(page.locator('label[for="appFile"]')).toHaveText("Choose APK");
     await page.locator("#appFile").setInputFiles({
@@ -325,6 +326,65 @@ test("APP Management uses the shared heading and fills the content host", async 
     expect(Math.abs(metrics.rightGutter), `${width}px`).toBeLessThanOrEqual(1);
     expect(metrics.documentOverflow, `${width}px`).toBeLessThanOrEqual(1);
   }
+});
+
+test("module-entry headings use one shared visual hierarchy", async ({ page }) => {
+  for (const [route, title] of [
+    ["/2.agent_list_iso.html", "Agents"],
+    ["/10.customer_app_upload_manage.html", "APP Management"]
+  ]) {
+    await page.goto(route);
+    const heading = page.locator("h1.pw-module-page-title");
+    await expect(heading).toHaveText(title);
+    await expect(heading).toHaveCSS("font-size", "25px");
+    await expect(heading).toHaveCSS("font-weight", "600");
+    await expect(heading).toHaveCSS("color", "rgb(68, 70, 77)");
+  }
+});
+
+test("Card Readers stays full-width without collapsing payment packages", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/34.card_reader_management.html");
+
+  const metrics = await page.evaluate(() => {
+    const workspace = document.querySelector(".pw-platform-content").getBoundingClientRect();
+    const pageWrap = document.querySelector(".page-wrap").getBoundingClientRect();
+    const table = document.querySelector(".payment-apk-table").getBoundingClientRect();
+    const packageCell = document.querySelector(".payment-apk-table tbody td:nth-child(2)").getBoundingClientRect();
+    return {
+      leftInset: pageWrap.left - workspace.left,
+      rightInset: workspace.right - pageWrap.right,
+      tableWidth: table.width,
+      packageWidth: packageCell.width
+    };
+  });
+
+  expect(Math.abs(metrics.leftInset)).toBeLessThanOrEqual(1);
+  expect(Math.abs(metrics.rightInset)).toBeLessThanOrEqual(1);
+  expect(metrics.tableWidth).toBeGreaterThanOrEqual(940);
+  expect(metrics.packageWidth).toBeGreaterThanOrEqual(170);
+  await expect(page.locator(".pw-platform-content .crumbs")).toHaveCount(0);
+  await expect(page.locator(".banner-meta")).toBeVisible();
+});
+
+test("priority pages use compact primary radii and Activation is one workflow surface", async ({ page }) => {
+  for (const [route, selector] of [
+    ["/1.terminalmanage_nayax.html", ".terminal-card"],
+    ["/2.agent_list_iso.html", ".content"],
+    ["/10.customer_app_upload_manage.html", ".card"],
+    ["/13.remote_control.html", ".card.panel"],
+    ["/15.prepaid_card_activation.html", ".content-inner > .tabs"],
+    ["/34.card_reader_management.html", ".management-card"]
+  ]) {
+    await page.goto(route);
+    await expect(page.locator(selector).first()).toHaveCSS("border-radius", "8px");
+  }
+
+  await page.goto("/15.prepaid_card_activation.html");
+  const workflow = page.locator("#singleActivation > .content-inner");
+  await expect(workflow).toHaveCSS("border-radius", "8px");
+  await expect(workflow.locator(":scope > .section").first()).toHaveCSS("border-radius", "0px");
+  await expect(page.locator(".section-note").filter({ hasText: "same currency" })).toBeVisible();
 });
 
 test("1.* terminal pages remain contained at responsive breakpoints", async ({ page }) => {

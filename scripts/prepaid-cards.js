@@ -28,6 +28,14 @@
     CAD: { count: 7, threshold: 10 }
   };
 
+  const prepaidCardsByUid = {
+    "04A37C91B25F80": { displayNo: "EMP-CARD-004218", holder: "Olivia Chen", employee: "EMP-004218", balance: 128.40, currency: "USD", status: "Active", lastTransaction: "2026-04-27 10:18" },
+    "0418E6AA923B11": { displayNo: "EMP-CARD-002106", holder: "Marcus Hill", employee: "EMP-002106", balance: 7.60, currency: "USD", status: "Active", lastTransaction: "2026-04-26 17:42" },
+    "0498AD3342FF09": { displayNo: "EMP-CARD-001884", holder: "Sarah Khan", employee: "EMP-001884", balance: 0, currency: "EUR", status: "Suspended", lastTransaction: "2026-04-24 12:03" },
+    "04F3B821C04A77": { displayNo: "TEMP-CARD-000021", holder: "Guest Card 021", employee: "TEMP-000021", balance: 25, currency: "CAD", status: "Active", lastTransaction: "2026-04-25 09:55" },
+    "044D779D8221F0": { displayNo: "EMP-CARD-000972-R1", holder: "Former Card", employee: "EMP-000972", balance: 0, currency: "USD", status: "Replaced", lastTransaction: "2026-04-12 15:22" }
+  };
+
   function formatStoredValueAmount(value, currency) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -218,6 +226,63 @@
     });
   }
 
+  function activateTab(tab, moveFocus) {
+    const group = tab && tab.closest("[data-tabs]");
+    const panelId = tab && tab.getAttribute("data-tab-target");
+    if (!group || !panelId) return;
+
+    const groupName = group.getAttribute("data-tabs");
+    group.querySelectorAll("[data-tab-target]").forEach(function (item) {
+      const isActive = item === tab;
+      item.classList.toggle("active", isActive);
+      item.setAttribute("aria-selected", isActive ? "true" : "false");
+      item.setAttribute("tabindex", isActive ? "0" : "-1");
+    });
+    document.querySelectorAll('[data-tab-panel-for="' + groupName + '"]').forEach(function (panel) {
+      const isActive = panel.id === panelId;
+      panel.classList.toggle("active", isActive);
+      panel.hidden = !isActive;
+    });
+    if (moveFocus) tab.focus();
+    syncPanelScopedActions(panelId);
+    syncCardDetailSaveButton();
+  }
+
+  function initializeTabs() {
+    document.querySelectorAll("[data-tabs]").forEach(function (group) {
+      const tabs = Array.from(group.querySelectorAll("[data-tab-target]"));
+      if (!tabs.length) return;
+
+      tabs.forEach(function (tab, index) {
+        const panelId = tab.getAttribute("data-tab-target");
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (!tab.id) tab.id = group.getAttribute("data-tabs") + "Tab" + index;
+        tab.setAttribute("role", "tab");
+        if (panel) {
+          tab.setAttribute("aria-controls", panel.id);
+          panel.setAttribute("role", "tabpanel");
+          panel.setAttribute("aria-labelledby", tab.id);
+          if (!panel.hasAttribute("tabindex")) panel.setAttribute("tabindex", "0");
+        }
+      });
+
+      group.addEventListener("keydown", function (event) {
+        const currentIndex = tabs.indexOf(event.target.closest("[data-tab-target]"));
+        if (currentIndex < 0) return;
+        let nextIndex = currentIndex;
+        if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+        else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        else if (event.key === "Home") nextIndex = 0;
+        else if (event.key === "End") nextIndex = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        activateTab(tabs[nextIndex], true);
+      });
+
+      activateTab(group.querySelector(".active[data-tab-target]") || tabs[0], false);
+    });
+  }
+
   let cardDetailInitialValues = null;
 
   function getCardDetailGeneralFields() {
@@ -269,19 +334,7 @@
   document.addEventListener("click", function (event) {
     const tab = event.target.closest("[data-tab-target]");
     if (tab) {
-      const group = tab.closest("[data-tabs]");
-      const panelId = tab.getAttribute("data-tab-target");
-      if (group && panelId) {
-        const groupName = group.getAttribute("data-tabs");
-        group.querySelectorAll("[data-tab-target]").forEach(function (item) {
-          item.classList.toggle("active", item === tab);
-        });
-        document.querySelectorAll('[data-tab-panel-for="' + groupName + '"]').forEach(function (panel) {
-          panel.classList.toggle("active", panel.id === panelId);
-        });
-        syncPanelScopedActions(panelId);
-        syncCardDetailSaveButton();
-      }
+      activateTab(tab, false);
     }
 
     const guardedAction = event.target.closest("[data-requires-valid-dates]");
@@ -1288,6 +1341,64 @@
       if (statusSelect) statusSelect.value = status;
     }
   }
+
+  function selectedCardStatusClass(status) {
+    if (status === "Active") return "green";
+    if (status === "Suspended") return "red";
+    return "neutral";
+  }
+
+  function applyPrepaidWorkflowQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const cardUid = (params.get("cardUid") || "").trim();
+    const balanceLookup = document.querySelector("#cardLookup");
+    const replacementLookup = document.querySelector("#lostLookup");
+    if (!cardUid || (!balanceLookup && !replacementLookup)) return;
+
+    const card = prepaidCardsByUid[cardUid];
+    if (balanceLookup) balanceLookup.value = cardUid;
+    if (replacementLookup) replacementLookup.value = cardUid;
+    document.querySelectorAll("[data-selected-card-uid]").forEach(function (item) { item.textContent = cardUid; });
+
+    const readonlyUid = document.querySelector("#readonlyUid");
+    const oldUid = document.querySelector("#oldUid");
+    if (readonlyUid) readonlyUid.value = cardUid;
+    if (oldUid) oldUid.value = cardUid;
+    if (!card) return;
+
+    const balanceLabel = formatStoredValueAmount(card.balance, card.currency);
+    document.querySelectorAll("[data-selected-card-holder]").forEach(function (item) { item.textContent = card.holder; });
+    document.querySelectorAll("[data-selected-card-employee]").forEach(function (item) { item.textContent = card.employee; });
+    document.querySelectorAll("[data-selected-card-balance], [data-balance-display]").forEach(function (item) { item.textContent = balanceLabel; });
+    document.querySelectorAll("[data-selected-card-currency]").forEach(function (item) { item.textContent = card.currency; });
+    document.querySelectorAll("[data-selected-card-last-transaction], [data-last-adjustment-time]").forEach(function (item) { item.textContent = card.lastTransaction; });
+    document.querySelectorAll("[data-selected-card-status]").forEach(function (item) {
+      item.textContent = card.status;
+      item.classList.remove("green", "red", "neutral");
+      item.classList.add(selectedCardStatusClass(card.status));
+    });
+
+    const balanceCurrent = document.querySelector("[data-balance-current]");
+    if (balanceCurrent) {
+      balanceCurrent.setAttribute("data-balance-current", card.balance.toFixed(2));
+      balanceCurrent.textContent = balanceLabel;
+    }
+
+    const oldDisplay = document.querySelector("#oldDisplay");
+    const transferAmount = document.querySelector("#transferAmount");
+    const replacementCurrency = document.querySelector("#replacementCurrency");
+    const newDisplay = document.querySelector("#newDisplay");
+    if (oldDisplay) oldDisplay.value = card.displayNo;
+    if (transferAmount) transferAmount.value = card.balance.toFixed(2);
+    if (replacementCurrency) replacementCurrency.value = card.currency;
+    if (newDisplay) newDisplay.value = card.displayNo + "-R2";
+    document.querySelectorAll("[data-preview-old-holder], [data-preview-new-holder]").forEach(function (item) {
+      item.textContent = card.holder + " / " + card.employee;
+    });
+  }
+
+  initializeTabs();
+  applyPrepaidWorkflowQuery();
   applyCardDetailQuery();
   if (document.getElementById("generalTab")) {
     captureCardDetailGeneralValues();
