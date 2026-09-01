@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  if (window.frameElement && window.frameElement.getAttribute("data-platform-shell") === "disabled") return;
+
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "terminal", ["Device Management", "Terminal Management"], ["body > .top-header", "body > .main-body"]),
@@ -245,7 +247,7 @@
   frame.className = "pw-platform-frame pw-app-frame app-frame";
   frame.innerHTML = '<aside class="pw-platform-sidebar pw-sidebar sidebar" aria-label="Primary navigation">' +
     '<div class="pw-platform-brand pw-brand"><span class="brand-mark"><img src="assets/paywizard-logo-sidebar.png" alt="PAYwizard"></span></div>' +
-    '<nav class="pw-platform-nav pw-nav nav" aria-label="Main navigation">' + buildNavigation() + '</nav></aside>' +
+    '<nav class="pw-platform-nav pw-nav" aria-label="Main navigation">' + buildNavigation() + '</nav></aside>' +
     '<div class="pw-platform-workspace pw-workspace"><header class="pw-platform-topbar pw-topbar topbar">' +
     '<button class="pw-platform-mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>' +
     '<div class="pw-platform-breadcrumb pw-breadcrumb breadcrumb" aria-label="Breadcrumb">' + buildBreadcrumb() + '</div>' +

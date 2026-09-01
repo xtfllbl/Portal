@@ -308,6 +308,7 @@ for (const merchantPage of [
     expect((await page.locator(".paywizard-brand").boundingBox()).width).toBeGreaterThanOrEqual(176);
 
     const application = page.frameLocator("#source-frame");
+    await expect(application.locator(".pw-platform-frame")).toHaveCount(0);
     await expect(application.locator(".sidebar")).toBeHidden();
     await expect(application.locator(".topbar")).toBeHidden();
     await expect(application.locator(`[name="${merchantPage.businessField}"]`)).toHaveValue("Northstar Coffee");
