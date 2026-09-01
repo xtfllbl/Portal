@@ -291,6 +291,7 @@
   let currentRoleKey = roleContexts[query.get("role")] ? query.get("role") : "service-provider";
   let currentRole = roleContexts[currentRoleKey];
   const canManageAlerts = query.get("manageAlerts") !== "false";
+  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all" };
   surface.querySelectorAll("[data-alert-terminal-name]").forEach((node) => { node.textContent = terminalName; });
 
   function roleResources() {
@@ -325,24 +326,27 @@
 
   function visibleIncidents() {
     const items = roleVisibleIncidents();
-    const search = surface.querySelector("[data-alert-search]")?.value.trim().toLowerCase() || "";
-    const stateFilter = surface.querySelector("[data-alert-state-filter]")?.value || "all";
-    const ackFilter = surface.querySelector("[data-alert-ack-filter]")?.value || "all";
-    const storeFilter = surface.querySelector("[data-alert-store-filter]")?.value || "all";
-    const terminalFilter = surface.querySelector("[data-alert-terminal-filter]")?.value || "all";
-    const conditionFilter = surface.querySelector("[data-alert-condition-filter]")?.value || "all";
+    const { state: stateFilter, acknowledgement: ackFilter, store: storeFilter, terminal: terminalFilter, condition: conditionFilter } = appliedCenterFilters;
     return items.filter((item) => {
       const recipe = recipeFor(item.condition);
-      const haystack = `${recipe.label} ${item.terminalName} ${item.store} ${item.evidence}`.toLowerCase();
       const acknowledgementMatches = ackFilter === "all" || (ackFilter === "acknowledged" ? Boolean(item.acknowledgedAt) : !item.acknowledgedAt);
-      return (!search || haystack.includes(search)) && (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && (storeFilter === "all" || item.store === storeFilter) && (terminalFilter === "all" || item.terminalId === terminalFilter) && (conditionFilter === "all" || item.condition === conditionFilter);
+      const storeMatches = !storeFilter || item.store.toLowerCase().includes(storeFilter);
+      const terminalMatches = !terminalFilter || `${item.terminalName} ${item.terminalId}`.toLowerCase().includes(terminalFilter);
+      const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
+      return (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && storeMatches && terminalMatches && conditionMatches;
     });
   }
 
   function visibleRules() {
     const items = roleVisibleRules();
-    const search = surface.querySelector("[data-alert-search]")?.value.trim().toLowerCase() || "";
-    return items.filter((item) => !search || `${recipeFor(item.condition).label} ${item.targetName} ${item.criteria}`.toLowerCase().includes(search));
+    const { store: storeFilter, terminal: terminalFilter, condition: conditionFilter } = appliedCenterFilters;
+    return items.filter((item) => {
+      const path = findTargetPath(item.targetType, item.targetId);
+      const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
+      const storeMatches = !storeFilter || path?.store?.name.toLowerCase().includes(storeFilter);
+      const terminalMatches = !terminalFilter || `${path?.terminal?.name || ""} ${path?.terminal?.id || ""}`.toLowerCase().includes(terminalFilter);
+      return conditionMatches && storeMatches && terminalMatches;
+    });
   }
 
   function renderIncidents() {
@@ -433,18 +437,21 @@
     select.value = selectedValue;
   }
 
-  function populateCenterFilters() {
-    if (pageType !== "center") return;
-    const resources = roleResources();
-    const storeFilter = surface.querySelector("[data-alert-store-filter]");
-    const terminalFilter = surface.querySelector("[data-alert-terminal-filter]");
-    if (storeFilter) storeFilter.innerHTML = '<option value="all">All Stores</option>' + resources.stores.map((store) => `<option value="${escapeHtml(store.name)}">${escapeHtml(store.name)}</option>`).join("");
-    if (terminalFilter) terminalFilter.innerHTML = '<option value="all">All Terminals</option>' + resources.terminals.map((terminal) => `<option value="${escapeHtml(terminal.id)}">${escapeHtml(terminal.name)}</option>`).join("");
+  function resetCenterFilters() {
+    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter]").forEach((control) => { control.value = ""; });
+    surface.querySelectorAll("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-condition-filter]").forEach((control) => { control.value = "all"; });
+    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all" };
   }
 
-  function resetCenterFilters() {
-    surface.querySelectorAll("[data-alert-search]").forEach((control) => { control.value = ""; });
-    surface.querySelectorAll("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter]").forEach((control) => { control.value = "all"; });
+  function applyCenterFilters() {
+    appliedCenterFilters = {
+      state: surface.querySelector("[data-alert-state-filter]")?.value || "all",
+      acknowledgement: surface.querySelector("[data-alert-ack-filter]")?.value || "all",
+      store: surface.querySelector("[data-alert-store-filter]")?.value.trim().toLowerCase() || "",
+      terminal: surface.querySelector("[data-alert-terminal-filter]")?.value.trim().toLowerCase() || "",
+      condition: surface.querySelector("[data-alert-condition-filter]")?.value || "all"
+    };
+    renderAll();
   }
 
   function applyRoleRangeLayout() {
@@ -849,7 +856,9 @@
     const view = event.target.closest("[data-alert-view]");
     const closeAction = event.target.closest("[data-alert-close-incident]");
     const viewTab = event.target.closest("[data-alert-view-tab]");
+    const filterSubmit = event.target.closest("[data-alert-filter-submit]");
     if (create) openModal();
+    if (filterSubmit) applyCenterFilters();
     if (ack) {
       state.incidents = state.incidents.map((item) => {
         if (item.id !== ack.dataset.alertAcknowledge) return item;
@@ -867,9 +876,11 @@
       surface.querySelectorAll("[data-alert-view-panel]").forEach((panel) => panel.classList.toggle("hidden", panel.dataset.alertViewPanel !== viewTab.dataset.alertViewTab));
     }
   });
-  surface.addEventListener("input", (event) => { if (event.target.matches("[data-alert-search], [data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter]")) renderAll(); });
-  surface.addEventListener("change", (event) => {
-    if (event.target.matches("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter]")) renderAll();
+  surface.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && event.target.matches("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter]")) {
+      event.preventDefault();
+      applyCenterFilters();
+    }
   });
   roleSwitcher?.addEventListener("change", () => {
     currentRoleKey = roleSwitcher.value;
@@ -877,7 +888,6 @@
     const nextUrl = new URL(location.href);
     nextUrl.searchParams.set("role", currentRoleKey);
     history.replaceState(null, "", nextUrl.href);
-    populateCenterFilters();
     resetCenterFilters();
     renderAll();
   });
@@ -930,7 +940,6 @@
     else if (incidentModal?.classList.contains("open")) closeIncident();
   });
 
-  populateCenterFilters();
   renderAll();
   const deepLinkedIncidentId = query.get("incident");
   if (pageType === "center" && deepLinkedIncidentId && visibleIncidents().some((item) => item.id === deepLinkedIncidentId)) {

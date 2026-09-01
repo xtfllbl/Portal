@@ -233,6 +233,12 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
   await expect(page.getByRole("columnheader", { name: "Target", exact: true }).first()).toBeVisible();
   await expect(page.getByRole("search", { name: "Alert filters" }).getByLabel("Terminal")).toBeVisible();
   await expect(page.getByLabel("Condition").first()).toBeVisible();
+  const alertFilters = page.getByRole("search", { name: "Alert filters" });
+  await expect(alertFilters.getByLabel("Store", { exact: true })).toHaveAttribute("type", "search");
+  await expect(alertFilters.getByLabel("Terminal", { exact: true })).toHaveAttribute("type", "search");
+  await expect(alertFilters.getByLabel("Condition", { exact: true })).toHaveValue("all");
+  await expect(page.getByLabel("Search alerts")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Search", exact: true })).toBeVisible();
   await expect(page.getByLabel("Incident state").locator("option")).toHaveText(["All states", "Active", "Resolved", "Closed"]);
   await expect(page.getByRole("columnheader", { name: "Acknowledgement" })).toHaveCount(0);
   await expect(page.getByLabel("Source")).toHaveCount(0);
@@ -259,12 +265,15 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
 
   await page.getByRole("tab", { name: "Alerts", exact: true }).click();
   await page.getByLabel("Incident state").selectOption("Resolved");
+  await expect(centerIncident).toHaveCount(1);
+  await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(page.locator('[data-incident-id="i-mid-01"]')).toHaveCount(0);
   await page.locator('[data-incident-id="i-mid-07"]').getByRole("button", { name: "View timeline" }).click();
   await expect(page.getByRole("dialog", { name: "OPC Offline" })).toContainText("Resolved");
   await page.getByRole("button", { name: "Close incident details" }).click();
   await page.getByLabel("Incident state").selectOption("all");
   await page.getByLabel("Acknowledgement", { exact: true }).selectOption("unacknowledged");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(page.locator('[data-alert-incidents] tr')).not.toHaveCount(0);
   await expect(page.locator('[data-alert-incidents] .alert-ack-icon')).toHaveCount(0);
 
@@ -352,6 +361,23 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   await expect(createdTemperatureRule).toContainText("Terminal - WP6267UQ36002376");
 });
 
+test("applies the Condition dropdown and separate Store and Terminal text filters only after Search", async ({ page }) => {
+  await page.goto("/39.customer_alerts.html?role=merchant");
+  await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
+  await page.reload();
+
+  const filters = page.getByRole("search", { name: "Alert filters" });
+  await filters.getByLabel("Condition").selectOption("opc_offline");
+  await filters.getByLabel("Store").fill("Boston Office");
+  await filters.getByLabel("Terminal").fill("Cafeteria Q3");
+
+  await expect(page.locator('[data-incident-id="i-mid-01"]')).toHaveCount(1);
+  await filters.getByRole("button", { name: "Search", exact: true }).click();
+  await expect(page.locator("[data-alert-incidents] tr")).toHaveCount(1);
+  await expect(page.locator('[data-incident-id="i-boston-03"]')).toContainText("OPC Offline");
+  await expect(page.locator('[data-incident-id="i-boston-03"]')).toContainText("Cafeteria Q3 · Boston Office");
+});
+
 test("keeps the selected tab while switching roles, resets filters, and removes stored Source data", async ({ page }) => {
   await page.goto("/39.customer_alerts.html?role=merchant");
   await page.evaluate((key) => {
@@ -391,13 +417,14 @@ test("keeps the selected tab while switching roles, resets filters, and removes 
   ]);
   expect(migratedTargets.incident.ruleId).toBe("r-legacy-merchant--s-boston");
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
-  await page.getByLabel("Search alerts").fill("Machine");
-  await page.getByRole("search", { name: "Alert filters" }).getByLabel("Store").selectOption("Midtown Store");
+  const alertFilters = page.getByRole("search", { name: "Alert filters" });
+  await alertFilters.getByLabel("Condition").selectOption("machine_stock");
+  await alertFilters.getByLabel("Store").fill("Midtown Store");
   await page.getByLabel("Alerts role").selectOption("agent");
   await expect(page).toHaveURL(/role=agent/);
   await expect(page.getByRole("tab", { name: "Rules", exact: true })).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByLabel("Search alerts")).toHaveValue("");
-  await expect(page.getByRole("search", { name: "Alert filters" }).getByLabel("Store")).toHaveValue("all");
+  await expect(alertFilters.getByLabel("Condition")).toHaveValue("all");
+  await expect(alertFilters.getByLabel("Store")).toHaveValue("");
   await expect(page.getByRole("row", { name: /EV Charger Bay 07/ })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Alerts role")).toHaveValue("agent");
