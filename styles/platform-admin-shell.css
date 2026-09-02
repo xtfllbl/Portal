@@ -246,6 +246,36 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar {
 }
 .pw-platform-sub-item.active::before { background: #fff; }
 
+/* Keep secondary destinations consistent across legacy pages whose local
+   .sub-item rules use different corner radii. The base radius also controls
+   the hover surface; the selected state below locks the complete treatment. */
+body.pw-platform-admin .pw-platform-sidebar .pw-platform-sub-item {
+  border-radius: 999px;
+  color: var(--pw-shell-muted);
+}
+body.pw-platform-admin .pw-platform-sidebar .pw-platform-sub-item:hover {
+  border-radius: 999px;
+  background: #f3f3f4;
+  color: var(--pw-shell-text);
+}
+body.pw-platform-admin .pw-platform-sidebar .pw-platform-sub-item.active {
+  width: 100%;
+  min-height: 43px;
+  padding: 7px 11px 7px 26px;
+  border-radius: 999px;
+  background: var(--pw-shell-active);
+  color: #fff;
+}
+body.pw-platform-admin .pw-platform-sidebar .pw-platform-sub-item.active::before {
+  left: 9px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 0;
+  background: #fff;
+  transform: translateY(-50%);
+}
+
 .pw-platform-workspace {
   position: static !important;
   inset: auto !important;
@@ -446,6 +476,16 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-workspace {
 
 /* Shared hierarchy for module-entry content headings. Detail pages keep their
    own contextual heading and do not use this component. */
+.pw-module-page-surface {
+  min-width: 0;
+  min-height: 100%;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--pw-page-radius);
+  background: var(--pw-shell-surface);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+}
+
 .pw-module-page-header {
   min-width: 0;
   display: flex;
@@ -464,6 +504,7 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-workspace {
 }
 
 @media (max-width: 760px) {
+  .pw-module-page-surface { padding: 16px; }
   .pw-module-page-title { font-size: 23px; }
 }
 

@@ -225,6 +225,39 @@ test("prepaid pages select their matching submenu destination", async ({ page })
   }
 });
 
+test("selected secondary navigation uses one pill treatment across legacy pages", async ({ page }) => {
+  for (const route of ["/38.Merchant_onboard.html", "/1.terminalmanage.html"]) {
+    await page.goto(route);
+    const selected = page.locator(".pw-platform-sub-item.active");
+    const hovered = selected.locator("xpath=..").locator(".pw-platform-sub-item:not(.active)").first();
+    await expect(selected, route).toHaveCount(1);
+    await expect(selected, route).toHaveCSS("border-radius", "999px");
+    await expect(selected, route).toHaveCSS("background-color", "rgb(41, 41, 44)");
+    await expect(selected, route).toHaveCSS("color", "rgb(255, 255, 255)");
+    await expect(selected, route).toHaveCSS("min-height", "43px");
+    await expect(selected, route).toHaveCSS("padding-left", "26px");
+    const metrics = await selected.evaluate((item) => {
+      const dot = getComputedStyle(item, "::before");
+      return {
+        itemWidth: item.getBoundingClientRect().width,
+        menuWidth: item.parentElement.getBoundingClientRect().width,
+        dotWidth: dot.width,
+        dotHeight: dot.height,
+        dotBorderWidth: dot.borderWidth,
+        dotBackground: dot.backgroundColor
+      };
+    });
+    expect(metrics.itemWidth, route).toBe(metrics.menuWidth);
+    expect(metrics.dotWidth, route).toBe("7px");
+    expect(metrics.dotHeight, route).toBe("7px");
+    expect(metrics.dotBorderWidth, route).toBe("0px");
+    expect(metrics.dotBackground, route).toBe("rgb(255, 255, 255)");
+    await hovered.hover();
+    await expect(hovered, route).toHaveCSS("border-radius", "999px");
+    await expect(hovered, route).toHaveCSS("background-color", "rgb(243, 243, 244)");
+  }
+});
+
 test("primary menu typography and hover treatment are consistent", async ({ page }) => {
   await page.goto("/38.Merchant_onboard.html");
   const rootItems = page.locator(".pw-platform-nav > .pw-platform-menu-item, .pw-platform-nav > .pw-platform-menu-toggle, .pw-platform-nav > .pw-platform-menu-row .pw-platform-menu-link");
@@ -331,6 +364,8 @@ test("APP Management uses the shared heading and fills the content host", async 
 test("module-entry headings use one shared visual hierarchy", async ({ page }) => {
   for (const [route, title] of [
     ["/2.agent_list_iso.html", "Agents"],
+    ["/2.resellermerchantterminal.html", "Device Management"],
+    ["/7.merchant_contact.html", "Contact"],
     ["/10.customer_app_upload_manage.html", "APP Management"]
   ]) {
     await page.goto(route);
@@ -339,6 +374,31 @@ test("module-entry headings use one shared visual hierarchy", async ({ page }) =
     await expect(heading).toHaveCSS("font-size", "25px");
     await expect(heading).toHaveCSS("font-weight", "600");
     await expect(heading).toHaveCSS("color", "rgb(68, 70, 77)");
+  }
+});
+
+test("Device Management and Contact use the shared module-entry surface", async ({ page }) => {
+  const pages = [
+    ["/2.resellermerchantterminal.html", ".workspace.pw-module-page-surface"],
+    ["/7.merchant_contact.html", ".page-card.pw-module-page-surface"]
+  ];
+
+  for (const [route, selector] of pages) {
+    await page.goto(route);
+    const surface = page.locator(selector);
+    await expect(surface).toHaveCSS("border-radius", "8px");
+    await expect(surface).toHaveCSS("border-color", "rgb(229, 231, 235)");
+    await expect(surface).toHaveCSS("padding-left", "24px");
+    await expect(surface).toHaveCSS("box-shadow", "rgba(0, 0, 0, 0.04) 0px 1px 2px 0px");
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [route, selector] of pages) {
+    await page.goto(route);
+    await expect(page.locator(selector)).toHaveCSS("padding-left", "16px");
+    await expect(page.locator("h1.pw-module-page-title")).toHaveCSS("font-size", "23px");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    expect(overflow, route).toBeLessThanOrEqual(1);
   }
 });
 
