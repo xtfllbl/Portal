@@ -729,17 +729,25 @@
         ]
       };
       Object.values(additionalTerminalsByMid).flat().forEach(terminal=>{terminal.tci=terminalTciBySn[terminal.sn]||"-";});
-      const viewStoreKey="paywizard.transactionList.savedViews";
+      const portalProfile=(()=>{
+        try{
+          const value=localStorage.getItem("paywizard.portalAccessProfile.v1");
+          return ["wizarpos","attended","unattended"].includes(value)?value:"wizarpos";
+        }catch(_){return "wizarpos";}
+      })();
+      const viewStoreKey=`paywizard.transactionList.savedViews.${portalProfile}`;
+      const selectedViewStoreKey=`paywizard.transactionList.selectedView.${portalProfile}`;
       const maxCustomViews=2;
       const columnViewSwitchDelay=2000;
       const cloneColumns=cols=>cols.map(c=>({key:c.key,visible:c.visible}));
       const defaultColumns=()=>defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
       const unattdVisible=["processorTime","timezone","tci","sn","terminalName","tid","storeId","mid","paymentMethod","cardPan","type","amount","currency","transLogId","batch","trace","merchantName","storeName"];
       const unattdColumns=()=>defaultOrder.map(k=>({key:k,visible:unattdVisible.includes(k)}));
-      const systemViews=[
+      const allSystemViews=[
         {id:"default",name:"Attended",desc:"Attended payment view",getColumns:defaultColumns},
         {id:"unattd",name:"Unattended",desc:"Unattended payment view",getColumns:unattdColumns}
       ];
+      const systemViews=allSystemViews.filter(view=>portalProfile==="wizarpos"||(portalProfile==="attended"?view.id==="default":view.id==="unattd"));
       const systemViewMap=new Map(systemViews.map(view=>[view.id,view]));
       const isSystemViewId=viewId=>systemViewMap.has(viewId);
       const normalizeColumns=input=>{
@@ -771,15 +779,25 @@
           return migrated.slice(0,maxCustomViews);
         }catch(_){return [];}
       };
+      const initialSavedViews=loadSavedViews();
+      const loadSelectedViewId=()=>{
+        try{
+          const selected=localStorage.getItem(selectedViewStoreKey);
+          if(systemViewMap.has(selected)||initialSavedViews.some(view=>view.id===selected)) return selected;
+        }catch(_){}
+        return systemViews[0].id;
+      };
+      const initialSelectedViewId=loadSelectedViewId();
+      const initialSelectedView=systemViewMap.get(initialSelectedViewId)||initialSavedViews.find(view=>view.id===initialSelectedViewId);
       const state={
         tab:"completed",
         page:1,
         pageSize:10,
         selectedTransactionId:"",
         filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",tci:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
-        columns:defaultColumns(),
-        savedViews:loadSavedViews(),
-        selectedViewId:systemViews[0].id,
+        columns:initialSelectedView?cloneColumns(initialSelectedView.getColumns?initialSelectedView.getColumns():initialSelectedView.columns):systemViews[0].getColumns(),
+        savedViews:initialSavedViews,
+        selectedViewId:initialSelectedViewId,
         hasUnsavedViewChanges:false
       };
       const head=document.getElementById("headRow"),body=document.getElementById("bodyRows"),colList=document.getElementById("colList");
@@ -1221,12 +1239,16 @@
         if(r.merchantName) query.set("merchantName",r.merchantName);
         if(r.storeName) query.set("storeName",r.storeName);
         if(r.storeId) query.set("storeId",r.storeId);
-        return `1.terminalmanage.html?${query.toString()}`;
+        const inferredMode=typeof inferTerminalModeKey==="function"?inferTerminalModeKey(r):"attended_standalone";
+        const target=portalProfile==="unattended"||(portalProfile==="wizarpos"&&inferredMode.startsWith("unattended_"))
+          ?"1.terminalmanage_nayax.html"
+          :"1.terminalmanage.html";
+        return `${target}?${query.toString()}`;
       };
       const terminalModeGroups=[
         {label:"Attended Scenarios",items:["attended_standalone","attended_pos_linked"]},
         {label:"Unattended Scenarios",items:["unattended_vending","unattended_ev","unattended_arcade","unattended_coffee"]}
-      ];
+      ].filter(group=>portalProfile==="wizarpos"||(portalProfile==="attended"?group.label.startsWith("Attended"):group.label.startsWith("Unattended")));
       const terminalModeMap={
         attended_standalone:{
           usageKey:"standalone",
@@ -1571,7 +1593,11 @@
       const persistViews=()=>{
         try{
           localStorage.setItem(viewStoreKey,JSON.stringify(state.savedViews));
+          localStorage.setItem(selectedViewStoreKey,state.selectedViewId);
         }catch(_){}
+      };
+      const persistSelectedView=()=>{
+        try{localStorage.setItem(selectedViewStoreKey,state.selectedViewId);}catch(_){}
       };
       const currentSavedView=()=>state.savedViews.find(v=>v.id===state.selectedViewId)||null;
       const currentSystemView=()=>systemViewMap.get(state.selectedViewId)||null;
@@ -1600,6 +1626,7 @@
         state.columns=cloneColumns(normalized);
         state.selectedViewId=viewId||systemViews[0].id;
         state.hasUnsavedViewChanges=Boolean(unsaved);
+        persistSelectedView();
       };
       const markColumnsCustom=()=>{
         state.hasUnsavedViewChanges=true;
@@ -1643,7 +1670,7 @@
         if(!view){window.alert("Select a custom view to delete."); return;}
         if(!window.confirm(`Delete "${view.name}"?`)) return;
         state.savedViews=state.savedViews.filter(v=>v.id!==view.id);
-        setColumns(defaultColumns(),systemViews[0].id,false);
+        setColumns(systemViews[0].getColumns(),systemViews[0].id,false);
         persistViews();
       };
       const applySavedView=viewId=>{
@@ -1925,7 +1952,7 @@
         if(focusResults) scrollToResults();
       };
       const resetCols=()=>{
-        setColumns(defaultColumns(),systemViews[0].id);
+        setColumns(systemViews[0].getColumns(),systemViews[0].id);
         renderCols();
         renderTable();
       };

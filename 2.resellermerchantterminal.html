@@ -3745,6 +3745,32 @@
           });
         }
 
+        function currentPortalProfile(){
+          try {
+            var profile = localStorage.getItem('paywizard.portalAccessProfile.v1');
+            return ['wizarpos', 'attended', 'unattended'].indexOf(profile) >= 0 ? profile : 'wizarpos';
+          } catch (_) {
+            return 'wizarpos';
+          }
+        }
+
+        function terminalHrefForRow(row){
+          var profile = currentPortalProfile();
+          if(profile === 'attended') return '1.terminalmanage.html';
+          if(profile === 'unattended') return '1.terminalmanage_nayax.html';
+          var model = row && row.cells[3] ? String(row.cells[3].textContent || '').trim() : '';
+          return /(?:nayax|unattended|vending|q3mini-v|im30)/i.test(model)
+            ? '1.terminalmanage_nayax.html'
+            : '1.terminalmanage.html';
+        }
+
+        if(terminalTableBody){
+          Array.prototype.forEach.call(terminalTableBody.querySelectorAll('tr'), function(row){
+            var link = row.querySelector('.sn-link');
+            if(link) link.setAttribute('href', terminalHrefForRow(row));
+          });
+        }
+
         // Tabs switching
         var tabEls = document.querySelectorAll('.tab-bar .tab');
         var panels = document.querySelectorAll('.tab-panels .tab-panel');
@@ -3766,7 +3792,7 @@
             var row = e.target.closest('tr');
             if(!row) return;
             if(row.classList.contains('inventory-only')) return;
-            window.location.href = '1.terminalmanage.html';
+            window.location.href = terminalHrefForRow(row);
           });
         }
 

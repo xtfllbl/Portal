@@ -183,7 +183,13 @@
       if(payload.sn) query.set("sn",payload.sn);
       if(payload.tId) query.set("tid",payload.tId);
       if(payload.merchantName) query.set("merchantName",payload.merchantName);
-      return `1.terminalmanage.html?${query.toString()}`;
+      let profile="wizarpos";
+      try{
+        const stored=localStorage.getItem("paywizard.portalAccessProfile.v1");
+        if(["wizarpos","attended","unattended"].includes(stored)) profile=stored;
+      }catch(_){}
+      const target=profile==="unattended"?"1.terminalmanage_nayax.html":"1.terminalmanage.html";
+      return `${target}?${query.toString()}`;
     })();
     const summaryTerminalLink=document.getElementById("summaryTerminalLink");
     if(summaryTerminalLink){

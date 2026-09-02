@@ -3,11 +3,18 @@
 
   if (window.frameElement && window.frameElement.getAttribute("data-platform-shell") === "disabled") return;
 
+  var profileStoreKey = "paywizard.portalAccessProfile.v1";
+  var profiles = {
+    wizarpos: { label: "WizarPOS Provider" },
+    attended: { label: "Attended Provider" },
+    unattended: { label: "Unattended Provider" }
+  };
+  var activeProfile = readProfile();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
-    "1.terminalmanage.html": page(".main-body > .workspace", "device", "terminal", ["Device Management", "Terminal Management"], ["body > .top-header", "body > .main-body"]),
-    "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "terminal", ["Device Management", "Terminal Management"], ["body > .top-header", "body > .main-body"]),
-    "1.terminalmanage_nayax.html": page(".main-body > .workspace", "device", "terminal", ["Device Management", "Terminal Management"], ["body > .top-header", "body > .main-body"]),
+    "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
+    "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
+    "1.terminalmanage_nayax.html": page(".main-body > .workspace", "device", "unattended-terminals", ["Device Management", "Unattended Terminals"], ["body > .top-header", "body > .main-body"]),
     "2.agent_list_iso.html": page(".app > main.main > .content", "agents", "agents", ["Agents"], ["body > .app"]),
     "2.resellermerchantterminal.html": page(".main-container > .content-area", "device", "device-overview", ["Device Management", "Overview"], ["body > .top-header", "body > .main-body"]),
     "3.Processor_template_new.html": page(".main-content > main.page-content", "settings", "application-parameters", ["Settings", "Application Parameters"], ["body > .sidebar", "body > .main-content"]),
@@ -48,7 +55,7 @@
     "34.card_reader_management.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
     "35.product_management.html": page(".shell > main.content", "settings", "products", ["Settings", "Products"], ["body > .shell"]),
     "36.product_map_templates.html": page(".shell > main.content", "settings", "product-map-templates", ["Settings", "Product Map Templates"], ["body > .shell"]),
-    "37.pick_list.html": page(".shell > main.content", "device", "terminal", ["Device Management", "Terminal Management", "Pick List"], ["body > .shell"]),
+    "37.pick_list.html": page(".shell > main.content", "device", "unattended-terminals", ["Device Management", "Unattended Terminals", "Pick List"], ["body > .shell"]),
     "38.Merchant_onboard.html": page(".app-frame > .workspace > main.panel", "merchants", "onboarding", ["Merchants", "Onboarding"], ["body > .app-frame"]),
     "39.customer_alerts.html": page(".alerts-app-frame > .alerts-workspace > main.alerts-panel", "settings", "alerts", ["Settings", "Alerts"], ["body > .alerts-app-frame"]),
     "40.notifications.html": page(".app-frame > .workspace > main.panel", "notifications", "notifications", ["Notifications"], ["body > .app-frame"])
@@ -56,6 +63,50 @@
 
   var config = pageMap[fileName];
   if (!config || !document.body) return;
+
+  function readProfile() {
+    try {
+      var stored = localStorage.getItem(profileStoreKey);
+      return profiles[stored] ? stored : "wizarpos";
+    } catch (_) {
+      return "wizarpos";
+    }
+  }
+
+  function fallbackFor(targetFile, profile) {
+    var target = pageMap[targetFile];
+    if (!target) return "12.transaction_list.html";
+    if (profile !== "wizarpos" && (target.module === "partners" || ["contact", "leads", "onboarding"].includes(target.active))) {
+      return "5.merchant_manage_iso.html";
+    }
+    if (profile === "attended" && target.module === "prepaid") return "2.resellermerchantterminal.html";
+    if (profile !== "wizarpos" && target.active === "sla-alerts") return "12.transaction_list.html";
+    if (profile === "attended" && target.active === "alerts") return "12.transaction_list.html";
+    if (profile !== "wizarpos" && ["1.terminalmanage_CardReader.html", "34.card_reader_management.html"].includes(targetFile)) {
+      return profile === "attended" ? "1.terminalmanage.html" : "1.terminalmanage_nayax.html";
+    }
+    if (profile === "attended" && ["1.terminalmanage_nayax.html", "37.pick_list.html"].includes(targetFile)) return "1.terminalmanage.html";
+    if (profile === "unattended" && targetFile === "1.terminalmanage.html") return "1.terminalmanage_nayax.html";
+    return "";
+  }
+
+  var initialFallback = fallbackFor(fileName, activeProfile);
+  if (initialFallback && initialFallback !== fileName) {
+    window.location.replace(initialFallback);
+    return;
+  }
+
+  window.PaywizardPortalAccess = {
+    profile: activeProfile,
+    label: profiles[activeProfile].label,
+    terminalHref: function (kind) {
+      if (activeProfile === "attended") return "1.terminalmanage.html";
+      if (activeProfile === "unattended") return "1.terminalmanage_nayax.html";
+      if (kind === "unattended") return "1.terminalmanage_nayax.html";
+      if (kind === "card-reader") return "1.terminalmanage_CardReader.html";
+      return "1.terminalmanage.html";
+    }
+  };
 
   var selfGutteredPages = new Set([
     "1.terminalmanage.html",
@@ -128,17 +179,18 @@
   }
 
   function buildNavigation() {
+    var isWizarpos = activeProfile === "wizarpos";
     var merchantItems = [
-      sub("Contact", "7.merchant_contact.html", "contact"),
-      sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads"),
-      sub("Onboarding", "38.Merchant_onboard.html", "onboarding"),
+      isWizarpos ? sub("Contact", "7.merchant_contact.html", "contact") : "",
+      isWizarpos ? sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads") : "",
+      isWizarpos ? sub("Onboarding", "38.Merchant_onboard.html", "onboarding") : "",
       sub("Merchant List", "5.merchant_manage_iso.html", "merchant-list"),
       sub("Split Rules", "8.splitbill.html", "split-rules")
     ].join("");
     var deviceItems = [
-      sub("Overview", "2.resellermerchantterminal.html", "device-overview"),
-      sub("Terminal Management", "1.terminalmanage_nayax.html", "terminal"),
-      sub("Card Readers", "34.card_reader_management.html", "card-readers")
+      activeProfile !== "unattended" ? sub("Attended Terminals", "1.terminalmanage.html", "attended-terminals") : "",
+      activeProfile !== "attended" ? sub("Unattended Terminals", "1.terminalmanage_nayax.html", "unattended-terminals") : "",
+      isWizarpos ? sub("Card Readers", "1.terminalmanage_CardReader.html", "card-readers") : ""
     ].join("");
     var prepaidItems = [
       sub("Card List", "14.prepaid_card_list.html", "prepaid-card-list"),
@@ -152,8 +204,8 @@
       unavailableSub("Appeals")
     ].join("");
     var settingsItems = [
-      sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts"),
-      sub("Alerts", "39.customer_alerts.html", "alerts"),
+      isWizarpos ? sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") : "",
+      activeProfile !== "attended" ? sub("Alerts", "39.customer_alerts.html", "alerts") : "",
       sub("Branding", "20.provider_custom_email_service.html", "branding"),
       sub("Service Providers", "21.service_provider.html", "service-providers"),
       sub("Payment Channels", "23.payment_channel_setting.html", "payment-channels"),
@@ -174,11 +226,11 @@
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
       link("Agents", "2.agent_list_iso.html", "group", "agents"),
       group("Merchants", "store", "merchants", merchantItems),
-      group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")),
+      isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
       link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps"),
       link("Remote Diagnostic", "13.remote_control.html", "cast_connected", "remote"),
-      group("Prepaid Cards", "redeem", "prepaid", prepaidItems),
+      activeProfile !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
       disabled("Tickets", "support_agent"),
@@ -195,8 +247,9 @@
     "Onboarding": "38.Merchant_onboard.html",
     "Merchant List": "5.merchant_manage_iso.html",
     "Device Management": "2.resellermerchantterminal.html",
-    "Terminal Management": "1.terminalmanage_nayax.html",
-    "Card Readers": "34.card_reader_management.html",
+    "Attended Terminals": "1.terminalmanage.html",
+    "Unattended Terminals": "1.terminalmanage_nayax.html",
+    "Card Readers": "1.terminalmanage_CardReader.html",
     "Partners": "26.partner_information.html",
     "Partner List": "26.partner_information.html",
     "APP Management": "10.customer_app_upload_manage.html",
@@ -227,6 +280,14 @@
     }).join("");
   }
 
+  function buildProfileOptions() {
+    return Object.keys(profiles).map(function (key) {
+      var selected = key === activeProfile;
+      return '<button class="pw-platform-profile-option' + (selected ? ' active' : '') + '" type="button" role="menuitemradio" aria-checked="' + String(selected) + '" data-pw-profile="' + key + '">' +
+        '<span>' + escapeHtml(profiles[key].label) + '</span><span class="material-symbols-rounded" aria-hidden="true">check</span></button>';
+    }).join("");
+  }
+
   var source = document.querySelector(config.source);
   if (!source) {
     console.error("PAYwizard platform shell could not find content for", fileName, config.source);
@@ -254,7 +315,9 @@
     '<div class="pw-platform-top-actions pw-top-actions top-actions">' +
     '<a class="pw-platform-round-btn" href="40.notifications.html" aria-label="Notifications"' + (config.active === "notifications" ? ' aria-current="page"' : '') + '>' +
     '<span class="material-symbols-rounded" aria-hidden="true">notifications_none</span><span class="pw-platform-notice-count notice-count pw-notice-count alerts-notice-count" data-shell-notification-count data-notification-count></span></a>' +
-    '<button class="pw-platform-round-btn dark" type="button" aria-label="User"><span class="material-symbols-rounded" aria-hidden="true">person</span></button>' +
+    '<details class="pw-platform-profile-control" data-pw-profile-control><summary class="pw-platform-profile-trigger" aria-label="Change portal access profile" aria-haspopup="menu" aria-expanded="false" data-pw-profile-trigger>' +
+    '<span class="pw-platform-profile-label">' + escapeHtml(profiles[activeProfile].label) + '</span><span class="pw-platform-round-btn dark" aria-hidden="true"><span class="material-symbols-rounded">person</span></span></summary>' +
+    '<div class="pw-platform-profile-menu" role="menu" aria-label="View portal as" data-pw-profile-menu><div class="pw-platform-profile-heading">View portal as</div>' + buildProfileOptions() + '</div></details>' +
     '</div></header><div class="pw-platform-content-host"></div></div>';
 
   var host = frame.querySelector(".pw-platform-content-host");
@@ -308,6 +371,33 @@
       menu.hidden = !willOpen;
       button.setAttribute("aria-expanded", String(willOpen));
     });
+  });
+
+  var profileControl = frame.querySelector("[data-pw-profile-control]");
+  var profileTrigger = frame.querySelector("[data-pw-profile-trigger]");
+  var profileMenu = frame.querySelector("[data-pw-profile-menu]");
+  function setProfileMenu(open) {
+    profileControl.open = open;
+    profileTrigger.setAttribute("aria-expanded", String(open));
+  }
+  profileControl.addEventListener("toggle", function () {
+    profileTrigger.setAttribute("aria-expanded", String(profileControl.open));
+  });
+  profileMenu.addEventListener("click", function (event) {
+    event.stopPropagation();
+    var option = event.target.closest("[data-pw-profile]");
+    if (!option) return;
+    var nextProfile = option.getAttribute("data-pw-profile");
+    if (!profiles[nextProfile]) return;
+    try { localStorage.setItem(profileStoreKey, nextProfile); } catch (_) {}
+    var fallback = fallbackFor(fileName, nextProfile);
+    window.location.assign(fallback || window.location.href);
+  });
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".pw-platform-profile-control")) setProfileMenu(false);
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") setProfileMenu(false);
   });
 
   function currentUnreadCount() {

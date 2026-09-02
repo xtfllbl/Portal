@@ -314,7 +314,7 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-workspace {
 .pw-platform-breadcrumb strong { overflow: hidden; color: #37383e; font-weight: 700; text-overflow: ellipsis; }
 .pw-platform-breadcrumb .material-symbols-rounded { flex: none; color: #afb2b9; font-size: 17px; }
 
-.pw-platform-top-actions { display: inline-flex; align-items: center; gap: 9px; flex: none; }
+.pw-platform-top-actions { position: relative; display: inline-flex; align-items: center; gap: 9px; flex: none; }
 .pw-platform-round-btn {
   position: relative;
   width: 42px;
@@ -328,7 +328,7 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-workspace {
   color: #535760;
   text-decoration: none;
 }
-.pw-platform-round-btn.dark { background: #050507; color: #fff; cursor: default; }
+.pw-platform-round-btn.dark { background: #050507; color: #fff; }
 .pw-platform-round-btn .material-symbols-rounded { font-size: 19px; }
 .pw-platform-notice-count {
   position: absolute;
@@ -346,6 +346,72 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-workspace {
   text-align: center;
 }
 .pw-platform-notice-count[hidden] { display: none; }
+
+.pw-platform-profile-control { position: relative; }
+.pw-platform-profile-control > summary { list-style: none; }
+.pw-platform-profile-control > summary::-webkit-details-marker { display: none; }
+.pw-platform-profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #3c3d43;
+  cursor: pointer;
+}
+.pw-platform-profile-label {
+  max-width: 190px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pw-platform-profile-trigger:hover .pw-platform-round-btn.dark,
+.pw-platform-profile-trigger:focus-visible .pw-platform-round-btn.dark { background: #28282d; }
+.pw-platform-profile-trigger:focus-visible { outline: 2px solid #111827; outline-offset: 3px; border-radius: 999px; }
+.pw-platform-profile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 950;
+  width: 244px;
+  padding: 8px;
+  border: 1px solid #dedfe3;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(18, 22, 29, .18);
+}
+.pw-platform-profile-control:not([open]) .pw-platform-profile-menu { display: none; }
+.pw-platform-profile-heading {
+  padding: 7px 10px 8px;
+  color: #747883;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.pw-platform-profile-option {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #303036;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.pw-platform-profile-option:hover { background: #f3f3f4; }
+.pw-platform-profile-option.active { background: #29292c; color: #fff; }
+.pw-platform-profile-option .material-symbols-rounded { visibility: hidden; font-size: 18px; }
+.pw-platform-profile-option.active .material-symbols-rounded { visibility: visible; }
 
 .pw-platform-content-host {
   min-width: 0;
@@ -467,7 +533,8 @@ body.pw-leads-page .pw-platform-content {
   .pw-platform-breadcrumb { gap: 6px; font-size: 10px; letter-spacing: .04em; }
   .pw-platform-breadcrumb > :not(:last-child):not(.pw-platform-mobile-menu) { display: none; }
   .pw-platform-round-btn { width: 38px; height: 38px; }
-  .pw-platform-top-actions .pw-platform-round-btn.dark { display: none; }
+  .pw-platform-profile-label { display: none; }
+  .pw-platform-profile-menu { position: fixed; top: 76px; right: 10px; width: min(244px, calc(100vw - 20px)); }
   .pw-platform-content-host { min-height: 0; overflow: visible; }
   .pw-platform-content-host > .pw-platform-content { min-height: 0 !important; }
   body.pw-merchant-flow-page .pw-platform-content,

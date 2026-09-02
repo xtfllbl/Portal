@@ -16,6 +16,38 @@ _Avoid_: Platform Back-office Page
 The primary destination for a back-office module in shared navigation; detail, edit, and task pages remain part of the module but are not separate navigation destinations.
 _Avoid_: every page in a module
 
+**Portal Access Profile**:
+A named presentation of portal visibility and interaction rules used to demonstrate the experience of a provider category. The current profiles are WizarPOS Provider, Attended Provider, and Unattended Provider.
+_Avoid_: Login Role, Security Role, Permission Set
+
+**WizarPOS Provider**:
+The Portal Access Profile representing a WizarPOS-exclusive service provider across attended terminals, unattended terminals, and card readers.
+_Avoid_: Administrator, Superuser
+
+**Attended Provider**:
+The Portal Access Profile representing an ordinary service provider whose payment terminals are operated by an attendant.
+_Avoid_: Staffed Provider, Normal Provider
+
+**Unattended Provider**:
+The Portal Access Profile representing an ordinary service provider whose payment terminals operate without an attendant.
+_Avoid_: Nayax Provider, Normal Provider
+
+**Attended Terminal**:
+A payment terminal operated in the presence of an attendant as part of the payment interaction.
+_Avoid_: Staffed Terminal, Standard Terminal
+
+**Unattended Terminal**:
+A self-service payment terminal that completes payment interactions without an attendant.
+_Avoid_: Nayax Terminal, Vending Terminal
+
+**Card Reader**:
+A payment-acceptance device managed separately from attended and unattended terminals in the portal.
+_Avoid_: Attended Terminal, Unattended Terminal
+
+**Role Simulator**:
+A sales-demonstration control that applies a Portal Access Profile without asserting that the user has been authenticated or that access is securely enforced.
+_Avoid_: Authentication, Authorization, Login
+
 **Prepaid Cards Module**:
 A back-office module comprising Card List, Activation, Balance Adjustment, and Loss & Replacement. Card Details belongs to the Card List flow rather than being a separate navigation destination.
 _Avoid_: single prepaid card page
