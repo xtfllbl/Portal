@@ -765,6 +765,7 @@
     </style>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/application-parameters.css">
 </head>
 <body>
 
@@ -829,7 +830,7 @@
             </div>
         </header>
 
-        <main class="page-content">
+        <main class="page-content application-parameters-page">
             <div class="template-list-container">
                 <div class="template-list-header">
                     <h4 style="margin:0;font-size:14px;font-weight:700;">Applications</h4>
@@ -894,7 +895,7 @@
             <div class="main-panel">
                 <div class="panel-header">
                     <div>
-                        <h1 id="appTitle">TSYS_Transit</h1>
+                        <h1 id="appTitle" class="pw-module-page-title">TSYS_Transit</h1>
                     </div>
                 </div>
 
@@ -903,7 +904,6 @@
                 <div class="master-config-card">
                     <div class="master-info">
                         <h3>Param Configuration</h3>
-                        <p id="masterDescription">This is the initial parameter template for this application.<br>Application versions are released from this structure.</p>
                     </div>
                     <div class="master-actions">
                         <button id="defaultParaBtn" class="btn btn-ghost">
@@ -1186,7 +1186,6 @@
         const appList = document.getElementById('appList');
         const cardReaderList = document.getElementById('cardReaderList');
         const appTitle = document.getElementById('appTitle');
-        const masterDescription = document.getElementById('masterDescription');
         const templateTableBody = document.getElementById('templateTableBody');
         const versionTableBody = document.getElementById('versionTableBody');
         const createTemplateBtn = document.getElementById('createTemplateBtn');
@@ -1408,9 +1407,6 @@ ${deleteAction}`;
 
             const showSubTemplates = appSupportsSubTemplates(name);
             appTitle.textContent = name;
-            masterDescription.innerHTML = showSubTemplates
-                ? 'This is the initial parameter template for this application.<br>All sub-templates are derived from this structure.'
-                : 'This is the initial parameter template for this application.<br>Application versions are released from this structure.';
             defaultParaText.textContent = 'Default Para';
 
             createTemplateBtn.classList.toggle('is-hidden', !showSubTemplates);

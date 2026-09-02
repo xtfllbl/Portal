@@ -118,6 +118,8 @@
   ]);
   var panelPages = new Set([
     "2.agent_list_iso.html",
+    "3.Processor_template_new.html",
+    "6.edit_application_parameters.html",
     "7.merchant_contact.html",
     "8.splitbill.html",
     "12.transaction_list.html",
@@ -302,6 +304,8 @@
     ".review-subtitle",
     ".page-header > div > .page-subtitle",
     ".page-header > div > .page-sub",
+    ".page-header > .page-subtitle",
+    ".page-header > .page-sub",
     "#pageSubtitle.subtitle"
   ].forEach(function (selector) {
     source.querySelectorAll(selector).forEach(function (element) { element.remove(); });
