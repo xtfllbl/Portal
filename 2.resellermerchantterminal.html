@@ -294,38 +294,30 @@
             gap: 5px;
         }
         .hierarchy-node-glyph {
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex: 0 0 12px;
+            flex: 0 0 16px;
             color: #64748b;
-            opacity: .88;
+            opacity: 1;
         }
-        .hierarchy-node-glyph svg {
-            width: 11px;
-            height: 11px;
-            stroke: currentColor;
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+        .hierarchy-node-glyph.material-symbols-rounded {
+            font-size: 16px;
+            line-height: 1;
+            font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
         }
-        .hierarchy-node-badge {
+        .hierarchy-node-count {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            min-height: auto;
-            padding: 0;
-            border-radius: 0;
-            font-size: 9px;
+            justify-content: flex-end;
+            min-width: 28px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.07em;
-            text-transform: uppercase;
-            border: none;
-            background: transparent;
-            opacity: .5;
+            line-height: 1;
+            color: #8a8f98;
+            font-variant-numeric: tabular-nums;
             white-space: nowrap;
         }
         .hierarchy-node-name {
@@ -338,12 +330,12 @@
             line-height: 1.2;
         }
         .hierarchy-list .selected .hierarchy-node-name { font-weight: 700; }
-        .hierarchy-list .selected .hierarchy-node-badge { opacity: .72; }
+        .hierarchy-list .selected .hierarchy-node-count { color: #4a4b52; }
         .hierarchy-list .selected .hierarchy-node-glyph { opacity: 1; }
-        .hierarchy-node-badge.kind-super-iso { color: #9a7b46; }
-        .hierarchy-node-badge.kind-iso { color: #5f7fc0; }
-        .hierarchy-node-badge.kind-subiso { color: #4f8b86; }
-        .hierarchy-node-badge.kind-agent { color: #748091; }
+        .hierarchy-node-glyph.kind-super-iso { color: #4b5563; }
+        .hierarchy-node-glyph.kind-iso,
+        .hierarchy-node-glyph.kind-subiso,
+        .hierarchy-node-glyph.kind-agent { color: #2563a8; }
         .hierarchy-node-glyph.kind-merchant { color: #15803d; }
         .hierarchy-node-glyph.kind-store { color: #c2410c; }
         .hierarchy-tools {
@@ -739,17 +731,11 @@
             font-weight: 500;
         }
         .hierarchy-list .selected .hierarchy-node-name { font-weight: 700; }
-        .hierarchy-node-badge {
+        .hierarchy-node-count {
             font-size: 13px;
-            letter-spacing: .02em;
-            font-weight: 700;
-            opacity: .72;
+            font-weight: 600;
         }
-        .hierarchy-node-badge.kind-super-iso,
-        .hierarchy-node-badge.kind-iso,
-        .hierarchy-node-badge.kind-subiso { color: #9aa3b2; }
-        .hierarchy-node-glyph { display: none; }
-        .hierarchy-node-badge.kind-merchant { color: #45d97a; opacity: 1; }
+        .hierarchy-node-glyph { display: inline-flex; }
         .page-card {
             min-width: 0;
             border-radius: 8px;
@@ -1359,7 +1345,7 @@
         .pw-device-terminal-page .hierarchy-node-name {
             font-size: 12px;
         }
-        .pw-device-terminal-page .hierarchy-node-badge {
+        .pw-device-terminal-page .hierarchy-node-count {
             font-size: 11px;
         }
         .pw-device-terminal-page .reseller-hero {
@@ -3212,14 +3198,11 @@
         function getHierarchyChevronSvg(){
           return '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>';
         }
-        function getEntityGlyphSvg(kind){
-          if(kind === 'merchant'){
-            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M5 10 7 5h10l2 5"/><path d="M10 14h4"/></svg>';
-          }
-          if(kind === 'store'){
-            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-4.4 6-10a6 6 0 1 0-12 0c0 5.6 6 10 6 10Z"/><path d="M9 10h6"/><path d="M10 13h4"/></svg>';
-          }
-          return '';
+        function getEntityIconName(kind){
+          if(kind === 'super_iso') return 'corporate_fare';
+          if(kind === 'merchant') return 'storefront';
+          if(kind === 'store') return 'location_on';
+          return 'group';
         }
         var createResellerModal = document.getElementById('createResellerModal');
         var createResellerForm = document.getElementById('createResellerForm');
@@ -3285,26 +3268,52 @@
         };
 
         var hierarchyData = [
-          { id: 'sp-wizardpos', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'wizarpos' },
-          { id: 'siso-luoq', parentId: 'sp-wizardpos', level: 2, kind: 'iso', type: 'reseller', name: 'Luoqıu' },
-          { id: 'siso-jmsc-pos', parentId: 'sp-wizardpos', level: 2, kind: 'iso', type: 'reseller', name: 'JMSC POS' },
-          { id: 'm-tianfu', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Tianfu Merchant' },
-          { id: 'm-yameng', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'YamengProdTest' },
-          { id: 'm-agabae', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'AGABAE LLC' },
-          { id: 'm-wp-fady', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'WP FADY FAM VENDING' },
-          { id: 'm-levico', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Levico Vending' },
-          { id: 'm-mayfood', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'MayFood' },
-          { id: 'm-brave-florist', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Brave florist' },
-          { id: 'm-wowis-bali-1', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Wowis Bali Wowis' },
-          { id: 'm-le-relais', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'LE RELAIS DES LACS' },
-          { id: 'm-eu-sun24', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'EU Sun24' },
-          { id: 'm-sck', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'SCK MARTIAL ARTS ACADEMY' },
-          { id: 'm-trend-twist', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Trend Twist' },
-          { id: 'm-vendy', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'VENDY' },
-          { id: 'm-sia-eko-b', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'SIA EKO B' },
-          { id: 'm-amada-victoria', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Amada Victoria' },
-          { id: 'm-five-10', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Five 10 Private Limi' },
-          { id: 'm-wowis-bali-2', parentId: 'sp-wizardpos', level: 2, kind: 'merchant', type: 'merchant', name: 'Wowis Bali Wowis' }
+          { id: 'sp-wizardpos', parentId: '', level: 1, kind: 'super_iso', type: 'reseller', name: 'wizarpos', terminalCount: 456 },
+
+          { id: 'agt-luoqiu', parentId: 'sp-wizardpos', level: 2, kind: 'agent', type: 'reseller', name: 'Luoqiu', terminalCount: 148 },
+          { id: 'm-tianfu', parentId: 'agt-luoqiu', level: 3, kind: 'merchant', type: 'merchant', name: 'Tianfu Merchant', terminalCount: 62 },
+          { id: 's-tianfu-main', parentId: 'm-tianfu', level: 4, kind: 'store', type: 'store', name: 'Tianfu Main Hall', terminalCount: 34 },
+          { id: 's-tianfu-airport', parentId: 'm-tianfu', level: 4, kind: 'store', type: 'store', name: 'Airport Kiosk', terminalCount: 28 },
+          { id: 'm-yameng', parentId: 'agt-luoqiu', level: 3, kind: 'merchant', type: 'merchant', name: 'YamengProdTest', terminalCount: 48 },
+          { id: 's-yameng-north', parentId: 'm-yameng', level: 4, kind: 'store', type: 'store', name: 'North Branch', terminalCount: 17 },
+          { id: 's-yameng-central', parentId: 'm-yameng', level: 4, kind: 'store', type: 'store', name: 'Central Plaza', terminalCount: 16 },
+          { id: 's-yameng-west', parentId: 'm-yameng', level: 4, kind: 'store', type: 'store', name: 'West End Branch', terminalCount: 15 },
+          { id: 'm-agabae', parentId: 'agt-luoqiu', level: 3, kind: 'merchant', type: 'merchant', name: 'AGABAE LLC', terminalCount: 38 },
+          { id: 's-agabae-harbor', parentId: 'm-agabae', level: 4, kind: 'store', type: 'store', name: 'Harbor Point Shop', terminalCount: 20 },
+          { id: 's-agabae-market', parentId: 'm-agabae', level: 4, kind: 'store', type: 'store', name: 'Riverfront Market', terminalCount: 18 },
+
+          { id: 'agt-jmsc', parentId: 'sp-wizardpos', level: 2, kind: 'agent', type: 'reseller', name: 'JMSC POS', terminalCount: 112 },
+          { id: 'm-wp-fady', parentId: 'agt-jmsc', level: 3, kind: 'merchant', type: 'merchant', name: 'WP FADY FAM VENDING', terminalCount: 44 },
+          { id: 's-wp-midtown', parentId: 'm-wp-fady', level: 4, kind: 'store', type: 'store', name: 'Midtown Station', terminalCount: 24 },
+          { id: 's-wp-office', parentId: 'm-wp-fady', level: 4, kind: 'store', type: 'store', name: 'Office Tower Counter', terminalCount: 20 },
+          { id: 'm-levico', parentId: 'agt-jmsc', level: 3, kind: 'merchant', type: 'merchant', name: 'Levico Vending', terminalCount: 37 },
+          { id: 's-levico-downtown', parentId: 'm-levico', level: 4, kind: 'store', type: 'store', name: 'Downtown Branch', terminalCount: 19 },
+          { id: 's-levico-campus', parentId: 'm-levico', level: 4, kind: 'store', type: 'store', name: 'Campus Center', terminalCount: 18 },
+          { id: 'm-mayfood', parentId: 'agt-jmsc', level: 3, kind: 'merchant', type: 'merchant', name: 'MayFood', terminalCount: 31 },
+          { id: 's-mayfood-riverside', parentId: 'm-mayfood', level: 4, kind: 'store', type: 'store', name: 'Riverside Dining Room', terminalCount: 16 },
+          { id: 's-mayfood-convention', parentId: 'm-mayfood', level: 4, kind: 'store', type: 'store', name: 'Convention Booth', terminalCount: 15 },
+
+          { id: 'agt-apex', parentId: 'sp-wizardpos', level: 2, kind: 'agent', type: 'reseller', name: 'Apex Resellers', terminalCount: 105 },
+          { id: 'm-brave-florist', parentId: 'agt-apex', level: 3, kind: 'merchant', type: 'merchant', name: 'Brave Florist', terminalCount: 41 },
+          { id: 's-brave-garden', parentId: 'm-brave-florist', level: 4, kind: 'store', type: 'store', name: 'Garden Walk', terminalCount: 22 },
+          { id: 's-brave-station', parentId: 'm-brave-florist', level: 4, kind: 'store', type: 'store', name: 'Central Station', terminalCount: 19 },
+          { id: 'm-wowis', parentId: 'agt-apex', level: 3, kind: 'merchant', type: 'merchant', name: 'Wowis Bali Wowis', terminalCount: 36 },
+          { id: 's-wowis-beach', parentId: 'm-wowis', level: 4, kind: 'store', type: 'store', name: 'Bali Beach Shop', terminalCount: 18 },
+          { id: 's-wowis-ubud', parentId: 'm-wowis', level: 4, kind: 'store', type: 'store', name: 'Ubud Market', terminalCount: 18 },
+          { id: 'm-le-relais', parentId: 'agt-apex', level: 3, kind: 'merchant', type: 'merchant', name: 'LE RELAIS DES LACS', terminalCount: 28 },
+          { id: 's-relais-lake', parentId: 'm-le-relais', level: 4, kind: 'store', type: 'store', name: 'Lakeside Counter', terminalCount: 15 },
+          { id: 's-relais-north', parentId: 'm-le-relais', level: 4, kind: 'store', type: 'store', name: 'North Annex', terminalCount: 13 },
+
+          { id: 'agt-pacific', parentId: 'sp-wizardpos', level: 2, kind: 'agent', type: 'reseller', name: 'Pacific Channel Partners', terminalCount: 91 },
+          { id: 'm-eu-sun24', parentId: 'agt-pacific', level: 3, kind: 'merchant', type: 'merchant', name: 'EU Sun24', terminalCount: 39 },
+          { id: 's-sun24-skyline', parentId: 'm-eu-sun24', level: 4, kind: 'store', type: 'store', name: 'Skyline Fitness Club', terminalCount: 21 },
+          { id: 's-sun24-east', parentId: 'm-eu-sun24', level: 4, kind: 'store', type: 'store', name: 'East Side Studio', terminalCount: 18 },
+          { id: 'm-sck', parentId: 'agt-pacific', level: 3, kind: 'merchant', type: 'merchant', name: 'SCK MARTIAL ARTS ACADEMY', terminalCount: 28 },
+          { id: 's-sck-dojo', parentId: 'm-sck', level: 4, kind: 'store', type: 'store', name: 'Main Dojo', terminalCount: 15 },
+          { id: 's-sck-training', parentId: 'm-sck', level: 4, kind: 'store', type: 'store', name: 'Training Annex', terminalCount: 13 },
+          { id: 'm-trend-twist', parentId: 'agt-pacific', level: 3, kind: 'merchant', type: 'merchant', name: 'Trend Twist', terminalCount: 24 },
+          { id: 's-trend-urban', parentId: 'm-trend-twist', level: 4, kind: 'store', type: 'store', name: 'Urban Pet Supply', terminalCount: 13 },
+          { id: 's-trend-corner', parentId: 'm-trend-twist', level: 4, kind: 'store', type: 'store', name: 'Corner Table', terminalCount: 11 }
         ];
 
         function getHierarchyItemById(id){
@@ -3631,7 +3640,7 @@
             li.setAttribute('data-depth', String(Math.max(0, item.level - 1)));
             li.setAttribute('data-id', item.id);
             li.setAttribute('data-type', item.type);
-            li.title = getHierarchyPathText(item);
+            li.title = getHierarchyPathText(item) + ' · ' + item.terminalCount + ' terminals';
             var toggle = document.createElement('button');
             toggle.type = 'button';
             toggle.className = 'tree-toggle' + (hasChildren && collapsed ? ' collapsed' : '') + (hasChildren ? '' : ' placeholder');
@@ -3658,20 +3667,19 @@
             var name = document.createElement('span');
             name.className = 'hierarchy-node-name';
             name.textContent = item.name;
-            if(item.type !== 'reseller'){
-              var glyph = document.createElement('span');
-              glyph.className = 'hierarchy-node-glyph ' + getHierarchyKindClass(item.kind);
-              glyph.innerHTML = getEntityGlyphSvg(item.kind);
-              label.appendChild(glyph);
-            }
+            var glyph = document.createElement('span');
+            glyph.className = 'hierarchy-node-glyph material-symbols-rounded ' + getHierarchyKindClass(item.kind);
+            glyph.setAttribute('aria-hidden', 'true');
+            glyph.textContent = getEntityIconName(item.kind);
+            label.appendChild(glyph);
             label.appendChild(name);
             main.appendChild(label);
-            if(item.type !== 'store'){
-              var badge = document.createElement('span');
-              badge.className = 'hierarchy-node-badge ' + getHierarchyKindClass(item.kind);
-              badge.textContent = meta.shortLabel || meta.label;
-              main.appendChild(badge);
-            }
+            var count = document.createElement('span');
+            count.className = 'hierarchy-node-count';
+            count.textContent = String(item.terminalCount);
+            count.title = item.terminalCount + ' terminals';
+            count.setAttribute('aria-label', item.terminalCount + ' terminals');
+            main.appendChild(count);
             li.appendChild(toggle);
             li.appendChild(main);
             li.addEventListener('click', function(){

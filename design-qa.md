@@ -1,3 +1,62 @@
+# Design QA: Entity Hierarchy icons and terminal counts
+
+**Source visual truth**
+
+- User-provided PAX STORE and Paywizard hierarchy screenshots in the task brief.
+- Local reference implementation: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/tmp.html`.
+- Browser-rendered source capture: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/hierarchy-source-tmp.png`.
+
+**Implementation evidence**
+
+- Browser-rendered implementation: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/hierarchy-implementation.png`.
+- Side-by-side focused comparison: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/hierarchy-design-qa-comparison.png`.
+- Browser viewport: source `1710 × 896` CSS px; implementation `1710 × 952` CSS px.
+- Captured pixels: source `1710 × 896`; implementation `1710 × 952`.
+- Browser device pixel ratio: `2`; browser screenshot output was normalized to CSS-pixel dimensions, so no further density conversion was applied.
+- State: desktop, hierarchy fully expanded, service-provider root selected.
+
+**Full-view comparison evidence**
+
+- The target page retains its existing portal shell, hierarchy-card placement, heading, search field, selection treatment, and right-side terminal-management content.
+- The hierarchy card is 320 px wide in the target page versus 300 px in `tmp.html`; this is an existing target-page layout constraint and gives the terminal totals enough room without changing the portal grid.
+- The tree remains vertically scrollable and does not introduce page-level horizontal overflow.
+
+**Focused region comparison evidence**
+
+- The side-by-side comparison confirms the reference's compact row rhythm, disclosure chevrons, indentation, green merchant icons, and orange store-location icons are preserved.
+- Service provider and agent icons now use the same Material Symbols family already loaded by the portal, while merchant and store remain visually distinct.
+- Former right-aligned role abbreviations are replaced by muted, tabular terminal totals with stable alignment.
+
+**Findings**
+
+- No actionable P0, P1, or P2 visual mismatch remains for the requested hierarchy change.
+- Fonts and typography: existing Poppins/portal typography is preserved; node names remain 12 px in the device-management view, counts use the same UI family and tabular numerals.
+- Spacing and layout rhythm: four-level indentation is readable at the existing compact row height; icons and counts do not collide with long names because names retain ellipsis behavior.
+- Colors and visual tokens: service provider is neutral, agents blue, merchants green, stores orange; colors follow the restrained reference treatment and retain sufficient distinction without adding badges.
+- Image quality and asset fidelity: hierarchy icons use the existing Material Symbols icon library, so they remain crisp at browser zoom and do not add raster placeholders or custom-drawn assets.
+- Copy and content: role abbreviations are removed from the right edge; each node displays only its organization name and terminal total as requested.
+- Accessibility: icons are decorative, count text has an explicit `X terminals` accessible label, and expand/collapse controls retain descriptive labels.
+
+**Primary interactions tested**
+
+- Search narrows the tree to the matched store and its ancestors.
+- Expand/collapse preserves the hierarchy and selection behavior.
+- Selecting a store updates the detail header to the selected store.
+- All 42 hierarchy nodes render; the root is 456 terminals; every parent count equals the sum of its direct child counts.
+- Browser console checked: no errors.
+
+**Comparison history**
+
+- Initial browser pass: no P0/P1/P2 issues found in the requested component, so no visual-fix iteration was required.
+
+**Follow-up polish**
+
+- None required for this scope.
+
+final result: passed
+
+---
+
 # Prepaid Cards tab redesign — visual QA
 
 ## Comparison target
