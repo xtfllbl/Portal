@@ -1,0 +1,255 @@
+<div id="paywizard-role-matrix">
+  <style>
+    #paywizard-role-matrix {
+      --rm-bg: light-dark(#f6f7f9, #111216);
+      --rm-surface: light-dark(#ffffff, #1a1c21);
+      --rm-surface-soft: light-dark(#f1f2f5, #23262d);
+      --rm-text: light-dark(#282a31, #f3f4f7);
+      --rm-muted: light-dark(#707581, #a9afba);
+      --rm-border: light-dark(#dfe2e8, #343842);
+      --rm-wizar: light-dark(#111318, #f4f5f7);
+      --rm-attended: light-dark(#176c48, #68dda7);
+      --rm-unattended: light-dark(#1765a8, #75b9f0);
+      --rm-denied: light-dark(#a04d44, #f29b91);
+      width: 100%;
+      color: var(--rm-text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light dark;
+    }
+    #paywizard-role-matrix * { box-sizing: border-box; }
+    #paywizard-role-matrix .rm-shell {
+      overflow: hidden;
+      border: 1px solid var(--rm-border);
+      border-radius: 18px;
+      background: var(--rm-surface);
+      box-shadow: 0 18px 50px light-dark(rgba(26, 31, 41, .08), rgba(0, 0, 0, .24));
+    }
+    #paywizard-role-matrix .rm-titlebar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--rm-border);
+    }
+    #paywizard-role-matrix h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+    #paywizard-role-matrix .rm-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--rm-muted); font-size: 12px; }
+    #paywizard-role-matrix .rm-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    #paywizard-role-matrix .rm-legend b { font-size: 15px; }
+    #paywizard-role-matrix .rm-table-wrap { overflow-x: auto; }
+    #paywizard-role-matrix table { width: 100%; min-width: 680px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    #paywizard-role-matrix th, #paywizard-role-matrix td { border-bottom: 1px solid var(--rm-border); border-right: 1px solid var(--rm-border); }
+    #paywizard-role-matrix tr > :last-child { border-right: 0; }
+    #paywizard-role-matrix thead th { position: sticky; top: 0; z-index: 2; background: var(--rm-surface); }
+    #paywizard-role-matrix thead th:first-child { width: 31%; padding: 16px 20px; color: var(--rm-muted); font-size: 12px; text-align: left; text-transform: uppercase; letter-spacing: .08em; }
+    #paywizard-role-matrix .rm-role {
+      width: 23%;
+      padding: 0;
+      transition: background .18s ease, opacity .18s ease;
+    }
+    #paywizard-role-matrix .rm-role button {
+      width: 100%;
+      min-height: 72px;
+      padding: 13px 12px;
+      border: 0;
+      background: transparent;
+      color: var(--rm-text);
+      cursor: pointer;
+    }
+    #paywizard-role-matrix .rm-role strong { display: block; font-size: 14px; }
+    #paywizard-role-matrix .rm-role small { display: block; margin-top: 4px; color: var(--rm-muted); font-size: 11px; font-weight: 500; }
+    #paywizard-role-matrix .rm-role[data-role="wizarpos"] { box-shadow: inset 0 4px 0 var(--rm-wizar); }
+    #paywizard-role-matrix .rm-role[data-role="attended"] { box-shadow: inset 0 4px 0 var(--rm-attended); }
+    #paywizard-role-matrix .rm-role[data-role="unattended"] { box-shadow: inset 0 4px 0 var(--rm-unattended); }
+    #paywizard-role-matrix .rm-group th {
+      padding: 10px 20px;
+      border-right: 0;
+      background: var(--rm-surface-soft);
+      color: var(--rm-muted);
+      font-size: 11px;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+    #paywizard-role-matrix tbody th { padding: 13px 20px; font-size: 13px; font-weight: 700; line-height: 1.3; text-align: left; vertical-align: middle; }
+    #paywizard-role-matrix tbody th small { display: block; margin-top: 3px; color: var(--rm-muted); font-size: 11px; font-weight: 500; }
+    #paywizard-role-matrix tbody td { padding: 12px 14px; text-align: center; vertical-align: middle; transition: opacity .18s ease, background .18s ease; }
+    #paywizard-role-matrix .rm-value { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; font-weight: 700; line-height: 1.25; }
+    #paywizard-role-matrix .rm-value b { font-size: 16px; }
+    #paywizard-role-matrix td[data-state="yes"] .rm-value { color: var(--rm-attended); }
+    #paywizard-role-matrix td[data-state="no"] .rm-value { color: var(--rm-denied); }
+    #paywizard-role-matrix td[data-state="route"] .rm-value { color: var(--rm-unattended); }
+    #paywizard-role-matrix .rm-note { display: block; margin-top: 3px; color: var(--rm-muted); font-size: 10px; font-weight: 500; line-height: 1.25; }
+    #paywizard-role-matrix .rm-footer { padding: 13px 20px; color: var(--rm-muted); font-size: 11px; line-height: 1.5; }
+    #paywizard-role-matrix[data-focus="wizarpos"] [data-col]:not([data-col="wizarpos"]),
+    #paywizard-role-matrix[data-focus="attended"] [data-col]:not([data-col="attended"]),
+    #paywizard-role-matrix[data-focus="unattended"] [data-col]:not([data-col="unattended"]) { opacity: .24; }
+    #paywizard-role-matrix[data-focus="wizarpos"] [data-col="wizarpos"],
+    #paywizard-role-matrix[data-focus="attended"] [data-col="attended"],
+    #paywizard-role-matrix[data-focus="unattended"] [data-col="unattended"] { background: var(--rm-surface-soft); }
+    #paywizard-role-matrix .rm-role button:focus-visible { outline: 2px solid var(--rm-unattended); outline-offset: -4px; }
+    @media (max-width: 620px) {
+      #paywizard-role-matrix .rm-titlebar { align-items: flex-start; flex-direction: column; padding: 18px; }
+      #paywizard-role-matrix h2 { font-size: 19px; }
+      #paywizard-role-matrix table { min-width: 680px; }
+    }
+  </style>
+
+  <div class="rm-shell">
+    <div class="rm-titlebar">
+      <h2>PAYwizard Portal 角色权限矩阵</h2>
+      <div class="rm-legend" aria-label="图例">
+        <span><b>✓</b> 显示 / 可访问</span>
+        <span><b>—</b> 隐藏 / 不可访问</span>
+        <span><b>↗</b> 按角色跳转</span>
+      </div>
+    </div>
+    <div class="rm-table-wrap">
+      <table aria-label="PAYwizard Portal 三种访问角色权限对照表">
+        <thead>
+          <tr>
+            <th scope="col">功能与规则</th>
+            <th class="rm-role" data-role="wizarpos" data-col="wizarpos" scope="col"><button type="button" data-focus-role="wizarpos" aria-pressed="false"><strong>WizarPOS Provider</strong><small>全功能服务商</small></button></th>
+            <th class="rm-role" data-role="attended" data-col="attended" scope="col"><button type="button" data-focus-role="attended" aria-pressed="false"><strong>Attended Provider</strong><small>有人值守服务商</small></button></th>
+            <th class="rm-role" data-role="unattended" data-col="unattended" scope="col"><button type="button" data-focus-role="unattended" aria-pressed="false"><strong>Unattended Provider</strong><small>无人值守服务商</small></button></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="rm-group"><th colspan="4">公共能力</th></tr>
+          <tr>
+            <th scope="row">右上角角色模拟器<small>选择结果跨页面保留</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 可切换</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 可切换</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 可切换</span></td>
+          </tr>
+          <tr>
+            <th scope="row">通用菜单<small>Transactions、Agents、Merchants、Device Management、APP Management、Remote Diagnostic、User Management、Settings</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+          </tr>
+
+          <tr class="rm-group"><th colspan="4">Merchants 与 Partners</th></tr>
+          <tr>
+            <th scope="row">Contact / Leads / Onboarding</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Merchant List</span></td>
+            <td data-col="unattended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Merchant List</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Merchant List / Split Rules</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Partners 整个模块</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Merchant List</span></td>
+            <td data-col="unattended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Merchant List</span></td>
+          </tr>
+
+          <tr class="rm-group"><th colspan="4">Device Management</th></tr>
+          <tr>
+            <th scope="row">点击 Device Management<small>Overview 不再作为子菜单</small></th>
+            <td data-col="wizarpos" data-state="route"><span class="rm-value"><b>↗</b> Overview</span></td>
+            <td data-col="attended" data-state="route"><span class="rm-value"><b>↗</b> Overview</span></td>
+            <td data-col="unattended" data-state="route"><span class="rm-value"><b>↗</b> Overview</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Attended Terminals<small>1.terminalmanage.html</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="unattended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Unattended</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Unattended Terminals<small>1.terminalmanage_nayax.html</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Attended</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Card Readers<small>1.terminalmanage_CardReader.html</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Attended</span></td>
+            <td data-col="unattended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Unattended</span></td>
+          </tr>
+          <tr>
+            <th scope="row">设备列表 / 交易详情终端链接</th>
+            <td data-col="wizarpos" data-state="route"><span class="rm-value"><b>↗</b> 自动识别类型</span></td>
+            <td data-col="attended" data-state="route"><span class="rm-value"><b>↗</b> Attended</span></td>
+            <td data-col="unattended" data-state="route"><span class="rm-value"><b>↗</b> Unattended</span></td>
+          </tr>
+
+          <tr class="rm-group"><th colspan="4">Prepaid Cards 与 Settings</th></tr>
+          <tr>
+            <th scope="row">Prepaid Cards 整个模块</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Device Management</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Settings → SLA Alerts</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Transactions</span></td>
+            <td data-col="unattended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Transactions</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Settings → Alerts</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 隐藏</span><span class="rm-note">直达跳 Transactions</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+          </tr>
+          <tr>
+            <th scope="row">其余 Settings 子菜单<small>Branding、Service Providers、Payment Channels、Application Parameters、Products、Product Map Templates</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 显示</span></td>
+          </tr>
+
+          <tr class="rm-group"><th colspan="4">Transactions</th></tr>
+          <tr>
+            <th scope="row">Attended View<small>同时作为 WizarPOS 与有人值守默认视图</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 默认</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 唯一 / 默认</span></td>
+            <td data-col="unattended" data-state="no"><span class="rm-value"><b>—</b> 不显示</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Unattended View</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 可切换</span></td>
+            <td data-col="attended" data-state="no"><span class="rm-value"><b>—</b> 不显示</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 唯一 / 默认</span></td>
+          </tr>
+          <tr>
+            <th scope="row">终端场景选择器</th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 两类场景</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 仅 Attended</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 仅 Unattended</span></td>
+          </tr>
+          <tr>
+            <th scope="row">自定义列视图<small>每个角色独立保存，最多 2 个</small></th>
+            <td data-col="wizarpos" data-state="yes"><span class="rm-value"><b>✓</b> 独立存储</span></td>
+            <td data-col="attended" data-state="yes"><span class="rm-value"><b>✓</b> 独立存储</span></td>
+            <td data-col="unattended" data-state="yes"><span class="rm-value"><b>✓</b> 独立存储</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rm-footer">这是销售演示用 Role Simulator：控制前端菜单、视图和演示级页面守卫，不代表生产环境的后端认证与授权。</div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById("paywizard-role-matrix");
+      const buttons = Array.from(root.querySelectorAll("[data-focus-role]"));
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const role = button.dataset.focusRole;
+          const next = root.dataset.focus === role ? "" : role;
+          root.dataset.focus = next;
+          buttons.forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate.dataset.focusRole === next)));
+        });
+      });
+    })();
+  </script>
+</div>
