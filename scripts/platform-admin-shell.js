@@ -1,7 +1,10 @@
 (function () {
   "use strict";
 
-  if (window.frameElement && window.frameElement.getAttribute("data-platform-shell") === "disabled") return;
+  if (window.frameElement && window.frameElement.getAttribute("data-platform-shell") === "disabled") {
+    if (document.body) document.body.classList.add("pw-platform-shell-bypassed");
+    return;
+  }
 
   var profileStoreKey = "paywizard.portalAccessProfile.v1";
   var profiles = {
@@ -350,6 +353,20 @@
 
   var sidebar = frame.querySelector(".pw-platform-sidebar");
   var mobileButton = frame.querySelector(".pw-platform-mobile-menu");
+  var sidebarScrollStoreKey = "paywizard.platformSidebarScrollTop.v1." + activeProfile;
+
+  function restoreSidebarScrollPosition() {
+    try {
+      var savedPosition = Number(sessionStorage.getItem(sidebarScrollStoreKey));
+      if (Number.isFinite(savedPosition) && savedPosition >= 0) sidebar.scrollTop = savedPosition;
+    } catch (_) {}
+  }
+
+  requestAnimationFrame(function () {
+    restoreSidebarScrollPosition();
+    requestAnimationFrame(restoreSidebarScrollPosition);
+  });
+
   function setDrawer(open) {
     sidebar.classList.toggle("is-open", open);
     overlay.classList.toggle("is-open", open);
@@ -358,7 +375,10 @@
   mobileButton.addEventListener("click", function () { setDrawer(!sidebar.classList.contains("is-open")); });
   overlay.addEventListener("click", function () { setDrawer(false); });
   sidebar.querySelectorAll("a").forEach(function (anchor) {
-    anchor.addEventListener("click", function () { setDrawer(false); });
+    anchor.addEventListener("click", function () {
+      try { sessionStorage.setItem(sidebarScrollStoreKey, String(sidebar.scrollTop)); } catch (_) {}
+      setDrawer(false);
+    });
   });
 
   frame.querySelectorAll("[data-pw-menu-toggle]").forEach(function (button) {
@@ -432,4 +452,5 @@
   document.addEventListener("click", function (event) {
     if (event.target.closest("[data-mark-read], [data-mark-all-read]")) window.setTimeout(refreshNotificationCount, 0);
   });
+  document.body.classList.add("pw-platform-shell-ready");
 })();

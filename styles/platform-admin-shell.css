@@ -11,6 +11,21 @@
   --pw-page-radius: 8px;
 }
 
+/* Prevent legacy page chrome from painting before the shared shell is mounted. */
+@keyframes pw-platform-shell-failsafe {
+  to { visibility: visible; }
+}
+
+html:has(link[href$="platform-admin-shell.css"]):not(:has(body.pw-platform-shell-ready)) {
+  min-width: 320px;
+  background: #f5f5f6;
+}
+
+html:has(link[href$="platform-admin-shell.css"]) body:not(.pw-platform-shell-ready):not(.pw-platform-shell-bypassed) {
+  visibility: hidden;
+  animation: pw-platform-shell-failsafe 0s 3s forwards;
+}
+
 html:has(body.pw-platform-admin) { min-width: 320px; background: #090909; }
 
 body.pw-platform-admin {
@@ -274,6 +289,91 @@ body.pw-platform-admin .pw-platform-sidebar .pw-platform-sub-item.active::before
   border: 0;
   background: #fff;
   transform: translateY(-50%);
+}
+
+/* The shared shell is mounted inside legacy pages that still define generic
+   .sidebar, .menu-item and .sub-item rules. Keep navigation geometry owned by
+   the shell so changing routes cannot change its spacing. */
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-item,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-toggle,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-link,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-disabled {
+  width: 100%;
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #303036;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  text-decoration: none;
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-sub-item {
+  position: relative;
+  width: 100%;
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 7px 11px 7px 26px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pw-shell-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-sub-item::before {
+  left: 9px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  transform: translateY(-50%);
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-item:hover,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-toggle:hover,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-link:hover,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-disabled:hover {
+  background: #f3f3f4;
+  color: #303036;
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-sub-item:hover {
+  background: #f3f3f4;
+  color: var(--pw-shell-text);
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-item.active,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-toggle.active,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-sub-item.active {
+  background: var(--pw-shell-active);
+  color: #fff;
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-row.active .pw-platform-menu-link,
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-menu-row.active .pw-platform-device-toggle {
+  background: transparent;
+  color: #fff;
+}
+
+body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar .pw-platform-sub-item.active::before {
+  border: 0;
+  background: #fff;
 }
 
 .pw-platform-workspace {

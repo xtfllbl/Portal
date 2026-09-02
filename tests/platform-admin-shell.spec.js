@@ -41,6 +41,41 @@ const panelPages = new Set([
   "40.notifications.html"
 ]);
 
+test("keeps the legacy page hidden until the shared shell is ready", async ({ page }) => {
+  let releaseShell;
+  let markShellRequested;
+  const shellReleased = new Promise((resolve) => { releaseShell = resolve; });
+  const shellRequested = new Promise((resolve) => { markShellRequested = resolve; });
+
+  await page.route("**/scripts/platform-admin-shell.js", async (route) => {
+    markShellRequested();
+    await shellReleased;
+    await route.continue();
+  });
+
+  const navigation = page.goto("/1.terminalmanage_nayax.html");
+  await shellRequested;
+  await page.locator("body > .top-header").waitFor({ state: "attached" });
+
+  expect(await page.evaluate(() => getComputedStyle(document.body).visibility)).toBe("hidden");
+
+  releaseShell();
+  await navigation;
+  await expect(page.locator(".pw-platform-frame")).toBeVisible();
+  expect(await page.evaluate(() => getComputedStyle(document.body).visibility)).toBe("visible");
+});
+
+test("reveals the original page if the shared shell cannot load", async ({ page }) => {
+  await page.route("**/scripts/platform-admin-shell.js", (route) => route.abort());
+  await page.goto("/1.terminalmanage_nayax.html");
+
+  await expect.poll(
+    () => page.evaluate(() => getComputedStyle(document.body).visibility),
+    { timeout: 5000 }
+  ).toBe("visible");
+  await expect(page.locator("body > .top-header")).toBeVisible();
+});
+
 test("all numbered back-office pages mount one shared platform shell", async ({ page }) => {
   expect(includedPages).toHaveLength(47);
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -498,4 +533,90 @@ test("public and requirement pages remain outside the platform shell", async ({ 
     await page.goto(`/${file}`);
     await expect(page.locator(".pw-platform-frame"), file).toHaveCount(0);
   }
+});
+
+test("keeps the sidebar at the same scroll position when navigating", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/38.Merchant_onboard.html");
+  await page.locator('[data-pw-menu-toggle="settings"]').click();
+
+  const before = await page.evaluate(() => {
+    const sidebar = document.querySelector(".pw-platform-sidebar");
+    const target = sidebar.querySelector('a[href="36.product_map_templates.html"]');
+    sidebar.scrollTop = target.offsetTop - sidebar.clientHeight / 2;
+    return sidebar.scrollTop;
+  });
+
+  await Promise.all([
+    page.waitForURL(/36\.product_map_templates\.html$/),
+    page.locator('a[href="36.product_map_templates.html"]').evaluate((link) => link.click())
+  ]);
+
+  const after = await page.locator(".pw-platform-sidebar").evaluate((sidebar) => sidebar.scrollTop);
+  expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
+});
+
+test("Device Management selected group uses readable white text", async ({ page }) => {
+  await page.goto("/1.terminalmanage.html");
+
+  const selectedGroup = page.locator(".pw-platform-menu-row.active");
+  await expect(selectedGroup).toHaveCSS("background-color", "rgb(41, 41, 44)");
+  await expect(selectedGroup.locator(".pw-platform-menu-link")).toHaveCSS("color", "rgb(255, 255, 255)");
+});
+
+test("shared sidebar dimensions do not inherit page-local legacy styles", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  for (const route of [
+    "/38.Merchant_onboard.html",
+    "/5.merchant_manage_iso.html",
+    "/1.terminalmanage.html",
+    "/1.terminalmanage_nayax.html"
+  ]) {
+    await page.goto(route);
+    const metrics = await page.evaluate(() => {
+      const secondaryElement = document.querySelector(".pw-platform-sub-item:not(.active)");
+      const activeSecondary = getComputedStyle(document.querySelector(".pw-platform-sub-item.active"));
+      const root = getComputedStyle(document.querySelector(".pw-platform-menu-item"));
+      const secondary = getComputedStyle(secondaryElement);
+      const secondaryDot = getComputedStyle(secondaryElement, "::before");
+      return {
+        rootMinHeight: root.minHeight,
+        rootPadding: root.padding,
+        rootRadius: root.borderRadius,
+        rootColor: root.color,
+        rootBackground: root.backgroundColor,
+        secondaryMinHeight: secondary.minHeight,
+        secondaryPadding: secondary.padding,
+        secondaryRadius: secondary.borderRadius,
+        secondaryColor: secondary.color,
+        secondaryBackground: secondary.backgroundColor,
+        secondaryDotBorder: secondaryDot.border,
+        activeSecondaryColor: activeSecondary.color,
+        activeSecondaryBackground: activeSecondary.backgroundColor
+      };
+    });
+
+    expect(metrics, route).toEqual({
+      rootMinHeight: "47px",
+      rootPadding: "9px 12px",
+      rootRadius: "8px",
+      rootColor: "rgb(48, 48, 54)",
+      rootBackground: "rgba(0, 0, 0, 0)",
+      secondaryMinHeight: "43px",
+      secondaryPadding: "7px 11px 7px 26px",
+      secondaryRadius: "999px",
+      secondaryColor: "rgb(114, 119, 131)",
+      secondaryBackground: "rgba(0, 0, 0, 0)",
+      secondaryDotBorder: "2px solid rgb(114, 119, 131)",
+      activeSecondaryColor: "rgb(255, 255, 255)",
+      activeSecondaryBackground: "rgb(41, 41, 44)"
+    });
+  }
+});
+
+test("Unattended Terminals loads the shared Poppins typeface", async ({ page }) => {
+  await page.goto("/1.terminalmanage_nayax.html");
+
+  await expect(page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"][href*="Poppins"]')).toHaveCount(1);
 });
