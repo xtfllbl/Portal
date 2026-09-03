@@ -57,6 +57,52 @@ final result: passed
 
 ---
 
+# Open Alert Center Bell Icon Design QA
+
+## Comparison target
+
+- Source visual truth: the user-provided Open Alert Center button screenshot and the selected option `1`, defined as a simple outlined notification bell. The earlier rendered toolbar state is preserved at `design-qa/evidence/terminal-alerts-desktop.png`.
+- Implementation: Material Symbols Rounded `notifications`, weight 400 and fill 0, inside the existing Product Map command-button component.
+- Desktop implementation screenshot: `design-qa/evidence/terminal-alerts-bell-modal-desktop.png`.
+- Mobile implementation screenshot: `design-qa/evidence/terminal-alerts-bell-mobile.png`.
+- Focused toolbar screenshots: `design-qa/evidence/terminal-alerts-bell-toolbar-desktop.png` and `design-qa/evidence/terminal-alerts-bell-toolbar-mobile.png`.
+- Side-by-side comparison: `design-qa/evidence/terminal-alerts-bell-comparison.png`.
+- Desktop viewport and pixels: 1440 x 1000 CSS px, device scale factor 1, 1440 x 1000 output pixels.
+- Mobile viewport and pixels: 390 x 844 CSS px, device scale factor 1, 390 x 844 output pixels.
+- State: Terminal Management > Alerts; desktop comparison has Create Alert Rule open with Temperature Out of Range selected. Mobile validation uses the Alerts default state.
+
+## Evidence and required fidelity surfaces
+
+- Full-view comparison: the side-by-side image confirms that the toolbar placement, button dimensions, type, border, radius, and spacing remain stable; only the Open Alert Center icon changes.
+- Focused region: dedicated desktop and mobile command-bar captures confirm icon size, baseline alignment, equal button heights, and responsive wrapping.
+- Fonts and typography: Poppins text is unchanged; the icon uses the page's existing Material Symbols Rounded font with the intended outlined weight.
+- Spacing and layout rhythm: the bell occupies the existing 18 x 18 command-icon slot, remains vertically centered, and preserves the 8 px text gap. Both command buttons keep equal height on desktop and mobile.
+- Colors and tokens: the bell inherits the same neutral command-icon color and opacity as Map and Stock icons.
+- Image and asset fidelity: the bell comes from the existing Material Symbols icon library rather than a handcrafted SVG, text glyph, emoji, or CSS drawing.
+- Copy and content: `Open Alert Center` and its link behavior remain unchanged.
+- Responsive behavior: at 390 px, both actions wrap to two balanced lines without overflow; the icon remains aligned with the label.
+- Interaction and console: the command-bar regression test passed; desktop capture recorded no page or console errors.
+
+## Findings
+
+- No actionable P0, P1, or P2 differences.
+- The bell is more semantically recognizable than the prior assignment/clipboard icon while retaining the established toolbar visual language.
+
+## Comparison history
+
+- Initial implementation used the selected Material Symbols `notifications` icon and passed the first same-state comparison; no corrective visual iteration was required.
+
+## Implementation checklist
+
+- [x] Replace only the Open Alert Center icon.
+- [x] Preserve button geometry, typography, and link behavior.
+- [x] Verify desktop and mobile alignment.
+- [x] Verify the existing Alerts interaction test and browser console.
+
+final result: passed
+
+---
+
 # Onboarding Wizard mock-fill and Review cleanup — visual QA
 
 ## Comparison target

@@ -55,6 +55,7 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   }));
   expect(alertToolbarStyles).toEqual([referenceToolbarStyle, referenceToolbarStyle]);
   await expect(alertCenterLink.locator(".pm-command-icon")).toHaveCount(1);
+  await expect(alertCenterLink.locator(".alerts-command-symbol")).toHaveText("notifications");
   await expect(commandBar.locator(".pm-map-menu-button")).toHaveCount(2);
   await expect(alertPanel.getByRole("tab", { name: "Alerts", exact: true })).toHaveAttribute("aria-selected", "true");
   await expect(alertPanel.getByRole("tab", { name: "Visible Incidents" })).toHaveCount(0);
