@@ -8,10 +8,10 @@
 
   const recipes = {
     opc_offline: { label: "Payment Service Offline", hint: "Payment Service Unavailable only", criteria: "Unavailable for {duration} minutes", fields: [{ key: "duration", label: "Unavailable for", type: "number", value: 15, suffix: "minutes", min: 1 }] },
-    no_approved_transaction: { label: "No Approved Transaction", hint: "Uses the last Approved Transaction", criteria: "No approved transaction for {duration} hours", fields: [{ key: "duration", label: "No transaction for", type: "number", value: 2, suffix: "hours", min: 1 }, { key: "grace", label: "Opening grace", type: "number", value: 30, suffix: "minutes", min: 0 }, { key: "schedule", label: "Evaluation schedule", type: "select", value: "Store business hours", options: ["Store business hours"] }] },
-    machine_stock: { label: "Machine Stock Below % PAR", hint: "Total Product Map On Hand / total PAR", criteria: "Machine stock below {threshold}% PAR", fields: [{ key: "threshold", label: "Below", type: "number", value: 25, suffix: "% PAR", min: 1, max: 100 }] },
-    any_bin: { label: "Any BIN Below Quantity", hint: "Evaluates each Product Map position", criteria: "Any BIN below {threshold} units", fields: [{ key: "threshold", label: "Below quantity", type: "number", value: 2, suffix: "units", min: 0 }] },
-    selected_product: { label: "Selected Product / BIN Below % PAR", hint: "Matches a stable Product Map position", criteria: "{product} below {threshold}% PAR", fields: [{ key: "product", label: "Product / BIN", type: "select", value: "A1 · Sparkling Water", options: ["A1 · Sparkling Water", "A2 · Cola Zero", "B1 · Trail Mix"] }, { key: "threshold", label: "Below", type: "number", value: 30, suffix: "% PAR", min: 1, max: 100 }] },
+    no_approved_transaction: { label: "No Approved Transaction", hint: "Uses the last Approved Transaction", criteria: "No approved transaction for {duration} hours", fields: [{ key: "duration", label: "No transaction for", type: "number", value: 2, suffix: "hours", min: 1 }] },
+    machine_stock: { label: "Machine Stock Below % PAR", hint: "Total Product Map On Hand / total PAR", criteria: "Machine stock below {threshold}% PAR", fields: [{ key: "threshold", label: "Below", type: "number", value: 25, suffix: "% PAR", min: 1, max: 100, step: 1 }] },
+    any_bin: { label: "Any BIN Below Quantity", hint: "Evaluates each Product Map position", criteria: "Any BIN below {threshold} units", fields: [{ key: "threshold", label: "Below quantity", type: "number", value: 2, suffix: "units", min: 1, step: 1 }] },
+    selected_product: { label: "Selected Product / BIN Below % PAR", hint: "Matches a stable Product Map position", criteria: "{product} below {threshold}% PAR", fields: [{ key: "product", label: "Product / BIN", type: "select", value: "A1 · Sparkling Water", options: ["A1 · Sparkling Water", "A2 · Cola Zero", "B1 · Trail Mix"] }, { key: "threshold", label: "Below", type: "number", value: 30, suffix: "% PAR", min: 1, max: 100, step: 1 }] },
     sold_out: { label: "Sold Out", hint: "Product Map On Hand = 0", criteria: "Any monitored BIN has On Hand = 0", fields: [] },
     temperature_range: { label: "Temperature Out of Range", hint: "Normalized numeric readings", criteria: "Outside {lower}–{upper} °{unit}", fields: [{ key: "unit", label: "Temperature Unit", type: "unit", value: "C" }, { key: "lower", label: "Lower bound", type: "number", value: 2, temperatureUnit: true }, { key: "upper", label: "Upper bound", type: "number", value: 8, temperatureUnit: true }] },
     refrigeration_fault: { label: "Refrigeration Fault", hint: "Normalized equipment state", criteria: "Normalized refrigeration fault is active", fields: [] }
@@ -89,9 +89,9 @@
     { id: "r-provider-boston-soldout", condition: "sold_out", targetType: "Store", targetId: "s-boston", targetName: "Boston Office", criteria: "Any monitored BIN has On Hand = 0", recipients: ["Portal Inbox", "upt.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 16:05", owner: "Universal Processing", parameters: {}, recoveryChecksRequired: 2 },
     { id: "r-provider-boston-fault", condition: "refrigeration_fault", targetType: "Terminal", targetId: "BOS-Q3-0018", targetName: "Cafeteria Q3", criteria: "Normalized refrigeration fault is active", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Paused", modified: "2026-08-23 08:30", owner: "Universal Processing", parameters: {}, recoveryChecksRequired: 2 },
     { id: "r-agent-seattle", condition: "opc_offline", targetType: "Terminal", targetId: "WP7300EV33001088", targetName: "EV Charger Bay 07", criteria: "Unavailable for 10 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 09:40", owner: "Seattle Field Agent", parameters: { duration: 10 }, recoveryChecksRequired: 2 },
-    { id: "r-agent-seattle-transaction", condition: "no_approved_transaction", targetType: "Store", targetId: "ev-charger-hub", targetName: "EV Charger Hub", criteria: "No approved transaction for 4 hours", recipients: ["Portal Inbox", "seattle.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 12:10", owner: "Seattle Field Agent", parameters: { duration: 4, grace: 30, schedule: "Store business hours" }, recoveryChecksRequired: 2 },
+    { id: "r-agent-seattle-transaction", condition: "no_approved_transaction", targetType: "Store", targetId: "ev-charger-hub", targetName: "EV Charger Hub", criteria: "No approved transaction for 4 hours", recipients: ["Portal Inbox", "seattle.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 12:10", owner: "Seattle Field Agent", parameters: { duration: 4 }, recoveryChecksRequired: 2 },
     { id: "r-stock", condition: "machine_stock", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Machine stock below 25% PAR", recipients: ["Portal Inbox", "ops@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-27 16:20", owner: "1 of a Kind World Travel LLC", parameters: { threshold: 25 }, recoveryChecksRequired: 2 },
-    { id: "r-merchant-no-transaction", condition: "no_approved_transaction", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "No approved transaction for 2 hours", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 14:12", owner: "1 of a Kind World Travel LLC", parameters: { duration: 2, grace: 30, schedule: "Store business hours" }, recoveryChecksRequired: 2 },
+    { id: "r-merchant-no-transaction", condition: "no_approved_transaction", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "No approved transaction for 2 hours", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 14:12", owner: "1 of a Kind World Travel LLC", parameters: { duration: 2 }, recoveryChecksRequired: 2 },
     { id: "r-merchant-temp-range", condition: "temperature_range", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Outside 2–8 °C", recipients: ["Portal Inbox", "facilities@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: { lower: 2, upper: 8, unit: "C" }, recoveryChecksRequired: 2 },
     { id: "r-merchant-any-bin", condition: "any_bin", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Any BIN below 2 units", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-26 17:20", owner: "1 of a Kind World Travel LLC", parameters: { threshold: 2 }, recoveryChecksRequired: 2 },
     { id: "r-merchant-selected-product", condition: "selected_product", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "A1 · Sparkling Water below 30% PAR", recipients: ["Portal Inbox", "stock@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Paused", modified: "2026-08-26 13:05", owner: "1 of a Kind World Travel LLC", parameters: { product: "A1 · Sparkling Water", threshold: 30 }, recoveryChecksRequired: 2 }
@@ -175,6 +175,10 @@
 
   function temperatureUnit(value) {
     return value === "F" ? "F" : "C";
+  }
+
+  function absoluteZero(unit) {
+    return temperatureUnit(unit) === "F" ? -459.67 : -273.15;
   }
 
   function migrateRule(rule) {
@@ -603,7 +607,34 @@
     const suffix = field.temperatureUnit ? `°${temperatureUnit(current.unit)}` : field.suffix;
     const label = `${field.label}${suffix ? ` (${suffix})` : ""}`;
     if (field.type === "select") return `<div class="alert-field"><label for="alert-param-${field.key}">${escapeHtml(label)}</label><select id="alert-param-${field.key}" data-alert-param="${field.key}">${field.options.map((option) => `<option${option === value ? " selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select></div>`;
-    return `<div class="alert-field"><label for="alert-param-${field.key}"${field.temperatureUnit ? ` data-alert-temperature-label="${escapeHtml(field.label)}"` : ""}>${escapeHtml(label)}</label><input id="alert-param-${field.key}" type="number" value="${escapeHtml(value)}" ${field.min != null ? `min="${field.min}"` : ""} ${field.max != null ? `max="${field.max}"` : ""} data-alert-param="${field.key}" required></div>`;
+    const min = field.temperatureUnit ? absoluteZero(current.unit) : field.min;
+    const step = field.temperatureUnit ? "any" : field.step;
+    return `<div class="alert-field"><label for="alert-param-${field.key}"${field.temperatureUnit ? ` data-alert-temperature-label="${escapeHtml(field.label)}"` : ""}>${escapeHtml(label)}</label><input id="alert-param-${field.key}" type="number" value="${escapeHtml(value)}" ${min != null ? `min="${min}"` : ""} ${field.max != null ? `max="${field.max}"` : ""} ${step != null ? `step="${step}"` : ""} data-alert-param="${field.key}" required></div>`;
+  }
+
+  function syncTemperatureConstraints() {
+    if (conditionSelect.value !== "temperature_range") return;
+    const unit = temperatureUnit(conditionFields.querySelector('[data-alert-param="unit"]:checked')?.value);
+    const min = String(absoluteZero(unit));
+    conditionFields.querySelectorAll("[data-alert-temperature-label]").forEach((label) => {
+      label.textContent = `${label.dataset.alertTemperatureLabel} (°${unit})`;
+    });
+    conditionFields.querySelectorAll('[data-alert-param="lower"], [data-alert-param="upper"]').forEach((input) => {
+      input.min = min;
+      input.setCustomValidity("");
+    });
+  }
+
+  function validateConditionFields() {
+    conditionFields.querySelectorAll("[data-alert-param]").forEach((field) => field.setCustomValidity?.(""));
+    if (conditionSelect.value !== "temperature_range") return;
+    syncTemperatureConstraints();
+    const lower = conditionFields.querySelector('[data-alert-param="lower"]');
+    const upper = conditionFields.querySelector('[data-alert-param="upper"]');
+    if (lower.value === "" || upper.value === "" || !lower.validity.valid || !upper.validity.valid) return;
+    if (Number(lower.value) >= Number(upper.value)) {
+      upper.setCustomValidity("Upper bound must be greater than lower bound.");
+    }
   }
 
   function renderConditionFields(current = {}) {
@@ -714,6 +745,7 @@
   function criteriaFor(recipe, parameters) { return recipe.criteria.replace(/\{(\w+)\}/g, (_, key) => parameters[key] ?? ""); }
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    validateConditionFields();
     if (!form.reportValidity()) return;
     const parameters = {};
     conditionFields.querySelectorAll("[data-alert-param]").forEach((field) => {
@@ -991,11 +1023,10 @@
   conditionSelect.addEventListener("change", () => renderConditionFields());
   conditionFields.addEventListener("change", (event) => {
     if (!event.target.matches('[data-alert-param="unit"]')) return;
-    const unit = temperatureUnit(event.target.value);
-    conditionFields.querySelectorAll("[data-alert-temperature-label]").forEach((label) => {
-      label.textContent = `${label.dataset.alertTemperatureLabel} (°${unit})`;
-    });
+    syncTemperatureConstraints();
+    validateConditionFields();
   });
+  conditionFields.addEventListener("input", validateConditionFields);
   if (pageType === "center") {
     merchantSelect.addEventListener("change", () => syncScopeControls());
     scopeSelect.addEventListener("change", () => syncScopeControls());

@@ -269,6 +269,139 @@ test("configures temperature range with bounds and a non-converting unit switch"
   expect(runtimeErrors).toEqual([]);
 });
 
+test("keeps only the hours field for no approved transaction in both rule dialogs", async ({ page }) => {
+  await resetAlertState(page);
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const terminalDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await terminalDialog.getByLabel("Condition").selectOption("no_approved_transaction");
+  await expect(terminalDialog.getByLabel("No transaction for (hours)")).toHaveValue("2");
+  await expect(terminalDialog.getByLabel("Opening grace (minutes)")).toHaveCount(0);
+  await expect(terminalDialog.getByLabel("Evaluation schedule")).toHaveCount(0);
+  await terminalDialog.getByRole("button", { name: "Cancel" }).click();
+  const alertPanel = page.getByRole("tabpanel", { name: "Alerts" });
+  await alertPanel.getByRole("tab", { name: "Rules", exact: true }).click();
+  await alertPanel.getByRole("row", { name: /No Approved Transaction/ }).getByRole("button", { name: "Edit" }).click();
+  const editDialog = page.getByRole("dialog", { name: "Edit Alert Rule" });
+  await editDialog.getByRole("button", { name: "Save Rule" }).click();
+  const savedParameters = await page.evaluate((key) => {
+    const stored = JSON.parse(localStorage.getItem(key));
+    return stored.rules.find((rule) => rule.id === "r-merchant-no-transaction").parameters;
+  }, ALERT_STATE_KEY);
+  expect(savedParameters).toEqual({ duration: 2 });
+
+  await page.goto("/39.customer_alerts.html?role=merchant");
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const centerDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await selectAlertRange(centerDialog);
+  await centerDialog.getByLabel("Condition").selectOption("no_approved_transaction");
+  await expect(centerDialog.getByLabel("No transaction for (hours)")).toHaveValue("2");
+  await expect(centerDialog.getByLabel("Opening grace (minutes)")).toHaveCount(0);
+  await expect(centerDialog.getByLabel("Evaluation schedule")).toHaveCount(0);
+});
+
+test("enforces absolute zero and ordered temperature bounds", async ({ page }) => {
+  await resetAlertState(page);
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const dialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await dialog.getByLabel("Condition").selectOption("temperature_range");
+
+  const lowerC = dialog.getByLabel("Lower bound (°C)");
+  const upperC = dialog.getByLabel("Upper bound (°C)");
+  await expect(lowerC).toHaveAttribute("min", "-273.15");
+  await expect(upperC).toHaveAttribute("min", "-273.15");
+  await expect(lowerC).toHaveAttribute("step", "any");
+  await lowerC.fill("-273.16");
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(dialog).toBeVisible();
+  await expect(lowerC).toBeFocused();
+
+  await lowerC.fill("8");
+  await upperC.fill("8");
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(dialog).toBeVisible();
+  await expect(upperC).toBeFocused();
+  expect(await upperC.evaluate((input) => input.validationMessage)).toContain("greater than lower bound");
+
+  await dialog.getByRole("radio", { name: "°F", exact: true }).check();
+  const lowerF = dialog.getByLabel("Lower bound (°F)");
+  const upperF = dialog.getByLabel("Upper bound (°F)");
+  await expect(lowerF).toHaveAttribute("min", "-459.67");
+  await expect(upperF).toHaveAttribute("min", "-459.67");
+  await lowerF.fill("-459.68");
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(dialog).toBeVisible();
+  await expect(lowerF).toBeFocused();
+
+  await lowerF.fill("-459.67");
+  await upperF.fill("-459.66");
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(dialog).toBeHidden();
+});
+
+test("allows only integer percentage thresholds from 1 through 100 when creating and editing", async ({ page }) => {
+  await resetAlertState(page);
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const dialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await dialog.getByLabel("Condition").selectOption("machine_stock");
+  const threshold = dialog.getByLabel("Below (% PAR)");
+  await expect(threshold).toHaveAttribute("min", "1");
+  await expect(threshold).toHaveAttribute("max", "100");
+  await expect(threshold).toHaveAttribute("step", "1");
+  for (const invalidValue of ["0", "-1", "0.5", "101"]) {
+    await threshold.fill(invalidValue);
+    await dialog.getByRole("button", { name: "Save Rule" }).click();
+    await expect(dialog).toBeVisible();
+    await expect(threshold).toBeFocused();
+  }
+  await threshold.fill("1");
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole("tabpanel", { name: "Alerts" }).getByRole("tab", { name: "Rules", exact: true }).click();
+  const createdRule = page.locator("[data-alert-rules] tr").filter({ hasText: "Machine stock below 1% PAR" });
+  await createdRule.getByRole("button", { name: "Edit" }).click();
+  const editDialog = page.getByRole("dialog", { name: "Edit Alert Rule" });
+  await editDialog.getByLabel("Below (% PAR)").fill("100");
+  await editDialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(page.locator("[data-alert-rules] tr").filter({ hasText: "Machine stock below 100% PAR" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const selectedProductDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await selectedProductDialog.getByLabel("Condition").selectOption("selected_product");
+  const selectedThreshold = selectedProductDialog.getByLabel("Below (% PAR)");
+  await expect(selectedThreshold).toHaveAttribute("min", "1");
+  await expect(selectedThreshold).toHaveAttribute("max", "100");
+  await expect(selectedThreshold).toHaveAttribute("step", "1");
+  await selectedThreshold.fill("0");
+  await selectedProductDialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(selectedProductDialog).toBeVisible();
+  await expect(selectedThreshold).toBeFocused();
+  await selectedThreshold.fill("100");
+  await selectedProductDialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(selectedProductDialog).toBeHidden();
+});
+
+test("requires Any BIN Below Quantity to be a positive integer", async ({ page }) => {
+  await resetAlertState(page);
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const dialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await dialog.getByLabel("Condition").selectOption("any_bin");
+  const threshold = dialog.getByLabel("Below quantity (units)");
+  await expect(threshold).toHaveAttribute("min", "1");
+  await expect(threshold).toHaveAttribute("step", "1");
+  for (const invalidValue of ["0", "-1", "0.5"]) {
+    await threshold.fill(invalidValue);
+    await dialog.getByRole("button", { name: "Save Rule" }).click();
+    await expect(dialog).toBeVisible();
+    await expect(threshold).toBeFocused();
+  }
+  await threshold.fill("1");
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole("tabpanel", { name: "Alerts" }).getByRole("tab", { name: "Rules", exact: true }).click();
+  await expect(page.locator("[data-alert-rules] tr").filter({ hasText: "Any BIN below 1 units" })).toBeVisible();
+});
+
 test("migrates legacy temperature rules and removes unavailable-temperature data", async ({ page }) => {
   await page.goto("/39.customer_alerts.html?role=merchant");
   await page.evaluate((key) => {
