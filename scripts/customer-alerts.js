@@ -137,7 +137,7 @@
     demoIncident({ id: "i-seattle-06", ruleId: "r-agent-seattle", monitoringState: "Closed", condition: "opc_offline", terminalId: "WP7300EV33001088", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "Payment Service unavailable during charger maintenance", opened: "2026-08-25 14:00", duration: "2h 10m", acknowledgedAt: "2026-08-25 14:03", closedAt: "2026-08-25 14:05", closedBy: "Seattle Field Agent", closeReason: "Planned maintenance", recoveredAt: "2026-08-25 16:10", nextChecks: [] })
   ];
 
-  const defaultState = () => ({ rules: demoRules.map((rule) => ({ ...rule })), incidents: demoIncidents.map((incident) => ({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })) });
+  const defaultState = () => ({ rules: demoRules.map((rule) => ({ ...rule })), incidents: demoIncidents.map((incident) => ({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })), deletedRuleIds: [] });
 
   const escapeHtml = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const recipeFor = (key) => recipes[key] || recipes.opc_offline;
@@ -253,6 +253,7 @@
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (!parsed || !Array.isArray(parsed.rules) || !Array.isArray(parsed.incidents)) throw new Error("invalid");
       let changed = false;
+      if (!Array.isArray(parsed.deletedRuleIds)) { parsed.deletedRuleIds = []; changed = true; }
       parsed.rules = parsed.rules.map((rule) => {
         const migrated = migrateRule(rule);
         if (JSON.stringify(migrated) !== JSON.stringify(rule)) changed = true;
@@ -268,7 +269,7 @@
       parsed.incidents = targetMigration.incidents;
       if (targetMigration.changed) changed = true;
       demoRules.forEach((rule) => {
-        if (!parsed.rules.some((item) => item.id === rule.id)) { parsed.rules.push(migrateRule({ ...rule })); changed = true; }
+        if (!parsed.deletedRuleIds.includes(rule.id) && !parsed.rules.some((item) => item.id === rule.id)) { parsed.rules.push(migrateRule({ ...rule })); changed = true; }
       });
       demoIncidents.forEach((incident) => {
         if (!parsed.incidents.some((item) => item.id === incident.id)) { parsed.incidents.push(migrateIncident({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })); changed = true; }
@@ -378,7 +379,7 @@
         <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
         ${pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.targetType)} · ${escapeHtml(item.targetName)}</td>` : ""}
         <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.map(notificationLabel).join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
-        <td>${canManageAlerts ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-toggle="${escapeHtml(item.id)}" aria-label="${item.status === "Active" ? "Pause" : "Resume"}" title="${item.status === "Active" ? "Pause" : "Resume"}" data-tooltip="${item.status === "Active" ? "Pause" : "Resume"}"><span class="material-symbols-rounded" aria-hidden="true">${item.status === "Active" ? "pause" : "play_arrow"}</span></button><button class="alert-table-button alert-icon-button" type="button" data-alert-edit="${escapeHtml(item.id)}" aria-label="Edit" title="Edit" data-tooltip="Edit"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>` : '<span class="alerts-page-copy">View only</span>'}</td>
+        <td>${canManageAlerts ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-toggle="${escapeHtml(item.id)}" aria-label="${item.status === "Active" ? "Pause" : "Resume"}" title="${item.status === "Active" ? "Pause" : "Resume"}" data-tooltip="${item.status === "Active" ? "Pause" : "Resume"}"><span class="material-symbols-rounded" aria-hidden="true">${item.status === "Active" ? "pause" : "play_arrow"}</span></button><button class="alert-table-button alert-icon-button" type="button" data-alert-edit="${escapeHtml(item.id)}" aria-label="Edit" title="Edit" data-tooltip="Edit"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button><button class="alert-table-button alert-icon-button alert-delete-button" type="button" data-alert-delete="${escapeHtml(item.id)}" aria-label="Delete rule" title="Delete rule" data-tooltip="Delete rule"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : '<span class="alerts-page-copy">View only</span>'}</td>
       </tr>`).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 6}">No organization-owned rules match this context.</td></tr>`;
   }
 
@@ -718,6 +719,73 @@
     return variant === "primary" ? "alert-btn dark" : "alert-btn subtle";
   }
 
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="alert-modal-overlay" data-alert-delete-modal aria-hidden="true">
+      <section class="alert-modal alert-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="alertDeleteRuleTitle">
+        <div class="alert-modal-head"><h2 id="alertDeleteRuleTitle">Delete Rule</h2><button class="alert-modal-close" type="button" aria-label="Close delete rule dialog" data-alert-delete-cancel><span class="material-symbols-rounded" aria-hidden="true">close</span></button></div>
+        <div class="alert-modal-body alert-delete-body">
+          <p>Delete <strong data-alert-delete-name></strong> for <strong data-alert-delete-target></strong>?</p>
+          <p>This cannot be undone. Existing alerts and history will remain.</p>
+        </div>
+        <div class="alert-modal-actions"><button class="${buttonClass()}" type="button" data-alert-delete-cancel>Cancel</button><button class="${buttonClass("primary")} alert-delete-confirm" type="button" data-alert-delete-confirm>Delete Rule</button></div>
+      </section>
+    </div>
+    <div class="alert-toast" role="status" aria-live="polite" data-alert-toast></div>`);
+  const deleteModal = document.querySelector("[data-alert-delete-modal]");
+  const alertToast = document.querySelector("[data-alert-toast]");
+  let deletingRuleId = null;
+  let deleteModalTrigger = null;
+  let toastTimer = null;
+
+  function showAlertToast(message, variant = "success") {
+    window.clearTimeout(toastTimer);
+    alertToast.textContent = message;
+    alertToast.dataset.variant = variant;
+    alertToast.classList.add("show");
+    toastTimer = window.setTimeout(() => alertToast.classList.remove("show"), 2600);
+  }
+
+  function openDeleteModal(ruleId) {
+    const rule = state.rules.find((item) => item.id === ruleId);
+    if (!rule || !canManageAlerts) return;
+    deletingRuleId = ruleId;
+    deleteModalTrigger = document.activeElement;
+    deleteModal.querySelector("[data-alert-delete-name]").textContent = recipeFor(rule.condition).label;
+    deleteModal.querySelector("[data-alert-delete-target]").textContent = `${rule.targetType} · ${rule.targetName}`;
+    deleteModal.classList.add("open");
+    deleteModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => deleteModal.querySelector(".alert-modal-actions [data-alert-delete-cancel]").focus(), 0);
+  }
+
+  function closeDeleteModal({ restoreFocus = true } = {}) {
+    deleteModal.classList.remove("open");
+    deleteModal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    deletingRuleId = null;
+    if (restoreFocus) deleteModalTrigger?.focus();
+    deleteModalTrigger = null;
+  }
+
+  function deleteRule() {
+    const rule = state.rules.find((item) => item.id === deletingRuleId);
+    if (!rule) { closeDeleteModal({ restoreFocus: false }); return; }
+    const previousRules = state.rules;
+    const previousDeletedRuleIds = [...state.deletedRuleIds];
+    state.rules = state.rules.filter((item) => item.id !== rule.id);
+    if (!state.deletedRuleIds.includes(rule.id)) state.deletedRuleIds.push(rule.id);
+    try {
+      writeState();
+      closeDeleteModal({ restoreFocus: false });
+      renderAll();
+      showAlertToast("Rule deleted.");
+    } catch (_) {
+      state.rules = previousRules;
+      state.deletedRuleIds = previousDeletedRuleIds;
+      showAlertToast("Rule could not be deleted.", "error");
+    }
+  }
+
   function incidentRecoveryRequirement(incident) {
     const rule = state.rules.find((item) => item.id === incident.ruleId);
     if (incident.condition === "temperature_range" && Number(rule?.parameters?.recovery) > 0) return Math.max(1, Math.ceil(Number(rule.parameters.recovery) / 15));
@@ -853,6 +921,7 @@
     const ack = event.target.closest("[data-alert-acknowledge]");
     const toggle = event.target.closest("[data-alert-toggle]");
     const edit = event.target.closest("[data-alert-edit]");
+    const deleteAction = event.target.closest("[data-alert-delete]");
     const view = event.target.closest("[data-alert-view]");
     const closeAction = event.target.closest("[data-alert-close-incident]");
     const viewTab = event.target.closest("[data-alert-view-tab]");
@@ -869,6 +938,7 @@
     }
     if (toggle) { state.rules = state.rules.map((item) => item.id === toggle.dataset.alertToggle ? { ...item, status: item.status === "Active" ? "Paused" : "Active", modified: nowLabel } : item); writeState(); renderAll(); }
     if (edit) openModal(edit.dataset.alertEdit);
+    if (deleteAction) openDeleteModal(deleteAction.dataset.alertDelete);
     if (view) openIncident(view.dataset.alertView);
     if (closeAction) openManualClose(closeAction.dataset.alertCloseIncident);
     if (viewTab) {
@@ -933,9 +1003,14 @@
   closeReason?.addEventListener("change", () => { closeError.textContent = ""; });
   closeNote?.addEventListener("input", () => { closeError.textContent = ""; });
   closeIncidentModal?.addEventListener("click", (event) => { if (event.target.closest("[data-alert-close-cancel]") || event.target === closeIncidentModal) closeManualClose(); });
+  deleteModal.addEventListener("click", (event) => {
+    if (event.target.closest("[data-alert-delete-confirm]")) deleteRule();
+    else if (event.target.closest("[data-alert-delete-cancel]") || event.target === deleteModal) closeDeleteModal();
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    if (closeIncidentModal?.classList.contains("open")) closeManualClose();
+    if (deleteModal.classList.contains("open")) closeDeleteModal();
+    else if (closeIncidentModal?.classList.contains("open")) closeManualClose();
     else if (modal.classList.contains("open")) closeModal();
     else if (incidentModal?.classList.contains("open")) closeIncident();
   });

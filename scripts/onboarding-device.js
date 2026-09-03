@@ -22,115 +22,6 @@
         { name: 'Fiserv_Reader', appVersions: [] }
     ];
 
-    const OPC_SCHEMA = [
-        ['OPERTAION MODE', [
-            ['OperatingMode', 'Operating Mode', 'OperatingMode', '0', false, null, null, null, [['0', 'UPT'], ['1', 'BIZHI'], ['2', 'ATTENDANCE'], ['3', 'SenseTime'], ['4', 'SERIAL_MODE'], ['5', 'YinXiang'], ['6', 'OpenableLocker'], ['7', 'MultiPrice'], ['8', 'FixedPrice']]],
-            ['ProtocolType', 'Protocol Type', 'Protocol Type', '12', false, null, null, null, [['0', 'SERIAL HOST'], ['1', 'MDB'], ['2', 'PAX-ECR'], ['3', 'SERIAL SLAVE'], ['4', 'SERIAL EXT'], ['5', 'SOCKET SERVER'], ['6', 'SERIAL CDC'], ['7', 'SERIAL VENDOR'], ['8', 'PULSE MODE'], ['9', 'SERIAL EXT2'], ['10', 'USB ACCESSORY'], ['11', 'CLOUD MODE'], ['12', 'DEFAULT'], ['13', 'BLUETOOTH SPP']]],
-            ['UrlType', 'Paywizard Server', 'UrlType', '2', false, null, null, null, [['0', 'DEBUG'], ['1', 'UAT'], ['2', 'RELEASE'], ['3', 'TEST'], ['4', 'DEV']]],
-            ['UiRunMode', 'OPC UI Run Mode', '0 follow ProtocolType; 1 foreground with kiosk; 2 background without kiosk', '0', false, null, null, null, [['0', 'Follow ProtocolType'], ['1', 'Foreground'], ['2', 'Background']]]
-        ]],
-        ['PAYMENT APP', [
-            ['EnableDebugMode', 'Debug Mode', 'EnableDebugMode', '0', false, null, null, null, 'binary'],
-            ['HomePaymentIcons', 'Home Payment Icons', 'Comma-separated preset keys or image URLs; empty = app default', '', false, '0', '8000', 'ANS', null],
-            ['HomeAnimationUrl', 'Home Animation Url', 'Home ready-state guide animation URL; empty=built-in Lottie', '', false, '0', '2000', 'ANS', null],
-            ['EnableNetworkDisconnectReboot', 'Enable Network Disconnect Reboot', 'Reboot device after network disconnected for 5 minutes; default disabled', '0', false, null, null, null, 'binary'],
-            ['AidlPackageName', 'Payment App', 'Payment App ID', 'com.wizarpos.paywizard.demo', false, '0', '128', 'ANS', null],
-            ['CurrencyCode', 'Currency Code', 'CurrencyCode', '', true, '0', '3', 'N', null],
-            ['NeedCheckParam', 'Check Param', 'Need Check Param', '0', false, null, null, null, 'binary'],
-            ['KeyState', 'Check KeyState', 'KeyState', '0', false, null, null, null, 'binary'],
-            ['paymentTimeout', 'Payment Timeout(s)', 'paymentTimeout', '180', true, '1', '5', 'N', null],
-            ['IsSimplify', 'JSON parameters', 'IsSimplify', '0', false, null, null, null, [['1', 'Simplify'], ['0', 'All parameters']]],
-            ['CustomerServiceHotline', 'Customer Hotline', 'Customer Service Hotline', '', false, '0', '15', 'ANS', null],
-            ['ClientId', 'ClientId', 'ClientId', '', false, '0', '50', 'ANS', null],
-            ['ClientSecret', 'ClientSecret', 'ClientSecret', '', false, '0', '50', 'ANS', null],
-            ['JwtToken', 'JwtToken', 'JwtToken', '', false, '0', '50', 'ANS', null],
-            ['EnableOpcTakeoverUi', 'Enable OPC Takeover UI', 'OPC takes over payment UI', '0', false, null, null, null, 'binary'],
-            ['EnableWhiteBin', 'Enable White Bin', 'EnableWhiteBin', '0', false, null, null, null, 'binary'],
-            ['WhiteBinVersion', 'White Bin Version', 'WhiteBinVersion', '', false, '0', '64', 'ANS', null],
-            ['WhiteBinList', 'White Bin List', 'Comma-separated package names or paths', '', false, '0', '8000', 'ANS', null]
-        ]],
-        ['ATTENDANCE MODE', [
-            ['CreditCards', 'CreditCards', 'CreditCards', '1', false, null, null, null, 'binary'],
-            ['DigitalWallets', 'DigitalWallets', 'DigitalWallets', '0', false, null, null, null, 'binary'],
-            ['Loyalty', 'Loyalty', 'Loyalty', '0', false, null, null, null, 'binary'],
-            ['EnableCardReaderTapUi', 'Enable Card Reader Tap UI', 'Use native card reader tap animation', '0', false, null, null, null, 'binary']
-        ]],
-        ['UPT MODE', [
-            ['AdminPass', 'Admin Password', 'Admin Passwd', '99999999', false, '0', '8', 'ANS', null],
-            ['operationPass', 'Operation Password', 'operation Pass', '88888888', false, '0', '8', 'ANS', null],
-            ['AllowOfflineMode', 'AllowOfflineMode', 'AllowOfflineMode', '0', false, null, null, null, 'binary'],
-            ['AmountScale', 'AmountScale', 'AmountScale', '0', false, null, null, null, [['0', 'DEFAULT'], ['10', 'Multiply 10'], ['100', 'Multiply 100'], ['-10', 'Divide 10'], ['-100', 'Divide 100']]],
-            ['QrMid', 'QrMid', 'QrMid', '', false, '0', '64', 'ANS', null],
-            ['QrScanChannel', 'Qr Scan Channel', 'QR pay scanChannel', 'PAY_DATA_CLOUD', false, null, null, null, [['M_PAY', 'MPAY'], ['PIX', 'PIX'], ['MMG', 'MMG'], ['PAY_DATA_CLOUD', 'PayData Cloud'], ['PAYWIZARD_APM', 'Paywizard APM'], ['OX_PAY', 'OXPAY'], ['PROMPT_PAY', 'PromptPay']]],
-            ['EnableVoicePlayback', 'Enable Voice Playback', 'Enable Voice Playback', '1', false, null, null, null, 'binary'],
-            ['SystemVolume', 'System Volume', 'System Volume (0-100)', '70', true, '1', '3', 'N', null],
-            ['BaudRate', 'Set Baud Rate', 'Baud Rate', '115200', false, '0', '6', 'N', null],
-            ['SocketPort', 'SocketPort', 'SocketPort', '6031', false, '0', '6', 'N', null],
-            ['EnableDataSplit', 'Enable Data Split', 'Enable Data Split', '0', false, null, null, null, 'binary'],
-            ['ConcurrentRequests', 'ConcurrentRequests', 'Allow concurrent transaction requests', '0', false, null, null, null, 'binary'],
-            ['SplitLength', 'Split Length', 'Split Length', '150', false, '0', '5', 'N', null],
-            ['SplitDelay', 'Split Delay', 'Split Delay', '500', false, '0', '5', 'N', null],
-            ['ShowPaymentResult', 'Show Payment Result', 'ShowPaymentResult', '0', false, null, null, null, 'binary'],
-            ['EnableExitDirectly', 'Allowed Exit', 'Enable Exit Directly', '0', false, null, null, null, 'binary'],
-            ['LogoUrl', 'Logo Url', 'LogoUrl', '', false, '0', '2000', 'ANS', null],
-            ['EnableManualBeginSession', 'Manual Begin Session', 'Enable Manual Begin Session', '0', false, null, null, null, 'binary'],
-            ['EnableSilent', 'Silent', 'Enable Silent', '0', false, null, null, null, 'binary'],
-            ['EnableConvertJodAmt', 'Convert JOD Amt', 'Enable Convert JOD Amt', '0', false, null, null, null, 'binary'],
-            ['KsnetMberCode', 'KSNET Mber Code', 'KSNET mberCode', '0000', true, '0', '128', 'ANS', null],
-            ['KsnetCrtftCode', 'KSNET Crtft Code', 'KSNET crtftCode', '0000', true, '0', '128', 'ANS', null],
-            ['TSMTerminalCode', 'TSM Terminal Code', 'Terminal Code', '00000000', true, '8', '8', 'ANS', null],
-            ['TSMMerchantCode', 'TSM Merchant Code', '9F40', '000000000000', true, '12', '32', 'ANS', null],
-            ['TSMConnType', 'TSM Conn Type', 'TSMConnType', '0', false, null, null, null, [['0', 'PROC'], ['1', 'TEST']]],
-            ['BtSppUuid', 'Bluetooth SPP UUID', 'RFCOMM service UUID', '00002026-0000-1000-8000-00805F9B34FB', false, '0', '36', 'ANS', null]
-        ]],
-        ['MDB PARA', [
-            ['EnableManualCancel', 'MDB Manual Cancel', 'Enable Manual Cancel', '0', false, null, null, null, 'binary'],
-            ['ScalingFactor', 'MDB Scaling Factor', 'ScalingFactor', '1', true, '1', '7', 'N', null],
-            ['DecimalPlaces', 'MDB Decimal Places', 'DecimalPlaces', '0', true, '1', '2', 'N', null],
-            ['FoundAvailable', 'MDB Found Available', 'FoundAvailable', '65535', true, '0', '10', 'ANS', null],
-            ['MdbAutoReversal', 'MDB Auto Reversal', 'MdbAutoReversal', '0', false, null, null, null, 'binary'],
-            ['Mdb3Support32BitAmount', 'Mdb3Support32BitAmount', 'Mdb3Support32BitAmount', '0', false, null, null, null, 'binary'],
-            ['ManualMdbBegin', 'ManualMdbBegin', 'ManualMdbBegin', '0', false, null, null, null, 'binary'],
-            ['EnableGenTransCode', 'Enable Gen Trans Code', 'EnableGenTransCode', '0', false, null, null, null, 'binary']
-        ]],
-        ['PULSE PARA', [
-            ['PulsePortNum', 'Pulse Port Num', 'Pulse Port Num', '0', false, null, null, null, [['0', 'Channel 1'], ['1', 'Channel 2']]],
-            ['PulseDeviceVoltage', 'Pulse Device Voltage', 'Pulse Device Voltage', '0', false, null, null, null, [['0', 'Low Level'], ['1', 'High Level']]],
-            ['PulseDuration', 'Pulse Duration', 'Pulse Duration (ms)', '200', true, '1', '5', 'N', null],
-            ['PulseInterval', 'Pulse Interval', 'Pulse Interval (ms)', '50', true, '1', '5', 'N', null],
-            ['PulseAmount', 'PulseAmount P1', 'PulseAmount', '100', true, '0', '128', 'ANS', null],
-            ['PulseVoltage', 'PulseNumber P1', 'PulseVoltage', '1', true, '0', '128', 'ANS', null],
-            ['PulseAmount2', 'PulseAmount P2', 'PulseAmount2', '200', true, '0', '128', 'ANS', null],
-            ['PulseVoltage2', 'PulseNumber P2', 'PulseVoltage2', '2', true, '0', '128', 'ANS', null],
-            ['PulseAmount3', 'PulseAmount P3', 'PulseAmount3', '300', true, '0', '128', 'ANS', null],
-            ['PulseVoltage3', 'PulseNumber P3', 'PulseVoltage3', '3', true, '0', '128', 'ANS', null],
-            ['PulseAmount4', 'PulseAmount P4', 'PulseAmount4', '400', true, '0', '128', 'ANS', null],
-            ['PulseVoltage4', 'PulseNumber P4', 'PulseVoltage4', '4', true, '0', '128', 'ANS', null],
-            ['PulseText', 'PulseText P1', 'Pulse button 1 text', '', false, '0', '20', 'ANS', null],
-            ['PulseText2', 'PulseText P2', 'Pulse button 2 text', '', false, '0', '20', 'ANS', null],
-            ['PulseText3', 'PulseText P3', 'Pulse button 3 text', '', false, '0', '20', 'ANS', null],
-            ['PulseText4', 'PulseText P4', 'Pulse button 4 text', '', false, '0', '20', 'ANS', null]
-        ]],
-        ['BIZHI MODE', [
-            ['bzUrlType', 'BIZHI UrlType', 'bzUrlType', '0', false, null, null, null, [['0', 'SINGAPORE_IOTSONG'], ['1', 'AMERICA_BTOZ_TECH'], ['2', 'UAT']]]
-        ]],
-        ['SenseTime MODE', [
-            ['senseTimeUrlType', 'senseTimeUrlType', 'senseTimeUrlType', '0', false, null, null, null, [['0', 'SENSE_TIME_RELEASE'], ['1', 'SENSE_TIME_UAT']]],
-            ['senseTimeAccessKey', 'senseTimeAccessKey', 'senseTimeAccessKey', '', false, '0', '100', 'ANS', null],
-            ['senseTimeSecretKey', 'senseTimeSecretKey', 'senseTimeSecretKey', '', false, '0', '100', 'ANS', null]
-        ]],
-        ['MULTI PRICE', [
-            ['MultiPricingAmount1', 'MultiPricing Amount 1', 'MultiPricing fixed amount slot 1', '1', true, '0', '10', 'N', null],
-            ['MultiPricingAmount2', 'MultiPricing Amount 2', 'MultiPricing fixed amount slot 2', '2', true, '0', '10', 'N', null],
-            ['MultiPricingAmount3', 'MultiPricing Amount 3', 'MultiPricing fixed amount slot 3', '3', true, '0', '10', 'N', null],
-            ['MultiPricingAmount4', 'MultiPricing Amount 4', 'MultiPricing fixed amount slot 4', '4', true, '0', '10', 'N', null],
-            ['EReceiptRequired', 'E-Receipt Required', 'Require e-receipt QR screen', '1', false, null, null, null, 'binary']
-        ]],
-        ['FIXED PRICE', [
-            ['FixedPricingAmount', 'FixedPricing Amount', 'FixedPricing fixed amount', '5', true, '0', '10', 'N', null]
-        ]]
-    ];
-
     const els = {
         tci: document.getElementById('onboard-device-tci'),
         sn: document.getElementById('onboard-device-tpn'),
@@ -150,10 +41,7 @@
         keyOption: document.getElementById('onboard-key-option'),
         template: document.getElementById('onboard-device-template'),
         processorSection: document.getElementById('onboard-processor-params'),
-        processorName: document.getElementById('onboard-processor-name'),
         processorSets: document.getElementById('onboard-processor-param-sets'),
-        opcSection: document.getElementById('onboard-opc-params'),
-        opcSets: document.getElementById('onboard-opc-param-sets'),
         errors: document.getElementById('onboard-device-errors')
     };
     let lastCardReaderMode = false;
@@ -204,7 +92,12 @@
         const label = document.createElement('label');
         label.htmlFor = inputId;
         label.append(document.createTextNode(labelText));
-        if (required) label.append(document.createTextNode(' *'));
+        if (required) {
+            const requiredMark = document.createElement('span');
+            requiredMark.className = 'required-mark';
+            requiredMark.textContent = '*';
+            label.appendChild(requiredMark);
+        }
 
         if (tooltipText && tooltipText !== labelText) {
             const line = document.createElement('div');
@@ -264,7 +157,7 @@
             if (rule === 'N') {
                 input.inputMode = 'numeric';
                 input.pattern = '[0-9]*';
-            } else if (rule && rule !== 'ANS') {
+            } else if (rule && rule !== 'ANS' && rule !== 'NS') {
                 input.pattern = rule;
             }
             control.appendChild(input);
@@ -301,6 +194,7 @@
             tab.dataset.tab = key;
             tab.id = `${key}-tab`;
             tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-controls', `${key}-panel`);
             tab.setAttribute('aria-selected', String(index === 0));
             tab.textContent = groupName;
             tabs.appendChild(tab);
@@ -311,7 +205,9 @@
             const panel = document.createElement('div');
             panel.className = `param-panel${index === 0 ? ' active' : ''}`;
             panel.dataset.panel = key;
+            panel.id = `${key}-panel`;
             panel.setAttribute('role', 'tabpanel');
+            panel.setAttribute('aria-labelledby', `${key}-tab`);
             const group = document.createElement('div');
             group.className = 'param-group';
             const grid = document.createElement('div');
@@ -328,7 +224,6 @@
         Object.entries(PROCESSOR_PARAMETER_SCHEMA).forEach(([processor, groups]) => {
             els.processorSets.appendChild(createSchemaSet(processor, groups, false));
         });
-        els.opcSets.appendChild(createSchemaSet('PAYWIZARD_OPC', OPC_SCHEMA, true));
     }
 
     function activateTab(tab) {
@@ -421,17 +316,10 @@
         else terminalProcessor = processor;
         populateVersions();
         els.processorSection.classList.toggle('is-hidden', !processor || !els.provision.checked);
-        els.processorName.textContent = processor || 'Processor';
         els.processorSets.querySelectorAll('.param-set').forEach((set) => {
             set.classList.toggle('active', set.dataset.processor === processor);
         });
         els.keyOption.classList.toggle('is-hidden', !els.provision.checked || !KEY_PROCESSORS.has(processor));
-        syncOpc();
-    }
-
-    function syncOpc() {
-        const show = els.provision.checked && els.integration.value !== 'Disable' && Boolean(els.processor.value);
-        els.opcSection.classList.toggle('is-hidden', !show);
     }
 
     function syncDeploymentMode() {
@@ -495,7 +383,6 @@
         if (!isCardReader()) controls.push(els.version);
         const activeSet = els.processorSets.querySelector(`.param-set[data-processor="${CSS.escape(els.processor.value)}"]`);
         if (activeSet) controls.push(...activeSet.querySelectorAll('.parameter-value'));
-        if (els.integration.value !== 'Disable') controls.push(...els.opcSets.querySelectorAll('.parameter-value'));
         return controls.filter((control) => control && control.type !== 'hidden');
     }
 
@@ -555,8 +442,7 @@
             version: els.version.value,
             integration: els.integration.value,
             injectKey: els.injectKey.checked,
-            processor: collectValues(activeProcessorSet() || document.createElement('div')),
-            paywizard: collectValues(els.opcSets)
+            processor: collectValues(activeProcessorSet() || document.createElement('div'))
         };
     }
 
@@ -599,9 +485,7 @@
         if (config.version) els.version.value = config.version;
         if (config.integration) els.integration.value = config.integration;
         if (typeof config.injectKey === 'boolean') els.injectKey.checked = config.injectKey;
-        syncOpc();
         applyValues(config.processor || template.processor);
-        applyValues(config.paywizard || template.paywizard);
         validateElavon();
         showToast('Template applied');
     }
@@ -642,7 +526,7 @@
         templateName.setCustomValidity('');
         const templates = loadTemplates();
         const configuration = currentConfiguration();
-        templates.unshift({ name, configuration, processor: configuration.processor, paywizard: configuration.paywizard });
+        templates.unshift({ name, configuration, processor: configuration.processor });
         localStorage.setItem(TEMPLATE_KEY, JSON.stringify(templates));
         refreshTemplates(name);
         closeModal(saveModal);
@@ -691,30 +575,6 @@
         if (element) element.textContent = value || fallback;
     }
 
-    function appendReviewGroup(container, title, fields) {
-        if (!fields.length) return;
-        const group = document.createElement('div');
-        group.className = 'review-parameter-group';
-        const heading = document.createElement('h5');
-        heading.textContent = title;
-        group.appendChild(heading);
-        fields.forEach((input) => {
-            const row = document.createElement('div');
-            row.className = 'review-parameter-row';
-            const label = input.closest('.field')?.querySelector('label')?.textContent.replace(/\s*\*$/, '') || input.dataset.parameterKey;
-            const value = input.type === 'hidden'
-                ? (input.value === '1' ? 'Enable' : 'Disable')
-                : (input.options ? selectedText(input) : input.value);
-            const labelEl = document.createElement('span');
-            const valueEl = document.createElement('span');
-            labelEl.textContent = label;
-            valueEl.textContent = value || '-';
-            row.append(labelEl, valueEl);
-            group.appendChild(row);
-        });
-        container.appendChild(group);
-    }
-
     function syncReview() {
         const hasSn = Boolean(els.sn.value.trim());
         const cardTitle = document.getElementById('review-device-card-title');
@@ -729,16 +589,45 @@
         setReview('review-device-deployment', !hasSn ? 'Configuration only — no device assigned' : (els.provision.checked ? (isCardReader() ? 'Parameters queued' : 'App & parameters queued') : 'Device only'));
         const injectVisible = !els.keyOption.classList.contains('is-hidden');
         setReview('review-device-inject-key', injectVisible ? (els.injectKey.checked ? 'Yes' : 'No') : 'Not applicable');
-        setReview('review-device-template', selectedText(els.template) === 'Select Template' ? '' : selectedText(els.template));
-        const details = document.getElementById('review-device-parameter-details');
-        if (details) {
-            details.innerHTML = '';
-            if (els.provision.checked) {
-                appendReviewGroup(details, 'Processor Parameters', Array.from(activeProcessorSet()?.querySelectorAll('.parameter-value') || []));
-                if (els.integration.value !== 'Disable') appendReviewGroup(details, 'PAYwizard OPC Parameters', Array.from(els.opcSets.querySelectorAll('.parameter-value')));
-            }
-        }
-        document.getElementById('device-review-details')?.classList.toggle('is-hidden', !els.provision.checked);
+    }
+
+    function setMockValue(input, value) {
+        if (!input) return;
+        if (input.type === 'checkbox') input.checked = Boolean(value);
+        else input.value = value;
+        if (input.type === 'hidden') syncSegment(input);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function fillMockData() {
+        setMockValue(els.sn, 'WP5111QC33000050');
+        setMockValue(els.label, 'Front Counter');
+        setMockValue(els.scenario, 'Vending Machine');
+        setMockValue(els.model, 'Q2');
+        setMockValue(els.provision, true);
+        setMockValue(els.processor, 'OXPAY');
+        setMockValue(els.version, VERSIONS.OXPAY[0]);
+        setMockValue(els.integration, 'Disable');
+        setMockValue(els.injectKey, false);
+        setMockValue(els.template, '');
+
+        const requiredValues = {
+            'merchant name': 'Mock Coffee Market',
+            'merchant phone': '6155550100',
+            'merchant email': 'merchant.mock@example.com'
+        };
+        activeProcessorSet()?.querySelectorAll('.parameter-value').forEach((input) => {
+            const key = String(input.dataset.parameterKey || '').toLowerCase();
+            let value = input.dataset.defaultValue || '';
+            if (input.required && !value) value = requiredValues[key] || (input.options ? input.options[1]?.value : 'MOCK01');
+            setMockValue(input, value);
+        });
+
+        els.errors.classList.add('is-hidden');
+        root.querySelectorAll('.field.has-error').forEach((field) => field.classList.remove('has-error'));
+        root.querySelectorAll('.parameter-value').forEach((input) => input.setCustomValidity(''));
+        syncReview();
     }
 
     function showCompletionToasts() {
@@ -759,7 +648,6 @@
     els.version.addEventListener('change', () => {
         if (els.processor.value) processorVersions.set(els.processor.value, els.version.value);
     });
-    els.integration.addEventListener('change', syncOpc);
     [els.sn, els.label, els.scenario, els.model, els.processor, els.version, els.integration, els.injectKey, els.provision].forEach((input) => {
         input?.addEventListener('change', syncReview);
         input?.addEventListener('input', syncReview);
@@ -799,5 +687,5 @@
     syncReview();
     window.validateOnboardingDevice = validateDevice;
     window.syncOnboardingDeviceReview = syncReview;
-    window.onboardingDevice = { validate: validateDevice, syncReview, getConfiguration: currentConfiguration };
+    window.onboardingDevice = { validate: validateDevice, syncReview, getConfiguration: currentConfiguration, fillMockData };
 })();

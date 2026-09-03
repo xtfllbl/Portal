@@ -1795,6 +1795,7 @@
 
                                 <div class="wizard-actions">
                                     <span class="helper-text">Fields marked * are required.</span>
+                                    <button class="btn secondary mock-data-button" type="button" data-fill-mock-stage="merchant">Fill Mock Data</button>
                                     <button class="btn primary" type="button" data-goto="2">Next</button>
                                 </div>
                             </div>
@@ -1898,6 +1899,7 @@
 
                                 <div class="wizard-actions">
                                     <button class="btn secondary" type="button" data-goto="1">Back</button>
+                                    <button class="btn secondary mock-data-button" type="button" data-fill-mock-stage="store">Fill Mock Data</button>
                                     <button class="btn primary" type="button" data-goto="3">Next</button>
                                 </div>
                             </div>
@@ -1991,25 +1993,20 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="field onboarding-template-field">
-                                                <label for="onboard-device-template">Payment App Para Template (Optional)</label>
-                                                <select class="input-field" id="onboard-device-template">
-                                                    <option value="">Select Template</option>
-                                                </select>
-                                            </div>
                                         </div>
                                     </section>
 
                                     <div class="onboarding-parameter-section is-hidden" id="onboard-processor-params">
                                         <div class="onboarding-section-heading">
                                             <h4>Processor Parameters</h4>
-                                            <span class="processor-pill" id="onboard-processor-name">Processor</span>
+                                        </div>
+                                        <div class="field onboarding-template-field">
+                                            <label for="onboard-device-template">Payment App Para Template (Optional)</label>
+                                            <select class="input-field" id="onboard-device-template">
+                                                <option value="">Select Template</option>
+                                            </select>
                                         </div>
                                         <div id="onboard-processor-param-sets"></div>
-                                    </div>
-                                    <div class="onboarding-parameter-section is-hidden" id="onboard-opc-params">
-                                        <div class="onboarding-section-heading"><h4>PAYwizard OPC Parameters</h4></div>
-                                        <div id="onboard-opc-param-sets"></div>
                                     </div>
                                     <div class="device-error-summary is-hidden" id="onboard-device-errors" role="alert"></div>
                                 </div>
@@ -2766,8 +2763,9 @@
 
                                 <div class="wizard-actions">
                                     <button class="btn secondary" type="button" data-goto="2">Back</button>
+                                    <button class="btn secondary mock-data-button" type="button" data-fill-mock-stage="device">Fill Mock Data</button>
                                     <span class="action-group">
-                                        <button class="btn secondary" type="button" id="saveDeviceTemplateBtn">Save as Template</button>
+                                        <button class="btn secondary" type="button" id="saveDeviceTemplateBtn">Save as Payment App Para Template</button>
                                         <button class="btn primary" type="button" data-goto="4">Review</button>
                                     </span>
                                 </div>
@@ -2877,15 +2875,7 @@
                                                 <span class="review-label">Inject Key</span>
                                                 <span class="review-value" id="review-device-inject-key">Not applicable</span>
                                             </div>
-                                            <div class="review-item">
-                                                <span class="review-label">Template</span>
-                                                <span class="review-value" id="review-device-template">Not provided</span>
-                                            </div>
                                         </div>
-                                        <details class="device-review-details" id="device-review-details">
-                                            <summary>Configuration details</summary>
-                                            <div id="review-device-parameter-details"></div>
-                                        </details>
                                     </div>
                                 </div>
 
@@ -2918,6 +2908,57 @@
         const onboardMerchantBtn = document.getElementById('onboardMerchantBtn');
         const reviewCardChecks = Array.from(document.querySelectorAll('.review-card-check'));
         const reviewIconMarkup = '<svg class="review-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>';
+
+        const onboardingMockData = {
+            merchant: {
+                'merchant-dba': 'Mock Coffee Market',
+                'merchant-contact': 'Alex Morgan',
+                'merchant-email': 'merchant.mock@example.com',
+                'merchant-phone': '+1 615 555 0100',
+                'merchant-address1': '100 Commerce Street',
+                'merchant-address2': 'Suite 200',
+                'merchant-zip': '37201',
+                'merchant-city': 'Nashville',
+                'merchant-state': 'TN',
+                'merchant-owner': 'Payyou',
+                'merchant-country': 'United States'
+            },
+            store: {
+                'store-same-merchant': false,
+                'store-stored-value': true,
+                'store-mcc': '5812',
+                'store-name': 'Mock Coffee Market - Downtown',
+                'store-manager': 'Jamie Lee',
+                'store-phone': '+1 615 555 0101',
+                'store-email': 'store.mock@example.com',
+                'store-timezone': 'Central Standard Time (CST)',
+                'store-address1': '101 Broadway',
+                'store-address2': 'Suite 1',
+                'store-zip': '37201',
+                'store-city': 'Nashville',
+                'store-state': 'TN'
+            }
+        };
+
+        function setMockField(id, value) {
+            const field = document.getElementById(id);
+            if (!field) return;
+            if (field.type === 'checkbox') field.checked = Boolean(value);
+            else field.value = value;
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        document.querySelectorAll('[data-fill-mock-stage]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const stage = button.dataset.fillMockStage;
+                if (stage === 'device') {
+                    window.onboardingDevice?.fillMockData();
+                    return;
+                }
+                Object.entries(onboardingMockData[stage] || {}).forEach(([id, value]) => setMockField(id, value));
+            });
+        });
 
         function isStepLocked(stepNum) {
             if (!onboardingCompleted) {

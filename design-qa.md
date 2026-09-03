@@ -57,6 +57,50 @@ final result: passed
 
 ---
 
+# Onboarding Wizard mock-fill and Review cleanup — visual QA
+
+## Comparison target
+
+- Source visual truth: user-provided switch crop `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-e384aa1c-c980-4625-b8ef-422519751887.png` (526 × 86 px) and Review crop `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-8ebc2261-fc69-4065-a697-7b94849888e3.png` (926 × 900 px).
+- Implementation evidence: `/tmp/onboarding-wizard-device-implemented.png`, `/tmp/onboarding-wizard-device-actions-implemented.png`, and `/tmp/onboarding-wizard-review-implemented.png`.
+- Browser viewport and captures: 2048 × 1138 CSS px, device scale factor 1, 2048 × 1138 image px.
+- States: Device after `Fill Mock Data`, focused Device action row, and Review after the mocked Device data passed existing validation.
+
+## Full-view comparison evidence
+
+- The wizard retains the existing portal shell, five-step layout, Device information hierarchy, and action-bar alignment.
+- The deployment switch uses the portal's strong black token when checked while retaining its white thumb and existing focus/disabled behavior.
+- `Fill Mock Data` appears only in the Merchant, Store, and Device action bars. The Device action row keeps Back left-aligned, mock fill centered, and Save/Review right-aligned.
+- Review no longer renders the `Template` row or the `Configuration details` disclosure region.
+
+## Required fidelity surfaces
+
+- Fonts and typography: the existing portal type scale, weights, and button treatment are unchanged.
+- Spacing and layout rhythm: the secondary mock action fits the existing footer grid without crowding Back, Save, or Review.
+- Colors and visual tokens: checked deployment and Inject Key switches resolve to `rgb(15, 15, 16)`, the computed value of `--text-strong`.
+- Image quality and asset fidelity: no imagery or raster assets were added or changed.
+- Copy and content: the new action is consistently labeled `Fill Mock Data`; Review omits only the two requested areas.
+
+## Interaction and console checks
+
+- Merchant and Store mock actions overwrite only their own current-step fields and dispatch the existing input/change events.
+- Store mock fill explicitly clears `Same as Merchant Info` before writing store-specific data.
+- Device mock fill selects Q2, OXPAY, the first available version, Integration Disable, and valid schema-driven parameter values.
+- Device mock data passes the existing validation and proceeds directly to Review.
+- Browser console warnings/errors during the interaction pass: none.
+
+## Comparison history
+
+- Pass 1 found no actionable P0, P1, or P2 mismatch, so no visual correction iteration was required.
+
+## Follow-up polish
+
+- None required for this scope.
+
+final result: passed
+
+---
+
 # Payment Channel Setting v2 — visual QA
 
 ## Comparison target
@@ -169,5 +213,54 @@ No actionable P0, P1, or P2 visual mismatches remain.
 ## Follow-up polish
 
 No blocking follow-up. A future project-wide typography pass could further normalize minor historical font-size differences outside these three pages.
+
+final result: passed
+
+---
+
+# Onboarding Device parameter cleanup — visual QA
+
+## Comparison target
+
+- Source visual truth: `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-d1b0ac68-2192-46de-aa41-79926bd08f92.png` (3840 × 1706 px) and `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-7c6597c8-feb9-4a8f-907b-9863575d46f0.png` (3098 × 596 px).
+- Browser-rendered implementation: `/tmp/onboarding-wizard-no-badge-no-opc.png`.
+- Browser viewport and implementation capture: 2048 × 910 CSS px, device scale factor 1, 2048 × 910 image px.
+- Density normalization: the first source and implementation share the same 2.25:1 desktop aspect ratio; the second source is a focused region used to identify the module to remove rather than for pixel-aligned layout matching.
+- State: Device step after `Fill Mock Data`, OXPAY selected, and Integration Mode changed to `PAYwizard OPC Attended TCP` to verify the removed module does not reappear.
+
+## Full-view comparison evidence
+
+- The portal shell, Payment App Deployment card, Processor Parameters heading, template selector, tabs, fields, and bottom actions retain their existing layout and styling.
+- The OXPAY payment-channel pill shown in the source is absent, leaving a clean single-column section heading.
+- Selecting an OPC integration mode does not render `OPC Configuration Parameters`; the action bar follows immediately after the processor fields.
+
+## Focused region comparison evidence
+
+- The first source and implementation were reviewed together at the same desktop aspect ratio, confirming that only the highlighted channel badge was removed from Processor Parameters.
+- The focused OPC source and implementation were reviewed together, confirming the entire heading, tabs, and field grid are absent rather than merely clipped or collapsed.
+
+## Required fidelity surfaces
+
+- Fonts and typography: existing Poppins portal typography, weights, capitalization, and field hierarchy are unchanged.
+- Spacing and layout rhythm: removing the badge does not leave an empty right-side placeholder; removing OPC closes the vertical gap before the footer actions.
+- Colors and visual tokens: no remaining colors or tokens changed in this pass.
+- Image quality and asset fidelity: no imagery or icon assets were introduced or altered.
+- Copy and content: Processor Parameters content remains intact; only the payment-channel label and the requested OPC parameter module were removed.
+
+## Findings and interaction checks
+
+- No actionable P0, P1, or P2 mismatch remains for the requested cleanup.
+- Integration Mode remains selectable and continues to synchronize into Review data.
+- Hidden OPC controls no longer participate in validation or template serialization.
+- Browser console errors: none.
+- Playwright Device onboarding regression: 7/7 passed.
+
+## Comparison history
+
+- Pass 1 found no actionable P0, P1, or P2 mismatch after the requested removals, so no visual-fix iteration was required.
+
+## Follow-up polish
+
+- None required for this scope.
 
 final result: passed

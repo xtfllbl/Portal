@@ -283,6 +283,96 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
   expect(widths.document).toBeLessThanOrEqual(widths.viewport + 1);
 });
 
+test("deletes terminal rules with confirmation while preserving alert history", async ({ page }) => {
+  await resetAlertState(page);
+  const alertPanel = page.getByRole("tabpanel", { name: "Alerts" });
+  await alertPanel.getByRole("tab", { name: "Rules", exact: true }).click();
+
+  const pausedRule = alertPanel.locator('[data-rule-id="r-merchant-selected-product"]');
+  const deleteButton = pausedRule.getByRole("button", { name: "Delete rule" });
+  await expect(deleteButton.locator(".material-symbols-rounded")).toHaveText("delete");
+  expect(await deleteButton.evaluate((button) => ({ width: button.offsetWidth, height: button.offsetHeight }))).toEqual({ width: 30, height: 30 });
+  await expectAlertTooltip(page, deleteButton, "Delete rule");
+
+  await deleteButton.click();
+  const deleteDialog = page.getByRole("dialog", { name: "Delete Rule" });
+  await expect(deleteDialog).toContainText("Selected Product / BIN Below % PAR");
+  await expect(deleteDialog).toContainText("Terminal · Terminal - WP6267UQ36002376");
+  await expect(deleteDialog).toContainText("Existing alerts and history will remain.");
+  await expect(deleteDialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await deleteDialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(pausedRule).toBeVisible();
+
+  await pausedRule.getByRole("button", { name: "Delete rule" }).click();
+  await page.keyboard.press("Escape");
+  await expect(pausedRule).toBeVisible();
+
+  await pausedRule.getByRole("button", { name: "Delete rule" }).click();
+  await deleteDialog.getByRole("button", { name: "Delete Rule", exact: true }).click();
+  await expect(pausedRule).toHaveCount(0);
+  await expect(page.locator("[data-alert-toast]")).toHaveText("Rule deleted.");
+  await page.reload();
+  await alertPanel.getByRole("tab", { name: "Rules", exact: true }).click();
+  await expect(alertPanel.locator('[data-rule-id="r-merchant-selected-product"]')).toHaveCount(0);
+
+  await alertPanel.getByRole("tab", { name: "Alerts", exact: true }).click();
+  await expect(alertPanel.locator('[data-incident-id="i-mid-05"]')).toBeVisible();
+});
+
+test("deletes active rules from Alert Center and updates the active count", async ({ page }) => {
+  await page.goto("/39.customer_alerts.html?view=rules");
+  await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
+  await page.reload();
+  await page.getByRole("tab", { name: "Rules", exact: true }).click();
+
+  await expect(page.locator('[data-alert-count="rules"]')).toHaveText("3");
+  const activeRule = page.locator('[data-rule-id="r-provider-universal"]');
+  await activeRule.getByRole("button", { name: "Delete rule" }).click();
+  await page.getByRole("dialog", { name: "Delete Rule" }).getByRole("button", { name: "Delete Rule", exact: true }).click();
+  await expect(activeRule).toHaveCount(0);
+  await expect(page.locator('[data-alert-count="rules"]')).toHaveText("2");
+
+  await page.getByRole("tab", { name: "Alerts", exact: true }).click();
+  await expect(page.locator('[data-incident-id="i-mid-07"]')).toBeVisible();
+});
+
+test("uses consistent destructive styling for rule deletion on both surfaces", async ({ page }) => {
+  const surfaces = [
+    { url: "/1.terminalmanage_nayax.html?tab=alerts", ruleId: "r-stock", openRules: async () => page.getByRole("tabpanel", { name: "Alerts" }).getByRole("tab", { name: "Rules", exact: true }).click() },
+    { url: "/39.customer_alerts.html", ruleId: "r-provider-universal", openRules: async () => page.getByRole("tab", { name: "Rules", exact: true }).click() }
+  ];
+
+  for (const surface of surfaces) {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(surface.url);
+    await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
+    await page.reload();
+    await surface.openRules();
+    const deleteButton = page.locator(`[data-rule-id="${surface.ruleId}"]`).getByRole("button", { name: "Delete rule" });
+    await expect(deleteButton).toHaveCSS("color", "rgb(180, 35, 24)");
+    await expect(deleteButton.locator(".material-symbols-rounded")).toHaveCSS("color", "rgb(180, 35, 24)");
+    await deleteButton.hover();
+    await expect(deleteButton).toHaveCSS("color", "rgb(143, 29, 20)");
+
+    await deleteButton.click();
+    const dialog = page.getByRole("dialog", { name: "Delete Rule" });
+    const confirm = dialog.getByRole("button", { name: "Delete Rule", exact: true });
+    const cancel = dialog.getByRole("button", { name: "Cancel" });
+    await expect(dialog.locator(".alert-modal-actions")).toHaveCSS("display", "grid");
+    const buttonSizes = await Promise.all([cancel, confirm].map((button) => button.evaluate((element) => ({ width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }))));
+    expect(buttonSizes[0]).toEqual(buttonSizes[1]);
+    await expect(confirm).toHaveCSS("background-color", "rgb(180, 35, 24)");
+    await expect(confirm).toHaveCSS("border-color", "rgb(180, 35, 24)");
+    await confirm.hover();
+    await expect(confirm).toHaveCSS("background-color", "rgb(143, 29, 20)");
+    await expect(dialog.locator(".alert-delete-body")).toHaveCSS("display", "block");
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobileButtonSizes = await Promise.all([cancel, confirm].map((button) => button.evaluate((element) => ({ width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }))));
+    expect(mobileButtonSizes[0]).toEqual(mobileButtonSizes[1]);
+    await cancel.click();
+  }
+});
+
 test("scopes Alerts and monitoring range fields to each role", async ({ page }) => {
   await page.goto("/39.customer_alerts.html?manageAlerts=false");
   await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
@@ -293,6 +383,7 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
   await expect(page.getByText("View only").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Pause" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Delete rule" })).toHaveCount(0);
 
   const matrices = [
     { role: "service-provider", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Store", "Terminal"], row: /Midtown Store/ },
