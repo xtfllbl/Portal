@@ -57,6 +57,62 @@ final result: passed
 
 ---
 
+# Payment Channel Setting v2 — visual QA
+
+## Comparison target
+
+- Source visual truth: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/payment-channel-v2/source-option-1.png`.
+- Browser-rendered implementation: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/payment-channel-v2/implementation-desktop.png`.
+- Mobile implementation: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/payment-channel-v2/implementation-mobile.png`.
+- Full side-by-side evidence: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/payment-channel-v2/qa-comparison.png`.
+- Focused evidence: `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/payment-channel-v2/qa-comparison-focus.png`.
+- Source pixels: 1487 × 1058. The generated source represents the requested 1440 × 1024 desktop frame and has the same 1.406 aspect ratio.
+- Desktop viewport and capture: 1440 × 1024 CSS px, device scale factor 1, 1440 × 1024 image px.
+- Mobile viewport: 390 × 844 CSS px, device scale factor 1; the full-page capture is 390 × 854 image px.
+- State: Terminal Channels selected, Prepaid Card disabled, one terminal channel row.
+
+## Full-view comparison evidence
+
+The implementation preserves the selected direction's compact merchant/store context, light portal canvas, black-and-white hierarchy, tabbed channel workspace, dark table header, green channel badge, and right-aligned actions. The page is registered in the shared portal shell and deliberately highlights Merchants instead of Settings because the agreed information architecture is store-scoped.
+
+Three visible deviations are intentional user constraints rather than drift: Store Capabilities is a compact settings row without a second black table header; one-row pagination is hidden; and the breadcrumb shows the full Merchant path. No unrelated transaction metrics, lifecycle, permissions, payment actions, subtitles, or drawer patterns were introduced.
+
+## Focused comparison evidence
+
+The 2880 × 900 focused composite presents the main content regions at matching scale. It confirms alignment and hierarchy for the page title, context band, capability row, tab underline, action order, terminal table, row values, status treatment, and edit/delete controls. The table copy and values match the source; the Add action appears before Filter after the visual-correction pass.
+
+## Required fidelity surfaces
+
+- Fonts and typography: Poppins and the shared portal font stack are used. Title, tabs, labels, row text, uppercase headers, weights, and line heights maintain the selected compact hierarchy without clipping or unintended wrapping.
+- Spacing and layout rhythm: 24 px desktop page padding, 16 px mobile padding, restrained 8 px radii, lightweight dividers, compact 40 px controls, and a single table surface match the selected direction. The narrow layout has no page-level horizontal overflow; the 760 px table scrolls only inside its own container.
+- Colors and visual tokens: existing shell whites, neutral borders, #29292c primary controls, dark table headers, red Disabled state, green type badge, blue edit, and red delete treatments are reused.
+- Image quality and asset fidelity: the shared PAYwizard raster logo is retained. UI icons use the existing Material Symbols Rounded library; no placeholder, custom SVG, CSS drawing, decorative image, or gradient was added.
+- Copy and content: page and tab names are unchanged; terminal columns and row values are unchanged. The eCommerce first column is intentionally corrected to `ECOMMERCE CHANNEL`.
+
+## Interaction and accessibility checks
+
+- Terminal/eCommerce tab switching and arrow-key tab navigation work.
+- The empty eCommerce state exposes only `No Data Found` and its Add action.
+- Add, edit, search/filter, filter reset, and delete-confirmation cancel were exercised in the browser.
+- Prepaid Card confirmation updates status, MID, and Date & Time and announces success through an ARIA live region.
+- Native modal dialogs provide focus containment and Escape handling; controls have visible focus styles and table headers use `scope="col"`.
+- Query-string Merchant Name, Store Name, and Store ID context render correctly; Back preserves Store ID.
+- Browser console warnings/errors: none.
+
+## Comparison history
+
+- Pass 1 found one P2 visual mismatch: Filter appeared before Add Terminal Channel, reversing the selected reference's action order.
+- Fix: the toolbar DOM order and mobile stacking direction were corrected.
+- Pass 2 evidence: the final desktop, mobile, full-view composite, and focused composite all show Add before Filter. No actionable P0, P1, or P2 findings remain.
+
+## Follow-up polish
+
+- P3: backend persistence and production validation remain intentionally out of scope for this prototype.
+
+final result: passed
+
+---
+
 # Prepaid Cards tab redesign — visual QA
 
 ## Comparison target

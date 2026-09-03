@@ -1451,6 +1451,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/merchant-admin-unified.css">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/onboarding-device.css">
 </head>
 <body data-pw-breadcrumb="Merchants|Merchant List|New Merchant Onboarding">
     <div class="page-shell">
@@ -1902,6 +1903,118 @@
                             </div>
 
                             <div class="wizard-panel" data-step="3">
+                                <h3 class="panel-title">Device Info</h3>
+                                <div id="onboardingDeviceRoot" class="onboarding-device">
+                                    <div class="form-grid two">
+                                        <div class="field">
+                                            <label for="onboard-device-tci">TCI (Terminal Configuration Identifier)</label>
+                                            <input class="input-field" id="onboard-device-tci" type="text" readonly>
+                                        </div>
+                                        <div class="field">
+                                            <label for="onboard-device-manufacturer">Manufacturer</label>
+                                            <input class="input-field" id="onboard-device-manufacturer" type="text" value="WizarPOS" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-grid two">
+                                        <div class="field">
+                                            <label for="onboard-device-tpn">Terminal S/N (Hardware Serial Number)</label>
+                                            <input class="input-field" id="onboard-device-tpn" type="text" placeholder="Optional, e.g. 1567246">
+                                        </div>
+                                        <div class="field">
+                                            <label for="onboard-device-label">Terminal Name (Device Label)</label>
+                                            <input class="input-field" id="onboard-device-label" type="text" placeholder="Front Counter">
+                                        </div>
+                                    </div>
+                                    <div class="form-grid two">
+                                        <div class="field">
+                                            <label for="onboard-device-scenario">Terminal Scenario *</label>
+                                            <select class="input-field" id="onboard-device-scenario" required>
+                                                <optgroup label="Unattended Scenarios">
+                                                    <option selected>Vending Machine</option>
+                                                    <option>EV Charging</option>
+                                                    <option>Arcade Machine</option>
+                                                    <option>Coffee Machine</option>
+                                                </optgroup>
+                                                <optgroup label="Attended Scenarios">
+                                                    <option>Standalone Terminal</option>
+                                                    <option>Terminal + ECR</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="field">
+                                            <label for="onboard-device-model">Device Model *</label>
+                                            <select class="input-field" id="onboard-device-model" required>
+                                                <option value="">Select Model</option>
+                                                <option>Q2</option>
+                                                <option>Q3V</option>
+                                                <option>Q3PRT</option>
+                                                <option>Q3MINI-R</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <section class="device-deployment" aria-labelledby="onboard-deployment-title">
+                                        <div class="device-deployment-head">
+                                            <h4 id="onboard-deployment-title">Payment App Deployment</h4>
+                                            <div class="device-switches">
+                                                <label class="device-switch" for="onboard-device-provision">
+                                                    <input type="checkbox" id="onboard-device-provision" checked>
+                                                    <span class="device-switch-track" aria-hidden="true"></span>
+                                                    <span id="onboard-deployment-label">Deploy app &amp; parameters</span>
+                                                </label>
+                                                <label class="device-switch is-hidden" id="onboard-key-option" for="onboard-inject-key">
+                                                    <input type="checkbox" id="onboard-inject-key" checked>
+                                                    <span class="device-switch-track" aria-hidden="true"></span>
+                                                    <span>Inject key</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div id="onboard-deployment-options">
+                                            <div class="form-grid three onboarding-deployment-grid">
+                                                <div class="field">
+                                                    <label for="onboard-device-processor" id="onboard-processor-label">Processor / Acquirer *</label>
+                                                    <select class="input-field" id="onboard-device-processor" required></select>
+                                                </div>
+                                                <div class="field" id="onboard-version-field">
+                                                    <label for="onboard-processor-version">Payment App Version *</label>
+                                                    <select class="input-field" id="onboard-processor-version" required disabled>
+                                                        <option value="">Select Version</option>
+                                                    </select>
+                                                </div>
+                                                <div class="field">
+                                                    <label for="onboard-device-integration">Integration Mode</label>
+                                                    <select class="input-field" id="onboard-device-integration">
+                                                        <option value="Disable" selected>Disable</option>
+                                                        <option value="OPC_VENDING_STANDARD">PAYwizard OPC Vending Standard</option>
+                                                        <option value="OPC_ATTENDED_TCP">PAYwizard OPC Attended TCP</option>
+                                                        <option value="OPC_UNATTENDED_SERIAL">PAYwizard OPC Unattended Serial</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="field onboarding-template-field">
+                                                <label for="onboard-device-template">Payment App Para Template (Optional)</label>
+                                                <select class="input-field" id="onboard-device-template">
+                                                    <option value="">Select Template</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <div class="onboarding-parameter-section is-hidden" id="onboard-processor-params">
+                                        <div class="onboarding-section-heading">
+                                            <h4>Processor Parameters</h4>
+                                            <span class="processor-pill" id="onboard-processor-name">Processor</span>
+                                        </div>
+                                        <div id="onboard-processor-param-sets"></div>
+                                    </div>
+                                    <div class="onboarding-parameter-section is-hidden" id="onboard-opc-params">
+                                        <div class="onboarding-section-heading"><h4>PAYwizard OPC Parameters</h4></div>
+                                        <div id="onboard-opc-param-sets"></div>
+                                    </div>
+                                    <div class="device-error-summary is-hidden" id="onboard-device-errors" role="alert"></div>
+                                </div>
+
+                                <div class="legacy-device-form" hidden aria-hidden="true">
                                 <h3 class="panel-title">Device Info</h3>
                                 <p class="panel-note">Assign the initial device used for transactions.</p>
 
@@ -2649,10 +2762,12 @@
                                     </div>
                                 </div>
 
+                                </div>
+
                                 <div class="wizard-actions">
                                     <button class="btn secondary" type="button" data-goto="2">Back</button>
                                     <span class="action-group">
-                                        <button class="btn secondary" type="button" id="saveTemplateBtn">Save as Template</button>
+                                        <button class="btn secondary" type="button" id="saveDeviceTemplateBtn">Save as Template</button>
                                         <button class="btn primary" type="button" data-goto="4">Review</button>
                                     </span>
                                 </div>
@@ -2722,10 +2837,14 @@
 
                                     <div class="review-card">
                                         <div class="review-card-title">
-                                            Device
+                                            <span id="review-device-card-title">Device</span>
                                             <span class="review-card-check" id="review-device-check" aria-hidden="true">&#10003;</span>
                                         </div>
                                         <div class="review-list">
+                                            <div class="review-item">
+                                                <span class="review-label">TCI</span>
+                                                <span class="review-value" id="review-device-tci">Not provided</span>
+                                            </div>
                                             <div class="review-item">
                                                 <span class="review-label">Serial Number</span>
                                                 <span class="review-value" id="review-device-tpn">Not provided</span>
@@ -2746,7 +2865,27 @@
                                                 <span class="review-label">Paywizard Integration</span>
                                                 <span class="review-value" id="review-device-paywizard">Not provided</span>
                                             </div>
+                                            <div class="review-item">
+                                                <span class="review-label">Device Model</span>
+                                                <span class="review-value" id="review-device-model">Not provided</span>
+                                            </div>
+                                            <div class="review-item">
+                                                <span class="review-label">Deployment</span>
+                                                <span class="review-value" id="review-device-deployment">Not provided</span>
+                                            </div>
+                                            <div class="review-item">
+                                                <span class="review-label">Inject Key</span>
+                                                <span class="review-value" id="review-device-inject-key">Not applicable</span>
+                                            </div>
+                                            <div class="review-item">
+                                                <span class="review-label">Template</span>
+                                                <span class="review-value" id="review-device-template">Not provided</span>
+                                            </div>
                                         </div>
+                                        <details class="device-review-details" id="device-review-details">
+                                            <summary>Configuration details</summary>
+                                            <div id="review-device-parameter-details"></div>
+                                        </details>
                                     </div>
                                 </div>
 
@@ -2943,12 +3082,16 @@
             setReviewValue('review-processor-version', (document.getElementById('processor-version') || {}).value || '');
             const pw = document.getElementById('device-paywizard');
             setReviewValue('review-device-paywizard', pw ? (pw.value || '') : '');
+            if (window.syncOnboardingDeviceReview) {
+                window.syncOnboardingDeviceReview();
+            }
         }
 
         document.querySelectorAll('[data-goto]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const target = Number(btn.dataset.goto);
                 if (target && !isStepLocked(target)) {
+                    if (currentStep === 3 && target === reviewStep && window.validateOnboardingDevice && !window.validateOnboardingDevice()) return;
                     setStep(target);
                 }
             });
@@ -2958,6 +3101,7 @@
             stepEl.addEventListener('click', () => {
                 const target = Number(stepEl.dataset.step);
                 if (target && !isStepLocked(target)) {
+                    if (currentStep === 3 && target === reviewStep && window.validateOnboardingDevice && !window.validateOnboardingDevice()) return;
                     setStep(target);
                 }
             });
@@ -2967,6 +3111,7 @@
                     event.preventDefault();
                     const target = Number(stepEl.dataset.step);
                     if (target && !isStepLocked(target)) {
+                        if (currentStep === 3 && target === reviewStep && window.validateOnboardingDevice && !window.validateOnboardingDevice()) return;
                         setStep(target);
                     }
                 }
@@ -3327,6 +3472,30 @@
 
         setStep(1);
     </script>
+  <div class="device-modal is-hidden" id="deviceTemplateModal" role="dialog" aria-modal="true" aria-labelledby="deviceTemplateModalTitle">
+      <div class="device-modal-card">
+          <h3 id="deviceTemplateModalTitle">Save Parameter Template</h3>
+          <label for="deviceTemplateName">Template Name</label>
+          <input class="input" id="deviceTemplateName" type="text" maxlength="80" autocomplete="off">
+          <div class="device-modal-actions">
+              <button class="btn secondary" type="button" id="cancelDeviceTemplate">Cancel</button>
+              <button class="btn primary" type="button" id="confirmDeviceTemplate">Save Template</button>
+          </div>
+      </div>
+  </div>
+  <div class="device-modal is-hidden" id="deviceTemplateConfirmModal" role="dialog" aria-modal="true" aria-labelledby="deviceTemplateConfirmTitle">
+      <div class="device-modal-card">
+          <h3 id="deviceTemplateConfirmTitle">Replace Current Configuration?</h3>
+          <p>The selected template will replace the current processor and integration parameters.</p>
+          <div class="device-modal-actions">
+              <button class="btn secondary" type="button" id="cancelDeviceTemplateApply">Cancel</button>
+              <button class="btn primary" type="button" id="confirmDeviceTemplateApply">Apply Template</button>
+          </div>
+      </div>
+  </div>
+  <div class="device-toast-stack" id="deviceToastStack" aria-live="polite" aria-atomic="false"></div>
+  <script src="processor-parameter-data.js"></script>
+  <script src="scripts/onboarding-device.js"></script>
   <script src="scripts/platform-admin-shell.js"></script>
 </body>
 </html>

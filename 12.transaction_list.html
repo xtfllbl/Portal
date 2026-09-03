@@ -523,6 +523,7 @@
             <input class="field" id="fMid" placeholder="MID">
             <input class="field" id="fMerchantName" placeholder="Merchant Name">
             <input class="field" id="fStoreName" placeholder="Store Name">
+            <div class="sel"><select class="field" id="fPaymentMethod" aria-label="Payment Method"><option value="">Payment Method</option><option>Card</option><option>QR</option><option>Prepaid</option></select></div>
           </div>
           <div class="fbtns">
             <div class="fmeta">
@@ -794,7 +795,7 @@
         page:1,
         pageSize:10,
         selectedTransactionId:"",
-        filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",tci:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:""},
+        filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",tci:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:"",paymentMethod:""},
         columns:initialSelectedView?cloneColumns(initialSelectedView.getColumns?initialSelectedView.getColumns():initialSelectedView.columns):systemViews[0].getColumns(),
         savedViews:initialSavedViews,
         selectedViewId:initialSelectedViewId,
@@ -829,7 +830,8 @@
         amount:document.getElementById("fAmount"),
         mid:document.getElementById("fMid"),
         merchantName:document.getElementById("fMerchantName"),
-        storeName:document.getElementById("fStoreName")
+        storeName:document.getElementById("fStoreName"),
+        paymentMethod:document.getElementById("fPaymentMethod")
       };
       const rowActionPop=document.getElementById("rowActionPop");
       const followupBackdrop=document.getElementById("followupBackdrop");
@@ -1857,7 +1859,8 @@
           (!state.filters.amount||norm(r.amount).includes(norm(state.filters.amount))) &&
           (!state.filters.mid||norm(r.mid).includes(norm(state.filters.mid))) &&
           (!state.filters.merchantName||norm(r.merchantName).includes(norm(state.filters.merchantName))) &&
-          (!state.filters.storeName||norm(r.storeName).includes(norm(state.filters.storeName)));
+          (!state.filters.storeName||norm(r.storeName).includes(norm(state.filters.storeName))) &&
+          (!state.filters.paymentMethod||norm(r.paymentMethod||"Card")===norm(state.filters.paymentMethod));
       };
       const paymentMethodClass=value=>norm(value).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
       const cell=(k,r)=>{
