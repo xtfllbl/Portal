@@ -427,7 +427,7 @@
   });
 
   function currentUnreadCount() {
-    var alertIds = ["i-mid-01", "i-mid-02", "i-mid-03", "i-lobby-01", "i-break-01", "i-boston-01", "i-seattle-01", "i-lobby-02", "i-mid-04", "i-boston-02"];
+    var alertIds = ["i-mid-01", "i-mid-02", "i-mid-03", "i-lobby-01", "i-break-01", "i-boston-01", "i-lobby-02", "i-mid-04", "i-boston-02"];
     try {
       var alertState = JSON.parse(localStorage.getItem("paywizard.customerAlerts.v1") || "null");
       if (alertState && Array.isArray(alertState.incidents) && alertState.incidents.length) {

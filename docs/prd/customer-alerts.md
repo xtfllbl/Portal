@@ -144,20 +144,20 @@ Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Sto
 | FR-014 | 保存后规则状态默认为 Active，并记录 Rule Owner、Rule Creator 和 Modified 时间。 |
 | FR-015 | Pause 后停止新异常评估和通知；Resume 后恢复评估。Pause 不改变既有 Incident 状态。 |
 | FR-016 | 所有输入、选择和保存错误必须在当前弹窗内完成校验，不得静默失败。 |
+| FR-017 | Temperature Out of Range 的单位、下限和上限在桌面端同一行紧凑排列，数值输入框按短温度值控制宽度；移动端改为单列排列，避免横向溢出。 |
 
 ### 7.3 支持的监控条件
 
 | Condition | 触发参数 | 主要信号/限制 |
 | --- | --- | --- |
-| OPC Offline | Unavailable for（分钟） | Payment Service 不可用时触发。 |
+| Payment Service Offline | Unavailable for（分钟） | Payment Service 不可用时触发。 |
 | No Approved Transaction | No transaction for（小时）、Opening grace（分钟）、Evaluation schedule | 使用最后一笔 Approved Transaction；MVP 评估计划为 Store business hours。 |
 | Machine Stock Below % PAR | Below（% PAR） | 使用全部 Product Map 的 On Hand / PAR。 |
 | Any BIN Below Quantity | Below quantity（units） | 逐个评估 Product Map BIN。 |
 | Selected Product / BIN Below % PAR | Product / BIN、Below（% PAR） | 使用稳定的 Product Map 位置。 |
 | Sold Out | 无 | 任一被监控 BIN 的 On Hand = 0。 |
-| Temperature Out of Range | 上下限、持续异常时间、恢复上下限、持续恢复时间 | 仅适用于具有标准化数值温度能力的 Terminal。 |
+| Temperature Out of Range | 温度单位（°C / °F）、下限、上限 | 仅适用于具有标准化数值温度能力的 Terminal；切换单位不换算已输入数值。 |
 | Refrigeration Fault | 无 | 仅适用于具有标准化制冷故障状态的 Terminal。 |
-| Temperature Data Unavailable | 无 | 温度信号超过预期新鲜度或传感器不可用。 |
 
 ### 7.4 通知配置
 
@@ -205,9 +205,9 @@ Alert Center 支持：
 | FR-030 | 条件达到阈值时创建 Active Incident，并按规则渠道发送通知。 |
 | FR-031 | 同一 Rule 与 Target 的同一连续异常只能存在一个 Incident。 |
 | FR-032 | Acknowledge 记录确认人和确认时间，不改变 Monitoring State，也不停止重复通知。 |
-| FR-033 | 非温度条件默认需要连续两次正常 Recovery Check 后变为 Resolved。 |
+| FR-033 | 所有条件默认需要连续两次正常 Recovery Check 后变为 Resolved。 |
 | FR-034 | 恢复确认过程中 Incident 仍显示 Active；再次异常时清零恢复进度并记录 Recovery reset。 |
-| FR-035 | Temperature Out of Range 按规则配置的恢复区间及持续恢复时间判定 Resolution。 |
+| FR-035 | Temperature Out of Range 与其他条件使用相同的默认 Recovery Check 规则判定 Resolution。 |
 | FR-036 | 用户不得手动 Resolve；Resolved 只能由系统确认恢复后产生。 |
 | FR-037 | Manage Alerts 用户可对 Active Incident 执行 Manual Closure。 |
 | FR-038 | Manual Closure 原因包括 Planned maintenance、Replenishment in progress、False positive、Duplicate incident、Other；Other 必须填写备注。 |

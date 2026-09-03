@@ -88,21 +88,21 @@ _Avoid_: Terminal snapshot, Store inventory aggregate
 The terminal service channel that represents connectivity to OPC; its unavailability is the customer-relevant offline condition.
 _Avoid_: Device Connection, TMS connectivity
 
+**Payment Service Offline**:
+A Customer Alert condition indicating that the terminal's Payment Service is unavailable for the configured duration.
+_Avoid_: OPC Offline, Device Connection
+
 **On Hand**:
 Paywizard's current count of sellable units in a BIN and the first-release inventory signal used by Customer Alerts.
 _Avoid_: DEX product level
 
 **Temperature Out of Range**:
-A numeric-temperature condition available only when Paywizard has normalized readings for the Monitoring Target; it opens after the configured range and sustained-duration criteria are observed.
+A numeric-temperature condition available only when Paywizard has normalized readings for the Monitoring Target; its configured criteria are a Celsius or Fahrenheit unit plus lower and upper bounds.
 _Avoid_: Refrigeration Fault, raw DEX event
 
 **Refrigeration Fault**:
 A device-reported cooling fault normalized by Paywizard into a customer-facing condition without exposing vendor or DEX event codes.
-_Avoid_: Temperature Out of Range, Temperature Data Unavailable
-
-**Temperature Data Unavailable**:
-A condition indicating that temperature readings or the temperature sensor are unavailable beyond the expected reporting interval.
-_Avoid_: Temperature Out of Range, Refrigeration Fault
+_Avoid_: Temperature Out of Range
 
 **Alert Incident**:
 One continuous occurrence of an Alert Rule's abnormal condition, tracked independently from other conditions on the same target.

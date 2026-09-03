@@ -44,6 +44,17 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   const alertCenterLink = commandBar.getByRole("link", { name: "Open Alert Center" });
   await expect(alertCenterLink).toHaveAttribute("href", "39.customer_alerts.html?view=incidents");
   expect(await alertCenterLink.evaluate((link) => getComputedStyle(link).textDecorationLine)).toBe("none");
+  const toolbarStyle = (control) => {
+    const style = getComputedStyle(control);
+    return { family: style.fontFamily, size: style.fontSize, weight: style.fontWeight, height: style.minHeight, padding: style.padding, radius: style.borderRadius, background: style.backgroundColor, shadow: style.boxShadow };
+  };
+  const referenceToolbarStyle = await page.locator("#pmMapMenuButton").evaluate(toolbarStyle);
+  const alertToolbarStyles = await commandBar.locator(".pm-map-menu-button").evaluateAll((controls) => controls.map((control) => {
+    const style = getComputedStyle(control);
+    return { family: style.fontFamily, size: style.fontSize, weight: style.fontWeight, height: style.minHeight, padding: style.padding, radius: style.borderRadius, background: style.backgroundColor, shadow: style.boxShadow };
+  }));
+  expect(alertToolbarStyles).toEqual([referenceToolbarStyle, referenceToolbarStyle]);
+  await expect(alertCenterLink.locator(".pm-command-icon")).toHaveCount(1);
   await expect(commandBar.locator(".pm-map-menu-button")).toHaveCount(2);
   await expect(alertPanel.getByRole("tab", { name: "Alerts", exact: true })).toHaveAttribute("aria-selected", "true");
   await expect(alertPanel.getByRole("tab", { name: "Visible Incidents" })).toHaveCount(0);
@@ -87,8 +98,8 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   await expect(alertPanel.locator('[data-alert-view-panel="incidents"]')).toBeHidden();
   await expect(alertPanel.locator('[data-alert-view-panel="rules"]')).toBeVisible();
   await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(6);
-  await expect(page.getByRole("row", { name: /OPC Offline/ })).toContainText("20 minutes");
-  await expect(page.getByRole("row", { name: /OPC Offline/ })).toContainText("Active");
+  await expect(page.getByRole("row", { name: /Payment Service Offline/ })).toContainText("20 minutes");
+  await expect(page.getByRole("row", { name: /Payment Service Offline/ })).toContainText("Active");
   const createdRule = alertPanel.locator("[data-alert-rules] tr").filter({ hasText: "20 minutes" });
   await expect(createdRule).toContainText("store@example.com");
   await createdRule.getByRole("button", { name: "Edit" }).click();
@@ -204,6 +215,81 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   await expect(secondDialog.getByText("SN:")).toContainText("SECOND-SN");
 });
 
+test("configures temperature range with bounds and a non-converting unit switch", async ({ page }) => {
+  const runtimeErrors = [];
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("console", (message) => { if (message.type() === "error") runtimeErrors.push(message.text()); });
+  await resetAlertState(page);
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const dialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  const condition = dialog.getByLabel("Condition");
+  await expect(condition.locator('option[value="opc_offline"]')).toHaveText("Payment Service Offline");
+  await expect(condition.locator('option[value="temperature_range"]')).toHaveText("Temperature Out of Range");
+  await expect(condition.locator('option[value="temperature_unavailable"]')).toHaveCount(0);
+
+  await condition.selectOption("temperature_range");
+  await expect(dialog.getByLabel("Sustained breach (minutes)")).toHaveCount(0);
+  await expect(dialog.getByLabel("Recovery lower bound (°C)")).toHaveCount(0);
+  await expect(dialog.getByLabel("Recovery upper bound (°C)")).toHaveCount(0);
+  await expect(dialog.getByLabel("Sustained recovery (minutes)")).toHaveCount(0);
+  await expect(dialog.getByRole("radio", { name: "°C", exact: true })).toBeChecked();
+  await expect(dialog.getByLabel("Lower bound (°C)")).toHaveValue("2");
+  await expect(dialog.getByLabel("Upper bound (°C)")).toHaveValue("8");
+  await expect(dialog.getByRole("radio", { name: "°C", exact: true }).locator("+ span")).toHaveCSS("background-color", "rgb(17, 24, 39)");
+
+  await dialog.getByRole("radio", { name: "°F", exact: true }).check();
+  await expect(dialog.getByLabel("Lower bound (°F)")).toHaveValue("2");
+  await expect(dialog.getByLabel("Upper bound (°F)")).toHaveValue("8");
+  const controlHeights = await Promise.all([
+    dialog.locator(".alert-temperature-unit-options"),
+    dialog.getByLabel("Lower bound (°F)"),
+    dialog.getByLabel("Upper bound (°F)")
+  ].map((control) => control.evaluate((element) => element.getBoundingClientRect().height)));
+  expect(controlHeights).toEqual([36, 36, 36]);
+  await expect(dialog.locator(".temperature-range-fields")).toHaveCSS("grid-template-columns", "144px 160px 160px");
+
+  await dialog.getByRole("button", { name: "Save Rule" }).click();
+  await page.getByRole("tabpanel", { name: "Alerts" }).getByRole("tab", { name: "Rules", exact: true }).click();
+  const createdRule = page.locator("[data-alert-rules] tr").filter({ hasText: "Outside 2–8 °F" }).first();
+  await expect(createdRule).toBeVisible();
+  await createdRule.getByRole("button", { name: "Edit" }).click();
+  const editDialog = page.getByRole("dialog", { name: "Edit Alert Rule" });
+  await expect(editDialog.getByRole("radio", { name: "°F", exact: true })).toBeChecked();
+  await expect(editDialog.getByLabel("Lower bound (°F)")).toHaveValue("2");
+  await expect(editDialog.getByLabel("Upper bound (°F)")).toHaveValue("8");
+  await editDialog.getByRole("button", { name: "Cancel" }).click();
+
+  await page.goto("/39.customer_alerts.html?role=merchant");
+  await expect(page.locator("[data-alert-condition-filter]").locator('option[value="opc_offline"]')).toHaveText("Payment Service Offline");
+  await expect(page.locator("[data-alert-condition-filter]").locator('option[value="temperature_unavailable"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const centerDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await expect(centerDialog.getByLabel("Condition").locator('option[value="temperature_unavailable"]')).toHaveCount(0);
+  expect(runtimeErrors).toEqual([]);
+});
+
+test("migrates legacy temperature rules and removes unavailable-temperature data", async ({ page }) => {
+  await page.goto("/39.customer_alerts.html?role=merchant");
+  await page.evaluate((key) => {
+    localStorage.setItem(key, JSON.stringify({
+      deletedRuleIds: [],
+      rules: [
+        { id: "legacy-range", condition: "temperature_range", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Outside 2–8 °C for 30 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: { lower: 2, upper: 8, duration: 30, recoveryLower: 3, recoveryUpper: 7, recovery: 30 } },
+        { id: "legacy-unavailable", condition: "temperature_unavailable", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Temperature data exceeds expected freshness", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: {} }
+      ],
+      incidents: [
+        { id: "legacy-unavailable-incident", ruleId: "legacy-unavailable", monitoringState: "Active", condition: "temperature_unavailable", terminalId: "WP6267UQ36002376", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "Temperature unavailable", opened: "2026-08-28 10:00", events: [], nextChecks: [] }
+      ]
+    }));
+  }, ALERT_STATE_KEY);
+  await page.reload();
+
+  const migrated = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), ALERT_STATE_KEY);
+  expect(migrated.rules.find((rule) => rule.id === "legacy-range")).toMatchObject({ criteria: "Outside 2–8 °C", parameters: { lower: 2, upper: 8, unit: "C" }, recoveryChecksRequired: 2 });
+  expect(migrated.rules.some((rule) => rule.condition === "temperature_unavailable")).toBeFalsy();
+  expect(migrated.incidents.some((incident) => incident.condition === "temperature_unavailable" || incident.ruleId === "legacy-unavailable")).toBeFalsy();
+});
+
 test("summarizes role-visible alerts under Settings and keeps shared state", async ({ page }) => {
   await resetAlertState(page);
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
@@ -227,7 +313,7 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
     "Merchant · 1 of a Kind World Travel LLC",
     "Store · Midtown Store"
   ]);
-  await expect(page.locator('[data-alert-count="active"]')).toHaveText("9");
+  await expect(page.locator('[data-alert-count="active"]')).toHaveText("8");
   await expect(page.locator(".alert-kpi-card")).toHaveCount(2);
   await expect(page.locator(".alert-kpi-card").first()).toContainText("Active Alerts");
   await expect(page.getByRole("columnheader", { name: "Target", exact: true }).first()).toBeVisible();
@@ -269,7 +355,7 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
   await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(page.locator('[data-incident-id="i-mid-01"]')).toHaveCount(0);
   await page.locator('[data-incident-id="i-mid-07"]').getByRole("button", { name: "View timeline" }).click();
-  await expect(page.getByRole("dialog", { name: "OPC Offline" })).toContainText("Resolved");
+  await expect(page.getByRole("dialog", { name: "Payment Service Offline" })).toContainText("Resolved");
   await page.getByRole("button", { name: "Close incident details" }).click();
   await page.getByLabel("Incident state").selectOption("all");
   await page.getByLabel("Acknowledgement", { exact: true }).selectOption("unacknowledged");
@@ -465,7 +551,7 @@ test("applies the Condition dropdown and separate Store and Terminal text filter
   await expect(page.locator('[data-incident-id="i-mid-01"]')).toHaveCount(1);
   await filters.getByRole("button", { name: "Search", exact: true }).click();
   await expect(page.locator("[data-alert-incidents] tr")).toHaveCount(1);
-  await expect(page.locator('[data-incident-id="i-boston-03"]')).toContainText("OPC Offline");
+  await expect(page.locator('[data-incident-id="i-boston-03"]')).toContainText("Payment Service Offline");
   await expect(page.locator('[data-incident-id="i-boston-03"]')).toContainText("Cafeteria Q3 · Boston Office");
 });
 
@@ -521,19 +607,19 @@ test("keeps the selected tab while switching roles, resets filters, and removes 
   await expect(page.getByLabel("Alerts role")).toHaveValue("agent");
 });
 
-test("seeds Store and Terminal rules with twenty-four lifecycle incidents", async ({ page }) => {
+test("seeds Store and Terminal rules with supported lifecycle incidents", async ({ page }) => {
   await resetAlertState(page);
   const seeded = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), ALERT_STATE_KEY);
-  expect(seeded.rules).toHaveLength(13);
-  expect(seeded.incidents).toHaveLength(24);
-  expect(new Set(seeded.rules.map((rule) => rule.condition)).size).toBe(9);
+  expect(seeded.rules).toHaveLength(11);
+  expect(seeded.incidents).toHaveLength(22);
+  expect(new Set(seeded.rules.map((rule) => rule.condition)).size).toBe(8);
   expect(seeded.rules.filter((rule) => rule.targetType === "Terminal" && rule.targetId === "WP6267UQ36002376")).toHaveLength(5);
   expect(seeded.rules.every((rule) => ["Store", "Terminal"].includes(rule.targetType))).toBe(true);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "WP6267UQ36002376")).toHaveLength(8);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0042")).toHaveLength(4);
-  expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0043")).toHaveLength(3);
+  expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0043")).toHaveLength(2);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "BOS-Q3-0018")).toHaveLength(3);
-  expect(seeded.incidents.filter((incident) => incident.terminalId === "WP7300EV33001088")).toHaveLength(6);
+  expect(seeded.incidents.filter((incident) => incident.terminalId === "WP7300EV33001088")).toHaveLength(5);
   expect(new Set(seeded.incidents.map((incident) => incident.monitoringState))).toEqual(new Set(["Active", "Resolved", "Closed"]));
   expect(JSON.stringify(seeded)).not.toContain("Recovering");
   expect(seeded.incidents.every((incident) => !("state" in incident) && Array.isArray(incident.events))).toBe(true);

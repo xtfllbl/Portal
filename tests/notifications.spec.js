@@ -22,22 +22,22 @@ test("filters notifications and persists independent read state", async ({ page 
   await expect(page.getByRole("tab", { name: "Onboarding" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Leads" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Leads" })).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator("[data-notification-count]")).toHaveText("61");
+  await expect(page.locator("[data-notification-count]")).toHaveText("60");
   await expect(page.locator("[data-notification-rows] tr")).toHaveCount(42);
   await page.getByRole("tab", { name: "All Notifications" }).click();
-  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(62);
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(61);
   await expect(page.locator(".notifications-view").getByText(/Manage your merchant alerts/i)).toHaveCount(0);
 
   await page.getByRole("tab", { name: "Alerts" }).click();
-  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(10);
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(9);
   await expect(page.locator("[data-notification-rows]")).toContainText("Customer Alert");
-  await expect(page.locator("[data-notification-rows]")).toContainText("OPC Offline");
+  await expect(page.locator("[data-notification-rows]")).toContainText("Payment Service Offline");
 
   const firstAlert = page.locator("[data-notification-rows] tr").first();
   await firstAlert.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Mark Read", exact: true }).click();
   await expect(firstAlert.locator(".status-pill")).toHaveText("Read");
-  await expect(page.locator("[data-notification-count]")).toHaveText("60");
+  await expect(page.locator("[data-notification-count]")).toHaveText("59");
 
   await page.reload();
   await page.getByRole("tab", { name: "Alerts" }).click();
@@ -82,8 +82,8 @@ test("uses shared Alert Incident state and opens a deep-linked incident", async 
   await row.getByRole("button", { name: "Detail" }).click();
 
   await expect(page).toHaveURL(/39\.customer_alerts\.html\?view=incidents&incident=notification-shared-incident/);
-  await expect(page.getByRole("dialog", { name: "OPC Offline" })).toBeVisible();
-  await expect(page.getByRole("dialog", { name: "OPC Offline" })).toContainText("Payment Service unavailable for 22 minutes");
+  await expect(page.getByRole("dialog", { name: "Payment Service Offline" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Payment Service Offline" })).toContainText("Payment Service unavailable for 22 minutes");
 });
 
 for (const viewport of [

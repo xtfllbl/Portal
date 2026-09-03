@@ -353,7 +353,8 @@ select.alert-filter-control {
 /* Terminal Alerts uses the same compact composition as DEX and Product Map. */
 .customer-alerts-surface { color: var(--alert-strong); }
 .alerts-command-bar { min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 0 10px; border-bottom: 0; }
-.alerts-command-bar .pm-map-menu-button { width: auto !important; min-width: 154px; }
+.alerts-command-bar .pm-map-menu-button { font-weight: 400; }
+.alerts-command-bar .alerts-command-link { font-family: inherit; }
 .alerts-command-link,
 .alerts-command-link:visited,
 .alerts-command-link:hover,
@@ -474,12 +475,21 @@ select.alert-filter-control {
 .alert-range-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .alert-range-grid .full { grid-column: 1 / -1; }
 .alert-field { min-width: 0; display: grid; gap: 6px; }
+.alert-temperature-unit { margin: 0; padding: 0; border: 0; }
+.alert-temperature-unit legend { margin: 0 0 6px; padding: 0; color: #545b66; font-size: 11px; font-weight: 700; }
+.alert-temperature-unit-options { width: 144px; height: 36px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; }
+.alert-temperature-unit-options label { position: relative; min-width: 0; display: block; cursor: pointer; }
+.alert-temperature-unit-options input { position: absolute; inset: 0; width: 100% !important; height: 100% !important; margin: 0 !important; opacity: 0; cursor: pointer; }
+.alert-temperature-unit-options span { height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #545b66; font-size: 12px; font-weight: 700; line-height: 1; }
+.alert-temperature-unit-options input:checked + span { background: #111827; color: #fff; box-shadow: 0 1px 3px rgba(16, 24, 40, .24); }
+.alert-temperature-unit-options input:focus-visible + span { outline: 2px solid rgba(37, 99, 235, .28); outline-offset: 1px; }
 .alert-field.full,
 .alert-field-error.full,
 .alert-condition-fields,
 .alert-channel-group,
 .alert-check-row { grid-column: 1 / -1; }
 .alert-condition-fields { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.alert-condition-fields.temperature-range-fields { grid-template-columns: 144px repeat(2, 160px); align-items: end; justify-content: start; }
 .alert-modal .alert-field label,
 .alert-modal .alert-channel-group legend { display: block; margin: 0; padding: 0; color: #545b66; font-size: 11px; font-weight: 700; }
 .alert-modal .alert-field input,
@@ -631,6 +641,7 @@ select.alert-filter-control {
   .alert-modal-body,
   .alert-condition-fields,
   .alert-range-grid { grid-template-columns: 1fr; }
+  .alert-condition-fields.temperature-range-fields { grid-template-columns: 1fr; }
   .alert-field.full,
   .alert-field-error.full,
   .alert-condition-fields,

@@ -5,15 +5,14 @@
   const NOTIFICATION_STORAGE_KEY = "paywizard.notifications.v1";
 
   const conditionLabels = {
-    opc_offline: "OPC Offline",
+    opc_offline: "Payment Service Offline",
     no_approved_transaction: "No Approved Transaction",
     machine_stock: "Machine Stock Below % PAR",
     any_bin: "Any BIN Below Quantity",
     selected_product: "Selected Product / BIN Below % PAR",
     sold_out: "Sold Out",
     temperature_range: "Temperature Out of Range",
-    refrigeration_fault: "Refrigeration Fault",
-    temperature_unavailable: "Temperature Data Unavailable"
+    refrigeration_fault: "Refrigeration Fault"
   };
 
   const fallbackAlertIncidents = [
@@ -23,7 +22,6 @@
     { id: "i-lobby-01", condition: "any_bin", terminalName: "Lobby Vending Q3", store: "Midtown Store", evidence: "BIN A4 On Hand 1 · threshold 2", opened: "2026-08-28 06:10" },
     { id: "i-break-01", condition: "sold_out", terminalName: "Breakroom Cooler Q3", store: "Midtown Store", evidence: "BIN B2 has On Hand = 0", opened: "2026-08-28 07:45" },
     { id: "i-boston-01", condition: "refrigeration_fault", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "Normalized refrigeration fault is active", opened: "2026-08-28 09:12" },
-    { id: "i-seattle-01", condition: "temperature_unavailable", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "Temperature data exceeds expected freshness", opened: "2026-08-28 08:42" },
     { id: "i-lobby-02", condition: "no_approved_transaction", terminalName: "Lobby Vending Q3", store: "Midtown Store", evidence: "No approved transaction for 2h 16m", opened: "2026-08-27 20:30" },
     { id: "i-mid-04", condition: "any_bin", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "BIN B1 replenished to 6 units", opened: "2026-08-27 19:10" },
     { id: "i-boston-02", condition: "sold_out", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "All monitored BINs have stock", opened: "2026-08-27 21:04" }

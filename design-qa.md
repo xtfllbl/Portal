@@ -264,3 +264,69 @@ final result: passed
 - None required for this scope.
 
 final result: passed
+
+---
+
+# Alerts Design QA
+
+## Comparison target
+
+- Source visual truth path: user-provided conversation attachments for the alert-condition menu, compact temperature controls, selected temperature unit, and the Product Map toolbar button style. The chat client did not expose filesystem paths for these source attachments.
+- Implementation paths:
+  - `design-qa/evidence/terminal-alerts-desktop.png`
+  - `design-qa/evidence/customer-alerts-desktop.png`
+  - `design-qa/evidence/customer-alerts-mobile.png`
+  - `design-qa/evidence/terminal-temperature-controls-desktop.png`
+  - `design-qa/evidence/terminal-temperature-controls-fahrenheit.png`
+  - `design-qa/evidence/customer-temperature-controls-desktop.png`
+  - `design-qa/evidence/customer-temperature-controls-mobile.png`
+- Desktop viewport: 1440 × 1000 CSS px; deviceScaleFactor 1. Full implementation captures are 1440 × 1000 px.
+- Mobile viewport: 390 × 844 CSS px; deviceScaleFactor 1. Implementation capture is 390 × 844 px.
+- Focused implementation pixels: desktop temperature controls 642 × 57 px; mobile temperature controls 336 × 190 px.
+- Source pixels: the latest temperature-row source was provided as a 1688 × 154 px crop. Other source crops were available in the conversation renderer but their original pixel metadata and density were not exposed. Comparison therefore used visible proportions and control geometry rather than a pixel-difference threshold.
+- State: Create Alert Rule open with `Temperature Out of Range`, default `2–8 °C`; an additional focused capture shows the unchanged `2–8` values after switching to `°F`.
+
+## Full-view comparison evidence
+
+- Both Terminal Alerts and Customer Alert Center retain their existing portal shell, modal treatment, section order, typography, and equal-height footer buttons.
+- Desktop keeps Temperature Unit, Lower bound, and Upper bound on one row. The 144 px unit selector and two 160 px number inputs avoid stretching short temperature values across the modal.
+- Mobile changes the same controls to one column without horizontal overflow; the modal footer remains visible with equal-height actions.
+- The removed condition is absent and the renamed Payment Service condition appears in the rendered tables and selectors.
+
+## Focused-region comparison evidence
+
+- Typography: Poppins remains the rendered family. Automated computed-style comparison confirms both Alerts toolbar controls match the Product Map `Map` button for family, 13 px size, 400 weight, 38 px minimum height, padding, 9 px radius, background, and shadow.
+- Spacing/layout: desktop tracks are exactly `144px 160px 160px` with 12 px gaps and bottom alignment. Mobile tracks resolve to one column.
+- Colors/tokens: the selected unit uses the portal near-black `#111827` with white text; the inactive option retains the existing neutral control background and border.
+- Image/icon quality: existing `add-box.svg` and `assignment.svg` assets are used; no substitute glyphs or custom-drawn icons were introduced.
+- Copy/content: `Payment Service Offline` is used for the compatible `opc_offline` key. `Temperature Data Unavailable` is removed. Temperature labels and summaries follow the selected °C/°F unit.
+
+## Findings
+
+- No remaining P0, P1, or P2 findings.
+- P3: source attachment density was not available for automated pixel-difference comparison; control geometry and visible state were verified at deviceScaleFactor 1 instead.
+
+## Comparison history
+
+1. P2: temperature controls were vertically stacked and the number inputs consumed excessive width. Fixed with one compact desktop row and 160 px bound inputs; post-fix evidence: `terminal-temperature-controls-desktop.png` and `customer-temperature-controls-desktop.png`.
+2. P2: the selected unit was too subtle. Fixed with a solid near-black selected segment and white text; post-fix evidence: the desktop and Fahrenheit focused captures.
+3. P2: `Open Alert Center` had a different font weight and structure from toolbar buttons on other tabs. Removed the conflicting typography, matched the Product Map computed styles, and added the existing assignment icon; post-fix evidence: `terminal-alerts-desktop.png` plus the computed-style regression assertion.
+4. Responsive pass: captured the 390 × 844 state after fixes; no overflow, clipped controls, or unequal footer-button heights remain.
+
+## Primary interactions and runtime checks
+
+- Tested create, unit switch, save, summary rendering, edit/reopen, legacy localStorage migration, removed-rule/event cleanup, filters, and notification deep links.
+- Checked the temperature flow for browser console errors and page runtime errors.
+- Relevant Playwright suite: 18 passed.
+- Full repository suite: 163 passed and 21 unrelated existing failures outside Alerts/Notifications.
+
+## Implementation checklist
+
+- [x] Rename visible condition while retaining the compatible internal key.
+- [x] Remove unsupported condition and migrate stored prototype data.
+- [x] Reduce temperature parameters to unit, lower, and upper.
+- [x] Match desktop/mobile layout and action-button geometry.
+- [x] Match Alerts toolbar controls to the existing tab toolbar design.
+- [x] Capture final desktop, mobile, Celsius, and Fahrenheit evidence.
+
+final result: passed
