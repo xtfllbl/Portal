@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paywizard需求原型中心</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --soft: #f8fafc;
+      --text: #15171c;
+      --muted: #667085;
+      --line: #d8dee8;
+      --line-strong: #b8c2d2;
+      --blue: #2563eb;
+      --teal: #0f766e;
+      --amber: #b45309;
+      --shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, p { margin: 0; }
+
+    .shell {
+      width: min(1440px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 22px 0 34px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      padding: 18px 2px 4px;
+    }
+
+    h1 {
+      font-size: 30px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 0 2px;
+    }
+
+    h2 {
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .note {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .requirements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .requirement-card {
+      display: grid;
+      gap: 12px;
+      min-height: 188px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .requirement-card.featured {
+      border-color: #bfdbfe;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 24px;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: #475467;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .kicker.blue { background: #eff6ff; color: var(--blue); }
+    .kicker.teal { background: #f0fdfa; color: var(--teal); }
+    .kicker.amber { background: #fffbeb; color: var(--amber); }
+
+    .count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    h3 {
+      margin-top: 8px;
+      font-size: 19px;
+      line-height: 1.25;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .doc-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .doc-title a {
+      color: var(--text);
+    }
+
+    .doc-title a:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    .doc-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    a.doc-badge {
+      color: #1d4ed8;
+      text-decoration: none;
+    }
+
+    a.doc-badge:hover {
+      background: #dbeafe;
+      color: #1d4ed8;
+      text-decoration: none;
+    }
+
+    .doc-badge::after {
+      content: "↗";
+      margin-left: 4px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .doc-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .file-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .file-list li {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .file-list a {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      max-width: 100%;
+      min-height: 32px;
+      padding: 6px 9px 6px 10px;
+      border: 1px solid #cfd8e6;
+      border-radius: 8px;
+      background: #fff;
+      color: #244a9b;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+    }
+
+    .file-list a span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-list a::after {
+      content: "↗";
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      background: #eef4ff;
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .file-list a:hover {
+      border-color: #8fb3ff;
+      background: #f7faff;
+      color: #173b84;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .file-list a:focus-visible {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      align-self: end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #1f2937;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      border-color: var(--text);
+      background: var(--text);
+      color: #fff;
+    }
+
+    .page-table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: auto;
+    }
+
+    .page-table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    .page-table th,
+    .page-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e6ebf2;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .page-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .page-table tr:last-child td { border-bottom: 0; }
+    .page-table tbody tr:hover td { background: #f8fbff; }
+
+    .page-table a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    .page-table a::after {
+      content: "↗";
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .page-table a:hover { text-decoration: underline; }
+    .page-name { color: var(--text); font-size: 14px; font-weight: 800; }
+    .page-desc-cell { color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 1180px) {
+      .requirements-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 20px, 1440px);
+        padding: 10px 0 26px;
+      }
+
+      .hero {
+        display: grid;
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+
+      .requirements-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .file-list {
+        grid-template-columns: 1fr;
+      }
+
+      .requirement-card {
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <h1>Paywizard需求原型中心</h1>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>需求 Set</h2>
+          <p class="note">倒序排列：最新需求 Set 在最上面。当前共 10 个需求 Set。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="requirements-grid" aria-label="需求 Set 列表">
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker amber">Customer Alerts</span>
+            <h3>Customer Alerts 产品需求</h3>
+          </div>
+          <span class="count">3 个入口</span>
+        </div>
+        <p class="desc">覆盖 Store / Terminal 告警规则、四类角色权限、事件处置，以及统一 Notifications 通知中心的完整运营链路。</p>
+        <ul class="file-list" aria-label="Customer Alerts 产品需求文件">
+          <li><a href="1.terminalmanage_nayax.html"><span>1.terminalmanage_nayax.html</span></a></li>
+          <li><a href="39.customer_alerts.html"><span>39.customer_alerts.html</span></a></li>
+          <li><a href="40.notifications.html"><span>40.notifications.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="39.customer_alerts.html">打开需求 Set</a>
+          <a class="btn" href="1.terminalmanage_nayax.html">Terminal Management</a>
+          <a class="btn" href="40.notifications.html">Notifications</a>
+        </div>
+      </article>
+
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker teal">Merchant Onboarding</span>
+            <h3>Paywizard Onboarding 改造需求</h3>
+          </div>
+          <span class="count">11 个入口</span>
+        </div>
+        <p class="desc">覆盖 Lead 转 Onboarding、申请创建与分享、Nuvei / Elavon 商户填写、外部进度追踪、运维审核与打回、批准后创建平台商户及 Merchant List 落库的完整闭环。</p>
+        <ul class="file-list" aria-label="Paywizard Onboarding 改造需求文件">
+          <li><a href="38.Merchant_onboard.html"><span>38.Merchant_onboard.html</span></a></li>
+          <li><a href="29.INTL_PSP_merchant_lead_list.html"><span>29.INTL_PSP_merchant_lead_list.html</span></a></li>
+          <li><a href="26.partner_information.html"><span>26.partner_information.html</span></a></li>
+          <li><a href="28.UPT_merchant_lead_detail.html"><span>28.UPT_merchant_lead_detail.html</span></a></li>
+          <li><a href="27.Merchant_onboard_nuvei.html"><span>27.Merchant_onboard_nuvei.html</span></a></li>
+          <li><a href="27.Merchant_onboard_elavon.html"><span>27.Merchant_onboard_elavon.html</span></a></li>
+          <li><a href="38.Merchant_onboard_nuvei_public.html"><span>38.Merchant_onboard_nuvei_public.html</span></a></li>
+          <li><a href="38.Merchant_onboard_elavon_public.html"><span>38.Merchant_onboard_elavon_public.html</span></a></li>
+          <li><a href="38.Merchant_onboarding_progress.html"><span>38.Merchant_onboarding_progress.html</span></a></li>
+          <li><a href="5.merchant_add_merchant_only_iso.html"><span>5.merchant_add_merchant_only_iso.html</span></a></li>
+          <li><a href="5.merchant_manage_iso.html"><span>5.merchant_manage_iso.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="38.Merchant_onboard.html">打开需求 Set</a>
+          <a class="btn" href="29.INTL_PSP_merchant_lead_list.html">Leads</a>
+          <a class="btn" href="38.Merchant_onboarding_progress.html">进度追踪</a>
+          <a class="btn" href="5.merchant_manage_iso.html">Merchant List</a>
+        </div>
+      </article>
+
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker blue">Product Map &amp; DEX</span>
+            <h3>Product Map &amp; DEX 产品需求</h3>
+          </div>
+          <span class="count">4 个入口</span>
+        </div>
+        <p class="desc">覆盖商品目录、Product Map 模板、终端 Product Map 配置与 DEX 读取，以及 Pick List 配置的完整产品流程。</p>
+        <ul class="file-list" aria-label="Product Map 与 DEX 产品需求文件">
+          <li><a href="35.product_management.html"><span>35.product_management.html</span></a></li>
+          <li><a href="36.product_map_templates.html"><span>36.product_map_templates.html</span></a></li>
+          <li><a href="1.terminalmanage_nayax.html"><span>1.terminalmanage_nayax.html</span></a></li>
+          <li><a href="37.pick_list.html"><span>37.pick_list.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="35.product_management.html">打开需求 Set</a>
+          <a class="btn" href="36.product_map_templates.html">Map Templates</a>
+          <a class="btn" href="1.terminalmanage_nayax.html">Terminal &amp; DEX</a>
+          <a class="btn" href="37.pick_list.html">Pick List</a>
+        </div>
+      </article>
+
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker amber">Phase 4</span>
+            <h3 class="doc-title"><a href="https://wizarpos.feishu.cn/docx/YyvAdn6tboxY0zxtt3EcZxKYnVc" target="_blank" rel="noopener">设备部署配置 &amp; RKMS</a><a class="doc-badge" href="https://wizarpos.feishu.cn/docx/YyvAdn6tboxY0zxtt3EcZxKYnVc" target="_blank" rel="noopener">需求文档</a></h3>
+          </div>
+          <span class="count">6 个入口</span>
+        </div>
+        <p class="desc">Phase 4 设备部署配置与 RKMS 相关流程，覆盖商户详情、服务商配置、合作伙伴层级、设备添加、设备设置和终端管理。</p>
+        <ul class="file-list" aria-label="Phase 4 设备部署配置与 RKMS 文件">
+          <li><a href="5.merchant_detail_iso.html"><span>5.merchant_detail_iso.html</span></a></li>
+          <li><a href="21.service_provider.html"><span>21.service_provider.html</span></a></li>
+          <li><a href="2.resellermerchantterminal.html"><span>2.resellermerchantterminal.html</span></a></li>
+          <li><a href="5.merchant_add_device_iso.html"><span>5.merchant_add_device_iso.html</span></a></li>
+          <li><a href="5.merchant_device_settings_iso.html"><span>5.merchant_device_settings_iso.html</span></a></li>
+          <li><a href="1.terminalmanage.html"><span>1.terminalmanage.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="5.merchant_detail_iso.html">打开需求 Set</a>
+          <a class="btn" href="5.merchant_add_device_iso.html">添加设备</a>
+          <a class="btn" href="1.terminalmanage.html">终端管理</a>
+        </div>
+      </article>
+
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker blue">设备管理</span>
+            <h3 class="doc-title"><a href="https://wizarpos.feishu.cn/docx/Vd2wdMhGsoiQ6mxkr68ciRP8nBb" target="_blank" rel="noopener">Q3min-R 读卡器管理</a><a class="doc-badge" href="https://wizarpos.feishu.cn/docx/Vd2wdMhGsoiQ6mxkr68ciRP8nBb" target="_blank" rel="noopener">需求文档</a></h3>
+          </div>
+          <span class="count">5 个入口</span>
+        </div>
+        <p class="desc">Q3min-R 产品库，集中管理终端列表、处理器参数模板、固件版本、OPC 资源、支付通道、APK 版本和 XML 参数文件。</p>
+        <ul class="file-list" aria-label="读卡器管理文件">
+          <li><a href="34.card_reader_management.html"><span>34.card_reader_management.html</span></a></li>
+          <li><a href="1.terminalmanage_CardReader.html"><span>1.terminalmanage_CardReader.html</span></a></li>
+          <li><a href="3.Processor_template_new.html"><span>3.Processor_template_new.html</span></a></li>
+          <li><a href="10.customer_app_upload_manage.html"><span>10.customer_app_upload_manage.html</span></a></li>
+          <li><a href="5.merchant_add_device_iso.html"><span>5.merchant_add_device_iso.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="34.card_reader_management.html">打开需求 Set</a>
+          <a class="btn" href="1.terminalmanage_CardReader.html">读卡器终端</a>
+          <a class="btn" href="3.Processor_template_new.html">处理器模板</a>
+          <a class="btn" href="10.customer_app_upload_manage.html">APP 管理</a>
+        </div>
+      </article>
+
+      <article class="requirement-card">
+        <div class="card-top">
+          <div>
+            <span class="kicker amber">运营告警</span>
+            <h3 class="doc-title"><a href="https://wizarpos.feishu.cn/docx/FHIJdrvr7ohSu8xPHisceXDqnUd" target="_blank" rel="noopener">SLA 告警规则</a><a class="doc-badge" href="https://wizarpos.feishu.cn/docx/FHIJdrvr7ohSu8xPHisceXDqnUd" target="_blank" rel="noopener">需求文档</a></h3>
+          </div>
+          <span class="count">3 个入口</span>
+        </div>
+        <p class="desc">商户和终端 SLA 告警配置，包括离线阈值、无交易间隔、邮件接收人和告警邮件模板。</p>
+        <ul class="file-list" aria-label="SLA 告警文件">
+          <li><a href="32.sla_alert_rules.html"><span>32.sla_alert_rules.html</span></a></li>
+          <li><a href="邮件模版html/邮件模版html/slaAlert.html"><span>slaAlert.html</span></a></li>
+          <li><a href="邮件模版html/邮件模版html/slaAlertSample.html"><span>slaAlertSample.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="32.sla_alert_rules.html">打开需求 Set</a>
+          <a class="btn" href="邮件模版html/邮件模版html/slaAlert.html">邮件模板</a>
+          <a class="btn" href="邮件模版html/邮件模版html/slaAlertSample.html">邮件样例</a>
+        </div>
+      </article>
+
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker blue">储值卡</span>
+            <h3 class="doc-title">
+              <a href="https://wizarpos.feishu.cn/docx/O3lEdpOPsolLPzx2K60cah4Mn7b" target="_blank" rel="noopener">Prepaid Card 需求 Set</a>
+              <span class="doc-links">
+                <a class="doc-badge" href="https://wizarpos.feishu.cn/docx/O3lEdpOPsolLPzx2K60cah4Mn7b" target="_blank" rel="noopener">一期需求</a>
+                <a class="doc-badge" href="https://wizarpos.feishu.cn/docx/NCd3dJbTYodfxUxbjPRcDtZcnDf" target="_blank" rel="noopener">二期需求</a>
+              </span>
+            </h3>
+          </div>
+          <span class="count">6 个入口</span>
+        </div>
+        <p class="desc">储值卡相关流程，包括卡列表、激活、余额调整、挂失换卡、卡详情、交易和通道设置。</p>
+        <ul class="file-list" aria-label="储值卡文件">
+          <li><a href="31.prepaid_card_requirements.html"><span>31.prepaid_card_requirements.html</span></a></li>
+          <li><a href="14.prepaid_card_list.html"><span>14.prepaid_card_list.html</span></a></li>
+          <li><a href="15.prepaid_card_activation.html"><span>15.prepaid_card_activation.html</span></a></li>
+          <li><a href="16.prepaid_credit_adjustment.html"><span>16.prepaid_credit_adjustment.html</span></a></li>
+          <li><a href="17.prepaid_loss_replacement.html"><span>17.prepaid_loss_replacement.html</span></a></li>
+          <li><a href="19.prepaid_card_detail.html"><span>19.prepaid_card_detail.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="31.prepaid_card_requirements.html">打开需求 Set</a>
+          <a class="btn" href="14.prepaid_card_list.html">卡列表</a>
+        </div>
+      </article>
+
+      <article class="requirement-card">
+        <div class="card-top">
+          <div>
+            <span class="kicker teal">获客落地页</span>
+            <h3 class="doc-title"><a href="https://wizarpos.feishu.cn/docx/FHIJdrvr7ohSu8xPHisceXDqnUd" target="_blank" rel="noopener">Landing Page 需求 Set</a><a class="doc-badge" href="https://wizarpos.feishu.cn/docx/FHIJdrvr7ohSu8xPHisceXDqnUd" target="_blank" rel="noopener">需求文档</a></h3>
+          </div>
+          <span class="count">7 个入口</span>
+        </div>
+        <p class="desc">合作伙伴分享设置、公开商户线索落地页、固定通道 INTL PSP 链接和后台线索审核。</p>
+        <ul class="file-list" aria-label="落地页文件">
+          <li><a href="30.landing_page_requirements.html"><span>30.landing_page_requirements.html</span></a></li>
+          <li><a href="25.merchant_lead.html"><span>25.merchant_lead.html</span></a></li>
+          <li><a href="26.partner_information.html"><span>26.partner_information.html</span></a></li>
+          <li><a href="27.INTL_PSP_merchant_lead.html"><span>27.INTL_PSP_merchant_lead.html</span></a></li>
+          <li><a href="33.INTL_PSP_merchant_lead_elavon.html"><span>33.INTL_PSP_merchant_lead_elavon.html</span></a></li>
+          <li><a href="28.INTL_PSP_merchant_lead_detail.html"><span>28.INTL_PSP_merchant_lead_detail.html</span></a></li>
+          <li><a href="29.INTL_PSP_merchant_lead_list.html"><span>29.INTL_PSP_merchant_lead_list.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="30.landing_page_requirements.html">打开需求 Set</a>
+          <a class="btn" href="29.INTL_PSP_merchant_lead_list.html#intl">线索后台</a>
+        </div>
+      </article>
+
+      <article class="requirement-card featured">
+        <div class="card-top">
+          <div>
+            <span class="kicker teal">交易运营</span>
+            <h3 class="doc-title"><a href="https://wizarpos.feishu.cn/docx/JnD6dqZzQom0McxzAVmcMrXanQe" target="_blank" rel="noopener">后续交易操作</a><a class="doc-badge" href="https://wizarpos.feishu.cn/docx/JnD6dqZzQom0McxzAVmcMrXanQe" target="_blank" rel="noopener">需求文档</a></h3>
+          </div>
+          <span class="count">2 个入口</span>
+        </div>
+        <p class="desc">交易列表 ACTIONS 菜单支持 Refund、Tip Adjust、Capture、Incremental 和跨终端路由。</p>
+        <ul class="file-list" aria-label="后续交易文件">
+          <li><a href="12.transaction_list.html"><span>12.transaction_list.html</span></a></li>
+          <li><a href="11.transaction_detail_redesign.html"><span>11.transaction_detail_redesign.html</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="12.transaction_list.html">打开交易原型</a>
+          <a class="btn" href="11.transaction_detail_redesign.html">交易详情</a>
+        </div>
+      </article>
+
+      <article class="requirement-card">
+        <div class="card-top">
+          <div>
+            <span class="kicker blue">参数校验</span>
+            <h3>应用推送参数校验</h3>
+          </div>
+          <span class="count">3 个入口</span>
+        </div>
+        <p class="desc">Add Device 参数配置由 processor XML 驱动，覆盖 TSYS、FISERV、ELAVON、NUVEI 和 OXPAY。</p>
+        <ul class="file-list" aria-label="参数校验文件">
+          <li><a href="5.merchant_add_device_iso.html"><span>5.merchant_add_device_iso.html</span></a></li>
+          <li><a href="processor-parameter-data.js"><span>processor-parameter-data.js</span></a></li>
+          <li><a href="scripts/generate_processor_parameter_data.py"><span>generate_processor_parameter_data.py</span></a></li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="5.merchant_add_device_iso.html?processor=ELAVON">打开参数校验</a>
+          <a class="btn" href="5.merchant_add_device_iso.html?processor=TSYS">TSYS</a>
+        </div>
+      </article>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>全部页面入口</h2>
+          <p class="note">覆盖 1~40 的所有编号页面，每个入口附带页面用途概括。</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-table-wrap">
+      <table class="page-table" aria-label="全部页面入口">
+        <thead>
+          <tr>
+            <th>页面链接</th>
+            <th>英文名称</th>
+            <th>中文说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="1.html">1.html</a></td>
+            <td class="page-name">Payment Parameter Setting</td>
+            <td class="page-desc-cell">支付参数配置页面，用于查看和维护应用参数设置。</td>
+          </tr>
+          <tr>
+            <td><a href="1.terminalmanage.html">1.terminalmanage.html</a></td>
+            <td class="page-name">Terminal Management</td>
+            <td class="page-desc-cell">终端管理列表和基础终端运维控制台。</td>
+          </tr>
+          <tr>
+            <td><a href="1.terminalmanage_CardReader.html">1.terminalmanage_CardReader.html</a></td>
+            <td class="page-name">Terminal Management - Card Reader</td>
+            <td class="page-desc-cell">读卡器终端管理版本，用于 Q3min-R 类设备管理。</td>
+          </tr>
+          <tr>
+            <td><a href="1.terminalmanage_nayax.html">1.terminalmanage_nayax.html</a></td>
+            <td class="page-name">Terminal Product Map &amp; DEX</td>
+            <td class="page-desc-cell">Nayax 终端 Product Map 配置与 DEX 全量读取、解析和历史管理。</td>
+          </tr>
+          <tr>
+            <td><a href="2.agent_list_iso.html">2.agent_list_iso.html</a></td>
+            <td class="page-name">Agent List</td>
+            <td class="page-desc-cell">代理商列表页面，用于查看和进入代理商相关信息。</td>
+          </tr>
+          <tr>
+            <td><a href="2.agent_analytics.html">2.agent_analytics.html</a></td>
+            <td class="page-name">Agent Analytics</td>
+            <td class="page-desc-cell">代理商经营分析页面，用于查看代理商绩效与商户贡献。</td>
+          </tr>
+          <tr>
+            <td><a href="2.resellermerchantterminal.html">2.resellermerchantterminal.html</a></td>
+            <td class="page-name">Partner Hierarchy Dashboard</td>
+            <td class="page-desc-cell">合作伙伴、商户和终端层级关系看板。</td>
+          </tr>
+          <tr>
+            <td><a href="3.Processor_template_new.html">3.Processor_template_new.html</a></td>
+            <td class="page-name">Payment Parameter Management</td>
+            <td class="page-desc-cell">支付处理器参数模板管理页面。</td>
+          </tr>
+          <tr>
+            <td><a href="3.version_provider_assign.html">3.version_provider_assign.html</a></td>
+            <td class="page-name">Assign Service Providers</td>
+            <td class="page-desc-cell">版本与服务商分配页面，用于配置服务商关联。</td>
+          </tr>
+          <tr>
+            <td><a href="4.Select%20Application.html">4.Select Application.html</a></td>
+            <td class="page-name">Select Application</td>
+            <td class="page-desc-cell">应用选择页面，用于进入不同应用或配置流程。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_manage_iso.html">5.merchant_manage_iso.html</a></td>
+            <td class="page-name">Merchant List</td>
+            <td class="page-desc-cell">商户列表页面，用于搜索、查看和进入商户管理。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_add_iso.html">5.merchant_add_iso.html</a></td>
+            <td class="page-name">Add Merchant</td>
+            <td class="page-desc-cell">新增商户完整流程，包含商户、门店和设备信息。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_add_merchant_only_iso.html">5.merchant_add_merchant_only_iso.html</a></td>
+            <td class="page-name">Add Merchant Only</td>
+            <td class="page-desc-cell">仅新增商户信息的简化录入页面。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_add_device_iso.html">5.merchant_add_device_iso.html</a></td>
+            <td class="page-name">Add Device</td>
+            <td class="page-desc-cell">新增设备和应用推送参数配置页面。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_detail_iso.html">5.merchant_detail_iso.html</a></td>
+            <td class="page-name">Merchant Overview</td>
+            <td class="page-desc-cell">商户详情总览，展示商户、门店和终端信息。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_detail_no_store_iso.html">5.merchant_detail_no_store_iso.html</a></td>
+            <td class="page-name">Merchant Overview - No Store</td>
+            <td class="page-desc-cell">无门店场景下的商户详情页面。</td>
+          </tr>
+          <tr>
+            <td><a href="5.merchant_device_settings_iso.html">5.merchant_device_settings_iso.html</a></td>
+            <td class="page-name">Device Settings</td>
+            <td class="page-desc-cell">商户设备设置页面，用于配置终端相关参数。</td>
+          </tr>
+          <tr>
+            <td><a href="6.edit_application_parameters.html">6.edit_application_parameters.html</a></td>
+            <td class="page-name">Edit Application Parameters</td>
+            <td class="page-desc-cell">编辑应用参数页面，用于调整已配置参数。</td>
+          </tr>
+          <tr>
+            <td><a href="7.merchant_contact.html">7.merchant_contact.html</a></td>
+            <td class="page-name">Leads | Paywizard Portal</td>
+            <td class="page-desc-cell">商户联系人和线索信息页面。</td>
+          </tr>
+          <tr>
+            <td><a href="8.splitbill.html">8.splitbill.html</a></td>
+            <td class="page-name">Split Rules</td>
+            <td class="page-desc-cell">分账规则配置页面，用于管理 split bill 规则。</td>
+          </tr>
+          <tr>
+            <td><a href="8.merchant_analytics.html">8.merchant_analytics.html</a></td>
+            <td class="page-name">Merchant Analytics</td>
+            <td class="page-desc-cell">商户经营分析页面，用于查看商户网络表现和个体绩效。</td>
+          </tr>
+          <tr>
+            <td><a href="9.trans.html">9.trans.html</a></td>
+            <td class="page-name">Transactions</td>
+            <td class="page-desc-cell">旧版交易列表页面，用于查看交易记录。</td>
+          </tr>
+          <tr>
+            <td><a href="10.customer_app_upload_manage.html">10.customer_app_upload_manage.html</a></td>
+            <td class="page-name">APP Management</td>
+            <td class="page-desc-cell">客户应用上传和版本管理页面。</td>
+          </tr>
+          <tr>
+            <td><a href="11.transaction_detail_redesign.html">11.transaction_detail_redesign.html</a></td>
+            <td class="page-name">Transaction Details</td>
+            <td class="page-desc-cell">交易详情页，展示交易上下文和明细信息。</td>
+          </tr>
+          <tr>
+            <td><a href="12.transaction_list.html">12.transaction_list.html</a></td>
+            <td class="page-name">Transaction List</td>
+            <td class="page-desc-cell">新版交易列表，支持筛选、导出和后续交易操作。</td>
+          </tr>
+          <tr>
+            <td><a href="13.remote_control.html">13.remote_control.html</a></td>
+            <td class="page-name">Remote Diagnostic</td>
+            <td class="page-desc-cell">远程诊断页面，用于查看和操作终端诊断能力。</td>
+          </tr>
+          <tr>
+            <td><a href="14.prepaid_card_list.html">14.prepaid_card_list.html</a></td>
+            <td class="page-name">Prepaid Cards</td>
+            <td class="page-desc-cell">储值卡列表页面，用于查询和管理卡片。</td>
+          </tr>
+          <tr>
+            <td><a href="15.prepaid_card_activation.html">15.prepaid_card_activation.html</a></td>
+            <td class="page-name">Prepaid Card Activation</td>
+            <td class="page-desc-cell">储值卡激活页面，包含激活和批量导入流程。</td>
+          </tr>
+          <tr>
+            <td><a href="16.prepaid_credit_adjustment.html">16.prepaid_credit_adjustment.html</a></td>
+            <td class="page-name">Prepaid Balance Adjustment</td>
+            <td class="page-desc-cell">储值卡余额调整页面，用于充值、扣减和记录查询。</td>
+          </tr>
+          <tr>
+            <td><a href="17.prepaid_loss_replacement.html">17.prepaid_loss_replacement.html</a></td>
+            <td class="page-name">Prepaid Loss &amp; Replacement</td>
+            <td class="page-desc-cell">储值卡挂失和换卡处理页面。</td>
+          </tr>
+          <tr>
+            <td><a href="19.prepaid_card_detail.html">19.prepaid_card_detail.html</a></td>
+            <td class="page-name">Prepaid Card Details</td>
+            <td class="page-desc-cell">储值卡详情页面，展示余额、交易和卡片状态。</td>
+          </tr>
+          <tr>
+            <td><a href="20.provider_custom_email_service.html">20.provider_custom_email_service.html</a></td>
+            <td class="page-name">Provider Custom Email Service</td>
+            <td class="page-desc-cell">服务商自定义邮件服务配置页面。</td>
+          </tr>
+          <tr>
+            <td><a href="21.service_provider.html">21.service_provider.html</a></td>
+            <td class="page-name">Service Provider</td>
+            <td class="page-desc-cell">服务商管理页面，用于维护服务商信息。</td>
+          </tr>
+          <tr>
+            <td><a href="22.sp_payment_channel_setting.html">22.sp_payment_channel_setting.html</a></td>
+            <td class="page-name">SP Payment Channel Setting</td>
+            <td class="page-desc-cell">服务商支付通道配置页面。</td>
+          </tr>
+          <tr>
+            <td><a href="23.payment_channel_setting.html">23.payment_channel_setting.html</a></td>
+            <td class="page-name">Payment Channel Setting</td>
+            <td class="page-desc-cell">支付通道设置页面，用于维护通道参数。</td>
+          </tr>
+          <tr>
+            <td><a href="23.sp_merchant_list.html">23.sp_merchant_list.html</a></td>
+            <td class="page-name">SP Merchant List</td>
+            <td class="page-desc-cell">服务商视角的商户列表页面。</td>
+          </tr>
+          <tr>
+            <td><a href="24.maintain_terminal_log.html">24.maintain_terminal_log.html</a></td>
+            <td class="page-name">Terminal Log Maintenance</td>
+            <td class="page-desc-cell">终端日志维护页面，用于查看和维护终端日志。</td>
+          </tr>
+          <tr>
+            <td><a href="25.merchant_lead.html">25.merchant_lead.html</a></td>
+            <td class="page-name">Share Promotion</td>
+            <td class="page-desc-cell">商户线索落地页，用于公开提交商户申请。</td>
+          </tr>
+          <tr>
+            <td><a href="26.partner_information.html">26.partner_information.html</a></td>
+            <td class="page-name">Partner List</td>
+            <td class="page-desc-cell">合作伙伴信息和分享设置页面。</td>
+          </tr>
+          <tr>
+            <td><a href="27.INTL_PSP_merchant_lead.html">27.INTL_PSP_merchant_lead.html</a></td>
+            <td class="page-name">Attended Merchant Onboarding</td>
+            <td class="page-desc-cell">国际 PSP 商户入驻表单，支持客户选择通道。</td>
+          </tr>
+          <tr>
+            <td><a href="27.Merchant_onboard_nuvei.html">27.Merchant_onboard_nuvei.html</a></td>
+            <td class="page-name">Nuvei Onboarding Review</td>
+            <td class="page-desc-cell">Nuvei 渠道申请表及平台只读、分模块审核与打回页面。</td>
+          </tr>
+          <tr>
+            <td><a href="27.Merchant_onboard_elavon.html">27.Merchant_onboard_elavon.html</a></td>
+            <td class="page-name">Elavon Onboarding Review</td>
+            <td class="page-desc-cell">Elavon 渠道申请表及平台只读、分模块审核与打回页面。</td>
+          </tr>
+          <tr>
+            <td><a href="28.INTL_PSP_merchant_lead_detail.html">28.INTL_PSP_merchant_lead_detail.html</a></td>
+            <td class="page-name">INTL PSP Merchant Information</td>
+            <td class="page-desc-cell">INTL PSP 商户线索详情和审核信息页面。</td>
+          </tr>
+          <tr>
+            <td><a href="28.UPT_merchant_lead_detail.html">28.UPT_merchant_lead_detail.html</a></td>
+            <td class="page-name">UPT Merchant Lead Information</td>
+            <td class="page-desc-cell">UPT Lead 详情、SN 清单及线索信息只读页面。</td>
+          </tr>
+          <tr>
+            <td><a href="29.INTL_PSP_merchant_lead_list.html">29.INTL_PSP_merchant_lead_list.html</a></td>
+            <td class="page-name">Leads</td>
+            <td class="page-desc-cell">UPT 和 INTL PSP 线索后台列表页面。</td>
+          </tr>
+          <tr>
+            <td><a href="30.landing_page_requirements.html">30.landing_page_requirements.html</a></td>
+            <td class="page-name">Landing Page Requirements</td>
+            <td class="page-desc-cell">Landing Page 需求集合入口和评审总览。</td>
+          </tr>
+          <tr>
+            <td><a href="31.prepaid_card_requirements.html">31.prepaid_card_requirements.html</a></td>
+            <td class="page-name">Prepaid Card Requirement Set</td>
+            <td class="page-desc-cell">储值卡需求集合入口和评审总览。</td>
+          </tr>
+          <tr>
+            <td><a href="32.sla_alert_rules.html">32.sla_alert_rules.html</a></td>
+            <td class="page-name">SLA Alert Rules</td>
+            <td class="page-desc-cell">SLA 告警规则配置页面，支持邮件告警设置。</td>
+          </tr>
+          <tr>
+            <td><a href="33.INTL_PSP_merchant_lead_elavon.html">33.INTL_PSP_merchant_lead_elavon.html</a></td>
+            <td class="page-name">ELAVON Merchant Onboarding</td>
+            <td class="page-desc-cell">固定 ELAVON 通道的 INTL PSP 商户入驻表单。</td>
+          </tr>
+          <tr>
+            <td><a href="34.card_reader_management.html">34.card_reader_management.html</a></td>
+            <td class="page-name">Card Reader Management</td>
+            <td class="page-desc-cell">Q3min-R 读卡器固件、OPC、通道和 XML 管理。</td>
+          </tr>
+          <tr>
+            <td><a href="35.product_management.html">35.product_management.html</a></td>
+            <td class="page-name">Products</td>
+            <td class="page-desc-cell">Operator 级商品分类、商品目录与终端 Product Map 联动管理。</td>
+          </tr>
+          <tr>
+            <td><a href="36.product_map_templates.html">36.product_map_templates.html</a></td>
+            <td class="page-name">Product Map Templates</td>
+            <td class="page-desc-cell">终端 Product Map 布局模板库，用于保存和复用商品映射设置。</td>
+          </tr>
+          <tr>
+            <td><a href="37.pick_list.html">37.pick_list.html</a></td>
+            <td class="page-name">Pick List</td>
+            <td class="page-desc-cell">商品选择清单配置页面，用于组织 Product Map 可选商品范围。</td>
+          </tr>
+          <tr>
+            <td><a href="38.Merchant_onboard.html">38.Merchant_onboard.html</a></td>
+            <td class="page-name">Merchant Onboarding</td>
+            <td class="page-desc-cell">Onboarding Application 创建、分享、状态流转、审核入口和创建商户闭环。</td>
+          </tr>
+          <tr>
+            <td><a href="38.Merchant_onboard_nuvei_public.html">38.Merchant_onboard_nuvei_public.html</a></td>
+            <td class="page-name">Nuvei Merchant Application</td>
+            <td class="page-desc-cell">无需登录的 Nuvei 商户填写、修改、提交和申请进度页面。</td>
+          </tr>
+          <tr>
+            <td><a href="38.Merchant_onboard_elavon_public.html">38.Merchant_onboard_elavon_public.html</a></td>
+            <td class="page-name">Elavon Merchant Application</td>
+            <td class="page-desc-cell">无需登录的 Elavon 商户填写、修改、提交和申请进度页面。</td>
+          </tr>
+          <tr>
+            <td><a href="38.Merchant_onboarding_progress.html">38.Merchant_onboarding_progress.html</a></td>
+            <td class="page-name">Application Progress</td>
+            <td class="page-desc-cell">供外部相关人员查看的只读申请进度与状态时间线页面。</td>
+          </tr>
+          <tr>
+            <td><a href="39.customer_alerts.html">39.customer_alerts.html</a></td>
+            <td class="page-name">Customer Alerts</td>
+            <td class="page-desc-cell">Store / Terminal 告警规则、角色范围、事件列表和处置详情页面。</td>
+          </tr>
+          <tr>
+            <td><a href="40.notifications.html">40.notifications.html</a></td>
+            <td class="page-name">Notifications</td>
+            <td class="page-desc-cell">集中查看 Alerts、Onboarding 和 Leads 通知，并管理已读状态。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

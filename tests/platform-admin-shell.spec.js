@@ -460,6 +460,48 @@ test("prepaid pages select their matching submenu destination", async ({ page })
   }
 });
 
+test("active navigation group ignores legacy persisted menu state", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("paywizard.platformSidebarMenus.v1.wizarpos", JSON.stringify({
+      agents: true,
+      merchants: false
+    }));
+  });
+  await page.goto("/38.Merchant_onboard.html");
+
+  await expect(page.locator('[data-pw-menu="merchants"]')).toBeVisible();
+  await expect(page.locator('[data-pw-menu-toggle="merchants"]')).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator('[data-pw-menu="agents"]')).toBeHidden();
+});
+
+test("secondary navigation groups form one accordion on desktop and mobile", async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/38.Merchant_onboard.html");
+    if (viewport.width < 761) await page.locator(".pw-platform-mobile-menu").click();
+
+    const agentsToggle = page.locator('[data-pw-menu-toggle="agents"]');
+    const merchantsToggle = page.locator('[data-pw-menu-toggle="merchants"]');
+    await agentsToggle.click();
+    await expect(page.locator('[data-pw-menu="agents"]')).toBeVisible();
+    await expect(page.locator('[data-pw-menu="merchants"]')).toBeHidden();
+    await expect(merchantsToggle).toHaveAttribute("aria-expanded", "false");
+
+    await agentsToggle.click();
+    await expect(page.locator('[data-pw-menu="agents"]')).toBeHidden();
+  }
+});
+
+test("secondary navigation animation respects reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/38.Merchant_onboard.html");
+  await page.locator('[data-pw-menu-toggle="agents"]').click();
+
+  await expect(page.locator('[data-pw-menu="agents"]')).toBeVisible();
+  expect(await page.locator('[data-pw-menu="agents"]').evaluate((menu) => menu.getAnimations().length)).toBe(0);
+  await expect(page.locator('[data-pw-menu="merchants"]')).toBeHidden();
+});
+
 test("selected secondary navigation uses one pill treatment across legacy pages", async ({ page }) => {
   for (const route of ["/38.Merchant_onboard.html", "/1.terminalmanage.html"]) {
     await page.goto(route);

@@ -191,27 +191,11 @@
 
   function group(label, icon, name, items) {
     var active = config.module === name;
-    var open = active || readMenuState(name);
+    var open = active;
     return '<button class="pw-platform-menu-toggle pw-menu-item menu-item' + (active ? ' active' : '') + '" type="button" data-pw-menu-toggle="' + name + '" data-target="' + name + '" data-pw-nav-label="' + escapeHtml(label) +
       '" aria-expanded="' + String(open) + '"><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
       icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span><span class="material-symbols-rounded pw-platform-menu-arrow" aria-hidden="true">expand_more</span></button>' +
       '<div class="pw-platform-sub-menu" data-pw-menu="' + name + '"' + (open ? '' : ' hidden') + '>' + items + '</div>';
-  }
-
-  var menuStateStoreKey = "paywizard.platformSidebarMenus.v1." + activeProfile;
-  var menuState = (function () {
-    try { return JSON.parse(localStorage.getItem(menuStateStoreKey) || "null") || {}; }
-    catch (_) { return {}; }
-  })();
-
-  function readMenuState(name) {
-    if (typeof menuState[name] === "boolean") return menuState[name];
-    return name === "agents" || name === "merchants";
-  }
-
-  function writeMenuState(name, open) {
-    menuState[name] = open;
-    try { localStorage.setItem(menuStateStoreKey, JSON.stringify(menuState)); } catch (_) {}
   }
 
   function buildNavigation() {
@@ -255,7 +239,7 @@
       sub("Product Map Templates", "36.product_map_templates.html", "product-map-templates")
     ].join("");
     var deviceActive = config.module === "device";
-    var deviceOpen = deviceActive || readMenuState("device");
+    var deviceOpen = deviceActive;
     var device = '<div class="pw-platform-menu-row' + (deviceActive ? ' active' : '') + '">' +
       '<a class="pw-platform-menu-link" href="2.resellermerchantterminal.html" data-pw-nav-label="Device Management"' + (config.active === "device-overview" ? ' aria-current="page"' : '') + '>' +
       '<span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">devices</span><span class="pw-platform-menu-label">Device Management</span></span></a>' +
@@ -458,6 +442,39 @@
     });
   });
 
+  function setMenuOpen(button, menu, open) {
+    var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    menu.getAnimations().forEach(function (animation) { animation.cancel(); });
+    button.setAttribute("aria-expanded", String(open));
+    if (reducedMotion || typeof menu.animate !== "function") {
+      menu.hidden = !open;
+      menu.removeAttribute("style");
+      return;
+    }
+
+    if (open) menu.hidden = false;
+    var startHeight = open ? 0 : menu.getBoundingClientRect().height;
+    var endHeight = open ? menu.scrollHeight : 0;
+    menu.style.overflow = "hidden";
+    var animation = menu.animate([
+      { height: startHeight + "px", opacity: open ? 0 : 1 },
+      { height: endHeight + "px", opacity: open ? 1 : 0 }
+    ], { duration: open ? 180 : 160, easing: "ease-out" });
+    animation.onfinish = function () {
+      if (button.getAttribute("aria-expanded") !== String(open)) return;
+      menu.hidden = !open;
+      menu.removeAttribute("style");
+    };
+  }
+
+  function closeOtherMenus(currentButton) {
+    frame.querySelectorAll("[data-pw-menu-toggle]").forEach(function (otherButton) {
+      if (otherButton === currentButton || otherButton.getAttribute("aria-expanded") !== "true") return;
+      var otherName = otherButton.getAttribute("data-pw-menu-toggle");
+      setMenuOpen(otherButton, frame.querySelector('[data-pw-menu="' + otherName + '"]'), false);
+    });
+  }
+
   frame.querySelectorAll("[data-pw-menu-toggle]").forEach(function (button) {
     button.addEventListener("click", function () {
       var name = button.getAttribute("data-pw-menu-toggle");
@@ -470,15 +487,13 @@
           return;
         }
         setSidebarCollapsed(false, true);
-        menu.hidden = false;
-        button.setAttribute("aria-expanded", "true");
-        writeMenuState(name, true);
+        closeOtherMenus(button);
+        setMenuOpen(button, menu, true);
         return;
       }
-      var willOpen = menu.hidden;
-      menu.hidden = !willOpen;
-      button.setAttribute("aria-expanded", String(willOpen));
-      writeMenuState(name, willOpen);
+      var willOpen = button.getAttribute("aria-expanded") !== "true";
+      if (willOpen) closeOtherMenus(button);
+      setMenuOpen(button, menu, willOpen);
     });
   });
 
