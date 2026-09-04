@@ -76,7 +76,7 @@
 
   const terminalCapabilities = {};
   monitoringHierarchy.forEach((provider) => {
-    const merchantGroups = provider.agents.length ? provider.agents.map((agent) => agent.merchants) : [provider.merchants];
+    const merchantGroups = [provider.merchants, ...provider.agents.map((agent) => agent.merchants)];
     merchantGroups.flat().forEach((merchant) => merchant.stores.forEach((store) => store.terminals.forEach((terminal) => {
       terminalCapabilities[terminal.id] = { name: terminal.name, storeId: store.id, temperature: terminal.temperature || [] };
     })));
@@ -90,7 +90,7 @@
     { id: "r-provider-boston-fault", condition: "refrigeration_fault", targetType: "Terminal", targetId: "BOS-Q3-0018", targetName: "Cafeteria Q3", criteria: "Normalized refrigeration fault is active", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Paused", modified: "2026-08-23 08:30", owner: "Universal Processing", parameters: {}, recoveryChecksRequired: 2 },
     { id: "r-agent-seattle", condition: "opc_offline", targetType: "Terminal", targetId: "WP7300EV33001088", targetName: "EV Charger Bay 07", criteria: "Unavailable for 10 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-25 09:40", owner: "Seattle Field Agent", parameters: { duration: 10 }, recoveryChecksRequired: 2 },
     { id: "r-agent-seattle-transaction", condition: "no_approved_transaction", targetType: "Store", targetId: "ev-charger-hub", targetName: "EV Charger Hub", criteria: "No approved transaction for 4 hours", recipients: ["Portal Inbox", "seattle.ops@example.com"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-24 12:10", owner: "Seattle Field Agent", parameters: { duration: 4 }, recoveryChecksRequired: 2 },
-    { id: "r-stock", condition: "machine_stock", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Machine stock below 25% PAR", recipients: ["Portal Inbox", "ops@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-27 16:20", owner: "1 of a Kind World Travel LLC", parameters: { threshold: 25 }, recoveryChecksRequired: 2 },
+    { id: "r-stock", condition: "machine_stock", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Machine stock below 25% PAR", recipients: ["Portal Inbox", "ops@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-27 16:20", owner: "Midtown Store", ownerType: "Store", ownerId: "s-midtown", parameters: { threshold: 25 }, recoveryChecksRequired: 2 },
     { id: "r-merchant-no-transaction", condition: "no_approved_transaction", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "No approved transaction for 2 hours", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 14:12", owner: "1 of a Kind World Travel LLC", parameters: { duration: 2 }, recoveryChecksRequired: 2 },
     { id: "r-merchant-temp-range", condition: "temperature_range", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Outside 2–8 °C", recipients: ["Portal Inbox", "facilities@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: { lower: 2, upper: 8, unit: "C" }, recoveryChecksRequired: 2 },
     { id: "r-merchant-any-bin", condition: "any_bin", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Any BIN below 2 units", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-26 17:20", owner: "1 of a Kind World Travel LLC", parameters: { threshold: 2 }, recoveryChecksRequired: 2 },
@@ -139,10 +139,12 @@
   const notificationLabel = (value) => value === "Portal Inbox" ? "Portal Alerts" : value;
 
   const roleContexts = {
-    "service-provider": { providerId: "sp-universal", agentId: "", merchantId: "", storeId: "", ownerName: "Universal Processing", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
-    agent: { providerId: "sp-north-america", agentId: "agent-seattle", merchantId: "", storeId: "", ownerName: "Seattle Field Agent", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
-    merchant: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "", ownerName: "1 of a Kind World Travel LLC", scopes: ["Store", "Terminal"], visibleFields: ["scope", "store", "terminal"] },
-    store: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "s-midtown", ownerName: "1 of a Kind World Travel LLC", scopes: ["Store", "Terminal"], visibleFields: ["scope", "terminal"] }
+    "service-provider": { providerId: "sp-universal", agentId: "", merchantId: "", storeId: "", ownerType: "Service Provider", ownerId: "sp-universal", ownerName: "Universal Processing", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
+    agent: { providerId: "sp-north-america", agentId: "agent-seattle", merchantId: "", storeId: "", ownerType: "Agent", ownerId: "agent-seattle", ownerName: "Seattle Field Agent", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
+    merchant: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "", ownerType: "Merchant", ownerId: "merchant-kind-world", ownerName: "1 of a Kind World Travel LLC", scopes: ["Store", "Terminal"], visibleFields: ["scope", "store", "terminal"] },
+    store: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "s-midtown", ownerType: "Store", ownerId: "s-midtown", ownerName: "Midtown Store", scopes: ["Store", "Terminal"], visibleFields: ["scope", "terminal"] },
+    "operations-viewer": { isOperations: true, canManage: false, ownerName: "All customer accounts", scopes: ["Store", "Terminal"], visibleFields: [] },
+    "operations-manager": { isOperations: true, canManage: true, ownerName: "All customer accounts", scopes: ["Store", "Terminal"], visibleFields: [] }
   };
 
   function providerFor(id) { return monitoringHierarchy.find((provider) => provider.id === id) || null; }
@@ -150,14 +152,16 @@
   function merchantsFor(providerId, agentId) {
     const provider = providerFor(providerId);
     if (!provider) return [];
-    return provider.agents.length ? (agentFor(providerId, agentId)?.merchants || []) : provider.merchants;
+    if (agentId === "__direct") return provider.merchants || [];
+    if (agentId) return agentFor(providerId, agentId)?.merchants || [];
+    return [...(provider.merchants || []), ...provider.agents.flatMap((agent) => agent.merchants || [])];
   }
-  function merchantFor(providerId, agentId, merchantId) { return merchantsFor(providerId, agentId).find((merchant) => merchant.id === merchantId) || null; }
+  function merchantFor(providerId, agentId, merchantId) { return merchantsFor(providerId, agentId).find((merchant) => merchant.id === merchantId) || merchantsFor(providerId, "").find((merchant) => merchant.id === merchantId) || null; }
   function storeFor(providerId, agentId, merchantId, storeId) { return merchantFor(providerId, agentId, merchantId)?.stores.find((store) => store.id === storeId) || null; }
   function terminalFor(providerId, agentId, merchantId, storeId, terminalId) { return storeFor(providerId, agentId, merchantId, storeId)?.terminals.find((terminal) => terminal.id === terminalId) || null; }
   function findTargetPath(targetType, targetId) {
     for (const provider of monitoringHierarchy) {
-      const agents = provider.agents.length ? provider.agents : [null];
+      const agents = [null, ...provider.agents];
       for (const agent of agents) {
         const merchants = agent ? agent.merchants : provider.merchants;
         for (const merchant of merchants) {
@@ -173,6 +177,35 @@
     return null;
   }
 
+  const customerAccounts = monitoringHierarchy.flatMap((provider) => {
+    const providerAccount = { type: "Service Provider", id: provider.id, name: provider.name, providerId: provider.id, agentId: "", merchantId: "", storeId: "", path: provider.name, lineageIds: [provider.id] };
+    const directMerchantAccounts = (provider.merchants || []).flatMap((merchant) => {
+      const merchantAccount = { type: "Merchant", id: merchant.id, name: merchant.name, providerId: provider.id, agentId: "", merchantId: merchant.id, storeId: "", path: `${provider.name} / ${merchant.name}`, lineageIds: [provider.id, merchant.id] };
+      const stores = merchant.stores.map((store) => ({ type: "Store", id: store.id, name: store.name, providerId: provider.id, agentId: "", merchantId: merchant.id, storeId: store.id, path: `${provider.name} / ${merchant.name} / ${store.name}`, lineageIds: [provider.id, merchant.id, store.id] }));
+      return [merchantAccount, ...stores];
+    });
+    const agentAccounts = provider.agents.flatMap((agent) => {
+      const agentAccount = { type: "Agent", id: agent.id, name: agent.name, providerId: provider.id, agentId: agent.id, merchantId: "", storeId: "", path: `${provider.name} / ${agent.name}`, lineageIds: [provider.id, agent.id] };
+      const merchants = agent.merchants.flatMap((merchant) => {
+        const merchantAccount = { type: "Merchant", id: merchant.id, name: merchant.name, providerId: provider.id, agentId: agent.id, merchantId: merchant.id, storeId: "", path: `${provider.name} / ${agent.name} / ${merchant.name}`, lineageIds: [provider.id, agent.id, merchant.id] };
+        const stores = merchant.stores.map((store) => ({ type: "Store", id: store.id, name: store.name, providerId: provider.id, agentId: agent.id, merchantId: merchant.id, storeId: store.id, path: `${provider.name} / ${agent.name} / ${merchant.name} / ${store.name}`, lineageIds: [provider.id, agent.id, merchant.id, store.id] }));
+        return [merchantAccount, ...stores];
+      });
+      return [agentAccount, ...merchants];
+    });
+    return [providerAccount, ...directMerchantAccounts, ...agentAccounts];
+  });
+
+  function accountFor(type, id) { return customerAccounts.find((account) => account.type === type && account.id === id) || null; }
+  function accountForRule(rule) {
+    return accountFor(rule.ownerType, rule.ownerId) || customerAccounts.find((account) => account.name === rule.owner) || null;
+  }
+  function ownerContext(account) {
+    if (!account) return null;
+    const visibleFields = account.type === "Service Provider" ? ["agent", "scope", "merchant", "store", "terminal"] : account.type === "Agent" ? ["scope", "merchant", "store", "terminal"] : account.type === "Merchant" ? ["scope", "store", "terminal"] : ["scope", "terminal"];
+    return { ...account, ownerType: account.type, ownerId: account.id, ownerName: account.name, scopes: ["Store", "Terminal"], visibleFields };
+  }
+
   function temperatureUnit(value) {
     return value === "F" ? "F" : "C";
   }
@@ -183,6 +216,14 @@
 
   function migrateRule(rule) {
     const migrated = { ...rule, recoveryChecksRequired: Number(rule.recoveryChecksRequired) > 0 ? Number(rule.recoveryChecksRequired) : 2 };
+    const owner = accountForRule(migrated);
+    if (owner) {
+      migrated.ownerType = owner.type;
+      migrated.ownerId = owner.id;
+      migrated.ownerName = owner.name;
+      migrated.ownerPath = owner.path;
+      migrated.owner = owner.name;
+    }
     if (migrated.condition !== "temperature_range") return migrated;
     const parameters = migrated.parameters || {};
     migrated.parameters = {
@@ -313,24 +354,30 @@
   const query = new URLSearchParams(location.search);
   let currentRoleKey = roleContexts[query.get("role")] ? query.get("role") : "service-provider";
   let currentRole = roleContexts[currentRoleKey];
-  const canManageAlerts = query.get("manageAlerts") !== "false";
-  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all" };
+  let canManageAlerts = currentRole.isOperations ? currentRole.canManage : query.get("manageAlerts") !== "false";
+  let selectedRuleOwner = null;
+  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current" };
   surface.querySelectorAll("[data-alert-terminal-name]").forEach((node) => { node.textContent = terminalName; });
 
-  function roleResources() {
-    const provider = providerFor(currentRole.providerId);
-    const agent = currentRole.agentId ? agentFor(currentRole.providerId, currentRole.agentId) : null;
-    let merchants = agent ? agent.merchants : (provider?.merchants || []);
-    if (currentRole.merchantId) merchants = merchants.filter((merchant) => merchant.id === currentRole.merchantId);
+  function roleResources(context = currentRole) {
+    if (context.isOperations) {
+      const merchants = monitoringHierarchy.flatMap((provider) => merchantsFor(provider.id, ""));
+      const stores = merchants.flatMap((merchant) => merchant.stores);
+      return { provider: null, agent: null, merchants, stores, terminals: stores.flatMap((store) => store.terminals) };
+    }
+    const provider = providerFor(context.providerId);
+    const agent = context.agentId ? agentFor(context.providerId, context.agentId) : null;
+    let merchants = agent ? agent.merchants : merchantsFor(context.providerId, "");
+    if (context.merchantId) merchants = merchants.filter((merchant) => merchant.id === context.merchantId);
     let stores = merchants.flatMap((merchant) => merchant.stores);
-    if (currentRole.storeId) stores = stores.filter((store) => store.id === currentRole.storeId);
+    if (context.storeId) stores = stores.filter((store) => store.id === context.storeId);
     return { provider, agent, merchants, stores, terminals: stores.flatMap((store) => store.terminals) };
   }
 
-  function targetInRole(item) {
+  function targetInRole(item, context = currentRole) {
     const path = findTargetPath(item.targetType, item.targetId);
     if (!path) return false;
-    const resources = roleResources();
+    const resources = roleResources(context);
     if (item.targetType === "Store") return resources.stores.some((store) => store.id === item.targetId);
     if (item.targetType === "Terminal") return resources.terminals.some((terminal) => terminal.id === item.targetId);
     return false;
@@ -338,13 +385,24 @@
 
   function roleVisibleIncidents() {
     if (pageType === "terminal") return state.incidents.filter((item) => item.terminalId === terminalId);
+    if (currentRole.isOperations) return state.incidents;
     const terminalIds = new Set(roleResources().terminals.map((terminal) => terminal.id));
     return state.incidents.filter((item) => terminalIds.has(item.terminalId));
   }
 
   function roleVisibleRules() {
-    if (pageType === "terminal") return state.rules.filter((item) => item.targetType === "Terminal" && item.targetId === terminalId);
-    return state.rules.filter((item) => item.owner === currentRole.ownerName && targetInRole(item));
+    if (pageType === "terminal") return state.rules.filter((item) => item.status !== "Archived" && item.targetType === "Terminal" && item.targetId === terminalId);
+    if (currentRole.isOperations) return state.rules;
+    return state.rules.filter((item) => item.status !== "Archived" && (item.ownerId ? item.ownerId === currentRole.ownerId : item.owner === currentRole.ownerName) && targetInRole(item));
+  }
+
+  function operationsFilterMatches(rule) {
+    if (!currentRole.isOperations || !rule) return true;
+    const owner = accountForRule(rule);
+    const organization = appliedCenterFilters.organization ? customerAccounts.find((account) => `${account.type}|${account.id}` === appliedCenterFilters.organization) : null;
+    const organizationMatches = !organization || owner?.lineageIds.includes(organization.id);
+    const ownerMatches = !appliedCenterFilters.owner || `${owner?.type}|${owner?.id}` === appliedCenterFilters.owner;
+    return organizationMatches && ownerMatches;
   }
 
   function visibleIncidents() {
@@ -356,19 +414,21 @@
       const storeMatches = !storeFilter || item.store.toLowerCase().includes(storeFilter);
       const terminalMatches = !terminalFilter || `${item.terminalName} ${item.terminalId}`.toLowerCase().includes(terminalFilter);
       const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
-      return (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && storeMatches && terminalMatches && conditionMatches;
+      const rule = state.rules.find((candidate) => candidate.id === item.ruleId);
+      return (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && storeMatches && terminalMatches && conditionMatches && operationsFilterMatches(rule);
     });
   }
 
   function visibleRules() {
     const items = roleVisibleRules();
-    const { store: storeFilter, terminal: terminalFilter, condition: conditionFilter } = appliedCenterFilters;
+    const { store: storeFilter, terminal: terminalFilter, condition: conditionFilter, ruleStatus } = appliedCenterFilters;
     return items.filter((item) => {
       const path = findTargetPath(item.targetType, item.targetId);
       const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
       const storeMatches = !storeFilter || path?.store?.name.toLowerCase().includes(storeFilter);
       const terminalMatches = !terminalFilter || `${path?.terminal?.name || ""} ${path?.terminal?.id || ""}`.toLowerCase().includes(terminalFilter);
-      return conditionMatches && storeMatches && terminalMatches;
+      const statusMatches = !currentRole.isOperations || ruleStatus === "all" || (ruleStatus === "Archived" ? item.status === "Archived" : item.status !== "Archived");
+      return conditionMatches && storeMatches && terminalMatches && statusMatches && operationsFilterMatches(item);
     });
   }
 
@@ -377,6 +437,9 @@
     if (!body) return;
     const items = visibleIncidents();
     body.innerHTML = items.length ? items.map((item) => {
+      const incidentRule = state.rules.find((rule) => rule.id === item.ruleId);
+      const incidentOwner = accountForRule(incidentRule || {});
+      const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(incidentOwner?.type || incidentRule?.ownerType || "Customer Account")} · ${escapeHtml(incidentOwner?.name || incidentRule?.ownerName || incidentRule?.owner || "Unknown owner")}</strong></td>` : "";
       const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.terminalName)} · ${escapeHtml(item.store)}</td>` : "";
       const opened = `${escapeHtml(item.opened)}${item.duration ? ` · ${escapeHtml(item.duration)}` : ""}`;
       const actionable = item.monitoringState === "Active";
@@ -385,29 +448,36 @@
         <tr data-incident-id="${escapeHtml(item.id)}">
           <td><span class="alert-state-stack"><span class="alert-status incident-state ${item.monitoringState.toLowerCase()}">${escapeHtml(item.monitoringState)}</span>${item.acknowledgedAt ? `<span class="alert-ack-icon" role="img" aria-label="${escapeHtml(acknowledgementLabel)}" title="${escapeHtml(acknowledgementLabel)}" data-tooltip="${escapeHtml(acknowledgementLabel)}" tabindex="0"><span class="material-symbols-rounded" aria-hidden="true">task_alt</span></span>` : ""}<span class="alert-sr-only">Acknowledgement: ${item.acknowledgedAt ? "Acknowledged" : "Needs acknowledgement"}</span></span></td>
           <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
+          ${ownerCell}
           ${targetCell}
           <td>${escapeHtml(item.evidence)}</td><td>${opened}</td>
-          <td class="alert-actions-cell">${actionable && !item.acknowledgedAt ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}" aria-label="Acknowledge" title="Acknowledge" data-tooltip="Acknowledge"><span class="material-symbols-rounded" aria-hidden="true">done</span></button>` : ""}${actionable && canManageAlerts ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-close-incident="${escapeHtml(item.id)}" aria-label="Close incident" title="Close incident" data-tooltip="Close incident"><span class="material-symbols-rounded" aria-hidden="true">stop_circle</span></button>` : ""}<button class="alert-table-button alert-icon-button" type="button" data-alert-view="${escapeHtml(item.id)}" aria-label="View timeline" title="View timeline" data-tooltip="View timeline"><span class="material-symbols-rounded" aria-hidden="true">timeline</span></button></td>
+          <td class="alert-actions-cell">${actionable && !item.acknowledgedAt && (!currentRole.isOperations || canManageAlerts) ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}" aria-label="Acknowledge" title="Acknowledge" data-tooltip="Acknowledge"><span class="material-symbols-rounded" aria-hidden="true">done</span></button>` : ""}${actionable && canManageAlerts ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-close-incident="${escapeHtml(item.id)}" aria-label="Close incident" title="Close incident" data-tooltip="Close incident"><span class="material-symbols-rounded" aria-hidden="true">stop_circle</span></button>` : ""}<button class="alert-table-button alert-icon-button" type="button" data-alert-view="${escapeHtml(item.id)}" aria-label="View timeline" title="View timeline" data-tooltip="View timeline"><span class="material-symbols-rounded" aria-hidden="true">timeline</span></button></td>
         </tr>`;
-    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 6 : 5}">No incidents match the current filters.</td></tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 7 : 6) : 5}">No incidents match the current filters.</td></tr>`;
   }
 
   function renderRules() {
     const body = surface.querySelector("[data-alert-rules]");
     if (!body) return;
     const items = visibleRules();
-    body.innerHTML = items.length ? items.map((item) => `
+    body.innerHTML = items.length ? items.map((item) => {
+      const owner = accountForRule(item);
+      const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(owner?.type || item.ownerType || "Customer Account")} · ${escapeHtml(owner?.name || item.ownerName || item.owner)}</strong></td>` : "";
+      const editable = canManageAlerts && item.status !== "Archived";
+      return `
       <tr data-rule-id="${escapeHtml(item.id)}">
         <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
+        ${ownerCell}
         ${pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.targetType)} · ${escapeHtml(item.targetName)}</td>` : ""}
         <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.map(notificationLabel).join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
-        <td>${canManageAlerts ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-toggle="${escapeHtml(item.id)}" aria-label="${item.status === "Active" ? "Pause" : "Resume"}" title="${item.status === "Active" ? "Pause" : "Resume"}" data-tooltip="${item.status === "Active" ? "Pause" : "Resume"}"><span class="material-symbols-rounded" aria-hidden="true">${item.status === "Active" ? "pause" : "play_arrow"}</span></button><button class="alert-table-button alert-icon-button" type="button" data-alert-edit="${escapeHtml(item.id)}" aria-label="Edit" title="Edit" data-tooltip="Edit"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button><button class="alert-table-button alert-icon-button alert-delete-button" type="button" data-alert-delete="${escapeHtml(item.id)}" aria-label="Delete rule" title="Delete rule" data-tooltip="Delete rule"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : '<span class="alerts-page-copy">View only</span>'}</td>
-      </tr>`).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? 7 : 6}">No organization-owned rules match this context.</td></tr>`;
+        <td>${editable ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-toggle="${escapeHtml(item.id)}" aria-label="${item.status === "Active" ? "Pause" : "Resume"}" title="${item.status === "Active" ? "Pause" : "Resume"}" data-tooltip="${item.status === "Active" ? "Pause" : "Resume"}"><span class="material-symbols-rounded" aria-hidden="true">${item.status === "Active" ? "pause" : "play_arrow"}</span></button><button class="alert-table-button alert-icon-button" type="button" data-alert-edit="${escapeHtml(item.id)}" aria-label="Edit" title="Edit" data-tooltip="Edit"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button><button class="alert-table-button alert-icon-button alert-delete-button" type="button" data-alert-delete="${escapeHtml(item.id)}" aria-label="Delete rule" title="Delete rule" data-tooltip="Delete rule"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : '<span class="alerts-page-copy">View only</span>'}</td>
+      </tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 8 : 7) : 6}">No organization-owned rules match this context.</td></tr>`;
   }
 
   function renderCounts() {
-    const incidents = roleVisibleIncidents();
-    const rules = roleVisibleRules();
+    const incidents = roleVisibleIncidents().filter((incident) => operationsFilterMatches(state.rules.find((rule) => rule.id === incident.ruleId)));
+    const rules = roleVisibleRules().filter(operationsFilterMatches);
     const values = { active: incidents.filter((item) => item.monitoringState === "Active").length, rules: rules.filter((rule) => rule.status === "Active").length };
     Object.entries(values).forEach(([key, value]) => { surface.querySelectorAll(`[data-alert-count="${key}"]`).forEach((node) => { node.textContent = String(value); }); });
   }
@@ -444,11 +514,31 @@
   const closeNote = closeIncidentModal?.querySelector("[data-alert-close-note]");
   const closeError = closeIncidentModal?.querySelector("[data-alert-close-error]");
   const roleSwitcher = surface.querySelector("[data-alert-role-switcher]");
+  const operationsScope = surface.querySelector("[data-alert-operations-scope]");
+  const organizationFilter = surface.querySelector("[data-alert-organization-filter]");
+  const ownerFilter = surface.querySelector("[data-alert-owner-filter]");
+  const ruleStatusFilter = surface.querySelector("[data-alert-rule-status-filter]");
+  const contextModal = document.querySelector("[data-alert-context-modal]");
+  const contextForm = contextModal?.querySelector("[data-alert-context-form]");
+  const accountSearch = contextModal?.querySelector("[data-alert-account-search]");
+  const accountResults = contextModal?.querySelector("[data-alert-account-results]");
+  const ownerTypeSelect = contextModal?.querySelector("[data-alert-owner-type]");
+  const ownerProviderSelect = contextModal?.querySelector("[data-alert-owner-provider]");
+  const ownerAgentSelect = contextModal?.querySelector("[data-alert-owner-agent]");
+  const ownerMerchantSelect = contextModal?.querySelector("[data-alert-owner-merchant]");
+  const ownerStoreSelect = contextModal?.querySelector("[data-alert-owner-store]");
+  const selectedAccountLabel = contextModal?.querySelector("[data-alert-selected-account]");
+  const contextError = contextModal?.querySelector("[data-alert-context-error]");
+  const contextContinue = contextModal?.querySelector("[data-alert-context-continue]");
+  const ownerContextPanel = modal.querySelector("[data-alert-owner-context]");
+  const ownerContextName = modal.querySelector("[data-alert-owner-context-name]");
+  const ownerChangeButton = modal.querySelector("[data-alert-owner-change]");
+  const similarRuleWarning = modal.querySelector("[data-alert-similar-rule]");
+  const viewSimilarRuleButton = modal.querySelector("[data-alert-view-similar]");
   let activeIncidentId = null;
   let closingIncidentId = null;
   let closeDialogTrigger = null;
 
-  surface.querySelectorAll("[data-alert-create]").forEach((button) => { if (!canManageAlerts) button.hidden = true; });
   if (roleSwitcher) roleSwitcher.value = currentRoleKey;
 
   conditionSelect.innerHTML = Object.entries(recipes).map(([key, recipe]) => `<option value="${key}">${escapeHtml(recipe.label)}</option>`).join("");
@@ -461,9 +551,10 @@
   }
 
   function resetCenterFilters() {
-    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter]").forEach((control) => { control.value = ""; });
+    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter], [data-alert-organization-filter], [data-alert-owner-filter]").forEach((control) => { control.value = ""; });
     surface.querySelectorAll("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-condition-filter]").forEach((control) => { control.value = "all"; });
-    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all" };
+    if (ruleStatusFilter) ruleStatusFilter.value = "current";
+    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current" };
   }
 
   function applyCenterFilters() {
@@ -472,18 +563,45 @@
       acknowledgement: surface.querySelector("[data-alert-ack-filter]")?.value || "all",
       store: surface.querySelector("[data-alert-store-filter]")?.value.trim().toLowerCase() || "",
       terminal: surface.querySelector("[data-alert-terminal-filter]")?.value.trim().toLowerCase() || "",
-      condition: surface.querySelector("[data-alert-condition-filter]")?.value || "all"
+      condition: surface.querySelector("[data-alert-condition-filter]")?.value || "all",
+      organization: organizationFilter?.value || "",
+      owner: ownerFilter?.value || "",
+      ruleStatus: ruleStatusFilter?.value || "current"
     };
     renderAll();
   }
 
+  function accountOptionLabel(account) {
+    return `${account.type} · ${account.path}`;
+  }
+
+  function populateOperationsFilters() {
+    if (!organizationFilter || !ownerFilter) return;
+    const options = customerAccounts.map((account) => `<option value="${escapeHtml(`${account.type}|${account.id}`)}">${escapeHtml(accountOptionLabel(account))}</option>`).join("");
+    organizationFilter.innerHTML = `<option value="">All organization scopes</option>${options}`;
+    ownerFilter.innerHTML = `<option value="">All rule owners</option>${options}`;
+  }
+
+  function renderAccessMode() {
+    const operations = Boolean(currentRole.isOperations);
+    surface.querySelectorAll("[data-alert-operations-only]").forEach((node) => { node.hidden = !operations; });
+    if (operationsScope) operationsScope.hidden = !operations;
+    surface.querySelectorAll("[data-alert-create]").forEach((button) => { button.hidden = !canManageAlerts; });
+  }
+
   function applyRoleRangeLayout() {
     if (pageType !== "center") return;
+    const context = activeRangeContext();
+    if (!context) return;
     modal.querySelectorAll("[data-alert-range-field]").forEach((field) => {
-      field.hidden = !currentRole.visibleFields.includes(field.dataset.alertRangeField);
+      field.hidden = !context.visibleFields.includes(field.dataset.alertRangeField);
     });
-    modal.querySelector('[data-alert-range-field="store"]')?.classList.toggle("full", !currentRole.visibleFields.includes("merchant"));
-    scopeSelect.innerHTML = currentRole.scopes.map((scope) => `<option value="${scope}">${scope}</option>`).join("");
+    modal.querySelector('[data-alert-range-field="store"]')?.classList.toggle("full", !context.visibleFields.includes("merchant"));
+    scopeSelect.innerHTML = context.scopes.map((scope) => `<option value="${scope}">${scope}</option>`).join("");
+  }
+
+  function activeRangeContext() {
+    return currentRole.isOperations ? ownerContext(selectedRuleOwner) : currentRole;
   }
 
   function populateProviders(selectedValue = "") {
@@ -493,31 +611,39 @@
   function populateAgents(selectedValue = "") {
     const provider = providerFor(providerSelect?.value);
     if (!agentSelect) return;
-    agentSelect.required = Boolean(provider?.agents.length);
+    const context = activeRangeContext();
+    const optionalForProviderOwner = currentRole.isOperations && context?.ownerType === "Service Provider";
+    agentSelect.required = Boolean(provider?.agents.length) && !optionalForProviderOwner;
     if (!provider) {
       setSelectOptions(agentSelect, "Select service provider first", []);
       agentSelect.disabled = true;
     } else if (!provider.agents.length) {
-      setSelectOptions(agentSelect, "No agent required", []);
+      setSelectOptions(agentSelect, "All agents and direct merchants", []);
       agentSelect.disabled = true;
     } else {
-      setSelectOptions(agentSelect, "Select agent", provider.agents, selectedValue);
+      const placeholder = optionalForProviderOwner ? "All agents and direct merchants" : "Select agent";
+      const options = optionalForProviderOwner ? [{ id: "__direct", name: "Direct merchants only" }, ...provider.agents] : provider.agents;
+      setSelectOptions(agentSelect, placeholder, options, selectedValue);
       agentSelect.disabled = false;
     }
   }
 
   function populateMerchants(selectedValue = "") {
     if (!merchantSelect) return;
-    const items = roleResources().merchants;
+    const context = activeRangeContext();
+    const filterAgentId = context?.ownerType === "Service Provider" && currentRole.isOperations ? agentSelect?.value || "" : context?.agentId || "";
+    let items = merchantsFor(context?.providerId, filterAgentId);
+    if (context?.merchantId) items = items.filter((merchant) => merchant.id === context.merchantId);
     setSelectOptions(merchantSelect, "Select merchant", items, selectedValue);
     merchantSelect.disabled = !items.length;
   }
 
   function populateStores(selectedValue = "") {
     if (!storeSelect) return;
-    const agentId = agentSelect?.disabled ? "" : agentSelect?.value;
+    const context = activeRangeContext();
+    const agentId = context?.agentId || (agentSelect?.disabled ? "" : agentSelect?.value);
     const merchant = merchantFor(providerSelect?.value, agentId, merchantSelect?.value);
-    const permittedStoreIds = new Set(roleResources().stores.map((store) => store.id));
+    const permittedStoreIds = new Set(roleResources(context).stores.map((store) => store.id));
     const stores = (merchant?.stores || []).filter((store) => permittedStoreIds.has(store.id));
     setSelectOptions(storeSelect, merchant ? "Select store" : "Select merchant first", stores, selectedValue);
     storeSelect.disabled = !merchant;
@@ -525,9 +651,10 @@
 
   function populateTerminals(selectedValue = "") {
     if (!terminalSelect) return;
-    const agentId = agentSelect?.disabled ? "" : agentSelect?.value;
+    const context = activeRangeContext();
+    const agentId = context?.agentId || (agentSelect?.disabled ? "" : agentSelect?.value);
     const store = storeFor(providerSelect?.value, agentId, merchantSelect?.value, storeSelect?.value);
-    const permittedTerminalIds = new Set(roleResources().terminals.map((terminal) => terminal.id));
+    const permittedTerminalIds = new Set(roleResources(context).terminals.map((terminal) => terminal.id));
     const terminals = (store?.terminals || []).filter((terminal) => permittedTerminalIds.has(terminal.id));
     setSelectOptions(terminalSelect, store ? "Select terminal" : "Select store first", terminals, selectedValue);
     terminalSelect.disabled = !store;
@@ -535,14 +662,16 @@
 
   function rangeMetadata() {
     if (pageType !== "center") return null;
-    const providerId = currentRole.providerId;
+    const context = activeRangeContext();
+    if (!context) return null;
+    const providerId = context.providerId;
     const provider = providerFor(providerId);
-    const agentId = currentRole.agentId;
-    const merchantId = currentRole.merchantId || merchantSelect?.value;
+    const agentId = context.agentId || agentSelect?.value || "";
+    const merchantId = context.merchantId || merchantSelect?.value;
     const merchant = merchantFor(providerId, agentId, merchantId);
     const type = scopeSelect?.value || "Terminal";
-    if (!provider || !merchant || !currentRole.scopes.includes(type)) return null;
-    const storeId = currentRole.storeId || storeSelect?.value;
+    if (!provider || !merchant || !context.scopes.includes(type)) return null;
+    const storeId = context.storeId || storeSelect?.value;
     const store = storeFor(providerId, agentId, merchant.id, storeId);
     if (!store) return null;
     if (type === "Store") return { type, id: store.id, name: store.name };
@@ -552,14 +681,16 @@
 
   function syncScopeControls(selectedStoreId = "", selectedTerminalId = "") {
     if (pageType !== "center") return;
+    const context = activeRangeContext();
+    if (!context) return;
     const scope = scopeSelect.value || "Terminal";
-    const merchantId = currentRole.merchantId || merchantSelect.value;
-    const merchant = merchantFor(currentRole.providerId, currentRole.agentId, merchantId);
+    const merchantId = context.merchantId || merchantSelect.value;
+    const merchant = merchantFor(context.providerId, context.agentId || agentSelect?.value || "", merchantId);
     const terminalField = modal.querySelector('[data-alert-range-field="terminal"]');
     storeSelect.required = true;
     terminalSelect.required = scope === "Terminal";
-    if (terminalField) terminalField.hidden = scope !== "Terminal" || !currentRole.visibleFields.includes("terminal");
-    populateStores(currentRole.storeId || selectedStoreId);
+    if (terminalField) terminalField.hidden = scope !== "Terminal" || !context.visibleFields.includes("terminal");
+    populateStores(context.storeId || selectedStoreId);
     if (!merchant) {
       setSelectOptions(terminalSelect, "Select store first", []);
       terminalSelect.disabled = true;
@@ -574,17 +705,19 @@
 
   function initializeRange(rule = null) {
     if (pageType !== "center") return true;
+    const context = activeRangeContext();
+    if (!context) return false;
     applyRoleRangeLayout();
     const rawPath = rule ? findTargetPath(rule.targetType, rule.targetId) : null;
-    const path = rawPath && targetInRole(rule) && rule.owner === currentRole.ownerName ? rawPath : null;
-    populateProviders(currentRole.providerId);
-    providerSelect.value = currentRole.providerId;
-    populateAgents(currentRole.agentId);
-    if (currentRole.agentId) agentSelect.value = currentRole.agentId;
-    const merchantId = path?.merchant.id || currentRole.merchantId || "";
+    const path = rawPath && targetInRole(rule, context) && (rule.ownerId ? rule.ownerId === context.ownerId : rule.owner === context.ownerName) ? rawPath : null;
+    populateProviders(context.providerId);
+    providerSelect.value = context.providerId;
+    populateAgents(context.agentId);
+    if (context.agentId) agentSelect.value = context.agentId;
+    const merchantId = path?.merchant.id || context.merchantId || "";
     populateMerchants(merchantId);
     merchantSelect.value = merchantId;
-    const requestedScope = rule?.targetType && currentRole.scopes.includes(rule.targetType) ? rule.targetType : currentRole.scopes.includes("Terminal") ? "Terminal" : currentRole.scopes[0];
+    const requestedScope = rule?.targetType && context.scopes.includes(rule.targetType) ? rule.targetType : context.scopes.includes("Terminal") ? "Terminal" : context.scopes[0];
     scopeSelect.value = requestedScope;
     syncScopeControls(path?.store?.id || "", path?.terminal?.id || "");
     if (rule && !path) {
@@ -646,6 +779,7 @@
       coverageCard.textContent = "";
       saveButton.disabled = true;
       saveButton.title = "Choose a complete monitoring range.";
+      if (similarRuleWarning) similarRuleWarning.hidden = true;
       return;
     }
     const recipe = recipeFor(conditionSelect.value);
@@ -668,6 +802,16 @@
     coverageCard.innerHTML = isTemperature ? `<strong>${escapeHtml(selectedTarget.name)}</strong><br>${escapeHtml(capabilityCopy)}.${eligibleCopy}${excludedCopy}` : `<strong>${escapeHtml(selectedTarget.name)}</strong><br>Payment Service, Approved Transaction and Product Map canonical signals are available. Store timezone: America/New_York.${eligibleCopy}`;
     saveButton.disabled = eligible.length === 0;
     saveButton.title = eligible.length === 0 ? "This target has no Terminal with the required capability." : "";
+    updateSimilarityWarning();
+  }
+
+  function updateSimilarityWarning() {
+    if (!similarRuleWarning) return;
+    const monitoringTarget = targetMetadata();
+    const owner = pageType === "terminal" ? accountFor("Merchant", "merchant-kind-world") : currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
+    const similar = monitoringTarget && state.rules.find((item) => item.id !== editingId && item.status === "Active" && (item.ownerId ? item.ownerId === owner?.id && item.ownerType === owner?.type : item.owner === owner?.name) && item.targetType === monitoringTarget.type && item.targetId === monitoringTarget.id && item.condition === conditionSelect.value);
+    similarRuleWarning.hidden = !similar;
+    if (viewSimilarRuleButton) viewSimilarRuleButton.dataset.alertViewSimilar = similar?.id || "";
   }
 
   function renderRecipientTags() { recipientTags.innerHTML = recipients.map((item, index) => `<span class="alert-recipient-tag">${escapeHtml(item)}<button type="button" data-alert-remove-recipient="${index}" aria-label="Remove recipient ${escapeHtml(item)}">&times;</button></span>`).join(""); }
@@ -702,11 +846,97 @@
     renderConditionFields();
   }
 
-  function openModal(ruleId) {
+  function setSelectedRuleOwner(account) {
+    selectedRuleOwner = account || null;
+    if (selectedAccountLabel) {
+      selectedAccountLabel.textContent = account ? `${account.type} · ${account.path}` : "Select a customer account.";
+      selectedAccountLabel.classList.toggle("has-selection", Boolean(account));
+    }
+    if (contextContinue) contextContinue.disabled = !account;
+    if (contextError) contextError.textContent = "";
+    accountResults?.querySelectorAll("[data-alert-account-result]").forEach((button) => {
+      button.classList.toggle("selected", button.dataset.alertAccountResult === `${account?.type}|${account?.id}`);
+    });
+  }
+
+  function renderAccountResults() {
+    if (!accountResults) return;
+    const queryValue = accountSearch?.value.trim().toLowerCase() || "";
+    const matches = customerAccounts.filter((account) => !queryValue || `${account.type} ${account.name} ${account.path}`.toLowerCase().includes(queryValue)).slice(0, 8);
+    accountResults.innerHTML = matches.map((account) => `<button class="alert-account-result${selectedRuleOwner?.type === account.type && selectedRuleOwner?.id === account.id ? " selected" : ""}" type="button" data-alert-account-result="${escapeHtml(`${account.type}|${account.id}`)}"><strong>${escapeHtml(account.type)} · ${escapeHtml(account.name)}</strong><span>${escapeHtml(account.path)}</span></button>`).join("");
+  }
+
+  function syncContextBrowser(changed = "type") {
+    if (!contextModal) return;
+    const type = ownerTypeSelect.value;
+    const provider = providerFor(ownerProviderSelect.value);
+    const agentField = contextModal.querySelector('[data-alert-context-field="agent"]');
+    const merchantField = contextModal.querySelector('[data-alert-context-field="merchant"]');
+    const storeField = contextModal.querySelector('[data-alert-context-field="store"]');
+    agentField.hidden = type === "Service Provider";
+    merchantField.hidden = type === "Service Provider" || type === "Agent";
+    storeField.hidden = type !== "Store";
+
+    if (changed === "provider" || changed === "type") {
+      const agentOptions = type === "Agent" ? (provider?.agents || []) : [{ id: "__direct", name: "Direct merchants only" }, ...(provider?.agents || [])];
+      setSelectOptions(ownerAgentSelect, type === "Agent" ? "Select agent" : "All agents and direct merchants", agentOptions);
+    }
+    const agentFilter = ownerAgentSelect.value;
+    const merchants = provider ? merchantsFor(provider.id, agentFilter) : [];
+    if (["Merchant", "Store"].includes(type)) setSelectOptions(ownerMerchantSelect, provider ? "Select merchant" : "Select service provider first", merchants, changed === "merchant" ? ownerMerchantSelect.value : "");
+    const merchant = merchantFor(provider?.id, agentFilter, ownerMerchantSelect.value);
+    if (type === "Store") setSelectOptions(ownerStoreSelect, merchant ? "Select store" : "Select merchant first", merchant?.stores || [], changed === "store" ? ownerStoreSelect.value : "");
+
+    let account = null;
+    if (type === "Service Provider" && provider) account = accountFor(type, provider.id);
+    if (type === "Agent" && ownerAgentSelect.value) account = accountFor(type, ownerAgentSelect.value);
+    if (type === "Merchant" && ownerMerchantSelect.value) account = accountFor(type, ownerMerchantSelect.value);
+    if (type === "Store" && ownerStoreSelect.value) account = accountFor(type, ownerStoreSelect.value);
+    setSelectedRuleOwner(account);
+  }
+
+  function openContextModal(notificationDraft = null) {
+    if (!contextModal || !canManageAlerts || !currentRole.isOperations) return;
+    modalTrigger = document.activeElement;
+    accountSearch.value = "";
+    if (notificationDraft) contextForm.dataset.notificationDraft = JSON.stringify(notificationDraft);
+    else delete contextForm.dataset.notificationDraft;
+    setSelectOptions(ownerProviderSelect, "Select service provider", monitoringHierarchy);
+    ownerTypeSelect.value = "Service Provider";
+    const filteredOwner = ownerFilter?.value ? customerAccounts.find((account) => `${account.type}|${account.id}` === ownerFilter.value) : null;
+    setSelectedRuleOwner(filteredOwner);
+    syncContextBrowser("type");
+    if (filteredOwner) setSelectedRuleOwner(filteredOwner);
+    renderAccountResults();
+    contextModal.classList.add("open");
+    contextModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => accountSearch.focus(), 0);
+  }
+
+  function closeContextModal({ restoreFocus = true } = {}) {
+    if (!contextModal) return;
+    contextModal.classList.remove("open");
+    contextModal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (restoreFocus) modalTrigger?.focus();
+  }
+
+  function openModal(ruleId, notificationDraft = null) {
     modalTrigger = document.activeElement;
     editingId = ruleId || null;
     const rule = editingId ? state.rules.find((item) => item.id === editingId) : null;
+    if (currentRole.isOperations && rule) selectedRuleOwner = accountForRule(rule);
+    if (currentRole.isOperations && !selectedRuleOwner) return;
     modal.querySelector("h2").textContent = rule ? "Edit Alert Rule" : "Create Alert Rule";
+    if (ownerContextPanel) {
+      ownerContextPanel.hidden = !currentRole.isOperations;
+      if (currentRole.isOperations) {
+        ownerContextPanel.querySelector("span").textContent = rule ? "Rule Owner" : "Creating for";
+        ownerContextName.textContent = `${selectedRuleOwner.type} · ${selectedRuleOwner.path}`;
+        ownerChangeButton.hidden = Boolean(rule);
+      }
+    }
     conditionSelect.value = rule?.condition || "opc_offline";
     if (pageType === "terminal") {
       target.value = terminalId;
@@ -716,13 +946,13 @@
       initializeRange(rule);
     }
     modal.querySelectorAll("[data-alert-channel]").forEach((input) => {
-      input.checked = rule ? rule.channels.includes(input.value) : input.value === "Portal Inbox";
+      input.checked = rule ? rule.channels.includes(input.value) : notificationDraft?.channels ? notificationDraft.channels.includes(input.value) : input.value === "Portal Inbox";
     });
-    recipients = rule ? rule.recipients.filter((item) => item !== "Portal Inbox" && item.includes("@")) : [];
+    recipients = rule ? rule.recipients.filter((item) => item !== "Portal Inbox" && item.includes("@")) : notificationDraft?.recipients || [];
     renderRecipientTags();
     if (pageType === "terminal" || targetMetadata()) renderConditionFields(rule?.parameters || {});
-    repeat.checked = Boolean(rule?.repeatHours);
-    repeatInterval.value = String(rule?.repeatHours || 2);
+    repeat.checked = Boolean(rule?.repeatHours || notificationDraft?.repeatHours);
+    repeatInterval.value = String(rule?.repeatHours || notificationDraft?.repeatHours || 2);
     recipientInput.value = "";
     recipientError.textContent = "";
     syncNotificationFields();
@@ -763,12 +993,20 @@
       modal.querySelector("[data-alert-range-field]:not([hidden]) select:not([disabled])")?.focus();
       return;
     }
+    const owner = pageType === "terminal" ? accountFor("Merchant", "merchant-kind-world") : currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
+    const duplicate = !existing && state.rules.find((item) => item.status !== "Archived" && item.ownerId === owner?.id && item.ownerType === owner?.type && item.targetType === monitoringTarget.type && item.targetId === monitoringTarget.id && item.condition === condition && JSON.stringify(item.parameters || {}) === JSON.stringify(parameters) && JSON.stringify(item.channels || []) === JSON.stringify(channels) && JSON.stringify(item.recipients || []) === JSON.stringify([...channels.filter((channel) => channel === "Portal Inbox"), ...(channels.includes("Email") ? recipients : [])]));
+    if (duplicate) {
+      targetError.textContent = "An identical active rule already exists for this owner and target.";
+      return;
+    }
     const rule = {
       id: existing?.id || `r-${Date.now()}`, condition, parameters,
       targetType: monitoringTarget.type, targetId: monitoringTarget.id,
       targetName: monitoringTarget.name,
       criteria: criteriaFor(recipeFor(condition), parameters), recipients: [...channels.filter((channel) => channel === "Portal Inbox"), ...(channels.includes("Email") ? recipients : [])], channels,
-      repeatHours: repeat.checked ? Number(repeatInterval.value) : null, recoveryChecksRequired: existing?.recoveryChecksRequired || 2, status: existing?.status || "Active", modified: nowLabel, owner: pageType === "terminal" ? "1 of a Kind World Travel LLC" : currentRole.ownerName
+      repeatHours: repeat.checked ? Number(repeatInterval.value) : null, recoveryChecksRequired: existing?.recoveryChecksRequired || 2, status: existing?.status || "Active", modified: nowLabel,
+      owner: owner?.name || currentRole.ownerName, ownerType: owner?.type || currentRole.ownerType, ownerId: owner?.id || currentRole.ownerId, ownerName: owner?.name || currentRole.ownerName, ownerPath: owner?.path || currentRole.ownerName,
+      creatorType: existing?.creatorType || (currentRole.isOperations ? "Paywizard Operator" : "Customer User"), creatorId: existing?.creatorId || (currentRole.isOperations ? "ops-robasz" : "robasz"), creatorDisplayName: existing?.creatorDisplayName || (currentRole.isOperations ? "Paywizard Operations" : "robasz")
     };
     if (existing) state.rules = state.rules.map((item) => item.id === existing.id ? rule : item); else state.rules.unshift(rule);
     writeState(); closeModal(); renderAll();
@@ -785,7 +1023,7 @@
         <div class="alert-modal-head"><h2 id="alertDeleteRuleTitle">Delete Rule</h2><button class="alert-modal-close" type="button" aria-label="Close delete rule dialog" data-alert-delete-cancel><span class="material-symbols-rounded" aria-hidden="true">close</span></button></div>
         <div class="alert-modal-body alert-delete-body">
           <p>Delete <strong data-alert-delete-name></strong> for <strong data-alert-delete-target></strong>?</p>
-          <p>This cannot be undone. Existing alerts and history will remain.</p>
+          <p>The rule will be archived. Existing alerts and history will remain.</p>
         </div>
         <div class="alert-modal-actions"><button class="${buttonClass()}" type="button" data-alert-delete-cancel>Cancel</button><button class="${buttonClass("primary")} alert-delete-confirm" type="button" data-alert-delete-confirm>Delete Rule</button></div>
       </section>
@@ -807,7 +1045,7 @@
 
   function openDeleteModal(ruleId) {
     const rule = state.rules.find((item) => item.id === ruleId);
-    if (!rule || !canManageAlerts) return;
+    if (!rule || !canManageAlerts || rule.status === "Archived") return;
     deletingRuleId = ruleId;
     deleteModalTrigger = document.activeElement;
     deleteModal.querySelector("[data-alert-delete-name]").textContent = recipeFor(rule.condition).label;
@@ -830,17 +1068,24 @@
   function deleteRule() {
     const rule = state.rules.find((item) => item.id === deletingRuleId);
     if (!rule) { closeDeleteModal({ restoreFocus: false }); return; }
-    const previousRules = state.rules;
+    const previousRules = state.rules.map((item) => ({ ...item }));
+    const previousIncidents = state.incidents.map((item) => ({ ...item, events: [...(item.events || [])] }));
     const previousDeletedRuleIds = [...state.deletedRuleIds];
-    state.rules = state.rules.filter((item) => item.id !== rule.id);
+    state.rules = state.rules.map((item) => item.id === rule.id ? { ...item, status: "Archived", archivedAt: nowLabel, archivedBy: currentRole.isOperations ? "Paywizard Operations" : "robasz", archiveReason: "Rule archived", modified: nowLabel } : item);
+    state.incidents = state.incidents.map((item) => {
+      if (item.ruleId !== rule.id || item.monitoringState !== "Active") return item;
+      const eventAt = nextIncidentEventAt(item.events);
+      return { ...item, monitoringState: "Closed", closedAt: eventAt, closedBy: currentRole.isOperations ? "Paywizard Operations" : "robasz", closeReason: "Rule archived", closeNote: "", events: [...(item.events || []), { at: eventAt, type: "rule_archived", label: "Closed", evidence: `Rule archived · ${currentRole.isOperations ? "Paywizard Operations" : "robasz"}` }] };
+    });
     if (!state.deletedRuleIds.includes(rule.id)) state.deletedRuleIds.push(rule.id);
     try {
       writeState();
       closeDeleteModal({ restoreFocus: false });
       renderAll();
-      showAlertToast("Rule deleted.");
+      showAlertToast("Rule archived.");
     } catch (_) {
       state.rules = previousRules;
+      state.incidents = previousIncidents;
       state.deletedRuleIds = previousDeletedRuleIds;
       showAlertToast("Rule could not be deleted.", "error");
     }
@@ -874,7 +1119,7 @@
       .map((item, index) => ({ item, index }))
       .sort((left, right) => String(left.item.at || "").localeCompare(String(right.item.at || "")) || left.index - right.index)
       .map(({ item }) => item);
-    const canRunCheck = (incident.monitoringState === "Active" || incident.monitoringState === "Closed") && !incident.recoveredAt;
+    const canRunCheck = (incident.monitoringState === "Active" || incident.monitoringState === "Closed") && !incident.recoveredAt && (!currentRole.isOperations || canManageAlerts);
     const canClose = canManageAlerts && incident.monitoringState === "Active";
     incidentModal.querySelector("[data-alert-incident-body]").innerHTML = `
       <div class="alert-incident-meta" aria-label="Alert details">
@@ -985,9 +1230,9 @@
     const closeAction = event.target.closest("[data-alert-close-incident]");
     const viewTab = event.target.closest("[data-alert-view-tab]");
     const filterSubmit = event.target.closest("[data-alert-filter-submit]");
-    if (create) openModal();
+    if (create) currentRole.isOperations ? openContextModal() : openModal();
     if (filterSubmit) applyCenterFilters();
-    if (ack) {
+    if (ack && (!currentRole.isOperations || canManageAlerts)) {
       state.incidents = state.incidents.map((item) => {
         if (item.id !== ack.dataset.alertAcknowledge) return item;
         const eventAt = nextIncidentEventAt(item.events);
@@ -995,9 +1240,9 @@
       });
       writeState(); renderAll();
     }
-    if (toggle) { state.rules = state.rules.map((item) => item.id === toggle.dataset.alertToggle ? { ...item, status: item.status === "Active" ? "Paused" : "Active", modified: nowLabel } : item); writeState(); renderAll(); }
-    if (edit) openModal(edit.dataset.alertEdit);
-    if (deleteAction) openDeleteModal(deleteAction.dataset.alertDelete);
+    if (toggle && canManageAlerts) { state.rules = state.rules.map((item) => item.id === toggle.dataset.alertToggle ? { ...item, status: item.status === "Active" ? "Paused" : "Active", modified: nowLabel } : item); writeState(); renderAll(); }
+    if (edit && canManageAlerts) openModal(edit.dataset.alertEdit);
+    if (deleteAction && canManageAlerts) openDeleteModal(deleteAction.dataset.alertDelete);
     if (view) openIncident(view.dataset.alertView);
     if (closeAction) openManualClose(closeAction.dataset.alertCloseIncident);
     if (viewTab) {
@@ -1012,12 +1257,22 @@
     }
   });
   roleSwitcher?.addEventListener("change", () => {
+    const hasOpenDraft = modal.classList.contains("open") || contextModal?.classList.contains("open");
+    if (hasOpenDraft && !window.confirm("Switch roles and discard the unsaved changes?")) {
+      roleSwitcher.value = currentRoleKey;
+      return;
+    }
+    if (modal.classList.contains("open")) closeModal();
+    if (contextModal?.classList.contains("open")) closeContextModal({ restoreFocus: false });
     currentRoleKey = roleSwitcher.value;
     currentRole = roleContexts[currentRoleKey];
+    canManageAlerts = currentRole.isOperations ? currentRole.canManage : query.get("manageAlerts") !== "false";
+    selectedRuleOwner = null;
     const nextUrl = new URL(location.href);
     nextUrl.searchParams.set("role", currentRoleKey);
     history.replaceState(null, "", nextUrl.href);
     resetCenterFilters();
+    renderAccessMode();
     renderAll();
   });
   conditionSelect.addEventListener("change", () => renderConditionFields());
@@ -1028,6 +1283,15 @@
   });
   conditionFields.addEventListener("input", validateConditionFields);
   if (pageType === "center") {
+    providerSelect.addEventListener("change", () => {
+      populateAgents();
+      populateMerchants();
+      syncScopeControls();
+    });
+    agentSelect.addEventListener("change", () => {
+      populateMerchants();
+      syncScopeControls();
+    });
     merchantSelect.addEventListener("change", () => syncScopeControls());
     scopeSelect.addEventListener("change", () => syncScopeControls());
     storeSelect.addEventListener("change", () => {
@@ -1036,6 +1300,53 @@
     });
     terminalSelect.addEventListener("change", updateRangeTarget);
   }
+  accountSearch?.addEventListener("input", renderAccountResults);
+  accountResults?.addEventListener("click", (event) => {
+    const result = event.target.closest("[data-alert-account-result]");
+    if (!result) return;
+    const [type, id] = result.dataset.alertAccountResult.split("|");
+    setSelectedRuleOwner(accountFor(type, id));
+    renderAccountResults();
+  });
+  ownerTypeSelect?.addEventListener("change", () => syncContextBrowser("type"));
+  ownerProviderSelect?.addEventListener("change", () => syncContextBrowser("provider"));
+  ownerAgentSelect?.addEventListener("change", () => syncContextBrowser("agent"));
+  ownerMerchantSelect?.addEventListener("change", () => syncContextBrowser("merchant"));
+  ownerStoreSelect?.addEventListener("change", () => syncContextBrowser("store"));
+  contextForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!selectedRuleOwner) { contextError.textContent = "Select a customer account."; return; }
+    let notificationDraft = null;
+    try { notificationDraft = contextForm.dataset.notificationDraft ? JSON.parse(contextForm.dataset.notificationDraft) : null; } catch (_) {}
+    closeContextModal({ restoreFocus: false });
+    openModal(null, notificationDraft);
+  });
+  contextModal?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-alert-context-close]") || event.target === contextModal) closeContextModal();
+  });
+  ownerChangeButton?.addEventListener("click", () => {
+    const notificationDraft = {
+      channels: [...modal.querySelectorAll("[data-alert-channel]:checked")].map((input) => input.value),
+      recipients: [...recipients],
+      repeatHours: repeat.checked ? Number(repeatInterval.value) : null
+    };
+    closeModal();
+    openContextModal(notificationDraft);
+  });
+  viewSimilarRuleButton?.addEventListener("click", () => {
+    const ruleId = viewSimilarRuleButton.dataset.alertViewSimilar;
+    closeModal();
+    const rulesTab = surface.querySelector('[data-alert-view-tab="rules"]');
+    rulesTab?.click();
+    const row = surface.querySelector(`[data-rule-id="${CSS.escape(ruleId)}"]`);
+    if (row) {
+      row.classList.add("alert-row-focus");
+      row.tabIndex = -1;
+      row.focus();
+      row.scrollIntoView({ block: "center", behavior: "smooth" });
+      window.setTimeout(() => row.classList.remove("alert-row-focus"), 1800);
+    }
+  });
   modal.querySelector("[data-alert-add-recipient]").addEventListener("click", addRecipient);
   recipientTags.addEventListener("click", (event) => { const remove = event.target.closest("[data-alert-remove-recipient]"); if (!remove) return; recipients.splice(Number(remove.dataset.alertRemoveRecipient), 1); renderRecipientTags(); });
   recipientInput.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); addRecipient(); } });
@@ -1077,9 +1388,12 @@
     if (deleteModal.classList.contains("open")) closeDeleteModal();
     else if (closeIncidentModal?.classList.contains("open")) closeManualClose();
     else if (modal.classList.contains("open")) closeModal();
+    else if (contextModal?.classList.contains("open")) closeContextModal();
     else if (incidentModal?.classList.contains("open")) closeIncident();
   });
 
+  populateOperationsFilters();
+  renderAccessMode();
   renderAll();
   const deepLinkedIncidentId = query.get("incident");
   if (pageType === "center" && deepLinkedIncidentId && visibleIncidents().some((item) => item.id === deepLinkedIncidentId)) {

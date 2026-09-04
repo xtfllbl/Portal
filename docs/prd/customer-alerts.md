@@ -21,14 +21,17 @@
 3. 在 Alert Center 汇总当前角色可见资源范围内的告警和当前账户拥有的规则。
 4. 将“异常是否仍存在”“用户是否已经查看”“用户是否结束处理”明确区分，避免把确认或人工关闭误认为系统恢复。
 5. 支持 Portal Alerts 和 Email 通知，并允许 Active 告警按配置重复发送。
+6. 让 Paywizard 运维人员在不切换为客户身份的情况下查看全平台 Customer Alerts，并代表指定客户账户创建和管理规则。
 
 ## 3. 非目标
 
 - 不提供多条件组合规则；一条 Alert Rule 只包含一个 Condition 和一个 Monitoring Target。
 - 不允许用户手动将告警标记为 Resolved。
 - 不暴露 Paywizard 内部 Platform-managed Alert Rule 的配置与所有权。
+- 不在 Customer Alerts 运维视图中管理 Platform-managed Alert Rule 或 SLA Incident；这些内容继续由 SLA Alerts 页面负责。
 - 不在本期实现短信、电话、Webhook 等通知渠道。
 - 不将原型中的角色切换器、样例数据和 `Run next monitoring check` 作为生产功能交付。
+- 不支持 Service Provider、Agent、Merchant 或 Store 在不同上级之间迁移；Terminal 跨 Store 通过解绑后重新绑定完成。
 - 不调整 Terminal 页面其他模块、侧栏或移动端导航。
 
 ## 4. 核心术语
@@ -36,9 +39,12 @@
 | 术语 | 定义 |
 | --- | --- |
 | Alert Rule | 对单一 Monitoring Target 持续评估一个 Condition 的规则，包含触发、恢复及通知配置。 |
-| Monitoring Target | 被监控资源，仅支持一个 Store 或一个 Terminal；Merchant 只作为授权上下文或 Rule Owner。 |
+| Customer Account | 可独立拥有 Customer Alert Rule 的 Service Provider、Agent、Merchant 或 Store 账户。 |
+| Monitoring Target | 被监控资源，仅支持一个 Store 或一个 Terminal；Customer Account 用于所有权和授权，但 Service Provider、Agent、Merchant 不是 Monitoring Target。 |
 | Alert Incident | 同一规则异常条件的一次连续发生过程。 |
-| Rule Owner | 通过 Manage Alerts 权限控制规则的服务商、代理商或商户账户。 |
+| Rule Owner | 被选定拥有 Alert Rule 的 Service Provider、Agent、Merchant 或 Store 账户；父子账户之间也保持规则所有权隔离。 |
+| Delegated Rule Creation | Paywizard 运维人员代表指定 Rule Owner 创建 Customer Alert；客户账户拥有规则，真实运维人员作为 Rule Creator 留在内部审计中。 |
+| Archived Alert Rule | 删除后为保留历史而归档的规则；不再创建 Incident，且不出现在客户侧普通规则列表中。 |
 | Acknowledgement | 用户确认已看到告警，不改变告警监控状态。 |
 | Resolution | 系统确认恢复条件满足后结束告警。 |
 | Manual Closure | 有权限用户结束人工处理，但不声明监控信号已经恢复。 |
@@ -53,6 +59,8 @@
 - Merchant：查看自身及其 Store、Terminal，不可看到 Service Provider、Agent 或其他 Merchant。
 - Store：仅查看当前 Store 及其 Terminal，不可看到上级组织和其他 Store。
 - View-only 用户：可以查看告警、查看 Timeline、确认告警，但不能创建或修改规则，也不能人工关闭告警。
+- Customer Alerts Operations Viewer：查看全平台 Customer Alert Rules、Incidents、Timeline 和审计信息，不执行任何写操作。
+- Customer Alerts Operations Manager：跨 Customer Account 管理 Customer Alert Rules 和 Incidents；每次操作保留选定 Rule Owner 和真实运维操作者。
 
 ### 5.2 Monitoring Range 权限矩阵
 
@@ -103,6 +111,16 @@ Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Sto
 - 告警搜索与筛选工具栏。
 - Alerts 汇总表与 Rules 汇总表。
 
+### 6.3 Operations Customer Alerts
+
+原型继续使用同一 Alert Center，并在 Role Simulator 中增加 `Operations Viewer · All Customers` 与 `Operations Manager · All Customers`。生产环境不提供权限切换，由登录身份和服务端权限决定访问级别。
+
+- 运维模式只展示 Customer Alerts，不混入 SLA Alerts 或 Platform-managed Alerts。
+- 页面持续显示 `Operations scope · All customer accounts` 状态标识。
+- Alerts 与 Rules 表均展示 Rule Owner；筛选同时支持组织树范围和精确 Rule Owner。
+- Operations Viewer 完全只读；Operations Manager 显示创建、规则管理和 Incident 操作。
+- Operations Manager 创建规则时先选择 Customer Account，再沿用现有 Create Alert Rule 弹窗。
+
 ## 7. 功能需求
 
 ### 7.1 Alert Center 角色范围
@@ -145,6 +163,8 @@ Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Sto
 | FR-015 | Pause 后停止新异常评估和通知；Resume 后恢复评估。Pause 不改变既有 Incident 状态。 |
 | FR-016 | 所有输入、选择和保存错误必须在当前弹窗内完成校验，不得静默失败。 |
 | FR-017 | Temperature Out of Range 的单位、下限和上限在桌面端同一行紧凑排列，数值输入框按短温度值控制宽度；移动端改为单列排列，避免横向溢出。 |
+| FR-018 | Rule Owner 创建后不可通过编辑转移；变更 Owner 必须新建规则，并暂停或归档旧规则。 |
+| FR-019 | 删除规则采用归档语义；停止新 Incident、评估和通知，但保留历史 Incident、通知与审计。若仍有 Active Incident，系统以 `Rule archived` 为原因将其 Closed，不得标记为 Resolved。 |
 
 ### 7.3 支持的监控条件
 
@@ -240,6 +260,26 @@ Timeline 是 Incident 的审计流程查看器：
 - Manage Alerts 用户可通过 30 × 30 px 图标按钮 Pause、Resume、Edit。
 - View-only 用户不显示可修改操作。
 
+### 7.10 Operations Customer Alerts
+
+| 编号 | 需求 |
+| --- | --- |
+| FR-040 | Operations Viewer 只可查看 KPI、Customer Alert Incidents、Customer Alert Rules、Timeline 和审计信息，不得执行创建、修改、Acknowledge 或 Close。 |
+| FR-041 | Operations Manager 通过独立的平台权限管理所有 Customer Accounts 的 Customer Alerts，不依赖客户账户内的 Manage Alerts 权限。 |
+| FR-042 | 原型 Role Simulator 增加 Operations Viewer 与 Operations Manager；切换后保留当前 Alerts / Rules Tab，清空失效筛选，未保存草稿须确认后才能丢弃。 |
+| FR-043 | 创建入口先打开 Select Customer Context；同一弹窗同时提供全局账户搜索和逐级层级浏览，两种方式写入同一个 Selected Rule Owner。 |
+| FR-044 | Service Provider、Agent、Merchant、Store 节点均可成为 Rule Owner；导航分组不能成为 Owner。搜索结果必须展示账户类型和完整所属路径，并以稳定账户 ID 作为选择值。 |
+| FR-045 | Service Provider 的层级同时支持 Direct Merchants 与 Agents；创建规则时 Agent 是可选过滤条件，默认覆盖全部 Agent 和直属 Merchant，并提供 Direct merchants only。改变 Agent 时清空失效的 Merchant、Store 和 Terminal。 |
+| FR-046 | Rule Owner 为 Service Provider、Agent 或 Merchant 时，可选择其资源树内的 Store 或 Terminal；Rule Owner 为 Store 时，只能选择当前 Store 或其下 Terminal。 |
+| FR-047 | 选定 Owner 后进入现有 Create Alert Rule 弹窗，顶部显示 `Creating for` 摘要和 Change 操作。更换 Owner 时必须提示，并清空 Monitoring Target 与 Condition；Notifications 草稿可保留。 |
+| FR-048 | 组织筛选区分 Organization Scope 与 Rule Owner：前者包含节点及其当前下级账户，后者精确匹配一个 Owner。KPI、Alerts、Rules 和筛选项使用同一范围。 |
+| FR-049 | 列表筛选到唯一 Rule Owner 时，Select Customer Context 可预选该账户但仍需 Continue 确认；组织树范围不得被静默当作 Owner。 |
+| FR-050 | 相同 Owner、Target、Condition 的相似 Active Rule 必须警告并可查看既有规则；全部配置完全相同时阻止重复保存。 |
+| FR-051 | 只有 Active Customer Account 可成为新规则 Owner。Owner 停用时自动 Pause 其 Active Rules，并以 `Owner account disabled` 记录审计；既有 Active Incident 以账户停用原因 Closed，账户恢复后不得自动 Resume。 |
+| FR-052 | Terminal 解绑时，直接以该 Terminal 为 Target 的规则自动 Pause，Active Incident 以 `Terminal unbound` 为原因 Closed；同一 Terminal 后续重新绑定时不得自动 Resume。Store Target Rule 继续按当前成员动态计算。 |
+| FR-053 | 保存时服务端必须重新校验 Owner 状态、Target 存在性、层级范围和操作者权限；失败时保留表单并给出可操作错误，不得静默改绑。 |
+| FR-054 | 客户门户将代操作创建人显示为 `Paywizard Operations`；运维平台和后端审计保留真实 Operator ID、姓名和时间。MVP 不额外发送规则配置通知。 |
+
 ## 8. 页面与弹窗体验要求
 
 - 页面继承现有 PAYwizard Portal 或 Terminal Management 的侧栏、顶栏、字体、间距和响应式规则。
@@ -271,9 +311,15 @@ Timeline 是 Incident 的审计流程查看器：
 - `repeatHours`
 - `recoveryChecksRequired`
 - `status`
-- `owner`
-- `creator`
+- `ownerType`：Service Provider / Agent / Merchant / Store
+- `ownerId`
+- `ownerName`
+- `ownerPath`
+- `creatorType`：Customer User / Paywizard Operator
+- `creatorId`
+- `creatorDisplayName`
 - `modified`
+- `archivedAt`、`archivedBy`、`archiveReason`
 
 ### 9.2 Alert Incident
 
@@ -304,8 +350,10 @@ Timeline 是 Incident 的审计流程查看器：
 ### 10.1 权限与安全
 
 - 所有范围过滤和 Manage Alerts 权限必须由服务端校验，不能只依赖前端隐藏。
+- Operations Viewer 与 Operations Manager 权限必须由服务端校验，原型 Role Simulator 不构成授权。
 - 用户不得通过修改 URL、Target ID 或请求参数访问范围外资源。
-- 创建、编辑、暂停、恢复、确认、人工关闭均需记录操作者和时间。
+- 创建、编辑、暂停、恢复、归档、确认、人工关闭及系统触发的账户停用或 Terminal 解绑动作均需记录操作者、原因和时间。
+- 任何代操作都必须分别保存 Rule Owner 与真实 Paywizard Operator，不得通过模拟客户登录掩盖操作者身份。
 
 ### 10.2 可用性与无障碍
 
@@ -353,11 +401,23 @@ Timeline 是 Incident 的审计流程查看器：
 - Repeat 未选择时不显示频率；选择后可配置 2、4、8 小时。
 - 九类 Condition 在无参数、单参数和多参数情况下均无空列、内容溢出或异常留白。
 
+### 11.5 Operations Customer Alerts
+
+- Role Simulator 可切换 Operations Viewer 与 Operations Manager；Viewer 不出现任何写操作，Manager 可管理全平台 Customer Alerts。
+- 运维视图不出现 Platform-managed Rules 或 SLA Incidents，并可从既有导航进入 SLA Alerts 页面。
+- Select Customer Context 同时支持全局搜索与层级浏览，四类账户均可成为 Owner，重名账户通过完整路径区分。
+- Service Provider Owner 可使用可选 Agent 过滤全部、直属或指定 Agent 下的 Merchant。
+- Store Owner 只能选择自身 Store 或其下 Terminal；所有 Owner 与 Target 关系在保存时由服务端重新验证。
+- Alerts、Rules 和 KPI 对 Organization Scope 与精确 Rule Owner 筛选保持一致。
+- 代建规则立即 Active 并在对应客户门户可见；客户侧隐藏真实运维人员身份，内部审计保留。
+- 归档、Owner 停用和 Terminal 解绑不会产生虚假 Resolution，并按规定 Closed 既有 Active Incident。
+- 全平台列表通过服务端分页、筛选、搜索和排序工作，不要求浏览器加载全部数据。
+
 ## 12. 原型数据与生产实现边界
 
 以下内容仅用于原型评审：
 
-- 四个固定角色示例账户及 URL `role` 参数。
+- 四个固定客户角色示例账户、两个运维权限视角及 URL `role` 参数。
 - 12 条稳定样例规则和 24 条稳定样例 Incident。
 - 浏览器 `localStorage` 持久化。
 - `Run next monitoring check` 及其预设正常/异常结果。

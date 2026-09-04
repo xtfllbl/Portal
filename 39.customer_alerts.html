@@ -61,6 +61,7 @@
               <h1 class="alerts-page-title" id="alertsPageTitle">Alerts</h1>
             </div>
             <div class="alerts-panel-actions">
+              <span class="alerts-operation-scope" data-alert-operations-scope hidden>Operations scope · All customer accounts</span>
               <label class="alerts-role-switcher">
                 <span class="sr-only">View Alerts as</span>
                 <select aria-label="Alerts role" data-alert-role-switcher>
@@ -68,6 +69,8 @@
                   <option value="agent">Agent · Seattle Field Agent</option>
                   <option value="merchant">Merchant · 1 of a Kind World Travel LLC</option>
                   <option value="store">Store · Midtown Store</option>
+                  <option value="operations-viewer">Operations Viewer · All Customers</option>
+                  <option value="operations-manager">Operations Manager · All Customers</option>
                 </select>
               </label>
               <button class="alert-btn dark" type="button" data-alert-create><span class="material-symbols-rounded" aria-hidden="true">add_alert</span>Create Alert Rule</button>
@@ -87,6 +90,9 @@
 
             <div class="alert-center-toolbar" role="search" aria-label="Alert filters">
               <div class="alert-filter-group">
+                <select class="alert-filter-control" aria-label="Organization scope" data-alert-organization-filter data-alert-operations-only hidden></select>
+                <select class="alert-filter-control" aria-label="Rule owner" data-alert-owner-filter data-alert-operations-only hidden></select>
+                <select class="alert-filter-control" aria-label="Rule status" data-alert-rule-status-filter data-alert-operations-only hidden><option value="current">Current rules</option><option value="all">All rule statuses</option><option value="Archived">Archived</option></select>
                 <select class="alert-filter-control" aria-label="Incident state" data-alert-state-filter><option value="all">All states</option><option>Active</option><option>Resolved</option><option>Closed</option></select>
                 <select class="alert-filter-control" aria-label="Acknowledgement" data-alert-ack-filter><option value="all">All acknowledgements</option><option value="unacknowledged">Needs acknowledgement</option><option value="acknowledged">Acknowledged</option></select>
                 <input class="alert-filter-control" type="search" aria-label="Store" placeholder="Store" autocomplete="off" data-alert-store-filter>
@@ -99,7 +105,7 @@
             <div id="alertCenterIncidents" class="alert-center-panel" role="tabpanel" data-alert-view-panel="incidents">
               <div class="alerts-table-wrap">
                 <table class="alerts-table">
-                  <thead><tr><th>State</th><th>Condition</th><th>Target</th><th>Observed evidence</th><th>Opened</th><th>Actions</th></tr></thead>
+                  <thead><tr><th>State</th><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Target</th><th>Observed evidence</th><th>Opened</th><th>Actions</th></tr></thead>
                   <tbody data-alert-incidents></tbody>
                 </table>
               </div>
@@ -108,7 +114,7 @@
             <div id="alertCenterRules" class="alert-center-panel hidden" role="tabpanel" data-alert-view-panel="rules">
               <div class="alerts-table-wrap">
                 <table class="alerts-table">
-                  <thead><tr><th>Condition</th><th>Target</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
+                  <thead><tr><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Target</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
                   <tbody data-alert-rules></tbody>
                 </table>
               </div>
@@ -119,6 +125,34 @@
     </div>
   </div>
 
+  <div class="alert-modal-overlay" data-alert-context-modal aria-hidden="true">
+    <section class="alert-modal alert-context-dialog" role="dialog" aria-modal="true" aria-labelledby="alertContextDialogTitle">
+      <form data-alert-context-form novalidate>
+        <div class="alert-modal-head">
+          <h2 id="alertContextDialogTitle">Select Customer Context</h2>
+          <button class="alert-modal-close" type="button" aria-label="Close customer context" data-alert-context-close><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+        </div>
+        <div class="alert-modal-body alert-context-body">
+          <div class="alert-field full">
+            <label for="alertAccountSearch">Search customer accounts</label>
+            <input id="alertAccountSearch" type="search" autocomplete="off" placeholder="Search by account name" data-alert-account-search>
+          </div>
+          <div class="alert-account-results full" data-alert-account-results aria-label="Customer account search results"></div>
+          <div class="alert-form-grid alert-context-grid full">
+            <div class="alert-field"><label for="alertOwnerType">Account type</label><select id="alertOwnerType" data-alert-owner-type><option value="Service Provider">Service Provider</option><option value="Agent">Agent</option><option value="Merchant">Merchant</option><option value="Store">Store</option></select></div>
+            <div class="alert-field"><label for="alertOwnerProvider">Service Provider</label><select id="alertOwnerProvider" data-alert-owner-provider required></select></div>
+            <div class="alert-field" data-alert-context-field="agent"><label for="alertOwnerAgent">Agent</label><select id="alertOwnerAgent" data-alert-owner-agent></select></div>
+            <div class="alert-field" data-alert-context-field="merchant"><label for="alertOwnerMerchant">Merchant</label><select id="alertOwnerMerchant" data-alert-owner-merchant></select></div>
+            <div class="alert-field" data-alert-context-field="store"><label for="alertOwnerStore">Store</label><select id="alertOwnerStore" data-alert-owner-store></select></div>
+          </div>
+          <div class="alert-selected-account full" data-alert-selected-account role="status">Select a customer account.</div>
+          <div class="alert-field-error full" data-alert-context-error role="alert"></div>
+        </div>
+        <div class="alert-modal-actions"><button class="alert-btn subtle" type="button" data-alert-context-close>Cancel</button><button class="alert-btn dark" type="submit" data-alert-context-continue disabled>Continue</button></div>
+      </form>
+    </section>
+  </div>
+
   <div class="alert-modal-overlay" data-alert-modal aria-hidden="true">
     <section class="alert-modal alert-modal-range" role="dialog" aria-modal="true" aria-labelledby="centerAlertRuleDialogTitle">
       <form data-alert-form novalidate>
@@ -127,6 +161,11 @@
           <button class="alert-modal-close" type="button" aria-label="Close" data-alert-close><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
         </div>
         <div class="alert-modal-body alert-rule-body">
+          <div class="alert-owner-context" data-alert-owner-context hidden>
+            <span>Creating for</span>
+            <strong data-alert-owner-context-name></strong>
+            <button type="button" data-alert-owner-change>Change</button>
+          </div>
           <section class="alert-form-section">
             <div class="alert-section-head"><h3 id="centerRangeHeading">Monitoring Range</h3></div>
             <div class="alert-form-grid alert-range-grid">
@@ -147,6 +186,7 @@
               <div class="alert-condition-fields" data-alert-condition-fields></div>
               <span class="sr-only" data-alert-coverage role="status" aria-live="polite">Current Store membership checked</span>
               <div class="sr-only" data-alert-coverage-card role="status" aria-live="polite"></div>
+              <div class="alert-similar-rule" data-alert-similar-rule hidden><span>A similar active rule already exists for this owner and target.</span><button type="button" data-alert-view-similar>View existing rule</button></div>
             </div>
           </section>
           <section class="alert-form-section">

@@ -445,7 +445,9 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
     "Service Provider · Universal Processing",
     "Agent · Seattle Field Agent",
     "Merchant · 1 of a Kind World Travel LLC",
-    "Store · Midtown Store"
+    "Store · Midtown Store",
+    "Operations Viewer · All Customers",
+    "Operations Manager · All Customers"
   ]);
   await expect(page.locator('[data-alert-count="active"]')).toHaveText("8");
   await expect(page.locator(".alert-kpi-card")).toHaveCount(2);
@@ -480,7 +482,7 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
   await pauseButton.click();
   await expect(soldOutRule).toContainText("Paused");
   await expect(soldOutRule.getByRole("button", { name: "Resume" }).locator(".material-symbols-rounded")).toHaveText("play_arrow");
-  await expect(page.getByRole("row", { name: /Machine Stock Below/ })).toContainText("Portal Alerts");
+  await expect(page.getByRole("row", { name: /No Approved Transaction/ }).first()).toContainText("Portal Alerts");
   await expect(page.getByText("Portal Inbox", { exact: true })).toHaveCount(0);
 
   await page.getByRole("tab", { name: "Alerts", exact: true }).click();
@@ -530,7 +532,7 @@ test("deletes terminal rules with confirmation while preserving alert history", 
   await pausedRule.getByRole("button", { name: "Delete rule" }).click();
   await deleteDialog.getByRole("button", { name: "Delete Rule", exact: true }).click();
   await expect(pausedRule).toHaveCount(0);
-  await expect(page.locator("[data-alert-toast]")).toHaveText("Rule deleted.");
+  await expect(page.locator("[data-alert-toast]")).toHaveText("Rule archived.");
   await page.reload();
   await alertPanel.getByRole("tab", { name: "Rules", exact: true }).click();
   await expect(alertPanel.locator('[data-rule-id="r-merchant-selected-product"]')).toHaveCount(0);
@@ -608,7 +610,7 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   const matrices = [
     { role: "service-provider", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Store", "Terminal"], row: /Midtown Store/ },
     { role: "agent", visible: ["Merchant", "Store", "Terminal"], hidden: ["Service Provider", "Agent"], scopes: ["Store", "Terminal"], row: /EV Charger Bay 07/ },
-    { role: "merchant", visible: ["Store", "Terminal"], hidden: ["Service Provider", "Agent", "Merchant"], scopes: ["Store", "Terminal"], row: /Machine Stock Below/ },
+    { role: "merchant", visible: ["Store", "Terminal"], hidden: ["Service Provider", "Agent", "Merchant"], scopes: ["Store", "Terminal"], row: /No Approved Transaction/ },
     { role: "store", visible: ["Terminal"], hidden: ["Service Provider", "Agent", "Merchant", "Store"], scopes: ["Store", "Terminal"], row: /Machine Stock Below/ }
   ];
   for (const matrix of matrices) {
@@ -757,6 +759,81 @@ test("seeds Store and Terminal rules with supported lifecycle incidents", async 
   expect(new Set(seeded.incidents.map((incident) => incident.monitoringState))).toEqual(new Set(["Active", "Resolved", "Closed"]));
   expect(JSON.stringify(seeded)).not.toContain("Recovering");
   expect(seeded.incidents.every((incident) => !("state" in incident) && Array.isArray(incident.events))).toBe(true);
+});
+
+test("provides read-only all-customer visibility for Operations Viewer", async ({ page }) => {
+  await page.goto("/39.customer_alerts.html?role=operations-viewer");
+  await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
+  await page.reload();
+
+  await expect(page.getByLabel("Alerts role")).toHaveValue("operations-viewer");
+  await expect(page.getByText("Operations scope · All customer accounts")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create Alert Rule" })).toHaveCount(0);
+  await expect(page.getByLabel("Organization scope")).toBeVisible();
+  await expect(page.getByLabel("Rule owner")).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Rule Owner" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Acknowledge" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Close incident", exact: true })).toHaveCount(0);
+
+  await page.getByRole("tab", { name: "Rules", exact: true }).click();
+  await expect(page.getByRole("columnheader", { name: "Rule Owner" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Pause" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Edit" })).toHaveCount(0);
+  await expect(page.getByText("View only").first()).toBeVisible();
+});
+
+test("lets Operations Manager choose a Store owner by search and create an isolated rule", async ({ page }) => {
+  await page.goto("/39.customer_alerts.html?role=operations-manager");
+  await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
+  await page.reload();
+
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const contextDialog = page.getByRole("dialog", { name: "Select Customer Context" });
+  await expect(contextDialog).toBeVisible();
+  await contextDialog.getByLabel("Search customer accounts").fill("Midtown Store");
+  await contextDialog.getByRole("button", { name: /Store · Midtown Store/ }).click();
+  await expect(contextDialog.locator("[data-alert-selected-account]")).toContainText("Store · Universal Processing / 1 of a Kind World Travel LLC / Midtown Store");
+  const contextButtonHeights = await contextDialog.locator(".alert-modal-actions button").evaluateAll((buttons) => buttons.map((button) => button.getBoundingClientRect().height));
+  expect(contextButtonHeights).toEqual([36, 36]);
+  await contextDialog.getByRole("button", { name: "Continue" }).click();
+
+  const ruleDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await expect(ruleDialog.locator("[data-alert-owner-context]")).toContainText("Store · Universal Processing / 1 of a Kind World Travel LLC / Midtown Store");
+  await expect(ruleDialog.getByLabel("Service Provider")).toBeHidden();
+  await expect(ruleDialog.getByLabel("Merchant")).toBeHidden();
+  await expect(ruleDialog.getByLabel("Store", { exact: true })).toBeHidden();
+  await ruleDialog.getByLabel("Monitor Scope").selectOption("Store");
+  await ruleDialog.getByLabel("Condition").selectOption("sold_out");
+  await ruleDialog.getByRole("button", { name: "Save Rule" }).click();
+
+  await page.getByRole("tab", { name: "Rules", exact: true }).click();
+  const created = page.locator('[data-alert-rules] tr').filter({ hasText: "Sold Out" }).filter({ hasText: "Midtown Store" }).filter({ hasText: "2026-08-28 10:42" });
+  await expect(created).toContainText("Store");
+  const stored = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).rules.find((rule) => rule.condition === "sold_out" && rule.targetId === "s-midtown" && rule.ownerId === "s-midtown"), ALERT_STATE_KEY);
+  expect(stored).toMatchObject({ ownerType: "Store", ownerId: "s-midtown", ownerName: "Midtown Store", creatorType: "Paywizard Operator", creatorDisplayName: "Paywizard Operations", status: "Active" });
+
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  await contextDialog.getByLabel("Account type").selectOption("Service Provider");
+  await contextDialog.getByLabel("Service Provider").selectOption("sp-north-america");
+  await expect(contextDialog.locator("[data-alert-selected-account]")).toContainText("Service Provider · North America Ops");
+  await contextDialog.getByRole("button", { name: "Continue" }).click();
+  await expect(ruleDialog.getByLabel("Agent")).toBeVisible();
+  await expect(ruleDialog.getByLabel("Agent").locator("option")).toHaveText(["All agents and direct merchants", "Direct merchants only", "Seattle Field Agent", "Waou Distribution"]);
+  await ruleDialog.getByRole("button", { name: "Cancel" }).click();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  const mobileContextGeometry = await contextDialog.evaluate((dialog) => {
+    const rect = dialog.getBoundingClientRect();
+    const buttons = [...dialog.querySelectorAll(".alert-modal-actions button")].map((button) => button.getBoundingClientRect());
+    return { left: rect.left, right: rect.right, bottom: rect.bottom, buttonHeights: buttons.map((box) => box.height), buttonWidths: buttons.map((box) => box.width), documentWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth };
+  });
+  expect(mobileContextGeometry.left).toBeGreaterThanOrEqual(0);
+  expect(mobileContextGeometry.right).toBeLessThanOrEqual(390);
+  expect(mobileContextGeometry.bottom).toBeLessThanOrEqual(844);
+  expect(mobileContextGeometry.documentWidth).toBeLessThanOrEqual(mobileContextGeometry.viewportWidth + 1);
+  expect(mobileContextGeometry.buttonHeights).toEqual([36, 36]);
+  expect(Math.abs(mobileContextGeometry.buttonWidths[0] - mobileContextGeometry.buttonWidths[1])).toBeLessThanOrEqual(1);
 });
 
 test("matches the portal and DEX layout geometry on desktop and mobile", async ({ page }) => {

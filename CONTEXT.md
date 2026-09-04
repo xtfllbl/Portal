@@ -20,6 +20,10 @@ _Avoid_: every page in a module
 A named presentation of portal visibility and interaction rules used to demonstrate the experience of a provider category. The current profiles are WizarPOS Provider, Attended Provider, and Unattended Provider.
 _Avoid_: Login Role, Security Role, Permission Set
 
+**Customer Account**:
+A service provider, agent, merchant, or store account that forms an isolated ownership and access boundary for Customer Alerts. Paywizard operators select a Customer Account when performing Delegated Rule Creation; they do not assume that account's login role.
+_Avoid_: Role Simulator, Monitoring Target
+
 **WizarPOS Provider**:
 The Portal Access Profile representing a WizarPOS-exclusive service provider across attended terminals, unattended terminals, and card readers.
 _Avoid_: Administrator, Superuser
@@ -61,7 +65,7 @@ A back-office module comprising Card List, Activation, Balance Adjustment, and L
 _Avoid_: single prepaid card page
 
 **Customer Alert**:
-An alert owned and configured by an authorized customer-side user for resources within that user's permitted scope.
+An alert owned by a Customer Account and configured either by an authorized customer-side user or by a Paywizard operator through Delegated Rule Creation for resources within that owner's permitted scope.
 _Avoid_: Customer SLA Alert
 
 **Platform-managed Alert**:
@@ -72,13 +76,29 @@ _Avoid_: Customer Alert, Customer Rule
 A single monitored condition applied to a single Monitoring Target, including the criteria for opening and recovering an Alert Incident.
 _Avoid_: Multi-condition rule, Alert Incident
 
+**Archived Alert Rule**:
+A Customer Alert Rule retained for operational history after deletion and excluded from ordinary customer rule lists and future incident creation.
+_Avoid_: Hard-deleted rule, Active Rule
+
 **Monitoring Target**:
-The resource whose state an Alert Rule evaluates; Customer Alerts supports one Store or one Terminal. A Merchant may be an authorization context or Rule Owner, but is not a Monitoring Target.
+The resource whose state an Alert Rule evaluates; Customer Alerts supports one Store or one Terminal. Customer Accounts establish authorization and may own rules, but Service Providers, Agents, and Merchants are not Monitoring Targets.
 _Avoid_: Recipient, Rule Owner
 
 **Rule Owner**:
-The service provider, agent, or merchant organization that controls an Alert Rule through users granted Manage Alerts permission.
+The service provider, agent, merchant, or store account selected as the owner of an Alert Rule. Rule ownership and management are isolated between accounts, including between a Store and its parent Merchant.
 _Avoid_: Rule creator, Monitoring Target, Recipient
+
+**Delegated Rule Creation**:
+Creation of a Customer Alert by an authorized Paywizard operator on behalf of a selected Rule Owner. The selected service provider, agent, merchant, or store owns the rule; the operator remains the Rule Creator recorded for audit.
+_Avoid_: Role Simulation, Platform-managed Alert
+
+**Customer Alerts Operations Viewer**:
+A Paywizard operations access level that can inspect all Customer Alert Rules, Customer Alert Incidents, timelines, and audit information without performing state-changing actions.
+_Avoid_: Customer Account, Manage Customer Alerts
+
+**Customer Alerts Operations Manager**:
+A Paywizard operations access level that can manage Customer Alert Rules and Incidents across Customer Accounts while preserving each rule's selected Rule Owner and the real operator in its audit trail.
+_Avoid_: Rule Owner, Customer Account administrator
 
 **Alert Visibility Scope**:
 The Merchant, Store, and Terminal subtree accessible from the user's current service provider, agent, merchant, or store role context; resources above or outside that context are not exposed.
