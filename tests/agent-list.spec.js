@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-test("agent list keeps hierarchy and exposes six accessible row actions", async ({ page }) => {
+test("agent list keeps hierarchy and exposes five accessible row actions without settings", async ({ page }) => {
   await page.goto("/2.agent_list_iso.html");
 
   await expect(page.locator("#agentTableBody tr")).toHaveCount(8);
@@ -13,7 +13,8 @@ test("agent list keeps hierarchy and exposes six accessible row actions", async 
     "Date & Time",
     "Actions"
   ]);
-  await expect(page.locator("#agentTableBody tr").first().locator("button[data-action]")).toHaveCount(6);
+  await expect(page.locator("#agentTableBody tr").first().locator("button[data-action]")).toHaveCount(5);
+  await expect(page.locator("#agentTableBody button[data-action='setting']")).toHaveCount(0);
   await expect(page.locator("#agentTableBody .material-symbols-rounded").first()).toHaveText("add");
 
   await page.locator("#searchName").fill("twoAgent");
