@@ -277,6 +277,26 @@ test("collapsed sidebar reveal control keeps a stable pointer target", async ({ 
   await expect(page.locator(".pw-platform-frame")).not.toHaveClass(/pw-sidebar-collapsed/);
 });
 
+test("expanded sidebar toggle only appears near its edge sensor", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/2.agent_list_iso.html");
+  await page.evaluate(() => localStorage.setItem("paywizard.platformSidebarCollapsed.v1", "false"));
+  await page.reload();
+
+  const toggle = page.locator(".pw-platform-sidebar-toggle");
+  const icon = toggle.locator(".pw-platform-sidebar-toggle-icon");
+  const toggleBox = await toggle.boundingBox();
+
+  await page.mouse.move(900, 200);
+  await expect(icon).toHaveCSS("opacity", "0");
+
+  await page.mouse.move(toggleBox.x + toggleBox.width / 2, toggleBox.y + toggleBox.height / 2);
+  await expect(icon).toHaveCSS("opacity", "1");
+
+  await page.mouse.move(900, 200);
+  await expect(icon).toHaveCSS("opacity", "0");
+});
+
 test("Alerts sidebar toggle keeps a visible white chevron", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/39.customer_alerts.html");
