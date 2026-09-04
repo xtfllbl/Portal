@@ -1,6 +1,8 @@
 /* Shared PAYwizard platform shell, based on 38.Merchant_onboard.html. */
 :root {
-  --pw-shell-sidebar: 264px;
+  --pw-shell-sidebar-expanded: 264px;
+  --pw-shell-sidebar-collapsed: 74px;
+  --pw-shell-sidebar: var(--pw-shell-sidebar-expanded);
   --pw-shell-gap: 16px;
   --pw-shell-bg: #f5f5f6;
   --pw-shell-surface: #fff;
@@ -63,6 +65,13 @@ body.pw-platform-admin textarea { font: inherit; }
   overflow: hidden;
   border-radius: 0 0 20px 20px;
   background: var(--pw-shell-bg);
+  transition: grid-template-columns .2s ease;
+}
+
+/* The shared shell owns its outer grid, including on legacy pages whose
+   .pw-admin .pw-app-frame rule has higher specificity than .pw-platform-frame. */
+body.pw-platform-admin > .pw-platform-frame {
+  grid-template-columns: var(--pw-shell-sidebar) minmax(0, 1fr);
 }
 
 .pw-platform-sidebar,
@@ -97,6 +106,48 @@ body.pw-platform-admin > .pw-platform-frame > .pw-platform-sidebar {
   display: flex !important;
   grid-column: 1 !important;
   grid-row: 1 !important;
+}
+
+.pw-platform-sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  left: calc(16px + var(--pw-shell-sidebar) - 24px);
+  z-index: 4;
+  width: 48px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  color: #fff;
+  box-shadow: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: left .2s ease;
+}
+
+.pw-platform-sidebar-toggle > .pw-platform-sidebar-toggle-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #2c2c30;
+  border-radius: 50%;
+  background: #090909;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(15, 18, 25, .22);
+  font-size: 19px;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+
+.pw-platform-sidebar-toggle:hover .pw-platform-sidebar-toggle-icon { box-shadow: 0 3px 10px rgba(15, 18, 25, .3); }
+.pw-platform-sidebar-toggle:focus-visible { outline: none; }
+.pw-platform-sidebar-toggle:focus-visible .pw-platform-sidebar-toggle-icon {
+  box-shadow: 0 0 0 3px rgba(41, 121, 255, .35), 0 3px 10px rgba(15, 18, 25, .3);
 }
 
 .pw-platform-brand {
@@ -627,8 +678,51 @@ body.pw-leads-page .pw-platform-content {
 }
 .pw-platform-drawer-overlay.is-open { display: block; }
 
+@media (min-width: 1101px) {
+  .pw-platform-frame.pw-sidebar-collapsed { --pw-shell-sidebar: var(--pw-shell-sidebar-collapsed); }
+
+  body.pw-platform-admin > .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar {
+    padding-inline: 8px;
+    overflow: hidden auto;
+  }
+
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-brand,
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-menu-label,
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-menu-arrow,
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-sub-menu {
+    display: none !important;
+  }
+
+  body.pw-platform-admin > .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar .pw-platform-menu-item,
+  body.pw-platform-admin > .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar .pw-platform-menu-toggle,
+  body.pw-platform-admin > .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar .pw-platform-menu-link,
+  body.pw-platform-admin > .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar .pw-platform-disabled {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-menu-main { justify-content: center; }
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-menu-row { display: block; }
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-menu-row .pw-platform-menu-link { border-radius: 8px; }
+  .pw-platform-frame.pw-sidebar-collapsed .pw-platform-device-toggle { display: none; }
+
+  .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar-toggle .pw-platform-sidebar-toggle-icon {
+    opacity: 0;
+    transform: scale(.9);
+  }
+
+  .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar:hover + .pw-platform-sidebar-toggle .pw-platform-sidebar-toggle-icon,
+  .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar:focus-within + .pw-platform-sidebar-toggle .pw-platform-sidebar-toggle-icon,
+  .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar-toggle:hover .pw-platform-sidebar-toggle-icon,
+  .pw-platform-frame.pw-sidebar-collapsed > .pw-platform-sidebar-toggle:focus-visible .pw-platform-sidebar-toggle-icon {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (max-width: 1100px) and (min-width: 761px) {
-  :root { --pw-shell-sidebar: 74px; }
+  :root { --pw-shell-sidebar: var(--pw-shell-sidebar-collapsed); }
+  .pw-platform-sidebar-toggle { display: none; }
   .pw-platform-sidebar { padding-inline: 8px; overflow: hidden auto; }
   .pw-platform-brand { height: 54px; align-items: center; }
   .pw-platform-frame .pw-platform-sidebar .pw-platform-brand .brand-mark { width: 56px; }
@@ -658,6 +752,10 @@ body.pw-leads-page .pw-platform-content {
     overflow: visible;
     border-radius: 0;
   }
+  body.pw-platform-admin > .pw-platform-frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pw-platform-sidebar-toggle { display: none; }
   .pw-platform-sidebar {
     position: fixed !important;
     inset: 10px auto 10px 10px !important;
@@ -685,6 +783,12 @@ body.pw-leads-page .pw-platform-content {
   body.pw-platform-admin.pw-merchant-flow-page .pw-platform-content-host > .pw-platform-content.pw-flow-content {
     overflow: visible !important;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-platform-frame,
+  .pw-platform-sidebar-toggle,
+  .pw-platform-sidebar-toggle > .pw-platform-sidebar-toggle-icon { transition: none; }
 }
 
 @media print {

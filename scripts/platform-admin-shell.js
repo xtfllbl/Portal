@@ -7,12 +7,14 @@
   }
 
   var profileStoreKey = "paywizard.portalAccessProfile.v1";
+  var sidebarCollapsedStoreKey = "paywizard.platformSidebarCollapsed.v1";
   var profiles = {
     wizarpos: { label: "WizarPOS Provider" },
     attended: { label: "Attended Provider" },
     unattended: { label: "Unattended Provider" }
   };
   var activeProfile = readProfile();
+  var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
@@ -77,6 +79,11 @@
     } catch (_) {
       return "wizarpos";
     }
+  }
+
+  function readSidebarCollapsed() {
+    try { return localStorage.getItem(sidebarCollapsedStoreKey) === "true"; }
+    catch (_) { return false; }
   }
 
   function fallbackFor(targetFile, profile) {
@@ -161,13 +168,13 @@
 
   function link(label, href, icon, key) {
     var active = config.active === key;
-    return '<a class="pw-platform-menu-item pw-menu-item menu-item' + (active ? ' active' : '') + '" href="' + href + '"' +
+    return '<a class="pw-platform-menu-item pw-menu-item menu-item' + (active ? ' active' : '') + '" href="' + href + '" data-pw-nav-label="' + escapeHtml(label) + '"' +
       (active ? ' aria-current="page"' : '') + '><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
       icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span></a>';
   }
 
   function disabled(label, icon) {
-    return '<span class="pw-platform-disabled pw-menu-item menu-item" aria-disabled="true"><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
+    return '<span class="pw-platform-disabled pw-menu-item menu-item" aria-disabled="true" data-pw-nav-label="' + escapeHtml(label) + '"><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
       icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span></span>';
   }
 
@@ -185,7 +192,7 @@
   function group(label, icon, name, items) {
     var active = config.module === name;
     var open = active || readMenuState(name);
-    return '<button class="pw-platform-menu-toggle pw-menu-item menu-item' + (active ? ' active' : '') + '" type="button" data-pw-menu-toggle="' + name + '" data-target="' + name +
+    return '<button class="pw-platform-menu-toggle pw-menu-item menu-item' + (active ? ' active' : '') + '" type="button" data-pw-menu-toggle="' + name + '" data-target="' + name + '" data-pw-nav-label="' + escapeHtml(label) +
       '" aria-expanded="' + String(open) + '"><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
       icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span><span class="material-symbols-rounded pw-platform-menu-arrow" aria-hidden="true">expand_more</span></button>' +
       '<div class="pw-platform-sub-menu" data-pw-menu="' + name + '"' + (open ? '' : ' hidden') + '>' + items + '</div>';
@@ -250,7 +257,7 @@
     var deviceActive = config.module === "device";
     var deviceOpen = deviceActive || readMenuState("device");
     var device = '<div class="pw-platform-menu-row' + (deviceActive ? ' active' : '') + '">' +
-      '<a class="pw-platform-menu-link" href="2.resellermerchantterminal.html"' + (config.active === "device-overview" ? ' aria-current="page"' : '') + '>' +
+      '<a class="pw-platform-menu-link" href="2.resellermerchantterminal.html" data-pw-nav-label="Device Management"' + (config.active === "device-overview" ? ' aria-current="page"' : '') + '>' +
       '<span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">devices</span><span class="pw-platform-menu-label">Device Management</span></span></a>' +
       '<button class="pw-platform-device-toggle" type="button" data-pw-menu-toggle="device" aria-label="Toggle Device Management menu" aria-expanded="' + String(deviceOpen) + '">' +
       '<span class="material-symbols-rounded pw-platform-menu-arrow" aria-hidden="true">expand_more</span></button></div>' +
@@ -345,9 +352,12 @@
 
   var frame = document.createElement("div");
   frame.className = "pw-platform-frame pw-app-frame app-frame";
-  frame.innerHTML = '<aside class="pw-platform-sidebar pw-sidebar sidebar" aria-label="Primary navigation">' +
+  frame.classList.toggle("pw-sidebar-collapsed", sidebarInitiallyCollapsed);
+  frame.innerHTML = '<aside class="pw-platform-sidebar pw-sidebar sidebar" id="pw-platform-primary-navigation" aria-label="Primary navigation">' +
     '<div class="pw-platform-brand pw-brand"><span class="brand-mark"><img src="assets/paywizard-logo-sidebar.png" alt="PAYwizard"></span></div>' +
     '<nav class="pw-platform-nav pw-nav" aria-label="Main navigation">' + buildNavigation() + '</nav></aside>' +
+    '<button class="pw-platform-sidebar-toggle" type="button" aria-controls="pw-platform-primary-navigation" aria-expanded="' + String(!sidebarInitiallyCollapsed) + '" aria-label="' + (sidebarInitiallyCollapsed ? 'Expand navigation' : 'Collapse navigation') + '">' +
+    '<span class="material-symbols-rounded pw-platform-sidebar-toggle-icon" aria-hidden="true">' + (sidebarInitiallyCollapsed ? 'chevron_right' : 'chevron_left') + '</span></button>' +
     '<div class="pw-platform-workspace pw-workspace"><header class="pw-platform-topbar pw-topbar topbar">' +
     '<button class="pw-platform-mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>' +
     '<div class="pw-platform-breadcrumb pw-breadcrumb breadcrumb" aria-label="Breadcrumb">' + buildBreadcrumb() + '</div>' +
@@ -388,6 +398,7 @@
   document.body.appendChild(overlay);
 
   var sidebar = frame.querySelector(".pw-platform-sidebar");
+  var sidebarToggle = frame.querySelector(".pw-platform-sidebar-toggle");
   var mobileButton = frame.querySelector(".pw-platform-mobile-menu");
   var sidebarScrollStoreKey = "paywizard.platformSidebarScrollTop.v1." + activeProfile;
 
@@ -408,6 +419,36 @@
     overlay.classList.toggle("is-open", open);
     mobileButton.setAttribute("aria-expanded", String(open));
   }
+
+  function usesCompactNavigation() {
+    return (window.innerWidth >= 761 && window.innerWidth <= 1100) ||
+      (window.innerWidth > 1100 && frame.classList.contains("pw-sidebar-collapsed"));
+  }
+
+  function syncNavigationTooltips() {
+    var compact = usesCompactNavigation();
+    frame.querySelectorAll("[data-pw-nav-label]").forEach(function (item) {
+      if (compact) item.setAttribute("title", item.getAttribute("data-pw-nav-label"));
+      else item.removeAttribute("title");
+    });
+  }
+
+  function setSidebarCollapsed(collapsed, persist) {
+    frame.classList.toggle("pw-sidebar-collapsed", collapsed);
+    sidebarToggle.setAttribute("aria-expanded", String(!collapsed));
+    sidebarToggle.setAttribute("aria-label", collapsed ? "Expand navigation" : "Collapse navigation");
+    sidebarToggle.querySelector(".material-symbols-rounded").textContent = collapsed ? "chevron_right" : "chevron_left";
+    syncNavigationTooltips();
+    if (persist) {
+      try { localStorage.setItem(sidebarCollapsedStoreKey, String(collapsed)); } catch (_) {}
+    }
+  }
+
+  setSidebarCollapsed(sidebarInitiallyCollapsed, false);
+  sidebarToggle.addEventListener("click", function () {
+    setSidebarCollapsed(!frame.classList.contains("pw-sidebar-collapsed"), true);
+  });
+  window.addEventListener("resize", syncNavigationTooltips);
   mobileButton.addEventListener("click", function () { setDrawer(!sidebar.classList.contains("is-open")); });
   overlay.addEventListener("click", function () { setDrawer(false); });
   sidebar.querySelectorAll("a").forEach(function (anchor) {
@@ -421,6 +462,19 @@
     button.addEventListener("click", function () {
       var name = button.getAttribute("data-pw-menu-toggle");
       var menu = frame.querySelector('[data-pw-menu="' + name + '"]');
+      if (window.innerWidth > 1100 && frame.classList.contains("pw-sidebar-collapsed")) {
+        var firstDestination = menu.querySelector("a[href]");
+        if (firstDestination) {
+          try { sessionStorage.setItem(sidebarScrollStoreKey, String(sidebar.scrollTop)); } catch (_) {}
+          firstDestination.click();
+          return;
+        }
+        setSidebarCollapsed(false, true);
+        menu.hidden = false;
+        button.setAttribute("aria-expanded", "true");
+        writeMenuState(name, true);
+        return;
+      }
       var willOpen = menu.hidden;
       menu.hidden = !willOpen;
       button.setAttribute("aria-expanded", String(willOpen));

@@ -127,6 +127,186 @@ test("shared sidebar logo is compact, centered, and keeps its natural ratio", as
   }
 });
 
+test("desktop sidebar collapses with the workspace and persists across pages", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/2.agent_list_iso.html");
+  await page.evaluate(() => localStorage.removeItem("paywizard.platformSidebarCollapsed.v1"));
+  await page.reload();
+
+  const before = await page.evaluate(() => {
+    const sidebar = document.querySelector(".pw-platform-sidebar").getBoundingClientRect();
+    const topbar = document.querySelector(".pw-platform-topbar").getBoundingClientRect();
+    const content = document.querySelector(".pw-platform-content-host").getBoundingClientRect();
+    return { sidebarWidth: sidebar.width, topbarLeft: topbar.left, contentLeft: content.left, contentWidth: content.width };
+  });
+
+  const toggle = page.locator(".pw-platform-sidebar-toggle");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(toggle).toHaveAttribute("aria-label", "Collapse navigation");
+  const toggleBox = await toggle.boundingBox();
+  expect(toggleBox.width).toBeGreaterThanOrEqual(44);
+  expect(toggleBox.height).toBeGreaterThanOrEqual(44);
+  await toggle.click();
+
+  await expect(page.locator(".pw-platform-frame")).toHaveClass(/pw-sidebar-collapsed/);
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(toggle).toHaveAttribute("aria-label", "Expand navigation");
+  await expect.poll(() => page.locator(".pw-platform-sidebar").evaluate((element) => Math.round(element.getBoundingClientRect().width))).toBe(74);
+
+  const after = await page.evaluate(() => {
+    const sidebar = document.querySelector(".pw-platform-sidebar").getBoundingClientRect();
+    const topbar = document.querySelector(".pw-platform-topbar").getBoundingClientRect();
+    const content = document.querySelector(".pw-platform-content-host").getBoundingClientRect();
+    return {
+      sidebarWidth: sidebar.width,
+      topbarLeft: topbar.left,
+      contentLeft: content.left,
+      contentWidth: content.width,
+      overflow: document.documentElement.scrollWidth - innerWidth
+    };
+  });
+
+  expect(Math.round(before.sidebarWidth)).toBe(264);
+  expect(after.sidebarWidth).toBe(74);
+  expect(Math.round(before.topbarLeft - after.topbarLeft)).toBe(190);
+  expect(Math.round(before.contentLeft - after.contentLeft)).toBe(190);
+  expect(Math.round(after.contentWidth - before.contentWidth)).toBe(190);
+  expect(Math.abs(after.topbarLeft - after.contentLeft)).toBeLessThanOrEqual(1);
+  expect(after.overflow).toBeLessThanOrEqual(1);
+  await expect(page.locator(".pw-platform-brand")).toBeHidden();
+  await expect(page.locator(".pw-platform-menu-label").first()).toBeHidden();
+  await expect(page.locator('[data-pw-menu="agents"]')).toBeHidden();
+  await expect(page.locator('[data-pw-menu-toggle="agents"]')).toHaveClass(/active/);
+  await expect(page.locator('[data-pw-menu-toggle="agents"]')).toHaveAttribute("title", "Agents");
+
+  await page.goto("/12.transaction_list.html");
+  await expect(page.locator(".pw-platform-frame")).toHaveClass(/pw-sidebar-collapsed/);
+  await expect(page.locator('.pw-platform-menu-item[href="12.transaction_list.html"]')).toHaveClass(/active/);
+
+  for (const route of ["/1.terminalmanage.html", "/1.terminalmanage_CardReader.html", "/1.terminalmanage_nayax.html"]) {
+    await page.goto(route);
+    await expect(page.locator(".pw-platform-frame"), route).toHaveClass(/pw-sidebar-collapsed/);
+    await expect.poll(() => page.locator(".pw-platform-sidebar").evaluate((element) => Math.round(element.getBoundingClientRect().width))).toBe(74);
+    const alignment = await page.evaluate(() => ({
+      topbarLeft: document.querySelector(".pw-platform-topbar").getBoundingClientRect().left,
+      contentLeft: document.querySelector(".pw-platform-content-host").getBoundingClientRect().left,
+      overflow: document.documentElement.scrollWidth - innerWidth
+    }));
+    expect(Math.abs(alignment.topbarLeft - alignment.contentLeft), route).toBeLessThanOrEqual(1);
+    expect(alignment.overflow, route).toBeLessThanOrEqual(1);
+  }
+
+  await Promise.all([
+    page.waitForURL(/2\.agent_list_iso\.html$/),
+    page.locator('[data-pw-menu-toggle="agents"]').click()
+  ]);
+  await expect(page.locator(".pw-platform-frame")).toHaveClass(/pw-sidebar-collapsed/);
+  await expect(page.locator('[data-pw-menu-toggle="agents"]')).toHaveClass(/active/);
+});
+
+test("collapsed groups navigate to the first available destination for each access profile", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const cases = [
+    ["wizarpos", "agents", "2.agent_list_iso.html"],
+    ["wizarpos", "merchants", "7.merchant_contact.html"],
+    ["wizarpos", "settings", "32.sla_alert_rules.html"],
+    ["wizarpos", "device", "2.resellermerchantterminal.html"],
+    ["attended", "merchants", "5.merchant_manage_iso.html"],
+    ["attended", "settings", "20.provider_custom_email_service.html"],
+    ["attended", "device", "2.resellermerchantterminal.html"],
+    ["unattended", "merchants", "5.merchant_manage_iso.html"],
+    ["unattended", "settings", "39.customer_alerts.html"],
+    ["unattended", "device", "2.resellermerchantterminal.html"]
+  ];
+
+  for (const [profile, group, destination] of cases) {
+    await page.goto("/10.customer_app_upload_manage.html");
+    await page.evaluate(({ profile }) => {
+      localStorage.setItem("paywizard.portalAccessProfile.v1", profile);
+      localStorage.setItem("paywizard.platformSidebarCollapsed.v1", "true");
+    }, { profile });
+    await page.reload();
+    const selector = group === "device"
+      ? '.pw-platform-menu-row .pw-platform-menu-link'
+      : `[data-pw-menu-toggle="${group}"]`;
+    await Promise.all([
+      page.waitForURL(new RegExp(`${destination.replaceAll(".", "\\.")}$`)),
+      page.locator(selector).click()
+    ]);
+    await expect(page.locator(".pw-platform-frame"), `${profile}:${group}`).toHaveClass(/pw-sidebar-collapsed/);
+    await expect.poll(() => page.locator(".pw-platform-sidebar").evaluate((element) => Math.round(element.getBoundingClientRect().width)), {
+      message: `${profile}:${group} keeps the compact 74px sidebar after navigation`
+    }).toBe(74);
+  }
+});
+
+test("collapsed group without an available destination expands to show its disabled items", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/10.customer_app_upload_manage.html");
+  await page.evaluate(() => localStorage.setItem("paywizard.platformSidebarCollapsed.v1", "true"));
+  await page.reload();
+
+  await page.locator('[data-pw-menu-toggle="users"]').click();
+
+  await expect(page).toHaveURL(/10\.customer_app_upload_manage\.html$/);
+  await expect(page.locator(".pw-platform-frame")).not.toHaveClass(/pw-sidebar-collapsed/);
+  await expect(page.locator('[data-pw-menu="users"]')).toBeVisible();
+  await expect(page.locator('[data-pw-menu="users"] .pw-platform-unavailable-sub')).toHaveCount(3);
+});
+
+test("collapsed sidebar reveal control keeps a stable pointer target", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/10.customer_app_upload_manage.html");
+  await page.evaluate(() => localStorage.setItem("paywizard.platformSidebarCollapsed.v1", "true"));
+  await page.reload();
+
+  const toggle = page.locator(".pw-platform-sidebar-toggle");
+  const toggleBox = await toggle.boundingBox();
+  expect(toggleBox.width).toBeGreaterThanOrEqual(44);
+  expect(toggleBox.height).toBeGreaterThanOrEqual(44);
+
+  const centerIsClickable = await toggle.evaluate((button) => {
+    const box = button.getBoundingClientRect();
+    return button.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+  });
+  expect(centerIsClickable).toBeTruthy();
+
+  await page.mouse.move(toggleBox.x + toggleBox.width / 2, toggleBox.y + toggleBox.height / 2);
+  await expect(toggle.locator(".pw-platform-sidebar-toggle-icon")).toHaveCSS("opacity", "1");
+  await page.mouse.click(toggleBox.x + toggleBox.width / 2, toggleBox.y + toggleBox.height / 2);
+  await expect(page.locator(".pw-platform-frame")).not.toHaveClass(/pw-sidebar-collapsed/);
+});
+
+test("Alerts sidebar toggle keeps a visible white chevron", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/39.customer_alerts.html");
+
+  const icon = page.locator(".pw-platform-sidebar-toggle-icon");
+  await expect(icon).toHaveCSS("color", "rgb(255, 255, 255)");
+  await expect(icon).toHaveCSS("display", "grid");
+  await expect(icon).toHaveCSS("place-items", "center");
+});
+
+test("saved desktop collapse state does not change tablet or mobile navigation rules", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("paywizard.platformSidebarCollapsed.v1", "true"));
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/2.agent_list_iso.html");
+  await expect(page.locator(".pw-platform-sidebar")).toHaveCSS("width", "74px");
+  await expect(page.locator(".pw-platform-sidebar-toggle")).toBeHidden();
+  await expect(page.locator(".pw-platform-brand")).toBeVisible();
+  await expect(page.locator('[data-pw-menu-toggle="agents"]')).toHaveAttribute("title", "Agents");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(page.locator(".pw-platform-sidebar")).toBeHidden();
+  await page.locator(".pw-platform-mobile-menu").click();
+  await expect(page.locator(".pw-platform-sidebar")).toBeVisible();
+  await expect(page.locator(".pw-platform-brand")).toBeVisible();
+  await expect(page.locator(".pw-platform-menu-label").first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+});
+
 test("shared content aligns with the topbar on one neutral canvas", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
 
