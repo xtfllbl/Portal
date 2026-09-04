@@ -18,7 +18,8 @@
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_nayax.html": page(".main-body > .workspace", "device", "unattended-terminals", ["Device Management", "Unattended Terminals"], ["body > .top-header", "body > .main-body"]),
-    "2.agent_list_iso.html": page(".app > main.main > .content", "agents", "agents", ["Agents"], ["body > .app"]),
+    "2.agent_list_iso.html": page(".app > main.main > .content", "agents", "agent-list", ["Agents", "Agent List"], ["body > .app"]),
+    "2.agent_analytics.html": page("body > main.analytics-page", "agents", "agent-analytics", ["Agents", "Analytics"], []),
     "2.resellermerchantterminal.html": page(".main-container > .content-area", "device", "device-overview", ["Device Management", "Overview"], ["body > .top-header", "body > .main-body"]),
     "3.Processor_template_new.html": page(".main-content > main.page-content", "settings", "application-parameters", ["Settings", "Application Parameters"], ["body > .sidebar", "body > .main-content"]),
     "3.version_provider_assign.html": page("body > main.page", "settings", "application-parameters", ["Settings", "Application Parameters", "Assign Service Providers"], []),
@@ -32,6 +33,7 @@
     "6.edit_application_parameters.html": page(".main-content > main.page-content", "settings", "application-parameters", ["Settings", "Application Parameters", "Edit Application Parameters"], ["body > .sidebar", "body > .main-content"]),
     "7.merchant_contact.html": page(".app-shell > main.workspace > .page-card", "merchants", "contact", ["Merchants", "Contact"], ["body > .app-shell"]),
     "8.splitbill.html": page("body > .min-h-screen > .flex-1 > section", "merchants", "split-rules", ["Merchants", "Split Rules"], ["body > .min-h-screen"]),
+    "8.merchant_analytics.html": page("body > main.analytics-page", "merchants", "merchant-analytics", ["Merchants", "Analytics"], []),
     "9.trans.html": page(".app > section.main > main.content", "transactions", "transactions", ["Transactions"], ["body > .app"]),
     "10.customer_app_upload_manage.html": page(".main-body > .workspace", "apps", "apps", ["APP Management"], ["body > .top-header", "body > .main-body"]),
     "11.transaction_detail_redesign.html": page(".shell > .work", "transactions", "transactions", ["Transactions", "Transaction Details"], ["body > .top", "body > .shell"]),
@@ -83,6 +85,7 @@
     if (profile !== "wizarpos" && (target.module === "partners" || ["contact", "leads", "onboarding"].includes(target.active))) {
       return "5.merchant_manage_iso.html";
     }
+    if (profile !== "wizarpos" && target.active === "split-rules") return "5.merchant_manage_iso.html";
     if (profile === "attended" && target.module === "prepaid") return "2.resellermerchantterminal.html";
     if (profile !== "wizarpos" && target.active === "sla-alerts") return "12.transaction_list.html";
     if (profile === "attended" && target.active === "alerts") return "12.transaction_list.html";
@@ -119,10 +122,12 @@
   ]);
   var panelPages = new Set([
     "2.agent_list_iso.html",
+    "2.agent_analytics.html",
     "3.Processor_template_new.html",
     "6.edit_application_parameters.html",
     "7.merchant_contact.html",
     "8.splitbill.html",
+    "8.merchant_analytics.html",
     "12.transaction_list.html",
     "20.provider_custom_email_service.html",
     "21.service_provider.html",
@@ -179,10 +184,27 @@
 
   function group(label, icon, name, items) {
     var active = config.module === name;
+    var open = active || readMenuState(name);
     return '<button class="pw-platform-menu-toggle pw-menu-item menu-item' + (active ? ' active' : '') + '" type="button" data-pw-menu-toggle="' + name + '" data-target="' + name +
-      '" aria-expanded="' + String(active) + '"><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
+      '" aria-expanded="' + String(open) + '"><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
       icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span><span class="material-symbols-rounded pw-platform-menu-arrow" aria-hidden="true">expand_more</span></button>' +
-      '<div class="pw-platform-sub-menu" data-pw-menu="' + name + '"' + (active ? '' : ' hidden') + '>' + items + '</div>';
+      '<div class="pw-platform-sub-menu" data-pw-menu="' + name + '"' + (open ? '' : ' hidden') + '>' + items + '</div>';
+  }
+
+  var menuStateStoreKey = "paywizard.platformSidebarMenus.v1." + activeProfile;
+  var menuState = (function () {
+    try { return JSON.parse(localStorage.getItem(menuStateStoreKey) || "null") || {}; }
+    catch (_) { return {}; }
+  })();
+
+  function readMenuState(name) {
+    if (typeof menuState[name] === "boolean") return menuState[name];
+    return name === "agents" || name === "merchants";
+  }
+
+  function writeMenuState(name, open) {
+    menuState[name] = open;
+    try { localStorage.setItem(menuStateStoreKey, JSON.stringify(menuState)); } catch (_) {}
   }
 
   function buildNavigation() {
@@ -192,7 +214,12 @@
       isWizarpos ? sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads") : "",
       isWizarpos ? sub("Onboarding", "38.Merchant_onboard.html", "onboarding") : "",
       sub("Merchant List", "5.merchant_manage_iso.html", "merchant-list"),
-      sub("Split Rules", "8.splitbill.html", "split-rules")
+      sub("Analytics", "8.merchant_analytics.html", "merchant-analytics"),
+      isWizarpos ? sub("Split Rules", "8.splitbill.html", "split-rules") : ""
+    ].join("");
+    var agentItems = [
+      sub("Agent List", "2.agent_list_iso.html", "agent-list"),
+      sub("Analytics", "2.agent_analytics.html", "agent-analytics")
     ].join("");
     var deviceItems = [
       activeProfile !== "unattended" ? sub("Attended Terminals", "1.terminalmanage.html", "attended-terminals") : "",
@@ -221,17 +248,18 @@
       sub("Product Map Templates", "36.product_map_templates.html", "product-map-templates")
     ].join("");
     var deviceActive = config.module === "device";
+    var deviceOpen = deviceActive || readMenuState("device");
     var device = '<div class="pw-platform-menu-row' + (deviceActive ? ' active' : '') + '">' +
       '<a class="pw-platform-menu-link" href="2.resellermerchantterminal.html"' + (config.active === "device-overview" ? ' aria-current="page"' : '') + '>' +
       '<span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">devices</span><span class="pw-platform-menu-label">Device Management</span></span></a>' +
-      '<button class="pw-platform-device-toggle" type="button" data-pw-menu-toggle="device" aria-label="Toggle Device Management menu" aria-expanded="' + String(deviceActive) + '">' +
+      '<button class="pw-platform-device-toggle" type="button" data-pw-menu-toggle="device" aria-label="Toggle Device Management menu" aria-expanded="' + String(deviceOpen) + '">' +
       '<span class="material-symbols-rounded pw-platform-menu-arrow" aria-hidden="true">expand_more</span></button></div>' +
-      '<div class="pw-platform-sub-menu" data-pw-menu="device"' + (deviceActive ? '' : ' hidden') + '>' + deviceItems + '</div>';
+      '<div class="pw-platform-sub-menu" data-pw-menu="device"' + (deviceOpen ? '' : ' hidden') + '>' + deviceItems + '</div>';
 
     return [
       disabled("Dashboard", "dashboard"),
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
-      link("Agents", "2.agent_list_iso.html", "group", "agents"),
+      group("Agents", "group", "agents", agentItems),
       group("Merchants", "store", "merchants", merchantItems),
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
@@ -248,11 +276,13 @@
   var breadcrumbTargets = {
     "Transactions": "12.transaction_list.html",
     "Agents": "2.agent_list_iso.html",
+    "Agent List": "2.agent_list_iso.html",
     "Merchants": "5.merchant_manage_iso.html",
     "Contact": "7.merchant_contact.html",
     "Leads": "29.INTL_PSP_merchant_lead_list.html",
     "Onboarding": "38.Merchant_onboard.html",
     "Merchant List": "5.merchant_manage_iso.html",
+    "Analytics": config.module === "agents" ? "2.agent_analytics.html" : "8.merchant_analytics.html",
     "Device Management": "2.resellermerchantterminal.html",
     "Attended Terminals": "1.terminalmanage.html",
     "Unattended Terminals": "1.terminalmanage_nayax.html",
@@ -392,10 +422,9 @@
       var name = button.getAttribute("data-pw-menu-toggle");
       var menu = frame.querySelector('[data-pw-menu="' + name + '"]');
       var willOpen = menu.hidden;
-      frame.querySelectorAll("[data-pw-menu]").forEach(function (otherMenu) { otherMenu.hidden = true; });
-      frame.querySelectorAll("[data-pw-menu-toggle]").forEach(function (otherButton) { otherButton.setAttribute("aria-expanded", "false"); });
       menu.hidden = !willOpen;
       button.setAttribute("aria-expanded", String(willOpen));
+      writeMenuState(name, willOpen);
     });
   });
 

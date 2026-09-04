@@ -167,26 +167,27 @@
     .crumb b { color: #111; }
 
     .content {
-      padding: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
       min-height: 0;
       border-radius: 8px;
     }
 
     .toolbar {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 12px;
       flex-wrap: wrap;
-      align-items: flex-start;
+      align-items: center;
     }
     .toolbar-left {
       display: grid;
       gap: 8px;
     }
     .scope-hint {
+      display: none;
       font-size: 13px;
       color: var(--muted);
       border: 1px solid var(--border);
@@ -201,7 +202,7 @@
     }
 
     .input {
-      height: 38px;
+      height: 40px;
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 0 12px;
@@ -215,7 +216,7 @@
     }
 
     .btn {
-      height: 38px;
+      height: 40px;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: #fff;
@@ -223,6 +224,17 @@
       font-weight: 600;
       cursor: pointer;
     }
+    .btn.with-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .btn.icon-only {
+      width: 40px;
+      padding: 0;
+    }
+    .btn .material-symbols-rounded { font-size: 19px; }
     .btn.black {
       background: #111;
       color: #fff;
@@ -235,28 +247,31 @@
 
     .table-wrap {
       overflow: auto;
-      border: 1px solid var(--border);
       border-radius: 10px;
       background: #fff;
     }
     table {
       width: 100%;
-      border-collapse: collapse;
-      min-width: 980px;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1180px;
     }
     thead th {
       background: #111319;
       color: #fff;
       text-align: left;
-      padding: 15px 18px;
-      font-size: 14px;
+      padding: 11px 14px;
+      font-size: 12px;
       font-weight: 700;
+      text-transform: uppercase;
       white-space: nowrap;
     }
+    thead th:first-child { border-radius: 8px 0 0; }
+    thead th:last-child { border-radius: 0 8px 0 0; }
     tbody td {
-      padding: 14px 18px;
+      padding: 8px 14px;
       border-bottom: 1px solid var(--border);
-      font-size: 15px;
+      font-size: 14px;
       color: #374151;
       vertical-align: middle;
     }
@@ -266,7 +281,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      height: 30px;
+      height: 28px;
       padding: 0 12px;
       border-radius: 999px;
       font-size: 14px;
@@ -283,20 +298,24 @@
 
     .actions {
       display: flex;
-      gap: 8px;
+      gap: 7px;
     }
     .icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border-radius: 8px;
       border: 1px solid #d1d5db;
       background: #fff;
       color: #4b5563;
       display: grid;
       place-items: center;
       cursor: pointer;
-      font-size: 15px;
+      padding: 0;
     }
+    .icon-btn .material-symbols-rounded { font-size: 19px; }
+    .icon-btn.primary { border-color: #9bdcff; color: #0797df; }
+    .icon-btn.danger { border-color: #ffc1c1; color: #ef4444; }
     .icon-btn:disabled {
       opacity: 0.45;
       cursor: not-allowed;
@@ -405,7 +424,7 @@
       border-bottom: 1px solid #d7dde6;
       border-radius: 0;
       padding: 8px 2px 10px;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.4;
       color: var(--text);
       background: transparent;
@@ -451,6 +470,13 @@
       .sidebar { max-height: 280px; }
       .toolbar-right { width: 100%; }
       .input { flex: 1; min-width: 120px; }
+    }
+    @media (max-width: 760px) {
+      .content { padding: 16px; gap: 14px; }
+      .pw-module-page-header { align-items: center; }
+      .toolbar-right { display: grid; grid-template-columns: minmax(0, 1fr) 40px 40px; }
+      .input { width: 100%; min-width: 0; }
+      .table-wrap { width: 100%; max-width: 100%; }
     }
     @media (max-width: 720px) {
       .modal-title { font-size: 20px; }
@@ -500,16 +526,20 @@
 
       <section class="content">
         <div class="pw-module-page-header">
-          <h1 class="pw-module-page-title">Agents</h1>
+          <h1 class="pw-module-page-title">Agent List</h1>
+          <button class="btn black with-icon" id="addAgent" type="button">
+            <span class="material-symbols-rounded" aria-hidden="true">note_add</span>
+            <span>Add</span>
+          </button>
         </div>
         <div class="toolbar">
           <div class="toolbar-left">
             <div class="scope-hint" id="scopeHint"></div>
           </div>
           <div class="toolbar-right">
-            <input class="input" id="searchName" type="text" placeholder="Reseller Name">
-            <button class="btn" id="resetSearch">Reset</button>
-            <button class="btn black" id="doSearch">Search</button>
+            <input class="input" id="searchName" type="search" placeholder="Agent Name" aria-label="Agent Name">
+            <button class="btn icon-only" id="resetSearch" type="button" aria-label="Reset search" title="Reset search"><span class="material-symbols-rounded" aria-hidden="true">refresh</span></button>
+            <button class="btn black icon-only" id="doSearch" type="button" aria-label="Search agents" title="Search agents"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
           </div>
         </div>
 
@@ -517,10 +547,10 @@
           <table>
             <thead>
               <tr>
-                <th>Reseller Name</th>
-                <th>Reseller Level</th>
-                <th>Reseller Contacts</th>
-                <th>Reseller Email</th>
+                <th>Agent Name</th>
+                <th>Agent Level</th>
+                <th>Agent Contacts</th>
+                <th>Agent Email</th>
                 <th>Status</th>
                 <th>Date &amp; Time</th>
                 <th>Actions</th>
@@ -536,7 +566,7 @@
   <div class="modal-mask" id="createMask" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-head">
-        <span class="modal-title">Create Reseller</span>
+        <span class="modal-title">Create Agent</span>
         <button class="btn" id="closeCreate">Close</button>
       </div>
       <form id="createForm" class="modal-form">
@@ -544,11 +574,11 @@
           <section class="form-section scope">
             <h4 class="section-title">Creation Scope</h4>
             <div class="field">
-              <label for="parentResellerDisplay">Parent Reseller</label>
-              <input class="input-field" id="parentResellerDisplay" type="text" readonly>
+              <label for="parentAgentSelect">Parent Agent</label>
+              <select class="input-field" id="parentAgentSelect" required></select>
             </div>
             <div class="field">
-              <label for="resellerLevel">New Reseller Level</label>
+              <label for="resellerLevel">New Agent Level</label>
               <input class="input-field" id="resellerLevel" type="text" readonly>
             </div>
             <input id="parentReseller" type="hidden" required>
@@ -557,7 +587,7 @@
           <section class="form-section">
             <h4 class="section-title">Basic Information</h4>
             <div class="field">
-              <label for="resellerName">Reseller Name *</label>
+              <label for="resellerName">Agent Name *</label>
               <input class="input-field" id="resellerName" type="text" required placeholder="e.g. Future Pay Hub">
             </div>
             <div class="field">
@@ -569,11 +599,11 @@
               <input class="input-field" id="resellerContactInfo" type="text" required placeholder="e.g. +1 415 555 1000">
             </div>
             <div class="field">
-              <label for="resellerEmail">Reseller Email *</label>
+              <label for="resellerEmail">Agent Email *</label>
               <input class="input-field" id="resellerEmail" type="email" required placeholder="e.g. alex@futurepay.com">
             </div>
             <div class="field">
-              <label for="resellerAuthorization">Reseller Authorization *</label>
+              <label for="resellerAuthorization">Agent Authorization *</label>
               <select class="input-field" id="resellerAuthorization" required>
                 <option value="AGT-ADMIN">AGT-ADMIN</option>
                 <option value="AGT-MANAGER">AGT-MANAGER</option>
@@ -589,7 +619,7 @@
               <input class="input-field" id="cooperationStart" type="datetime-local" required>
             </div>
             <div class="field">
-              <label for="resellerTerm">Reseller Term (Years) *</label>
+              <label for="resellerTerm">Agent Term (Years) *</label>
               <input class="input-field" id="resellerTerm" type="number" min="1" required value="1">
             </div>
             <div class="field">
@@ -624,7 +654,7 @@
         </div>
         <div class="modal-foot">
           <button type="button" class="btn" id="cancelCreate">Cancel</button>
-          <button type="submit" class="btn black" id="submitCreate">Create Reseller</button>
+          <button type="submit" class="btn black" id="submitCreate">Create Agent</button>
         </div>
       </form>
     </div>
@@ -655,13 +685,14 @@
       var searchName = document.getElementById("searchName");
       var doSearch = document.getElementById("doSearch");
       var resetSearch = document.getElementById("resetSearch");
+      var addAgent = document.getElementById("addAgent");
 
       var createMask = document.getElementById("createMask");
       var closeCreate = document.getElementById("closeCreate");
       var cancelCreate = document.getElementById("cancelCreate");
       var createForm = document.getElementById("createForm");
       var parentReseller = document.getElementById("parentReseller");
-      var parentResellerDisplay = document.getElementById("parentResellerDisplay");
+      var parentAgentSelect = document.getElementById("parentAgentSelect");
       var resellerName = document.getElementById("resellerName");
       var resellerLevel = document.getElementById("resellerLevel");
       var resellerContact = document.getElementById("resellerContact");
@@ -703,10 +734,10 @@
 
       function getScopeText() {
         if (currentAccount.role === "service_provider") {
-          return "Current account: Service Provider. You can create child resellers under Level 1 and Level 2 resellers.";
+          return "Current account: Service Provider. You can create child agents under Level 1 and Level 2 agents.";
         }
         if (currentAccount.role === "reseller") {
-          return "Current account: Reseller. You can only create child resellers under your own account.";
+          return "Current account: Agent. You can only create child agents under your own account.";
         }
         return "Current account: Read-only.";
       }
@@ -778,13 +809,13 @@
       function renderTable() {
         var rows = getVisibleRows();
         if (!rows.length) {
-          tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:30px;'>No reseller found.</td></tr>";
+          tableBody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:30px;'>No agent found.</td></tr>";
           return;
         }
         tableBody.innerHTML = rows.map(function (agent) {
           var statusClass = agent.status === "Enable" ? "enable" : "disable";
           var canCreateChild = canCreateUnder(agent);
-          var createTitle = canCreateChild ? "Create child reseller under " + agent.name : "No permission to create child reseller under this agent";
+          var createTitle = canCreateChild ? "Create child agent under " + agent.name : "No permission to create child agent under this agent";
           return [
             "<tr>",
             "<td>" + renderAgentName(agent) + "</td>",
@@ -795,12 +826,12 @@
             "<td>" + escapeHtml(agent.createdAt) + "</td>",
             "<td>",
             "<div class='actions'>",
-            "<button class='icon-btn' data-action='create-child' data-id='" + agent.id + "' title='" + escapeHtml(createTitle) + "'" + (canCreateChild ? "" : " disabled") + ">+</button>",
-            "<button class='icon-btn' data-action='view' data-id='" + agent.id + "' title='View'>#</button>",
-            "<button class='icon-btn' data-action='edit' data-id='" + agent.id + "' title='Edit'>E</button>",
-            "<button class='icon-btn' data-action='toggle' data-id='" + agent.id + "' title='Enable/Disable'>X</button>",
-            "<button class='icon-btn dark' data-action='setting' data-id='" + agent.id + "' title='Settings'>S</button>",
-            "<button class='icon-btn' data-action='reset' data-id='" + agent.id + "' title='Reset'>R</button>",
+            "<button class='icon-btn' data-action='create-child' data-id='" + agent.id + "' aria-label='" + escapeHtml(createTitle) + "' title='" + escapeHtml(createTitle) + "'" + (canCreateChild ? "" : " disabled") + "><span class='material-symbols-rounded' aria-hidden='true'>add</span></button>",
+            "<button class='icon-btn' data-action='view' data-id='" + agent.id + "' aria-label='View " + escapeHtml(agent.name) + "' title='View'><span class='material-symbols-rounded' aria-hidden='true'>description</span></button>",
+            "<button class='icon-btn primary' data-action='edit' data-id='" + agent.id + "' aria-label='Edit " + escapeHtml(agent.name) + "' title='Edit'><span class='material-symbols-rounded' aria-hidden='true'>edit_square</span></button>",
+            "<button class='icon-btn danger' data-action='toggle' data-id='" + agent.id + "' aria-label='Enable or disable " + escapeHtml(agent.name) + "' title='Enable/Disable'><span class='material-symbols-rounded' aria-hidden='true'>block</span></button>",
+            "<button class='icon-btn dark' data-action='setting' data-id='" + agent.id + "' aria-label='Settings for " + escapeHtml(agent.name) + "' title='Settings'><span class='material-symbols-rounded' aria-hidden='true'>settings</span></button>",
+            "<button class='icon-btn primary' data-action='reset' data-id='" + agent.id + "' aria-label='Reset " + escapeHtml(agent.name) + "' title='Reset'><span class='material-symbols-rounded' aria-hidden='true'>restart_alt</span></button>",
             "</div>",
             "</td>",
             "</tr>"
@@ -815,10 +846,18 @@
         if (cooperationStart) cooperationStart.value = nowLocalDatetimeValue();
         createContext.parentId = parentId || "";
         createContext.lockParent = !!lockParent;
-        if (!applyCreationScope(createContext.parentId)) {
-          alert("Cannot determine parent reseller for this creation.");
+        var eligibleParents = agents.filter(canCreateUnder);
+        if (!eligibleParents.length) {
+          alert("No eligible parent agent is available for this creation.");
           return;
         }
+        var selectedParentId = createContext.parentId || eligibleParents[0].id;
+        parentAgentSelect.innerHTML = eligibleParents.map(function (agent) {
+          return "<option value='" + escapeHtml(agent.id) + "'>" + escapeHtml(agent.name) + " (L" + agent.level + ")</option>";
+        }).join("");
+        parentAgentSelect.value = selectedParentId;
+        parentAgentSelect.disabled = createContext.lockParent;
+        if (!applyCreationScope(selectedParentId)) return;
         createMask.classList.add("show");
         createMask.setAttribute("aria-hidden", "false");
         resellerName.focus();
@@ -833,15 +872,12 @@
         var parent = getAgentById(parentId);
         if (!parent || !canCreateUnder(parent)) {
           parentReseller.value = "";
-          if (parentResellerDisplay) parentResellerDisplay.value = "";
           if (resellerLevel) resellerLevel.value = "--";
           submitCreate.disabled = true;
           return false;
         }
         parentReseller.value = parent.id;
-        if (parentResellerDisplay) {
-          parentResellerDisplay.value = parent.name + " (L" + parent.level + ")";
-        }
+        createContext.parentId = parent.id;
         if (resellerLevel) {
           resellerLevel.value = "L" + (parent.level + 1);
         }
@@ -861,6 +897,14 @@
       doSearch.addEventListener("click", function () {
         searchText = searchName.value.trim().toLowerCase();
         renderTable();
+      });
+
+      addAgent.addEventListener("click", function () {
+        openCreateModal("", false);
+      });
+
+      parentAgentSelect.addEventListener("change", function () {
+        applyCreationScope(parentAgentSelect.value);
       });
 
       resetSearch.addEventListener("click", function () {
@@ -892,7 +936,7 @@
 
         if (action === "create-child") {
           if (!canCreateUnder(target)) {
-            alert("Current account does not have permission to create child reseller under " + target.name + ".");
+            alert("Current account does not have permission to create a child agent under " + target.name + ".");
             return;
           }
           openCreateModal(target.id, true);
@@ -903,8 +947,8 @@
           renderTable();
           return;
         }
-        if (action === "view") { alert("View reseller: " + target.name + " (mock)."); return; }
-        if (action === "edit") { alert("Edit reseller: " + target.name + " (mock)."); return; }
+        if (action === "view") { alert("View agent: " + target.name + " (mock)."); return; }
+        if (action === "edit") { alert("Edit agent: " + target.name + " (mock)."); return; }
         if (action === "setting") { alert("Open settings: " + target.name + " (mock)."); return; }
         if (action === "reset") { alert("Reset password/email for: " + target.name + " (mock)."); return; }
       });
@@ -957,7 +1001,7 @@
         agents.splice(insertAt, 0, newAgent);
         renderTable();
         closeCreateModal();
-        alert("Reseller created under " + parent.name + " (L" + newLevel + ") (mock).");
+        alert("Agent created under " + parent.name + " (L" + newLevel + ") (mock).");
       });
 
       renderScopeHints();

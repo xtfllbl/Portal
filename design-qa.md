@@ -1,3 +1,136 @@
+# Analytics compactness and Agent List redesign — visual QA
+
+## Comparison target
+
+- Source visual truth: the four user-provided follow-up screenshots for compact Agent Analytics, compact Merchant Analytics, rounded Merchant Performance headers, and the Agent List redesign; the earlier full-page screenshots remain the navigation and content reference.
+- Browser-rendered implementations:
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/agent-analytics-compact-desktop.png`
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/merchant-analytics-compact-desktop.png`
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/agent-list-compact-desktop.png`
+  - Corresponding `*-compact-mobile.png` captures in the same directory.
+- Desktop viewport/output: `2048 × 1140` CSS/image pixels. Mobile viewport/output width: `390` CSS/image pixels; full-page height follows content. Device scale factor 1, so no density normalization was required.
+- State: WizarPOS Provider, 7D selected, Agents and Merchants groups expanded, Agent List default hierarchy visible.
+
+## Full-view and focused comparison evidence
+
+- The source screenshots and implementation captures were inspected together in the same multimodal comparison context. The new captures preserve the reference portal shell, page hierarchy, card ordering, restrained grayscale palette, semantic status colors, and navigation states.
+- Agent Analytics now uses compact content-driven cards and independent lower-panel heights. The short Top Performing Agents table ends with its content instead of stretching to match the five-row merchant table.
+- Merchant Analytics now keeps the summary and Quick Insights content close to their borders, while Merchant Performance retains all ten visible rows and compact pagination.
+- Focused table inspection confirms 8px top-left/top-right rounding on both black headers and consistent 36px Agent List action buttons using Material Symbols Rounded.
+- Mobile captures confirm single-column cards and horizontal scrolling confined to the table containers; the document itself remains 390px wide.
+
+## Findings
+
+- No actionable P0, P1, or P2 mismatch remains.
+- Fonts and typography: Poppins and the existing portal hierarchy are retained; Agent List table terminology is consistently Agent-facing and black headers use uppercase labels.
+- Spacing and layout rhythm: Analytics desktop padding is 20px, metric gaps 14px, cards approximately 120px high, lower sections content-driven, and mobile padding 14–16px.
+- Colors and visual tokens: existing neutral surfaces, black headers/actions, blue edit/reset, red disable, green success, and orange negative trends remain consistent with the references.
+- Image quality and assets: the existing PAYwizard logo is preserved and all new UI icons use the existing Material Symbols Rounded library; no placeholder, custom SVG, or CSS-drawn asset was introduced.
+- Copy and content: page subtitles remain omitted per repository UI rules. Existing eight-row Agent hierarchy and Settings action are intentionally preserved per the confirmed product decision.
+- Accessibility and responsiveness: icon controls have accessible names and titles, search controls are equal-height, disabled child creation remains exposed, and mobile has no page-level horizontal overflow.
+
+## Primary interactions tested
+
+- Agent Analytics filtering, periods, View All/Show Less, and Merchant Analytics periods/pagination.
+- Agent List search/reset and all six accessible row actions.
+- Top Add opens an enabled eligible-parent selector; row Add opens the same form with the parent locked; invalid parent scope cannot submit.
+- Agents/Merchants navigation persistence and the three-profile Split Rules visibility/route guard.
+- Browser console/page errors across both Analytics pages and Agent List: none.
+
+## Comparison history
+
+- Pass 1 found a P2 density issue: metric cards retained 134px height after the initial reduction. Fix: vertical padding and internal spacing were tightened; the final browser assertion is at or below 125px.
+- Pass 1 found a P2 lower-panel issue: CSS Grid stretched the short Agent table to the height of the adjacent merchant table. Fix: `align-items: start` makes each section content-driven; the short panel now measures below 300px.
+- Pass 2 found no remaining actionable P0/P1/P2 differences in desktop or mobile captures.
+
+## Implementation checklist
+
+- [x] Compact Analytics cards, sections, insights, tables, and pagination.
+- [x] Restore rounded black table headers.
+- [x] Redesign Agent List while preserving all existing data and row operations.
+- [x] Add selectable-parent top Add and locked-parent row Add.
+- [x] Verify desktop/mobile responsiveness, navigation access, interactions, and console.
+
+## Follow-up polish
+
+- P3: production API persistence remains intentionally outside this fixed-data prototype.
+
+final result: passed
+
+---
+
+# Analytics navigation and pages — visual QA
+
+## Comparison target
+
+- Source visual truth: user-provided task screenshots 1–5; screenshot 3 is the Agent Analytics desktop target (`2048 × 1140` after conversation normalization) and screenshot 5 is the Merchant Analytics desktop target (`1856 × 1339` after normalization).
+- Browser-rendered implementations:
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/agent-analytics-desktop.png`
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/merchant-analytics-desktop.png`
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/agent-analytics-mobile.png`
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/merchant-analytics-mobile.png`
+  - `/Users/beaver/Paywizard/模版资料/应用推送参数原型/artifacts/analytics-mobile-navigation.png`
+- Desktop comparison viewports and output pixels: Agent `2048 × 1140`; Merchant `1856 × 1339`; device scale factor 1 and no density conversion.
+- Mobile validation viewport and output pixels: `390 × 844`; device scale factor 1.
+- State: WizarPOS Provider, 7D selected, Agents and Merchants groups expanded. Attended and Unattended visibility were verified separately.
+
+## Full-view comparison evidence
+
+The source screenshots and browser captures were inspected together in the same comparison context. Both implementations preserve the reference's shared portal frame, selected navigation treatment, white content surface, metric-card geometry, restrained grayscale palette, segmented period control, table density, status chips, and content hierarchy. The descriptive lines under each page title are intentionally absent because the repository's UI rule requires all subtitle-style copy to be removed.
+
+Agent Analytics preserves the four-plus-two metric-card layout and paired lower tables. Merchant Analytics preserves the three-card summary, full-width Quick Insights strip, black performance-table header, ten visible rows, and pagination. The shared production shell's existing sidebar width and profile label are retained instead of copying the screenshot's older shell variant.
+
+## Focused comparison evidence
+
+- Sidebar: `artifacts/agent-analytics-desktop.png` and `artifacts/merchant-analytics-desktop.png` confirm that Agents is now a true group with Agent List and Analytics, both Agents and Merchants can remain open, and the active child uses the existing pill treatment.
+- Metric controls: desktop and mobile captures confirm that the Agent selector and range control are 42 px high; mobile periods remain 32 px within the 42 px group.
+- Merchant table: `artifacts/merchant-analytics-desktop.png` confirms the black header, green statuses, black performance bars, aligned detail icons, ten-row density, and pagination.
+- Responsive flow: the two mobile captures confirm single-column metric cards and contained horizontal table scrolling; the final Agent page width equals its `390 px` viewport.
+
+## Findings
+
+- No actionable P0, P1, or P2 mismatch remains.
+- Fonts and typography: Poppins is used throughout with the reference's title, metric, label, and compact table hierarchy; no clipped or unintended wrapped labels remain.
+- Spacing and layout rhythm: 24 px desktop and 16 px mobile page padding, 8–9 px radii, light borders, card gaps, and section spacing match the reference language and current portal shell.
+- Colors and visual tokens: the shared neutral shell, dark selected navigation, black table header, blue insight rule, green success, red disabled, and orange negative trends are represented without decorative drift.
+- Image quality and asset fidelity: the existing PAYwizard raster logo is reused; interface icons come from the existing Material Symbols Rounded library. No placeholders, custom SVG art, CSS drawings, or gradients were introduced.
+- Copy and content: reference labels and sample values are retained, except for the intentionally removed page subtitles. Agent List is now named consistently in the title, breadcrumb, and navigation.
+- Accessibility and responsiveness: filters have accessible labels, period buttons expose pressed state, pagination has navigation labels, detail buttons have merchant-specific labels, focus rings are visible, and mobile has no page-level horizontal overflow.
+
+## Primary interactions tested
+
+- Agents and Merchants expand independently and persist their state across refreshes.
+- Agent selector filters both tables and recalculates summary values.
+- 7D/30D/90D updates summary values, badges, and Merchant trend copy.
+- View All / Show Less expands and contracts Agent tables.
+- Merchant pagination, page size, and detail action operate with mock data.
+- Both Analytics pages are available under all three Portal Access Profiles.
+- Split Rules is hidden and direct-route guarded for Attended and Unattended Providers.
+- Mobile navigation drawer opens with both relevant groups visible.
+- Browser console errors on both Analytics pages: none.
+
+## Comparison history
+
+- Pass 1 found a P2 Merchant-table mismatch: the performance fill was inline and therefore rendered as a pale empty track. Fix: `.performance-fill` now uses `display: block`; post-fix evidence is `artifacts/merchant-analytics-desktop.png`, where every reference bar is visibly black.
+- Pass 1 found a P2 mobile containment issue on Agent Analytics: lower grid items forced the body to `456 px` at a `390 px` viewport. Fix: the section and lower grid now opt into shrinking with `min-width: 0`; post-fix browser measurement is `390 px` body width at a `390 px` viewport and table overflow remains inside `.table-scroll`.
+- Pass 2 found no remaining actionable P0/P1/P2 differences.
+
+## Implementation checklist
+
+- [x] Add both Analytics destinations and screenshot-aligned content.
+- [x] Convert Agents into a persistent independent group.
+- [x] Add Merchant Analytics for all three profiles.
+- [x] Restrict Split Rules to WizarPOS Provider in navigation and route guards.
+- [x] Verify desktop, mobile, interactions, accessibility states, and browser console.
+
+## Follow-up polish
+
+- P3: real service data and production destination routes for View All / merchant details remain intentionally outside this fixed-data prototype scope.
+
+final result: passed
+
+---
+
 # Design QA: Entity Hierarchy icons and terminal counts
 
 **Source visual truth**

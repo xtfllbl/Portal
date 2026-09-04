@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Analytics | PAYwizard Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/analytics.css">
+</head>
+<body>
+  <main class="analytics-page" data-analytics-page="agent">
+    <header class="analytics-header">
+      <h1 class="analytics-title">Agent Analytics</h1>
+      <div class="analytics-controls" aria-label="Agent analytics filters">
+        <select class="analytics-select" data-agent-filter aria-label="Filter by agent">
+          <option value="all" data-factor="1">All Agents</option>
+          <option value="Luoq" data-factor="0.24">Luoq</option>
+          <option value="JMSC POS" data-factor="0.38">JMSC POS</option>
+          <option value="WizarPOS Direct" data-factor="0.62">WizarPOS Direct</option>
+          <option value="Northstar Payments" data-factor="0.31">Northstar Payments</option>
+        </select>
+        <div class="analytics-periods" aria-label="Date range">
+          <button class="analytics-period active" type="button" data-period="7D" aria-pressed="true">7D</button>
+          <button class="analytics-period" type="button" data-period="30D" aria-pressed="false">30D</button>
+          <button class="analytics-period" type="button" data-period="90D" aria-pressed="false">90D</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="metric-grid agent-metrics" aria-label="Agent performance summary">
+      <article class="metric-card">
+        <div class="metric-card-head"><span class="metric-label">Revenue Summary</span><span class="period-badge" data-period-badge>7D</span></div>
+        <div class="metric-value" data-metric>$0.00</div>
+        <div class="metric-trend">— 0% from the selected period</div>
+      </article>
+      <article class="metric-card">
+        <div class="metric-card-head"><span class="metric-label">Active Merchants</span><span class="period-badge" data-period-badge>7D</span></div>
+        <div class="metric-value" data-metric>0</div>
+        <div class="metric-trend">— 0% from the selected period</div>
+      </article>
+      <article class="metric-card">
+        <div class="metric-card-head"><span class="metric-label">Total Transactions</span><span class="period-badge" data-period-badge>7D</span></div>
+        <div class="metric-value" data-metric>0</div>
+        <div class="metric-trend">— 0% from the selected period</div>
+      </article>
+      <article class="metric-card">
+        <div class="metric-card-head"><span class="metric-label">Average Order Amount</span><span class="period-badge" data-period-badge>7D</span></div>
+        <div class="metric-value" data-metric>$0.00</div>
+        <div class="metric-trend">— 0% from the selected period</div>
+      </article>
+      <article class="metric-card">
+        <div class="metric-card-head"><span class="metric-label">Avg Merchants per Agent</span><span class="period-badge" data-period-badge>7D</span></div>
+        <div class="metric-value" data-metric>4</div>
+        <div class="metric-trend positive">▲ New in the selected period</div>
+      </article>
+      <article class="metric-card">
+        <div class="metric-card-head"><span class="metric-label">Average Agent Orders</span><span class="period-badge" data-period-badge>7D</span></div>
+        <div class="metric-value" data-metric>0</div>
+        <div class="metric-trend">— 0% from the selected period</div>
+      </article>
+    </section>
+
+    <div class="agent-lower-grid">
+      <section class="analytics-section">
+        <div class="section-heading">
+          <h2 class="analytics-section-title">Top Performing Agents</h2>
+          <button class="analytics-button" type="button" data-view-all="agents" aria-expanded="false">View All</button>
+        </div>
+        <div class="table-scroll">
+          <table class="analytics-table">
+            <thead><tr><th>Agent Name</th><th class="align-right">Merchants</th><th class="align-right">Transactions</th><th class="align-right">Revenue</th></tr></thead>
+            <tbody data-agent-table></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="analytics-section">
+        <div class="section-heading">
+          <h2 class="analytics-section-title">Recent Merchant Additions</h2>
+          <button class="analytics-button" type="button" data-view-all="merchants" aria-expanded="false">View All</button>
+        </div>
+        <div class="table-scroll">
+          <table class="analytics-table">
+            <thead><tr><th>Merchant Name</th><th>Agent</th><th>Status</th><th>Date Added</th></tr></thead>
+            <tbody data-recent-merchant-table></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="scripts/analytics.js"></script>
+  <script src="scripts/platform-admin-shell.js"></script>
+</body>
+</html>

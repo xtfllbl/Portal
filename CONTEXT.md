@@ -48,6 +48,14 @@ _Avoid_: Attended Terminal, Unattended Terminal
 A sales-demonstration control that applies a Portal Access Profile without asserting that the user has been authenticated or that access is securely enforced.
 _Avoid_: Authentication, Authorization, Login
 
+**Agent Analytics**:
+A Platform Back-office Page that summarizes agent performance and the merchant activity attributed to agents.
+_Avoid_: Agent Dashboard, Agent List Analytics
+
+**Merchant Analytics**:
+A Platform Back-office Page that summarizes merchant-network performance and compares individual merchants.
+_Avoid_: Merchant Dashboard, Merchant List Analytics
+
 **Prepaid Cards Module**:
 A back-office module comprising Card List, Activation, Balance Adjustment, and Loss & Replacement. Card Details belongs to the Card List flow rather than being a separate navigation destination.
 _Avoid_: single prepaid card page

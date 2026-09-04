@@ -30,7 +30,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
   const cases = [
     {
       profile: "wizarpos",
-      merchantItems: ["Contact", "Leads", "Onboarding", "Merchant List", "Split Rules"],
+      merchantItems: ["Contact", "Leads", "Onboarding", "Merchant List", "Analytics", "Split Rules"],
       deviceItems: ["Attended Terminals", "Unattended Terminals", "Card Readers"],
       settingsItems: ["SLA Alerts", "Alerts", "Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
       partners: 1,
@@ -38,7 +38,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
     },
     {
       profile: "attended",
-      merchantItems: ["Merchant List", "Split Rules"],
+      merchantItems: ["Merchant List", "Analytics"],
       deviceItems: ["Attended Terminals"],
       settingsItems: ["Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
       partners: 0,
@@ -46,7 +46,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
     },
     {
       profile: "unattended",
-      merchantItems: ["Merchant List", "Split Rules"],
+      merchantItems: ["Merchant List", "Analytics"],
       deviceItems: ["Unattended Terminals"],
       settingsItems: ["Alerts", "Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
       partners: 0,
@@ -88,6 +88,9 @@ test("profile guards redirect restricted back-office pages to an allowed destina
   await page.goto("/39.customer_alerts.html");
   await expect(page).toHaveURL(/12\.transaction_list\.html$/);
 
+  await page.goto("/8.splitbill.html");
+  await expect(page).toHaveURL(/5\.merchant_manage_iso\.html$/);
+
   await setProfile(page, "unattended", "/1.terminalmanage_CardReader.html");
   await expect(page).toHaveURL(/1\.terminalmanage_nayax\.html$/);
 
@@ -96,6 +99,22 @@ test("profile guards redirect restricted back-office pages to an allowed destina
 
   await page.goto("/39.customer_alerts.html");
   await expect(page).toHaveURL(/39\.customer_alerts\.html$/);
+
+  await page.goto("/8.splitbill.html");
+  await expect(page).toHaveURL(/5\.merchant_manage_iso\.html$/);
+});
+
+test("Agents and Merchants are independent persistent navigation groups", async ({ page }) => {
+  await setProfile(page, "wizarpos", "/2.agent_list_iso.html");
+  await expect(page.locator('[data-pw-menu="agents"]')).toBeVisible();
+  await expect(page.locator('[data-pw-menu="merchants"]')).toBeVisible();
+
+  await page.locator('[data-pw-menu-toggle="merchants"]').click();
+  await expect(page.locator('[data-pw-menu="merchants"]')).toBeHidden();
+  await expect(page.locator('[data-pw-menu="agents"]')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('[data-pw-menu="merchants"]')).toBeHidden();
+  await expect(page.locator('[data-pw-menu="agents"]')).toBeVisible();
 });
 
 test("Transactions exposes only the system view and terminal scenarios allowed by the profile", async ({ page }) => {

@@ -100,7 +100,7 @@ for (const viewport of [
           topbarHeight: topbar.getBoundingClientRect().height,
           currentBreadcrumb: document.querySelector('.pw-breadcrumb strong')?.textContent.trim(),
           activeNavigation: document.querySelector('.pw-sub-item[aria-current="page"]')?.textContent.trim(),
-          navigationTargets: [...document.querySelectorAll('.pw-sub-item')].slice(1, 4).map((link) => link.getAttribute('href')),
+          navigationTargets: [...document.querySelectorAll('[data-pw-menu="merchants"] .pw-sub-item')].map((link) => link.getAttribute('href')),
           horizontalOverflow: document.documentElement.scrollWidth - window.innerWidth,
           contentOverflow: getComputedStyle(content).overflowY,
           contentScrollable: content.scrollHeight > content.clientHeight
@@ -115,9 +115,12 @@ for (const viewport of [
       expect(metrics.currentBreadcrumb).toBe(target.current);
       expect(metrics.activeNavigation).toBe('Merchant List');
       expect(metrics.navigationTargets).toEqual([
+        '7.merchant_contact.html',
         '29.INTL_PSP_merchant_lead_list.html',
         '38.Merchant_onboard.html',
-        '5.merchant_manage_iso.html'
+        '5.merchant_manage_iso.html',
+        '8.merchant_analytics.html',
+        '8.splitbill.html'
       ]);
       expect(metrics.horizontalOverflow).toBeLessThanOrEqual(1);
       expect(metrics.contentOverflow).toBe(viewport.width <= 760 ? 'visible' : 'auto');
