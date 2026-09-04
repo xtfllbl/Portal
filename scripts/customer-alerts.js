@@ -520,14 +520,12 @@
   const ruleStatusFilter = surface.querySelector("[data-alert-rule-status-filter]");
   const contextModal = document.querySelector("[data-alert-context-modal]");
   const contextForm = contextModal?.querySelector("[data-alert-context-form]");
-  const accountSearch = contextModal?.querySelector("[data-alert-account-search]");
-  const accountResults = contextModal?.querySelector("[data-alert-account-results]");
-  const ownerTypeSelect = contextModal?.querySelector("[data-alert-owner-type]");
-  const ownerProviderSelect = contextModal?.querySelector("[data-alert-owner-provider]");
-  const ownerAgentSelect = contextModal?.querySelector("[data-alert-owner-agent]");
-  const ownerMerchantSelect = contextModal?.querySelector("[data-alert-owner-merchant]");
-  const ownerStoreSelect = contextModal?.querySelector("[data-alert-owner-store]");
-  const selectedAccountLabel = contextModal?.querySelector("[data-alert-selected-account]");
+  const ownerLevelSelect = contextModal?.querySelector("[data-alert-owner-level]");
+  const ownerProviderRoot = contextModal?.querySelector('[data-alert-owner-combobox="provider"]');
+  const ownerAgentRoot = contextModal?.querySelector('[data-alert-owner-combobox="agent"]');
+  const ownerMerchantRoot = contextModal?.querySelector('[data-alert-owner-combobox="merchant"]');
+  const ownerStoreRoot = contextModal?.querySelector('[data-alert-owner-combobox="store"]');
+  const ownerAgentLabel = contextModal?.querySelector("[data-alert-owner-agent-label]");
   const contextError = contextModal?.querySelector("[data-alert-context-error]");
   const contextContinue = contextModal?.querySelector("[data-alert-context-continue]");
   const ownerContextPanel = modal.querySelector("[data-alert-owner-context]");
@@ -535,6 +533,7 @@
   const ownerChangeButton = modal.querySelector("[data-alert-owner-change]");
   const similarRuleWarning = modal.querySelector("[data-alert-similar-rule]");
   const viewSimilarRuleButton = modal.querySelector("[data-alert-view-similar]");
+  let contextEditingRuleId = null;
   let activeIncidentId = null;
   let closingIncidentId = null;
   let closeDialogTrigger = null;
@@ -848,70 +847,307 @@
 
   function setSelectedRuleOwner(account) {
     selectedRuleOwner = account || null;
-    if (selectedAccountLabel) {
-      selectedAccountLabel.textContent = account ? `${account.type} · ${account.path}` : "Select a customer account.";
-      selectedAccountLabel.classList.toggle("has-selection", Boolean(account));
-    }
     if (contextContinue) contextContinue.disabled = !account;
     if (contextError) contextError.textContent = "";
-    accountResults?.querySelectorAll("[data-alert-account-result]").forEach((button) => {
-      button.classList.toggle("selected", button.dataset.alertAccountResult === `${account?.type}|${account?.id}`);
-    });
   }
 
-  function renderAccountResults() {
-    if (!accountResults) return;
-    const queryValue = accountSearch?.value.trim().toLowerCase() || "";
-    const matches = customerAccounts.filter((account) => !queryValue || `${account.type} ${account.name} ${account.path}`.toLowerCase().includes(queryValue)).slice(0, 8);
-    accountResults.innerHTML = matches.map((account) => `<button class="alert-account-result${selectedRuleOwner?.type === account.type && selectedRuleOwner?.id === account.id ? " selected" : ""}" type="button" data-alert-account-result="${escapeHtml(`${account.type}|${account.id}`)}"><strong>${escapeHtml(account.type)} · ${escapeHtml(account.name)}</strong><span>${escapeHtml(account.path)}</span></button>`).join("");
+  function contextField(name) {
+    return contextModal?.querySelector(`[data-alert-context-field="${name}"]`);
   }
 
-  function syncContextBrowser(changed = "type") {
-    if (!contextModal) return;
-    const type = ownerTypeSelect.value;
-    const provider = providerFor(ownerProviderSelect.value);
-    const agentField = contextModal.querySelector('[data-alert-context-field="agent"]');
-    const merchantField = contextModal.querySelector('[data-alert-context-field="merchant"]');
-    const storeField = contextModal.querySelector('[data-alert-context-field="store"]');
-    agentField.hidden = type === "Service Provider";
-    merchantField.hidden = type === "Service Provider" || type === "Agent";
-    storeField.hidden = type !== "Store";
+  function setContextFieldVisible(name, visible) {
+    const field = contextField(name);
+    if (field) field.hidden = !visible;
+  }
 
-    if (changed === "provider" || changed === "type") {
-      const agentOptions = type === "Agent" ? (provider?.agents || []) : [{ id: "__direct", name: "Direct merchants only" }, ...(provider?.agents || [])];
-      setSelectOptions(ownerAgentSelect, type === "Agent" ? "Select agent" : "All agents and direct merchants", agentOptions);
+  function createOwnerCombobox(root, onSelectionChange) {
+    if (!root) return null;
+    const input = root.querySelector('[role="combobox"]');
+    const toggle = root.querySelector("[data-alert-combobox-toggle]");
+    const list = root.querySelector('[role="listbox"]');
+    const state = { items: [], filtered: [], selected: null, activeIndex: -1, open: false };
+    const resultLimit = 50;
+
+    function itemSearchText(item) {
+      return `${item.name || ""} ${item.id || ""} ${item.searchText || ""}`.toLowerCase();
     }
-    const agentFilter = ownerAgentSelect.value;
-    const merchants = provider ? merchantsFor(provider.id, agentFilter) : [];
-    if (["Merchant", "Store"].includes(type)) setSelectOptions(ownerMerchantSelect, provider ? "Select merchant" : "Select service provider first", merchants, changed === "merchant" ? ownerMerchantSelect.value : "");
-    const merchant = merchantFor(provider?.id, agentFilter, ownerMerchantSelect.value);
-    if (type === "Store") setSelectOptions(ownerStoreSelect, merchant ? "Select store" : "Select merchant first", merchant?.stores || [], changed === "store" ? ownerStoreSelect.value : "");
 
-    let account = null;
-    if (type === "Service Provider" && provider) account = accountFor(type, provider.id);
-    if (type === "Agent" && ownerAgentSelect.value) account = accountFor(type, ownerAgentSelect.value);
-    if (type === "Merchant" && ownerMerchantSelect.value) account = accountFor(type, ownerMerchantSelect.value);
-    if (type === "Store" && ownerStoreSelect.value) account = accountFor(type, ownerStoreSelect.value);
+    function render() {
+      const selectedText = state.selected?.name || "";
+      const queryValue = input.value === selectedText ? "" : input.value.trim().toLowerCase();
+      const allMatches = state.items.filter((item) => !queryValue || itemSearchText(item).includes(queryValue));
+      state.filtered = allMatches.slice(0, resultLimit);
+      if (state.activeIndex >= state.filtered.length) state.activeIndex = state.filtered.length - 1;
+      if (!state.filtered.length) {
+        list.innerHTML = '<div class="alert-combobox-empty">No matching results</div>';
+        input.removeAttribute("aria-activedescendant");
+        return;
+      }
+      const listId = list.id || "alertOwnerOptions";
+      list.innerHTML = state.filtered.map((item, index) => {
+        const optionId = `${listId}-option-${index}`;
+        const selected = state.selected?.id === item.id;
+        const active = index === state.activeIndex;
+        return `<button class="alert-combobox-option${active ? " active" : ""}" id="${escapeHtml(optionId)}" type="button" role="option" aria-selected="${selected}" data-alert-combobox-value="${escapeHtml(item.id)}"><span>${escapeHtml(item.name)}</span><small>${escapeHtml(item.meta || item.id)}</small></button>`;
+      }).join("") + (allMatches.length > resultLimit ? `<div class="alert-combobox-limit">Showing the first ${resultLimit} results. Keep typing to narrow.</div>` : "");
+      if (state.activeIndex >= 0) input.setAttribute("aria-activedescendant", `${listId}-option-${state.activeIndex}`);
+      else input.removeAttribute("aria-activedescendant");
+      if (state.open) window.requestAnimationFrame(positionList);
+    }
+
+    function positionList() {
+      if (!state.open || list.hidden) return;
+      const inputRect = input.getBoundingClientRect();
+      const viewportGap = 8;
+      const menuGap = 4;
+      const desiredHeight = Math.min(216, Math.max(46, list.scrollHeight));
+      const availableBelow = Math.max(0, window.innerHeight - inputRect.bottom - menuGap - viewportGap);
+      const availableAbove = Math.max(0, inputRect.top - menuGap - viewportGap);
+      const openUp = availableBelow < Math.min(desiredHeight, 120) && availableAbove > availableBelow;
+      const availableHeight = openUp ? availableAbove : availableBelow;
+      const menuHeight = Math.max(72, Math.min(desiredHeight, availableHeight));
+      list.style.left = `${Math.max(viewportGap, inputRect.left)}px`;
+      list.style.width = `${Math.min(inputRect.width, window.innerWidth - (viewportGap * 2))}px`;
+      list.style.maxHeight = `${menuHeight}px`;
+      list.style.top = `${openUp ? Math.max(viewportGap, inputRect.top - menuGap - menuHeight) : inputRect.bottom + menuGap}px`;
+      root.classList.toggle("open-up", openUp);
+    }
+
+    function open() {
+      if (input.disabled) return;
+      state.open = true;
+      state.activeIndex = -1;
+      render();
+      list.hidden = false;
+      list.style.visibility = "hidden";
+      positionList();
+      list.style.visibility = "";
+      input.setAttribute("aria-expanded", "true");
+      root.classList.add("open");
+    }
+
+    function close() {
+      state.open = false;
+      list.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      input.removeAttribute("aria-activedescendant");
+      root.classList.remove("open");
+      root.classList.remove("open-up");
+    }
+
+    function commit(item, emit = true) {
+      state.selected = item || null;
+      input.value = item?.name || "";
+      close();
+      if (emit) onSelectionChange(item || null);
+    }
+
+    function setItems(items, selectedId = "") {
+      state.items = (items || []).map((item) => ({ ...item }));
+      const selected = state.items.find((item) => item.id === selectedId) || null;
+      commit(selected, false);
+    }
+
+    function selectById(id, emit = true) {
+      const item = state.items.find((candidate) => candidate.id === id) || null;
+      commit(item, emit);
+      return item;
+    }
+
+    input.addEventListener("focus", open);
+    input.addEventListener("click", open);
+    input.addEventListener("input", () => {
+      if (state.selected && input.value !== state.selected.name) {
+        state.selected = null;
+        onSelectionChange(null);
+      }
+      if (!state.open) open();
+      else render();
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (!state.open) open();
+        if (!state.filtered.length) return;
+        const direction = event.key === "ArrowDown" ? 1 : -1;
+        state.activeIndex = (state.activeIndex + direction + state.filtered.length) % state.filtered.length;
+        render();
+        list.querySelector(".alert-combobox-option.active")?.scrollIntoView({ block: "nearest" });
+      }
+      if (event.key === "Enter" && state.open && state.activeIndex >= 0) {
+        event.preventDefault();
+        commit(state.filtered[state.activeIndex]);
+      }
+      if (event.key === "Escape" && state.open) {
+        event.preventDefault();
+        close();
+      }
+    });
+    input.addEventListener("blur", () => {
+      window.setTimeout(() => {
+        if (!root.contains(document.activeElement)) {
+          if (!state.selected) input.value = "";
+          close();
+        }
+      }, 0);
+    });
+    toggle.addEventListener("click", () => {
+      const wasOpen = state.open;
+      input.focus();
+      if (wasOpen) close();
+      else open();
+    });
+    list.addEventListener("mousedown", (event) => {
+      const option = event.target.closest("[data-alert-combobox-value]");
+      if (!option) return;
+      event.preventDefault();
+      selectById(option.dataset.alertComboboxValue);
+    });
+    window.addEventListener("resize", positionList);
+    contextModal?.addEventListener("scroll", positionList, true);
+
+    return {
+      input,
+      clear: (emit = false) => commit(null, emit),
+      close,
+      setItems,
+      selectById,
+      value: () => state.selected?.id || "",
+      selected: () => state.selected,
+      optionCount: () => state.items.length
+    };
+  }
+
+  let ownerProviderCombo;
+  let ownerAgentCombo;
+  let ownerMerchantCombo;
+  let ownerStoreCombo;
+
+  function resetOwnerBelow(level) {
+    if (level === "provider") {
+      ownerAgentCombo?.setItems([]);
+      ownerMerchantCombo?.setItems([]);
+      ownerStoreCombo?.setItems([]);
+      setContextFieldVisible("agent", false);
+      setContextFieldVisible("merchant", false);
+      setContextFieldVisible("store", false);
+    }
+    if (level === "agent") {
+      ownerMerchantCombo?.setItems([]);
+      ownerStoreCombo?.setItems([]);
+      setContextFieldVisible("merchant", false);
+      setContextFieldVisible("store", false);
+    }
+    if (level === "merchant") {
+      ownerStoreCombo?.setItems([]);
+      setContextFieldVisible("store", false);
+    }
+  }
+
+  function handleOwnerLevelChange() {
+    const ownerLevel = ownerLevelSelect?.value || "";
+    ownerProviderCombo?.setItems(ownerLevel ? monitoringHierarchy : []);
+    resetOwnerBelow("provider");
+    setContextFieldVisible("provider", Boolean(ownerLevel));
+    setSelectedRuleOwner(null);
+    if (ownerLevel) window.setTimeout(() => ownerProviderCombo?.input.focus(), 0);
+  }
+
+  function handleOwnerProviderChange() {
+    resetOwnerBelow("provider");
+    setSelectedRuleOwner(null);
+    const ownerLevel = ownerLevelSelect?.value || "";
+    const provider = providerFor(ownerProviderCombo?.value());
+    if (!provider) return;
+    if (ownerLevel === "Service Provider") {
+      setSelectedRuleOwner(accountFor("Service Provider", provider.id));
+      return;
+    }
+    const selectingAgentOwner = ownerLevel === "Agent";
+    const pathOptions = selectingAgentOwner
+      ? provider.agents
+      : [...(provider.merchants.length ? [{ id: "__direct", name: "Direct merchants", meta: "Merchant path without an agent", searchText: "direct" }] : []), ...provider.agents];
+    if (ownerAgentLabel) ownerAgentLabel.textContent = selectingAgentOwner ? "Agent" : "Agent / Merchant Path";
+    ownerAgentCombo?.setItems(pathOptions);
+    ownerAgentCombo.input.placeholder = selectingAgentOwner ? "Select or search agent" : "Select an agent or Direct merchants";
+    setContextFieldVisible("agent", true);
+  }
+
+  function handleOwnerAgentChange() {
+    resetOwnerBelow("agent");
+    setSelectedRuleOwner(null);
+    const ownerLevel = ownerLevelSelect?.value || "";
+    const providerId = ownerProviderCombo?.value() || "";
+    const agentId = ownerAgentCombo?.value() || "";
+    if (!providerId || !agentId) return;
+    if (ownerLevel === "Agent") {
+      setSelectedRuleOwner(accountFor("Agent", agentId));
+      return;
+    }
+    ownerMerchantCombo?.setItems(merchantsFor(providerId, agentId));
+    setContextFieldVisible("merchant", true);
+  }
+
+  function handleOwnerMerchantChange() {
+    resetOwnerBelow("merchant");
+    setSelectedRuleOwner(null);
+    const ownerLevel = ownerLevelSelect?.value || "";
+    const providerId = ownerProviderCombo?.value() || "";
+    const agentId = ownerAgentCombo?.value() || "";
+    const merchantId = ownerMerchantCombo?.value() || "";
+    const merchant = merchantFor(providerId, agentId, merchantId);
+    if (!merchant) return;
+    if (ownerLevel === "Merchant") {
+      setSelectedRuleOwner(accountFor("Merchant", merchant.id));
+      return;
+    }
+    ownerStoreCombo?.setItems(merchant.stores || []);
+    setContextFieldVisible("store", true);
+  }
+
+  function handleOwnerStoreChange() {
+    setSelectedRuleOwner(accountFor("Store", ownerStoreCombo?.value()));
+  }
+
+  ownerProviderCombo = createOwnerCombobox(ownerProviderRoot, handleOwnerProviderChange);
+  ownerAgentCombo = createOwnerCombobox(ownerAgentRoot, handleOwnerAgentChange);
+  ownerMerchantCombo = createOwnerCombobox(ownerMerchantRoot, handleOwnerMerchantChange);
+  ownerStoreCombo = createOwnerCombobox(ownerStoreRoot, handleOwnerStoreChange);
+
+  function restoreOwnerCascade(account) {
+    ownerLevelSelect.value = account?.type || "";
+    handleOwnerLevelChange();
+    if (!account) return;
+    ownerProviderCombo.selectById(account.providerId, false);
+    handleOwnerProviderChange();
+    if (account.type !== "Service Provider") {
+      const pathId = account.type === "Agent" ? account.agentId : account.agentId || "__direct";
+      ownerAgentCombo.selectById(pathId, false);
+      handleOwnerAgentChange();
+    }
+    if (["Merchant", "Store"].includes(account.type)) {
+      ownerMerchantCombo.selectById(account.merchantId, false);
+      handleOwnerMerchantChange();
+    }
+    if (account.type === "Store") {
+      ownerStoreCombo.selectById(account.storeId, false);
+      handleOwnerStoreChange();
+    }
     setSelectedRuleOwner(account);
   }
 
-  function openContextModal(notificationDraft = null) {
+  function openContextModal(notificationDraft = null, accountToRestore = null, editingRuleId = null) {
     if (!contextModal || !canManageAlerts || !currentRole.isOperations) return;
     modalTrigger = document.activeElement;
-    accountSearch.value = "";
+    contextEditingRuleId = editingRuleId;
     if (notificationDraft) contextForm.dataset.notificationDraft = JSON.stringify(notificationDraft);
     else delete contextForm.dataset.notificationDraft;
-    setSelectOptions(ownerProviderSelect, "Select service provider", monitoringHierarchy);
-    ownerTypeSelect.value = "Service Provider";
     const filteredOwner = ownerFilter?.value ? customerAccounts.find((account) => `${account.type}|${account.id}` === ownerFilter.value) : null;
-    setSelectedRuleOwner(filteredOwner);
-    syncContextBrowser("type");
-    if (filteredOwner) setSelectedRuleOwner(filteredOwner);
-    renderAccountResults();
+    restoreOwnerCascade(accountToRestore || filteredOwner || null);
     contextModal.classList.add("open");
     contextModal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    window.setTimeout(() => accountSearch.focus(), 0);
+    window.setTimeout(() => ownerLevelSelect?.focus(), 0);
   }
 
   function closeContextModal({ restoreFocus = true } = {}) {
@@ -922,11 +1158,11 @@
     if (restoreFocus) modalTrigger?.focus();
   }
 
-  function openModal(ruleId, notificationDraft = null) {
+  function openModal(ruleId, notificationDraft = null, ownerOverride = null) {
     modalTrigger = document.activeElement;
     editingId = ruleId || null;
     const rule = editingId ? state.rules.find((item) => item.id === editingId) : null;
-    if (currentRole.isOperations && rule) selectedRuleOwner = accountForRule(rule);
+    if (currentRole.isOperations && rule) selectedRuleOwner = ownerOverride || accountForRule(rule);
     if (currentRole.isOperations && !selectedRuleOwner) return;
     modal.querySelector("h2").textContent = rule ? "Edit Alert Rule" : "Create Alert Rule";
     if (ownerContextPanel) {
@@ -934,7 +1170,7 @@
       if (currentRole.isOperations) {
         ownerContextPanel.querySelector("span").textContent = rule ? "Rule Owner" : "Creating for";
         ownerContextName.textContent = `${selectedRuleOwner.type} · ${selectedRuleOwner.path}`;
-        ownerChangeButton.hidden = Boolean(rule);
+        ownerChangeButton.hidden = false;
       }
     }
     conditionSelect.value = rule?.condition || "opc_offline";
@@ -1300,38 +1536,29 @@
     });
     terminalSelect.addEventListener("change", updateRangeTarget);
   }
-  accountSearch?.addEventListener("input", renderAccountResults);
-  accountResults?.addEventListener("click", (event) => {
-    const result = event.target.closest("[data-alert-account-result]");
-    if (!result) return;
-    const [type, id] = result.dataset.alertAccountResult.split("|");
-    setSelectedRuleOwner(accountFor(type, id));
-    renderAccountResults();
-  });
-  ownerTypeSelect?.addEventListener("change", () => syncContextBrowser("type"));
-  ownerProviderSelect?.addEventListener("change", () => syncContextBrowser("provider"));
-  ownerAgentSelect?.addEventListener("change", () => syncContextBrowser("agent"));
-  ownerMerchantSelect?.addEventListener("change", () => syncContextBrowser("merchant"));
-  ownerStoreSelect?.addEventListener("change", () => syncContextBrowser("store"));
+  ownerLevelSelect?.addEventListener("change", handleOwnerLevelChange);
   contextForm?.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!selectedRuleOwner) { contextError.textContent = "Select a customer account."; return; }
     let notificationDraft = null;
     try { notificationDraft = contextForm.dataset.notificationDraft ? JSON.parse(contextForm.dataset.notificationDraft) : null; } catch (_) {}
+    const editingRuleId = contextEditingRuleId;
+    contextEditingRuleId = null;
     closeContextModal({ restoreFocus: false });
-    openModal(null, notificationDraft);
+    openModal(editingRuleId, notificationDraft, selectedRuleOwner);
   });
   contextModal?.addEventListener("click", (event) => {
     if (event.target.closest("[data-alert-context-close]") || event.target === contextModal) closeContextModal();
   });
   ownerChangeButton?.addEventListener("click", () => {
+    const editingRuleId = editingId;
     const notificationDraft = {
       channels: [...modal.querySelectorAll("[data-alert-channel]:checked")].map((input) => input.value),
       recipients: [...recipients],
       repeatHours: repeat.checked ? Number(repeatInterval.value) : null
     };
     closeModal();
-    openContextModal(notificationDraft);
+    openContextModal(notificationDraft, selectedRuleOwner, editingRuleId);
   });
   viewSimilarRuleButton?.addEventListener("click", () => {
     const ruleId = viewSimilarRuleButton.dataset.alertViewSimilar;

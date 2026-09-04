@@ -17,6 +17,12 @@ async function selectAlertRange(dialog, { provider = "sp-universal", agent = "",
   if (scope === "Terminal") await dialog.getByLabel("Terminal").selectOption(terminal);
 }
 
+async function chooseOwnerOption(dialog, label, query, optionName) {
+  const input = dialog.getByLabel(label, { exact: true });
+  await input.fill(query);
+  await dialog.locator('[role="option"]').filter({ hasText: optionName, visible: true }).click();
+}
+
 async function expectAlertTooltip(page, target, label, interaction = "hover") {
   if (interaction === "focus") await target.focus();
   else await target.hover();
@@ -782,23 +788,71 @@ test("provides read-only all-customer visibility for Operations Viewer", async (
   await expect(page.getByText("View only").first()).toBeVisible();
 });
 
-test("lets Operations Manager choose a Store owner by search and create an isolated rule", async ({ page }) => {
+test("lets Operations Manager choose any Rule Owner level with cascading selects", async ({ page }) => {
   await page.goto("/39.customer_alerts.html?role=operations-manager");
   await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
   await page.reload();
 
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
-  const contextDialog = page.getByRole("dialog", { name: "Select Customer Context" });
+  const contextDialog = page.getByRole("dialog", { name: "Select Rule Owner" });
   await expect(contextDialog).toBeVisible();
-  await contextDialog.getByLabel("Search customer accounts").fill("Midtown Store");
-  await contextDialog.getByRole("button", { name: /Store · Midtown Store/ }).click();
-  await expect(contextDialog.locator("[data-alert-selected-account]")).toContainText("Store · Universal Processing / 1 of a Kind World Travel LLC / Midtown Store");
+  await expect(contextDialog.getByRole("button", { name: "Search all accounts" })).toHaveCount(0);
+  const ownerLevel = contextDialog.getByLabel("Owner Level");
+  await expect(ownerLevel).toHaveValue("");
+  await expect(ownerLevel.locator("option")).toHaveText(["Select owner level", "Service Provider (SP)", "Agent (AGT)", "Merchant (MCH)", "Store (STR)"]);
+  await expect(contextDialog.locator("[data-alert-selected-account]")).toHaveCount(0);
+  await expect(contextDialog.getByLabel("Service Provider")).toBeHidden();
+  await expect(contextDialog.getByLabel("Merchant")).toBeHidden();
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
+
+  await contextDialog.getByLabel("Owner Level").selectOption("Service Provider");
+  const providerSearch = contextDialog.getByLabel("Service Provider");
+  await providerSearch.fill("sp-north");
+  await providerSearch.press("ArrowDown");
+  await providerSearch.press("Enter");
+  await expect(contextDialog.getByLabel("Service Provider")).toHaveValue("North America Ops");
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeEnabled();
+  await expect(contextDialog.getByLabel("Agent", { exact: true })).toBeHidden();
+
+  await contextDialog.getByLabel("Owner Level").selectOption("Agent");
+  await chooseOwnerOption(contextDialog, "Service Provider", "north", "North America Ops");
+  await chooseOwnerOption(contextDialog, "Agent", "agent-seattle", "Seattle Field Agent");
+  await expect(contextDialog.getByLabel("Agent", { exact: true })).toHaveValue("Seattle Field Agent");
+  await expect(contextDialog.getByLabel("Merchant")).toBeHidden();
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeEnabled();
+
+  await contextDialog.getByLabel("Owner Level").selectOption("Merchant");
+  await chooseOwnerOption(contextDialog, "Service Provider", "universal", "Universal Processing");
+  await chooseOwnerOption(contextDialog, "Agent / Merchant Path", "direct", "Direct merchants");
+  await chooseOwnerOption(contextDialog, "Merchant", "kind world", "1 of a Kind World Travel LLC");
+  await expect(contextDialog.getByLabel("Merchant")).toHaveValue("1 of a Kind World Travel LLC");
+  await expect(contextDialog.getByLabel("Store")).toBeHidden();
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeEnabled();
+
+  await contextDialog.getByLabel("Merchant").fill("not-a-real-merchant");
+  await expect(contextDialog.getByText("No matching results").filter({ visible: true })).toBeVisible();
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
+  await contextDialog.getByLabel("Merchant").press("Escape");
+
+  await contextDialog.getByLabel("Owner Level").selectOption("Store");
+  await chooseOwnerOption(contextDialog, "Service Provider", "universal", "Universal Processing");
+  await chooseOwnerOption(contextDialog, "Agent / Merchant Path", "direct", "Direct merchants");
+  await chooseOwnerOption(contextDialog, "Merchant", "merchant-kind", "1 of a Kind World Travel LLC");
+  await chooseOwnerOption(contextDialog, "Store", "s-midtown", "Midtown Store");
+  await expect(contextDialog.getByLabel("Store")).toHaveValue("Midtown Store");
   const contextButtonHeights = await contextDialog.locator(".alert-modal-actions button").evaluateAll((buttons) => buttons.map((button) => button.getBoundingClientRect().height));
   expect(contextButtonHeights).toEqual([36, 36]);
   await contextDialog.getByRole("button", { name: "Continue" }).click();
 
   const ruleDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
   await expect(ruleDialog.locator("[data-alert-owner-context]")).toContainText("Store · Universal Processing / 1 of a Kind World Travel LLC / Midtown Store");
+  await ruleDialog.getByRole("button", { name: "Change" }).click();
+  await expect(contextDialog.getByLabel("Owner Level")).toHaveValue("Store");
+  await expect(contextDialog.getByLabel("Service Provider")).toHaveValue("Universal Processing");
+  await expect(contextDialog.getByLabel("Agent / Merchant Path")).toHaveValue("Direct merchants");
+  await expect(contextDialog.getByLabel("Merchant")).toHaveValue("1 of a Kind World Travel LLC");
+  await expect(contextDialog.getByLabel("Store")).toHaveValue("Midtown Store");
+  await contextDialog.getByRole("button", { name: "Continue" }).click();
   await expect(ruleDialog.getByLabel("Service Provider")).toBeHidden();
   await expect(ruleDialog.getByLabel("Merchant")).toBeHidden();
   await expect(ruleDialog.getByLabel("Store", { exact: true })).toBeHidden();
@@ -813,16 +867,25 @@ test("lets Operations Manager choose a Store owner by search and create an isola
   expect(stored).toMatchObject({ ownerType: "Store", ownerId: "s-midtown", ownerName: "Midtown Store", creatorType: "Paywizard Operator", creatorDisplayName: "Paywizard Operations", status: "Active" });
 
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
-  await contextDialog.getByLabel("Account type").selectOption("Service Provider");
-  await contextDialog.getByLabel("Service Provider").selectOption("sp-north-america");
-  await expect(contextDialog.locator("[data-alert-selected-account]")).toContainText("Service Provider · North America Ops");
-  await contextDialog.getByRole("button", { name: "Continue" }).click();
-  await expect(ruleDialog.getByLabel("Agent")).toBeVisible();
-  await expect(ruleDialog.getByLabel("Agent").locator("option")).toHaveText(["All agents and direct merchants", "Direct merchants only", "Seattle Field Agent", "Waou Distribution"]);
-  await ruleDialog.getByRole("button", { name: "Cancel" }).click();
+  await contextDialog.getByLabel("Owner Level").selectOption("Agent");
+  await chooseOwnerOption(contextDialog, "Service Provider", "north america", "North America Ops");
+  await expect(contextDialog.getByLabel("Agent", { exact: true })).toBeVisible();
+  await expect(contextDialog.getByLabel("Merchant")).toBeHidden();
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
+  await contextDialog.getByLabel("Service Provider").fill("Europe Direct");
+  await contextDialog.getByLabel("Service Provider").press("ArrowDown");
+  await contextDialog.getByLabel("Service Provider").press("Enter");
+  await contextDialog.getByLabel("Agent", { exact: true }).click();
+  await expect(contextDialog.getByText("No matching results").filter({ visible: true })).toBeVisible();
+  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
+  await contextDialog.getByRole("button", { name: "Cancel" }).click();
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
+  await contextDialog.getByLabel("Owner Level").selectOption("Merchant");
+  await chooseOwnerOption(contextDialog, "Service Provider", "universal", "Universal Processing");
+  await chooseOwnerOption(contextDialog, "Agent / Merchant Path", "direct", "Direct merchants");
+  await contextDialog.getByLabel("Merchant").fill("kind");
   const mobileContextGeometry = await contextDialog.evaluate((dialog) => {
     const rect = dialog.getBoundingClientRect();
     const buttons = [...dialog.querySelectorAll(".alert-modal-actions button")].map((button) => button.getBoundingClientRect());
@@ -834,6 +897,21 @@ test("lets Operations Manager choose a Store owner by search and create an isola
   expect(mobileContextGeometry.documentWidth).toBeLessThanOrEqual(mobileContextGeometry.viewportWidth + 1);
   expect(mobileContextGeometry.buttonHeights).toEqual([36, 36]);
   expect(Math.abs(mobileContextGeometry.buttonWidths[0] - mobileContextGeometry.buttonWidths[1])).toBeLessThanOrEqual(1);
+
+  await page.setViewportSize({ width: 750, height: 363 });
+  await contextDialog.getByLabel("Owner Level").selectOption("Service Provider");
+  await contextDialog.getByLabel("Service Provider").click();
+  const compactMenuGeometry = await contextDialog.locator("#alertOwnerProviderList").evaluate((list) => {
+    const rect = list.getBoundingClientRect();
+    const options = [...list.querySelectorAll('[role="option"]')];
+    const last = options.at(-1).getBoundingClientRect();
+    const topNode = document.elementFromPoint(last.left + (last.width / 2), last.top + (last.height / 2));
+    return { bottom: rect.bottom, viewportHeight: innerHeight, optionCount: options.length, scrollHeight: list.scrollHeight, clientHeight: list.clientHeight, lastOptionOnTop: Boolean(topNode?.closest('[role="option"]')) };
+  });
+  expect(compactMenuGeometry.bottom).toBeLessThanOrEqual(compactMenuGeometry.viewportHeight - 7);
+  expect(compactMenuGeometry.optionCount).toBe(4);
+  expect(compactMenuGeometry.scrollHeight).toBeLessThanOrEqual(compactMenuGeometry.clientHeight + 1);
+  expect(compactMenuGeometry.lastOptionOnTop).toBe(true);
 });
 
 test("matches the portal and DEX layout geometry on desktop and mobile", async ({ page }) => {

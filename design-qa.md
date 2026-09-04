@@ -1,3 +1,67 @@
+# Rule Owner level + searchable cascade — visual QA
+
+## Comparison target
+
+- Source visual truth: the user-supplied annotated Select Rule Owner screenshot at `/var/folders/90/1k3tg5152wz0c3mwwscb01tw0000gn/T/codex-clipboard-338611a1-b77a-4d44-ba3e-20e6cdc41d1d.png`, with the list and Search all accounts control explicitly rejected by the user.
+- Browser-rendered desktop complete state: `design-qa/evidence/rule-owner-level-search-desktop.png` (`1440 × 900` px).
+- Browser-rendered desktop search-open state: `design-qa/evidence/rule-owner-level-search-open.png` (`1440 × 900` px).
+- Mobile implementation: `design-qa/evidence/rule-owner-level-search-mobile.png` (`390 × 844` px).
+- Short-height regression evidence: user screenshot `codex-clipboard-844aef67-c66e-485e-9dce-d552a07d6c32.png` versus fixed `design-qa/evidence/rule-owner-dropdown-compact-height-fixed.png` at a `750 × 363` CSS viewport; `design-qa/evidence/rule-owner-dropdown-standard-fixed.png` confirms the normal desktop state.
+- Simplification evidence: `design-qa/evidence/rule-owner-no-summary.png` and `design-qa/evidence/rule-owner-no-summary-mobile.png` confirm `Agent (AGT)` selection with the redundant Selected Rule Owner summary removed; Owner Level options also use `Merchant (MCH)` and `Store (STR)`.
+- State: Operations Manager, Owner Level chosen first; desktop evidence covers Merchant search and Store completion, while mobile covers the full Store path.
+
+## Full-view and focused comparison evidence
+
+- The rejected all-account list is replaced by a compact Owner Level selector followed by only the searchable hierarchy fields required to reach that level.
+- The existing Paywizard shell, centered desktop modal, neutral palette, typography, border radii, and black primary action remain unchanged.
+- The open-state evidence confirms that search results stay attached to their field and expose both account name and stable ID without expanding into a second browsing surface.
+
+## Findings
+
+- No actionable P0, P1, or P2 mismatch remains.
+- Fonts and typography: the existing Poppins stack and portal weights are preserved; labels, account names, IDs, and actions remain readable without clipped desktop text.
+- Spacing and layout rhythm: desktop keeps the established 720 px context-dialog width and 36 px footer actions. The cascade uses compact 36 px fields with consistent 12 px vertical gaps.
+- Colors and visual tokens: existing neutral surfaces and borders are retained; blue is limited to focus and selected-row states, and Continue uses the portal's black primary treatment.
+- Image quality and asset fidelity: the existing PAYwizard logo is untouched. Chevron and close icons use the page's existing Material Symbols Rounded library; no placeholder or custom-drawn asset was introduced.
+- Copy and content: Owner Level uses `Service Provider (SP)`, `Agent (AGT)`, `Merchant (MCH)`, and `Store (STR)`. Search all accounts, the Selected Rule Owner summary, and modal subtitles are absent.
+- Accessibility and responsiveness: each search uses the combobox/listbox pattern with explicit labels, keyboard navigation, `aria-expanded`, and `aria-selected`; Continue remains the authoritative completion state. Mobile is exactly `390 × 844`, has no document overflow, and Cancel/Continue are both `36 px` high and `176 px` wide.
+- Short-height behavior: the dropdown is viewport-positioned above the modal stacking context, capped to available space, independently scrollable, and uses compact rows below `520 px` viewport height. All four Service Providers remain visible at `750 × 363` without being covered by the footer.
+
+## Primary interactions tested
+
+- Owner Level begins blank and Continue remains disabled until the selected target depth is complete.
+- Service Provider, Agent, Merchant, and Store can each be the final Owner; Merchant does not reveal or require Store.
+- Merchant and Store flows require an explicit Agent or Direct merchants path.
+- Per-level search matches account names and stable IDs, supports Arrow keys / Enter / Escape, rejects unmatched free text, and exposes an empty state.
+- Changing Owner Level or any upper-level account clears invalid downstream selections.
+- Change restores the Owner Level and full selected path before returning to Create/Edit Alert Rule.
+- Desktop and mobile Cancel/Continue geometry; browser console warnings and errors: none.
+
+## Comparison history
+
+- Pass 1 found no actionable P0/P1/P2 issues in the level-first cascade, open search menu, or standard mobile layout.
+- Follow-up found a P1 short-height issue: at an effective `750 × 363` viewport, the modal footer painted over the dropdown and hid later options. Fix: the list is now a viewport-aware fixed layer with independent scrolling and compact short-height rows; the accepted regression capture shows all four providers above the viewport edge.
+- Follow-up simplification removed the redundant selected-owner summary and standardized the missing abbreviations to MCH and STR. No P0/P1/P2 issue remains in the resulting compact dialog.
+
+## Implementation checklist
+
+- [x] Add required Owner Level selection with no default.
+- [x] Reveal only the hierarchy fields needed for the selected Owner level.
+- [x] Add accessible searchable comboboxes for Service Provider, Agent path, Merchant, and Store.
+- [x] Support Direct merchants routing without treating it as an Owner type.
+- [x] Remove global account search and reject unmatched free text.
+- [x] Use SP / AGT / MCH / STR abbreviations and remove the redundant selected-owner summary.
+- [x] Preserve rule-form ownership and notification-draft behavior.
+- [x] Verify desktop/mobile geometry, primary interactions, accessibility state, and console health.
+
+## Follow-up polish
+
+- P3: production server-side search, loading, pagination, and disabled-account states require backend account APIs and remain outside this fixed-data prototype.
+
+final result: passed
+
+---
+
 # Analytics compactness and Agent List redesign — visual QA
 
 ## Comparison target
