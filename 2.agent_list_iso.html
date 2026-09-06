@@ -564,9 +564,9 @@
   </div>
 
   <div class="modal-mask" id="createMask" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="createAgentTitle">
       <div class="modal-head">
-        <span class="modal-title">Create Agent</span>
+        <span class="modal-title" id="createAgentTitle">Create Agent</span>
         <button class="btn" id="closeCreate">Close</button>
       </div>
       <form id="createForm" class="modal-form">
@@ -999,7 +999,7 @@
         agents.splice(insertAt, 0, newAgent);
         renderTable();
         closeCreateModal();
-        alert("Agent created under " + parent.name + " (L" + newLevel + ") (mock).");
+        (window.PaywizardUI ? window.PaywizardUI.toast : window.alert)("Agent created under " + parent.name + " (L" + newLevel + ").");
       });
 
       renderScopeHints();

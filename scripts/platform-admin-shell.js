@@ -557,4 +557,7 @@
     if (event.target.closest("[data-mark-read], [data-mark-all-read]")) window.setTimeout(refreshNotificationCount, 0);
   });
   document.body.classList.add("pw-platform-shell-ready");
+  var feedbackScript = document.createElement("script");
+  feedbackScript.src = new URL("platform-ui-feedback.js", document.currentScript.src).href;
+  document.body.appendChild(feedbackScript);
 })();
