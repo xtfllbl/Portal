@@ -17,6 +17,7 @@
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
+    "42.billing_payments.html": page("body > main.payments-page", "billing-payments", "billing-payments", ["Billing & Payments"], []),
     "41.billing_setup.html": page("body > main.billing-page", "settings", "billing-setup", ["Settings", "Billing Setup"], []),
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
@@ -129,6 +130,7 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "42.billing_payments.html",
     "41.billing_setup.html",
     "2.agent_list_iso.html",
     "2.agent_analytics.html",
@@ -255,6 +257,7 @@
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
       group("Agents", "group", "agents", agentItems),
       group("Merchants", "store", "merchants", merchantItems),
+      link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments"),
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
       link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps"),

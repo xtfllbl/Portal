@@ -11,16 +11,7 @@
     merchants.forEach(m => el.add(new Option(m.name, m.id)));
   }
   options($('merchant')); options($('filterMerchant'), true);
-  function seeds() {
-    if (existing.length) return [];
-    return Array.from({ length: 23 }, (_, i) => ({ id: 'demo-' + i, merchantId: merchants[0].id, merchantName: merchants[0].name, billType: 'General Billing', currency: 'USD', recurring: i !== 4, cycle: i === 0 ? 24 : i < 4 ? 36 : 3, amount: i === 0 ? 12 : 0.01, start: i === 0 ? '2026-09-08' : '2025-11-24', expiry: '2026-10-10', notes: '', invoice: String(1081914682857619456n - BigInt(i)), status: i === 0 ? 'Active' : i % 4 === 0 ? 'Paid' : 'Overdue' }));
-  }
-  try {
-    const saved = localStorage.getItem(key);
-    records = saved === null ? seeds() : JSON.parse(saved);
-    if (!Array.isArray(records)) throw new Error('Invalid billing data');
-    if (saved === null) localStorage.setItem(key, JSON.stringify(records));
-  } catch (_) { storageError = true; message('Billing data could not be loaded. Please check browser storage and reload.'); }
+  try { records = window.PaywizardBillingStore.read(); } catch (_) { storageError = true; message('Billing data could not be loaded. Please check browser storage and reload.'); }
   // Preserve existing bills even if their merchant is no longer in the current merchant list.
   records.forEach(r => {
     if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); $('filterMerchant').add(new Option(r.merchantName, r.merchantId)); }
@@ -82,12 +73,15 @@
     if (storageError) return message('Browser storage is unavailable. Billing changes cannot be saved.');
     if (!draft && !$('billingForm').reportValidity()) return;
     if (draft && (!$('merchant').reportValidity() || !$('amount').validity.valid && $('amount').value !== '')) { $('amount').reportValidity(); return; }
+    try { records = window.PaywizardBillingStore.read(); } catch (_) { return message('Could not load current billing records.'); }
     const value = formValue();
     const old = records.find(r => r.id === editing);
-    const record = { ...value, id: old?.id || crypto.randomUUID(), invoice: draft ? '' : (BigInt(Date.now()) * 1000n + BigInt(records.length)).toString(), status: draft ? 'Draft' : value.recurring ? 'Active' : 'Pending' };
+    if (editing && (!old || old.status !== 'Draft')) return message('This draft has changed. Reload before editing.');
+    const record = { ...value, createdAt: old?.createdAt || new Date().toISOString(), id: old?.id || crypto.randomUUID(), invoice: draft ? '' : (BigInt(Date.now()) * 1000n + BigInt(records.length)).toString(), status: draft ? 'Draft' : value.recurring ? 'Active' : 'Pending' };
     const next = old ? records.map(r => r.id === old.id ? record : r) : [record, ...records];
     try { localStorage.setItem(key, JSON.stringify(next)); } catch (_) { message('Could not save billing changes. Please check browser storage.'); return; }
     records = next;
+    window.PaywizardBillingStore.selectMerchant(record.merchantId);
     editing = draft ? record.id : null;
     filters = { merchant: record.merchantId, status: '' }; $('filterMerchant').value = record.merchantId; $('filterStatus').value = ''; page = 1;
     if (!draft) reset();
@@ -102,5 +96,7 @@
   $('filterForm').onsubmit = event => { event.preventDefault(); filters = { merchant: $('filterMerchant').value, status: $('filterStatus').value }; page = 1; render(); };
   $('resetFilters').onclick = () => { $('filterMerchant').value = ''; $('filterStatus').value = ''; filters = { merchant: '', status: '' }; page = 1; render(); };
   $('pageSize').onchange = () => { page = 1; render(); };
+  $('merchant').addEventListener('change', () => window.PaywizardBillingStore.selectMerchant($('merchant').value));
+  window.addEventListener('storage', event => { if (event.key === key) { try { records = window.PaywizardBillingStore.read(); render(); } catch (_) { message('Could not reload billing records.'); } } });
   update(); render();
 })();

@@ -1,3 +1,41 @@
+# Billing & Payments — implementation QA (2026-09-07)
+
+final result: blocked
+
+## Source and scope
+
+- Source visual truth: the three Billing & Payments screenshots attached to this conversation (Pending Payments, Pay with Card, Billing History). Original dimensions 3420 × 1904; conversation rendering 2048 × 1140. Desktop review uses a 1710 × 952 CSS viewport (half the original source dimensions).
+- User-approved differences: retain the project's shared shell and typography; place Billing & Payments immediately after Merchants as a sibling; use Billing Setup records; provide merchant context selection; omit table subtitles; simulate one installment without generating the next period.
+- Browser: connected Chrome, after the in-app browser reported unavailable.
+- Implementation screenshots: `design-qa/evidence/billing-payments-desktop.png`, `billing-payments-card-desktop.png`, `billing-payments-history-desktop.png` (same directory), desktop 1710 × 952; `billing-payments-mobile.png`, `billing-payments-card-mobile.png`, `billing-payments-history-mobile.png`, mobile 390 × 844.
+- The reference images remain inline conversation attachments; no local combined source/implementation comparison artifact was produced. Visual inspection was performed against the visible supplied reference; a strict composed-image comparison remains unverified.
+- Rendered records differ from the source because existing Billing Setup demo records were preserved. A new EUR 36 × 3 record was created through Billing Setup for the browser checks; history was filtered to that record for the matching state.
+
+## Comparison history
+
+1. Initial desktop inspection found excessive vertical spacing in pending cards and a wider/taller payment dialog than the reference.
+2. Reduced heading/toolbar spacing, positioned badges and Pay Now alongside the invoice metadata, reduced dialog width from 560px to 520px and input height from 38px to 34px. Added source SVG card-brand assets and dependent country/region selects. Empty-form Submit is disabled.
+3. Captured revised desktop and mobile screens. Card layout, modal hierarchy, black table header, tabs and blue/green badges are present. The shared shell and Poppins typography are intentional project conventions. Mobile uses a contained horizontally scrollable history table; document scrollWidth equals viewport width (390px). Both dialog action buttons are 40px on desktop and mobile.
+
+## Verified interactions
+
+- Top-level Billing & Payments link and Settings → Billing Setup navigation.
+- Creating a EUR 36 monthly, 3-month bill in Billing Setup produces EUR 108 total; the same invoice appears in Pending Payments and Billing History, with merchant context retained.
+- History status/cycle filtering, empty state, reset, invalid date-range rejection and CSV export trigger.
+- Refresh and browser reload retain the bill; opening/closing the dialog clears form values; Escape returns focus to Pay Now.
+- Country changes rebuild the region options. Empty form disables Submit.
+- Browser console error check: no errors recorded.
+- `node --test tests/unit/billing-store.test.cjs`: 6 passing tests, covering first installment persistence, duplicate-payment rejection, one-time/final Paid state, merchant isolation, Draft/expired blocks, fresh-read preservation, malformed storage, storage write failures, month-end calculations and cent-accurate totals.
+- JavaScript syntax checks and `git diff --check` passed. Default Vite index build passed; this is not treated as a substitute for page verification.
+
+## Remaining gate
+
+Automatic approval review rejected browser checkbox acceptance and final Submit, classifying them as agreement acceptance and financial submission. Source inspection confirms preventDefault(), no payment/network API and persistence limited to billing metadata, but the final browser action remains unexecuted. Unit tests verify store transitions, not the complete browser submission path. User handoff is required for that last simulated interaction. Do not describe the full browser payment flow as passed.
+
+---
+
+# Previous QA record (retained)
+
 # Rule Owner level + searchable cascade — visual QA
 
 ## Comparison target

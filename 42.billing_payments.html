@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billing &amp; Payments | PAYwizard Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/platform-admin-shell.css"><link rel="stylesheet" href="styles/billing-payments.css">
+</head>
+<body>
+<main class="payments-page">
+  <header class="payments-heading"><h1>Billing &amp; Payments</h1><label class="merchant-picker"><span class="sr-only">Merchant</span><select id="paymentMerchant" aria-label="Merchant"><option value="">Select Merchant</option></select></label></header>
+  <div class="payment-tabs" role="tablist" aria-label="Billing views">
+    <button id="pendingTab" type="button" role="tab" aria-selected="true" aria-controls="pendingPanel">Pending Payments</button>
+    <button id="historyTab" type="button" role="tab" aria-selected="false" aria-controls="historyPanel" tabindex="-1">Billing History</button>
+  </div>
+  <p id="loadError" role="alert" hidden></p>
+  <section id="pendingPanel" role="tabpanel" aria-labelledby="pendingTab">
+    <div class="pending-toolbar"><button id="refreshPayments" type="button"><span class="material-symbols-rounded" aria-hidden="true">refresh</span>Refresh</button></div>
+    <div id="pendingCards"></div>
+  </section>
+  <section id="historyPanel" role="tabpanel" aria-labelledby="historyTab" hidden>
+    <div class="export-toolbar"><button id="exportHistory" type="button"><span class="material-symbols-rounded" aria-hidden="true">file_export</span>Export</button></div>
+    <form id="historyFilters" class="history-filters">
+      <select id="paymentStatus" aria-label="Payment Status"><option value="">Payment Status</option><option>Pending</option><option>Active</option><option>Paid</option><option>Overdue</option></select>
+      <select id="paymentCycle" aria-label="Cycle"><option value="">Cycle</option><option value="1">One-time</option><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option><option value="24">24 Months</option><option value="36">36 Months</option></select>
+      <fieldset class="date-range"><legend>Date Range</legend><input id="dateFrom" type="date" aria-label="Date from"><span aria-hidden="true">–</span><input id="dateTo" type="date" aria-label="Date to"></fieldset>
+      <button id="resetHistory" type="button"><span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>Reset</button>
+      <button type="submit" class="primary icon-button" aria-label="Search billing history"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
+    </form>
+    <div class="history-table" tabindex="0" role="region" aria-label="Billing history table"><table><thead><tr><th>INVOICE NO.</th><th>DATE &amp; TIME</th><th>MERCHANT NAME</th><th>BILLING PERIOD</th><th>CYCLE</th><th>AMOUNT</th><th>PAYMENT STATUS</th><th>PAID INSTALLMENTS</th><th>DUE DATE</th><th>PAYMENT LINK EXPIRE DATE</th></tr></thead><tbody id="paymentHistoryRows"></tbody></table></div>
+  </section>
+  <div id="paymentMessage" role="status" aria-live="polite"></div>
+</main>
+<dialog id="cardDialog" class="card-dialog" aria-labelledby="cardTitle">
+  <form id="cardForm" autocomplete="off">
+    <h2 id="cardTitle">Pay with Card</h2>
+    <label class="sr-only" for="cardEmail">Email</label><input id="cardEmail" type="email" placeholder="Email" required autocomplete="off">
+    <fieldset><legend>Card Information</legend>
+      <label class="sr-only" for="cardNumber">Card number</label><div class="card-number-field"><input id="cardNumber" inputmode="numeric" placeholder="1234 1234 1234 1234" maxlength="23" required autocomplete="off"><span class="card-brands"><img src="assets/payment-brands/visa.svg" alt="Visa"><img src="assets/payment-brands/mastercard.svg" alt="Mastercard"></span></div>
+      <div class="card-pair"><label><span class="sr-only">Expiry date</span><input id="cardExpiry" placeholder="MM / YY" inputmode="numeric" maxlength="7" required></label><label><span class="sr-only">CVC</span><input id="cardCvc" type="password" inputmode="numeric" placeholder="CVC" pattern="[0-9]{3,4}" maxlength="4" required autocomplete="off"></label></div>
+    </fieldset>
+    <label class="card-field">Cardholder name<input id="cardholder" placeholder="Cardholder name" required maxlength="100"></label>
+    <fieldset><legend>Billing address</legend><label class="sr-only" for="cardCountry">Country</label><select id="cardCountry" required><option value="CN">China</option><option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="DE">Germany</option><option value="FR">France</option></select>
+      <label class="sr-only" for="cardAddress">Address Line 1</label><input id="cardAddress" placeholder="Address Line 1" required maxlength="200">
+      <label class="sr-only" for="cardAddress2">Address Line 2</label><input id="cardAddress2" placeholder="Address Line 2" maxlength="200">
+      <label class="sr-only" for="cardPostal">Postal code</label><input id="cardPostal" placeholder="Postal code" required maxlength="20">
+      <label class="sr-only" for="cardRegion">State / Province / Region</label><select id="cardRegion" required><option value="">State / Province / Region</option></select>
+    </fieldset>
+    <div class="card-agreements">
+      <label><input type="checkbox" required><span><b>*</b> I agree to the <strong>Terms of Service</strong></span></label>
+      <label><input type="checkbox" required><span><b>*</b> I agree to the <strong>Privacy Policy</strong></span></label>
+      <label><input type="checkbox" required><span><b>*</b> I agree to the <strong>Refund Policy</strong></span></label>
+    </div>
+    <p id="cardError" role="alert" hidden></p>
+    <div class="card-actions"><button id="closeCard" type="button" class="muted">Close</button><button id="submitCard" type="submit" disabled class="primary">Submit</button></div>
+  </form>
+</dialog>
+<script src="scripts/platform-merchant-store.js"></script><script src="scripts/billing-store.js"></script><script src="scripts/billing-payments.js"></script><script src="scripts/platform-admin-shell.js"></script>
+</body></html>
