@@ -1,5 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const url = '/41.billing_setup.html';
+const { DatabaseSync } = require('node:sqlite');
+test.beforeEach(() => {
+  const file = process.env.BILLING_DB_PATH;
+  if (!file?.includes('paywizard-billing-e2e-')) throw new Error('An isolated billing test database is required.');
+  const db = new DatabaseSync(file); db.exec('DELETE FROM bills'); db.close();
+});
 test('recurring draft survives reload and applies once with correct totals and date', async ({ page }) => {
   await page.goto(url);
   await expect(page.getByRole('link', { name: 'Billing Setup', exact: true })).toBeVisible();
@@ -17,10 +23,10 @@ test('recurring draft survives reload and applies once with correct totals and d
   const row = page.locator('#billingRows tr').first();
   await expect(row).toContainText('Active');
   await expect(row).toContainText('$288.00');
-  await expect(row).toContainText('2028-09-08');
+  await expect(row).toContainText('2026-09-08');
   await expect(page.getByRole('button', { name: 'Edit draft for Tom shop' })).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('#billingRows tr').first()).toContainText('2028-09-08');
+  await expect(page.locator('#billingRows tr').first()).toContainText('2026-09-08');
 });
 test('dropdowns, validation, one-time currency, filters and pagination', async ({ page }) => {
   await page.goto(url);
@@ -35,6 +41,7 @@ test('dropdowns, validation, one-time currency, filters and pagination', async (
   await page.getByRole('button', { name: 'Apply to Merchant Account' }).click();
   await expect(page.locator('#billingRows tr').first()).toContainText('Pending');
   await expect(page.locator('#billingRows tr').first()).toContainText('€15.00');
+  await expect(page.locator('#billingRows tr').first().locator('td').nth(7)).toHaveText('—');
   await page.locator('#filterStatus').selectOption('Draft');
   await page.getByRole('button', { name: 'Search billing records' }).click();
   await expect(page.locator('#billingRows')).toContainText('No billing records found.');
@@ -59,11 +66,44 @@ for (const width of [1440, 390]) {
     await page.locator('#recurring').check();
     await page.locator('#startDate').fill('2026-09-08');
     await page.locator('#amount').fill('12');
-    const heights = await page.locator('.billing-actions button').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().height));
+    const heights = await page.locator('#billingForm .billing-actions button').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().height));
     expect(new Set(heights).size).toBe(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expect(page.locator('#amount')).toBeVisible();
     await page.locator('#amount').blur();
     await page.screenshot({ path: `artifacts/billing-setup-${width}.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Apply to Merchant Account' }).click();
+    await expect(page.locator('#billingRows tr').first()).toContainText('$288.00');
+    await page.locator('.billing-more').first().click();
+    await page.getByRole('button', { name: 'Send Link', exact: true }).click();
+    const dialogHeights = await page.locator('#sendLinkDialog button').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().height));
+    expect(dialogHeights).toEqual([40, 40]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
   });
 }
+
+test('unavailable billing service preserves form, permits reset and reconnects', async ({ page }) => {
+  await page.route('**/api/billing/**', route => route.fulfill({ status: 404, contentType: 'text/html', body: 'Not found' }));
+  await page.goto(url);
+  await expect(page.locator('#billingConnection')).toBeVisible();
+  await expect(page.locator('#retryBilling')).toBeEnabled();
+  await expect(page.locator('#resetForm')).toBeEnabled();
+  await expect(page.locator('#saveDraft')).toBeDisabled();
+  await page.locator('#notes').fill('Keep my form');
+  await page.locator('#amount').fill('25');
+  await page.waitForTimeout(5100);
+  await expect(page.locator('#billingConnectionText')).toContainText('Reconnect to save');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('#retryBilling')).toBeVisible();
+  await page.unroute('**/api/billing/**');
+  await page.locator('#retryBilling').click();
+  await expect(page.locator('#billingConnection')).toBeHidden();
+  await expect(page.locator('#saveDraft')).toBeEnabled();
+  await expect(page.locator('#amount')).toHaveValue('25');
+  await expect(page.locator('#notes')).toHaveValue('Keep my form');
+  await page.locator('#saveDraft').click();
+  await expect(page.locator('#billingRows tr').first()).toContainText('Draft');
+  await page.locator('#resetForm').click();
+  await expect(page.locator('#amount')).toHaveValue('');
+});

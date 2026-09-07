@@ -1,3 +1,40 @@
+# Billing checkout simplification — 2026-09-07
+
+Implemented the approved presentation revision: one-time Next Billing is an em dash, the public page has one CSS-cropped PAYwizard wordmark without PORTAL or Sandbox, one-time summary/results omit installment wording, and public/portal forms share short consent text with a structured payment schedule. New authorizations use fixed-term-v2; stored historical authorizations are not rewritten. Separate overdue charges and fixed-term completion behavior are unchanged.
+
+Visual evidence: `artifacts/checkout-one-time-1440.png`, `artifacts/checkout-recurring-390.png`, and corresponding desktop/mobile variants. Public desktop and mobile screenshots were inspected, including wordmark cropping and the unboxed authorization layout. Fixture-based browser checks cover initial, overdue, authorized, paid and completed states; no real payment or email is submitted. Existing limitations on real payment submission and LAN exposure remain unchanged.
+
+---
+
+# Shared public billing links — implementation QA (2026-09-07)
+
+final result: blocked
+
+## Source and implementation
+
+The user supplied Billing Setup Actions, Stripe-like public card checkout, payment results and subscription references as inline conversation images. The implementation retains Paywizard branding and existing typography, with billing details on the left and card entry on the right. Approved behavior is a fixed-term monthly contract that ends after all installments; subscription pause/cancel/change-card management is outside this iteration. Card payments and email delivery are simulated.
+
+Evidence in `design-qa/evidence/`: `public-billing-desktop.png` (1280 × 960 CSS viewport, full-page capture), `public-billing-mobile.png` and `public-billing-mobile-form.png` (390 × 844 CSS viewport), `billing-send-desktop.png`, and `billing-send-mobile.png`. Desktop and mobile layouts were visually inspected. At mobile width no element extended beyond 390px; Send Link action buttons measured 40px each on both desktop and mobile. No strict composed source/implementation comparison was produced because source images remain inline attachments.
+
+## Verified behavior
+
+- Billing Setup creates a shared bill; Copy URL and Preview open its public checkout. A second local origin without the original merchant context reads the same bill.
+- Send Link provides an editable recipient and explicitly simulated delivery. No real email was sent.
+- Public and portal forms show recurring authorization and the same bill. First payment is immediate; subsequent dates remain service anchored. The preview fixture shows EUR 200 now and October 17, 2026 as the next scheduled installment for a September 17 service start.
+- Independent installment payment records are available from Billing Setup. API tests cover separate overdue charges, stop-on-failure, idempotency, public bill isolation, shared state, and fixed-term completion.
+- `npm run test:billing`: 15 passing tests. Focused Billing Setup Playwright suite: 5 passing tests, including desktop/mobile action heights. Tests use isolated databases and do not reset shared demo data.
+- Static requests to `.data/billing.sqlite` and `server/billing-service.mjs` return HTTP 403. JavaScript syntax checks and `git diff --check` pass. SQLite waits briefly for concurrent writers instead of immediately failing on lock contention.
+
+## Remaining gates
+
+Automatic approval review rejected binding the service to all network interfaces because this exposes billing APIs and records to the LAN. The current preview is loopback-only; access from other physical devices awaits explicit permission. Cross-origin local preview is not treated as proof of physical cross-device connectivity.
+
+Earlier automatic review rejected browser agreement acceptance/final payment Submit, so that final browser interaction remains unexecuted. Passing business/API tests are not a claim that the complete browser payment submission flow passed. Real payment processing, real mail delivery and Internet hosting are not implemented.
+
+The historical QA below describes prior implementation states; this section supersedes their billing behavior and test counts.
+
+---
+
 # Billing & Payments — implementation QA (2026-09-07)
 
 final result: blocked

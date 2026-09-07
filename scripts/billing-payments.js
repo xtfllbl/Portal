@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id), store = window.PaywizardBillingStore;
+  let serviceReady = false, requestId = null;
   let records = [], selected = new URLSearchParams(location.search).get('merchantId') || store.selectedMerchant(), paying = null, opener = null, busy = false;
   let filters = { status: '', cycle: '', from: '', to: '' };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -32,7 +33,7 @@
       <p class="invoice-meta"><span>Invoice No.</span><strong>${esc(r.invoice)}</strong></p><p class="invoice-meta"><span>Payment Link Expire Date</span><strong>${esc(date(r.expiry))}</strong></p></div>
       <div class="invoice-actions">${badge(r.recurring ? 'Recurring' : 'One-time')}${badge(store.expired(r) ? 'Expired' : 'Pending', store.expired(r) ? 'Link Expired' : 'Pending Payment')}
       <button type="button" class="primary" data-pay="${esc(r.id)}" ${store.expired(r) ? 'disabled' : ''}><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Pay Now</button></div></div>
-      <dl class="invoice-details"><div class="notes"><dt>Billing Notes</dt><dd>${esc(r.notes || '—')}</dd></div><div class="billing-amount"><dt>Billing Amount</dt><dd>${esc(money(Number(r.amount), r.currency))}</dd></div><div class="billing-cycle"><dt>Billing Cycle</dt><dd>${r.recurring ? esc(r.cycle) + ' Months' : 'One-time'}</dd></div><div class="renewal"><dt>Recurring</dt><dd>${r.recurring ? 'On (Auto-renew)' : 'Off'}</dd></div></dl></article>`).join('');
+      <dl class="invoice-details"><div class="notes"><dt>Billing Notes</dt><dd>${esc(r.notes || '—')}</dd></div><div class="billing-amount"><dt>Billing Amount</dt><dd>${esc(money(Number(r.amount), r.currency))}</dd></div><div class="billing-cycle"><dt>Billing Cycle</dt><dd>${r.recurring ? esc(r.cycle) + ' Months' : 'One-time'}</dd></div><div class="renewal"><dt>Recurring</dt><dd>${r.recurring ? 'On (Fixed-term)' : 'Off'}</dd></div></dl></article>`).join('');
     if (!pending.length) $('pendingCards').innerHTML = '<div class="payment-empty">' + (selected ? 'No pending payments.' : 'Select a merchant to view billing and payments.') + '</div>';
     renderHistory();
   }
@@ -47,7 +48,7 @@
   }
   function renderHistory() {
     const list = historyRecords();
-    $('paymentHistoryRows').innerHTML = list.map(r => '<tr>' + historyValues(r).map((v, index) => '<td>' + (index === 4 ? badge('cycle', v) : index === 6 ? badge(r.status) : esc(v)) + '</td>').join('') + '</tr>').join('') || '<tr><td colspan="10" class="payment-empty">' + (selected ? 'No billing records found.' : 'Select a merchant to view billing history.') + '</td></tr>';
+    $('paymentHistoryRows').innerHTML = list.map(r => '<tr>' + historyValues(r).map((v, index) => '<td>' + (index === 4 ? badge('cycle', v) : index === 6 ? badge(r.status) : esc(v)) + '</td>').join('') + '<td>' + esc(r.authorization?.status || 'Not authorized') + '</td><td>' + esc(date(r.nextPaymentDate)) + '</td></tr>').join('') || '<tr><td colspan="12" class="payment-empty">' + (selected ? 'No billing records found.' : 'Select a merchant to view billing history.') + '</td></tr>';
     $('exportHistory').disabled = !list.length;
   }
   function tab(name) {
@@ -58,24 +59,24 @@
     $(name + 'Tab').onkeydown = event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? 'pending' : event.key === 'End' ? 'history' : name === 'pending' ? 'history' : 'pending'; tab(next); $(next + 'Tab').focus(); } };
   }
   $('paymentMerchant').onchange = () => { selected = $('paymentMerchant').value; store.selectMerchant(selected); const url = new URL(location.href); if (selected) url.searchParams.set('merchantId', selected); else url.searchParams.delete('merchantId'); history.replaceState(null, '', url); resetFilters(); render(); };
-  $('refreshPayments').onclick = async () => { const button = $('refreshPayments'); button.disabled = true; button.setAttribute('aria-busy', 'true'); await new Promise(resolve => setTimeout(resolve, 250)); if (reload()) message('Payments refreshed.'); button.disabled = false; button.removeAttribute('aria-busy'); };
+  $('refreshPayments').onclick = async () => { const button = $('refreshPayments'); button.disabled = true; button.setAttribute('aria-busy', 'true'); await new Promise(resolve => setTimeout(resolve, 250)); try { await store.sync(); if (reload()) message('Payments refreshed.'); } catch(error) { message(error.message); } button.disabled = false; button.removeAttribute('aria-busy'); };
   function resetFilters() { $('historyFilters').reset(); filters = { status: '', cycle: '', from: '', to: '' }; $('dateTo').setCustomValidity(''); renderHistory(); }
   $('resetHistory').onclick = resetFilters;
   $('dateFrom').oninput = $('dateTo').oninput = () => $('dateTo').setCustomValidity('');
   $('historyFilters').onsubmit = event => { event.preventDefault(); const from = $('dateFrom').value, to = $('dateTo').value; if (from && to && from > to) { $('dateTo').setCustomValidity('End date must be on or after start date.'); $('dateTo').reportValidity(); return; } filters = { status: $('paymentStatus').value, cycle: $('paymentCycle').value, from, to }; renderHistory(); };
   $('exportHistory').onclick = () => {
-    const rows = [['Invoice No.', 'Date & Time', 'Merchant Name', 'Billing Period', 'Cycle', 'Amount', 'Payment Status', 'Paid Installments', 'Due Date', 'Payment Link Expire Date'], ...historyRecords().map(historyValues)];
+    const rows = [['Invoice No.', 'Date & Time', 'Merchant Name', 'Billing Period', 'Cycle', 'Amount', 'Payment Status', 'Paid Installments', 'Due Date', 'Payment Link Expire Date', 'Card Authorization', 'Next Payment'], ...historyRecords().map(r => [...historyValues(r), r.authorization?.status || 'Not authorized', date(r.nextPaymentDate)])];
     const csv = '\uFEFF' + rows.map(row => row.map(value => { let text = String(value ?? ''); if (/^[=+@\-\t\r]/.test(text)) text = "'" + text; return '"' + text.replace(/"/g, '""') + '"'; }).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })), link = document.createElement('a'); link.href = url; link.download = 'billing-history-' + selected + '.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('Billing history exported.');
   };
   $('pendingCards').onclick = event => {
-    const button = event.target.closest('[data-pay]'); if (!button) return;
+    const button = event.target.closest('[data-pay]'); if (!button || !serviceReady) return;
     const id = button.dataset.pay;
     if (!reload()) return;
     const record = ownRecords().find(r => r.id === id);
     if (!record || !store.pending(record) || store.expired(record)) return message('This installment is no longer available.');
     paying = id; opener = $('pendingCards').querySelector('[data-pay="' + CSS.escape(id) + '"]');
-    $('cardForm').reset(); updateRegions(); $('submitCard').disabled = true; $('cardError').hidden = true; $('cardForm').querySelectorAll('input').forEach(input => input.setCustomValidity('')); $('cardDialog').showModal(); $('cardEmail').focus();
+    $('cardForm').reset(); updateRegions(); $('submitCard').disabled = true; $('cardError').hidden = true; $('cardForm').querySelectorAll('input').forEach(input => input.setCustomValidity('')); requestId = crypto.randomUUID(); window.PaywizardBillingCardForm.prepare(record); $('cardDialog').showModal(); $('cardEmail').focus();
   };
   function close() { if (!busy) $('cardDialog').close(); }
   $('closeCard').onclick = close;
@@ -90,27 +91,20 @@
     FR: ['Auvergne-Rhône-Alpes', 'Bourgogne-Franche-Comté', 'Brittany', 'Centre-Val de Loire', 'Corsica', 'Grand Est', 'Hauts-de-France', 'Île-de-France', 'Normandy', 'Nouvelle-Aquitaine', 'Occitanie', 'Pays de la Loire', 'Provence-Alpes-Côte d’Azur', 'Guadeloupe', 'Martinique', 'French Guiana', 'Réunion', 'Mayotte']
   };
   function updateRegions() { $('cardRegion').replaceChildren(new Option('State / Province / Region', '')); (regions[$('cardCountry').value] || []).forEach(region => $('cardRegion').add(new Option(region, region))); }
-  $('cardCountry').onchange = updateRegions;
-  $('cardForm').addEventListener('input', event => { if (event.target.setCustomValidity) event.target.setCustomValidity(''); $('submitCard').disabled = busy || !$('cardForm').checkValidity(); });
-  $('cardCountry').addEventListener('change', () => { $('submitCard').disabled = !$('cardForm').checkValidity(); });
-  $('cardNumber').addEventListener('input', () => { $('cardNumber').value = $('cardNumber').value.replace(/\D/g, '').slice(0, 19).replace(/(.{4})/g, '$1 ').trim(); });
-  $('cardExpiry').addEventListener('input', () => { const digits = $('cardExpiry').value.replace(/\D/g, '').slice(0, 4); $('cardExpiry').value = digits.length > 2 ? digits.slice(0, 2) + ' / ' + digits.slice(2) : digits; });
+  $('cardCountry').addEventListener('change', updateRegions);
   $('cardForm').onsubmit = async event => {
-    event.preventDefault(); if (busy) return;
-    const number = $('cardNumber').value.replace(/\s/g, ''); let sum = 0;
-    [...number].reverse().forEach((digit, i) => { let n = Number(digit); if (i % 2) { n *= 2; if (n > 9) n -= 9; } sum += n; });
-    $('cardNumber').setCustomValidity(/^\d{13,19}$/.test(number) && !/^0+$/.test(number) && sum % 10 === 0 ? '' : 'Enter a valid card number.');
-    const expiry = $('cardExpiry').value.replace(/\D/g, ''), month = Number(expiry.slice(0, 2)), year = 2000 + Number(expiry.slice(2)), now = new Date();
-    $('cardExpiry').setCustomValidity(expiry.length === 4 && month >= 1 && month <= 12 && (year > now.getFullYear() || year === now.getFullYear() && month >= now.getMonth() + 1) ? '' : 'Enter a valid, unexpired date (MM / YY).');
-    ['cardholder', 'cardAddress', 'cardPostal', 'cardRegion'].forEach(id => $(id).setCustomValidity($(id).value.trim() ? '' : 'Please fill out this field.'));
-    if (!$('cardForm').reportValidity()) return;
-    busy = true; $('submitCard').disabled = true; $('closeCard').disabled = true; $('submitCard').setAttribute('aria-busy', 'true');
+    event.preventDefault(); if (busy || !window.PaywizardBillingCardForm.validate()) return;
+    busy = true; window.PaywizardBillingCardForm.setBusy(true); $('closeCard').disabled = true;
     try {
-      await new Promise(resolve => setTimeout(resolve, 350));
-      store.pay(paying, selected); $('cardDialog').close(); reload(); message('Payment successful (simulation).');
-    } catch (error) { $('cardError').textContent = error.message || 'Payment could not be saved. Please try again.'; $('cardError').hidden = false; }
-    finally { busy = false; $('submitCard').disabled = false; $('closeCard').disabled = false; $('submitCard').removeAttribute('aria-busy'); }
+      const result = await store.pay(paying, selected, window.PaywizardBillingCardForm.details(requestId));
+      if (!result.paidInstallments) { requestId = crypto.randomUUID(); $('cardError').textContent = 'The charge failed. No installment was paid. Please try again.'; $('cardError').hidden = false; return; }
+      $('cardDialog').close(); reload(); message(result.status === 'Overdue' ? 'A charge failed. Collection stopped; remaining installments are unpaid.' : 'Payment recorded. Each installment has its own payment record.');
+    } catch (error) { $('cardError').textContent = error.message; $('cardError').hidden = false; }
+    finally { busy = false; window.PaywizardBillingCardForm.setBusy(false); $('closeCard').disabled = false; }
   };
   window.addEventListener('storage', event => { if (event.key === store.key) reload(); });
+  store.initialize().then(() => { serviceReady = true; reload(); }).catch(error => { $('loadError').textContent = error.message; $('loadError').hidden = false; });
+  window.addEventListener('focus', () => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); });
+  setInterval(() => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); }, 10000);
   reload();
 })();

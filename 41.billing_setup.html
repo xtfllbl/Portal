@@ -16,7 +16,7 @@
       <label class="billing-field"><span>Merchant Name<b>*</b></span><select id="merchant" required></select></label>
       <label class="billing-field"><span>Bill Type</span><select id="billType"><option>eSIM Billing</option><option selected>General Billing</option></select></label>
       <label class="billing-field"><span>Currency</span><select id="currency"><option value="CAD">CAD - Canadian Dollar</option><option value="USD" selected>USD - US Dollar</option><option value="EUR">EUR - Euro</option></select></label>
-      <label class="billing-field"><span>Payment Link Expire Date</span><input id="expiry" value="2026-10-10" readonly></label>
+      <label class="billing-field"><span>Payment Link Expire Date</span><input id="expiry" type="date" required></label>
     </div>
     <fieldset class="billing-details">
       <legend>Billing Details</legend>
@@ -25,11 +25,12 @@
         <label class="billing-field" data-recurring hidden><span>Billing Start Date<b>*</b></span><input type="date" id="startDate"></label>
         <label class="billing-field billing-amount"><span>Amount<b>*</b></span><input type="number" id="amount" min="0.01" max="999999999" step="0.01" required></label>
         <label class="billing-field" data-recurring hidden><span>Billing Cycle<b>*</b></span><select id="cycle"><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option><option value="24" selected>24 Months</option><option value="36">36 Months</option></select></label>
-        <label class="billing-field" data-recurring hidden><span>Renewal Mode</span><select disabled><option>Auto-renewal</option></select></label>
+        <label class="billing-field" data-recurring hidden><span>Collection Mode</span><select disabled><option>Fixed-term monthly</option></select></label>
         <label class="billing-notes"><span class="sr-only">Billing Notes</span><textarea id="notes" placeholder="Billing Notes" rows="5"></textarea></label>
       </div>
     </fieldset>
     <section class="billing-preview" aria-label="Billing Preview"><strong>Billing Preview</strong><div><span>Total amount:</span><output id="total" aria-live="polite">$0.00</output></div></section>
+    <div id="billingConnection" class="billing-connection" hidden><p id="billingConnectionText" role="status"></p><button type="button" id="retryBilling">Retry connection</button></div>
     <div class="billing-actions"><button type="button" class="muted" id="resetForm">Reset</button><button type="button" id="saveDraft">Save as Draft</button><button type="submit" class="primary">Apply to Merchant Account</button></div>
   </form>
   <section class="billing-records" aria-label="Billing records">
@@ -44,6 +45,13 @@
   </section>
   <div id="billingMessage" role="status" aria-live="polite"></div>
 </main>
+<dialog id="sendLinkDialog" class="billing-page billing-modal" aria-labelledby="sendLinkTitle">
+<form id="sendLinkForm"><h2 id="sendLinkTitle">Send Payment Link</h2><p>Invoice <strong id="sendLinkInvoice"></strong></p>
+<label>Recipient email<input id="linkRecipient" type="email" required placeholder="merchant@example.com"></label>
+<label>Payment link<input id="sendLinkUrl" readonly></label><p id="sendLinkError" role="alert"></p>
+<div class="billing-actions"><button type="button" id="closeSendLink">Close</button><button class="primary" id="confirmSendLink" type="submit">Send Link</button></div></form></dialog>
+<dialog id="copyUrlDialog" class="billing-page billing-modal" aria-labelledby="copyUrlTitle"><h2 id="copyUrlTitle">Copy Payment Link</h2><input id="copyUrlValue" aria-label="Payment URL" readonly><div class="billing-actions"><button id="closeCopyUrl" type="button">Close</button></div></dialog>
+<dialog id="paymentRecordsDialog" class="billing-page billing-modal records-modal" aria-labelledby="paymentRecordsTitle"><h2 id="paymentRecordsTitle">Payment Records</h2><p>Invoice <strong id="paymentRecordInvoice"></strong></p><h3>Installments</h3><div class="record-table"><table><thead><tr><th>INSTALLMENT</th><th>DUE DATE</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody id="installmentRows"></tbody></table></div><h3>Payment Attempts</h3><div class="record-table"><table><thead><tr><th>PAYMENT ID</th><th>INSTALLMENT</th><th>AMOUNT</th><th>STATUS</th><th>DATE &amp; TIME</th></tr></thead><tbody id="attemptRows"></tbody></table></div><div class="billing-actions"><button id="closePaymentRecords" type="button">Close</button></div></dialog>
 <script src="scripts/platform-merchant-store.js"></script>
 <script src="scripts/billing-store.js"></script>
 <script src="scripts/billing-setup.js"></script>

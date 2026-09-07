@@ -4,6 +4,34 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Merchant Billing Record**:
+A payment obligation assigned to a merchant, visible in the portal to that merchant's account users when such accounts exist. A payment through a shared link is recorded against this same obligation rather than creating a separate merchant billing record.
+_Avoid_: Payment Link, Customer Alert
+
+**Billing Payment Link**:
+A shareable entry to the payment page for a specific Merchant Billing Record, provided by an operations user so the merchant can pay without signing in to the portal.
+_Avoid_: Portal login link, reusable product checkout link
+
+**Public Billing Payment Page**:
+A merchant-facing page opened from a Billing Payment Link without portal sign-in, presenting the associated billing information and payment form.
+_Avoid_: Platform Back-office Page, Public Onboarding Page
+
+**Fixed-term Billing Contract**:
+A merchant payment obligation with an agreed monthly installment amount and a fixed number of installments. Collection ends when all agreed installments have been paid; the contract does not automatically renew.
+_Avoid_: Indefinite subscription, auto-renewal
+
+**Recurring Payment Authorization**:
+A merchant's explicit consent to retain a payment method and use it to collect the remaining scheduled installments of a Fixed-term Billing Contract. It does not authorize collection beyond the agreed contract term.
+_Avoid_: Auto-renewal consent, saving a card number
+
+**Billing Link Recipient**:
+The email recipient chosen by an operations user when sending a Billing Payment Link. The recipient address does not determine or change the merchant that owns the associated billing record.
+_Avoid_: Billing owner, merchant account identity
+
+**Billing Link Expiry**:
+The end of the period during which a Billing Payment Link can be used for initial payment or recurring payment authorization. It does not end an existing Fixed-term Billing Contract or revoke an existing Recurring Payment Authorization.
+_Avoid_: Contract end date, authorization cancellation
+
 **Platform Back-office Page**:
 A page used by authorized Paywizard operators or organization users to manage platform resources and workflows within the shared administrative navigation context.
 _Avoid_: Public Onboarding Page, prototype index
@@ -167,3 +195,11 @@ _Avoid_: Manual Closure, Acknowledgement
 **Manual Closure**:
 An authorized user's decision to end handling of an Alert Incident without claiming that its monitored condition has recovered.
 _Avoid_: Resolution, Recovery
+
+**Contract Installment**:
+A single monthly amount due under a Fixed-term Billing Contract, with its own service-anchored due date and payment outcome. Overdue installments remain separate obligations and are never combined into one charge.
+_Avoid_: Combined arrears charge, entire contract payment
+
+**Installment Payment Attempt**:
+One attempted collection of one Contract Installment. Failed attempts do not count as paid installments; each successful attempt settles only its own installment.
+_Avoid_: Contract completion, combined payment

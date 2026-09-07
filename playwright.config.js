@@ -1,4 +1,7 @@
 const { defineConfig, devices } = require("@playwright/test");
+const { tmpdir } = require("node:os");
+const { join } = require("node:path");
+process.env.BILLING_DB_PATH ||= join(tmpdir(), "paywizard-billing-e2e-" + process.pid + "-" + Date.now() + ".sqlite");
 
 const localNoProxy = ["127.0.0.1", "localhost"];
 process.env.NO_PROXY = [process.env.NO_PROXY, ...localNoProxy].filter(Boolean).join(",");
@@ -18,7 +21,7 @@ module.exports = defineConfig({
     }
   ],
   webServer: {
-    command: "python3 -m http.server 8765 --bind 127.0.0.1",
+    command: "npm run dev -- --host 127.0.0.1 --port 8765 --strictPort",
     url: "http://127.0.0.1:8765",
     reuseExistingServer: false,
     timeout: 10000
