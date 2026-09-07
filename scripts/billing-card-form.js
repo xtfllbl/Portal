@@ -11,24 +11,24 @@
     $('recurringAuthorization').hidden = !bill.recurring;
     $('recurringConsent').required = bill.recurring;
     $('recurringConsent').disabled = !bill.recurring;
-    $('recurringConsentText').textContent = 'I authorize my card to be saved and charged according to this payment schedule.';
     const due = bill.dueInstallments?.length ? bill.dueInstallments : [1];
     const summary = $('chargeSummary'); summary.replaceChildren();
     const line = (text, tag = 'div') => { const el = document.createElement(tag); el.textContent = text; summary.append(el); };
     const amount = money(bill.amount, bill.currency);
-    if (bill.recurring && due.length > 1) {
+    const catchUp = bill.recurring && due.length > 1;
+    summary.hidden = !catchUp;
+    if (catchUp) {
       line('Payments today', 'strong');
       due.forEach(number => line('Installment ' + number + ' · ' + amount));
       line('Charged separately, oldest first. Payments stop if a charge fails.');
-    } else line(amount + ' today', 'strong');
-    if (bill.recurring) {
-      if (bill.nextScheduledPaymentDate) {
-        const date = new Date(bill.nextScheduledPaymentDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        line('Then ' + amount + ' monthly from ' + date + '.');
-      }
-      line(bill.cycle + ' payments in total · ' + money(bill.totalAmount ?? Number(bill.amount) * bill.cycle, bill.currency) + ' · No automatic renewal.');
     }
-    $('submitCard').textContent = bill.recurring && due.length > 1 ? 'Pay ' + due.length + ' installments' : 'Pay ' + amount;
+    const remaining = Math.max(0, Number(bill.cycle) - Number(bill.paidInstallments || 0) - due.length);
+    const start = bill.nextScheduledPaymentDate ? new Date(bill.nextScheduledPaymentDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const future = remaining && start ? remaining + ' remaining monthly payment' + (remaining === 1 ? '' : 's') + ' of ' + amount + ', starting ' + start : '';
+    $('recurringConsentText').textContent = future
+      ? 'I authorize my card to be saved for ' + (catchUp ? 'the separate payments listed above and ' : '') + future + '.'
+      : 'I authorize my card to be saved for ' + (catchUp ? 'the separate installment payments listed above.' : 'this final payment.');
+    $('submitCard').textContent = catchUp ? 'Pay ' + due.length + ' installments' : 'Pay ' + amount + (bill.recurring ? ' now' : '');
     $('cardError').hidden = true; ready();
   }
   function validate() {

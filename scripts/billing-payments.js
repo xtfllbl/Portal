@@ -8,12 +8,12 @@
   const money = (amount, currency) => new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
   const date = value => value ? new Date(value.slice(0, 10) + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
   function message(text) { $('paymentMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => { $('paymentMessage').textContent = ''; }, 5000); }
-  function ownRecords() { return records.filter(r => String(r.merchantId) === selected && r.status !== 'Draft'); }
+  function ownRecords() { return records.filter(r => store.isMerchantRecord(r) && String(r.merchantId) === selected && r.status !== 'Draft'); }
   function reload() {
     try {
       records = store.read(); $('loadError').hidden = true;
       const merchants = new Map(window.PaywizardPlatformMerchantStore.readAll().map(m => [String(m.merchantId), m.merchantName || m.name || String(m.merchantId)]));
-      records.forEach(r => { if (!merchants.has(String(r.merchantId))) merchants.set(String(r.merchantId), r.merchantName || String(r.merchantId)); });
+      records.filter(store.isMerchantRecord).forEach(r => { if (!merchants.has(String(r.merchantId))) merchants.set(String(r.merchantId), r.merchantName || String(r.merchantId)); });
       $('paymentMerchant').replaceChildren(new Option('Select Merchant', ''));
       merchants.forEach((name, id) => $('paymentMerchant').add(new Option(name, id)));
       if (!merchants.has(selected)) selected = '';
@@ -103,8 +103,11 @@
     finally { busy = false; window.PaywizardBillingCardForm.setBusy(false); $('closeCard').disabled = false; }
   };
   window.addEventListener('storage', event => { if (event.key === store.key) reload(); });
-  store.initialize().then(() => { serviceReady = true; reload(); }).catch(error => { $('loadError').textContent = error.message; $('loadError').hidden = false; });
+  function connect() { return store.initialize().then(() => { serviceReady = true; reload(); }).catch(error => { serviceReady = false; $('loadError').textContent = error.message; $('loadError').hidden = false; }); }
+  window.addEventListener('billing-reconnect', connect);
+  window.addEventListener('billing-local-change', () => { if (store.mode === 'local') reload(); });
+  connect();
   window.addEventListener('focus', () => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); });
-  setInterval(() => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); }, 10000);
+  setInterval(() => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); }, 60000);
   reload();
 })();

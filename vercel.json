@@ -1,11 +1,29 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/billing.js": {
+      "maxDuration": 30,
+      "includeFiles": "{server/**,scripts/billing-domain.js}"
+    }
+  },
   "routes": [
+    {
+      "src": "/api/billing/(.*)",
+      "dest": "/api/billing?path=$1"
+    },
     {
       "src": "/",
       "dest": "/index.html"
     },
     {
       "handle": "filesystem"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/billing/cron",
+      "schedule": "0 0 * * *"
     }
   ]
 }

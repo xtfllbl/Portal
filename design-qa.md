@@ -1,3 +1,11 @@
+# Minimal payment confirmation — 2026-09-07
+
+Removed the one-time today line and the ordinary recurring summary. Recurring consent now includes the remaining payment count, monthly amount and start date; the button says Pay [amount] now. No automatic renewal appears once in the public bill details. Overdue checkout retains separate charge details and includes those charges in its consent. New consent version is fixed-term-v3; existing authorization records remain unchanged.
+
+Seven focused browser tests passed, covering desktop/mobile public and portal views, one-time results, overdue payments and completed contracts. Desktop one-time and mobile recurring screenshots were inspected; a 20px gap separates the card form and recurring authorization. Payment collection behavior is unchanged.
+
+---
+
 # Billing checkout simplification — 2026-09-07
 
 Implemented the approved presentation revision: one-time Next Billing is an em dash, the public page has one CSS-cropped PAYwizard wordmark without PORTAL or Sandbox, one-time summary/results omit installment wording, and public/portal forms share short consent text with a structured payment schedule. New authorizations use fixed-term-v2; stored historical authorizations are not rewritten. Separate overdue charges and fixed-term completion behavior are unchanged.

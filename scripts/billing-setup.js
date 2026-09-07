@@ -10,7 +10,7 @@
   }
   const existing = window.PaywizardPlatformMerchantStore.readAll();
   const merchants = existing.length ? existing.map(m => ({ id: String(m.merchantId), name: m.merchantName || m.name || String(m.merchantId) })) : [{ id: '1000000006', name: 'Tom shop' }];
-  let records = [], editing = null, page = 1, filters = { merchant: merchants[0].id, status: '' }, storageError = false;
+  let records = [], editing = null, highlighted = null, page = 1, filters = { assignment: '', merchant: '', status: '' }, storageError = false;
   function message(text) { $('billingMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => { $('billingMessage').textContent = ''; }, 5000); }
   function options(el, all) {
     if (all) el.add(new Option('All Merchants', ''));
@@ -19,22 +19,72 @@
   options($('merchant')); options($('filterMerchant'), true);
   try { records = window.PaywizardBillingStore.read(); } catch (_) { storageError = true; message('Billing data could not be loaded. Please check browser storage and reload.'); }
   // Preserve existing bills even if their merchant is no longer in the current merchant list.
-  records.forEach(r => {
+  records.filter(store.isMerchantRecord).forEach(r => {
     if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); $('filterMerchant').add(new Option(r.merchantName, r.merchantId)); }
   });
   function money(value, currency) { return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value); }
   function total(r) { return Math.round(Number(r.amount || 0) * 100) * (r.recurring ? Number(r.cycle) : 1) / 100; }
   function formValue() {
-    return { merchantId: $('merchant').value, merchantName: merchants.find(m => m.id === $('merchant').value)?.name || '', billType: $('billType').value, currency: $('currency').value, recurring: $('recurring').checked, cycle: Number($('cycle').value), amount: $('amount').value === '' ? '' : Number($('amount').value), start: $('startDate').value, expiry: $('expiry').value, notes: $('notes').value };
+    return { assignment: $('billingAssignment').value, merchantId: $('billingAssignment').value === 'merchant' ? $('merchant').value : null, merchantName: $('billingAssignment').value === 'merchant' ? merchants.find(m => m.id === $('merchant').value)?.name || '' : '', billType: $('billType').value, currency: $('currency').value, recurring: $('recurring').checked, cycle: Number($('cycle').value), amount: $('amount').value === '' ? '' : Number($('amount').value), start: $('startDate').value, expiry: $('expiry').value, notes: $('notes').value, includedData: $('billType').value === 'eSIM Billing' && $('includedData').value !== '' ? Number($('includedData').value) : null };
   }
+  function selectTab(name, focus = false) {
+    document.querySelectorAll('.billing-link-menu').forEach(menu => { menu.hidden = true; });
+    document.querySelectorAll('.billing-more').forEach(button => button.setAttribute('aria-expanded', 'false'));
+    for (const tab of ['create', 'records']) {
+      $(tab + 'Tab').setAttribute('aria-selected', String(tab === name));
+      $(tab + 'Tab').tabIndex = tab === name ? 0 : -1;
+      $(tab + 'Panel').hidden = tab !== name;
+    }
+    if (focus) $(name + 'Tab').focus();
+  }
+  ['create', 'records'].forEach(name => {
+    $(name + 'Tab').onclick = () => selectTab(name);
+    $(name + 'Tab').onkeydown = event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      selectTab(event.key === 'Home' ? 'create' : event.key === 'End' ? 'records' : name === 'create' ? 'records' : 'create', true);
+    };
+  });
+  function summaryItem(list, label, value) {
+    const dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.textContent = label; dd.textContent = value; list.append(dt, dd);
+  }
+  function billingSummary(list, r) {
+    list.replaceChildren();
+    const add = (label, value) => summaryItem(list, label, value);
+    if (store.isMerchantRecord(r)) add('Merchant', r.merchantName);
+    add('Bill type', r.billType);
+    add('Payment', r.recurring ? 'Fixed-term monthly' : 'One-time');
+    if (r.recurring) {
+      add('Monthly amount', r.amount !== '' && Number(r.amount) > 0 ? money(r.amount, r.currency) : 'Enter amount');
+      add('Term', r.cycle + ' monthly installments');
+      add('Billing start date', r.start || 'Select date');
+    }
+    if (r.billType === 'eSIM Billing') add('Included data', r.includedData == null ? 'Not specified' : r.includedData.toLocaleString('en-US') + ' MB');
+    add('Payment link expires', r.expiry || 'Select date');
+  }
+  document.querySelectorAll('[data-assignment]').forEach(button => {
+    button.onclick = () => { $('billingAssignment').value = button.dataset.assignment; update(); };
+  });
   function update() {
-    const recurring = $('recurring').checked;
+    document.querySelectorAll('[data-assignment]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.assignment === $('billingAssignment').value)));
+    const standalone = $('billingAssignment').value === 'standalone';
+    $('merchantField').hidden = standalone;
+    $('merchant').disabled = standalone;
+    $('merchant').required = !standalone;
+    $('applyBilling').textContent = standalone ? 'Create Payment Link' : 'Apply to Merchant Account';
+    const recurring = $('recurring').checked, esim = $('billType').value === 'eSIM Billing';
     document.querySelectorAll('[data-recurring]').forEach(el => { el.hidden = !recurring; });
+    document.querySelectorAll('[data-esim]').forEach(el => { el.hidden = !esim; });
+    $('includedData').disabled = !esim;
     $('startDate').required = recurring;
     $('startDate').disabled = !recurring;
     $('cycle').disabled = !recurring;
-    const value = total(formValue());
-    $('total').textContent = money(Number.isFinite(value) ? value : 0, $('currency').value);
+    $('amountLabel').textContent = recurring ? 'Base Monthly Fee' : 'Amount';
+    const r = formValue(), validAmount = $('amount').validity.valid && r.amount !== '';
+    billingSummary($('previewDetails'), r);
+    $('totalLabel').textContent = recurring ? 'Contract total' : 'Total amount';
+    $('total').textContent = validAmount ? money(total(r), r.currency) : 'Enter amount';
   }
   function reset() { $('billingForm').reset(); editing = null; update(); }
   function nextDate(r) {
@@ -49,28 +99,29 @@
   }
   function cell(row, text) { const td = document.createElement('td'); td.textContent = text; row.append(td); return td; }
   function render() {
-    const filtered = records.filter(r => (!filters.merchant || r.merchantId === filters.merchant) && (!filters.status || r.status === filters.status));
+    const filtered = records.filter(r => (!filters.assignment || (r.assignment ?? 'merchant') === filters.assignment) && (!filters.merchant || store.isMerchantRecord(r) && r.merchantId === filters.merchant) && (!filters.status || r.status === filters.status));
     const size = Number($('pageSize').value), pages = Math.max(1, Math.ceil(filtered.length / size));
     page = Math.min(Math.max(1, page), pages);
     $('billingRows').replaceChildren();
     filtered.slice((page - 1) * size, page * size).forEach(r => {
       const row = document.createElement('tr');
-      [r.merchantId, r.merchantName, r.invoice || '-', r.recurring ? r.cycle + ' Months' : '-', money(Number(r.amount || 0), r.currency), money(total(r), r.currency), r.recurring ? r.start || '-' : '-', nextDate(r)].forEach(v => cell(row, v));
+      row.classList.toggle('billing-new-record', r.id === highlighted);
+      [store.isMerchantRecord(r) ? r.merchantId : '—', store.isMerchantRecord(r) ? r.merchantName : '—', r.invoice || '-', r.recurring ? 'Fixed-term monthly' : 'One-time', r.recurring ? r.cycle + ' Months' : '-', money(Number(r.amount || 0), r.currency), money(total(r), r.currency), r.recurring ? r.start || '-' : '-', nextDate(r)].forEach(v => cell(row, v));
       const badge = document.createElement('span'); badge.className = 'billing-status ' + r.status.toLowerCase(); badge.textContent = r.status; cell(row, '').append(badge);
       const actions = cell(row, '');
       if (r.status === 'Draft') {
-        const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = 'Edit'; edit.setAttribute('aria-label', 'Edit draft for ' + r.merchantName);
+        const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = 'Edit'; edit.setAttribute('aria-label', store.isMerchantRecord(r) ? 'Edit draft for ' + r.merchantName : 'Edit standalone draft');
         edit.onclick = () => {
           editing = r.id;
-          [['merchant', r.merchantId], ['billType', r.billType], ['currency', r.currency], ['amount', r.amount], ['cycle', r.cycle], ['startDate', r.start], ['notes', r.notes], ['expiry', r.expiry]].forEach(([id, value]) => { $(id).value = value; });
-          $('recurring').checked = r.recurring; update(); $('billingForm').scrollIntoView({ behavior: 'smooth', block: 'start' }); $('merchant').focus(); message('Draft loaded for editing.');
+          [['billingAssignment', r.assignment ?? 'merchant'], ['merchant', r.merchantId ?? $('merchant').value], ['billType', r.billType], ['currency', r.currency], ['amount', r.amount], ['cycle', [3, 6, 12, 24, 36].includes(Number(r.cycle)) ? r.cycle : 24], ['startDate', r.start], ['notes', r.notes], ['expiry', r.expiry], ['includedData', r.includedData ?? '']].forEach(([id, value]) => { $(id).value = value; });
+          $('recurring').checked = r.recurring; update(); selectTab('create'); $('billingForm').scrollIntoView({ behavior: 'smooth', block: 'start' }); if (store.isMerchantRecord(r)) $('merchant').focus(); else document.querySelector('[data-assignment=standalone]').focus(); message('Draft loaded for editing.');
         };
         actions.append(edit);
       }
       if (r.status !== 'Draft') addLinkActions(actions, r);
       $('billingRows').append(row);
     });
-    if (!filtered.length) { const row = document.createElement('tr'); const td = cell(row, 'No billing records found.'); td.colSpan = 10; td.className = 'empty'; $('billingRows').append(row); }
+    if (!filtered.length) { const row = document.createElement('tr'); const td = cell(row, 'No billing records found.'); td.colSpan = 11; td.className = 'empty'; $('billingRows').append(row); }
     $('pageButtons').replaceChildren();
     function pageButton(label, target, disabled, current) { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.disabled = disabled; b.setAttribute('aria-label', /^\d+$/.test(label) ? 'Page ' + label : label); if (current) b.setAttribute('aria-current', 'page'); b.onclick = () => { page = target; render(); }; $('pageButtons').append(b); }
     pageButton('First', 1, page === 1); pageButton('Prev', page - 1, page === 1);
@@ -84,6 +135,7 @@
     if (!draft && !$('billingForm').reportValidity()) return;
     if (draft && (!$('merchant').reportValidity() || !$('amount').validity.valid && $('amount').value !== '')) { $('amount').reportValidity(); return; }
     try { records = window.PaywizardBillingStore.read(); } catch (_) { return message('Could not load current billing records.'); }
+    if (!$('includedData').disabled && !$('includedData').reportValidity()) return;
     const value = formValue();
     const old = records.find(r => r.id === editing);
     if (editing && (!old || old.status !== 'Draft')) return message('This draft has changed. Reload before editing.');
@@ -92,11 +144,12 @@
     try { await store.save(record); records = store.read(); }
     catch (error) { message(error.message); return; }
     finally { saving = false; updateActions(); }
-    window.PaywizardBillingStore.selectMerchant(record.merchantId);
+    if (store.isMerchantRecord(record)) store.selectMerchant(record.merchantId);
     editing = draft ? record.id : null;
-    filters = { merchant: record.merchantId, status: '' }; $('filterMerchant').value = record.merchantId; $('filterStatus').value = ''; page = 1;
-    if (!draft) reset();
-    render(); message(draft ? 'Draft saved.' : 'Billing applied to merchant account.');
+    filters = { assignment: record.assignment, merchant: record.merchantId || '', status: '' };
+    $('filterAssignment').value = filters.assignment; $('filterMerchant').value = filters.merchant; $('filterStatus').value = ''; updateFilterAssignment(); page = 1;
+    if (!draft) { reset(); highlighted = record.id; selectTab('records', true); }
+    render(); message(draft ? 'Draft saved.' : record.assignment === 'standalone' ? 'Payment link created.' : 'Billing applied to merchant account.');
   }
   $('billingForm').addEventListener('input', update);
   $('billingForm').addEventListener('change', update);
@@ -104,12 +157,20 @@
   $('saveDraft').onclick = () => save(true);
   $('resetForm').onclick = () => { reset(); message('Form reset. Saved billing records are unchanged.'); };
   $('filterMerchant').value = filters.merchant;
-  $('filterForm').onsubmit = event => { event.preventDefault(); filters = { merchant: $('filterMerchant').value, status: $('filterStatus').value }; page = 1; render(); };
-  $('resetFilters').onclick = () => { $('filterMerchant').value = ''; $('filterStatus').value = ''; filters = { merchant: '', status: '' }; page = 1; render(); };
+  $('filterForm').onsubmit = event => { event.preventDefault(); filters = { assignment: $('filterAssignment').value, merchant: $('filterMerchant').disabled ? '' : $('filterMerchant').value, status: $('filterStatus').value }; page = 1; render(); };
+  function updateFilterAssignment() {
+    const standalone = $('filterAssignment').value === 'standalone';
+    $('filterMerchant').disabled = standalone;
+    $('filterMerchant').closest('label').hidden = standalone;
+    if (standalone) $('filterMerchant').value = '';
+  }
+  $('filterAssignment').onchange = updateFilterAssignment;
+  $('resetFilters').onclick = () => { $('filterAssignment').value = ''; $('filterMerchant').value = ''; $('filterStatus').value = ''; filters = { assignment: '', merchant: '', status: '' }; updateFilterAssignment(); page = 1; render(); };
   $('pageSize').onchange = () => { page = 1; render(); };
   $('merchant').addEventListener('change', () => window.PaywizardBillingStore.selectMerchant($('merchant').value));
   window.addEventListener('storage', event => { if (event.key === key) { try { records = window.PaywizardBillingStore.read(); render(); } catch (_) { message('Could not reload billing records.'); } } });
   function recipient(record) {
+    if (!store.isMerchantRecord(record)) return '';
     const merchant = existing.find(m => String(m.merchantId) === record.merchantId);
     return merchant?.email || merchant?.contactEmail || merchant?.contact?.email || '';
   }
@@ -123,8 +184,15 @@
     function item(text, fn, disabled) { const button = document.createElement('button'); button.type = 'button'; button.textContent = text; button.disabled = !!disabled; button.onclick = () => { menu.hidden = true; more.setAttribute('aria-expanded', 'false'); fn(); }; menu.append(button); }
     item('Preview payment link', () => window.open(store.link(record), '_blank', 'noopener'), !record.linkToken);
     item('Send Link', () => { sending = record; actionOpener = more; $('linkRecipient').value = recipient(record); $('sendLinkInvoice').textContent = record.invoice; $('sendLinkUrl').value = store.link(record); $('sendLinkError').textContent = ''; $('sendLinkDialog').showModal(); }, !record.linkToken || store.expired(record) || !!record.authorization || record.status === 'Paid');
+    item('View billing details', () => {
+      actionOpener = more;
+      billingSummary($('savedBillingDetails'), record);
+      summaryItem($('savedBillingDetails'), record.recurring ? 'Contract total' : 'Total amount', money(total(record), record.currency));
+      if (record.notes) summaryItem($('savedBillingDetails'), 'Billing notes', record.notes);
+      $('billingDetailsDialog').showModal();
+    });
     item('View payment records', () => showPayments(record));
-    more.onclick = () => { const open = menu.hidden; document.querySelectorAll('.billing-link-menu').forEach(m => m.hidden = true); document.querySelectorAll('.billing-more').forEach(b => b.setAttribute('aria-expanded', 'false')); menu.hidden = !open; more.setAttribute('aria-expanded', String(open)); if (open) { const box = more.getBoundingClientRect(); menu.style.left = Math.max(8, Math.min(innerWidth - 223, box.right - 215)) + 'px'; menu.style.top = Math.max(8, Math.min(innerHeight - 146, box.bottom + 6)) + 'px'; menu.querySelector('button:not(:disabled)')?.focus(); } };
+    more.onclick = () => { const open = menu.hidden; document.querySelectorAll('.billing-link-menu').forEach(m => m.hidden = true); document.querySelectorAll('.billing-more').forEach(b => b.setAttribute('aria-expanded', 'false')); menu.hidden = !open; more.setAttribute('aria-expanded', String(open)); if (open) { const box = more.getBoundingClientRect(); menu.style.left = Math.max(8, Math.min(innerWidth - 223, box.right - 215)) + 'px'; menu.style.top = Math.max(8, Math.min(innerHeight - 190, box.bottom + 6)) + 'px'; menu.querySelector('button:not(:disabled)')?.focus(); } };
     wrap.append(copy, more, menu); cell.append(wrap);
   }
   function showPayments(record) {
@@ -138,6 +206,8 @@
   document.addEventListener('click', event => { if (!event.target.closest('.billing-link-actions')) document.querySelectorAll('.billing-link-menu').forEach(m => { m.hidden = true; m.parentNode.querySelector('.billing-more').setAttribute('aria-expanded', 'false'); }); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') document.querySelectorAll('.billing-link-menu:not([hidden])').forEach(m => { m.hidden = true; const b = m.parentNode.querySelector('.billing-more'); b.setAttribute('aria-expanded', 'false'); b.focus(); }); });
   $('sendLinkDialog').addEventListener('cancel', event => { if ($('confirmSendLink').disabled) event.preventDefault(); });
+  $('billingDetailsDialog').addEventListener('close', () => actionOpener?.isConnected && actionOpener.focus());
+  $('closeBillingDetails').onclick = () => $('billingDetailsDialog').close();
   $('closeSendLink').onclick = () => $('sendLinkDialog').close();
   $('closeCopyUrl').onclick = () => $('copyUrlDialog').close();
   $('closePaymentRecords').onclick = () => $('paymentRecordsDialog').close();
@@ -158,17 +228,18 @@
     try {
       const data = await store.initialize();
       records = data; ready = true; storageError = false;
-      records.forEach(r => { if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); $('filterMerchant').add(new Option(r.merchantName, r.merchantId)); } });
-      $('billingConnection').hidden = true; render();
+      records.filter(store.isMerchantRecord).forEach(r => { if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); $('filterMerchant').add(new Option(r.merchantName, r.merchantId)); } });
+      $('billingConnection').hidden = true; window.dispatchEvent(new Event('billing-mode')); render();
     } catch (error) {
-      $('billingConnectionText').textContent = error.message + ' Your form has been kept. Reconnect to save this bill.';
+      $('billingConnectionText').textContent = error.message + ' Your form has been kept.';
     } finally {
       connecting = false; $('retryBilling').disabled = false; updateActions();
     }
   }
   $('retryBilling').onclick = connect;
+  window.addEventListener('billing-reconnect', connect);
   connect();
   window.addEventListener('focus', () => { if (ready && !saving) store.sync().then(data => { records = data; render(); }).catch(error => message(error.message)); });
-  setInterval(() => { if (ready && !saving && !document.querySelector('dialog[open]') && !document.querySelector('.billing-link-menu:not([hidden])')) store.sync().then(data => { records = data; render(); }).catch(() => {}); }, 15000);
+  setInterval(() => { if (ready && !saving && !document.querySelector('dialog[open]') && !document.querySelector('.billing-link-menu:not([hidden])')) store.sync().then(data => { records = data; render(); }).catch(() => {}); }, 60000);
   update(); render();
 })();

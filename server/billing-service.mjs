@@ -47,6 +47,7 @@ export function createBillingService({ filename, now = () => new Date(), publicO
     try {
       const path = new URL(req.url, 'http://localhost').pathname;
       if (req.method !== 'GET' && req.headers.origin && new URL(req.headers.origin).host !== req.headers.host) return reply(403, { error: 'Cross-origin changes are not allowed.' });
+      if (path === '/api/billing/config' && req.method === 'GET') return reply(200, { mode: 'shared', configured: true });
       if (path === '/api/billing/session' && req.method === 'POST') {
         const address = req.socket.remoteAddress;
         if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) return reply(403, { error: 'Open Billing Setup on the host computer to manage this prototype.' });
@@ -88,6 +89,7 @@ export function createBillingService({ filename, now = () => new Date(), publicO
         const result = transaction(() => {
           const bill = find(id); if (!bill || bill.status === 'Draft') throw new Error('Bill unavailable.');
           if (action[2] === 'pay') {
+            if (bill.assignment === 'standalone' || !bill.merchantId) throw new Error('Standalone bills must be paid through their payment link.');
             if (String(input.merchantId) !== bill.merchantId) throw new Error('Merchant does not match this bill.');
             checkout(bill, { ...input, source: 'portal' }, now());
           } else {

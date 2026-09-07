@@ -1,0 +1,166 @@
+const {test,expect}=require('@playwright/test');
+for (const width of [1440,390]) {
+ test('static Live Server local billing and links at '+width, async({page,context,browser})=>{
+  await page.setViewportSize({width,height:1000});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/41.billing_setup.html');
+  await expect(page.locator('.billing-runtime')).toContainText('Local demo');
+  await expect(page.locator('#billingConnection')).toBeHidden();
+  await expect(page.locator('#saveDraft')).toBeEnabled();
+  await expect(page.locator('[data-assignment=merchant]')).toHaveAttribute('aria-pressed','true');
+  await page.locator('[data-assignment=standalone]').click();
+  await expect(page.locator('#merchant')).toBeHidden();
+  await page.locator('#notes').fill('Static demo service');
+  await page.locator('#amount').fill('20');
+  await page.locator('#saveDraft').click();
+  await expect(page.locator('#billingMessage')).toHaveText('Draft saved.');
+  await page.reload();
+  await page.getByRole('tab',{name:'Billing Records'}).click();
+  await page.getByRole('button',{name:'Edit standalone draft'}).click();
+  await expect(page.locator('[data-assignment=standalone]')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#notes')).toHaveValue('Static demo service');
+  await page.screenshot({path:'artifacts/billing-static-'+width+'.png',fullPage:true});
+  const heights=await page.locator('.billing-assignment button').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height));
+  expect(heights).toEqual([44,44]);
+  await page.locator('#applyBilling').click();
+  await expect(page.locator('#recordsPanel')).toBeVisible();
+  await expect(page.locator('#billingRows tr').first()).toContainText('Pending');
+  const link=await page.evaluate(()=>window.PaywizardBillingStore.link(window.PaywizardBillingStore.read().find(r=>r.notes==='Static demo service')));
+  expect(link).toContain('#local.');
+  const checkout=await context.newPage();await checkout.goto(link);
+  await expect(checkout.locator('.local-demo-notice')).toContainText('only in this browser');
+  await checkout.locator('#cardEmail').fill('demo@example.com');
+  await checkout.locator('#cardNumber').fill('4242424242424242');
+  await checkout.locator('#cardExpiry').fill('1299');
+  await checkout.locator('#cardCvc').fill('123');
+  await checkout.locator('#cardholder').fill('Demo Customer');
+  await checkout.locator('.card-agreements input').check();
+  await checkout.locator('#submitCard').click();
+  await expect(checkout.locator('#paymentResult')).toContainText('Thanks for your payment');
+  await checkout.reload();await expect(checkout.locator('#cardForm')).toBeHidden();
+  await page.reload();await page.getByRole('tab',{name:'Billing Records'}).click();
+  await expect(page.locator('#billingRows tr').first()).toContainText('Paid');
+  const foreign=await browser.newContext();
+  try {
+    const outside=await foreign.newPage();await outside.goto(link);
+    await expect(outside.locator('.local-demo-notice')).toBeVisible();
+    await expect(outside.locator('#cardForm')).toBeVisible();
+  }finally{await foreign.close();}
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+ });
+}
+test('shared public links never become local payments when a service is absent',async({page})=>{
+ await page.goto('/43.billing_payment_link.html#'+'a'.repeat(48));
+ await expect(page.locator('#pageError')).toBeVisible();
+ await expect(page.locator('#cardForm')).toBeHidden();
+ await expect(page.locator('.local-demo-notice')).toHaveCount(0);
+});
+test('a known shared service outage keeps the form and blocks local fallback',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('pw-billing-shared:','1'));
+ await page.goto('/41.billing_setup.html');
+ await expect(page.locator('#billingConnection')).toBeVisible();
+ await expect(page.locator('#saveDraft')).toBeDisabled();
+ await page.locator('#notes').fill('Keep this shared draft');
+ await page.locator('.billing-runtime button').click();
+ await page.locator('#billingRuntimeMode').selectOption('local');
+ await page.locator('#billingRuntimeSave').click();
+ await expect(page.locator('#billingConnection')).toBeHidden();
+ await expect(page.locator('#notes')).toHaveValue('Keep this shared draft');
+ await expect(page.locator('#saveDraft')).toBeEnabled();
+});
+test('first visit to an unconfigured Vercel deployment remains usable as local demo',async({page})=>{
+ await page.route('**/api/billing/config',route=>route.fulfill({json:{mode:'shared',configured:false}}));
+ await page.goto('/41.billing_setup.html');
+ await expect(page.locator('.billing-runtime')).toContainText('Local demo');
+ await expect(page.locator('#billingConnection')).toBeHidden();
+ await expect(page.locator('#saveDraft')).toBeEnabled();
+});
+test('Live Server connects to a separate shared demo and receives an external payment result',async({page,browser})=>{
+ const {createServer}=require('node:http');
+ const {createCloudHandler}=await import('../server/billing-cloud.mjs');
+ const staticOrigin='http://127.0.0.1:8876';
+ let records=[],handler;
+ const server=createServer(async(req,res)=>{
+  if(req.url.startsWith('/api/billing/'))return handler(req,res);
+  try{
+   const response=await fetch(staticOrigin+req.url);
+   res.statusCode=response.status;res.setHeader('Content-Type',response.headers.get('content-type')||'text/plain');res.end(Buffer.from(await response.arrayBuffer()));
+  }catch(error){res.statusCode=500;res.end(error.message);}
+ });
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ const sharedOrigin='http://127.0.0.1:'+server.address().port;
+ handler=createCloudHandler({repository:{async transact(fn){return fn(records);}},configured:true,adminKey:'test-key-'.repeat(5),publicOrigin:sharedOrigin});
+ const external=await browser.newContext();
+ try{
+  await page.setViewportSize({width:390,height:1000});
+  await page.goto('/41.billing_setup.html');
+  await expect(page.locator('.billing-runtime')).toContainText('Local demo');
+  await page.locator('.billing-runtime button').click();
+  await page.locator('#billingRuntimeMode').selectOption('shared');
+  await page.locator('#billingRuntimeOrigin').fill(sharedOrigin);
+  await page.locator('#billingRuntimeKey').fill('test-key-'.repeat(5));
+  const heights=await page.locator('.billing-runtime-actions button').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height));
+  expect(heights).toEqual([40,40]);
+  await page.locator('#billingRuntimeSave').click();
+  await expect(page.locator('.billing-runtime-dialog')).not.toBeVisible();
+  await expect(page.locator('.billing-runtime')).toContainText('Shared demo');
+  await expect(page.locator('#billingConnection')).toBeHidden();
+  await page.locator('[data-assignment=standalone]').click();
+  await page.locator('#amount').fill('25');
+  await page.locator('#notes').fill('Cross-origin shared demo');
+  await page.locator('#applyBilling').click();
+  await expect(page.locator('#recordsPanel')).toBeVisible();
+  const record=records.find(r=>r.notes==='Cross-origin shared demo');
+  expect(record).toBeTruthy();
+  const checkout=await external.newPage();
+  await checkout.goto(sharedOrigin+'/43.billing_payment_link.html#'+record.linkToken);
+  await expect(checkout.locator('#cardForm')).toBeVisible();
+  await expect(checkout.locator('.local-demo-notice')).toHaveCount(0);
+  await checkout.locator('#cardEmail').fill('demo@example.com');
+  await checkout.locator('#cardNumber').fill('4242424242424242');
+  await checkout.locator('#cardExpiry').fill('1299');
+  await checkout.locator('#cardCvc').fill('123');
+  await checkout.locator('#cardholder').fill('Demo Customer');
+  await checkout.locator('.card-agreements input').check();
+  await checkout.locator('#submitCard').click();
+  await expect(checkout.locator('#paymentResult')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.billing-runtime')).toContainText('Shared demo');
+  await page.getByRole('tab',{name:'Billing Records'}).click();
+  await expect(page.locator('#billingRows tr').filter({hasText:record.invoice})).toContainText('Paid');
+  expect(record.payments.length).toBe(1);
+ }finally{await external.close();await new Promise(resolve=>server.close(resolve));}
+});
+test('local monthly authorization survives reload and completes without shared storage',async({page,context})=>{
+ await page.goto('/41.billing_setup.html');
+ await expect(page.locator('.billing-runtime')).toContainText('Local demo');
+ await page.locator('[data-assignment=standalone]').click();
+ await page.locator('#recurring').check();
+ await page.locator('#startDate').fill('2099-01-31');
+ await page.locator('#cycle').selectOption('3');
+ await page.locator('#amount').fill('12');
+ await page.locator('#expiry').fill('2099-02-01');
+ await page.locator('#notes').fill('Local monthly contract');
+ await page.locator('#applyBilling').click();
+ await expect(page.locator('#recordsPanel')).toBeVisible();
+ const link=await page.evaluate(()=>window.PaywizardBillingStore.link(window.PaywizardBillingStore.read().find(r=>r.notes==='Local monthly contract')));
+ const checkout=await context.newPage();await checkout.goto(link);
+ await checkout.locator('#cardEmail').fill('demo@example.com');
+ await checkout.locator('#cardNumber').fill('4242424242424242');
+ await checkout.locator('#cardExpiry').fill('1299');
+ await checkout.locator('#cardCvc').fill('123');
+ await checkout.locator('#cardholder').fill('Demo Customer');
+ await checkout.locator('.card-agreements input').check();
+ await checkout.locator('#recurringConsent').check();
+ await checkout.locator('#submitCard').click();
+ await expect(checkout.locator('#paymentResult')).toContainText('1 of 3 installments paid.');
+ await checkout.reload();
+ await expect(checkout.locator('#cardForm')).toBeHidden();
+ await page.clock.setFixedTime(new Date('2099-03-31T12:00:00Z'));
+ await page.reload();await page.getByRole('tab',{name:'Billing Records'}).click();
+ await expect(page.locator('#billingRows tr').first()).toContainText('Paid');
+ const record=await page.evaluate(()=>window.PaywizardBillingStore.read().find(r=>r.notes==='Local monthly contract'));
+ expect(record.payments).toHaveLength(3);
+ expect(record.payments.map(p=>p.amount)).toEqual([12,12,12]);
+});

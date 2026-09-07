@@ -4,28 +4,44 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Local Billing Demo**:
+A simulated billing experience whose records and payment outcomes belong to the current browser. Sharing a local demo link allows another browser to demonstrate the bill independently; it does not share an authoritative payment outcome.
+_Avoid_: Shared billing state, real payment, synchronized payment link
+
+**Shared Billing Demo**:
+A simulated billing experience in which operations and external payers refer to one authoritative Billing Record across devices. Payment outcomes and fixed-term collection progress are shared, while payment execution remains simulated.
+_Avoid_: Local Billing Demo, real payment processing
+
+**Billing Record**:
+A payment obligation collected as a one-time payment or a Fixed-term Billing Contract. It is either a Merchant Billing Record or a Standalone Billing Record.
+_Avoid_: Payment Link, Payment Attempt
+
 **Merchant Billing Record**:
 A payment obligation assigned to a merchant, visible in the portal to that merchant's account users when such accounts exist. A payment through a shared link is recorded against this same obligation rather than creating a separate merchant billing record.
 _Avoid_: Payment Link, Customer Alert
 
+**Standalone Billing Record**:
+A Billing Record created and managed by operations without assignment to a merchant or inclusion in a merchant's billing view, payable by an external customer through a Billing Payment Link. It supports both one-time payment and a Fixed-term Billing Contract.
+_Avoid_: Unassigned merchant, temporary merchant, reusable checkout link
+
 **Billing Payment Link**:
-A shareable entry to the payment page for a specific Merchant Billing Record, provided by an operations user so the merchant can pay without signing in to the portal.
+A shareable entry to the payment page for a specific Billing Record, provided by an operations user so the payer can pay without signing in to the portal.
 _Avoid_: Portal login link, reusable product checkout link
 
 **Public Billing Payment Page**:
-A merchant-facing page opened from a Billing Payment Link without portal sign-in, presenting the associated billing information and payment form.
+A payer-facing page opened from a Billing Payment Link without portal sign-in, presenting the associated billing information and payment form.
 _Avoid_: Platform Back-office Page, Public Onboarding Page
 
 **Fixed-term Billing Contract**:
-A merchant payment obligation with an agreed monthly installment amount and a fixed number of installments. Collection ends when all agreed installments have been paid; the contract does not automatically renew.
+A payment obligation with an agreed monthly installment amount and a fixed number of installments, with or without merchant assignment. Collection ends when all agreed installments have been paid; the contract does not automatically renew.
 _Avoid_: Indefinite subscription, auto-renewal
 
 **Recurring Payment Authorization**:
-A merchant's explicit consent to retain a payment method and use it to collect the remaining scheduled installments of a Fixed-term Billing Contract. It does not authorize collection beyond the agreed contract term.
+A payer's explicit consent to retain a payment method and use it to collect the remaining scheduled installments of a Fixed-term Billing Contract. It does not authorize collection beyond the agreed contract term.
 _Avoid_: Auto-renewal consent, saving a card number
 
 **Billing Link Recipient**:
-The email recipient chosen by an operations user when sending a Billing Payment Link. The recipient address does not determine or change the merchant that owns the associated billing record.
+The email recipient chosen by an operations user when sending a Billing Payment Link. The recipient address does not determine or change the associated Billing Record's merchant assignment.
 _Avoid_: Billing owner, merchant account identity
 
 **Billing Link Expiry**:

@@ -45,3 +45,33 @@ test('month end clamping preserves the original anchor',()=>{
 test('legacy paid installments remain paid without inventing card authorization or transactions',()=>{
  const b=makeBill(input({paidInstallments:1,currentInstallmentPaid:true}),new Date(),true);assert.equal(summary(b).paidInstallments,1);assert.equal(b.payments.length,0);assert.equal(b.authorization,null);
 });
+
+test('eSIM allowance is optional, durable metadata with whole-MB validation', () => {
+ const b = makeBill(input({billType:'eSIM Billing', includedData:1024}));
+ assert.equal(b.includedData,1024);
+ assert.equal(publicView(b).includedData,1024);
+ assert.equal(makeBill(input({billType:'eSIM Billing'})).includedData,null);
+ assert.equal(makeBill(input({includedData:1024})).includedData,null);
+ for (const includedData of [-1, 1.5, 'invalid', Infinity]) {
+  assert.throws(() => makeBill(input({billType:'eSIM Billing', includedData})), /Included data/);
+ }
+});
+
+test('billing assignment is explicit and legacy merchant ownership remains valid', () => {
+ const legacy = makeBill(input());
+ assert.equal(legacy.assignment, 'merchant');
+ assert.equal(legacy.merchantId, 'merchant-1');
+ assert.throws(() => makeBill(input({merchantId: null})), /Invalid merchant/);
+ assert.throws(() => makeBill(input({assignment: 'unknown'})), /Invalid billing assignment/);
+ const standalone = makeBill(input({assignment: 'standalone'}));
+ assert.equal(standalone.merchantId, null);
+ assert.equal(standalone.merchantName, '');
+ assert.equal(standalone.assignment, 'standalone');
+ assert.equal(standalone.installments.length, 3);
+ const draft = makeBill(input({assignment: 'standalone', merchantId: null, status: 'Draft', amount: ''}));
+ assert.equal(draft.status, 'Draft');
+ assert.equal(draft.linkToken, null);
+ assert.deepEqual(draft.installments, []);
+ delete legacy.assignment;
+ assert.equal(publicView(legacy).assignment, 'merchant');
+});

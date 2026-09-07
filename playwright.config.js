@@ -9,6 +9,7 @@ process.env.no_proxy = [process.env.no_proxy, ...localNoProxy].filter(Boolean).j
 
 module.exports = defineConfig({
   testDir: "./tests",
+  testIgnore: "**/billing-static.spec.js",
   timeout: 30000,
   use: {
     baseURL: "http://127.0.0.1:8765",
