@@ -8,4 +8,12 @@ for (const entry of await readdir('.')) {
     await cp(entry, resolve(output, entry), {recursive:true, filter:source=>!source.endsWith('.mjs')});
   }
 }
+// Publish email HTML and image assets without renderer source or fixture JSON.
+const emailDirectory = '邮件模版html/邮件模版html';
+await mkdir(resolve(output, emailDirectory), {recursive:true});
+for (const entry of await readdir(emailDirectory)) {
+  if (/\.(html|css|png|jpe?g|svg|webp|gif|ico)$/i.test(entry)) {
+    await cp(resolve(emailDirectory, entry), resolve(output, emailDirectory, entry));
+  }
+}
 console.log('Static pages built in dist/. Billing API deploys separately as a Vercel Function.');

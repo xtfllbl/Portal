@@ -4,6 +4,10 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Billing Payment Receipt**:
+A confirmation of one successful payment against a Billing Record, addressed to the payer email supplied at checkout. For fixed-term billing, each successful installment has its own receipt; full completion means all agreed installments have been paid.
+_Avoid_: Payment link invitation, contract total, invoice payment request
+
 **Local Billing Demo**:
 A simulated billing experience whose records and payment outcomes belong to the current browser. Sharing a local demo link allows another browser to demonstrate the bill independently; it does not share an authoritative payment outcome.
 _Avoid_: Shared billing state, real payment, synchronized payment link
