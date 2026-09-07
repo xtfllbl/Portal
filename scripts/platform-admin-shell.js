@@ -11,7 +11,12 @@
   var profiles = {
     wizarpos: { label: "WizarPOS Provider" },
     attended: { label: "Attended Provider" },
-    unattended: { label: "Unattended Provider" }
+    unattended: { label: "Unattended Provider" },
+    "attended-merchant": { label: "Attended Merchant", merchant: true, terminal: "attended" },
+    "unattended-merchant": { label: "Unattended Merchant", merchant: true, terminal: "unattended" },
+    "attended-store": { label: "Attended Store", store: true, terminal: "attended" },
+    "unattended-store": { label: "Unattended Store", store: true, terminal: "unattended" },
+    "billing-merchant": { label: "Billing-only Merchant", merchant: true, billingOnly: true }
   };
   var activeProfile = readProfile();
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
@@ -88,9 +93,24 @@
     catch (_) { return false; }
   }
 
+  function terminalProfile(profile) {
+    return profiles[profile].terminal || profile;
+  }
+
   function fallbackFor(targetFile, profile) {
     var target = pageMap[targetFile];
+    if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
+    if (target.active === "billing-setup" && profile !== "wizarpos") return "12.transaction_list.html";
+    if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
+    if (profiles[profile].merchant) {
+      var merchantPages = ["5.merchant_detail_iso.html", "5.merchant_detail_no_store_iso.html", "5.merchant_add_device_iso.html", "5.merchant_device_settings_iso.html", "23.payment_channel_setting_v2.html"];
+      if (target.module === "merchants" && !merchantPages.includes(targetFile)) return "5.merchant_detail_iso.html";
+      if (target.module === "settings" && target.active !== "branding") return "12.transaction_list.html";
+      if (!["transactions", "merchants", "billing-payments", "device", "remote", "settings", "notifications"].includes(target.module)) return "12.transaction_list.html";
+    }
+    if (profiles[profile].store && !["transactions", "device", "notifications"].includes(target.module)) return "12.transaction_list.html";
+    profile = terminalProfile(profile);
     if (profile !== "wizarpos" && (target.module === "partners" || ["contact", "leads", "onboarding"].includes(target.active))) {
       return "5.merchant_manage_iso.html";
     }
@@ -116,8 +136,8 @@
     profile: activeProfile,
     label: profiles[activeProfile].label,
     terminalHref: function (kind) {
-      if (activeProfile === "attended") return "1.terminalmanage.html";
-      if (activeProfile === "unattended") return "1.terminalmanage_nayax.html";
+      if (terminalProfile(activeProfile) === "attended") return "1.terminalmanage.html";
+      if (terminalProfile(activeProfile) === "unattended") return "1.terminalmanage_nayax.html";
       if (kind === "unattended") return "1.terminalmanage_nayax.html";
       if (kind === "card-reader") return "1.terminalmanage_CardReader.html";
       return "1.terminalmanage.html";
@@ -204,6 +224,8 @@
 
   function buildNavigation() {
     var isWizarpos = activeProfile === "wizarpos";
+    var isMerchant = profiles[activeProfile].merchant;
+    if (profiles[activeProfile].billingOnly) return link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments");
     var merchantItems = [
       isWizarpos ? sub("Contact", "7.merchant_contact.html", "contact") : "",
       isWizarpos ? sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads") : "",
@@ -217,8 +239,8 @@
       sub("Analytics", "2.agent_analytics.html", "agent-analytics")
     ].join("");
     var deviceItems = [
-      activeProfile !== "unattended" ? sub("Attended Terminals", "1.terminalmanage.html", "attended-terminals") : "",
-      activeProfile !== "attended" ? sub("Unattended Terminals", "1.terminalmanage_nayax.html", "unattended-terminals") : "",
+      terminalProfile(activeProfile) !== "unattended" ? sub("Attended Terminals", "1.terminalmanage.html", "attended-terminals") : "",
+      terminalProfile(activeProfile) !== "attended" ? sub("Unattended Terminals", "1.terminalmanage_nayax.html", "unattended-terminals") : "",
       isWizarpos ? sub("Card Readers", "1.terminalmanage_CardReader.html", "card-readers") : ""
     ].join("");
     var prepaidItems = [
@@ -233,9 +255,9 @@
       unavailableSub("Appeals")
     ].join("");
     var settingsItems = [
-      sub("Billing Setup", "41.billing_setup.html", "billing-setup"),
+      isWizarpos ? sub("Billing Setup", "41.billing_setup.html", "billing-setup") : "",
       isWizarpos ? sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") : "",
-      activeProfile !== "attended" ? sub("Alerts", "39.customer_alerts.html", "alerts") : "",
+      terminalProfile(activeProfile) !== "attended" ? sub("Alerts", "39.customer_alerts.html", "alerts") : "",
       sub("Branding", "20.provider_custom_email_service.html", "branding"),
       sub("Service Providers", "21.service_provider.html", "service-providers"),
       sub("Payment Channels", "23.payment_channel_setting.html", "payment-channels"),
@@ -243,6 +265,10 @@
       sub("Products", "35.product_management.html", "products"),
       sub("Product Map Templates", "36.product_map_templates.html", "product-map-templates")
     ].join("");
+    if (isMerchant) {
+      userItems = unavailableSub("User List") + unavailableSub("Role Permissions");
+      settingsItems = sub("Branding", "20.provider_custom_email_service.html", "branding");
+    }
     var deviceActive = config.module === "device";
     var deviceOpen = deviceActive;
     var device = '<div class="pw-platform-menu-row' + (deviceActive ? ' active' : '') + '">' +
@@ -252,21 +278,28 @@
       '<span class="material-symbols-rounded pw-platform-menu-arrow" aria-hidden="true">expand_more</span></button></div>' +
       '<div class="pw-platform-sub-menu" data-pw-menu="device"' + (deviceOpen ? '' : ' hidden') + '>' + deviceItems + '</div>';
 
+    if (profiles[activeProfile].store) return [
+      disabled("Dashboard", "dashboard"),
+      link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
+      device,
+      group("User Management", "manage_accounts", "users", unavailableSub("User List") + unavailableSub("Role Permissions"))
+    ].join("");
+
     return [
       disabled("Dashboard", "dashboard"),
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
-      group("Agents", "group", "agents", agentItems),
-      group("Merchants", "store", "merchants", merchantItems),
-      link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments"),
+      !isMerchant ? group("Agents", "group", "agents", agentItems) : "",
+      isMerchant ? link("Merchant", "5.merchant_detail_iso.html", "store", "merchant-list") : group("Merchants", "store", "merchants", merchantItems),
+      isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
-      link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps"),
+      !isMerchant ? link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps") : "",
       link("Remote Diagnostic", "13.remote_control.html", "cast_connected", "remote"),
-      activeProfile !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
+      !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
       disabled("Tickets", "support_agent"),
-      disabled("Developer Center", "code_blocks")
+      isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");
   }
 
@@ -306,8 +339,12 @@
   };
 
   function buildBreadcrumb() {
-    return config.breadcrumb.map(function (label, index) {
-      var isCurrent = index === config.breadcrumb.length - 1;
+    var crumbs = config.breadcrumb;
+    if (profiles[activeProfile].merchant && config.module === "merchants") {
+      crumbs = ["Merchant"].concat(config.breadcrumb.slice(3));
+    }
+    return crumbs.map(function (label, index) {
+      var isCurrent = index === crumbs.length - 1;
       var item = isCurrent || !breadcrumbTargets[label]
         ? '<strong>' + escapeHtml(label) + '</strong>'
         : '<a href="' + breadcrumbTargets[label] + '">' + escapeHtml(label) + '</a>';
@@ -316,11 +353,25 @@
   }
 
   function buildProfileOptions() {
-    return Object.keys(profiles).map(function (key) {
-      var selected = key === activeProfile;
-      return '<button class="pw-platform-profile-option' + (selected ? ' active' : '') + '" type="button" role="menuitemradio" aria-checked="' + String(selected) + '" data-pw-profile="' + key + '">' +
-        '<span>' + escapeHtml(profiles[key].label) + '</span><span class="material-symbols-rounded" aria-hidden="true">check</span></button>';
-    }).join("");
+    var groups = [
+      { name: "WizarPOS", kind: "platform", keys: ["wizarpos", "billing-merchant"] },
+      { name: "Unattended", kind: "unattended", keys: ["unattended", "unattended-merchant", "unattended-store"] },
+      { name: "Attended", kind: "attended", keys: ["attended", "attended-merchant", "attended-store"] }
+    ];
+    var icons = {
+      platform: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+      attended: '<rect x="7" y="3.5" width="10" height="17" rx="2"/><rect x="9.5" y="6" width="5" height="3.4" rx=".7"/><circle cx="12" cy="16.3" r="1"/>',
+      unattended: '<rect x="5" y="3" width="14" height="18" rx="2"/><rect x="8" y="6" width="5" height="8" rx="1"/><path d="M16 7v3M8 18h8"/>',
+      billing: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h3"/>'
+    };
+    return '<div class="pw-platform-profile-grid">' + groups.map(function (group) {
+      return '<div class="pw-platform-profile-column" role="group" aria-label="' + group.name + '">' + group.keys.map(function (key) {
+        var kind = key === "billing-merchant" ? "billing" : group.kind;
+        return '<button class="pw-platform-profile-option' + (key === activeProfile ? ' active' : '') + '" type="button" role="menuitemradio" aria-checked="' + String(key === activeProfile) + '" data-pw-profile="' + key + '">' +
+          '<span class="pw-profile-icon ' + kind + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + icons[kind] + '</svg></span>' +
+          '<span class="pw-profile-option-label">' + escapeHtml(profiles[key].label) + '</span><span class="material-symbols-rounded pw-profile-check" aria-hidden="true">check</span></button>';
+      }).join("") + '</div>';
+    }).join("") + '</div>';
   }
 
   var source = document.querySelector(config.source);

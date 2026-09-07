@@ -732,7 +732,8 @@
       Object.values(additionalTerminalsByMid).flat().forEach(terminal=>{terminal.tci=terminalTciBySn[terminal.sn]||"-";});
       const portalProfile=(()=>{
         try{
-          const value=localStorage.getItem("paywizard.portalAccessProfile.v1");
+          const stored=localStorage.getItem("paywizard.portalAccessProfile.v1");
+          const value=({"attended-merchant":"attended","unattended-merchant":"unattended","attended-store":"attended","unattended-store":"unattended"})[stored]||stored;
           return ["wizarpos","attended","unattended"].includes(value)?value:"wizarpos";
         }catch(_){return "wizarpos";}
       })();

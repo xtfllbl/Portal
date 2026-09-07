@@ -73,6 +73,7 @@ for (const width of [1440, 390]) {
     const bill = await fixture(true);
     await page.setViewportSize({ width, height: 960 });
     await page.route('**/api/billing/**', route => route.fulfill({ json: route.request().url().endsWith('/config') ? {mode:'shared',configured:true} : { records: [bill], publicOrigin: 'http://localhost' } }));
+    await page.addInitScript(() => localStorage.setItem('paywizard.portalAccessProfile.v1', 'billing-merchant'));
     await page.goto('/42.billing_payments.html?merchantId=test-merchant');
     await page.locator('#paymentMerchant').selectOption('test-merchant');
     await page.getByRole('button', { name: 'Pay Now' }).click();

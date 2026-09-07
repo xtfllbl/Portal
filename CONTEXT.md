@@ -65,12 +65,32 @@ The primary destination for a back-office module in shared navigation; detail, e
 _Avoid_: every page in a module
 
 **Portal Access Profile**:
-A named presentation of portal visibility and interaction rules used to demonstrate the experience of a provider category. The current profiles are WizarPOS Provider, Attended Provider, and Unattended Provider.
+A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Attended Provider, and Unattended Provider; merchant profiles are Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
 _Avoid_: Login Role, Security Role, Permission Set
+
+**Attended Merchant**:
+The Portal Access Profile for a merchant whose payment terminals are operated by an attendant, with access to its merchant-management experience and billing.
+_Avoid_: Attended Provider, Service Provider
+
+**Unattended Merchant**:
+The Portal Access Profile for a merchant whose payment terminals operate without an attendant, with access to its merchant-management experience and billing.
+_Avoid_: Unattended Provider, Service Provider
+
+**Billing-only Merchant**:
+The Portal Access Profile limited to viewing and paying the merchant's bills, without access to other portal modules.
+_Avoid_: Read-only Merchant, External Payer
 
 **Customer Account**:
 A service provider, agent, merchant, or store account that forms an isolated ownership and access boundary for Customer Alerts. Paywizard operators select a Customer Account when performing Delegated Rule Creation; they do not assume that account's login role.
 _Avoid_: Role Simulator, Monitoring Target
+
+**Attended Store**:
+The Portal Access Profile for a store whose payment terminals are operated by an attendant, with a narrower set of portal capabilities than its corresponding Attended Merchant profile.
+_Avoid_: Attended Merchant, Attended Provider
+
+**Unattended Store**:
+The Portal Access Profile for a store whose payment terminals operate without an attendant, with a narrower set of portal capabilities than its corresponding Unattended Merchant profile.
+_Avoid_: Unattended Merchant, Unattended Provider
 
 **WizarPOS Provider**:
 The Portal Access Profile representing a WizarPOS-exclusive service provider across attended terminals, unattended terminals, and card readers.

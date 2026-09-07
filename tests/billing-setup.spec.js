@@ -308,6 +308,7 @@ for (const width of [1440, 390]) {
 
       const portal = await page.context().newPage();
       try {
+        await portal.addInitScript(() => localStorage.setItem('paywizard.portalAccessProfile.v1', 'billing-merchant'));
         await portal.goto(new URL('/42.billing_payments.html?merchantId=null', page.url()).href);
         await expect(portal.locator('#paymentMerchant option[value="1000000006"]')).toHaveCount(1);
         await expect(portal.locator('#paymentMerchant option[value="null"], #paymentMerchant option[value="undefined"]')).toHaveCount(0);
@@ -315,7 +316,10 @@ for (const width of [1440, 390]) {
         await expect(portal.locator('#pendingCards')).not.toContainText(invoice);
         await portal.locator('#historyTab').click();
         await expect(portal.locator('#paymentHistoryRows')).not.toContainText(invoice);
-      } finally { await portal.close(); }
+      } finally {
+        await page.evaluate(() => localStorage.setItem('paywizard.portalAccessProfile.v1', 'wizarpos'));
+        await portal.close();
+      }
     }
   });
 }

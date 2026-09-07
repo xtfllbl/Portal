@@ -185,7 +185,8 @@
       if(payload.merchantName) query.set("merchantName",payload.merchantName);
       let profile="wizarpos";
       try{
-        const stored=localStorage.getItem("paywizard.portalAccessProfile.v1");
+        const raw=localStorage.getItem("paywizard.portalAccessProfile.v1");
+        const stored=({"attended-merchant":"attended","unattended-merchant":"unattended","attended-store":"attended","unattended-store":"unattended"})[raw]||raw;
         if(["wizarpos","attended","unattended"].includes(stored)) profile=stored;
       }catch(_){}
       const target=profile==="unattended"?"1.terminalmanage_nayax.html":"1.terminalmanage.html";
