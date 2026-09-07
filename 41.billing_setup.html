@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billing Setup | PAYwizard Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/billing-setup.css">
+</head>
+<body>
+<main class="billing-page">
+  <h1>Billing Setup</h1>
+  <form id="billingForm">
+    <div class="billing-grid billing-top">
+      <label class="billing-field"><span>Merchant Name<b>*</b></span><select id="merchant" required></select></label>
+      <label class="billing-field"><span>Bill Type</span><select id="billType"><option>eSIM Billing</option><option selected>General Billing</option></select></label>
+      <label class="billing-field"><span>Currency</span><select id="currency"><option value="CAD">CAD - Canadian Dollar</option><option value="USD" selected>USD - US Dollar</option><option value="EUR">EUR - Euro</option></select></label>
+      <label class="billing-field"><span>Payment Link Expire Date</span><input id="expiry" value="2026-10-10" readonly></label>
+    </div>
+    <fieldset class="billing-details">
+      <legend>Billing Details</legend>
+      <div class="billing-grid" id="detailsGrid">
+        <label class="billing-recurring"><input type="checkbox" id="recurring">Enable Recurring Payments</label>
+        <label class="billing-field" data-recurring hidden><span>Billing Start Date<b>*</b></span><input type="date" id="startDate"></label>
+        <label class="billing-field billing-amount"><span>Amount<b>*</b></span><input type="number" id="amount" min="0.01" max="999999999" step="0.01" required></label>
+        <label class="billing-field" data-recurring hidden><span>Billing Cycle<b>*</b></span><select id="cycle"><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option><option value="24" selected>24 Months</option><option value="36">36 Months</option></select></label>
+        <label class="billing-field" data-recurring hidden><span>Renewal Mode</span><select disabled><option>Auto-renewal</option></select></label>
+        <label class="billing-notes"><span class="sr-only">Billing Notes</span><textarea id="notes" placeholder="Billing Notes" rows="5"></textarea></label>
+      </div>
+    </fieldset>
+    <section class="billing-preview" aria-label="Billing Preview"><strong>Billing Preview</strong><div><span>Total amount:</span><output id="total" aria-live="polite">$0.00</output></div></section>
+    <div class="billing-actions"><button type="button" class="muted" id="resetForm">Reset</button><button type="button" id="saveDraft">Save as Draft</button><button type="submit" class="primary">Apply to Merchant Account</button></div>
+  </form>
+  <section class="billing-records" aria-label="Billing records">
+    <form id="filterForm" class="billing-filters">
+      <label class="billing-field"><span>Merchant Name</span><select id="filterMerchant"></select></label>
+      <label class="sr-only" for="filterStatus">Payment Status</label><select id="filterStatus"><option value="">Payment Status</option><option>Draft</option><option>Pending</option><option>Active</option><option>Paid</option><option>Overdue</option></select>
+      <button type="button" id="resetFilters" aria-label="Reset filters"><span class="material-symbols-rounded" aria-hidden="true">restart_alt</span></button>
+      <button class="primary" type="submit" aria-label="Search billing records"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
+    </form>
+    <div class="billing-table-wrap" tabindex="0" role="region" aria-label="Billing records table"><table><thead><tr><th>PAYWIZARD ID</th><th>MERCHANT NAME</th><th>INVOICE NO.</th><th>BILLING CYCLE</th><th>BASE MONTHLY FEE</th><th>TOTAL CYCLE AMOUNT</th><th>BILLING START DATE</th><th>NEXT BILLING</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="billingRows"></tbody></table></div>
+    <nav class="billing-pagination" aria-label="Billing pagination"><div id="pageButtons"></div><select id="pageSize" aria-label="Rows per page"><option>10</option><option selected>20</option><option>50</option></select><span id="pageSummary" aria-live="polite"></span></nav>
+  </section>
+  <div id="billingMessage" role="status" aria-live="polite"></div>
+</main>
+<script src="scripts/platform-merchant-store.js"></script>
+<script src="scripts/billing-setup.js"></script>
+<script src="scripts/platform-admin-shell.js"></script>
+</body>
+</html>

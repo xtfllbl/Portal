@@ -17,6 +17,7 @@
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
+    "41.billing_setup.html": page("body > main.billing-page", "settings", "billing-setup", ["Settings", "Billing Setup"], []),
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_nayax.html": page(".main-body > .workspace", "device", "unattended-terminals", ["Device Management", "Unattended Terminals"], ["body > .top-header", "body > .main-body"]),
@@ -128,6 +129,7 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "41.billing_setup.html",
     "2.agent_list_iso.html",
     "2.agent_analytics.html",
     "3.Processor_template_new.html",
@@ -229,6 +231,7 @@
       unavailableSub("Appeals")
     ].join("");
     var settingsItems = [
+      sub("Billing Setup", "41.billing_setup.html", "billing-setup"),
       isWizarpos ? sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") : "",
       activeProfile !== "attended" ? sub("Alerts", "39.customer_alerts.html", "alerts") : "",
       sub("Branding", "20.provider_custom_email_service.html", "branding"),
@@ -265,6 +268,7 @@
   }
 
   var breadcrumbTargets = {
+    "Billing Setup": "41.billing_setup.html",
     "Transactions": "12.transaction_list.html",
     "Agents": "2.agent_list_iso.html",
     "Agent List": "2.agent_list_iso.html",
