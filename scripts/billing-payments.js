@@ -12,7 +12,7 @@
   function reload() {
     try {
       records = store.read(); $('loadError').hidden = true;
-      const merchants = new Map(window.PaywizardPlatformMerchantStore.readAll().map(m => [String(m.merchantId), m.merchantName || m.name || String(m.merchantId)]));
+      const merchants = new Map(store.merchantList().map(m => [m.id, m.name]));
       records.filter(store.isMerchantRecord).forEach(r => { if (!merchants.has(String(r.merchantId))) merchants.set(String(r.merchantId), r.merchantName || String(r.merchantId)); });
       $('paymentMerchant').replaceChildren(new Option('Select Merchant', ''));
       merchants.forEach((name, id) => $('paymentMerchant').add(new Option(name, id)));

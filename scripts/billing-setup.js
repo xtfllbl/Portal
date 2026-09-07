@@ -9,18 +9,18 @@
     document.querySelector('#billingForm button[type=submit]').disabled = !ready || saving;
   }
   const existing = window.PaywizardPlatformMerchantStore.readAll();
-  const merchants = existing.length ? existing.map(m => ({ id: String(m.merchantId), name: m.merchantName || m.name || String(m.merchantId) })) : [{ id: '1000000006', name: 'Tom shop' }];
+  const merchants = store.merchantList();
   let records = [], editing = null, highlighted = null, page = 1, filters = { assignment: '', merchant: '', status: '' }, storageError = false;
   function message(text) { $('billingMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => { $('billingMessage').textContent = ''; }, 5000); }
   function options(el, all) {
     if (all) el.add(new Option('All Merchants', ''));
     merchants.forEach(m => el.add(new Option(m.name, m.id)));
   }
-  options($('merchant')); options($('filterMerchant'), true);
+  options($('merchant'));
   try { records = window.PaywizardBillingStore.read(); } catch (_) { storageError = true; message('Billing data could not be loaded. Please check browser storage and reload.'); }
   // Preserve existing bills even if their merchant is no longer in the current merchant list.
   records.filter(store.isMerchantRecord).forEach(r => {
-    if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); $('filterMerchant').add(new Option(r.merchantName, r.merchantId)); }
+    if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); }
   });
   function money(value, currency) { return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value); }
   function total(r) { return Math.round(Number(r.amount || 0) * 100) * (r.recurring ? Number(r.cycle) : 1) / 100; }
@@ -99,7 +99,7 @@
   }
   function cell(row, text) { const td = document.createElement('td'); td.textContent = text; row.append(td); return td; }
   function render() {
-    const filtered = records.filter(r => (!filters.assignment || (r.assignment ?? 'merchant') === filters.assignment) && (!filters.merchant || store.isMerchantRecord(r) && r.merchantId === filters.merchant) && (!filters.status || r.status === filters.status));
+    const filtered = records.filter(r => (!filters.assignment || (r.assignment ?? 'merchant') === filters.assignment) && (!filters.merchant || store.isMerchantRecord(r) && String(r.merchantName || '').toLocaleLowerCase().includes(filters.merchant.toLocaleLowerCase())) && (!filters.status || r.status === filters.status));
     const size = Number($('pageSize').value), pages = Math.max(1, Math.ceil(filtered.length / size));
     page = Math.min(Math.max(1, page), pages);
     $('billingRows').replaceChildren();
@@ -146,7 +146,7 @@
     finally { saving = false; updateActions(); }
     if (store.isMerchantRecord(record)) store.selectMerchant(record.merchantId);
     editing = draft ? record.id : null;
-    filters = { assignment: record.assignment, merchant: record.merchantId || '', status: '' };
+    filters = { assignment: record.assignment, merchant: record.merchantName || '', status: '' };
     $('filterAssignment').value = filters.assignment; $('filterMerchant').value = filters.merchant; $('filterStatus').value = ''; updateFilterAssignment(); page = 1;
     if (!draft) { reset(); highlighted = record.id; selectTab('records', true); }
     render(); message(draft ? 'Draft saved.' : record.assignment === 'standalone' ? 'Payment link created.' : 'Billing applied to merchant account.');
@@ -157,7 +157,7 @@
   $('saveDraft').onclick = () => save(true);
   $('resetForm').onclick = () => { reset(); message('Form reset. Saved billing records are unchanged.'); };
   $('filterMerchant').value = filters.merchant;
-  $('filterForm').onsubmit = event => { event.preventDefault(); filters = { assignment: $('filterAssignment').value, merchant: $('filterMerchant').disabled ? '' : $('filterMerchant').value, status: $('filterStatus').value }; page = 1; render(); };
+  $('filterForm').onsubmit = event => { event.preventDefault(); filters = { assignment: $('filterAssignment').value, merchant: $('filterMerchant').disabled ? '' : $('filterMerchant').value.trim(), status: $('filterStatus').value }; page = 1; render(); };
   function updateFilterAssignment() {
     const standalone = $('filterAssignment').value === 'standalone';
     $('filterMerchant').disabled = standalone;
@@ -165,7 +165,6 @@
     if (standalone) $('filterMerchant').value = '';
   }
   $('filterAssignment').onchange = updateFilterAssignment;
-  $('resetFilters').onclick = () => { $('filterAssignment').value = ''; $('filterMerchant').value = ''; $('filterStatus').value = ''; filters = { assignment: '', merchant: '', status: '' }; updateFilterAssignment(); page = 1; render(); };
   $('pageSize').onchange = () => { page = 1; render(); };
   $('merchant').addEventListener('change', () => window.PaywizardBillingStore.selectMerchant($('merchant').value));
   window.addEventListener('storage', event => { if (event.key === key) { try { records = window.PaywizardBillingStore.read(); render(); } catch (_) { message('Could not reload billing records.'); } } });
@@ -228,7 +227,7 @@
     try {
       const data = await store.initialize();
       records = data; ready = true; storageError = false;
-      records.filter(store.isMerchantRecord).forEach(r => { if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); $('filterMerchant').add(new Option(r.merchantName, r.merchantId)); } });
+      records.filter(store.isMerchantRecord).forEach(r => { if (!merchants.some(m => m.id === r.merchantId)) { merchants.push({ id: r.merchantId, name: r.merchantName }); $('merchant').add(new Option(r.merchantName, r.merchantId)); } });
       $('billingConnection').hidden = true; window.dispatchEvent(new Event('billing-mode')); render();
     } catch (error) {
       $('billingConnectionText').textContent = error.message + ' Your form has been kept.';

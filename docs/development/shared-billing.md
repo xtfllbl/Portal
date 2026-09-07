@@ -12,6 +12,12 @@ Local payment links carry a non-secret bill snapshot in their fragment. On the s
 
 The **Demo settings** button selects Local demo or connects to a Shared demo URL with a management key. Localhost HTTP is supported for development; remote shared URLs require HTTPS. A known shared service outage keeps the form and blocks shared writes until reconnection or an explicit switch to Local demo.
 
+## Local scenario records
+
+Local demo initialization adds 32 records once, using stable `billing-scenarios-v1-*` IDs. Existing records and payment outcomes are preserved; reloading does not reset scenario dates or recreate records. The examples cover merchant and standalone assignment, General/eSIM billing, USD/CAD/EUR, drafts, unpaid and completed one-time payments, monthly first payment, authorization, failed collection, completed contracts and expired links. Installments and payment attempts are created through the billing domain. These examples stay in local storage and are not automatically uploaded to shared storage.
+
+Billing merchant selectors read the platform's `dba` field before older name fields. Missing or numeric-only names receive stable fictional display names; merchant IDs and platform records remain intact.
+
 ## Shared Vite development
 
 Run Node 22.13+ (validated with Node 24):

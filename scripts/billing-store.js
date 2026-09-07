@@ -4,6 +4,19 @@
   const contextKey = 'paywizard-billing-merchant-v1';
   let cached = null;
   function isMerchantRecord(record) { return (record.assignment ?? 'merchant') === 'merchant' && !!record.merchantId; }
+  const demoNames = ['Maple Street Coffee', 'Harbour Market', 'Northstar Vending', 'Cedar Grove Bakery', 'Bluebird Books', 'Willow & Oak Bistro', 'Summit Fitness', 'Seaside Pharmacy'];
+  function merchantName(m) {
+    const candidates = [m.dba, m.merchantName, m.name, m.businessName, m.legalName];
+    const name = candidates.find(value => typeof value === 'string' && value.trim() && !/^\d+$/.test(value.trim()));
+    if (name) return name.trim();
+    const id = String(m.merchantId || m.id || '');
+    const index = [...id].reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 0) % demoNames.length;
+    return demoNames[index];
+  }
+  function merchantList() {
+    const saved = window.PaywizardPlatformMerchantStore?.readAll() || [];
+    return saved.length ? saved.map(m => ({id:String(m.merchantId), name:merchantName(m)})) : demoNames.map((name, i) => ({id:'billing-merchant-' + (i + 1), name}));
+  }
   function readSharedCache() {
     if (cached) return cached;
     let saved;
@@ -91,6 +104,37 @@
     if (mode === 'local') return localRead();
     const data = await api('records'); publicOrigin = data.publicOrigin || endpoint || location.origin; write(data.records); return data.records;
   }
+  async function enrichLocalDemo() {
+    await localChange(records => {
+      const merchants = merchantList();
+      records.forEach(record => {
+        if (isMerchantRecord(record) && (!record.merchantName || /^\d+$/.test(record.merchantName))) {
+          record.merchantName = merchants.find(m => m.id === record.merchantId)?.name || merchantName(record);
+        }
+      });
+      // Stable IDs make this an additive migration; existing bills and payment outcomes win.
+      const now = new Date();
+      const date = offset => domain.day(new Date(now.getTime() + offset * 86400000));
+      for (let i = 0; i < 32; i++) {
+        const id = 'billing-scenarios-v1-' + String(i + 1).padStart(2, '0');
+        if (records.some(record => record.id === id)) continue;
+        const scenario = i % 8, recurring = scenario >= 3 && scenario <= 6;
+        const merchant = merchants[Math.floor(i / 2) % merchants.length];
+        const standalone = Math.floor(i / 8) % 2 === 1;
+        const label = ['Draft awaiting review', 'One-time awaiting payment', 'One-time paid', 'Monthly awaiting first payment', 'Monthly authorized', 'Monthly collection failed', 'Monthly completed', 'Payment link expired'][scenario];
+        const bill = domain.makeBill({id, assignment:standalone ? 'standalone' : 'merchant', merchantId:standalone ? null : merchant.id, merchantName:standalone ? '' : merchant.name,
+          invoice:'DEMO-' + String(i + 1).padStart(4,'0'), billType:i < 16 ? 'General Billing' : 'eSIM Billing', currency:['USD','CAD','EUR'][i % 3],
+          amount:[89,149.95,320,24,39.9,59,18.5,225][scenario], recurring, cycle:recurring ? [3,6,12,24,36][i % 5] : 1,
+          start:recurring ? date(scenario === 5 ? -40 : scenario === 6 ? -1200 : 0) : '', expiry:date(scenario === 7 ? -7 : 60),
+          includedData:i >= 16 ? [500,1024,2048,5120][i % 4] : null, notes:'Demo · ' + label,
+          status:scenario === 0 ? 'Draft' : 'Pending', createdAt:new Date(now.getTime() - i * 60000).toISOString()}, now);
+        if ([2,4,5,6].includes(scenario)) {
+          domain.checkout(bill, {requestId:'demo-payment-request-' + id, email:'payer@example.com', acceptedTerms:true, recurringConsent:true, brand:'Visa', last4:'4242'}, now, scenario === 5 ? {failAt:2} : {});
+        }
+        records.push(bill);
+      }
+    });
+  }
   async function initialize(accessKey) {
     const config = settings(); endpoint = config.origin || '';
     if (mode !== 'shared' && config.mode !== 'local') {
@@ -113,6 +157,7 @@
     if (config.mode === 'local') mode = 'local';
     if (mode === 'local') {
       if (fullLocal() === null) writeLocal(readSharedCache().map(r => domain.makeBill(r, new Date(), true)));
+      await enrichLocalDemo();
       window.dispatchEvent(new Event('billing-mode')); return localRead();
     }
     mode = 'shared';
@@ -188,5 +233,5 @@
   function selectMerchant(id) { try { localStorage.setItem(contextKey, id); } catch (_) {} }
   function selectedMerchant() { try { return localStorage.getItem(contextKey) || ''; } catch (_) { return ''; } }
   window.addEventListener?.('storage', event => { if (event.key === localKey) window.dispatchEvent(new CustomEvent('billing-local-change')); });
-  window.PaywizardBillingStore = {key, read, write, isMerchantRecord, total, endDate, count, pending, expired, pay, selectMerchant, selectedMerchant, initialize, sync, save, send, link, publicBill, configure, settings, get mode(){return mode;}};
+  window.PaywizardBillingStore = {key, read, write, merchantName, merchantList, isMerchantRecord, total, endDate, count, pending, expired, pay, selectMerchant, selectedMerchant, initialize, sync, save, send, link, publicBill, configure, settings, get mode(){return mode;}};
 })();
