@@ -5,7 +5,7 @@
   const bar = document.createElement('div'); bar.className = 'billing-runtime';
   const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Demo settings';
   bar.append(button);
-  const heading = mount.querySelector('.billing-page-header');
+  const heading = mount.querySelector('.billing-page-header, .payments-heading-actions');
   if (heading) heading.append(bar); else mount.prepend(bar);
   const dialog = document.createElement('dialog'); dialog.className = 'billing-runtime-dialog';
   dialog.setAttribute('aria-labelledby', 'billingRuntimeTitle');

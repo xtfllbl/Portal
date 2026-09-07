@@ -9,7 +9,7 @@
 </head>
 <body>
 <main class="payments-page">
-  <header class="payments-heading"><h1>Billing &amp; Payments</h1><label class="merchant-picker"><span class="sr-only">Merchant</span><select id="paymentMerchant" aria-label="Merchant"><option value="">Select Merchant</option></select></label></header>
+  <header class="payments-heading"><h1>Billing &amp; Payments</h1><div class="payments-heading-actions"><label class="merchant-picker"><span class="sr-only">Merchant</span><select id="paymentMerchant" aria-label="Merchant"><option value="">Select Merchant</option></select></label></div></header>
   <div class="payment-tabs" role="tablist" aria-label="Billing views">
     <button id="pendingTab" type="button" role="tab" aria-selected="true" aria-controls="pendingPanel">Pending Payments</button>
     <button id="historyTab" type="button" role="tab" aria-selected="false" aria-controls="historyPanel" tabindex="-1">Billing History</button>
@@ -20,7 +20,8 @@
     <div id="pendingCards"></div>
   </section>
   <section id="historyPanel" role="tabpanel" aria-labelledby="historyTab" hidden>
-    <div class="export-toolbar"><button id="exportHistory" type="button"><span class="material-symbols-rounded" aria-hidden="true">file_export</span>Export</button></div>
+    <div class="history-toolbar">
+    <button id="exportHistory" type="button"><span class="material-symbols-rounded" aria-hidden="true">file_export</span>Export</button>
     <form id="historyFilters" class="history-filters">
       <select id="paymentStatus" aria-label="Payment Status"><option value="">Payment Status</option><option>Pending</option><option>Active</option><option>Paid</option><option>Overdue</option></select>
       <select id="paymentCycle" aria-label="Cycle"><option value="">Cycle</option><option value="1">One-time</option><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option><option value="24">24 Months</option><option value="36">36 Months</option></select>
@@ -28,6 +29,7 @@
       <button id="resetHistory" type="button"><span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>Reset</button>
       <button type="submit" class="primary icon-button" aria-label="Search billing history"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
     </form>
+    </div>
     <div class="history-table" tabindex="0" role="region" aria-label="Billing history table"><table><thead><tr><th>INVOICE NO.</th><th>DATE &amp; TIME</th><th>MERCHANT NAME</th><th>BILLING PERIOD</th><th>CYCLE</th><th>AMOUNT</th><th>PAYMENT STATUS</th><th>PAID INSTALLMENTS</th><th>DUE DATE</th><th>PAYMENT LINK EXPIRE DATE</th><th>CARD AUTHORIZATION</th><th>NEXT PAYMENT</th></tr></thead><tbody id="paymentHistoryRows"></tbody></table></div>
   </section>
   <div id="paymentMessage" role="status" aria-live="polite"></div>

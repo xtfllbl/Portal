@@ -28,7 +28,7 @@ for (const width of [1440,390]) {
   const link=await page.evaluate(()=>window.PaywizardBillingStore.link(window.PaywizardBillingStore.read().find(r=>r.notes==='Static demo service')));
   expect(link).toContain('#local.');
   const checkout=await context.newPage();await checkout.goto(link);
-  await expect(checkout.locator('.local-demo-notice')).toContainText('only in this browser');
+  await expect(checkout.locator('.local-demo-notice')).toHaveCount(0);
   await checkout.locator('#cardEmail').fill('demo@example.com');
   await checkout.locator('#cardNumber').fill('4242424242424242');
   await checkout.locator('#cardExpiry').fill('1299');
@@ -43,7 +43,7 @@ for (const width of [1440,390]) {
   const foreign=await browser.newContext();
   try {
     const outside=await foreign.newPage();await outside.goto(link);
-    await expect(outside.locator('.local-demo-notice')).toBeVisible();
+    await expect(outside.locator('.local-demo-notice')).toHaveCount(0);
     await expect(outside.locator('#cardForm')).toBeVisible();
   }finally{await foreign.close();}
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

@@ -8,11 +8,6 @@
   const date=v=>v?new Date(v.slice(0,10)+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
   async function api(value) { return window.PaywizardBillingStore.publicBill(token, value); }
   function render() {
-    if (bill.localDemo && !document.querySelector('.local-demo-notice')) {
-      const notice = document.createElement('p'); notice.className = 'local-demo-notice';
-      notice.textContent = 'Local demo · Simulated payment. Results are saved only in this browser.';
-      $('billInformation').before(notice);
-    }
     const done=bill.paidInstallments>0 || bill.status==='Paid';
     const details=[['Merchant',bill.merchantName],['Invoice No.',bill.invoice],['Billing amount',money(bill.amount)],['Billing cycle',bill.recurring?bill.cycle+' Months':'One-time'],['Contract total',money(bill.totalAmount)],['Renewal','No automatic renewal'],['Service start',date(bill.start)],['Paid installments',bill.paidInstallments+' of '+bill.cycle],['Next payment',date(bill.paidInstallments ? bill.nextPaymentDate : bill.nextScheduledPaymentDate)],['Payment link expires',date(bill.expiry)]];
     $('billInformation').innerHTML='<h1>'+esc(bill.billType)+'</h1><p class="checkout-amount">'+esc(money(bill.amount))+(bill.recurring?'<small>per month</small>':'')+'</p><p class="bill-notes">'+esc(bill.notes)+'</p><dl class="bill-details">'+details.filter(([name])=>(name !== 'Merchant' || bill.assignment !== 'standalone') && (!done || name !== 'Renewal') && (bill.recurring||!['Contract total','Renewal','Service start','Next payment','Paid installments'].includes(name))).map(([name,value])=>'<div><dt>'+esc(name)+'</dt><dd>'+esc(value)+'</dd></div>').join('')+'</dl>';
