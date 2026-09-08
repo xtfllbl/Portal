@@ -15,7 +15,7 @@ test("the user control switches and persists the active portal access profile", 
   await page.locator("[data-pw-profile-trigger]").click();
   await expect(page.locator("[data-pw-profile-menu]")).toBeVisible();
   await expect(page.locator("[data-pw-profile]")).toHaveText([
-    "WizarPOS Providercheck", "Billing-only Merchantcheck",
+    "WizarPOS Providercheck", "Full-Service Providercheck", "Billing-only Merchantcheck",
     "Unattended Providercheck", "Unattended Merchantcheck", "Unattended Storecheck",
     "Attended Providercheck", "Attended Merchantcheck", "Attended Storecheck"
   ]);
@@ -30,7 +30,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
   const cases = [
     {
       profile: "wizarpos",
-      merchantItems: ["Contact", "Leads", "Onboarding", "Merchant List", "Analytics", "Split Rules"],
+      merchantItems: ["Contact", "Leads", "Onboarding", "Merchant List", "Analytics"],
       deviceItems: ["Attended Terminals", "Unattended Terminals", "Card Readers"],
       settingsItems: ["Billing Setup", "SLA Alerts", "Alerts", "Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
       partners: 1,
@@ -73,6 +73,8 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
 });
 
 test("profile guards redirect restricted back-office pages to an allowed destination", async ({ page }) => {
+  await setProfile(page, "wizarpos", "/8.splitbill.html");
+  await expect(page).toHaveURL(/5\.merchant_manage_iso\.html$/);
   await setProfile(page, "attended", "/26.partner_information.html");
   await expect(page).toHaveURL(/5\.merchant_manage_iso\.html$/);
 
@@ -121,6 +123,7 @@ test("Agents and Merchants follow the current navigation accordion", async ({ pa
 
 test("Transactions exposes only the system view and terminal scenarios allowed by the profile", async ({ page }) => {
   for (const roleCase of [
+    { profile: "full-service", views: ["Attended", "Unattended"], groups: ["Attended Scenarios", "Unattended Scenarios"] },
     { profile: "wizarpos", views: ["Attended", "Unattended"], groups: ["Attended Scenarios", "Unattended Scenarios"] },
     { profile: "attended", views: ["Attended"], groups: ["Attended Scenarios"] },
     { profile: "unattended", views: ["Unattended"], groups: ["Unattended Scenarios"] },
@@ -193,7 +196,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
       if (viewport.width < 761) await page.getByRole("button", { name: "Close navigation", exact: true }).click({ position: { x: viewport.width - 5, y: 100 } });
       await page.locator("[data-pw-profile-trigger]").click();
       const heights = await page.locator("[data-pw-profile]").evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
-      expect(heights).toHaveLength(8);
+      expect(heights).toHaveLength(9);
       expect(new Set(heights).size).toBe(1);
       await expect(page.locator('[data-pw-profile="billing-merchant"]')).toBeInViewport();
       await page.locator('[data-pw-profile="billing-merchant"]').click();
@@ -208,7 +211,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
 }
 
 test("billing and merchant direct links obey role visibility", async ({ page }) => {
-  for (const profile of ["wizarpos", "attended", "unattended"]) {
+  for (const profile of ["wizarpos", "full-service", "attended", "unattended"]) {
     await setProfile(page, profile, "/42.billing_payments.html");
     await expect(page).toHaveURL(/12\.transaction_list\.html$/);
     await expect(page.locator('[data-pw-nav-label="Billing & Payments"]')).toHaveCount(0);
@@ -269,3 +272,40 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.pw-platform-profile-label')).toHaveText('Attended Store');
   });
 }
+
+
+test("Full-Service Provider combines ordinary provider menus without WizarPOS privileges", async ({ page }) => {
+  const menus = async () => page.locator('.pw-platform-nav a[href], .pw-platform-nav [data-pw-nav-label]').evaluateAll(nodes => [...new Set(nodes.map(n => n.getAttribute('href') || n.dataset.pwNavLabel))].sort());
+  await setProfile(page, 'attended');
+  const attended = await menus();
+  await setProfile(page, 'unattended');
+  const unattended = await menus();
+  await setProfile(page, 'full-service');
+  expect(await menus()).toEqual([...new Set([...attended, ...unattended])].sort());
+  await expect(page.locator('[data-pw-menu="device"] a')).toHaveText(['Attended Terminals', 'Unattended Terminals']);
+  for (const path of ['1.terminalmanage.html', '1.terminalmanage_nayax.html', '37.pick_list.html', '14.prepaid_card_list.html', '39.customer_alerts.html']) {
+    await page.goto('/' + path);
+    expect(new URL(page.url()).pathname).toBe('/' + path);
+  }
+  for (const path of ['1.terminalmanage_CardReader.html', '34.card_reader_management.html', '32.sla_alert_rules.html', '26.partner_information.html', '7.merchant_contact.html', '29.INTL_PSP_merchant_lead_list.html', '38.Merchant_onboard.html', '8.splitbill.html']) {
+    await page.goto('/' + path);
+    await expect(page).not.toHaveURL(new RegExp(path.replaceAll('.', '\\.')));
+    await expect(page.locator('.pw-platform-profile-label')).toHaveText('Full-Service Provider');
+  }
+  await page.goto('/2.resellermerchantterminal.html');
+  await expect(page.locator('.terminal-table .sn-link').nth(0)).toHaveAttribute('href', '1.terminalmanage.html');
+  await expect(page.locator('.terminal-table .sn-link').nth(1)).toHaveAttribute('href', '1.terminalmanage_nayax.html');
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('[data-pw-profile-trigger]').click();
+    await expect(page.locator('.pw-platform-profile-column').first().locator('.pw-profile-option-label')).toHaveText(['WizarPOS Provider', 'Full-Service Provider', 'Billing-only Merchant']);
+    const option = page.locator('[data-pw-profile="full-service"]');
+    await expect(option).toHaveAttribute('aria-checked', 'true');
+    await page.screenshot({ path: `artifacts/full-service-provider-${width}.png` });
+    await page.locator('[data-pw-profile="wizarpos"]').click();
+    await page.locator('[data-pw-profile-trigger]').click();
+    await option.click();
+    await page.reload();
+    await expect(page.locator('.pw-platform-profile-label')).toHaveText('Full-Service Provider');
+  }
+});

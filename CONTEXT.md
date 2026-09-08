@@ -65,7 +65,7 @@ The primary destination for a back-office module in shared navigation; detail, e
 _Avoid_: every page in a module
 
 **Portal Access Profile**:
-A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Attended Provider, and Unattended Provider; merchant profiles are Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
+A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Full-Service Provider, Attended Provider, and Unattended Provider; merchant profiles are Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
 _Avoid_: Login Role, Security Role, Permission Set
 
 **Attended Merchant**:
@@ -95,6 +95,10 @@ _Avoid_: Unattended Merchant, Unattended Provider
 **WizarPOS Provider**:
 The Portal Access Profile representing a WizarPOS-exclusive service provider across attended terminals, unattended terminals, and card readers.
 _Avoid_: Administrator, Superuser
+
+**Full-Service Provider**:
+The Portal Access Profile for an ordinary service provider operating both attended and unattended payment businesses. Its capabilities combine those of Attended Provider and Unattended Provider, without WizarPOS-exclusive capabilities.
+_Avoid_: WizarPOS Provider, Administrator, All-access Provider
 
 **Attended Provider**:
 The Portal Access Profile representing an ordinary service provider whose payment terminals are operated by an attendant.

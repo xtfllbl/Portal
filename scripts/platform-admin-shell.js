@@ -10,6 +10,7 @@
   var sidebarCollapsedStoreKey = "paywizard.platformSidebarCollapsed.v1";
   var profiles = {
     wizarpos: { label: "WizarPOS Provider" },
+    "full-service": { label: "Full-Service Provider" },
     attended: { label: "Attended Provider" },
     unattended: { label: "Unattended Provider" },
     "attended-merchant": { label: "Attended Merchant", merchant: true, terminal: "attended" },
@@ -114,7 +115,7 @@
     if (profile !== "wizarpos" && (target.module === "partners" || ["contact", "leads", "onboarding"].includes(target.active))) {
       return "5.merchant_manage_iso.html";
     }
-    if (profile !== "wizarpos" && target.active === "split-rules") return "5.merchant_manage_iso.html";
+    if (target.active === "split-rules") return "5.merchant_manage_iso.html";
     if (profile === "attended" && target.module === "prepaid") return "2.resellermerchantterminal.html";
     if (profile !== "wizarpos" && target.active === "sla-alerts") return "12.transaction_list.html";
     if (profile === "attended" && target.active === "alerts") return "12.transaction_list.html";
@@ -231,8 +232,7 @@
       isWizarpos ? sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads") : "",
       isWizarpos ? sub("Onboarding", "38.Merchant_onboard.html", "onboarding") : "",
       sub("Merchant List", "5.merchant_manage_iso.html", "merchant-list"),
-      sub("Analytics", "8.merchant_analytics.html", "merchant-analytics"),
-      isWizarpos ? sub("Split Rules", "8.splitbill.html", "split-rules") : ""
+      sub("Analytics", "8.merchant_analytics.html", "merchant-analytics")
     ].join("");
     var agentItems = [
       sub("Agent List", "2.agent_list_iso.html", "agent-list"),
@@ -354,7 +354,7 @@
 
   function buildProfileOptions() {
     var groups = [
-      { name: "WizarPOS", kind: "platform", keys: ["wizarpos", "billing-merchant"] },
+      { name: "WizarPOS", kind: "platform", keys: ["wizarpos", "full-service", "billing-merchant"] },
       { name: "Unattended", kind: "unattended", keys: ["unattended", "unattended-merchant", "unattended-store"] },
       { name: "Attended", kind: "attended", keys: ["attended", "attended-merchant", "attended-store"] }
     ];
@@ -362,11 +362,12 @@
       platform: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
       attended: '<rect x="7" y="3.5" width="10" height="17" rx="2"/><rect x="9.5" y="6" width="5" height="3.4" rx=".7"/><circle cx="12" cy="16.3" r="1"/>',
       unattended: '<rect x="5" y="3" width="14" height="18" rx="2"/><rect x="8" y="6" width="5" height="8" rx="1"/><path d="M16 7v3M8 18h8"/>',
+      full: '<rect x="2" y="5" width="8" height="15" rx="1.5"/><path d="M5 8h2M5 16h2"/><rect x="13" y="3" width="9" height="18" rx="1.5"/><path d="M16 6h3v7h-3zM16 17h3"/>',
       billing: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h3"/>'
     };
     return '<div class="pw-platform-profile-grid">' + groups.map(function (group) {
       return '<div class="pw-platform-profile-column" role="group" aria-label="' + group.name + '">' + group.keys.map(function (key) {
-        var kind = key === "billing-merchant" ? "billing" : group.kind;
+        var kind = key === "billing-merchant" ? "billing" : key === "full-service" ? "full" : group.kind;
         return '<button class="pw-platform-profile-option' + (key === activeProfile ? ' active' : '') + '" type="button" role="menuitemradio" aria-checked="' + String(key === activeProfile) + '" data-pw-profile="' + key + '">' +
           '<span class="pw-profile-icon ' + kind + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + icons[kind] + '</svg></span>' +
           '<span class="pw-profile-option-label">' + escapeHtml(profiles[key].label) + '</span><span class="material-symbols-rounded pw-profile-check" aria-hidden="true">check</span></button>';

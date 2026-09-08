@@ -409,7 +409,7 @@ test("shared navigation uses real destinations and the agreed module entries", a
   }
 
   await expect(page.locator('.pw-platform-menu-link[href="2.resellermerchantterminal.html"]')).toHaveText(/Device Management/);
-  await expect(page.locator('[data-pw-menu="merchants"]')).toContainText("Split Rules");
+  await expect(page.locator('[data-pw-menu="merchants"]')).not.toContainText("Split Rules");
   await expect(page.locator('[data-pw-menu="settings"]')).toContainText("SLA Alerts");
   await expect(page.locator('[data-pw-menu="settings"]')).toContainText("Alerts");
   await expect(page.locator('.pw-platform-disabled[aria-disabled="true"]')).toHaveCount(3);

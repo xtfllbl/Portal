@@ -734,7 +734,7 @@
         try{
           const stored=localStorage.getItem("paywizard.portalAccessProfile.v1");
           const value=({"attended-merchant":"attended","unattended-merchant":"unattended","attended-store":"attended","unattended-store":"unattended"})[stored]||stored;
-          return ["wizarpos","attended","unattended"].includes(value)?value:"wizarpos";
+          return ["wizarpos","full-service","attended","unattended"].includes(value)?value:"wizarpos";
         }catch(_){return "wizarpos";}
       })();
       const viewStoreKey=`paywizard.transactionList.savedViews.${portalProfile}`;
@@ -749,7 +749,7 @@
         {id:"default",name:"Attended",desc:"Attended payment view",getColumns:defaultColumns},
         {id:"unattd",name:"Unattended",desc:"Unattended payment view",getColumns:unattdColumns}
       ];
-      const systemViews=allSystemViews.filter(view=>portalProfile==="wizarpos"||(portalProfile==="attended"?view.id==="default":view.id==="unattd"));
+      const systemViews=allSystemViews.filter(view=>["wizarpos","full-service"].includes(portalProfile)||(portalProfile==="attended"?view.id==="default":view.id==="unattd"));
       const systemViewMap=new Map(systemViews.map(view=>[view.id,view]));
       const isSystemViewId=viewId=>systemViewMap.has(viewId);
       const normalizeColumns=input=>{
@@ -1243,7 +1243,7 @@
         if(r.storeName) query.set("storeName",r.storeName);
         if(r.storeId) query.set("storeId",r.storeId);
         const inferredMode=typeof inferTerminalModeKey==="function"?inferTerminalModeKey(r):"attended_standalone";
-        const target=portalProfile==="unattended"||(portalProfile==="wizarpos"&&inferredMode.startsWith("unattended_"))
+        const target=portalProfile==="unattended"||(["wizarpos","full-service"].includes(portalProfile)&&inferredMode.startsWith("unattended_"))
           ?"1.terminalmanage_nayax.html"
           :"1.terminalmanage.html";
         return `${target}?${query.toString()}`;
@@ -1251,7 +1251,7 @@
       const terminalModeGroups=[
         {label:"Attended Scenarios",items:["attended_standalone","attended_pos_linked"]},
         {label:"Unattended Scenarios",items:["unattended_vending","unattended_ev","unattended_arcade","unattended_coffee"]}
-      ].filter(group=>portalProfile==="wizarpos"||(portalProfile==="attended"?group.label.startsWith("Attended"):group.label.startsWith("Unattended")));
+      ].filter(group=>["wizarpos","full-service"].includes(portalProfile)||(portalProfile==="attended"?group.label.startsWith("Attended"):group.label.startsWith("Unattended")));
       const terminalModeMap={
         attended_standalone:{
           usageKey:"standalone",
