@@ -2867,6 +2867,7 @@
                             <span class="material-symbols-rounded pm-command-icon alerts-command-symbol" aria-hidden="true">notifications</span>
                             <span>Open Alert Center</span>
                         </a>
+                        <select class="alerts-terminal-role" aria-label="Alerts role" data-alert-role-switcher><option value="merchant">Portal User</option><option value="operations-manager">Operations Manager</option></select>
                     </div>
 
                     <div class="alert-center-view-tabs alerts-terminal-tabs" role="tablist" aria-label="Terminal Alert views">
@@ -2877,7 +2878,7 @@
                     <div id="terminalAlertIncidents" class="alerts-terminal-panel" role="tabpanel" data-alert-view-panel="incidents">
                         <div class="alerts-table-wrap">
                             <table class="table alerts-table">
-                                <thead><tr><th>State</th><th>Condition</th><th>Evidence</th><th>Opened</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>State</th><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Evidence</th><th>Opened</th><th>Actions</th></tr></thead>
                                 <tbody data-alert-incidents></tbody>
                             </table>
                         </div>
@@ -2886,7 +2887,7 @@
                     <div id="terminalAlertRules" class="alerts-terminal-panel hidden" role="tabpanel" data-alert-view-panel="rules">
                         <div class="alerts-table-wrap">
                             <table class="table alerts-table">
-                                <thead><tr><th>Condition</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
                                 <tbody data-alert-rules></tbody>
                             </table>
                         </div>
@@ -3176,6 +3177,26 @@
     </div>
 
     <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
+    <div class="alert-modal-overlay" data-alert-context-modal aria-hidden="true">
+        <section class="alert-modal alert-context-dialog" role="dialog" aria-modal="true" aria-labelledby="terminalOwnerTitle">
+            <form data-alert-context-form>
+                <div class="alert-modal-head"><h2 id="terminalOwnerTitle">Select Rule Owner</h2><button class="alert-modal-close" type="button" aria-label="Close" data-alert-context-close><img src="assets/icons/close.svg" alt="" aria-hidden="true"></button></div>
+                <div class="alert-modal-body terminal-owner-fields">
+                    <div class="alert-field"><label for="terminalOwnerLevel">Owner Level</label><select id="terminalOwnerLevel" data-alert-owner-level></select></div>
+                    <div class="alert-field" data-terminal-owner-readonly><label for="terminalOwnerName">Rule Owner</label><input id="terminalOwnerName" data-alert-terminal-owner-name readonly></div>
+                    <div class="alert-field" data-terminal-owner-agent hidden>
+                        <label id="terminalAgentLabel" for="terminalAgentOwner">Rule Owner</label>
+                        <div class="alert-owner-column" data-alert-owner-column="terminal-agent">
+                            <button id="terminalAgentOwner" class="alert-owner-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="terminalAgentLabel terminalAgentValue"><span id="terminalAgentValue" data-owner-value>Select agent</span><span class="material-symbols-rounded" aria-hidden="true">expand_more</span></button>
+                            <div class="alert-owner-popup" hidden><input type="search" data-owner-search aria-label="Search agent" placeholder="Search agent" autocomplete="off"><div class="alert-owner-list" id="terminalAgentList" role="listbox" aria-labelledby="terminalAgentLabel"></div></div>
+                        </div>
+                    </div>
+                    <div class="alert-field-error" data-alert-context-error role="alert"></div>
+                </div>
+                <div class="alert-modal-actions"><button class="btn-secondary" type="button" data-alert-context-close>Cancel</button><button class="btn-primary" type="submit" data-alert-context-continue disabled>Continue</button></div>
+            </form>
+        </section>
+    </div>
     <div class="alert-modal-overlay" data-alert-modal aria-hidden="true">
         <section class="alert-modal" role="dialog" aria-modal="true" aria-labelledby="alertRuleDialogTitle">
             <form data-alert-form novalidate>
@@ -3184,6 +3205,8 @@
                     <button class="alert-modal-close" type="button" aria-label="Close" data-alert-close><img src="assets/icons/close.svg" alt="" aria-hidden="true"></button>
                 </div>
                 <div class="alert-modal-body alert-rule-body">
+                    <div class="alert-owner-context" data-alert-owner-context hidden><span>Creating for</span><strong data-alert-owner-context-name></strong><button type="button" data-alert-owner-change>Change</button></div>
+                    <div class="alert-field-error" data-alert-target-error role="alert"></div>
                     <section class="alert-form-section">
                         <div class="alert-section-head"><h3 id="terminalConditionHeading">Condition</h3><span class="alert-section-context">SN: <b data-alert-terminal-sn>WP6267UQ36002376</b></span></div>
                         <div class="alert-form-grid">

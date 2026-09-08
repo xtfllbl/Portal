@@ -17,59 +17,997 @@
     refrigeration_fault: { label: "Refrigeration Fault", hint: "Normalized equipment state", criteria: "Normalized refrigeration fault is active", fields: [] }
   };
 
-  const fullTemperatureCapabilities = ["temperature_range", "refrigeration_fault"];
   const monitoringHierarchy = [
     {
-      id: "sp-universal", name: "Universal Processing", agents: [], merchants: [
-        { id: "merchant-kind-world", name: "1 of a Kind World Travel LLC", stores: [
-          { id: "s-midtown", name: "Midtown Store", terminals: [
-            { id: "WP6267UQ36002376", name: "Terminal - WP6267UQ36002376", temperature: fullTemperatureCapabilities },
-            { id: "NYC-Q3-0042", name: "Lobby Vending Q3", temperature: [] },
-            { id: "NYC-Q3-0043", name: "Breakroom Cooler Q3", temperature: ["temperature_range"] }
-          ] },
-          { id: "s-boston", name: "Boston Office", terminals: [
-            { id: "BOS-Q3-0018", name: "Cafeteria Q3", temperature: fullTemperatureCapabilities }
-          ] }
-        ] }
+      "id": "sp-universal",
+      "name": "Universal Processing",
+      "agents": [
+        {
+          "id": "mock-agt-003",
+          "name": "Boston Partner Group",
+          "merchants": [
+            {
+              "id": "mock-mch-026",
+              "name": "Birch Bakery East",
+              "stores": [
+                {
+                  "id": "mock-str-028",
+                  "name": "University 28",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-004",
+          "name": "Manhattan Merchant Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-027",
+              "name": "Seabright Foods East",
+              "stores": [
+                {
+                  "id": "mock-str-029",
+                  "name": "Park Avenue 29",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-005",
+          "name": "Hudson Retail Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-016",
+              "name": "Elm Convenience",
+              "stores": [
+                {
+                  "id": "mock-str-030",
+                  "name": "Southbank 30",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-017",
+              "name": "Beacon Cafe",
+              "stores": [
+                {
+                  "id": "mock-str-031",
+                  "name": "Downtown 31",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-018",
+              "name": "Pinecrest Retail",
+              "stores": [
+                {
+                  "id": "mock-str-032",
+                  "name": "Riverside 32",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-019",
+              "name": "Saffron Kitchen",
+              "stores": [
+                {
+                  "id": "mock-str-033",
+                  "name": "Central Station 33",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-020",
+              "name": "Aster Market",
+              "stores": [
+                {
+                  "id": "mock-str-034",
+                  "name": "Airport 34",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-021",
+              "name": "Harbor Market East",
+              "stores": [
+                {
+                  "id": "mock-str-035",
+                  "name": "West End 35",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-022",
+              "name": "Cedar Coffee East",
+              "stores": [
+                {
+                  "id": "mock-str-036",
+                  "name": "Old Town 36",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-023",
+              "name": "Northstar Retail East",
+              "stores": [
+                {
+                  "id": "mock-str-037",
+                  "name": "Northgate 37",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-024",
+              "name": "Willow Grocers East",
+              "stores": [
+                {
+                  "id": "mock-str-038",
+                  "name": "Marina 38",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-025",
+              "name": "Atlas Vending East",
+              "stores": [
+                {
+                  "id": "mock-str-039",
+                  "name": "Market Square 39",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-028",
+              "name": "Oak & Bean East",
+              "stores": [
+                {
+                  "id": "mock-str-040",
+                  "name": "University 40",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-006",
+          "name": "Brooklyn Commerce Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-029",
+              "name": "Juniper Stores East",
+              "stores": [
+                {
+                  "id": "mock-str-041",
+                  "name": "Park Avenue 41",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-007",
+          "name": "Queens Payment Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-030",
+              "name": "Metro Pantry East",
+              "stores": [
+                {
+                  "id": "mock-str-042",
+                  "name": "Southbank 42",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-008",
+          "name": "Jersey Merchant Services",
+          "merchants": [
+            {
+              "id": "mock-mch-031",
+              "name": "Elm Convenience East",
+              "stores": [
+                {
+                  "id": "mock-str-043",
+                  "name": "Downtown 43",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-009",
+          "name": "Long Island Retail Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-032",
+              "name": "Beacon Cafe East",
+              "stores": [
+                {
+                  "id": "mock-str-044",
+                  "name": "Riverside 44",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-agt-010",
+          "name": "New England Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-033",
+              "name": "Pinecrest Retail East",
+              "stores": [
+                {
+                  "id": "mock-str-045",
+                  "name": "Central Station 45",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": [
+        {
+          "id": "merchant-kind-world",
+          "name": "1 of a Kind World Travel LLC",
+          "stores": [
+            {
+              "id": "s-midtown",
+              "name": "Midtown Store",
+              "terminals": [
+                {
+                  "id": "WP6267UQ36002376",
+                  "name": "Terminal - WP6267UQ36002376",
+                  "temperature": [
+                    "temperature_range",
+                    "refrigeration_fault"
+                  ]
+                },
+                {
+                  "id": "NYC-Q3-0042",
+                  "name": "Lobby Vending Q3",
+                  "temperature": []
+                },
+                {
+                  "id": "NYC-Q3-0043",
+                  "name": "Breakroom Cooler Q3",
+                  "temperature": [
+                    "temperature_range"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "s-boston",
+              "name": "Boston Office",
+              "terminals": [
+                {
+                  "id": "BOS-Q3-0018",
+                  "name": "Cafeteria Q3",
+                  "temperature": [
+                    "temperature_range",
+                    "refrigeration_fault"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-006",
+          "name": "Harbor Market",
+          "stores": [
+            {
+              "id": "mock-str-007",
+              "name": "Downtown",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-008",
+              "name": "Riverside",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-009",
+              "name": "Central Station",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-010",
+              "name": "Airport",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-011",
+              "name": "West End",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-012",
+              "name": "Old Town",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-013",
+              "name": "Northgate",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-014",
+              "name": "Marina",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-015",
+              "name": "Market Square",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-016",
+              "name": "University",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-017",
+              "name": "Park Avenue",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-018",
+              "name": "Southbank",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-067",
+              "name": "Downtown 67",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-007",
+          "name": "Cedar Coffee",
+          "stores": [
+            {
+              "id": "mock-str-019",
+              "name": "Downtown 19",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-068",
+              "name": "Riverside 68",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-008",
+          "name": "Northstar Retail",
+          "stores": [
+            {
+              "id": "mock-str-020",
+              "name": "Riverside 20",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-069",
+              "name": "Central Station 69",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-009",
+          "name": "Willow Grocers",
+          "stores": [
+            {
+              "id": "mock-str-021",
+              "name": "Central Station 21",
+              "terminals": []
+            },
+            {
+              "id": "mock-str-070",
+              "name": "Airport 70",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-010",
+          "name": "Atlas Vending",
+          "stores": [
+            {
+              "id": "mock-str-022",
+              "name": "Airport 22",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-011",
+          "name": "Birch Bakery",
+          "stores": [
+            {
+              "id": "mock-str-023",
+              "name": "West End 23",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-012",
+          "name": "Seabright Foods",
+          "stores": [
+            {
+              "id": "mock-str-024",
+              "name": "Old Town 24",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-013",
+          "name": "Oak & Bean",
+          "stores": [
+            {
+              "id": "mock-str-025",
+              "name": "Northgate 25",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-014",
+          "name": "Juniper Stores",
+          "stores": [
+            {
+              "id": "mock-str-026",
+              "name": "Marina 26",
+              "terminals": []
+            }
+          ]
+        },
+        {
+          "id": "mock-mch-015",
+          "name": "Metro Pantry",
+          "stores": [
+            {
+              "id": "mock-str-027",
+              "name": "Market Square 27",
+              "terminals": []
+            }
+          ]
+        }
       ]
     },
     {
-      id: "sp-eu-direct", name: "Europe Direct", agents: [], merchants: [
-        { id: "demo-cafe-berlin", name: "Demo Cafe Berlin", stores: [
-          { id: "berlin-mitte", name: "Berlin Mitte", terminals: [
-            { id: "WP44907Q33200398", name: "Retail shop T1", temperature: fullTemperatureCapabilities },
-            { id: "WP44907Q33200412", name: "Retail shop T2", temperature: ["temperature_range"] }
-          ] }
-        ] }
+      "id": "sp-eu-direct",
+      "name": "Europe Direct",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "demo-cafe-berlin",
+          "name": "Demo Cafe Berlin",
+          "stores": [
+            {
+              "id": "berlin-mitte",
+              "name": "Berlin Mitte",
+              "terminals": [
+                {
+                  "id": "WP44907Q33200398",
+                  "name": "Retail shop T1",
+                  "temperature": [
+                    "temperature_range",
+                    "refrigeration_fault"
+                  ]
+                },
+                {
+                  "id": "WP44907Q33200412",
+                  "name": "Retail shop T2",
+                  "temperature": [
+                    "temperature_range"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "mock-str-046",
+              "name": "Airport 46",
+              "terminals": []
+            }
+          ]
+        }
       ]
     },
     {
-      id: "sp-north-america", name: "North America Ops", agents: [
-        { id: "agent-seattle", name: "Seattle Field Agent", merchants: [
-          { id: "seattle-central", name: "Seattle Central", stores: [
-            { id: "ev-charger-hub", name: "EV Charger Hub", terminals: [
-              { id: "WP7300EV33001088", name: "EV Charger Bay 07", temperature: fullTemperatureCapabilities }
-            ] }
-          ] }
-        ] },
-        { id: "agent-waou", name: "Waou Distribution", merchants: [
-          { id: "waou-terminal", name: "Waou Terminal", stores: [
-            { id: "waou-main", name: "Waou Main Store", terminals: [
-              { id: "WP52205Q33000977", name: "Waou Terminal 01", temperature: fullTemperatureCapabilities },
-              { id: "WP52205Q33000981", name: "Waou Terminal 05", temperature: [] }
-            ] }
-          ] }
-        ] }
-      ], merchants: []
+      "id": "sp-north-america",
+      "name": "North America Ops",
+      "agents": [
+        {
+          "id": "agent-seattle",
+          "name": "Seattle Field Agent",
+          "merchants": [
+            {
+              "id": "seattle-central",
+              "name": "Seattle Central",
+              "stores": [
+                {
+                  "id": "ev-charger-hub",
+                  "name": "EV Charger Hub",
+                  "terminals": [
+                    {
+                      "id": "WP7300EV33001088",
+                      "name": "EV Charger Bay 07",
+                      "temperature": [
+                        "temperature_range",
+                        "refrigeration_fault"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "mock-str-047",
+                  "name": "West End 47",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-034",
+              "name": "Saffron Kitchen East",
+              "stores": [
+                {
+                  "id": "mock-str-048",
+                  "name": "Old Town 48",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "agent-waou",
+          "name": "Waou Distribution",
+          "merchants": [
+            {
+              "id": "waou-terminal",
+              "name": "Waou Terminal",
+              "stores": [
+                {
+                  "id": "waou-main",
+                  "name": "Waou Main Store",
+                  "terminals": [
+                    {
+                      "id": "WP52205Q33000977",
+                      "name": "Waou Terminal 01",
+                      "temperature": [
+                        "temperature_range",
+                        "refrigeration_fault"
+                      ]
+                    },
+                    {
+                      "id": "WP52205Q33000981",
+                      "name": "Waou Terminal 05",
+                      "temperature": []
+                    }
+                  ]
+                },
+                {
+                  "id": "mock-str-049",
+                  "name": "Northgate 49",
+                  "terminals": []
+                }
+              ]
+            },
+            {
+              "id": "mock-mch-035",
+              "name": "Aster Market East",
+              "stores": [
+                {
+                  "id": "mock-str-050",
+                  "name": "Marina 50",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
     },
     {
-      id: "sp-poland", name: "Poland Service Hub", agents: [], merchants: [
-        { id: "cartpoland-01", name: "CARTPOLAND-01", stores: [
-          { id: "warsaw-vending", name: "Warsaw Vending Area", terminals: [
-            { id: "WP2013Q321000014", name: "Vending Machine 04", temperature: [] },
-            { id: "WP2013Q321000018", name: "Vending Machine 08", temperature: ["temperature_range"] }
-          ] }
-        ] }
+      "id": "sp-poland",
+      "name": "Poland Service Hub",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "cartpoland-01",
+          "name": "CARTPOLAND-01",
+          "stores": [
+            {
+              "id": "warsaw-vending",
+              "name": "Warsaw Vending Area",
+              "terminals": [
+                {
+                  "id": "WP2013Q321000014",
+                  "name": "Vending Machine 04",
+                  "temperature": []
+                },
+                {
+                  "id": "WP2013Q321000018",
+                  "name": "Vending Machine 08",
+                  "temperature": [
+                    "temperature_range"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "mock-str-051",
+              "name": "Market Square 51",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-005",
+      "name": "Atlantic Payment Services",
+      "agents": [
+        {
+          "id": "mock-agt-011",
+          "name": "Bay Area Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-036",
+              "name": "Harbor Market West",
+              "stores": [
+                {
+                  "id": "mock-str-052",
+                  "name": "University 52",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-006",
+      "name": "Pacific Commerce Network",
+      "agents": [
+        {
+          "id": "mock-agt-012",
+          "name": "Portland Merchant Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-037",
+              "name": "Cedar Coffee West",
+              "stores": [
+                {
+                  "id": "mock-str-053",
+                  "name": "Park Avenue 53",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-007",
+      "name": "Alpine Payments",
+      "agents": [
+        {
+          "id": "mock-agt-013",
+          "name": "Denver Commerce Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-038",
+              "name": "Northstar Retail West",
+              "stores": [
+                {
+                  "id": "mock-str-054",
+                  "name": "Southbank 54",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-008",
+      "name": "Nordic Merchant Services",
+      "agents": [
+        {
+          "id": "mock-agt-014",
+          "name": "Austin Payment Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-039",
+              "name": "Willow Grocers West",
+              "stores": [
+                {
+                  "id": "mock-str-055",
+                  "name": "Downtown 55",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-009",
+      "name": "Iberia Payment Solutions",
+      "agents": [
+        {
+          "id": "mock-agt-015",
+          "name": "London Retail Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-040",
+              "name": "Atlas Vending West",
+              "stores": [
+                {
+                  "id": "mock-str-056",
+                  "name": "Riverside 56",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-010",
+      "name": "Benelux Commerce",
+      "agents": [
+        {
+          "id": "mock-agt-016",
+          "name": "Paris Merchant Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-041",
+              "name": "Birch Bakery West",
+              "stores": [
+                {
+                  "id": "mock-str-057",
+                  "name": "Central Station 57",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-011",
+      "name": "Adriatic Processing",
+      "agents": [
+        {
+          "id": "mock-agt-017",
+          "name": "Munich Commerce Partners",
+          "merchants": [
+            {
+              "id": "mock-mch-042",
+              "name": "Seabright Foods West",
+              "stores": [
+                {
+                  "id": "mock-str-058",
+                  "name": "Airport 58",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-012",
+      "name": "Baltic Payment Hub",
+      "agents": [
+        {
+          "id": "mock-agt-018",
+          "name": "Madrid Retail Agency",
+          "merchants": [
+            {
+              "id": "mock-mch-043",
+              "name": "Oak & Bean West",
+              "stores": [
+                {
+                  "id": "mock-str-059",
+                  "name": "West End 59",
+                  "terminals": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-013",
+      "name": "Maple Commerce Services",
+      "agents": [
+        {
+          "id": "mock-agt-019",
+          "name": "Toronto Merchant Partners",
+          "merchants": []
+        }
+      ],
+      "merchants": []
+    },
+    {
+      "id": "mock-sp-014",
+      "name": "Southern Cross Payments",
+      "agents": [
+        {
+          "id": "mock-agt-020",
+          "name": "Sydney Retail Partners",
+          "merchants": []
+        }
+      ],
+      "merchants": [
+        {
+          "id": "mock-mch-044",
+          "name": "Juniper Stores West",
+          "stores": [
+            {
+              "id": "mock-str-060",
+              "name": "Old Town 60",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-015",
+      "name": "Sakura Merchant Network",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "mock-mch-045",
+          "name": "Metro Pantry West",
+          "stores": [
+            {
+              "id": "mock-str-061",
+              "name": "Northgate 61",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-016",
+      "name": "Lion City Payments",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "mock-mch-046",
+          "name": "Elm Convenience West",
+          "stores": [
+            {
+              "id": "mock-str-062",
+              "name": "Marina 62",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-017",
+      "name": "Harbor Payment Services",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "mock-mch-047",
+          "name": "Beacon Cafe West",
+          "stores": [
+            {
+              "id": "mock-str-063",
+              "name": "Market Square 63",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-018",
+      "name": "Crescent Commerce",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "mock-mch-048",
+          "name": "Pinecrest Retail West",
+          "stores": [
+            {
+              "id": "mock-str-064",
+              "name": "University 64",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-019",
+      "name": "Meridian Processing",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "mock-mch-049",
+          "name": "Saffron Kitchen West",
+          "stores": [
+            {
+              "id": "mock-str-065",
+              "name": "Park Avenue 65",
+              "terminals": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mock-sp-020",
+      "name": "Summit Payment Network",
+      "agents": [],
+      "merchants": [
+        {
+          "id": "mock-mch-050",
+          "name": "Aster Market West",
+          "stores": [
+            {
+              "id": "mock-str-066",
+              "name": "Southbank 66",
+              "terminals": []
+            }
+          ]
+        }
       ]
     }
   ];
@@ -146,13 +1084,26 @@
     "operations-manager": { isOperations: true, canManage: true, ownerName: "All customer accounts", scopes: ["Store", "Terminal"], visibleFields: [] }
   };
 
+  // Existing agents remain level-one accounts; the added branch exercises all three levels.
+  monitoringHierarchy.forEach(provider => provider.agents.forEach(agent => { agent.parentId ||= ""; agent.level ||= 1; }));
+  for (let level = 1; level <= 3; level++) {
+    monitoringHierarchy[0].agents.push({ id: `demo-agent-l${level}`, name: `Demo Agent Level ${level}`, level, parentId: level === 1 ? "" : `demo-agent-l${level - 1}`, merchants: [{ id: `demo-merchant-l${level}`, name: `Demo Merchant Level ${level}`, stores: [{ id: `demo-store-l${level}`, name: `Demo Store Level ${level}`, terminals: [{ id: `DEMO-AGT${level}-001`, name: `Demo Terminal Level ${level}`, temperature: ["temperature_range", "refrigeration_fault"] }] }] }] });
+  }
+  function agentChain(providerId, agentId) {
+    const chain = [], seen = new Set();
+    let agent = agentFor(providerId, agentId);
+    while (agent && !seen.has(agent.id)) { chain.unshift(agent); seen.add(agent.id); agent = agentFor(providerId, agent.parentId); }
+    return chain;
+  }
+  const ownerLevelKey = account => account?.type || "";
+  const ownerTypeLabel = account => account?.type === "Agent" ? `Agent Level ${account.level || 1}` : account?.type;
   function providerFor(id) { return monitoringHierarchy.find((provider) => provider.id === id) || null; }
   function agentFor(providerId, agentId) { return providerFor(providerId)?.agents.find((agent) => agent.id === agentId) || null; }
   function merchantsFor(providerId, agentId) {
     const provider = providerFor(providerId);
     if (!provider) return [];
     if (agentId === "__direct") return provider.merchants || [];
-    if (agentId) return agentFor(providerId, agentId)?.merchants || [];
+    if (agentId) return provider.agents.filter(agent => agentChain(providerId, agent.id).some(parent => parent.id === agentId)).flatMap(agent => agent.merchants || []);
     return [...(provider.merchants || []), ...provider.agents.flatMap((agent) => agent.merchants || [])];
   }
   function merchantFor(providerId, agentId, merchantId) { return merchantsFor(providerId, agentId).find((merchant) => merchant.id === merchantId) || merchantsFor(providerId, "").find((merchant) => merchant.id === merchantId) || null; }
@@ -176,23 +1127,18 @@
     return null;
   }
 
-  const customerAccounts = monitoringHierarchy.flatMap((provider) => {
-    const providerAccount = { type: "Service Provider", id: provider.id, name: provider.name, providerId: provider.id, agentId: "", merchantId: "", storeId: "", path: provider.name, lineageIds: [provider.id] };
-    const directMerchantAccounts = (provider.merchants || []).flatMap((merchant) => {
-      const merchantAccount = { type: "Merchant", id: merchant.id, name: merchant.name, providerId: provider.id, agentId: "", merchantId: merchant.id, storeId: "", path: `${provider.name} / ${merchant.name}`, lineageIds: [provider.id, merchant.id] };
-      const stores = merchant.stores.map((store) => ({ type: "Store", id: store.id, name: store.name, providerId: provider.id, agentId: "", merchantId: merchant.id, storeId: store.id, path: `${provider.name} / ${merchant.name} / ${store.name}`, lineageIds: [provider.id, merchant.id, store.id] }));
-      return [merchantAccount, ...stores];
-    });
-    const agentAccounts = provider.agents.flatMap((agent) => {
-      const agentAccount = { type: "Agent", id: agent.id, name: agent.name, providerId: provider.id, agentId: agent.id, merchantId: "", storeId: "", path: `${provider.name} / ${agent.name}`, lineageIds: [provider.id, agent.id] };
-      const merchants = agent.merchants.flatMap((merchant) => {
-        const merchantAccount = { type: "Merchant", id: merchant.id, name: merchant.name, providerId: provider.id, agentId: agent.id, merchantId: merchant.id, storeId: "", path: `${provider.name} / ${agent.name} / ${merchant.name}`, lineageIds: [provider.id, agent.id, merchant.id] };
-        const stores = merchant.stores.map((store) => ({ type: "Store", id: store.id, name: store.name, providerId: provider.id, agentId: agent.id, merchantId: merchant.id, storeId: store.id, path: `${provider.name} / ${agent.name} / ${merchant.name} / ${store.name}`, lineageIds: [provider.id, agent.id, merchant.id, store.id] }));
-        return [merchantAccount, ...stores];
-      });
-      return [agentAccount, ...merchants];
-    });
-    return [providerAccount, ...directMerchantAccounts, ...agentAccounts];
+  const customerAccounts = monitoringHierarchy.flatMap(provider => {
+    const makeAccount = (type, entity, agentId = "", merchantId = "", storeId = "", ancestors = []) => ({ type, id: entity.id, name: entity.name, level: entity.level, providerId: provider.id, agentId, merchantId, storeId, path: [...ancestors.map(item => item.name), entity.name].join(" / "), lineageIds: [...ancestors.map(item => item.id), entity.id] });
+    const accounts = [makeAccount("Service Provider", provider)];
+    for (const agent of [null, ...provider.agents]) {
+      const chain = agent ? agentChain(provider.id, agent.id) : [];
+      if (agent) accounts.push(makeAccount("Agent", agent, agent.id, "", "", [provider, ...chain.slice(0, -1)]));
+      for (const merchant of agent ? agent.merchants : provider.merchants) {
+        accounts.push(makeAccount("Merchant", merchant, agent?.id || "", merchant.id, "", [provider, ...chain]));
+        for (const store of merchant.stores) accounts.push(makeAccount("Store", store, agent?.id || "", merchant.id, store.id, [provider, ...chain, merchant]));
+      }
+    }
+    return accounts;
   });
 
   function accountFor(type, id) { return customerAccounts.find((account) => account.type === type && account.id === id) || null; }
@@ -351,8 +1297,14 @@
   const terminalId = window.terminalContext?.sn || "WP6267UQ36002376";
   const terminalName = window.terminalContext?.terminalName || "Terminal - WP6267UQ36002376";
   const query = new URLSearchParams(location.search);
-  let currentRoleKey = roleContexts[query.get("role")] ? query.get("role") : "service-provider";
-  let currentRole = roleContexts[currentRoleKey];
+  const terminalPath = findTargetPath("Terminal", terminalId);
+  const terminalOwners = terminalPath ? [["Service Provider", terminalPath.provider], ...agentChain(terminalPath.provider.id, terminalPath.agent?.id).map(agent => ["Agent", agent]), ["Merchant", terminalPath.merchant], ["Store", terminalPath.store]].filter(([, entity]) => entity).map(([type, entity]) => accountFor(type, entity.id)) : [];
+  const resolveRole = (key) => pageType === "terminal" && key !== "operations-manager" ? { ...ownerContext(terminalOwners.find((account) => account.type === "Merchant")) } : roleContexts[key];
+  let currentRoleKey = pageType === "terminal" ? (query.get("role") === "operations-manager" ? "operations-manager" : "merchant") : roleContexts[query.get("role")] ? query.get("role") : "service-provider";
+  let currentRole = resolveRole(currentRoleKey);
+  const ownsRule = (rule) => accountForRule(rule || {})?.id === currentRole.ownerId;
+  const canManageRule = (rule) => canManageAlerts && (pageType !== "terminal" || currentRole.isOperations || ownsRule(rule));
+  const canManageIncident = (incident) => canManageRule(state.rules.find((rule) => rule.id === incident?.ruleId));
   let canManageAlerts = currentRole.isOperations ? currentRole.canManage : query.get("manageAlerts") !== "false";
   let selectedRuleOwner = null;
   let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current" };
@@ -366,7 +1318,7 @@
     }
     const provider = providerFor(context.providerId);
     const agent = context.agentId ? agentFor(context.providerId, context.agentId) : null;
-    let merchants = agent ? agent.merchants : merchantsFor(context.providerId, "");
+    let merchants = merchantsFor(context.providerId, agent?.id || "");
     if (context.merchantId) merchants = merchants.filter((merchant) => merchant.id === context.merchantId);
     let stores = merchants.flatMap((merchant) => merchant.stores);
     if (context.storeId) stores = stores.filter((store) => store.id === context.storeId);
@@ -390,7 +1342,7 @@
   }
 
   function roleVisibleRules() {
-    if (pageType === "terminal") return state.rules.filter((item) => item.status !== "Archived" && item.targetType === "Terminal" && item.targetId === terminalId);
+    if (pageType === "terminal") return state.rules.filter((item) => item.status !== "Archived" && item.targetType === "Terminal" && item.targetId === terminalId && (currentRole.isOperations || ownsRule(item)));
     if (currentRole.isOperations) return state.rules;
     return state.rules.filter((item) => item.status !== "Archived" && (item.ownerId ? item.ownerId === currentRole.ownerId : item.owner === currentRole.ownerName) && targetInRole(item));
   }
@@ -438,7 +1390,7 @@
     body.innerHTML = items.length ? items.map((item) => {
       const incidentRule = state.rules.find((rule) => rule.id === item.ruleId);
       const incidentOwner = accountForRule(incidentRule || {});
-      const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(incidentOwner?.type || incidentRule?.ownerType || "Customer Account")} · ${escapeHtml(incidentOwner?.name || incidentRule?.ownerName || incidentRule?.owner || "Unknown owner")}</strong></td>` : "";
+      const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(ownerTypeLabel(incidentOwner) || incidentRule?.ownerType || "Customer Account")} · ${escapeHtml(incidentOwner?.name || incidentRule?.ownerName || incidentRule?.owner || "Unknown owner")}</strong></td>` : "";
       const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.terminalName)} · ${escapeHtml(item.store)}</td>` : "";
       const opened = `${escapeHtml(item.opened)}${item.duration ? ` · ${escapeHtml(item.duration)}` : ""}`;
       const actionable = item.monitoringState === "Active";
@@ -450,9 +1402,9 @@
           ${ownerCell}
           ${targetCell}
           <td>${escapeHtml(item.evidence)}</td><td>${opened}</td>
-          <td class="alert-actions-cell">${actionable && !item.acknowledgedAt && (!currentRole.isOperations || canManageAlerts) ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}" aria-label="Acknowledge" title="Acknowledge" data-tooltip="Acknowledge"><span class="material-symbols-rounded" aria-hidden="true">done</span></button>` : ""}${actionable && canManageAlerts ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-close-incident="${escapeHtml(item.id)}" aria-label="Close incident" title="Close incident" data-tooltip="Close incident"><span class="material-symbols-rounded" aria-hidden="true">stop_circle</span></button>` : ""}<button class="alert-table-button alert-icon-button" type="button" data-alert-view="${escapeHtml(item.id)}" aria-label="View timeline" title="View timeline" data-tooltip="View timeline"><span class="material-symbols-rounded" aria-hidden="true">timeline</span></button></td>
+          <td class="alert-actions-cell">${actionable && !item.acknowledgedAt && (pageType === "terminal" ? canManageIncident(item) : (!currentRole.isOperations || canManageAlerts)) ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}" aria-label="Acknowledge" title="Acknowledge" data-tooltip="Acknowledge"><span class="material-symbols-rounded" aria-hidden="true">done</span></button>` : ""}${actionable && canManageIncident(item) ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-close-incident="${escapeHtml(item.id)}" aria-label="Close incident" title="Close incident" data-tooltip="Close incident"><span class="material-symbols-rounded" aria-hidden="true">stop_circle</span></button>` : ""}<button class="alert-table-button alert-icon-button" type="button" data-alert-view="${escapeHtml(item.id)}" aria-label="View timeline" title="View timeline" data-tooltip="View timeline"><span class="material-symbols-rounded" aria-hidden="true">timeline</span></button></td>
         </tr>`;
-    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 7 : 6) : 5}">No incidents match the current filters.</td></tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 7 : 6) : (currentRole.isOperations ? 6 : 5)}">No incidents match the current filters.</td></tr>`;
   }
 
   function renderRules() {
@@ -461,8 +1413,8 @@
     const items = visibleRules();
     body.innerHTML = items.length ? items.map((item) => {
       const owner = accountForRule(item);
-      const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(owner?.type || item.ownerType || "Customer Account")} · ${escapeHtml(owner?.name || item.ownerName || item.owner)}</strong></td>` : "";
-      const editable = canManageAlerts && item.status !== "Archived";
+      const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(ownerTypeLabel(owner) || item.ownerType || "Customer Account")} · ${escapeHtml(owner?.name || item.ownerName || item.owner)}</strong></td>` : "";
+      const editable = canManageRule(item) && item.status !== "Archived";
       return `
       <tr data-rule-id="${escapeHtml(item.id)}">
         <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
@@ -471,7 +1423,7 @@
         <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.map(notificationLabel).join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
         <td>${editable ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-toggle="${escapeHtml(item.id)}" aria-label="${item.status === "Active" ? "Pause" : "Resume"}" title="${item.status === "Active" ? "Pause" : "Resume"}" data-tooltip="${item.status === "Active" ? "Pause" : "Resume"}"><span class="material-symbols-rounded" aria-hidden="true">${item.status === "Active" ? "pause" : "play_arrow"}</span></button><button class="alert-table-button alert-icon-button" type="button" data-alert-edit="${escapeHtml(item.id)}" aria-label="Edit" title="Edit" data-tooltip="Edit"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button><button class="alert-table-button alert-icon-button alert-delete-button" type="button" data-alert-delete="${escapeHtml(item.id)}" aria-label="Delete rule" title="Delete rule" data-tooltip="Delete rule"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : '<span class="alerts-page-copy">View only</span>'}</td>
       </tr>`;
-    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 8 : 7) : 6}">No organization-owned rules match this context.</td></tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 8 : 7) : (currentRole.isOperations ? 7 : 6)}">No organization-owned rules match this context.</td></tr>`;
   }
 
   function renderCounts() {
@@ -519,10 +1471,11 @@
   const contextModal = document.querySelector("[data-alert-context-modal]");
   const contextForm = contextModal?.querySelector("[data-alert-context-form]");
   const ownerLevelSelect = contextModal?.querySelector("[data-alert-owner-level]");
-  const ownerProviderRoot = contextModal?.querySelector('[data-alert-owner-combobox="provider"]');
-  const ownerAgentRoot = contextModal?.querySelector('[data-alert-owner-combobox="agent"]');
-  const ownerMerchantRoot = contextModal?.querySelector('[data-alert-owner-combobox="merchant"]');
-  const ownerStoreRoot = contextModal?.querySelector('[data-alert-owner-combobox="store"]');
+  const ownerLevelValue = () => ownerLevelSelect?.value || "";
+  const ownerProviderRoot = contextModal?.querySelector('[data-alert-owner-column="provider"]');
+  const ownerAgentRoot = contextModal?.querySelector('[data-alert-owner-column="agent"]');
+  const ownerMerchantRoot = contextModal?.querySelector('[data-alert-owner-column="merchant"]');
+  const ownerStoreRoot = contextModal?.querySelector('[data-alert-owner-column="store"]');
   const ownerAgentLabel = contextModal?.querySelector("[data-alert-owner-agent-label]");
   const contextError = contextModal?.querySelector("[data-alert-context-error]");
   const contextContinue = contextModal?.querySelector("[data-alert-context-continue]");
@@ -537,6 +1490,7 @@
   let closeDialogTrigger = null;
 
   if (roleSwitcher) roleSwitcher.value = currentRoleKey;
+  if (pageType === "terminal" && ownerLevelSelect) ownerLevelSelect.innerHTML = '<option value="">Select owner level</option>' + [...new Set(terminalOwners.map(account => account.type))].map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join("");
 
   conditionSelect.innerHTML = Object.entries(recipes).map(([key, recipe]) => `<option value="${key}">${escapeHtml(recipe.label)}</option>`).join("");
   modal.querySelectorAll("[data-alert-terminal-sn]").forEach((node) => { node.textContent = terminalId; });
@@ -609,7 +1563,7 @@
     if (!agentSelect) return;
     const context = activeRangeContext();
     const optionalForProviderOwner = currentRole.isOperations && context?.ownerType === "Service Provider";
-    agentSelect.required = Boolean(provider?.agents.length) && !optionalForProviderOwner;
+    agentSelect.required = Boolean(context?.visibleFields.includes("agent") && provider?.agents.length) && !optionalForProviderOwner;
     if (!provider) {
       setSelectOptions(agentSelect, "Select service provider first", []);
       agentSelect.disabled = true;
@@ -804,7 +1758,7 @@
   function updateSimilarityWarning() {
     if (!similarRuleWarning) return;
     const monitoringTarget = targetMetadata();
-    const owner = pageType === "terminal" ? accountFor("Merchant", "merchant-kind-world") : currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
+    const owner = currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
     const similar = monitoringTarget && state.rules.find((item) => item.id !== editingId && item.status === "Active" && (item.ownerId ? item.ownerId === owner?.id && item.ownerType === owner?.type : item.owner === owner?.name) && item.targetType === monitoringTarget.type && item.targetId === monitoringTarget.id && item.condition === conditionSelect.value);
     similarRuleWarning.hidden = !similar;
     if (viewSimilarRuleButton) viewSimilarRuleButton.dataset.alertViewSimilar = similar?.id || "";
@@ -852,283 +1806,166 @@
     return contextModal?.querySelector(`[data-alert-context-field="${name}"]`);
   }
 
-  function setContextFieldVisible(name, visible) {
-    const field = contextField(name);
-    if (field) field.hidden = !visible;
-  }
-
-  function createOwnerCombobox(root, onSelectionChange) {
+  function createOwnerList(root, onSelectionChange) {
     if (!root) return null;
-    const input = root.querySelector('[role="combobox"]');
-    const toggle = root.querySelector("[data-alert-combobox-toggle]");
+    const input = root.querySelector(".alert-owner-trigger");
+    const label = root.querySelector("[data-owner-value]");
+    const search = root.querySelector("[data-owner-search]");
+    const popup = root.querySelector(".alert-owner-popup");
     const list = root.querySelector('[role="listbox"]');
-    const state = { items: [], filtered: [], selected: null, activeIndex: -1, open: false };
-    const resultLimit = 50;
-
-    function itemSearchText(item) {
-      return `${item.name || ""} ${item.id || ""} ${item.searchText || ""}`.toLowerCase();
-    }
-
+    let items = [], selected = null, filtered = [], active = -1;
     function render() {
-      const selectedText = state.selected?.name || "";
-      const queryValue = input.value === selectedText ? "" : input.value.trim().toLowerCase();
-      const allMatches = state.items.filter((item) => !queryValue || itemSearchText(item).includes(queryValue));
-      state.filtered = allMatches.slice(0, resultLimit);
-      if (state.activeIndex >= state.filtered.length) state.activeIndex = state.filtered.length - 1;
-      if (!state.filtered.length) {
-        list.innerHTML = '<div class="alert-combobox-empty">No matching results</div>';
-        input.removeAttribute("aria-activedescendant");
+      const query = search.value.trim().toLowerCase();
+      filtered = items.filter(item => `${item.name} ${item.id} ${item.searchText || ""}`.toLowerCase().includes(query));
+      list.innerHTML = filtered.map((item, i) => `<button type="button" role="option" id="${list.id}-${i}" aria-selected="${selected?.id === item.id}" class="alert-owner-option${active === i ? " active" : ""}" data-alert-owner-value="${escapeHtml(item.id)}">${escapeHtml(item.displayName || item.name)}</button>`).join("") || '<div class="alert-owner-empty" role="status">No matching results</div>';
+      if (active >= 0 && filtered[active]) search.setAttribute("aria-activedescendant", `${list.id}-${active}`);
+      else search.removeAttribute("aria-activedescendant");
+      positionPopup();
+    }
+    function positionPopup() {
+      if (popup.hidden) return;
+      const rect = input.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const topEdge = (viewport?.offsetTop || 0) + 8;
+      const bottomEdge = (viewport?.offsetTop || 0) + (viewport?.height || window.innerHeight) - 8;
+      const bodyRect = contextModal.querySelector(".alert-modal-body").getBoundingClientRect();
+      if (!contextModal.classList.contains("open") || rect.bottom <= Math.max(topEdge, bodyRect.top) || rect.top >= Math.min(bottomEdge, bodyRect.bottom)) {
+        close();
         return;
       }
-      const listId = list.id || "alertOwnerOptions";
-      list.innerHTML = state.filtered.map((item, index) => {
-        const optionId = `${listId}-option-${index}`;
-        const selected = state.selected?.id === item.id;
-        const active = index === state.activeIndex;
-        return `<button class="alert-combobox-option${active ? " active" : ""}" id="${escapeHtml(optionId)}" type="button" role="option" aria-selected="${selected}" data-alert-combobox-value="${escapeHtml(item.id)}"><span>${escapeHtml(item.name)}</span><small>${escapeHtml(item.meta || item.id)}</small></button>`;
-      }).join("") + (allMatches.length > resultLimit ? `<div class="alert-combobox-limit">Showing the first ${resultLimit} results. Keep typing to narrow.</div>` : "");
-      if (state.activeIndex >= 0) input.setAttribute("aria-activedescendant", `${listId}-option-${state.activeIndex}`);
-      else input.removeAttribute("aria-activedescendant");
-      if (state.open) window.requestAnimationFrame(positionList);
+      const footerTop = contextModal.querySelector(".alert-modal-actions").getBoundingClientRect().top;
+      const below = Math.max(0, Math.min(bottomEdge, footerTop - 4) - rect.bottom - 4);
+      const above = Math.max(0, rect.top - topEdge - 4);
+      popup.style.left = `${Math.max(8, rect.left)}px`;
+      popup.style.width = `${rect.width}px`;
+      // Measure at the final width with the normal cap before choosing a side.
+      popup.style.maxHeight = "300px";
+      const desired = popup.getBoundingClientRect().height;
+      const upward = below < desired && above > below;
+      const available = upward ? above : below;
+      if (available < 80) { close(); return; }
+      popup.style.maxHeight = `${Math.min(desired, available)}px`;
+      const actualHeight = popup.getBoundingClientRect().height;
+      popup.style.top = `${upward ? rect.top - actualHeight - 4 : rect.bottom + 4}px`;
+      popup.dataset.placement = upward ? "top" : "bottom";
     }
-
-    function positionList() {
-      if (!state.open || list.hidden) return;
-      const inputRect = input.getBoundingClientRect();
-      const viewportGap = 8;
-      const menuGap = 4;
-      const desiredHeight = Math.min(216, Math.max(46, list.scrollHeight));
-      const availableBelow = Math.max(0, window.innerHeight - inputRect.bottom - menuGap - viewportGap);
-      const availableAbove = Math.max(0, inputRect.top - menuGap - viewportGap);
-      const openUp = availableBelow < Math.min(desiredHeight, 120) && availableAbove > availableBelow;
-      const availableHeight = openUp ? availableAbove : availableBelow;
-      const menuHeight = Math.max(72, Math.min(desiredHeight, availableHeight));
-      list.style.left = `${Math.max(viewportGap, inputRect.left)}px`;
-      list.style.width = `${Math.min(inputRect.width, window.innerWidth - (viewportGap * 2))}px`;
-      list.style.maxHeight = `${menuHeight}px`;
-      list.style.top = `${openUp ? Math.max(viewportGap, inputRect.top - menuGap - menuHeight) : inputRect.bottom + menuGap}px`;
-      root.classList.toggle("open-up", openUp);
-    }
-
+    window.addEventListener("resize", positionPopup);
+    window.visualViewport?.addEventListener("resize", positionPopup);
+    window.visualViewport?.addEventListener("scroll", positionPopup);
+    window.addEventListener("scroll", event => {
+      if (!popup.contains(event.target)) positionPopup();
+    }, true);
+    function close() { popup.hidden = true; input.setAttribute("aria-expanded", "false"); }
     function open() {
-      if (input.disabled) return;
-      state.open = true;
-      state.activeIndex = -1;
-      render();
-      list.hidden = false;
-      list.style.visibility = "hidden";
-      positionList();
-      list.style.visibility = "";
-      input.setAttribute("aria-expanded", "true");
-      root.classList.add("open");
+      contextModal.querySelectorAll(".alert-owner-popup").forEach(node => { node.hidden = true; });
+      contextModal.querySelectorAll(".alert-owner-trigger").forEach(node => node.setAttribute("aria-expanded", "false"));
+      popup.hidden = false;
+      search.value = ""; active = -1; render();
+      positionPopup();
+      if (!popup.hidden) {
+        input.setAttribute("aria-expanded", "true");
+        search.focus({ preventScroll: true });
+      }
     }
-
-    function close() {
-      state.open = false;
-      list.hidden = true;
-      input.setAttribute("aria-expanded", "false");
-      input.removeAttribute("aria-activedescendant");
-      root.classList.remove("open");
-      root.classList.remove("open-up");
-    }
-
-    function commit(item, emit = true) {
-      state.selected = item || null;
-      input.value = item?.name || "";
-      close();
-      if (emit) onSelectionChange(item || null);
-    }
-
-    function setItems(items, selectedId = "") {
-      state.items = (items || []).map((item) => ({ ...item }));
-      const selected = state.items.find((item) => item.id === selectedId) || null;
-      commit(selected, false);
-    }
-
     function selectById(id, emit = true) {
-      const item = state.items.find((candidate) => candidate.id === id) || null;
-      commit(item, emit);
-      return item;
+      selected = items.find(item => item.id === id) || null;
+      label.textContent = selected?.displayName || selected?.name || `Select ${root.dataset.alertOwnerColumn === "provider" ? "service provider" : root.dataset.alertOwnerColumn === "terminal-agent" ? "agent" : root.dataset.alertOwnerColumn}`;
+      input.classList.toggle("has-value", Boolean(selected));
+      close();
+      if (emit) onSelectionChange(selected);
+      return selected;
     }
-
-    input.addEventListener("focus", open);
-    input.addEventListener("click", open);
-    input.addEventListener("input", () => {
-      if (state.selected && input.value !== state.selected.name) {
-        state.selected = null;
-        onSelectionChange(null);
+    input.addEventListener("click", () => popup.hidden ? open() : close());
+    input.addEventListener("keydown", event => { if (event.key === "ArrowDown") { event.preventDefault(); open(); } });
+    search.setAttribute("role", "combobox"); search.setAttribute("aria-controls", list.id); search.setAttribute("aria-expanded", "true");
+    search.addEventListener("input", () => { active = -1; render(); });
+    popup.addEventListener("keydown", event => {
+      if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); close(); input.focus(); }
+      if (["ArrowDown", "ArrowUp"].includes(event.key)) {
+        event.preventDefault(); if (!filtered.length) return;
+        active = active < 0 ? (event.key === "ArrowDown" ? 0 : filtered.length - 1) : (active + (event.key === "ArrowDown" ? 1 : -1) + filtered.length) % filtered.length;
+        render(); list.querySelector(".active")?.scrollIntoView({ block: "nearest" });
       }
-      if (!state.open) open();
-      else render();
+      if (event.key === "Enter" && event.target === search) { event.preventDefault(); if (filtered[active]) { selectById(filtered[active].id); input.focus(); } }
     });
-    input.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-        event.preventDefault();
-        if (!state.open) open();
-        if (!state.filtered.length) return;
-        const direction = event.key === "ArrowDown" ? 1 : -1;
-        state.activeIndex = (state.activeIndex + direction + state.filtered.length) % state.filtered.length;
-        render();
-        list.querySelector(".alert-combobox-option.active")?.scrollIntoView({ block: "nearest" });
-      }
-      if (event.key === "Enter" && state.open && state.activeIndex >= 0) {
-        event.preventDefault();
-        commit(state.filtered[state.activeIndex]);
-      }
-      if (event.key === "Escape" && state.open) {
-        event.preventDefault();
-        close();
-      }
-    });
-    input.addEventListener("blur", () => {
-      window.setTimeout(() => {
-        if (!root.contains(document.activeElement)) {
-          if (!state.selected) input.value = "";
-          close();
-        }
-      }, 0);
-    });
-    toggle.addEventListener("click", () => {
-      const wasOpen = state.open;
-      input.focus();
-      if (wasOpen) close();
-      else open();
-    });
-    list.addEventListener("mousedown", (event) => {
-      const option = event.target.closest("[data-alert-combobox-value]");
-      if (!option) return;
-      event.preventDefault();
-      selectById(option.dataset.alertComboboxValue);
-    });
-    window.addEventListener("resize", positionList);
-    contextModal?.addEventListener("scroll", positionList, true);
-
-    return {
-      input,
-      clear: (emit = false) => commit(null, emit),
-      close,
-      setItems,
-      selectById,
-      value: () => state.selected?.id || "",
-      selected: () => state.selected,
-      optionCount: () => state.items.length
-    };
+    list.addEventListener("click", event => { const option = event.target.closest("[data-alert-owner-value]"); if (option) { selectById(option.dataset.alertOwnerValue); input.focus(); } });
+    contextModal.addEventListener("click", event => { if (!root.contains(event.target)) close(); });
+    root.addEventListener("focusout", () => { window.setTimeout(() => { if (!root.contains(document.activeElement)) close(); }, 0); });
+    return { input, selectById, value: () => selected?.id || "", setItems(next, id = "") { items = next || []; selectById(id, false); } };
   }
 
-  let ownerProviderCombo;
-  let ownerAgentCombo;
-  let ownerMerchantCombo;
-  let ownerStoreCombo;
-
-  function resetOwnerBelow(level) {
-    if (level === "provider") {
-      ownerAgentCombo?.setItems([]);
-      ownerMerchantCombo?.setItems([]);
-      ownerStoreCombo?.setItems([]);
-      setContextFieldVisible("agent", false);
-      setContextFieldVisible("merchant", false);
-      setContextFieldVisible("store", false);
-    }
-    if (level === "agent") {
-      ownerMerchantCombo?.setItems([]);
-      ownerStoreCombo?.setItems([]);
-      setContextFieldVisible("merchant", false);
-      setContextFieldVisible("store", false);
-    }
-    if (level === "merchant") {
-      ownerStoreCombo?.setItems([]);
-      setContextFieldVisible("store", false);
-    }
+  const ownerFields = { provider: "Service Provider", agent: "Agent", merchant: "Merchant", store: "Store" };
+  const ownerCombos = {};
+  let ownerFilters = {};
+  let ownerSelections = {};
+  const nameCounts = customerAccounts.reduce((counts, account) => { const key = `${account.type}|${account.name}`; counts[key] = (counts[key] || 0) + 1; return counts; }, {});
+  function ownerOption(account) {
+    const suffix = account.type === "Agent" ? ` · Level ${account.level || 1}` : "";
+    const path = nameCounts[`${account.type}|${account.name}`] > 1 ? ` · ${account.path} · ${account.id}` : "";
+    return { ...account, displayName: account.name + suffix + path, searchText: account.path };
   }
-
+  function selectionsFor(account) {
+    if (!account) return {};
+    return { provider: account.providerId, agent: account.agentId || (["Merchant", "Store"].includes(account.type) ? "__direct" : ""), merchant: account.merchantId, store: account.storeId };
+  }
+  function refreshOwnerFields() {
+    const depth = Object.values(ownerFields).indexOf(ownerLevelValue());
+    Object.entries(ownerFields).forEach(([field, type], index) => {
+      const root = contextField(field);
+      root.hidden = index > depth || depth < 0;
+      ownerCombos[field].input.disabled = false;
+      let accounts = customerAccounts.filter(account => account.type === type);
+      if (index > 0 && ownerFilters.provider) accounts = accounts.filter(account => account.providerId === ownerFilters.provider);
+      if (index > 1 && ownerFilters.agent) accounts = accounts.filter(account => ownerFilters.agent === "__direct" ? !account.agentId : account.lineageIds.includes(ownerFilters.agent));
+      if (index > 2 && ownerFilters.merchant) accounts = accounts.filter(account => account.merchantId === ownerFilters.merchant);
+      const options = accounts.map(ownerOption);
+      if (field === "agent" && ownerLevelValue() !== "Agent") options.unshift({ id: "__direct", name: "Direct merchants" });
+      if (index < depth) options.unshift({ id: "__all", name: `All ${field === "provider" ? "service providers" : field + "s"}` });
+      ownerCombos[field].setItems(options, ownerSelections[field] || "");
+    });
+  }
+  function selectOwnerField(field, option) {
+    const keys = Object.keys(ownerFields), index = keys.indexOf(field);
+    keys.slice(index).forEach(key => delete ownerFilters[key]);
+    if (option && option.id !== "__all") ownerFilters[field] = option.id;
+    const account = option?.type ? accountFor(option.type, option.id) : null;
+    if (account) ownerSelections = selectionsFor(account);
+    else {
+      const parentField = keys.slice(0, index).reverse().find(key => ownerFilters[key] && ownerFilters[key] !== "__direct");
+      ownerSelections = selectionsFor(parentField ? accountFor(ownerFields[parentField], ownerFilters[parentField]) : null);
+      if (option?.id === "__direct") ownerSelections.agent = "__direct";
+    }
+    setSelectedRuleOwner(account?.type === ownerLevelValue() ? account : null);
+    refreshOwnerFields();
+  }
+  Object.entries(ownerFields).forEach(([field]) => {
+    const root = contextField(field)?.querySelector(".alert-owner-column");
+    if (root) ownerCombos[field] = createOwnerList(root, option => selectOwnerField(field, option));
+  });
+  const terminalAgentCombo = createOwnerList(contextModal?.querySelector('[data-alert-owner-column="terminal-agent"]'), option => {
+    setSelectedRuleOwner(terminalOwners.find(account => account.type === "Agent" && account.id === option?.id));
+  });
   function handleOwnerLevelChange() {
-    const ownerLevel = ownerLevelSelect?.value || "";
-    ownerProviderCombo?.setItems(ownerLevel ? monitoringHierarchy : []);
-    resetOwnerBelow("provider");
-    setContextFieldVisible("provider", Boolean(ownerLevel));
-    setSelectedRuleOwner(null);
-    if (ownerLevel) window.setTimeout(() => ownerProviderCombo?.input.focus(), 0);
+    ownerFilters = {}; ownerSelections = {}; setSelectedRuleOwner(null);
+    if (pageType === "terminal") {
+      const selectingAgent = ownerLevelValue() === "Agent";
+      contextModal.querySelector("[data-terminal-owner-readonly]").hidden = selectingAgent;
+      contextModal.querySelector("[data-terminal-owner-agent]").hidden = !selectingAgent;
+      terminalAgentCombo.setItems(selectingAgent ? terminalOwners.filter(account => account.type === "Agent").map(ownerOption) : []);
+      const owner = selectingAgent ? null : terminalOwners.find(account => account.type === ownerLevelValue());
+      contextModal.querySelector("[data-alert-terminal-owner-name]").value = owner?.name || "";
+      setSelectedRuleOwner(owner);
+    } else refreshOwnerFields();
   }
-
-  function handleOwnerProviderChange() {
-    resetOwnerBelow("provider");
-    setSelectedRuleOwner(null);
-    const ownerLevel = ownerLevelSelect?.value || "";
-    const provider = providerFor(ownerProviderCombo?.value());
-    if (!provider) return;
-    if (ownerLevel === "Service Provider") {
-      setSelectedRuleOwner(accountFor("Service Provider", provider.id));
-      return;
-    }
-    const selectingAgentOwner = ownerLevel === "Agent";
-    const pathOptions = selectingAgentOwner
-      ? provider.agents
-      : [...(provider.merchants.length ? [{ id: "__direct", name: "Direct merchants", meta: "Merchant path without an agent", searchText: "direct" }] : []), ...provider.agents];
-    if (ownerAgentLabel) ownerAgentLabel.textContent = selectingAgentOwner ? "Agent" : "Agent / Merchant Path";
-    ownerAgentCombo?.setItems(pathOptions);
-    ownerAgentCombo.input.placeholder = selectingAgentOwner ? "Select or search agent" : "Select an agent or Direct merchants";
-    setContextFieldVisible("agent", true);
-  }
-
-  function handleOwnerAgentChange() {
-    resetOwnerBelow("agent");
-    setSelectedRuleOwner(null);
-    const ownerLevel = ownerLevelSelect?.value || "";
-    const providerId = ownerProviderCombo?.value() || "";
-    const agentId = ownerAgentCombo?.value() || "";
-    if (!providerId || !agentId) return;
-    if (ownerLevel === "Agent") {
-      setSelectedRuleOwner(accountFor("Agent", agentId));
-      return;
-    }
-    ownerMerchantCombo?.setItems(merchantsFor(providerId, agentId));
-    setContextFieldVisible("merchant", true);
-  }
-
-  function handleOwnerMerchantChange() {
-    resetOwnerBelow("merchant");
-    setSelectedRuleOwner(null);
-    const ownerLevel = ownerLevelSelect?.value || "";
-    const providerId = ownerProviderCombo?.value() || "";
-    const agentId = ownerAgentCombo?.value() || "";
-    const merchantId = ownerMerchantCombo?.value() || "";
-    const merchant = merchantFor(providerId, agentId, merchantId);
-    if (!merchant) return;
-    if (ownerLevel === "Merchant") {
-      setSelectedRuleOwner(accountFor("Merchant", merchant.id));
-      return;
-    }
-    ownerStoreCombo?.setItems(merchant.stores || []);
-    setContextFieldVisible("store", true);
-  }
-
-  function handleOwnerStoreChange() {
-    setSelectedRuleOwner(accountFor("Store", ownerStoreCombo?.value()));
-  }
-
-  ownerProviderCombo = createOwnerCombobox(ownerProviderRoot, handleOwnerProviderChange);
-  ownerAgentCombo = createOwnerCombobox(ownerAgentRoot, handleOwnerAgentChange);
-  ownerMerchantCombo = createOwnerCombobox(ownerMerchantRoot, handleOwnerMerchantChange);
-  ownerStoreCombo = createOwnerCombobox(ownerStoreRoot, handleOwnerStoreChange);
-
   function restoreOwnerCascade(account) {
-    ownerLevelSelect.value = account?.type || "";
+    if (ownerLevelSelect) ownerLevelSelect.value = ownerLevelKey(account);
     handleOwnerLevelChange();
     if (!account) return;
-    ownerProviderCombo.selectById(account.providerId, false);
-    handleOwnerProviderChange();
-    if (account.type !== "Service Provider") {
-      const pathId = account.type === "Agent" ? account.agentId : account.agentId || "__direct";
-      ownerAgentCombo.selectById(pathId, false);
-      handleOwnerAgentChange();
-    }
-    if (["Merchant", "Store"].includes(account.type)) {
-      ownerMerchantCombo.selectById(account.merchantId, false);
-      handleOwnerMerchantChange();
-    }
-    if (account.type === "Store") {
-      ownerStoreCombo.selectById(account.storeId, false);
-      handleOwnerStoreChange();
+    if (pageType === "terminal") {
+      if (account.type === "Agent") terminalAgentCombo.selectById(account.id, false);
+    } else {
+      ownerSelections = selectionsFor(account);
+      refreshOwnerFields();
     }
     setSelectedRuleOwner(account);
   }
@@ -1156,6 +1993,7 @@
   }
 
   function openModal(ruleId, notificationDraft = null, ownerOverride = null) {
+    if (!canManageAlerts || (ruleId && !canManageRule(state.rules.find((item) => item.id === ruleId)))) return;
     modalTrigger = document.activeElement;
     editingId = ruleId || null;
     const rule = editingId ? state.rules.find((item) => item.id === editingId) : null;
@@ -1166,8 +2004,8 @@
       ownerContextPanel.hidden = !currentRole.isOperations;
       if (currentRole.isOperations) {
         ownerContextPanel.querySelector("span").textContent = rule ? "Rule Owner" : "Creating for";
-        ownerContextName.textContent = `${selectedRuleOwner.type} · ${selectedRuleOwner.path}`;
-        ownerChangeButton.hidden = false;
+        ownerContextName.textContent = `${ownerTypeLabel(selectedRuleOwner)} · ${selectedRuleOwner.path}`;
+        ownerChangeButton.hidden = Boolean(rule);
       }
     }
     conditionSelect.value = rule?.condition || "opc_offline";
@@ -1226,7 +2064,8 @@
       modal.querySelector("[data-alert-range-field]:not([hidden]) select:not([disabled])")?.focus();
       return;
     }
-    const owner = pageType === "terminal" ? accountFor("Merchant", "merchant-kind-world") : currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
+    if (existing && !canManageRule(existing)) return;
+    const owner = existing ? accountForRule(existing) : currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
     const duplicate = !existing && state.rules.find((item) => item.status !== "Archived" && item.ownerId === owner?.id && item.ownerType === owner?.type && item.targetType === monitoringTarget.type && item.targetId === monitoringTarget.id && item.condition === condition && JSON.stringify(item.parameters || {}) === JSON.stringify(parameters) && JSON.stringify(item.channels || []) === JSON.stringify(channels) && JSON.stringify(item.recipients || []) === JSON.stringify([...channels.filter((channel) => channel === "Portal Inbox"), ...(channels.includes("Email") ? recipients : [])]));
     if (duplicate) {
       targetError.textContent = "An identical active rule already exists for this owner and target.";
@@ -1278,7 +2117,7 @@
 
   function openDeleteModal(ruleId) {
     const rule = state.rules.find((item) => item.id === ruleId);
-    if (!rule || !canManageAlerts || rule.status === "Archived") return;
+    if (!rule || !canManageRule(rule) || rule.status === "Archived") return;
     deletingRuleId = ruleId;
     deleteModalTrigger = document.activeElement;
     deleteModal.querySelector("[data-alert-delete-name]").textContent = recipeFor(rule.condition).label;
@@ -1300,7 +2139,7 @@
 
   function deleteRule() {
     const rule = state.rules.find((item) => item.id === deletingRuleId);
-    if (!rule) { closeDeleteModal({ restoreFocus: false }); return; }
+    if (!rule || !canManageRule(rule)) { closeDeleteModal({ restoreFocus: false }); return; }
     const previousRules = state.rules.map((item) => ({ ...item }));
     const previousIncidents = state.incidents.map((item) => ({ ...item, events: [...(item.events || [])] }));
     const previousDeletedRuleIds = [...state.deletedRuleIds];
@@ -1352,8 +2191,8 @@
       .map((item, index) => ({ item, index }))
       .sort((left, right) => String(left.item.at || "").localeCompare(String(right.item.at || "")) || left.index - right.index)
       .map(({ item }) => item);
-    const canRunCheck = (incident.monitoringState === "Active" || incident.monitoringState === "Closed") && !incident.recoveredAt && (!currentRole.isOperations || canManageAlerts);
-    const canClose = canManageAlerts && incident.monitoringState === "Active";
+    const canRunCheck = (incident.monitoringState === "Active" || incident.monitoringState === "Closed") && !incident.recoveredAt && (pageType === "terminal" ? canManageIncident(incident) : (!currentRole.isOperations || canManageAlerts));
+    const canClose = canManageIncident(incident) && incident.monitoringState === "Active";
     incidentModal.querySelector("[data-alert-incident-body]").innerHTML = `
       <div class="alert-incident-meta" aria-label="Alert details">
         <strong>${escapeHtml(incident.monitoringState)}</strong>
@@ -1397,7 +2236,7 @@
   function openManualClose(incidentId) {
     if (!canManageAlerts || !closeIncidentModal) return;
     const incident = state.incidents.find((item) => item.id === incidentId);
-    if (!incident || incident.monitoringState !== "Active") return;
+    if (!incident || !canManageIncident(incident) || incident.monitoringState !== "Active") return;
     closingIncidentId = incidentId;
     closeDialogTrigger = document.activeElement;
     closeReason.value = "";
@@ -1421,7 +2260,7 @@
 
   function runMonitoringCheck(incidentId) {
     const incident = state.incidents.find((item) => item.id === incidentId);
-    if (!incident || incident.monitoringState === "Resolved" || (incident.monitoringState === "Closed" && incident.recoveredAt)) return;
+    if (!incident || !canManageIncident(incident) || incident.monitoringState === "Resolved" || (incident.monitoringState === "Closed" && incident.recoveredAt)) return;
     const nextChecks = Array.isArray(incident.nextChecks) ? [...incident.nextChecks] : [];
     const result = nextChecks.shift() || "normal";
     const required = incidentRecoveryRequirement(incident);
@@ -1465,7 +2304,7 @@
     const filterSubmit = event.target.closest("[data-alert-filter-submit]");
     if (create) currentRole.isOperations ? openContextModal() : openModal();
     if (filterSubmit) applyCenterFilters();
-    if (ack && (!currentRole.isOperations || canManageAlerts)) {
+    if (ack && (pageType === "terminal" ? canManageIncident(state.incidents.find((item) => item.id === ack.dataset.alertAcknowledge)) : (!currentRole.isOperations || canManageAlerts))) {
       state.incidents = state.incidents.map((item) => {
         if (item.id !== ack.dataset.alertAcknowledge) return item;
         const eventAt = nextIncidentEventAt(item.events);
@@ -1473,7 +2312,7 @@
       });
       writeState(); renderAll();
     }
-    if (toggle && canManageAlerts) { state.rules = state.rules.map((item) => item.id === toggle.dataset.alertToggle ? { ...item, status: item.status === "Active" ? "Paused" : "Active", modified: nowLabel } : item); writeState(); renderAll(); }
+    if (toggle && canManageRule(state.rules.find((item) => item.id === toggle.dataset.alertToggle))) { state.rules = state.rules.map((item) => item.id === toggle.dataset.alertToggle ? { ...item, status: item.status === "Active" ? "Paused" : "Active", modified: nowLabel } : item); writeState(); renderAll(); }
     if (edit && canManageAlerts) openModal(edit.dataset.alertEdit);
     if (deleteAction && canManageAlerts) openDeleteModal(deleteAction.dataset.alertDelete);
     if (view) openIncident(view.dataset.alertView);
@@ -1498,7 +2337,7 @@
     if (modal.classList.contains("open")) closeModal();
     if (contextModal?.classList.contains("open")) closeContextModal({ restoreFocus: false });
     currentRoleKey = roleSwitcher.value;
-    currentRole = roleContexts[currentRoleKey];
+    currentRole = resolveRole(currentRoleKey);
     canManageAlerts = currentRole.isOperations ? currentRole.canManage : query.get("manageAlerts") !== "false";
     selectedRuleOwner = null;
     const nextUrl = new URL(location.href);
@@ -1592,6 +2431,7 @@
     if (!reason) { closeError.textContent = "Choose a reason."; closeReason.focus(); return; }
     if (reason === "Other" && !note) { closeError.textContent = "Enter a note for Other."; closeNote.focus(); return; }
     const incidentId = closingIncidentId;
+    if (!canManageIncident(state.incidents.find((item) => item.id === incidentId))) return;
     state.incidents = state.incidents.map((item) => {
       if (item.id !== incidentId) return item;
       const eventAt = nextIncidentEventAt(item.events);

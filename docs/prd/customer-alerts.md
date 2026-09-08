@@ -264,8 +264,8 @@ Timeline 是 Incident 的审计流程查看器：
 | --- | --- |
 | FR-041 | Operations Manager 通过独立的平台权限管理所有 Customer Accounts 的 Customer Alerts，不依赖客户账户内的 Manage Alerts 权限。 |
 | FR-042 | 原型 Role Simulator 增加 Operations Manager；切换后保留当前 Alerts / Rules Tab，清空失效筛选，未保存草稿须确认后才能丢弃。 |
-| FR-043 | 创建入口先打开 Select Customer Context；同一弹窗同时提供全局账户搜索和逐级层级浏览，两种方式写入同一个 Selected Rule Owner。 |
-| FR-044 | Service Provider、Agent、Merchant、Store 节点均可成为 Rule Owner；导航分组不能成为 Owner。搜索结果必须展示账户类型和完整所属路径，并以稳定账户 ID 作为选择值。 |
+| FR-043 | 独立 Select Rule Owner 弹窗采用与 Create Alert Rule 一致的单列表单及完整边框控件。先选择 Owner Level（SP、AGT、MCH、STR），立即显示并启用所需全部字段。各字段下拉面板内独立搜索，可直接选中最下级账户并回填上级；显式选择上级可缩小搜索范围。AGT 合并所有代理层级，结果展示名称及 Level。Cancel 和 Continue 等高。 |
+| FR-044 | Service Provider、Agent、Merchant、Store 节点均可成为 Rule Owner；导航分组不能成为 Owner。账户类型由 Owner Level 指定，所属路径通过各栏已选节点展示，并以稳定账户 ID 作为选择值。 |
 | FR-045 | Service Provider 的层级同时支持 Direct Merchants 与 Agents；创建规则时 Agent 是可选过滤条件，默认覆盖全部 Agent 和直属 Merchant，并提供 Direct merchants only。改变 Agent 时清空失效的 Merchant、Store 和 Terminal。 |
 | FR-046 | Rule Owner 为 Service Provider、Agent 或 Merchant 时，可选择其资源树内的 Store 或 Terminal；Rule Owner 为 Store 时，只能选择当前 Store 或其下 Terminal。 |
 | FR-047 | 选定 Owner 后进入现有 Create Alert Rule 弹窗，顶部显示 `Creating for` 摘要和 Change 操作。更换 Owner 时必须提示，并清空 Monitoring Target 与 Condition；Notifications 草稿可保留。 |
@@ -431,3 +431,16 @@ Timeline 是 Incident 的审计流程查看器：
 5. Email 退信、通知失败、重复通知失败后的重试和用户可见状态。
 6. Platform-managed Incident 对客户可见时的脱敏范围和责任边界。
 7. Closed Incident 后台确认恢复的最长追踪周期。
+
+### Terminal Alerts role context
+
+- The terminal Alerts toolbar switches between Portal User and Operations Manager; other terminal tabs and the portal profile are unaffected.
+- Portal User represents the current terminal's Merchant. Its Rules table shows that merchant's terminal rules. Alerts retains all terminal incidents, with mutation actions restricted to merchant-owned rules.
+- Operations Manager can manage all owners' rules and incidents for the terminal. Creation first selects an owner level in a separate shared-style dialog; SP, Merchant and Store names are read-only and resolved from terminal ancestry; Agent opens a searchable selection of only that terminal’s ancestor agents. Omit Agent when the terminal has no agent. The monitoring target remains the current terminal.
+- Both tables display Rule Owner as type and name only in operations mode; Portal User hides the column. Ownership and operator creator audit identity remain separate; editing preserves the existing owner.
+
+### Multi-level agents in Alerts
+
+Agent ancestry uses parentId and level (1–3). Existing agents remain level 1. Owner Level exposes SP, Agent, Merchant and Store, with all agent depths combined under Agent. Terminal creation lists only actual owner types and restricts the Agent search to its ancestor chain. In Alert Center, all fields through the chosen owner type are searchable immediately. Selecting a lower account backfills ancestors; explicit upper selections narrow descendants. Automatically backfilled values do not impose new filters, so another bottom-level search can switch paths. All-options clear explicit filters and downstream selections. Agent results include Level; search matches account name, ID and ancestor names, and same-name accounts include their path and ID. Rule ownerType remains Agent with the selected account ID; ancestor IDs are included in organization filtering and descendant monitoring coverage.
+
+Demo terminals DEMO-AGT1-001, DEMO-AGT2-001, and DEMO-AGT3-001 exercise direct merchants at each depth, under Universal Processing. Existing IDs and saved data are retained.

@@ -18,7 +18,7 @@ async function selectAlertRange(dialog, { provider = "sp-universal", agent = "",
 }
 
 async function chooseOwnerOption(dialog, label, query, optionName) {
-  const input = dialog.getByLabel(label, { exact: true });
+  const input = dialog.getByRole("combobox", { name: label, exact: true });
   await input.fill(query);
   await dialog.locator('[role="option"]').filter({ hasText: optionName, visible: true }).click();
 }
@@ -104,6 +104,8 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   await alertPanel.getByRole("tab", { name: "Rules", exact: true }).click();
   await expect(alertPanel.locator('[data-alert-view-panel="incidents"]')).toBeHidden();
   await expect(alertPanel.locator('[data-alert-view-panel="rules"]')).toBeVisible();
+  await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(5);
+  await alertPanel.locator("[data-alert-role-switcher]").selectOption("operations-manager");
   await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(6);
   await expect(page.getByRole("row", { name: /Payment Service Offline/ })).toContainText("20 minutes");
   await expect(page.getByRole("row", { name: /Payment Service Offline/ })).toContainText("Active");
@@ -215,11 +217,11 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   expect(savedLifecycle.find((item) => item.id === "i-mid-01")).toMatchObject({ monitoringState: "Resolved", acknowledgedBy: "robasz", recoveryHitCount: 2 });
   expect(savedLifecycle.find((item) => item.id === "i-mid-02")).toMatchObject({ monitoringState: "Closed", closeReason: "Other", closeNote: "Checked with the store team." });
 
-  await page.goto("/1.terminalmanage_nayax.html?tab=alerts&sn=SECOND-SN&terminalName=Second%20Terminal");
+  await page.goto("/1.terminalmanage_nayax.html?tab=alerts&sn=NYC-Q3-0042&terminalName=Second%20Terminal");
   await page.getByRole("button", { name: "Create Alert Rule" }).click();
   const secondDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
   await expect(secondDialog.getByLabel("Monitoring Target")).toHaveCount(0);
-  await expect(secondDialog.getByText("SN:")).toContainText("SECOND-SN");
+  await expect(secondDialog.getByText("SN:")).toContainText("NYC-Q3-0042");
 });
 
 test("configures temperature range with bounds and a non-converting unit switch", async ({ page }) => {
@@ -565,7 +567,7 @@ test("deletes active rules from Alert Center and updates the active count", asyn
 
 test("uses consistent destructive styling for rule deletion on both surfaces", async ({ page }) => {
   const surfaces = [
-    { url: "/1.terminalmanage_nayax.html?tab=alerts", ruleId: "r-stock", openRules: async () => page.getByRole("tabpanel", { name: "Alerts" }).getByRole("tab", { name: "Rules", exact: true }).click() },
+    { url: "/1.terminalmanage_nayax.html?tab=alerts", ruleId: "r-merchant-selected-product", openRules: async () => page.getByRole("tabpanel", { name: "Alerts" }).getByRole("tab", { name: "Rules", exact: true }).click() },
     { url: "/39.customer_alerts.html", ruleId: "r-provider-universal", openRules: async () => page.getByRole("tab", { name: "Rules", exact: true }).click() }
   ];
 
@@ -766,130 +768,47 @@ test("seeds Store and Terminal rules with supported lifecycle incidents", async 
   expect(seeded.incidents.every((incident) => !("state" in incident) && Array.isArray(incident.events))).toBe(true);
 });
 
-test("lets Operations Manager choose any Rule Owner level with cascading selects", async ({ page }) => {
+test("renders all owner fields immediately and searches inside dropdowns", async ({ page }) => {
   await page.goto("/39.customer_alerts.html?role=operations-manager");
-  await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
-  await page.reload();
-
-  await page.getByRole("button", { name: "Create Alert Rule" }).click();
-  const contextDialog = page.getByRole("dialog", { name: "Select Rule Owner" });
-  await expect(contextDialog).toBeVisible();
-  await expect(contextDialog.getByRole("button", { name: "Search all accounts" })).toHaveCount(0);
-  const ownerLevel = contextDialog.getByLabel("Owner Level");
-  await expect(ownerLevel).toHaveValue("");
-  await expect(ownerLevel.locator("option")).toHaveText(["Select owner level", "Service Provider (SP)", "Agent (AGT)", "Merchant (MCH)", "Store (STR)"]);
-  await expect(contextDialog.locator("[data-alert-selected-account]")).toHaveCount(0);
-  await expect(contextDialog.getByLabel("Service Provider")).toBeHidden();
-  await expect(contextDialog.getByLabel("Merchant")).toBeHidden();
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
-
-  await contextDialog.getByLabel("Owner Level").selectOption("Service Provider");
-  const providerSearch = contextDialog.getByLabel("Service Provider");
-  await providerSearch.fill("sp-north");
-  await providerSearch.press("ArrowDown");
-  await providerSearch.press("Enter");
-  await expect(contextDialog.getByLabel("Service Provider")).toHaveValue("North America Ops");
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeEnabled();
-  await expect(contextDialog.getByLabel("Agent", { exact: true })).toBeHidden();
-
-  await contextDialog.getByLabel("Owner Level").selectOption("Agent");
-  await chooseOwnerOption(contextDialog, "Service Provider", "north", "North America Ops");
-  await chooseOwnerOption(contextDialog, "Agent", "agent-seattle", "Seattle Field Agent");
-  await expect(contextDialog.getByLabel("Agent", { exact: true })).toHaveValue("Seattle Field Agent");
-  await expect(contextDialog.getByLabel("Merchant")).toBeHidden();
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeEnabled();
-
-  await contextDialog.getByLabel("Owner Level").selectOption("Merchant");
-  await chooseOwnerOption(contextDialog, "Service Provider", "universal", "Universal Processing");
-  await chooseOwnerOption(contextDialog, "Agent / Merchant Path", "direct", "Direct merchants");
-  await chooseOwnerOption(contextDialog, "Merchant", "kind world", "1 of a Kind World Travel LLC");
-  await expect(contextDialog.getByLabel("Merchant")).toHaveValue("1 of a Kind World Travel LLC");
-  await expect(contextDialog.getByLabel("Store")).toBeHidden();
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeEnabled();
-
-  await contextDialog.getByLabel("Merchant").fill("not-a-real-merchant");
-  await expect(contextDialog.getByText("No matching results").filter({ visible: true })).toBeVisible();
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
-  await contextDialog.getByLabel("Merchant").press("Escape");
-
-  await contextDialog.getByLabel("Owner Level").selectOption("Store");
-  await chooseOwnerOption(contextDialog, "Service Provider", "universal", "Universal Processing");
-  await chooseOwnerOption(contextDialog, "Agent / Merchant Path", "direct", "Direct merchants");
-  await chooseOwnerOption(contextDialog, "Merchant", "merchant-kind", "1 of a Kind World Travel LLC");
-  await chooseOwnerOption(contextDialog, "Store", "s-midtown", "Midtown Store");
-  await expect(contextDialog.getByLabel("Store")).toHaveValue("Midtown Store");
-  const contextButtonHeights = await contextDialog.locator(".alert-modal-actions button").evaluateAll((buttons) => buttons.map((button) => button.getBoundingClientRect().height));
-  expect(contextButtonHeights).toEqual([36, 36]);
-  await contextDialog.getByRole("button", { name: "Continue" }).click();
-
-  const ruleDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
-  await expect(ruleDialog.locator("[data-alert-owner-context]")).toContainText("Store · Universal Processing / 1 of a Kind World Travel LLC / Midtown Store");
-  await ruleDialog.getByRole("button", { name: "Change" }).click();
-  await expect(contextDialog.getByLabel("Owner Level")).toHaveValue("Store");
-  await expect(contextDialog.getByLabel("Service Provider")).toHaveValue("Universal Processing");
-  await expect(contextDialog.getByLabel("Agent / Merchant Path")).toHaveValue("Direct merchants");
-  await expect(contextDialog.getByLabel("Merchant")).toHaveValue("1 of a Kind World Travel LLC");
-  await expect(contextDialog.getByLabel("Store")).toHaveValue("Midtown Store");
-  await contextDialog.getByRole("button", { name: "Continue" }).click();
-  await expect(ruleDialog.getByLabel("Service Provider")).toBeHidden();
-  await expect(ruleDialog.getByLabel("Merchant")).toBeHidden();
-  await expect(ruleDialog.getByLabel("Store", { exact: true })).toBeHidden();
-  await ruleDialog.getByLabel("Monitor Scope").selectOption("Store");
-  await ruleDialog.getByLabel("Condition").selectOption("sold_out");
-  await ruleDialog.getByRole("button", { name: "Save Rule" }).click();
-
-  await page.getByRole("tab", { name: "Rules", exact: true }).click();
-  const created = page.locator('[data-alert-rules] tr').filter({ hasText: "Sold Out" }).filter({ hasText: "Midtown Store" }).filter({ hasText: "2026-08-28 10:42" });
-  await expect(created).toContainText("Store");
-  const stored = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).rules.find((rule) => rule.condition === "sold_out" && rule.targetId === "s-midtown" && rule.ownerId === "s-midtown"), ALERT_STATE_KEY);
-  expect(stored).toMatchObject({ ownerType: "Store", ownerId: "s-midtown", ownerName: "Midtown Store", creatorType: "Paywizard Operator", creatorDisplayName: "Paywizard Operations", status: "Active" });
-
-  await page.getByRole("button", { name: "Create Alert Rule" }).click();
-  await contextDialog.getByLabel("Owner Level").selectOption("Agent");
-  await chooseOwnerOption(contextDialog, "Service Provider", "north america", "North America Ops");
-  await expect(contextDialog.getByLabel("Agent", { exact: true })).toBeVisible();
-  await expect(contextDialog.getByLabel("Merchant")).toBeHidden();
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
-  await contextDialog.getByLabel("Service Provider").fill("Europe Direct");
-  await contextDialog.getByLabel("Service Provider").press("ArrowDown");
-  await contextDialog.getByLabel("Service Provider").press("Enter");
-  await contextDialog.getByLabel("Agent", { exact: true }).click();
-  await expect(contextDialog.getByText("No matching results").filter({ visible: true })).toBeVisible();
-  await expect(contextDialog.getByRole("button", { name: "Continue" })).toBeDisabled();
-  await contextDialog.getByRole("button", { name: "Cancel" }).click();
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Create Alert Rule" }).click();
-  await contextDialog.getByLabel("Owner Level").selectOption("Merchant");
-  await chooseOwnerOption(contextDialog, "Service Provider", "universal", "Universal Processing");
-  await chooseOwnerOption(contextDialog, "Agent / Merchant Path", "direct", "Direct merchants");
-  await contextDialog.getByLabel("Merchant").fill("kind");
-  const mobileContextGeometry = await contextDialog.evaluate((dialog) => {
-    const rect = dialog.getBoundingClientRect();
-    const buttons = [...dialog.querySelectorAll(".alert-modal-actions button")].map((button) => button.getBoundingClientRect());
-    return { left: rect.left, right: rect.right, bottom: rect.bottom, buttonHeights: buttons.map((box) => box.height), buttonWidths: buttons.map((box) => box.width), documentWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth };
-  });
-  expect(mobileContextGeometry.left).toBeGreaterThanOrEqual(0);
-  expect(mobileContextGeometry.right).toBeLessThanOrEqual(390);
-  expect(mobileContextGeometry.bottom).toBeLessThanOrEqual(844);
-  expect(mobileContextGeometry.documentWidth).toBeLessThanOrEqual(mobileContextGeometry.viewportWidth + 1);
-  expect(mobileContextGeometry.buttonHeights).toEqual([36, 36]);
-  expect(Math.abs(mobileContextGeometry.buttonWidths[0] - mobileContextGeometry.buttonWidths[1])).toBeLessThanOrEqual(1);
-
-  await page.setViewportSize({ width: 750, height: 363 });
-  await contextDialog.getByLabel("Owner Level").selectOption("Service Provider");
-  await contextDialog.getByLabel("Service Provider").click();
-  const compactMenuGeometry = await contextDialog.locator("#alertOwnerProviderList").evaluate((list) => {
-    const rect = list.getBoundingClientRect();
-    const options = [...list.querySelectorAll('[role="option"]')];
-    const last = options.at(-1).getBoundingClientRect();
-    const topNode = document.elementFromPoint(last.left + (last.width / 2), last.top + (last.height / 2));
-    return { bottom: rect.bottom, viewportHeight: innerHeight, optionCount: options.length, scrollHeight: list.scrollHeight, clientHeight: list.clientHeight, lastOptionOnTop: Boolean(topNode?.closest('[role="option"]')) };
-  });
-  expect(compactMenuGeometry.bottom).toBeLessThanOrEqual(compactMenuGeometry.viewportHeight - 7);
-  expect(compactMenuGeometry.optionCount).toBe(4);
-  expect(compactMenuGeometry.scrollHeight).toBeLessThanOrEqual(compactMenuGeometry.clientHeight + 1);
-  expect(compactMenuGeometry.lastOptionOnTop).toBe(true);
+  await page.getByRole("button", { name: "Create Alert Rule", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Select Rule Owner" });
+  for (const [level, count] of [["Service Provider", 1], ["Agent", 2], ["Merchant", 3], ["Store", 4]]) {
+    await dialog.getByLabel("Owner Level").selectOption(level);
+    await expect(dialog.locator(".alert-owner-trigger:visible")).toHaveCount(count);
+  }
+  await expect(dialog.locator(".alert-owner-trigger:disabled:visible")).toHaveCount(0);
+  const pick = async (field, query, name) => {
+    const root = dialog.locator(`[data-alert-context-field="${field}"]`);
+    await root.getByRole("button").first().click();
+    await root.getByRole("combobox").fill(query);
+    await root.getByRole("option", { name, exact: true }).click();
+  };
+  const beforeOpen = await dialog.boundingBox();
+  const footerBeforeOpen = await dialog.locator(".alert-modal-actions").boundingBox();
+  await dialog.locator("#alertOwnerProvider").click();
+  expect(await dialog.boundingBox()).toEqual(beforeOpen);
+  expect(await dialog.locator(".alert-modal-actions").boundingBox()).toEqual(footerBeforeOpen);
+  await expect(dialog.getByRole("listbox").getByRole("option")).toHaveCount(21);
+  await dialog.getByRole("option", { name: "Universal Processing", exact: true }).click();
+  await pick("agent", "direct", "Direct merchants");
+  await pick("merchant", "Harbor", "Harbor Market");
+  await pick("store", "Riverside", "Riverside");
+  await expect(dialog.getByRole("button", { name: "Continue", exact: true })).toBeEnabled();
+  await dialog.getByRole("button", { name: "Continue", exact: true }).click();
+  const rule = page.getByRole("dialog", { name: "Create Alert Rule" });
+  await expect(rule.locator("[data-alert-owner-context]")).toContainText("Riverside");
+  await rule.getByRole("button", { name: "Change", exact: true }).click();
+  await expect(dialog.locator("#alertOwnerStore")).toContainText("Riverside");
+  await pick("provider", "Europe", "Europe Direct");
+  await expect(dialog.locator("#alertOwnerStore")).toBeEnabled();
+  await expect(dialog.locator("#alertOwnerStore")).toContainText("Select store");
+  await expect(dialog.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+  for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const heights = await dialog.locator(".alert-modal-actions button").evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().height));
+    expect(heights[0]).toBe(heights[1]);
+    await expect(dialog.locator(".alert-modal-actions")).toBeInViewport();
+  }
 });
 
 test("matches the portal and DEX layout geometry on desktop and mobile", async ({ page }) => {
@@ -988,3 +907,50 @@ test("matches the portal and DEX layout geometry on desktop and mobile", async (
   expect(mobileDialog.bottom).toBeLessThanOrEqual(844);
   expect(Math.abs(mobileDialog.widths[0] - mobileDialog.widths[1])).toBeLessThanOrEqual(1);
 });
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test(`anchors owner dropdowns with zero, one and many results at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto('/39.customer_alerts.html?role=operations-manager');
+    await page.getByRole('button', { name: 'Create Alert Rule', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Select Rule Owner' });
+    const geometry = () => dialog.evaluate(el => ({ modal: el.getBoundingClientRect().toJSON(), footer: el.querySelector('.alert-modal-actions').getBoundingClientRect().toJSON() }));
+    const checkMenu = async (field, query, count) => {
+      const root = dialog.locator(`[data-alert-context-field="${field}"]`);
+      const trigger = root.locator('.alert-owner-trigger');
+      const before = await geometry();
+      await trigger.click();
+      const search = root.getByRole('combobox');
+      for (const [value, expected] of [['', count], [query, 1], ['no-such-account-xyz', 0], ['', count]]) {
+        await search.fill(value);
+        await expect(root.getByRole('option')).toHaveCount(expected);
+        expect(await geometry()).toEqual(before);
+        const boxes = await root.evaluate(el => {
+          const t = el.querySelector('.alert-owner-trigger').getBoundingClientRect();
+          const p = el.querySelector('.alert-owner-popup').getBoundingClientRect();
+          const footer = el.closest('[role="dialog"]').querySelector('.alert-modal-actions').getBoundingClientRect();
+          return { gap: el.querySelector('.alert-owner-popup').dataset.placement === 'top' ? t.top - p.bottom : p.top - t.bottom, widthDiff: p.width - t.width, leftDiff: p.left - t.left, top: p.top, bottom: p.bottom, footerTop: footer.top };
+        });
+        expect(boxes.gap).toBeCloseTo(4, 0);
+        expect(boxes.widthDiff).toBeCloseTo(0, 0);
+        expect(boxes.leftDiff).toBeCloseTo(0, 0);
+        expect(boxes.top).toBeGreaterThanOrEqual(7);
+        expect(boxes.bottom).toBeLessThanOrEqual(boxes.footerTop);
+      }
+      await search.fill(query);
+      await search.press('ArrowDown');
+      await search.press('Enter');
+    };
+    for (const level of ['Service Provider', 'Agent', 'Merchant', 'Store']) {
+      await dialog.getByLabel('Owner Level').selectOption(level);
+      await checkMenu('provider', 'sp-universal', level === 'Service Provider' ? 20 : 21);
+      if (level === 'Service Provider') continue;
+      await checkMenu('agent', level === 'Agent' ? 'mock-agt-003' : '__direct', level === 'Agent' ? 11 : 13);
+      if (level === 'Agent') continue;
+      await checkMenu('merchant', 'mock-mch-006', level === 'Merchant' ? 11 : 12);
+      if (level === 'Store') await checkMenu('store', 'mock-str-008', 13);
+    }
+    const heights = await dialog.locator('.alert-modal-actions button').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().height));
+    expect(heights).toEqual([36, 36]);
+  });
+}
