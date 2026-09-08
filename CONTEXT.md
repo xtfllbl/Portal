@@ -164,10 +164,6 @@ _Avoid_: Rule creator, Monitoring Target, Recipient
 Creation of a Customer Alert by an authorized Paywizard operator on behalf of a selected Rule Owner. The selected service provider, agent, merchant, or store owns the rule; the operator remains the Rule Creator recorded for audit.
 _Avoid_: Role Simulation, Platform-managed Alert
 
-**Customer Alerts Operations Viewer**:
-A Paywizard operations access level that can inspect all Customer Alert Rules, Customer Alert Incidents, timelines, and audit information without performing state-changing actions.
-_Avoid_: Customer Account, Manage Customer Alerts
-
 **Customer Alerts Operations Manager**:
 A Paywizard operations access level that can manage Customer Alert Rules and Incidents across Customer Accounts while preserving each rule's selected Rule Owner and the real operator in its audit trail.
 _Avoid_: Rule Owner, Customer Account administrator

@@ -143,7 +143,6 @@
     agent: { providerId: "sp-north-america", agentId: "agent-seattle", merchantId: "", storeId: "", ownerType: "Agent", ownerId: "agent-seattle", ownerName: "Seattle Field Agent", scopes: ["Store", "Terminal"], visibleFields: ["scope", "merchant", "store", "terminal"] },
     merchant: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "", ownerType: "Merchant", ownerId: "merchant-kind-world", ownerName: "1 of a Kind World Travel LLC", scopes: ["Store", "Terminal"], visibleFields: ["scope", "store", "terminal"] },
     store: { providerId: "sp-universal", agentId: "", merchantId: "merchant-kind-world", storeId: "s-midtown", ownerType: "Store", ownerId: "s-midtown", ownerName: "Midtown Store", scopes: ["Store", "Terminal"], visibleFields: ["scope", "terminal"] },
-    "operations-viewer": { isOperations: true, canManage: false, ownerName: "All customer accounts", scopes: ["Store", "Terminal"], visibleFields: [] },
     "operations-manager": { isOperations: true, canManage: true, ownerName: "All customer accounts", scopes: ["Store", "Terminal"], visibleFields: [] }
   };
 
@@ -514,7 +513,6 @@
   const closeNote = closeIncidentModal?.querySelector("[data-alert-close-note]");
   const closeError = closeIncidentModal?.querySelector("[data-alert-close-error]");
   const roleSwitcher = surface.querySelector("[data-alert-role-switcher]");
-  const operationsScope = surface.querySelector("[data-alert-operations-scope]");
   const organizationFilter = surface.querySelector("[data-alert-organization-filter]");
   const ownerFilter = surface.querySelector("[data-alert-owner-filter]");
   const ruleStatusFilter = surface.querySelector("[data-alert-rule-status-filter]");
@@ -584,7 +582,6 @@
   function renderAccessMode() {
     const operations = Boolean(currentRole.isOperations);
     surface.querySelectorAll("[data-alert-operations-only]").forEach((node) => { node.hidden = !operations; });
-    if (operationsScope) operationsScope.hidden = !operations;
     surface.querySelectorAll("[data-alert-create]").forEach((button) => { button.hidden = !canManageAlerts; });
   }
 

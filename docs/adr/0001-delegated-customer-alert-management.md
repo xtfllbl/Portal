@@ -4,7 +4,7 @@ Paywizard operations staff manage customer-owned Alert Rules through an all-cust
 
 ## Consequences
 
-- Operations Viewer and Operations Manager are platform permissions, not Customer Accounts or selectable production roles.
+- Operations Manager is a platform permission, not a Customer Account or selectable production role.
 - Customer Alert and SLA Alert lists remain separate even though they may share underlying monitoring infrastructure.
 - Rule ownership requires stable account type and ID; names and the Role Simulator cannot enforce isolation.
 - Store is a first-class Rule Owner but remains the only organizational type that may also be a Monitoring Target.

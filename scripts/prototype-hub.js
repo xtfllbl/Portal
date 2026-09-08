@@ -132,6 +132,8 @@
   document.querySelectorAll("[data-open]").forEach((button) => {
     const dialog = document.getElementById(button.dataset.open);
     button.addEventListener("click", () => dialog.showModal());
+  });
+  document.querySelectorAll(".requirement-card dialog").forEach((dialog) => {
     dialog
       .querySelector(".close")
       .addEventListener("click", () => dialog.close());
@@ -147,7 +149,6 @@
           dialog.close();
       }
     });
-    dialog.addEventListener("close", () => button.focus());
   });
   window.addEventListener("hashchange", setView);
   setView();

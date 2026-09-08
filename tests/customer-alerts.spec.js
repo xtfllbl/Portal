@@ -452,7 +452,6 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
     "Agent · Seattle Field Agent",
     "Merchant · 1 of a Kind World Travel LLC",
     "Store · Midtown Store",
-    "Operations Viewer · All Customers",
     "Operations Manager · All Customers"
   ]);
   await expect(page.locator('[data-alert-count="active"]')).toHaveText("8");
@@ -765,27 +764,6 @@ test("seeds Store and Terminal rules with supported lifecycle incidents", async 
   expect(new Set(seeded.incidents.map((incident) => incident.monitoringState))).toEqual(new Set(["Active", "Resolved", "Closed"]));
   expect(JSON.stringify(seeded)).not.toContain("Recovering");
   expect(seeded.incidents.every((incident) => !("state" in incident) && Array.isArray(incident.events))).toBe(true);
-});
-
-test("provides read-only all-customer visibility for Operations Viewer", async ({ page }) => {
-  await page.goto("/39.customer_alerts.html?role=operations-viewer");
-  await page.evaluate((key) => localStorage.removeItem(key), ALERT_STATE_KEY);
-  await page.reload();
-
-  await expect(page.getByLabel("Alerts role")).toHaveValue("operations-viewer");
-  await expect(page.getByText("Operations scope · All customer accounts")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Create Alert Rule" })).toHaveCount(0);
-  await expect(page.getByLabel("Organization scope")).toBeVisible();
-  await expect(page.getByLabel("Rule owner")).toBeVisible();
-  await expect(page.getByRole("columnheader", { name: "Rule Owner" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Acknowledge" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Close incident", exact: true })).toHaveCount(0);
-
-  await page.getByRole("tab", { name: "Rules", exact: true }).click();
-  await expect(page.getByRole("columnheader", { name: "Rule Owner" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Pause" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Edit" })).toHaveCount(0);
-  await expect(page.getByText("View only").first()).toBeVisible();
 });
 
 test("lets Operations Manager choose any Rule Owner level with cascading selects", async ({ page }) => {

@@ -59,7 +59,6 @@
 - Merchant：查看自身及其 Store、Terminal，不可看到 Service Provider、Agent 或其他 Merchant。
 - Store：仅查看当前 Store 及其 Terminal，不可看到上级组织和其他 Store。
 - View-only 用户：可以查看告警、查看 Timeline、确认告警，但不能创建或修改规则，也不能人工关闭告警。
-- Customer Alerts Operations Viewer：查看全平台 Customer Alert Rules、Incidents、Timeline 和审计信息，不执行任何写操作。
 - Customer Alerts Operations Manager：跨 Customer Account 管理 Customer Alert Rules 和 Incidents；每次操作保留选定 Rule Owner 和真实运维操作者。
 
 ### 5.2 Monitoring Range 权限矩阵
@@ -113,12 +112,11 @@ Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Sto
 
 ### 6.3 Operations Customer Alerts
 
-原型继续使用同一 Alert Center，并在 Role Simulator 中增加 `Operations Viewer · All Customers` 与 `Operations Manager · All Customers`。生产环境不提供权限切换，由登录身份和服务端权限决定访问级别。
+原型继续使用同一 Alert Center，并在 Role Simulator 中增加 `Operations Manager · All Customers`。生产环境不提供权限切换，由登录身份和服务端权限决定访问级别。
 
 - 运维模式只展示 Customer Alerts，不混入 SLA Alerts 或 Platform-managed Alerts。
-- 页面持续显示 `Operations scope · All customer accounts` 状态标识。
 - Alerts 与 Rules 表均展示 Rule Owner；筛选同时支持组织树范围和精确 Rule Owner。
-- Operations Viewer 完全只读；Operations Manager 显示创建、规则管理和 Incident 操作。
+- Operations Manager 显示创建、规则管理和 Incident 操作。
 - Operations Manager 创建规则时先选择 Customer Account，再沿用现有 Create Alert Rule 弹窗。
 
 ## 7. 功能需求
@@ -264,9 +262,8 @@ Timeline 是 Incident 的审计流程查看器：
 
 | 编号 | 需求 |
 | --- | --- |
-| FR-040 | Operations Viewer 只可查看 KPI、Customer Alert Incidents、Customer Alert Rules、Timeline 和审计信息，不得执行创建、修改、Acknowledge 或 Close。 |
 | FR-041 | Operations Manager 通过独立的平台权限管理所有 Customer Accounts 的 Customer Alerts，不依赖客户账户内的 Manage Alerts 权限。 |
-| FR-042 | 原型 Role Simulator 增加 Operations Viewer 与 Operations Manager；切换后保留当前 Alerts / Rules Tab，清空失效筛选，未保存草稿须确认后才能丢弃。 |
+| FR-042 | 原型 Role Simulator 增加 Operations Manager；切换后保留当前 Alerts / Rules Tab，清空失效筛选，未保存草稿须确认后才能丢弃。 |
 | FR-043 | 创建入口先打开 Select Customer Context；同一弹窗同时提供全局账户搜索和逐级层级浏览，两种方式写入同一个 Selected Rule Owner。 |
 | FR-044 | Service Provider、Agent、Merchant、Store 节点均可成为 Rule Owner；导航分组不能成为 Owner。搜索结果必须展示账户类型和完整所属路径，并以稳定账户 ID 作为选择值。 |
 | FR-045 | Service Provider 的层级同时支持 Direct Merchants 与 Agents；创建规则时 Agent 是可选过滤条件，默认覆盖全部 Agent 和直属 Merchant，并提供 Direct merchants only。改变 Agent 时清空失效的 Merchant、Store 和 Terminal。 |
@@ -350,7 +347,7 @@ Timeline 是 Incident 的审计流程查看器：
 ### 10.1 权限与安全
 
 - 所有范围过滤和 Manage Alerts 权限必须由服务端校验，不能只依赖前端隐藏。
-- Operations Viewer 与 Operations Manager 权限必须由服务端校验，原型 Role Simulator 不构成授权。
+- Operations Manager 权限必须由服务端校验，原型 Role Simulator 不构成授权。
 - 用户不得通过修改 URL、Target ID 或请求参数访问范围外资源。
 - 创建、编辑、暂停、恢复、归档、确认、人工关闭及系统触发的账户停用或 Terminal 解绑动作均需记录操作者、原因和时间。
 - 任何代操作都必须分别保存 Rule Owner 与真实 Paywizard Operator，不得通过模拟客户登录掩盖操作者身份。
@@ -403,7 +400,7 @@ Timeline 是 Incident 的审计流程查看器：
 
 ### 11.5 Operations Customer Alerts
 
-- Role Simulator 可切换 Operations Viewer 与 Operations Manager；Viewer 不出现任何写操作，Manager 可管理全平台 Customer Alerts。
+- Role Simulator 可切换 Operations Manager；Manager 可管理全平台 Customer Alerts。
 - 运维视图不出现 Platform-managed Rules 或 SLA Incidents，并可从既有导航进入 SLA Alerts 页面。
 - Select Customer Context 同时支持全局搜索与层级浏览，四类账户均可成为 Owner，重名账户通过完整路径区分。
 - Service Provider Owner 可使用可选 Agent 过滤全部、直属或指定 Agent 下的 Merchant。
