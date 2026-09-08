@@ -40,7 +40,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
       profile: "attended",
       merchantItems: ["Merchant List", "Analytics"],
       deviceItems: ["Attended Terminals"],
-      settingsItems: ["Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
+      settingsItems: ["Branding", "Service Providers", "Payment Channels", "Application Parameters"],
       partners: 0,
       prepaid: 0
     },
@@ -71,6 +71,33 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
     }
   }
 });
+
+for (const width of [1440, 390]) {
+  test(`product settings access follows terminal profiles at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const routes = ["35.product_management.html", "36.product_map_templates.html"];
+    for (const profile of ["attended", "attended-merchant", "attended-store"]) {
+      await setProfile(page, profile);
+      for (const route of routes) {
+        await expect(page.locator(`.pw-platform-nav a[href="${route}"]`)).toHaveCount(0);
+        await page.goto("/" + route);
+        await expect(page).toHaveURL(/12\.transaction_list\.html$/);
+        await setProfile(page, "full-service", "/" + route);
+        await page.locator("[data-pw-profile-trigger]").click();
+        await page.locator(`[data-pw-profile="${profile}"]`).click();
+        await expect(page).toHaveURL(/12\.transaction_list\.html$/);
+      }
+    }
+    for (const profile of ["wizarpos", "full-service", "unattended"]) {
+      await setProfile(page, profile);
+      for (const route of routes) {
+        await expect(page.locator(`.pw-platform-nav a[href="${route}"]`)).toHaveCount(1);
+        await page.goto("/" + route);
+        await expect(page).toHaveURL(new RegExp(route.replaceAll(".", "\\.") + "$"));
+      }
+    }
+  });
+}
 
 test("profile guards redirect restricted back-office pages to an allowed destination", async ({ page }) => {
   await setProfile(page, "wizarpos", "/8.splitbill.html");

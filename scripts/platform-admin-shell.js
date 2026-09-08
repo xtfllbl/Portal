@@ -112,6 +112,7 @@
     }
     if (profiles[profile].store && !["transactions", "device", "notifications"].includes(target.module)) return "12.transaction_list.html";
     profile = terminalProfile(profile);
+    if (profile === "attended" && ["products", "product-map-templates"].includes(target.active)) return "12.transaction_list.html";
     if (profile !== "wizarpos" && (target.module === "partners" || ["contact", "leads", "onboarding"].includes(target.active))) {
       return "5.merchant_manage_iso.html";
     }
@@ -262,8 +263,8 @@
       sub("Service Providers", "21.service_provider.html", "service-providers"),
       sub("Payment Channels", "23.payment_channel_setting.html", "payment-channels"),
       sub("Application Parameters", "3.Processor_template_new.html", "application-parameters"),
-      sub("Products", "35.product_management.html", "products"),
-      sub("Product Map Templates", "36.product_map_templates.html", "product-map-templates")
+      terminalProfile(activeProfile) !== "attended" ? sub("Products", "35.product_management.html", "products") : "",
+      terminalProfile(activeProfile) !== "attended" ? sub("Product Map Templates", "36.product_map_templates.html", "product-map-templates") : ""
     ].join("");
     if (isMerchant) {
       userItems = unavailableSub("User List") + unavailableSub("Role Permissions");
