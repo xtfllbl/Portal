@@ -49,7 +49,7 @@ The email recipient chosen by an operations user when sending a Billing Payment 
 _Avoid_: Billing owner, merchant account identity
 
 **Billing Payment Link Email**:
-An email addressed to a Billing Link Recipient that provides the Billing Payment Link for a specific Billing Record and invites the recipient to review the bill and complete payment or recurring payment authorization.
+An email addressed to a Billing Link Recipient that provides the Billing Payment Link for a specific Billing Record and invites the recipient to review the bill and complete payment or recurring payment authorization. For a Merchant Billing Record, it also provides the merchant portal entry for account users to review and pay the same bill; a Standalone Billing Record has no merchant portal entry.
 _Avoid_: Billing Payment Receipt, payment confirmation
 
 **Billing Link Expiry**:

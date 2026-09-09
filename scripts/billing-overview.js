@@ -13,7 +13,7 @@
     return records.filter(r => r.status !== 'Draft' && (!filters.assignment || r.assignment === filters.assignment) && (!filters.merchant || r.merchantName.toLowerCase().includes(filters.merchant)) && (!filters.status || r.status === filters.status) && (!filters.cycle || (filters.cycle === 'one-time' ? !r.recurring : filters.cycle === 'monthly' ? r.recurring : r.recurring && String(r.cycle) === filters.cycle)) && (!filters.from || r.createdAt.slice(0,10) >= filters.from) && (!filters.to || r.createdAt.slice(0,10) <= filters.to));
   }
   function values(r) {
-    return [r.invoice, r.createdAt?.replace('T',' ').slice(0,19), store.isMerchantRecord(r) ? r.merchantName : 'Standalone Billing', r.recurring ? date(r.start) + ' – ' + date(store.endDate(r)) : '—', r.recurring ? r.cycle + ' Months' : 'One-time', money(store.total(r),r.currency), r.status, r.recurring ? store.count(r) + ' of ' + r.cycle : '—', date(store.endDate(r)), date(r.expiry), r.linkStatus, r.notes || '—'];
+    return [r.invoice, r.createdAt?.replace('T',' ').slice(0,19), store.isMerchantRecord(r) ? r.merchantName : '—', r.recurring ? date(r.start) + ' – ' + date(store.endDate(r)) : '—', r.recurring ? r.cycle + ' Months' : 'One-time', money(store.total(r),r.currency), r.status, r.recurring ? store.count(r) + ' of ' + r.cycle : '—', date(store.endDate(r)), date(r.expiry), r.linkStatus, r.notes || '—'];
   }
   function render() {
     closeMenu(); const list = filtered(), size = Number($('pageSize').value), pages = Math.max(1,Math.ceil(list.length / size)); page = Math.min(Math.max(page,1),pages);

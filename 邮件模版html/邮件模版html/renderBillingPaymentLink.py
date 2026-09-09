@@ -34,6 +34,10 @@ def render(data, *, preview=False):
         raise ValueError('invoiceNumber cannot contain line breaks')
     amount, description = required('amountDue'), required('description')
     payment_url = https_url(required('paymentUrl'))
+    portal_url = https_url(required('portalUrl')) if data['assignment'] == 'merchant' else ''
+    invitation = f'{issuer} has sent you a bill. You can review and pay it directly using the payment link without signing in.'
+    if portal_url:
+        invitation += ' If you have a merchant account, you can also sign in to the Merchant Portal to review and pay the same bill.'
     logo = data.get('logoUrl', 'billingReceiptLogo.png' if preview else '')
     if not isinstance(logo, str) or not logo:
         raise ValueError('Production rendering requires an HTTPS or CID logoUrl')
@@ -46,15 +50,15 @@ def render(data, *, preview=False):
     details = [('Invoice #', invoice)]
     if data['assignment'] == 'merchant':
         details.append(('Merchant', required('merchantName')))
-    details += [('Description', description), ('Payment type', 'Fixed-term monthly' if data['recurring'] else 'One-time')]
+    details += [('Description', description), ('Payment Type', 'Fixed-term Monthly' if data['recurring'] else 'One-time')]
     if data.get('includedData'):
-        details.append(('Included data', required('includedData')))
+        details.append(('Included Data', required('includedData')))
     schedule = ''
     if data['recurring']:
         count = data.get('installmentCount')
         if type(count) is not int or count < 1:
             raise ValueError('installmentCount must be a positive integer')
-        details += [('Monthly amount', required('monthlyAmount')), ('Installments', str(count)), ('Contract total', required('contractTotal'))]
+        details += [('Monthly Amount', required('monthlyAmount')), ('Installments', str(count)), ('Contract Total', required('contractTotal'))]
         schedule = ('Your first installment is payable now. At checkout, you will be asked to authorize automatic charges for the remaining monthly installments according to the billing schedule. Collection ends when all agreed installments have been paid.' if count > 1 else 'This contract has one installment, payable now. No further payments will be collected after it is paid.')
     expiry = ''
     if data.get('linkExpiryDate'):
@@ -65,9 +69,14 @@ def render(data, *, preview=False):
     rows = ''.join('<tr><th class="label" scope="row" width="42%" align="left" valign="top" style="padding:14px 12px 14px 0;border-bottom:1px solid #e5e7eb;font-weight:400;color:#6b7280;">' + esc(label) + '</th><td align="right" valign="top" style="padding:14px 0;border-bottom:1px solid #e5e7eb;overflow-wrap:anywhere;word-break:break-word;">' + esc(value) + '</td></tr>' for label, value in details)
     paragraph = lambda value: '<p style="margin:20px 0 0;font-size:13px;line-height:21px;color:#6b7280;overflow-wrap:anywhere;">' + esc(value).replace('\n', '<br>') + '</p>' if value else ''
     values = dict(issuerName=esc(issuer), invoiceNumber=esc(invoice), amountDue=esc(amount), logoUrl=esc(logo), paymentUrl=esc(payment_url), preheader=esc(f'{amount} due · Invoice {invoice}'), detailRows=rows, scheduleSection=paragraph(schedule), notesSection=paragraph(note), expirySection='<p style="margin:0 0 16px;font-size:12px;line-height:19px;color:#6b7280;">'+esc(expiry)+'</p>' if expiry else '')
-    html = Template(Path(__file__).with_name('billingPaymentLink.html').read_text(encoding='utf-8')).substitute(values)
-    plain = '\n\n'.join(part for part in ['Your bill is ready', 'Hello,', f'{issuer} has sent you a bill. Please review the details and complete your payment using the link below.', f'Amount due now: {amount}', '\n'.join(f'{label}: {value}' for label, value in details), schedule, note, f'View bill & pay:\n{payment_url}', expiry, 'No portal sign-in is required. If you have questions about this bill, please contact the sender.', f'{issuer}\nSent via Paywizard Billing System'] if part)
-    return {'subject': f'Your bill is ready — {invoice}', 'html': html, 'text': plain + '\n'}
+    values['invitationText'] = esc(invitation)
+    values['portalAction'] = ('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;"><tr><td style="padding-top:12px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#ffffff" style="border-radius:6px;mso-padding-alt:16px 24px;"><a class="cta" href="'+esc(portal_url)+'" style="display:block;padding:16px 24px;border:1px solid #18181b;border-radius:6px;background:#ffffff;color:#18181b;font-size:16px;line-height:20px;font-weight:700;text-decoration:none;">Access Merchant Portal</a></td></tr></table></td></tr></table>') if portal_url else ''
+    values['portalFallback'] = ('<p style="margin:16px 0 4px;font-size:12px;line-height:19px;color:#6b7280;">Merchant Portal</p><p style="margin:0;font-size:12px;line-height:19px;word-break:break-all;overflow-wrap:anywhere;"><a href="'+esc(portal_url)+'" style="color:#2563eb;text-decoration:underline;word-break:break-all;">'+esc(portal_url)+'</a></p>') if portal_url else ''
+    # The source template has a working image for direct browser previews.
+    template = Path(__file__).with_name('billingPaymentLink.html').read_text(encoding='utf-8')
+    html = Template(template.replace('src="billingReceiptLogo.png"', 'src="${logoUrl}"')).substitute(values)
+    plain = '\n\n'.join(part for part in ['Paywizard | wizarPOS', 'Your Bill Is Ready', 'Hello,', invitation, f'Amount Due Now: {amount}', '\n'.join(f'{label}: {value}' for label, value in details), schedule, note, f'View Bill & Pay:\n{payment_url}', f'Access Merchant Portal:\n{portal_url}' if portal_url else '', expiry, 'If you have questions about this bill, please contact the sender.', f'{issuer}\nSent via Paywizard Billing System'] if part)
+    return {'subject': f'Your Bill Is Ready — {invoice}', 'html': html, 'text': plain + '\n'}
 
 
 if __name__ == '__main__':

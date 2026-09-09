@@ -41,7 +41,9 @@ def render(data):
             body = 'Next payment: <strong>'+text(data['nextAmount'])+'</strong> on <strong>'+text(data['nextPaymentDate'])+'</strong>.'
         values['installmentSection'] = '<p style="margin:0 0 20px;font-size:13px;line-height:21px;color:#6b7280;">'+body+'</p>'
     values['notesSection'] = section('Billing note','<p style="margin:0;overflow-wrap:anywhere;">'+text(data['notes']).replace('\n','<br>')+'</p>') if data.get('notes') else ''
-    return Template(Path(__file__).with_name('billingPaymentReceipt.html').read_text()).substitute(values)
+    # Keep the raw template previewable while honoring the delivery image URL.
+    template = Path(__file__).with_name('billingPaymentReceipt.html').read_text()
+    return Template(template.replace('src="billingReceiptLogo.png"', 'src="${logoUrl}"')).substitute(values)
 
 if __name__=='__main__':
     Path(sys.argv[2]).write_text(render(json.loads(Path(sys.argv[1]).read_text())))

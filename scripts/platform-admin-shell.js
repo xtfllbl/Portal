@@ -24,16 +24,16 @@
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
     "42.billing_payments.html": page("body > main.payments-page", "billing-payments", "billing-payments", ["Billing & Payments"], []),
-    "44.billing_overview.html": page("body > main.overview-page", "billing-overview", "billing-overview", ["Payment", "Billing Overview"], []),
-    "41.billing_setup.html": page("body > main.billing-page", "settings", "billing-setup", ["Settings", "Billing Setup"], []),
+    "44.billing_overview.html": page("body > main.overview-page", "matintain", "billing-overview", ["Matintain", "Billing Overview"], []),
+    "41.billing_setup.html": page("body > main.billing-page", "matintain", "billing-setup", ["Matintain", "Billing Setup"], []),
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_nayax.html": page(".main-body > .workspace", "device", "unattended-terminals", ["Device Management", "Unattended Terminals"], ["body > .top-header", "body > .main-body"]),
     "2.agent_list_iso.html": page(".app > main.main > .content", "agents", "agent-list", ["Agents", "Agent List"], ["body > .app"]),
     "2.agent_analytics.html": page("body > main.analytics-page", "agents", "agent-analytics", ["Agents", "Analytics"], []),
     "2.resellermerchantterminal.html": page(".main-container > .content-area", "device", "device-overview", ["Device Management", "Overview"], ["body > .top-header", "body > .main-body"]),
-    "3.Processor_template_new.html": page(".main-content > main.page-content", "settings", "application-parameters", ["Settings", "Application Parameters"], ["body > .sidebar", "body > .main-content"]),
-    "3.version_provider_assign.html": page("body > main.page", "settings", "application-parameters", ["Settings", "Application Parameters", "Assign Service Providers"], []),
+    "3.Processor_template_new.html": page(".main-content > main.page-content", "matintain", "application-parameters", ["Matintain", "Application Parameters"], ["body > .sidebar", "body > .main-content"]),
+    "3.version_provider_assign.html": page("body > main.page", "matintain", "application-parameters", ["Matintain", "Application Parameters", "Assign Service Providers"], []),
     "5.merchant_add_device_iso.html": page(".main-container > .content-area", "merchants", "merchant-list", ["Merchants", "Merchant List", "Add Device"], ["body > .page-shell"]),
     "5.merchant_add_iso.html": page(".main-container > .content-area", "merchants", "merchant-list", ["Merchants", "Merchant List", "New Merchant Onboarding"], ["body > .page-shell"]),
     "5.merchant_add_merchant_only_iso.html": page(".main-container > .content-area", "merchants", "merchant-list", ["Merchants", "Merchant List", "Add Merchant"], ["body > .page-shell"]),
@@ -41,7 +41,7 @@
     "5.merchant_detail_no_store_iso.html": page(".main-container > .content-area", "merchants", "merchant-list", ["Merchants", "Merchant List", "Merchant Overview"], ["body > .page-shell"]),
     "5.merchant_device_settings_iso.html": page(".main-container > .content-area", "merchants", "merchant-list", ["Merchants", "Merchant List", "Device Settings"], ["body > .page-shell"]),
     "5.merchant_manage_iso.html": page(".main-container > .content-area", "merchants", "merchant-list", ["Merchants", "Merchant List"], ["body > .page-shell"]),
-    "6.edit_application_parameters.html": page(".main-content > main.page-content", "settings", "application-parameters", ["Settings", "Application Parameters", "Edit Application Parameters"], ["body > .sidebar", "body > .main-content"]),
+    "6.edit_application_parameters.html": page(".main-content > main.page-content", "matintain", "application-parameters", ["Matintain", "Application Parameters", "Edit Application Parameters"], ["body > .sidebar", "body > .main-content"]),
     "7.merchant_contact.html": page(".app-shell > main.workspace > .page-card", "merchants", "contact", ["Merchants", "Contact"], ["body > .app-shell"]),
     "8.splitbill.html": page("body > .min-h-screen > .flex-1 > section", "merchants", "split-rules", ["Merchants", "Split Rules"], ["body > .min-h-screen"]),
     "8.merchant_analytics.html": page("body > main.analytics-page", "merchants", "merchant-analytics", ["Merchants", "Analytics"], []),
@@ -56,11 +56,11 @@
     "17.prepaid_loss_replacement.html": page(".main-container > .content-area", "prepaid", "prepaid-loss-replacement", ["Prepaid Cards", "Loss & Replacement"], ["body > .page-shell"]),
     "19.prepaid_card_detail.html": page(".main-container > .content-area", "prepaid", "prepaid-card-list", ["Prepaid Cards", "Card List", "Card Details"], ["body > .page-shell"]),
     "20.provider_custom_email_service.html": page(".page-shell > main.content-panel", "settings", "branding", ["Settings", "Branding"], ["body > .page-shell"]),
-    "21.service_provider.html": page(".page-shell > main.content-panel", "settings", "service-providers", ["Settings", "Service Providers"], ["body > .page-shell"]),
-    "22.sp_payment_channel_setting.html": page(".page-shell > main.content-panel", "settings", "service-providers", ["Settings", "Service Providers", "SP Payment Channel Setting"], ["body > .page-shell"]),
+    "21.service_provider.html": page(".page-shell > main.content-panel", "matintain", "service-providers", ["Matintain", "Service Providers"], ["body > .page-shell"]),
+    "22.sp_payment_channel_setting.html": page(".page-shell > main.content-panel", "matintain", "service-providers", ["Matintain", "Service Providers", "SP Payment Channel Setting"], ["body > .page-shell"]),
     "23.payment_channel_setting.html": page(".page-shell > main.content-panel", "settings", "payment-channels", ["Settings", "Payment Channels"], ["body > .page-shell"]),
     "23.payment_channel_setting_v2.html": page("body > main.payment-channel-v2", "merchants", "merchant-list", ["Merchants", "Merchant List", "Merchant Overview", "Payment Channels"], []),
-    "23.sp_merchant_list.html": page(".page-shell > main.content-panel", "settings", "service-providers", ["Settings", "Service Providers", "Merchant List"], ["body > .page-shell"]),
+    "23.sp_merchant_list.html": page(".page-shell > main.content-panel", "matintain", "service-providers", ["Matintain", "Service Providers", "Merchant List"], ["body > .page-shell"]),
     "24.maintain_terminal_log.html": page(".app > section.main > main.panel", "device", "terminal", ["Device Management", "Terminal Logs"], ["body > .app"]),
     "26.partner_information.html": page(".app > main.main > .content-area", "partners", "partners", ["Partners", "Partner List"], ["body > .app"]),
     "27.Merchant_onboard_elavon.html": page(".app-main > main.content", "merchants", "onboarding", ["Merchants", "Onboarding", "Elavon Merchant Registration"], ["body > .sidebar", "body > .app-main"]),
@@ -68,7 +68,7 @@
     "28.INTL_PSP_merchant_lead_detail.html": page(".layout > main.workspace > .page", "merchants", "leads", ["Merchants", "Leads", "INTL PSP Merchant Information"], ["body > .layout"]),
     "28.UPT_merchant_lead_detail.html": page(".pw-app-frame > main.pw-workspace > .pw-content-panel", "merchants", "leads", ["Merchants", "Leads", "Merchant Information"], ["body > .pw-app-frame"]),
     "29.INTL_PSP_merchant_lead_list.html": page(".layout > main.workspace > .panel", "merchants", "leads", ["Merchants", "Leads"], ["body > .layout"]),
-    "32.sla_alert_rules.html": page(".page-shell > main.content-panel", "settings", "sla-alerts", ["Settings", "SLA Alerts"], ["body > .page-shell"]),
+    "32.sla_alert_rules.html": page(".page-shell > main.content-panel", "matintain", "sla-alerts", ["Matintain", "SLA Alerts"], ["body > .page-shell"]),
     "34.card_reader_management.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
     "35.product_management.html": page(".shell > main.content", "settings", "products", ["Settings", "Products"], ["body > .shell"]),
     "36.product_map_templates.html": page(".shell > main.content", "settings", "product-map-templates", ["Settings", "Product Map Templates"], ["body > .shell"]),
@@ -103,7 +103,7 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
-    if (["billing-setup", "billing-overview"].includes(target.active) && profile !== "wizarpos") return "12.transaction_list.html";
+    if (target.module === "matintain" && profile !== "wizarpos") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
     if (profiles[profile].merchant) {
       var merchantPages = ["5.merchant_detail_iso.html", "5.merchant_detail_no_store_iso.html", "5.merchant_add_device_iso.html", "5.merchant_device_settings_iso.html", "23.payment_channel_setting_v2.html"];
@@ -258,13 +258,8 @@
       unavailableSub("Appeals")
     ].join("");
     var settingsItems = [
-      isWizarpos ? sub("Billing Setup", "41.billing_setup.html", "billing-setup") : "",
-      isWizarpos ? sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") : "",
       terminalProfile(activeProfile) !== "attended" ? sub("Alerts", "39.customer_alerts.html", "alerts") : "",
       sub("Branding", "20.provider_custom_email_service.html", "branding"),
-      sub("Service Providers", "21.service_provider.html", "service-providers"),
-      sub("Payment Channels", "23.payment_channel_setting.html", "payment-channels"),
-      sub("Application Parameters", "3.Processor_template_new.html", "application-parameters"),
       terminalProfile(activeProfile) !== "attended" ? sub("Products", "35.product_management.html", "products") : "",
       terminalProfile(activeProfile) !== "attended" ? sub("Product Map Templates", "36.product_map_templates.html", "product-map-templates") : ""
     ].join("");
@@ -291,7 +286,6 @@
     return [
       disabled("Dashboard", "dashboard"),
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
-      isWizarpos ? link("Billing Overview", "44.billing_overview.html", "receipt_long", "billing-overview") : "",
       !isMerchant ? group("Agents", "group", "agents", agentItems) : "",
       isMerchant ? link("Merchant", "5.merchant_detail_iso.html", "store", "merchant-list") : group("Merchants", "store", "merchants", merchantItems),
       isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",
@@ -302,6 +296,7 @@
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
+      isWizarpos ? group("Matintain", "build", "matintain", sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters")) : "",
       disabled("Tickets", "support_agent"),
       isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");

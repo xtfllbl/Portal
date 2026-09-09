@@ -32,7 +32,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
       profile: "wizarpos",
       merchantItems: ["Contact", "Leads", "Onboarding", "Merchant List", "Analytics"],
       deviceItems: ["Attended Terminals", "Unattended Terminals", "Card Readers"],
-      settingsItems: ["Billing Setup", "SLA Alerts", "Alerts", "Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
+      settingsItems: ["Alerts", "Branding", "Products", "Product Map Templates"],
       partners: 1,
       prepaid: 1
     },
@@ -40,7 +40,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
       profile: "attended",
       merchantItems: ["Merchant List", "Analytics"],
       deviceItems: ["Attended Terminals"],
-      settingsItems: ["Branding", "Service Providers", "Payment Channels", "Application Parameters"],
+      settingsItems: ["Branding"],
       partners: 0,
       prepaid: 0
     },
@@ -48,7 +48,7 @@ test("navigation follows the three-profile visibility matrix", async ({ page }) 
       profile: "unattended",
       merchantItems: ["Merchant List", "Analytics"],
       deviceItems: ["Unattended Terminals"],
-      settingsItems: ["Alerts", "Branding", "Service Providers", "Payment Channels", "Application Parameters", "Products", "Product Map Templates"],
+      settingsItems: ["Alerts", "Branding", "Products", "Product Map Templates"],
       partners: 0,
       prepaid: 1
     }
