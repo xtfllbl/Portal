@@ -5227,16 +5227,43 @@ paymentTimeout=180`
                 inlineElements.validation.innerHTML = '';
                 return;
             }
-            const items = Array.from(inlineErrors.entries()).map(([key, errors]) => {
+            const groups = new Map();
+            const addIssue = (field, message, key, type, number) => {
+                const groupKey = JSON.stringify([field, message]);
+                if(!groups.has(groupKey)) groups.set(groupKey, { message, rows: new Map() });
+                groups.get(groupKey).rows.set(key, { type, number });
+            };
+            Array.from(inlineErrors.entries()).forEach(([key, errors]) => {
                 const draftIndex = inlineDrafts.findIndex(draft => draft.key === key);
-                const product = productRows.find(row => row.id === key);
-                const label = draftIndex >= 0 ? `New row ${draftIndex + 1}` : product ? (product.productName || `BIN ${product.mdbCode}`) : 'Edited row';
-                return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(Object.values(errors).join(' '))}</li>`;
-            }).concat(templateIssues.map(issue => {
+                const productIndex = productRows.findIndex(row => row.id === key);
+                const type = draftIndex >= 0 ? 'New row' : templateImportBackup ? 'Imported row' : 'Row';
+                const number = draftIndex >= 0 ? draftIndex + 1 : productIndex >= 0 ? productIndex + 1 : null;
+                Object.entries(errors).forEach(([field, message]) => addIssue(field, message, key, type, number));
+            });
+            templateIssues.forEach(issue => {
                 const row = productRows[issue.index];
-                const label = row ? row.productNameSnapshot || row.productName : `Imported row ${issue.index + 1}`;
-                return `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(issue.message)}</li>`;
-            })).join('');
+                addIssue(issue.field, issue.message, row ? row.id : `imported-${issue.index}`, 'Imported row', issue.index + 1);
+            });
+            const formatRanges = numbers => {
+                const sorted = [...new Set(numbers)].sort((a, b) => a - b);
+                const ranges = [];
+                for(let index = 0; index < sorted.length; index++){
+                    const start = sorted[index];
+                    let end = start;
+                    while(sorted[index + 1] === end + 1) end = sorted[++index];
+                    ranges.push(start === end ? String(start) : `${start}–${end}`);
+                }
+                return ranges.join(', ');
+            };
+            const items = Array.from(groups.values()).map(({ message, rows }) => {
+                const labels = [];
+                ['New row', 'Row', 'Imported row'].forEach(type => {
+                    const numbers = Array.from(rows.values()).filter(row => row.type === type && row.number !== null).map(row => row.number);
+                    if(numbers.length) labels.push(`${type}${numbers.length === 1 ? '' : 's'} ${formatRanges(numbers)}`);
+                });
+                if(Array.from(rows.values()).some(row => row.number === null)) labels.push('Edited row');
+                return `<li><strong>${escapeHtml(message)}</strong> — ${escapeHtml(labels.join('; '))} (${rows.size} ${rows.size === 1 ? 'row' : 'rows'})</li>`;
+            }).join('');
             inlineElements.validation.innerHTML = `<div class="pm-validation-summary-title">Please correct the highlighted fields.</div><ul>${items}</ul>`;
             inlineElements.validation.classList.remove('hidden');
         }
