@@ -56,6 +56,30 @@ _Avoid_: Billing Payment Receipt, payment confirmation
 The end of the period during which a Billing Payment Link can be used for initial payment or recurring payment authorization. It does not end an existing Fixed-term Billing Contract or revoke an existing Recurring Payment Authorization.
 _Avoid_: Contract end date, authorization cancellation
 
+**Billing Overview**:
+The operations view for managing issued Billing Records, including merchant and standalone obligations. Billing Setup handles creation and drafts; merchant users view their own bills through Billing & Payments.
+_Avoid_: Payment attempt list, merchant billing view
+
+**Billing Collection Stop**:
+A permanent end to new collection attempts against a Billing Record, covering overdue and future installments while retaining successful payments and unpaid amounts in its history. It does not waive the underlying debt, mark unpaid amounts as paid, or automatically refund previous payments; an already submitted attempt may still settle.
+_Avoid_: Temporary pause, payment completion, automatic refund
+
+**Billing Link Renewal**:
+An extension of a Billing Payment Link's validity that retains its existing URL and Billing Record. It does not create a new obligation, reset paid installments, or extend a Fixed-term Billing Contract.
+_Avoid_: Contract renewal, new billing record, replacement payment link
+
+**Billing Payment Retry**:
+A payer-confirmed attempt to collect due, unpaid installments under an existing Recurring Payment Authorization, oldest first and stopping at the first failure. It is unavailable after Billing Collection Stop and does not extend the contract.
+_Avoid_: Automatic retry, operator-triggered charge, link renewal
+
+**Billing Collection Status**:
+The collection state of an issued Billing Record: Pending before payment or authorization, Active for authorized installments proceeding normally, Overdue for overdue unpaid installments or failed collection, Paid when fully settled, or Stopped after Billing Collection Stop.
+_Avoid_: Payment attempt result, link validity
+
+**Billing Link Status**:
+The payment entry's usability: Valid while available within its validity period, Expired after that period, Used after successful payment or recurring authorization, or Disabled after Billing Collection Stop. A Used link can present the bill's result without allowing duplicate initial payment or authorization.
+_Avoid_: Billing Collection Status, recurring collection status
+
 **Platform Back-office Page**:
 A page used by authorized Paywizard operators or organization users to manage platform resources and workflows within the shared administrative navigation context.
 _Avoid_: Public Onboarding Page, prototype index

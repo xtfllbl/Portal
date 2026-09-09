@@ -24,6 +24,7 @@
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
     "42.billing_payments.html": page("body > main.payments-page", "billing-payments", "billing-payments", ["Billing & Payments"], []),
+    "44.billing_overview.html": page("body > main.overview-page", "billing-overview", "billing-overview", ["Payment", "Billing Overview"], []),
     "41.billing_setup.html": page("body > main.billing-page", "settings", "billing-setup", ["Settings", "Billing Setup"], []),
     "1.terminalmanage.html": page(".main-body > .workspace", "device", "attended-terminals", ["Device Management", "Attended Terminals"], ["body > .top-header", "body > .main-body"]),
     "1.terminalmanage_CardReader.html": page(".main-body > .workspace", "device", "card-readers", ["Device Management", "Card Readers"], ["body > .top-header", "body > .main-body"]),
@@ -102,7 +103,7 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
-    if (target.active === "billing-setup" && profile !== "wizarpos") return "12.transaction_list.html";
+    if (["billing-setup", "billing-overview"].includes(target.active) && profile !== "wizarpos") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
     if (profiles[profile].merchant) {
       var merchantPages = ["5.merchant_detail_iso.html", "5.merchant_detail_no_store_iso.html", "5.merchant_add_device_iso.html", "5.merchant_device_settings_iso.html", "23.payment_channel_setting_v2.html"];
@@ -289,6 +290,7 @@
     return [
       disabled("Dashboard", "dashboard"),
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
+      isWizarpos ? link("Billing Overview", "44.billing_overview.html", "receipt_long", "billing-overview") : "",
       !isMerchant ? group("Agents", "group", "agents", agentItems) : "",
       isMerchant ? link("Merchant", "5.merchant_detail_iso.html", "store", "merchant-list") : group("Merchants", "store", "merchants", merchantItems),
       isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",

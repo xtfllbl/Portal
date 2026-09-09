@@ -99,7 +99,7 @@
   }
   function cell(row, text) { const td = document.createElement('td'); td.textContent = text; row.append(td); return td; }
   function render() {
-    const filtered = records.filter(r => (!filters.assignment || (r.assignment ?? 'merchant') === filters.assignment) && (!filters.merchant || store.isMerchantRecord(r) && String(r.merchantName || '').toLocaleLowerCase().includes(filters.merchant.toLocaleLowerCase())) && (!filters.status || r.status === filters.status));
+    const filtered = records.filter(r => r.status === 'Draft' && (!filters.assignment || (r.assignment ?? 'merchant') === filters.assignment) && (!filters.merchant || store.isMerchantRecord(r) && String(r.merchantName || '').toLocaleLowerCase().includes(filters.merchant.toLocaleLowerCase())) && (!filters.status || r.status === filters.status));
     const size = Number($('pageSize').value), pages = Math.max(1, Math.ceil(filtered.length / size));
     page = Math.min(Math.max(1, page), pages);
     $('billingRows').replaceChildren();
@@ -148,7 +148,8 @@
     editing = draft ? record.id : null;
     filters = { assignment: record.assignment, merchant: record.merchantName || '', status: '' };
     $('filterAssignment').value = filters.assignment; $('filterMerchant').value = filters.merchant; $('filterStatus').value = ''; updateFilterAssignment(); page = 1;
-    if (!draft) { reset(); highlighted = record.id; selectTab('records', true); }
+    if (!draft) { location.href = '44.billing_overview.html'; return; }
+    selectTab('records', true);
     render(); message(draft ? 'Draft saved.' : record.assignment === 'standalone' ? 'Payment link created.' : 'Billing applied to merchant account.');
   }
   $('billingForm').addEventListener('input', update);
@@ -246,5 +247,6 @@
   connect();
   window.addEventListener('focus', () => { if (ready && !saving) store.sync().then(data => { records = data; render(); }).catch(error => message(error.message)); });
   setInterval(() => { if (ready && !saving && !document.querySelector('dialog[open]') && !document.querySelector('.billing-link-menu:not([hidden])')) store.sync().then(data => { records = data; render(); }).catch(() => {}); }, 60000);
+  if (new URLSearchParams(location.search).get('tab') === 'records' || location.hash === '#records') location.replace('44.billing_overview.html');
   update(); render();
 })();

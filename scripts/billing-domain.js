@@ -4,6 +4,8 @@
   const randomToken = () => Array.from(root.crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, '0')).join('');
 
 const day = (now = new Date()) => now.toISOString().slice(0, 10);
+const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && !Number.isNaN(Date.parse(value)) && day(new Date(value)) === value;
+const stopped = bill => bill.status === 'Stopped' || !!bill.collectionStop;
 function monthlyDate(start, offset) {
   const [y, m, d] = start.split('-').map(Number);
   const date = new Date(Date.UTC(y, m - 1 + offset, 1));
@@ -23,7 +25,6 @@ function makeBill(input, now = new Date(), legacy = false) {
   if (assignment === 'merchant' && !merchantId || !input.id || !['EUR', 'USD', 'CAD'].includes(input.currency)) throw new Error('Invalid merchant or currency.');
   if (!draft && (!Number.isFinite(amount) || amount <= 0 || amount > 999999999)) throw new Error('Enter a valid billing amount.');
   if (!Number.isInteger(cycle) || cycle < 1 || cycle > 36) throw new Error('Invalid contract term.');
-  const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && !Number.isNaN(Date.parse(value)) && day(new Date(value)) === value;
   if (!draft && recurring && !validDate(input.start)) throw new Error('A valid service start date is required.');
   if (!validDate(input.expiry)) throw new Error('A valid payment link expiry date is required.');
   const paid = legacy ? Math.min(cycle, Math.max(0, Number(input.paidInstallments ?? (input.status === 'Paid' ? cycle : 0)))) : 0;
@@ -33,8 +34,8 @@ function makeBill(input, now = new Date(), legacy = false) {
     currency: input.currency, amount: draft && !amount ? '' : amount, recurring, cycle, start: input.start || '', expiry: input.expiry,
     includedData,
     notes: String(input.notes || '').slice(0, 2000), createdAt: input.createdAt || now.toISOString(),
-    status: draft ? 'Draft' : paid === cycle ? 'Paid' : input.status === 'Overdue' ? 'Overdue' : recurring ? 'Active' : 'Pending',
-    authorization: null, installments: [], payments: [], requests: {}, deliveries: [], linkToken: draft ? null : randomToken()
+    status: draft ? 'Draft' : legacy && input.status === 'Stopped' ? 'Stopped' : paid === cycle ? 'Paid' : input.status === 'Overdue' ? 'Overdue' : 'Pending',
+    authorization: null, installments: [], payments: [], requests: {}, deliveries: [], audit: [], linkToken: draft ? null : randomToken()
   };
   if (!draft) bill.installments = Array.from({ length: cycle }, (_, i) => ({ number: i + 1, due: recurring ? monthlyDate(bill.start, i) : day(now), amount, status: i < paid ? 'Paid' : 'Pending', paidAt: i < paid ? input.paidAt || null : null, legacy: i < paid }));
   return bill;
@@ -43,14 +44,27 @@ function summary(bill, now = new Date()) {
   const paidInstallments = bill.installments.filter(i => i.status === 'Paid').length;
   const unpaid = bill.installments.filter(i => i.status !== 'Paid');
   const due = unpaid.filter(i => i.due <= day(now) || i.number === 1);
-  return { paidInstallments, currentInstallmentPaid: paidInstallments > 0, nextPaymentDate: unpaid[0]?.due || null, nextScheduledPaymentDate: unpaid.find(i => i.number > 1 && i.due > day(now))?.due || null, dueInstallments: due.map(i => i.number), linkExpired: bill.expiry < day(now), totalAmount: Math.round(Number(bill.amount) * 100) * bill.cycle / 100 };
+  const linkExpired = bill.expiry < day(now);
+  const status = stopped(bill) ? 'Stopped' : bill.status === 'Draft' ? 'Draft' : !unpaid.length ? 'Paid'
+    : bill.status === 'Overdue' || unpaid.some(i => i.status === 'Failed' || bill.recurring && i.due < day(now)) ? 'Overdue'
+    : bill.authorization ? 'Active' : 'Pending';
+  const linkStatus = status === 'Stopped' || status === 'Draft' ? 'Disabled' : bill.authorization || paidInstallments > 0 || status === 'Paid' ? 'Used' : linkExpired ? 'Expired' : 'Valid';
+  return { status, paidInstallments, currentInstallmentPaid: paidInstallments > 0,
+    nextPaymentDate: status === 'Stopped' ? null : unpaid[0]?.due || null,
+    nextScheduledPaymentDate: status === 'Stopped' ? null : unpaid.find(i => i.number > 1 && i.due > day(now))?.due || null,
+    dueInstallments: due.map(i => i.number), dueAmount: due.reduce((sum, i) => sum + Math.round(i.amount * 100), 0) / 100,
+    linkExpired, linkStatus, canRetry: !!bill.authorization && status === 'Overdue' && due.length > 0,
+    canStop: !['Draft','Paid','Stopped'].includes(status), canRenew: !['Draft','Paid','Stopped'].includes(status) && linkStatus === 'Expired',
+    totalAmount: Math.round(Number(bill.amount) * 100) * bill.cycle / 100 };
 }
 function publicView(bill, now = new Date()) {
-  const { requests, linkToken, deliveries, authorization, ...view } = bill;
-  // Only masked payment-method metadata is exposed; no credentials or payer email.
-  return { ...view, assignment: bill.assignment ?? 'merchant', ...summary(bill, now), authorization: authorization ? { status: authorization.status, brand: authorization.brand, last4: authorization.last4, authorizedAt: authorization.authorizedAt } : null };
+  const { requests, linkToken, linkSnapshot, deliveries, authorization, audit, collectionStop, ...view } = bill;
+  // Public links expose payment results, never management audit details or payer contact data.
+  return { ...view, assignment: bill.assignment ?? 'merchant', ...summary(bill, now), stoppedAt: collectionStop?.at || null,
+    authorization: authorization ? { status: authorization.status, brand: authorization.brand, last4: authorization.last4, authorizedAt: authorization.authorizedAt } : null };
 }
 function collect(bill, { now = new Date(), source = 'scheduled', failAt = 0 } = {}) {
+  if (stopped(bill) || bill.status === 'Draft') return bill;
   for (const installment of bill.installments) {
     if (installment.status === 'Paid') continue;
     if (installment.number !== 1 && installment.due > day(now)) break;
@@ -69,8 +83,9 @@ function collect(bill, { now = new Date(), source = 'scheduled', failAt = 0 } = 
 function checkout(bill, input, now = new Date(), simulation = {}) {
   if (bill.requests[input.requestId]) return bill;
   if (!/^[a-zA-Z0-9-]{16,80}$/.test(input.requestId || '')) throw new Error('Invalid payment request.');
+  if (stopped(bill)) throw new Error('Collection has been stopped for this bill.');
   if (bill.status === 'Draft') throw new Error('This bill is not available for payment.');
-  if (summary(bill, now).paidInstallments > 0) throw new Error('This bill has already been paid or authorized.');
+  if (bill.authorization || summary(bill, now).paidInstallments > 0) throw new Error('This bill has already been paid or authorized.');
   if (bill.expiry < day(now)) throw new Error('This payment link has expired.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '') || input.email.length > 254) throw new Error('Enter a valid email.');
   if (input.acceptedTerms !== true || bill.recurring && input.recurringConsent !== true) throw new Error('Please confirm the payment authorization.');
@@ -81,7 +96,47 @@ function checkout(bill, input, now = new Date(), simulation = {}) {
   return bill;
 }
 
-  const domain = { day, monthlyDate, makeBill, summary, publicView, collect, checkout };
+function retryPayment(bill, input, now = new Date(), simulation = {}) {
+  const key = 'retry:' + input.requestId;
+  if (bill.requests[key]) return bill;
+  if (!/^[a-zA-Z0-9-]{16,80}$/.test(input.requestId || '')) throw new Error('Invalid payment request.');
+  if (stopped(bill)) throw new Error('Collection has been stopped for this bill.');
+  if (!summary(bill, now).canRetry) throw new Error('No authorized overdue payment is available to retry.');
+  if (input.confirmed !== true) throw new Error('Confirm the installment payments before retrying.');
+  collect(bill, {now, source: input.source === 'portal' ? 'portal-retry' : 'public-retry', ...simulation});
+  bill.requests[key] = now.toISOString();
+  return bill;
+}
+function recordAudit(bill, event) { (bill.audit ||= []).push(event); }
+function stopCollection(bill, input, now = new Date(), actor = 'WizarPOS Provider (demo operator)') {
+  if (!summary(bill, now).canStop) throw new Error('Only issued, unsettled bills can be stopped.');
+  const reason = String(input.reason || '').trim();
+  if (!reason || reason.length > 500) throw new Error('Enter a stop reason of 1 to 500 characters.');
+  bill.collectionStop = {at: now.toISOString(), actor, reason};
+  bill.status = 'Stopped';
+  if (bill.authorization) bill.authorization.status = 'Revoked';
+  recordAudit(bill, {action:'Stop Collection', ...bill.collectionStop});
+  return bill;
+}
+function sendLink(bill, input, now = new Date()) {
+  if (summary(bill, now).linkStatus !== 'Valid') throw new Error('This bill no longer needs a payment link.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '') || input.email.length > 254) throw new Error('Enter a valid recipient email.');
+  (bill.deliveries ||= []).push({email:input.email, at:now.toISOString(), status:'Simulated'});
+  return bill;
+}
+function renewLink(bill, input, now = new Date(), actor = 'WizarPOS Provider (demo operator)') {
+  if (!summary(bill, now).canRenew) throw new Error('Only expired, unpaid and unauthorized links can be renewed.');
+  if (!validDate(input.expiry) || input.expiry <= day(now)) throw new Error('Choose an expiry date after today.');
+  // Validate delivery first so local and shared renewal remain atomic when a recipient is invalid.
+  if (input.send && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '') || input.email.length > 254)) throw new Error('Enter a valid recipient email.');
+  const previousExpiry = bill.expiry;
+  bill.expiry = input.expiry;
+  recordAudit(bill, {action:'Renew Link', actor, at:now.toISOString(), previousExpiry, expiry:bill.expiry});
+  if (input.send) sendLink(bill, input, now);
+  return bill;
+}
+
+  const domain = { day, monthlyDate, makeBill, summary, publicView, collect, checkout, retryPayment, stopCollection, renewLink, sendLink, stopped };
   if (typeof module !== 'undefined' && module.exports) module.exports = domain;
   else root.PaywizardBillingDomain = domain;
 })(globalThis);

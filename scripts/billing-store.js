@@ -48,8 +48,8 @@
     return date.toISOString().slice(0, 10);
   }
   function count(r) { return Number(r.paidInstallments ?? (r.status === 'Paid' ? (r.recurring ? r.cycle : 1) : 0)); }
-  function pending(r) { return ['Active', 'Pending', 'Overdue'].includes(r.status) && !r.currentInstallmentPaid && count(r) < (r.recurring ? Number(r.cycle) : 1); }
-  function expired(r) { const now = new Date(); const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'); return !!r.expiry && r.expiry < today; }
+  function pending(r) { return r.canRetry || ['Active', 'Pending', 'Overdue'].includes(r.status) && !r.authorization && !r.currentInstallmentPaid && count(r) < (r.recurring ? Number(r.cycle) : 1); }
+  function expired(r) { return !!r.expiry && r.expiry < window.PaywizardBillingDomain.day(); }
 
   const domain = window.PaywizardBillingDomain;
   const localKey = 'paywizard-billing-local-v1', settingsKey = 'paywizard-billing-runtime-v1';
@@ -84,20 +84,20 @@
     if (!Array.isArray(records) || records.some(r => !r?.id || !Array.isArray(r.installments))) throw new Error('Local billing data could not be read. Existing data has been kept.');
     return records;
   }
-  function writeLocal(records) { localStorage.setItem(localKey, JSON.stringify(records)); }
-  function localView(record) { return {...domain.publicView(record), linkToken:record.linkToken, deliveries:record.deliveries, localDemo:true}; }
+  function writeLocal(records) { records.forEach(r => { if (r.linkToken && !r.linkSnapshot) r.linkSnapshot = localSnapshot(localView(r)); }); localStorage.setItem(localKey, JSON.stringify(records)); }
+  function localView(record) { return {...domain.publicView(record), linkToken:record.linkToken, deliveries:record.deliveries, audit:record.audit || [], collectionStop:record.collectionStop, localDemo:true}; }
   function localRead() {
     const records = fullLocal() || [];
     let changed = false;
     records.forEach(r => {
-      if (r.authorization && r.status !== 'Paid' && !r.installments.some(i => i.status === 'Failed') && r.installments.some(i => i.status !== 'Paid' && i.due <= domain.day())) { domain.collect(r); changed = true; }
+      if (!domain.stopped(r) && r.authorization && r.status !== 'Paid' && !r.installments.some(i => i.status === 'Failed') && r.installments.some(i => i.status !== 'Paid' && i.due <= domain.day())) { domain.collect(r); changed = true; }
     });
     if (changed) writeLocal(records);
     return records.map(localView).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   }
   function read() { return mode === 'local' ? localRead() : readSharedCache(); }
   async function localChange(fn) {
-    const change = () => { const records = fullLocal() || []; const result = fn(records); writeLocal(records); return result; };
+    const change = () => { const records = fullLocal() || []; records.forEach(r => { if (r.linkToken && !r.linkSnapshot) r.linkSnapshot = localSnapshot(localView(r)); }); const result = fn(records); writeLocal(records); return result; };
     return navigator.locks ? navigator.locks.request(localKey, change) : change();
   }
   async function sync() {
@@ -186,15 +186,22 @@
       domain.checkout(bill, {...details, source:'portal'}); return localView(bill);
     });
   }
-  async function send(id, email) {
-    if (mode !== 'local') { const result = await api('records/' + encodeURIComponent(id) + '/send', {email}); await sync(); return result; }
+  async function changeBill(id, action, input) {
+    if (mode !== 'local') { const result = await api('records/' + encodeURIComponent(id) + '/' + action, input); await sync(); return result; }
     return localChange(records => {
       const bill = records.find(r => r.id === id);
-      if (!bill || !bill.linkToken || expired(bill) || bill.status === 'Paid' || bill.authorization) throw new Error('This bill no longer needs a payment link.');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid recipient email.');
-      bill.deliveries.push({email, at:new Date().toISOString(), status:'Simulated'}); return localView(bill);
+      if (!bill) throw new Error('Bill unavailable.');
+      if (action === 'retry') {
+        if (!isMerchantRecord(bill) || bill.merchantId !== input.merchantId) throw new Error('Merchant does not match this bill.');
+        domain.retryPayment(bill, {...input, source:'portal'});
+      } else ({send:domain.sendLink, stop:domain.stopCollection, renew:domain.renewLink})[action](bill, input);
+      return localView(bill);
     });
   }
+  const send = (id, email) => changeBill(id, 'send', {email});
+  const stop = (id, reason) => changeBill(id, 'stop', {reason});
+  const renew = (id, input) => changeBill(id, 'renew', input);
+  const retry = (id, merchantId, input) => changeBill(id, 'retry', {...input, merchantId});
   function localSnapshot(record) {
     const fields = ['id','assignment','merchantId','merchantName','invoice','billType','currency','amount','recurring','cycle','start','expiry','includedData','notes','createdAt','status','paidInstallments'];
     return Object.fromEntries(fields.filter(k => record[k] !== undefined).map(k => [k,record[k]]));
@@ -202,18 +209,21 @@
   function link(record) {
     if (!record.linkToken) throw new Error('This bill has no payment link.');
     if (mode === 'local') {
-      const bytes = new TextEncoder().encode(JSON.stringify(localSnapshot(record)));
+      const records = fullLocal() || [];
+      const saved = records.find(r => r.id === record.id);
+      if (saved && !saved.linkSnapshot) writeLocal(records);
+      const bytes = new TextEncoder().encode(JSON.stringify(saved?.linkSnapshot || localSnapshot(record)));
       const encoded = btoa(Array.from(bytes,b => String.fromCharCode(b)).join('')).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
       return new URL('43.billing_payment_link.html#local.' + encoded, location.href).href;
     }
     return publicOrigin + '/43.billing_payment_link.html#' + record.linkToken;
   }
-  async function publicBill(token, details) {
+  async function publicBill(token, details, action = 'pay') {
     if (!token.startsWith('local.')) {
       if (!/^[a-f0-9]{48}$/.test(token)) throw new Error('This payment link is invalid. Please contact the sender.');
       // Shared links always use their own host, never fall back to local data.
       const previous = endpoint; endpoint = '';
-      try { return await api('public/' + token + (details ? '/pay' : ''), details); } finally { endpoint = previous; }
+      try { return await api('public/' + token + (details ? '/' + (action === 'retry' ? 'retry' : 'pay') : ''), details); } finally { endpoint = previous; }
     }
     if (token.length > 16000) throw new Error('This local demo link is too large.');
     mode = 'local';
@@ -225,13 +235,13 @@
     return localChange(records => {
       let bill = records.find(r => r.id === candidate.id);
       if (!bill) { bill = candidate; records.push(bill); }
-      if (details) domain.checkout(bill, details);
-      else if (bill.authorization && bill.status !== 'Paid') domain.collect(bill);
+      if (details) (action === 'retry' ? domain.retryPayment : domain.checkout)(bill, details);
+      else if (!domain.stopped(bill) && bill.authorization && bill.status !== 'Paid') domain.collect(bill);
       return localView(bill);
     });
   }
   function selectMerchant(id) { try { localStorage.setItem(contextKey, id); } catch (_) {} }
   function selectedMerchant() { try { return localStorage.getItem(contextKey) || ''; } catch (_) { return ''; } }
   window.addEventListener?.('storage', event => { if (event.key === localKey) window.dispatchEvent(new CustomEvent('billing-local-change')); });
-  window.PaywizardBillingStore = {key, read, write, merchantName, merchantList, isMerchantRecord, total, endDate, count, pending, expired, pay, selectMerchant, selectedMerchant, initialize, sync, save, send, link, publicBill, configure, settings, get mode(){return mode;}};
+  window.PaywizardBillingStore = {key, read, write, merchantName, merchantList, isMerchantRecord, total, endDate, count, pending, expired, pay, selectMerchant, selectedMerchant, initialize, sync, save, send, stop, renew, retry, link, publicBill, configure, settings, get mode(){return mode;}};
 })();

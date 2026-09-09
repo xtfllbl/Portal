@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { networkInterfaces } from 'node:os';
-import { makeBill, publicView, summary, checkout, collect, day } from './billing-engine.mjs';
+import { makeBill, publicView, summary, checkout, collect, day, retryPayment, stopCollection, renewLink, sendLink, stopped } from './billing-engine.mjs';
 
 export function createBillingService({ filename, now = () => new Date(), publicOrigin = process.env.BILLING_PUBLIC_ORIGIN } = {}) {
   if (filename !== ':memory:') mkdirSync(dirname(filename), { recursive: true });
@@ -15,11 +15,11 @@ export function createBillingService({ filename, now = () => new Date(), publicO
   const findToken = token => { const row = db.prepare('SELECT document FROM bills WHERE token=?').get(token); return row && JSON.parse(row.document); };
   const save = bill => db.prepare('INSERT INTO bills(id,token,document) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET token=excluded.token,document=excluded.document').run(bill.id, bill.linkToken, JSON.stringify(bill));
   const transaction = fn => { db.exec('BEGIN IMMEDIATE'); try { const value = fn(); db.exec('COMMIT'); return value; } catch (e) { db.exec('ROLLBACK'); throw e; } };
-  const adminView = bill => ({ ...publicView(bill, now()), linkToken: bill.linkToken, deliveries: bill.deliveries });
+  const adminView = bill => ({ ...publicView(bill, now()), linkToken: bill.linkToken, deliveries: bill.deliveries, audit: bill.audit || [], collectionStop: bill.collectionStop });
   function tick() {
     transaction(() => {
       for (const bill of readAll()) {
-        if (!bill.recurring || !bill.authorization || bill.status === 'Paid' || bill.installments.some(i => i.status === 'Failed')) continue;
+        if (stopped(bill) || !bill.recurring || !bill.authorization || bill.status === 'Paid' || bill.installments.some(i => i.status === 'Failed')) continue;
         if (!bill.installments.some(i => i.status !== 'Paid' && i.due <= day(now()))) continue;
         collect(bill, { now: now() }); save(bill);
       }
@@ -54,14 +54,14 @@ export function createBillingService({ filename, now = () => new Date(), publicO
         res.setHeader('Set-Cookie', `${cookieName(req)}=${adminSecret}; HttpOnly; SameSite=Strict; Path=/api/billing/`);
         return reply(200, { ok: true });
       }
-      const match = path.match(/^\/api\/billing\/public\/([a-f0-9]{48})(\/pay)?$/);
+      const match = path.match(/^\/api\/billing\/public\/([a-f0-9]{48})(\/(pay|retry))?$/);
       if (match) {
         const bill = findToken(match[1]);
         if (!bill || bill.status === 'Draft') return reply(404, { error: 'This payment link is unavailable.' });
         if (req.method === 'GET' && !match[2]) return reply(200, publicView(bill, now()));
         if (req.method === 'POST' && match[2]) {
           const input = await body(req);
-          const result = transaction(() => { const current = findToken(match[1]); checkout(current, input, now()); save(current); return publicView(current, now()); });
+          const result = transaction(() => { const current = findToken(match[1]); (match[3] === 'retry' ? retryPayment : checkout)(current, input, now()); save(current); return publicView(current, now()); });
           return reply(200, result);
         }
         return reply(405, { error: 'Method not allowed.' });
@@ -83,19 +83,21 @@ export function createBillingService({ filename, now = () => new Date(), publicO
         });
         return reply(200, result);
       }
-      const action = path.match(/^\/api\/billing\/records\/([^/]+)\/(pay|send)$/);
+      const action = path.match(/^\/api\/billing\/records\/([^/]+)\/(pay|retry|send|stop|renew)$/);
       if (action && req.method === 'POST') {
         const input = await body(req), id = decodeURIComponent(action[1]);
         const result = transaction(() => {
           const bill = find(id); if (!bill || bill.status === 'Draft') throw new Error('Bill unavailable.');
-          if (action[2] === 'pay') {
+          if (['pay','retry'].includes(action[2])) {
             if (bill.assignment === 'standalone' || !bill.merchantId) throw new Error('Standalone bills must be paid through their payment link.');
             if (String(input.merchantId) !== bill.merchantId) throw new Error('Merchant does not match this bill.');
-            checkout(bill, { ...input, source: 'portal' }, now());
+            (action[2] === 'retry' ? retryPayment : checkout)(bill, { ...input, source: 'portal' }, now());
+          } else if (action[2] === 'stop') {
+            stopCollection(bill, input, now());
+          } else if (action[2] === 'renew') {
+            renewLink(bill, input, now());
           } else {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '') || input.email.length > 254) throw new Error('Enter a valid recipient email.');
-            if (summary(bill, now()).linkExpired || bill.status === 'Paid' || bill.authorization) throw new Error('This bill no longer needs a payment link.');
-            bill.deliveries.push({ email: input.email, at: now().toISOString(), status: 'Simulated' });
+            sendLink(bill, input, now());
           }
           save(bill); return adminView(bill);
         });

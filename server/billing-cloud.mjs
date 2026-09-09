@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { makeBill, publicView, checkout, collect, day, summary } from './billing-engine.mjs';
+import { makeBill, publicView, checkout, collect, day, summary, retryPayment, stopCollection, renewLink, sendLink, stopped } from './billing-engine.mjs';
 
 export function createCloudHandler({repository, adminKey = process.env.BILLING_ADMIN_KEY || '', cronKey = process.env.CRON_SECRET || '', configured = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID), now = () => new Date(), publicOrigin = process.env.BILLING_PUBLIC_ORIGIN || '', allowedOrigins = (process.env.BILLING_ALLOWED_ORIGINS || '').split(',').filter(Boolean)} = {}) {
   const equal = (a,b) => { const left=Buffer.from(a), right=Buffer.from(b); return left.length === right.length && timingSafeEqual(left,right); };
@@ -14,9 +14,9 @@ export function createCloudHandler({repository, adminKey = process.env.BILLING_A
     return valid(token);
   }
   function settleDue(bill) {
-    if (bill.authorization && bill.status !== 'Paid' && !bill.installments.some(i=>i.status==='Failed') && bill.installments.some(i=>i.status!=='Paid' && i.due<=day(now()))) collect(bill,{now:now()});
+    if (!stopped(bill) && bill.authorization && bill.status !== 'Paid' && !bill.installments.some(i=>i.status==='Failed') && bill.installments.some(i=>i.status!=='Paid' && i.due<=day(now()))) collect(bill,{now:now()});
   }
-  const adminView = bill => ({...publicView(bill,now()), linkToken:bill.linkToken, deliveries:bill.deliveries});
+  const adminView = bill => ({...publicView(bill,now()), linkToken:bill.linkToken, deliveries:bill.deliveries, audit:bill.audit || [], collectionStop:bill.collectionStop});
   async function body(req) {
     if (req.body !== undefined) {
       const value = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -50,14 +50,14 @@ export function createCloudHandler({repository, adminKey = process.env.BILLING_A
         res.setHeader('Set-Cookie','pw_billing_cloud='+token+'; HttpOnly; Secure; SameSite=Strict; Path=/api/billing; Max-Age=28800');
         return reply(200,{token});
       }
-      const publicMatch=path.match(/^public\/([a-f0-9]{48})(\/pay)?$/);
+      const publicMatch=path.match(/^public\/([a-f0-9]{48})(\/(pay|retry))?$/);
       if(publicMatch){
         const input=req.method==='POST'?await body(req):undefined;
         if (!(req.method==='GET'&&!publicMatch[2]) && !(req.method==='POST'&&publicMatch[2])) return reply(405,{error:'Method not allowed.'});
         const result=await repository.transact(records=>{
           const bill=records.find(r=>r.linkToken===publicMatch[1] && r.status!=='Draft');
           if(!bill)return null;
-          if(input)checkout(bill,input,now());else settleDue(bill);
+          if(input)(publicMatch[3] === 'retry' ? retryPayment : checkout)(bill,input,now());else settleDue(bill);
           return publicView(bill,now());
         });
         return result?reply(200,result):reply(404,{error:'This payment link is unavailable.'});
@@ -89,19 +89,21 @@ export function createCloudHandler({repository, adminKey = process.env.BILLING_A
           return adminView(bill);
         });return reply(200,result);
       }
-      const action=path.match(/^records\/([^/]+)\/(pay|send)$/);
+      const action=path.match(/^records\/([^/]+)\/(pay|retry|send|stop|renew)$/);
       if(action && req.method==='POST'){
         const input=await body(req);
         const result=await repository.transact(records=>{
           const bill=records.find(r=>r.id===decodeURIComponent(action[1]));
           if(!bill || bill.status==='Draft')throw new Error('Bill unavailable.');
-          if(action[2]==='pay'){
+          if(['pay','retry'].includes(action[2])){
             if(bill.assignment==='standalone'||!bill.merchantId||String(input.merchantId)!==bill.merchantId)throw new Error('Merchant does not match this bill.');
-            checkout(bill,{...input,source:'portal'},now());
-          }else{
-            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '')||input.email.length>254)throw new Error('Enter a valid recipient email.');
-            if(summary(bill,now()).linkExpired||bill.status==='Paid'||bill.authorization)throw new Error('This bill no longer needs a payment link.');
-            bill.deliveries.push({email:input.email,at:now().toISOString(),status:'Simulated'});
+            (action[2] === 'retry' ? retryPayment : checkout)(bill,{...input,source:'portal'},now());
+          } else if (action[2] === 'stop') {
+            stopCollection(bill, input, now());
+          } else if (action[2] === 'renew') {
+            renewLink(bill, input, now());
+          } else {
+            sendLink(bill, input, now());
           }return adminView(bill);
         });return reply(200,result);
       }
