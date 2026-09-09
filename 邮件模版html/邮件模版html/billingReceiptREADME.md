@@ -32,3 +32,7 @@ python3 renderBillingReceipt.py billingReceiptStandaloneMonthlySample.json /tmp/
 本次只提供模板、输入样例、渲染参考和预览文件，未改动支付逻辑或自动发送服务，也未发送任何邮件。示例均为虚构数据。
 
 母版直接打开时，wizarPOS 图片使用同目录 `billingReceiptLogo.png`，避免将未替换的变量作为图片 URL。渲染器在生成邮件时仍按 `logoUrl` 替换为指定 HTTPS/CID 地址。Paywizard 图片与 `customerAlert.html` 的图片来源保持一致。
+
+## 2026-09-09 演示开发更新
+
+`render_message(data)`现返回subject/html/text；原`render(data)`继续返回HTML。命令行同步输出HTML、纯文本和主题。收据增加Payment ID、collectionStopped及无后续计划分支。44的View emails使用浏览器端事件渲染器查看每笔成功快照，详见[billingFailureREADME.md](billingFailureREADME.md)。没有真实发送。

@@ -59,7 +59,7 @@ def render(data, *, preview=False):
         if type(count) is not int or count < 1:
             raise ValueError('installmentCount must be a positive integer')
         details += [('Monthly Amount', required('monthlyAmount')), ('Installments', str(count)), ('Contract Total', required('contractTotal'))]
-        schedule = ('Your first installment is payable now. At checkout, you will be asked to authorize automatic charges for the remaining monthly installments according to the billing schedule. Collection ends when all agreed installments have been paid.' if count > 1 else 'This contract has one installment, payable now. No further payments will be collected after it is paid.')
+        schedule = ('Your first installment is payable now. At checkout, you will be asked to authorize automatic charges for the remaining monthly installments according to the billing schedule. Scheduled collections run at 09:00 UTC. At the next normal installment date, failed installments are retried separately, oldest first through the current installment, stopping at the first failure. No new automatic dates are added after the final scheduled installment. Collection ends when all agreed installments have been paid.' if count > 1 else 'This contract has one installment, payable now. No further payments will be collected after it is paid.')
     expiry = ''
     if data.get('linkExpiryDate'):
         day = date.fromisoformat(required('linkExpiryDate'))

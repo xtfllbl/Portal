@@ -1,6 +1,6 @@
 # Link renewal retains the existing URL and billing obligation
 
-The no-automatic-retry restriction below is superseded by [ADR 0008](0008-catch-up-at-next-scheduled-installment.md), confirmed on 2026-09-09. Link renewal and payer-confirmed retry rules otherwise remain in force.
+The no-automatic-retry restriction below is superseded by [ADR 0008](0008-catch-up-at-next-scheduled-installment.md), confirmed on 2026-09-09. Link renewal remains in force. The payer-confirmed retry restriction below is also superseded by ADR 0008: manual retry belongs to platform operations, with no payer retry or card replacement.
 
 For ordinary link expiry, WizarPOS Provider operations renews the link by choosing a new expiry while retaining its existing URL, so the recipient can return to the original invitation. Renewal keeps the same Billing Record, contract dates and installment progress; it is unavailable for a paid bill, an already authorized bill, or a bill whose collection has been stopped. This extends ADR 0003's expiry rule without changing its separation between link validity and recurring collection authorization.
 

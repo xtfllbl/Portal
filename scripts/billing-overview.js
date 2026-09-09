@@ -5,6 +5,7 @@
   const money = (n, currency) => new Intl.NumberFormat('en-US', {style:'currency',currency}).format(n);
   const date = value => value ? new Date(value.slice(0,10) + 'T12:00:00Z').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}) : '—';
   const badge = value => '<span class="billing-status ' + esc(value.toLowerCase()) + '">' + esc(value) + '</span>';
+  let sendRequestId = null, menuAnchor = null;
   let records = [], filters = {}, page = 1, ready = false, busy = false, selected = null, opener = null;
   const menu = document.createElement('div'); menu.className = 'overview-menu'; menu.id = 'overviewMenu'; menu.hidden = true; menu.setAttribute('role','menu'); document.body.append(menu);
   function message(text) { $('billingMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => $('billingMessage').textContent = '', 6000); }
@@ -32,7 +33,7 @@
     const rows=[['Invoice No.',r.invoice],['Billing assignment',store.isMerchantRecord(r)?'Merchant Billing':'Standalone Billing']];
     if(store.isMerchantRecord(r))rows.push(['Merchant',r.merchantName]);
     rows.push(['Bill type',r.billType],['Payment status',r.status],['Payment',r.recurring?'Fixed-term monthly':'One-time'],[r.recurring?'Monthly amount':'Amount',money(r.amount,r.currency)],['Total amount',money(store.total(r),r.currency)]);
-    if(r.recurring)rows.push(['Billing period',date(r.start)+' – '+date(store.endDate(r))],['Paid installments',store.count(r)+' of '+r.cycle],['Next payment',date(r.nextPaymentDate)]);
+    if(r.recurring)rows.push(['Billing period',date(r.start)+' – '+date(store.endDate(r))],['Paid installments',store.count(r)+' of '+r.cycle],['Next unpaid installment',date(r.nextPaymentDate)],['Final installment date',date(r.finalInstallmentDate)],['Next automatic attempt (UTC)',r.nextAutomaticAttemptAt ? r.nextAutomaticAttemptAt.replace('T',' ').replace(/\.\d{3}Z$/,' UTC') : 'None scheduled']);
     rows.push(['Link status',r.linkStatus],['Link expires (UTC)',date(r.expiry)],['Billing notes',r.notes||'—']);
     if(r.includedData!=null)rows.push(['Included data',r.includedData.toLocaleString('en-US')+' MB']);
     if(r.collectionStop)rows.push(['Stopped at',r.collectionStop.at]);
@@ -51,11 +52,12 @@
     function item(text,fn,disabled=false,danger=false) { const b=document.createElement('button');b.type='button';b.textContent=text;b.disabled=disabled;b.setAttribute('role','menuitem');if(danger)b.className='danger-text';b.onclick=()=>{closeMenu();fn();};menu.append(b); }
     if(r.canRenew)item('Copy URL',()=>{opener=button;navigator.clipboard.writeText(store.link(r)).then(()=>message('Payment link copied.')).catch(()=>{$('copyUrlValue').value=store.link(r);openDialog('copyUrlDialog');$('copyUrlValue').select();});});
     const preview=document.createElement('a');preview.textContent='Preview payment link';preview.href=store.link(r);preview.target='_blank';preview.rel='noopener';preview.setAttribute('role','menuitem');preview.onclick=()=>closeMenu();menu.append(preview);
-    item('Send Link',()=>{$('sendLinkInvoice').textContent=r.invoice;$('sendLinkUrl').value=store.link(r);$('linkRecipient').value=recipient(r);$('sendLinkError').textContent='';openDialog('sendLinkDialog');},r.linkStatus!=='Valid');
-    item('View billing details',()=>details(r)); item('View payment records',()=>payments(r));
+    item('Send Link',()=>{sendRequestId=crypto.randomUUID();$('sendLinkInvoice').textContent=r.invoice;$('sendLinkUrl').value=store.link(r);$('linkRecipient').value=recipient(r);$('sendLinkError').textContent='';openDialog('sendLinkDialog');},r.linkStatus!=='Valid');
+    item('View emails',()=>window.PaywizardBillingEmailViewer.open(r)); item('View billing details',()=>details(r)); item('View payment records',()=>payments(r));
+    if(r.canRetry)item('Retry Payment',()=>{button.focus({preventScroll:true});window.PaywizardBillingRetry.open(r,input=>store.retry(r.id,input),result=>{records=store.read();render();message(result.status==='Overdue'?'A charge failed. The next normal cycle will still attempt collection if one remains.':'Payment recorded.');});});
     if(r.canRenew)item('Renew Link',()=>renewDialog(r));
     if(r.canStop)item('Stop Collection',()=>{$('stopInvoice').textContent=r.invoice;const paid=r.installments.filter(i=>i.status==='Paid').reduce((sum,i)=>sum+Math.round(i.amount*100),0)/100;detailsList($('stopAmounts'),[['Paid amount',money(paid,r.currency)],['Unpaid amount',money(store.total(r)-paid,r.currency)]]);$('stopError').textContent='';openDialog('stopDialog');},false,true);
-    menu.hidden=false;button.setAttribute('aria-expanded','true');const box=button.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(innerWidth-248,box.right-240))+'px';menu.style.top=Math.max(8,Math.min(innerHeight-menu.offsetHeight-8,box.bottom+6))+'px';menu.querySelector('a,button:not(:disabled)').focus();
+    menu.hidden=false;button.setAttribute('aria-expanded','true');const box=button.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(innerWidth-248,box.right-240))+'px';menu.style.top=Math.max(8,Math.min(innerHeight-menu.offsetHeight-8,box.bottom+6))+'px';menuAnchor={left:box.left,top:box.top};menu.querySelector('a,button:not(:disabled)').focus({preventScroll:true});
   }
   $('overviewRows').onclick=async event=>{
     const b=event.target.closest('button');if(!b||!ready)return;
@@ -66,7 +68,7 @@
   };
   document.addEventListener('click',e=>{if(!e.target.closest('.overview-menu,[data-more]'))closeMenu();});
   document.addEventListener('keydown',e=>{if(menu.hidden)return;if(e.key==='Escape'){e.preventDefault();closeMenu(true);}if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const items=[...menu.querySelectorAll('a,button:not(:disabled)')],i=items.indexOf(document.activeElement);items[e.key==='Home'?0:e.key==='End'?items.length-1:(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length].focus();}});
-  window.addEventListener('resize',()=>closeMenu());document.addEventListener('scroll',e=>{if(e.target!==menu)closeMenu();},true);
+  window.addEventListener('resize',()=>closeMenu());document.addEventListener('scroll',e=>{if(menu.hidden||e.target===menu||menu.contains(e.target))return;const box=opener?.getBoundingClientRect();if(!box||!menuAnchor||Math.abs(box.left-menuAnchor.left)>1||Math.abs(box.top-menuAnchor.top)>1)closeMenu();},true);
   const closeIds={closeBillingDetails:'billingDetailsDialog',closeSendLink:'sendLinkDialog',closeCopyUrl:'copyUrlDialog',closePaymentRecords:'paymentRecordsDialog'};
   Object.entries(closeIds).forEach(([button,dialog])=>$(button).onclick=()=>{if(!busy)$(dialog).close();});
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{if(!busy)$(b.dataset.close).close();});
@@ -75,13 +77,13 @@
     if(busy)return;busy=true;const controls=[...$(dialog).querySelectorAll('button,input,textarea')];controls.forEach(b=>b.disabled=true);$(error).textContent='';
     try{await fn();records=store.read();$(dialog).close();render();message(success);}catch(e){$(error).textContent=e.message;}finally{busy=false;controls.forEach(b=>b.disabled=false);}
   }
-  $('sendLinkForm').onsubmit=e=>{e.preventDefault();const email=$('linkRecipient').value.trim();mutate('sendLinkDialog','sendLinkError',()=>store.send(selected.id,email),'Email delivery simulated. No email was sent.');};
+  $('sendLinkForm').onsubmit=e=>{e.preventDefault();const email=$('linkRecipient').value.trim();mutate('sendLinkDialog','sendLinkError',()=>store.send(selected.id,email,sendRequestId),'Email delivery simulated. No email was sent.');};
   $('stopForm').onsubmit=e=>{e.preventDefault();mutate('stopDialog','stopError',()=>store.stop(selected.id),'Collection stopped. No new payments will be collected.');};
   $('renewForm').onsubmit=e=>{e.preventDefault();const input={expiry:$('renewExpiry').value,email:$('renewRecipient').value.trim(),send:e.submitter?.value==='send'};if(input.send&&!input.email){$('renewError').textContent='Enter a recipient email to send the link.';return;}mutate('renewDialog','renewError',()=>store.renew(selected.id,input),input.send?'Link renewed. Email delivery simulated; no email was sent.':'Link renewed. The original URL is available again.');};
   $('overviewFilters').onsubmit=e=>{e.preventDefault();const from=$('overviewFrom').value,to=$('overviewTo').value;if(from&&to&&from>to){$('overviewTo').setCustomValidity('End date must be on or after start date.');$('overviewTo').reportValidity();return;}filters={assignment:$('overviewAssignment').value,merchant:$('overviewMerchant').value.trim().toLowerCase(),status:$('overviewStatus').value,cycle:$('overviewCycle').value,from,to};page=1;render();};
   $('overviewFrom').oninput=$('overviewTo').oninput=()=>$('overviewTo').setCustomValidity('');
   $('resetOverview').onclick=()=>{$('overviewFilters').reset();$('overviewTo').setCustomValidity('');filters={};page=1;render();};$('pageSize').onchange=()=>{page=1;render();};
-  $('exportOverview').onclick=()=>{const rows=[['Invoice No.','Date & Time (UTC)','Merchant Name','Billing Period','Cycle','Amount','Payment Status','Paid Installments','Due Date','Link Expires (UTC)','Link Status','Billing Notes'],...filtered().map(values)];const csv='\uFEFF'+rows.map(row=>row.map(v=>{let text=String(v??'');if(/^[=+@\-\t\r]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='billing-overview.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Billing overview exported.');};
+  $('exportOverview').onclick=()=>{const rows=[['Invoice No.','Date & Time (UTC)','Merchant Name','Billing Period','Cycle','Amount','Payment Status','Paid Installments','Period Ends','Link Expires (UTC)','Link Status','Billing Notes'],...filtered().map(values)];const csv='\uFEFF'+rows.map(row=>row.map(v=>{let text=String(v??'');if(/^[=+@\-\t\r]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='billing-overview.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Billing overview exported.');};
   async function connect(){ready=false;render();try{records=await store.initialize();ready=true;$('overviewError').hidden=true;render();}catch(e){$('overviewError').textContent=e.message;$('overviewError').hidden=false;}}
   function refresh(){if(!ready||busy||document.querySelector('dialog[open]')||!menu.hidden)return;store.sync().then(data=>{records=data;render();}).catch(e=>message(e.message));}
   window.addEventListener('billing-reconnect',connect);window.addEventListener('billing-local-change',refresh);window.addEventListener('focus',refresh);setInterval(refresh,60000);connect();

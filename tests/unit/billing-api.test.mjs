@@ -20,7 +20,8 @@ test('shared clients, restricted public scope, idempotency and durable billing m
  const portal=await request('records');assert.equal(portal.data.records[0].paidInstallments,2);assert.equal(portal.data.records[0].payments.length,2);
  await request('import',{records:[record]});assert.equal((await request('records')).data.records[0].paidInstallments,2);
  assert.equal((await request('records',{...record,amount:1})).status,400);
- assert.equal(JSON.stringify(portal.data).includes('fixture@example.com'),false);
+ assert.equal(JSON.stringify((await request('public/'+token,undefined,false)).data).includes('fixture@example.com'),false);
+ assert.equal(portal.data.records[0].notifications.filter(n=>n.type==='receipt').length,2);
  currentDate = new Date('2026-11-17T12:00:00Z'); service.tick();
  const completed = await request('public/'+token,undefined,false); assert.equal(completed.data.status,'Paid'); assert.equal(completed.data.payments.length,3);
  service.tick(); assert.equal((await request('records')).data.records[0].payments.length,3);

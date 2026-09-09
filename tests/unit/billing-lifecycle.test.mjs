@@ -22,7 +22,7 @@ test('stop applies before authorization and after partial payment, never resumes
   assert.deepEqual(bill.payments,before);assert.equal(bill.installments.filter(i=>i.status!=='Paid').length,unpaid);
   assert.equal(summary(bill,now).status,'Stopped');assert.equal(summary(bill,now).linkStatus,'Disabled');assert.equal(summary(bill,now).nextPaymentDate,null);
   assert.throws(()=>checkout(bill,payment(),now),/stopped/);
-  assert.throws(()=>retryPayment(bill,{requestId:crypto.randomUUID(),confirmed:true},now),/stopped/);
+  assert.throws(()=>retryPayment(bill,{source:'operator',requestId:crypto.randomUUID(),confirmed:true},now),/stopped/);
   assert.throws(()=>renewLink(bill,{expiry:'2027-01-01'},now),/Only expired/);
   assert.throws(()=>sendLink(bill,{email:'payer@example.com'},now),/no longer/);
   assert.equal(publicView(bill,now).collectionStop,undefined);assert.equal(publicView(bill,now).audit,undefined);
@@ -48,13 +48,13 @@ test('failed first payment retains authorization and uses confirmed idempotent r
  const bill=makeBill(input({expiry:'2026-09-09'}),now);checkout(bill,payment(),now,{failAt:1});
  assert.equal(summary(bill,now).canRetry,true);assert.equal(summary(bill,now).linkStatus,'Used');
  assert.throws(()=>checkout(bill,payment(),now),/already/);
- assert.throws(()=>retryPayment(bill,{requestId:crypto.randomUUID()},now),/Confirm/);
- assert.throws(()=>retryPayment(bill,{requestId:crypto.randomUUID(),confirmed:true,expectedInstallments:[1]},now),/changed/);
- const later=new Date('2026-10-09'),request={requestId:crypto.randomUUID(),confirmed:true,expectedInstallments:[1,2,3,4]};
+ assert.throws(()=>retryPayment(bill,{source:'operator',requestId:crypto.randomUUID()},now),/Confirm/);
+ assert.throws(()=>retryPayment(bill,{source:'operator',requestId:crypto.randomUUID(),confirmed:true,expectedInstallments:[1]},now),/changed/);
+ const later=new Date('2026-10-09'),request={source:'operator',requestId:crypto.randomUUID(),confirmed:true,expectedInstallments:[1,2,3,4]};
  retryPayment(bill,request,later,{failAt:2});const count=bill.payments.length;
  retryPayment(bill,request,later);assert.equal(bill.payments.length,count);assert.equal(summary(bill,later).paidInstallments,1);
  collect(bill,{now:later});assert.equal(bill.payments.length,count);
- retryPayment(bill,{...request,requestId:crypto.randomUUID(),expectedInstallments:[2,3,4]},later);
+ retryPayment(bill,{source:'operator',...request,requestId:crypto.randomUUID(),expectedInstallments:[2,3,4]},later);
  assert.equal(summary(bill,later).paidInstallments,4);assert.equal(summary(bill,later).status,'Active');assert.equal(summary(bill,later).linkStatus,'Used');
 });
 for(const backend of ['sqlite','cloud'])test(backend+' lifecycle endpoints preserve shared state, auth boundary and expired-link renewal',async()=>{
@@ -78,13 +78,16 @@ for(const backend of ['sqlite','cloud'])test(backend+' lifecycle endpoints prese
   const stopped=await request('records/'+source.id+'/stop',{reason:'Stop remaining collections'});assert.equal(stopped.data.status,'Stopped');
   clock=new Date('2027-01-01');service?.tick();
   const publicResult=await request('public/'+link,undefined,false);assert.equal(publicResult.data.status,'Stopped');assert.equal(publicResult.data.paidInstallments,3);assert.equal(publicResult.data.audit,undefined);
-  assert.equal((await request('public/'+link+'/retry',{requestId:crypto.randomUUID(),confirmed:true},false)).status,400);
+  assert.equal((await request('public/'+link+'/retry',{requestId:crypto.randomUUID(),confirmed:true},false)).status,403);
   const retryBill=makeBill(input(),now);checkout(retryBill,payment(),now,{failAt:1});clock=now;
   if(backend==='cloud')documents.push(retryBill);
   else {
    const db=new DatabaseSync(filename);db.prepare('INSERT INTO bills(id,token,document) VALUES(?,?,?)').run(retryBill.id,retryBill.linkToken,JSON.stringify(retryBill));db.close();
   }
-  assert.equal((await request('records/'+retryBill.id+'/retry',{requestId:crypto.randomUUID(),confirmed:true,merchantId:'wrong'})).status,400);
-  const retried=await request('public/'+retryBill.linkToken+'/retry',{requestId:crypto.randomUUID(),confirmed:true},false);assert.equal(retried.status,200);assert.equal(retried.data.paidInstallments,3);
+  assert.equal((await request('records/'+retryBill.id+'/retry',{requestId:crypto.randomUUID(),confirmed:true},false)).status,401);
+  assert.equal((await request('public/'+retryBill.linkToken+'/retry',{requestId:crypto.randomUUID(),confirmed:true},false)).status,403);
+  assert.equal((await request('public/'+retryBill.linkToken,undefined,false)).data.canRetry,false);
+  const retried=await request('records/'+retryBill.id+'/retry',{requestId:crypto.randomUUID(),confirmed:true});assert.equal(retried.status,200);assert.equal(retried.data.paidInstallments,3);assert.equal(retried.data.audit.at(-1).action,'Retry Payment');
+
  }finally{service?.close();rmSync(directory,{recursive:true,force:true});}
 });

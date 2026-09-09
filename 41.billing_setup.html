@@ -39,7 +39,7 @@
         <label class="billing-field" data-recurring hidden><span>Billing Cycle<b>*</b></span><select id="cycle"><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option><option value="24" selected>24 Months</option><option value="36">36 Months</option></select></label>
         <label class="billing-field" data-recurring hidden><span>Collection Mode</span><select disabled><option>Fixed-term monthly</option></select></label>
         <label class="billing-field" data-esim hidden><span>Included Data (MB)</span><input id="includedData" type="number" min="0" step="1"></label>
-        <label class="billing-notes"><span class="sr-only">Billing Notes</span><textarea id="notes" placeholder="Billing Notes" rows="3"></textarea></label>
+        <label class="billing-notes"><span class="sr-only">Billing Notes</span><textarea id="notes" maxlength="2000" placeholder="Billing Notes" rows="3"></textarea></label>
       </div>
     </fieldset>
     </div>
@@ -58,7 +58,7 @@
     <form id="filterForm" class="billing-filters">
       <label class="billing-field"><span class="sr-only">Billing Assignment</span><select id="filterAssignment"><option value="">Billing Assignment</option><option value="merchant">Merchant Billing</option><option value="standalone">Standalone Billing</option></select></label>
       <label class="billing-field"><span class="sr-only">Merchant Name</span><input id="filterMerchant" type="search" placeholder="Merchant Name" autocomplete="off"></label>
-      <label class="sr-only" for="filterStatus">Payment Status</label><select id="filterStatus"><option value="">Payment Status</option><option>Draft</option><option>Pending</option><option>Active</option><option>Paid</option><option>Overdue</option></select>
+      <label class="sr-only" for="filterStatus">Payment Status</label><select id="filterStatus"><option value="">Payment Status</option><option>Draft</option></select>
       <button class="primary" type="submit" aria-label="Search billing records"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
     </form>
     <div class="billing-table-wrap" tabindex="0" role="region" aria-label="Billing records table"><table><thead><tr><th>PAYWIZARD ID</th><th>MERCHANT NAME</th><th>INVOICE NO.</th><th>PAYMENT</th><th>BILLING CYCLE</th><th>BASE MONTHLY FEE</th><th>TOTAL CYCLE AMOUNT</th><th>BILLING START DATE</th><th>NEXT BILLING</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="billingRows"></tbody></table></div>
@@ -69,7 +69,7 @@
 <dialog id="billingDetailsDialog" class="billing-page billing-modal" aria-labelledby="billingDetailsTitle"><h2 id="billingDetailsTitle">Billing Details</h2><dl id="savedBillingDetails" class="billing-summary"></dl><div class="billing-actions"><button id="closeBillingDetails" type="button">Close</button></div></dialog>
 <dialog id="sendLinkDialog" class="billing-page billing-modal" aria-labelledby="sendLinkTitle">
 <form id="sendLinkForm"><h2 id="sendLinkTitle">Send Payment Link</h2><p>Invoice <strong id="sendLinkInvoice"></strong></p>
-<label>Recipient email<input id="linkRecipient" type="email" required placeholder="merchant@example.com"></label>
+<label>Recipient email<input id="linkRecipient" type="email" maxlength="254" required placeholder="merchant@example.com"></label>
 <label>Payment link<input id="sendLinkUrl" readonly></label><p id="sendLinkError" role="alert"></p>
 <div class="billing-actions"><button type="button" id="closeSendLink">Close</button><button class="primary" id="confirmSendLink" type="submit">Send Link</button></div></form></dialog>
 <dialog id="copyUrlDialog" class="billing-page billing-modal" aria-labelledby="copyUrlTitle"><h2 id="copyUrlTitle">Copy Payment Link</h2><input id="copyUrlValue" aria-label="Payment URL" readonly><div class="billing-actions"><button id="closeCopyUrl" type="button">Close</button></div></dialog>

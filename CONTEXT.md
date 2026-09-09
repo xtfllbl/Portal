@@ -69,8 +69,8 @@ An extension of a Billing Payment Link's validity that retains its existing URL 
 _Avoid_: Contract renewal, new billing record, replacement payment link
 
 **Billing Payment Retry**:
-A payer-confirmed attempt to collect due, unpaid installments under an existing Recurring Payment Authorization, oldest first and stopping at the first failure. It is unavailable after Billing Collection Stop and does not extend the contract.
-_Avoid_: Automatic retry, operator-triggered charge, link renewal
+A platform-operations-confirmed attempt to collect due, unpaid installments using the payment method retained after the payer's first successful payment, under the existing Recurring Payment Authorization, oldest first and stopping at the first failure. It is unavailable to the payer or after Billing Collection Stop, does not change the retained card, and does not extend the contract.
+_Avoid_: Payer-triggered retry, card replacement, automatic retry, link renewal
 
 **Billing Collection Status**:
 The collection state of an issued Billing Record: Pending before payment or authorization, Active for authorized installments proceeding normally, Overdue for overdue unpaid installments or failed collection, Paid when fully settled, or Stopped after Billing Collection Stop.
@@ -273,5 +273,5 @@ One attempted collection of one Contract Installment. Failed attempts do not cou
 _Avoid_: Contract completion, combined payment
 
 **Installment Catch-up Collection**:
-Collection of due, unpaid Contract Installments from the oldest to the current installment, as separate payments that stop at the first failure. It can occur on the next normal installment collection date or through a payer-confirmed Billing Payment Retry; it does not collect future installments early or extend the contract.
+Collection of due, unpaid Contract Installments from the oldest to the current installment, as separate payments that stop at the first failure. It can occur automatically on a normal installment collection date or through a platform-operations-confirmed Billing Payment Retry; it does not collect future installments early or extend the contract.
 _Avoid_: Combined arrears charge, contract renewal, daily automatic retry

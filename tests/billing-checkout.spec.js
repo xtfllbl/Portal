@@ -20,7 +20,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.bill-summary img')).toHaveCount(1);
     await expect(page.locator('.sandbox-label, .checkout-logo')).toHaveCount(0);
     await expect(page.locator('#billInformation')).not.toContainText('Paid installments');
-    await expect(page.locator('#billInformation')).not.toContainText('Next payment');
+    await expect(page.locator('#billInformation')).not.toContainText('Next unpaid installment');
     await expect(page.locator('#recurringAuthorization')).toBeHidden();
     await expect(page.locator('#chargeSummary')).toBeHidden();
     await expect(page.locator('#recurringConsent')).toBeDisabled();
@@ -31,7 +31,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('#chargeSummary')).toBeHidden();
     await expect(page.locator('#billInformation')).toContainText('No automatic renewal');
     await expect(page.locator('#submitCard')).toHaveText('Pay €200.00 now');
-    await expect(page.locator('#recurringConsentText')).toHaveText('I authorize my card to be saved for 23 remaining monthly payments of €200.00, starting Oct 17, 2026.');
+    await expect(page.locator('#recurringConsentText')).toContainText('I authorize my card to be saved for 23 remaining monthly payments of €200.00, starting Oct 17, 2026.');
     await expect(page.locator('#recurringConsent')).not.toBeChecked();
     await expect(page.locator('#recurringConsent')).toHaveAttribute('required', '');
     await expect(page.locator('#submitCard')).toBeDisabled();
@@ -55,14 +55,14 @@ test('overdue checkout lists each charge and authorized contract shows remaining
   await open(page, await fixture(true, 'paid'));
   await expect(page.locator('#cardForm')).toBeHidden();
   await expect(page.locator('#billInformation')).not.toContainText('No automatic renewal');
-  await expect(page.locator('#billInformation')).toContainText('Next payment');
+  await expect(page.locator('#billInformation')).toContainText('Next unpaid installment');
   await expect(page.locator('#paymentResult')).toContainText('1 of 24 installments paid');
   await expect(page.locator('#paymentResult')).toContainText('Oct 17, 2026');
 });
 
 test('completed contract has no future charge', async ({ page }) => {
   const bill = await fixture(true, 'paid');
-  bill.status = 'Paid'; bill.paidInstallments = 24; bill.nextPaymentDate = null; bill.nextScheduledPaymentDate = null;
+  bill.status = 'Paid'; bill.paidInstallments = 24; bill.nextPaymentDate = null; bill.nextScheduledPaymentDate = null; bill.nextAutomaticAttemptAt = null;
   await open(page, bill);
   await expect(page.locator('#paymentResult')).toContainText('24 of 24 installments paid.');
   await expect(page.locator('#paymentResult')).toContainText('No further charges.');
@@ -72,14 +72,18 @@ for (const width of [1440, 390]) {
   test(`portal uses the same payment summary and equal action heights at ${width}`, async ({ page }) => {
     const bill = await fixture(true);
     await page.setViewportSize({ width, height: 960 });
-    await page.route('**/api/billing/**', route => route.fulfill({ json: route.request().url().endsWith('/config') ? {mode:'shared',configured:true} : { records: [bill], publicOrigin: 'http://localhost' } }));
-    await page.addInitScript(() => localStorage.setItem('paywizard.portalAccessProfile.v1', 'billing-merchant'));
+    await page.clock.install({time:new Date('2026-09-07T12:00:00Z')});
+    await page.addInitScript(bill => {
+      localStorage.setItem('paywizard.portalAccessProfile.v1', 'billing-merchant');
+      localStorage.setItem('paywizard-billing-local-v1',JSON.stringify([bill]));
+      localStorage.setItem('paywizard-platform-merchants-v1',JSON.stringify([{merchantId:'test-merchant',merchantName:'Test Merchant'}]));
+    },bill);
     await page.goto('/42.billing_payments.html?merchantId=test-merchant');
     await page.locator('#paymentMerchant').selectOption('test-merchant');
-    await page.getByRole('button', { name: 'Pay Now' }).click();
+    await page.getByRole('article', {name:'Invoice test-invoice'}).getByRole('button', { name: 'Pay Now' }).click();
     await expect(page.locator('#cardDialog')).toBeVisible();
     await expect(page.locator('#chargeSummary')).toBeHidden();
-    await expect(page.locator('#recurringConsentText')).toHaveText('I authorize my card to be saved for 23 remaining monthly payments of €200.00, starting Oct 17, 2026.');
+    await expect(page.locator('#recurringConsentText')).toContainText('I authorize my card to be saved for 23 remaining monthly payments of €200.00, starting Oct 17, 2026.');
     const heights = await page.locator('#closeCard, #submitCard').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().height));
     expect(new Set(heights).size).toBe(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

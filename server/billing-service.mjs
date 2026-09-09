@@ -15,13 +15,13 @@ export function createBillingService({ filename, now = () => new Date(), publicO
   const findToken = token => { const row = db.prepare('SELECT document FROM bills WHERE token=?').get(token); return row && JSON.parse(row.document); };
   const save = bill => db.prepare('INSERT INTO bills(id,token,document) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET token=excluded.token,document=excluded.document').run(bill.id, bill.linkToken, JSON.stringify(bill));
   const transaction = fn => { db.exec('BEGIN IMMEDIATE'); try { const value = fn(); db.exec('COMMIT'); return value; } catch (e) { db.exec('ROLLBACK'); throw e; } };
-  const adminView = bill => ({ ...publicView(bill, now()), linkToken: bill.linkToken, deliveries: bill.deliveries, audit: bill.audit || [], collectionStop: bill.collectionStop });
+  const adminView = bill => ({ ...publicView(bill, now()), canRetry:summary(bill, now()).canRetry, linkToken: bill.linkToken, deliveries: bill.deliveries, notifications: bill.notifications || [], audit: bill.audit || [], collectionStop: bill.collectionStop });
   function tick() {
     transaction(() => {
       for (const bill of readAll()) {
-        if (stopped(bill) || !bill.recurring || !bill.authorization || bill.status === 'Paid' || bill.installments.some(i => i.status === 'Failed')) continue;
-        if (!bill.installments.some(i => i.status !== 'Paid' && i.due <= day(now()))) continue;
-        collect(bill, { now: now() }); save(bill);
+        const before = JSON.stringify(bill);
+        collect(bill, { now: now() });
+        if (JSON.stringify(bill) !== before) save(bill);
       }
     });
   }
@@ -56,6 +56,7 @@ export function createBillingService({ filename, now = () => new Date(), publicO
       }
       const match = path.match(/^\/api\/billing\/public\/([a-f0-9]{48})(\/(pay|retry))?$/);
       if (match) {
+        if (match[3] === 'retry') return reply(403, {error:'Only platform operations can retry payment.'});
         const bill = findToken(match[1]);
         if (!bill || bill.status === 'Draft') return reply(404, { error: 'This payment link is unavailable.' });
         if (req.method === 'GET' && !match[2]) return reply(200, publicView(bill, now()));
@@ -88,7 +89,9 @@ export function createBillingService({ filename, now = () => new Date(), publicO
         const input = await body(req), id = decodeURIComponent(action[1]);
         const result = transaction(() => {
           const bill = find(id); if (!bill || bill.status === 'Draft') throw new Error('Bill unavailable.');
-          if (['pay','retry'].includes(action[2])) {
+          if (action[2] === 'retry') {
+            retryPayment(bill, {...input, source:'operator'}, now());
+          } else if (action[2] === 'pay') {
             if (bill.assignment === 'standalone' || !bill.merchantId) throw new Error('Standalone bills must be paid through their payment link.');
             if (String(input.merchantId) !== bill.merchantId) throw new Error('Merchant does not match this bill.');
             (action[2] === 'retry' ? retryPayment : checkout)(bill, { ...input, source: 'portal' }, now());

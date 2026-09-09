@@ -6,7 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css"><link rel="stylesheet" href="styles/billing-payments.css">
   <link rel="stylesheet" href="styles/billing-runtime.css">
-<link rel="stylesheet" href="styles/billing-retry.css"></head>
+<link rel="stylesheet" href="styles/billing-policies.css"></head>
 <body>
 <main class="payments-page">
   <header class="payments-heading"><h1>Billing &amp; Payments</h1><div class="payments-heading-actions"><label class="merchant-picker"><span class="sr-only">Merchant</span><select id="paymentMerchant" aria-label="Merchant"><option value="">Select Merchant</option></select></label></div></header>
@@ -30,14 +30,14 @@
       <button type="submit" class="primary icon-button" aria-label="Search billing history"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
     </form>
     </div>
-    <div class="history-table" tabindex="0" role="region" aria-label="Billing history table"><table><thead><tr><th>INVOICE NO.</th><th>DATE &amp; TIME</th><th>MERCHANT NAME</th><th>BILLING PERIOD</th><th>CYCLE</th><th>AMOUNT</th><th>PAYMENT STATUS</th><th>PAID INSTALLMENTS</th><th>DUE DATE</th><th>PAYMENT LINK EXPIRE DATE</th><th>CARD AUTHORIZATION</th><th>NEXT PAYMENT</th></tr></thead><tbody id="paymentHistoryRows"></tbody></table></div>
+    <div class="history-table" tabindex="0" role="region" aria-label="Billing history table"><table><thead><tr><th>INVOICE NO.</th><th>DATE &amp; TIME (UTC)</th><th>MERCHANT NAME</th><th>BILLING PERIOD</th><th>CYCLE</th><th>AMOUNT</th><th>PAYMENT STATUS</th><th>PAID INSTALLMENTS</th><th>PERIOD ENDS</th><th>PAYMENT LINK EXPIRE DATE</th><th>CARD AUTHORIZATION</th><th>NEXT UNPAID INSTALLMENT</th><th>NEXT AUTOMATIC ATTEMPT (UTC)</th></tr></thead><tbody id="paymentHistoryRows"></tbody></table></div>
   </section>
   <div id="paymentMessage" role="status" aria-live="polite"></div>
 </main>
 <dialog id="cardDialog" class="card-dialog" aria-labelledby="cardTitle">
   <form id="cardForm" autocomplete="off">
     <h2 id="cardTitle">Pay with Card</h2>
-    <label class="sr-only" for="cardEmail">Email</label><input id="cardEmail" type="email" placeholder="Email" required autocomplete="off">
+    <label class="sr-only" for="cardEmail">Email</label><input id="cardEmail" maxlength="254" type="email" placeholder="Email" required autocomplete="off">
     <fieldset><legend>Card Information</legend>
       <label class="sr-only" for="cardNumber">Card number</label><div class="card-number-field"><input id="cardNumber" inputmode="numeric" placeholder="1234 1234 1234 1234" maxlength="23" required autocomplete="off"><span class="card-brands"><img src="assets/payment-brands/visa.svg" alt="Visa"><img src="assets/payment-brands/mastercard.svg" alt="Mastercard"></span></div>
       <div class="card-pair"><label><span class="sr-only">Expiry date</span><input id="cardExpiry" placeholder="MM / YY" inputmode="numeric" maxlength="7" required></label><label><span class="sr-only">CVC</span><input id="cardCvc" type="password" inputmode="numeric" placeholder="CVC" pattern="[0-9]{3,4}" maxlength="4" required autocomplete="off"></label></div>
@@ -51,13 +51,13 @@
     </fieldset>
     <div id="chargeSummary" class="charge-summary"></div><label id="recurringAuthorization" class="recurring-authorization" hidden><input id="recurringConsent" type="checkbox"><span id="recurringConsentText"></span></label>
     <div class="card-agreements">
-      <label><input type="checkbox" required><span><b>*</b> I agree to the <strong>Terms of Service</strong></span></label>
-      <label><input type="checkbox" required><span><b>*</b> I agree to the <strong>Privacy Policy</strong></span></label>
-      <label><input type="checkbox" required><span><b>*</b> I agree to the <strong>Refund Policy</strong></span></label>
+      <label><input type="checkbox" required><span><b>*</b> I agree to the <a href="#policy-terms" data-billing-policy="terms">Terms of Service</a></span></label>
+      <label><input type="checkbox" required><span><b>*</b> I agree to the <a href="#policy-privacy" data-billing-policy="privacy">Privacy Policy</a></span></label>
+      <label><input type="checkbox" required><span><b>*</b> I agree to the <a href="#policy-refund" data-billing-policy="refund">Refund Policy</a></span></label>
     </div>
     <p id="cardError" role="alert" hidden></p>
     <div class="card-actions"><button id="closeCard" type="button" class="muted">Close</button><button id="submitCard" type="submit" disabled class="primary">Submit</button></div>
   </form>
 </dialog>
-<script src="scripts/platform-merchant-store.js"></script><script src="scripts/billing-domain.js"></script><script src="scripts/billing-store.js"></script><script src="scripts/billing-runtime.js"></script><script src="scripts/billing-card-form.js"></script><script src="scripts/billing-retry.js"></script><script src="scripts/billing-payments.js"></script><script src="scripts/platform-admin-shell.js"></script>
-</body></html>
+<script src="scripts/platform-merchant-store.js"></script><script src="scripts/billing-domain.js"></script><script src="scripts/billing-store.js"></script><script src="scripts/billing-runtime.js"></script><script src="scripts/billing-card-form.js"></script><script src="scripts/billing-payments.js"></script><script src="scripts/platform-admin-shell.js"></script>
+<script src="scripts/billing-policies.js"></script></body></html>

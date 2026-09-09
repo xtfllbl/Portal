@@ -113,7 +113,8 @@
         const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = 'Edit'; edit.setAttribute('aria-label', store.isMerchantRecord(r) ? 'Edit draft for ' + r.merchantName : 'Edit standalone draft');
         edit.onclick = () => {
           editing = r.id;
-          [['billingAssignment', r.assignment ?? 'merchant'], ['merchant', r.merchantId ?? $('merchant').value], ['billType', r.billType], ['currency', r.currency], ['amount', r.amount], ['cycle', [3, 6, 12, 24, 36].includes(Number(r.cycle)) ? r.cycle : 24], ['startDate', r.start], ['notes', r.notes], ['expiry', r.expiry], ['includedData', r.includedData ?? '']].forEach(([id, value]) => { $(id).value = value; });
+          if(r.recurring && ![...$('cycle').options].some(o=>Number(o.value)===Number(r.cycle))) $('cycle').add(new Option(r.cycle+' Months',r.cycle));
+          [['billingAssignment', r.assignment ?? 'merchant'], ['merchant', r.merchantId ?? $('merchant').value], ['billType', r.billType], ['currency', r.currency], ['amount', r.amount], ['cycle', r.cycle], ['startDate', r.start], ['notes', r.notes], ['expiry', r.expiry], ['includedData', r.includedData ?? '']].forEach(([id, value]) => { $(id).value = value; });
           $('recurring').checked = r.recurring; update(); selectTab('create'); $('billingForm').scrollIntoView({ behavior: 'smooth', block: 'start' }); if (store.isMerchantRecord(r)) $('merchant').focus(); else document.querySelector('[data-assignment=standalone]').focus(); message('Draft loaded for editing.');
         };
         actions.append(edit);
@@ -130,9 +131,10 @@
     $('pageSummary').textContent = page + ' / ' + pages + ' (' + filtered.length + ')';
   }
   async function save(draft) {
-    if (!ready || saving) return message('Wait for the shared billing service to connect.');
+    if (!ready || saving) return message('Wait for billing data to finish loading.');
     if (storageError) return message('Browser storage is unavailable. Billing changes cannot be saved.');
     if (!draft && !$('billingForm').reportValidity()) return;
+    if ($('notes').value.length > 2000) return message('Billing notes must be at most 2000 characters.');
     if (draft && (!$('merchant').reportValidity() || !$('amount').validity.valid && $('amount').value !== '')) { $('amount').reportValidity(); return; }
     try { records = window.PaywizardBillingStore.read(); } catch (_) { return message('Could not load current billing records.'); }
     if (!$('includedData').disabled && !$('includedData').reportValidity()) return;

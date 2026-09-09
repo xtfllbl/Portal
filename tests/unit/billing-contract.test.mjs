@@ -15,7 +15,7 @@ test('overdue installments are separate charges in oldest-first order',()=>{
  assert.deepEqual(b.payments.map(p=>[p.installment,p.amount]),[[1,200],[2,200]]);
  assert.notEqual(b.payments[0].id,b.payments[1].id);assert.equal(summary(b).nextPaymentDate,'2026-11-17');
 });
-test('failure stops catch-up, retains authorization and is not automatically retried',()=>{
+test('failure after the final schedule retains authorization without inventing new automatic dates',()=>{
  const b=makeBill(input());checkout(b,details(),new Date('2026-12-20T12:00:00Z'),{failAt:2});
  assert.deepEqual(b.payments.map(p=>p.status),['Succeeded','Failed']);assert.equal(summary(b).paidInstallments,1);assert.equal(b.status,'Overdue');assert.ok(b.authorization);
  collect(b,{now:new Date('2027-01-01T12:00:00Z')});assert.equal(b.payments.length,2);
@@ -30,7 +30,7 @@ test('same request is idempotent, another first payment is rejected',()=>{
 });
 test('expiry blocks initial checkout but not authorized collections',()=>{
  const b=makeBill(input({expiry:'2026-09-30'}));assert.throws(()=>checkout(b,details(),new Date('2026-10-01')),/expired/);
- checkout(b,details(),new Date('2026-09-07'));collect(b,{now:new Date('2026-10-17')});assert.equal(b.payments.length,2);
+ checkout(b,details(),new Date('2026-09-07'));collect(b,{now:new Date('2026-10-17T09:00:00Z')});assert.equal(b.payments.length,2);
 });
 test('one-time payment has one record and needs no recurring consent',()=>{
  const b=makeBill(input({recurring:false}));checkout(b,details({recurringConsent:false}),new Date('2026-09-07'));assert.equal(b.payments.length,1);assert.equal(b.status,'Paid');assert.equal(b.authorization,null);

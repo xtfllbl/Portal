@@ -14,9 +14,9 @@ export function createCloudHandler({repository, adminKey = process.env.BILLING_A
     return valid(token);
   }
   function settleDue(bill) {
-    if (!stopped(bill) && bill.authorization && bill.status !== 'Paid' && !bill.installments.some(i=>i.status==='Failed') && bill.installments.some(i=>i.status!=='Paid' && i.due<=day(now()))) collect(bill,{now:now()});
+    collect(bill, {now:now()});
   }
-  const adminView = bill => ({...publicView(bill,now()), linkToken:bill.linkToken, deliveries:bill.deliveries, audit:bill.audit || [], collectionStop:bill.collectionStop});
+  const adminView = bill => ({...publicView(bill,now()), canRetry:summary(bill,now()).canRetry, linkToken:bill.linkToken, deliveries:bill.deliveries, notifications:bill.notifications || [], audit:bill.audit || [], collectionStop:bill.collectionStop});
   async function body(req) {
     if (req.body !== undefined) {
       const value = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -52,6 +52,7 @@ export function createCloudHandler({repository, adminKey = process.env.BILLING_A
       }
       const publicMatch=path.match(/^public\/([a-f0-9]{48})(\/(pay|retry))?$/);
       if(publicMatch){
+        if(publicMatch[3]==='retry')return reply(403,{error:'Only platform operations can retry payment.'});
         const input=req.method==='POST'?await body(req):undefined;
         if (!(req.method==='GET'&&!publicMatch[2]) && !(req.method==='POST'&&publicMatch[2])) return reply(405,{error:'Method not allowed.'});
         const result=await repository.transact(records=>{
@@ -95,7 +96,9 @@ export function createCloudHandler({repository, adminKey = process.env.BILLING_A
         const result=await repository.transact(records=>{
           const bill=records.find(r=>r.id===decodeURIComponent(action[1]));
           if(!bill || bill.status==='Draft')throw new Error('Bill unavailable.');
-          if(['pay','retry'].includes(action[2])){
+          if(action[2]==='retry'){
+            retryPayment(bill,{...input,source:'operator'},now());
+          } else if(action[2]==='pay'){
             if(bill.assignment==='standalone'||!bill.merchantId||String(input.merchantId)!==bill.merchantId)throw new Error('Merchant does not match this bill.');
             (action[2] === 'retry' ? retryPayment : checkout)(bill,{...input,source:'portal'},now());
           } else if (action[2] === 'stop') {

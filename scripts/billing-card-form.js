@@ -29,6 +29,7 @@
       ? 'I authorize my card to be saved for ' + (catchUp ? 'the separate payments listed above and ' : '') + future + '.'
       : 'I authorize my card to be saved for ' + (catchUp ? 'the separate installment payments listed above.' : 'this final payment.');
     $('submitCard').textContent = catchUp ? 'Pay ' + due.length + ' installments' : 'Pay ' + amount + (bill.recurring ? ' now' : '');
+    if (bill.recurring && Number(bill.cycle) > 1) $('recurringConsentText').textContent += ' Scheduled payments run at 09:00 UTC. Any overdue installments are collected separately, oldest first through the current installment, stopping if a payment fails. No automatic attempts are added after the final scheduled installment.';
     $('cardError').hidden = true; ready();
   }
   function validate() {

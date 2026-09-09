@@ -6,7 +6,7 @@
   let filters = { status: '', cycle: '', from: '', to: '' };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const money = (amount, currency) => new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
-  const date = value => value ? new Date(value.slice(0, 10) + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  const date = value => value ? new Date(value.slice(0, 10) + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone:'UTC' }) : '—';
   function message(text) { $('paymentMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => { $('paymentMessage').textContent = ''; }, 5000); }
   function ownRecords() { return records.filter(r => store.isMerchantRecord(r) && String(r.merchantId) === selected && r.status !== 'Draft'); }
   function reload() {
@@ -32,7 +32,7 @@
       <div class="invoice-top"><div><p class="invoice-amount">${esc(money(Number(r.amount), r.currency))}</p>
       <p class="invoice-meta"><span>Invoice No.</span><strong>${esc(r.invoice)}</strong></p><p class="invoice-meta"><span>Payment Link Expire Date</span><strong>${esc(date(r.expiry))}</strong></p></div>
       <div class="invoice-actions">${badge(r.recurring ? 'Recurring' : 'One-time')}${badge(r.canRetry ? 'Overdue' : store.expired(r) ? 'Expired' : 'Pending', r.canRetry ? 'Payment overdue' : store.expired(r) ? 'Link Expired' : 'Pending Payment')}
-      <button type="button" class="primary" data-pay="${esc(r.id)}" ${store.expired(r) && !r.canRetry ? 'disabled' : ''}><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>${r.canRetry ? 'Retry Payment' : 'Pay Now'}</button></div></div>
+      <button type="button" class="primary" data-pay="${esc(r.id)}" ${store.expired(r) && !r.canRetry ? 'disabled' : ''}><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Pay Now</button></div></div>
       <dl class="invoice-details"><div class="notes"><dt>Billing Notes</dt><dd>${esc(r.notes || '—')}</dd></div><div class="billing-amount"><dt>Billing Amount</dt><dd>${esc(money(Number(r.amount), r.currency))}</dd></div><div class="billing-cycle"><dt>Billing Cycle</dt><dd>${r.recurring ? esc(r.cycle) + ' Months' : 'One-time'}</dd></div><div class="renewal"><dt>Recurring</dt><dd>${r.recurring ? 'On (Fixed-term)' : 'Off'}</dd></div></dl></article>`).join('');
     if (!pending.length) $('pendingCards').innerHTML = '<div class="payment-empty">' + (selected ? 'No pending payments.' : 'Select a merchant to view billing and payments.') + '</div>';
     renderHistory();
@@ -44,11 +44,11 @@
     });
   }
   function historyValues(r) {
-    return [r.invoice || '—', r.createdAt ? new Date(r.createdAt).toLocaleString('sv-SE') : date(r.start), r.merchantName, r.recurring ? date(r.start) + ' – ' + date(store.endDate(r)) : '—', r.recurring ? r.cycle + ' Months' : 'One-time', money(store.total(r), r.currency), r.status, store.count(r) + ' of ' + (r.recurring ? r.cycle : 1), date(store.endDate(r)), date(r.expiry)];
+    return [r.invoice || '—', r.createdAt ? r.createdAt.replace('T',' ').slice(0,19)+' UTC' : date(r.start), r.merchantName, r.recurring ? date(r.start) + ' – ' + date(store.endDate(r)) : '—', r.recurring ? r.cycle + ' Months' : 'One-time', money(store.total(r), r.currency), r.status, store.count(r) + ' of ' + (r.recurring ? r.cycle : 1), date(store.endDate(r)), date(r.expiry)];
   }
   function renderHistory() {
     const list = historyRecords();
-    $('paymentHistoryRows').innerHTML = list.map(r => '<tr>' + historyValues(r).map((v, index) => '<td>' + (index === 4 ? badge('cycle', v) : index === 6 ? badge(r.status) : esc(v)) + '</td>').join('') + '<td>' + esc(r.authorization?.status || 'Not authorized') + '</td><td>' + esc(date(r.nextPaymentDate)) + '</td></tr>').join('') || '<tr><td colspan="12" class="payment-empty">' + (selected ? 'No billing records found.' : 'Select a merchant to view billing history.') + '</td></tr>';
+    $('paymentHistoryRows').innerHTML = list.map(r => '<tr>' + historyValues(r).map((v, index) => '<td>' + (index === 4 ? badge('cycle', v) : index === 6 ? badge(r.status) : esc(v)) + '</td>').join('') + '<td>' + esc(r.authorization?.status || 'Not authorized') + '</td><td>' + esc(date(r.nextPaymentDate)) + '</td><td>' + esc(r.nextAutomaticAttemptAt ? r.nextAutomaticAttemptAt.replace('T',' ').replace(/\.\d{3}Z$/,' UTC') : 'None scheduled') + '</td></tr>').join('') || '<tr><td colspan="13" class="payment-empty">' + (selected ? 'No billing records found.' : 'Select a merchant to view billing history.') + '</td></tr>';
     $('exportHistory').disabled = !list.length;
   }
   function tab(name) {
@@ -65,7 +65,7 @@
   $('dateFrom').oninput = $('dateTo').oninput = () => $('dateTo').setCustomValidity('');
   $('historyFilters').onsubmit = event => { event.preventDefault(); const from = $('dateFrom').value, to = $('dateTo').value; if (from && to && from > to) { $('dateTo').setCustomValidity('End date must be on or after start date.'); $('dateTo').reportValidity(); return; } filters = { status: $('paymentStatus').value, cycle: $('paymentCycle').value, from, to }; renderHistory(); };
   $('exportHistory').onclick = () => {
-    const rows = [['Invoice No.', 'Date & Time', 'Merchant Name', 'Billing Period', 'Cycle', 'Amount', 'Payment Status', 'Paid Installments', 'Due Date', 'Payment Link Expire Date', 'Card Authorization', 'Next Payment'], ...historyRecords().map(r => [...historyValues(r), r.authorization?.status || 'Not authorized', date(r.nextPaymentDate)])];
+    const rows = [['Invoice No.', 'Date & Time (UTC)', 'Merchant Name', 'Billing Period', 'Cycle', 'Amount', 'Payment Status', 'Paid Installments', 'Period Ends', 'Payment Link Expire Date', 'Card Authorization', 'Next Unpaid Installment', 'Next Automatic Attempt (UTC)'], ...historyRecords().map(r => [...historyValues(r), r.authorization?.status || 'Not authorized', date(r.nextPaymentDate), r.nextAutomaticAttemptAt || ''])];
     const csv = '\uFEFF' + rows.map(row => row.map(value => { let text = String(value ?? ''); if (/^[=+@\-\t\r]/.test(text)) text = "'" + text; return '"' + text.replace(/"/g, '""') + '"'; }).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })), link = document.createElement('a'); link.href = url; link.download = 'billing-history-' + selected + '.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('Billing history exported.');
   };
@@ -75,7 +75,6 @@
     if (!reload()) return;
     const record = ownRecords().find(r => r.id === id);
     if (!record || !store.pending(record) || store.expired(record) && !record.canRetry) return message('This installment is no longer available.');
-    if (record.canRetry) return window.PaywizardBillingRetry.open(record, input => store.retry(record.id, selected, input), result => {reload();message(result.status === 'Overdue' ? 'A charge failed. Remaining installments are unpaid.' : 'Payment recorded.');});
     paying = id; opener = $('pendingCards').querySelector('[data-pay="' + CSS.escape(id) + '"]');
     $('cardForm').reset(); updateRegions(); $('submitCard').disabled = true; $('cardError').hidden = true; $('cardForm').querySelectorAll('input').forEach(input => input.setCustomValidity('')); requestId = crypto.randomUUID(); window.PaywizardBillingCardForm.prepare(record); $('cardDialog').showModal(); $('cardEmail').focus();
   };
@@ -108,7 +107,7 @@
   window.addEventListener('billing-reconnect', connect);
   window.addEventListener('billing-local-change', () => { if (store.mode === 'local') reload(); });
   connect();
-  window.addEventListener('focus', () => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); });
-  setInterval(() => { if (serviceReady && !busy && !$('cardDialog').open) store.sync().then(reload).catch(() => {}); }, 60000);
+  window.addEventListener('focus', () => { if (serviceReady && !busy && !document.querySelector('dialog[open]')) store.sync().then(reload).catch(() => {}); });
+  setInterval(() => { if (serviceReady && !busy && !document.querySelector('dialog[open]')) store.sync().then(reload).catch(() => {}); }, 60000);
   reload();
 })();

@@ -59,3 +59,7 @@ python3 邮件模版html/邮件模版html/renderBillingPaymentLink.py \
 母版直接打开时，wizarPOS 图片使用同目录 `billingReceiptLogo.png`，避免将未替换的变量作为图片 URL。渲染器在生成邮件时仍按 `logoUrl` 替换为指定 HTTPS/CID 地址。Paywizard 图片与 `customerAlert.html` 的图片来源保持一致。
 
 Logo 修正复验：从首页邮件目录分别选择账单链接母版和收据母版，两张图片均成功加载；两份母版及十份样例在 800px / 390px 共 24 项浏览器检查通过，包含两张品牌图片加载、无横向溢出和操作按钮等高。正式渲染的 `logoUrl` CID 覆盖检查通过。
+
+## 2026-09-09 演示开发更新
+
+分期授权描述已同步下个正常计划日09:00 UTC逐期补扣的规则。44的View emails可查看邀请事件、真实本轮应付清单的模拟邮件；新增多期积欠邀请预览[billingLinkCatchUpSample.html](billingLinkCatchUpSample.html)。当前依然只模拟投递，详情见[billingFailureREADME.md](billingFailureREADME.md)。

@@ -48,7 +48,7 @@
     return date.toISOString().slice(0, 10);
   }
   function count(r) { return Number(r.paidInstallments ?? (r.status === 'Paid' ? (r.recurring ? r.cycle : 1) : 0)); }
-  function pending(r) { return r.canRetry || ['Active', 'Pending', 'Overdue'].includes(r.status) && !r.authorization && !r.currentInstallmentPaid && count(r) < (r.recurring ? Number(r.cycle) : 1); }
+  function pending(r) { return ['Active', 'Pending', 'Overdue'].includes(r.status) && !r.authorization && !r.currentInstallmentPaid && count(r) < (r.recurring ? Number(r.cycle) : 1); }
   function expired(r) { return !!r.expiry && r.expiry < window.PaywizardBillingDomain.day(); }
 
   const domain = window.PaywizardBillingDomain;
@@ -85,14 +85,9 @@
     return records;
   }
   function writeLocal(records) { records.forEach(r => { if (r.linkToken && !r.linkSnapshot) r.linkSnapshot = localSnapshot(localView(r)); }); localStorage.setItem(localKey, JSON.stringify(records)); }
-  function localView(record) { return {...domain.publicView(record), linkToken:record.linkToken, deliveries:record.deliveries, audit:record.audit || [], collectionStop:record.collectionStop, localDemo:true}; }
+  function localView(record) { return {...domain.publicView(record), canRetry:domain.summary(record).canRetry, linkToken:record.linkToken, deliveries:record.deliveries, notifications:record.notifications || [], audit:record.audit || [], collectionStop:record.collectionStop, localDemo:true}; }
   function localRead() {
     const records = fullLocal() || [];
-    let changed = false;
-    records.forEach(r => {
-      if (!domain.stopped(r) && r.authorization && r.status !== 'Paid' && !r.installments.some(i => i.status === 'Failed') && r.installments.some(i => i.status !== 'Paid' && i.due <= domain.day())) { domain.collect(r); changed = true; }
-    });
-    if (changed) writeLocal(records);
     return records.map(localView).sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   }
   function read() { return mode === 'local' ? localRead() : readSharedCache(); }
@@ -101,7 +96,10 @@
     return navigator.locks ? navigator.locks.request(localKey, change) : change();
   }
   async function sync() {
-    if (mode === 'local') return localRead();
+    if (mode === 'local') {
+      await localChange(records => records.forEach(r => domain.collect(r)));
+      return localRead();
+    }
     const data = await api('records'); publicOrigin = data.publicOrigin || endpoint || location.origin; write(data.records); return data.records;
   }
   async function enrichLocalDemo() {
@@ -153,7 +151,7 @@
     mode = 'local'; endpoint = ''; publicOrigin = location.origin;
     if (fullLocal() === null) writeLocal(readSharedCache().map(r => domain.makeBill(r, new Date(), true)));
     await enrichLocalDemo();
-    window.dispatchEvent(new Event('billing-mode')); return localRead();
+    window.dispatchEvent(new Event('billing-mode')); return sync();
   }
   async function save(record) {
     if (mode !== 'local') { const result = await api('records', record); await sync(); return result; }
@@ -179,16 +177,18 @@
       const bill = records.find(r => r.id === id);
       if (!bill) throw new Error('Bill unavailable.');
       if (action === 'retry') {
-        if (!isMerchantRecord(bill) || bill.merchantId !== input.merchantId) throw new Error('Merchant does not match this bill.');
-        domain.retryPayment(bill, {...input, source:'portal'});
+        domain.retryPayment(bill, {...input, source:'operator'});
       } else ({send:domain.sendLink, stop:domain.stopCollection, renew:domain.renewLink})[action](bill, input);
       return localView(bill);
     });
   }
-  const send = (id, email) => changeBill(id, 'send', {email});
+  const send = (id, email, requestId) => changeBill(id, 'send', {email, requestId});
   const stop = (id, reason) => changeBill(id, 'stop', {reason});
   const renew = (id, input) => changeBill(id, 'renew', input);
-  const retry = (id, merchantId, input) => changeBill(id, 'retry', {...input, merchantId});
+  const retry = (id, input) => {
+    if (!location.pathname.endsWith('/44.billing_overview.html') || (localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos') !== 'wizarpos') return Promise.reject(new Error('Only platform operations can retry payment.'));
+    return changeBill(id, 'retry', input);
+  };
   function localSnapshot(record) {
     const fields = ['id','assignment','merchantId','merchantName','invoice','billType','currency','amount','recurring','cycle','start','expiry','includedData','notes','createdAt','status','paidInstallments'];
     return Object.fromEntries(fields.filter(k => record[k] !== undefined).map(k => [k,record[k]]));
@@ -206,6 +206,7 @@
     return publicOrigin + '/43.billing_payment_link.html#' + record.linkToken;
   }
   async function publicBill(token, details, action = 'pay') {
+    if (action === 'retry') throw new Error('Only platform operations can retry payment.');
     if (!token.startsWith('local.')) {
       if (!/^[a-f0-9]{48}$/.test(token)) throw new Error('This payment link is invalid. Please contact the sender.');
       // Shared links always use their own host, never fall back to local data.
@@ -223,8 +224,8 @@
       let bill = records.find(r => r.id === candidate.id);
       if (!bill) { bill = candidate; records.push(bill); }
       if (details) (action === 'retry' ? domain.retryPayment : domain.checkout)(bill, details);
-      else if (!domain.stopped(bill) && bill.authorization && bill.status !== 'Paid') domain.collect(bill);
-      return localView(bill);
+      else domain.collect(bill);
+      return {...domain.publicView(bill), localDemo:true};
     });
   }
   function selectMerchant(id) { try { localStorage.setItem(contextKey, id); } catch (_) {} }
