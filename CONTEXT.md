@@ -271,3 +271,7 @@ _Avoid_: Combined arrears charge, entire contract payment
 **Installment Payment Attempt**:
 One attempted collection of one Contract Installment. Failed attempts do not count as paid installments; each successful attempt settles only its own installment.
 _Avoid_: Contract completion, combined payment
+
+**Installment Catch-up Collection**:
+Collection of due, unpaid Contract Installments from the oldest to the current installment, as separate payments that stop at the first failure. It can occur on the next normal installment collection date or through a payer-confirmed Billing Payment Retry; it does not collect future installments early or extend the contract.
+_Avoid_: Combined arrears charge, contract renewal, daily automatic retry
