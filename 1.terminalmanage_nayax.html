@@ -1685,6 +1685,9 @@
         }
         .feature-modal.wide { width: min(1180px, 96vw); }
         .feature-modal.compact { width: min(520px, 94vw); }
+        #pmLeaveModal .feature-modal { width: min(620px, 94vw); }
+        #pmLeaveModal .feature-modal-footer { flex-wrap: wrap; gap: 8px; }
+        #pmLeaveModal .feature-modal-footer button { flex: 1 1 160px; height: 40px; min-height: 40px; white-space: nowrap; }
         .feature-modal-header,
         .feature-modal-footer {
             display: flex;
@@ -2974,6 +2977,18 @@
         </div>
     </div>
 
+    <div id="pmLeaveModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmLeaveTitle" aria-describedby="pmLeaveMessage">
+        <div class="feature-modal">
+            <div class="feature-modal-header"><h2 id="pmLeaveTitle" class="feature-modal-title">Unsaved Product Map changes</h2></div>
+            <div id="pmLeaveMessage" class="feature-modal-body">You have unsaved changes. Save or discard them before leaving?</div>
+            <div class="feature-modal-footer">
+                <button id="pmLeaveStay" class="btn-secondary" type="button" data-feature-close>Continue Editing</button>
+                <button id="pmLeaveDiscard" class="btn-secondary" type="button">Cancel Changes</button>
+                <button id="pmLeaveSave" class="btn-primary" type="button">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <div id="pmQuantityModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pmQuantityTitle">
         <div class="feature-modal compact pm-quantity-modal">
             <div class="feature-modal-header">
@@ -3526,7 +3541,15 @@
             alerts: document.getElementById('tab-alerts')
         };
 
-        function showTab(key, updateUrl) {
+        function showTab(key, updateUrl, leaveApproved = false) {
+            if(updateUrl && !leaveApproved && key !== 'productmap' && !sections.productmap.classList.contains('hidden')){
+                const request = new CustomEvent('pw:before-navigate', { cancelable: true, detail: { proceed: () => {
+                    showTab(key, updateUrl, true);
+                    const target = Array.from(tabs).find(tab => tab.dataset.tab === key);
+                    if(target) target.focus();
+                } } });
+                if(!document.dispatchEvent(request)) return;
+            }
             Object.keys(sections).forEach(k => {
                 if (!sections[k]) return;
                 sections[k].classList.toggle('hidden', k !== key);
@@ -4679,6 +4702,7 @@ paymentTimeout=180`
             if(!target) return;
             target.classList.remove('open');
             target.setAttribute('aria-hidden', 'true');
+            if(target.id === 'pmLeaveModal') pendingNavigation = null;
             if(activeFeatureModal === target) activeFeatureModal = null;
             if(!document.querySelector('.feature-modal-overlay.open')) document.body.classList.remove('feature-modal-open');
             if(restoreFocus && lastFeatureTrigger && typeof lastFeatureTrigger.focus === 'function') lastFeatureTrigger.focus();
@@ -5412,7 +5436,7 @@ paymentTimeout=180`
             addInlineDrafts(count);
         });
         inlineElements.save.addEventListener('click', saveInlineChanges);
-        inlineElements.cancel.addEventListener('click', () => {
+        function discardProductMapChanges(){
             if(templateImportBackup){
                 productRows = templateImportBackup.map(row => ({ ...row }));
                 templateImportBackup = null;
@@ -5429,7 +5453,8 @@ paymentTimeout=180`
             inlineErrors.clear();
             renderProductMapInline();
             showToast('Unsaved Product Map changes discarded.');
-        });
+        }
+        inlineElements.cancel.addEventListener('click', discardProductMapChanges);
 
         function validateImportedRows(rows){
             const errors = new Map();
@@ -5507,6 +5532,59 @@ paymentTimeout=180`
         function hasPendingProductMapChanges(){
             return Boolean(templateImportBackup || cellEditing || inlineDrafts.length);
         }
+        const leaveModal = byId('pmLeaveModal');
+        let pendingNavigation = null;
+        function hasUnsavedProductMapChanges(){
+            return Boolean(templateImportBackup || inlineDrafts.length || (cellEditing &&
+                JSON.stringify(cellEditing.raw) !== cellEditing.initialRaw));
+        }
+        function requestProductMapLeave(proceed){
+            if(leaveModal.classList.contains('open')) return false;
+            // Preserve the existing single-cell auto-save before deciding whether to warn.
+            if(cellEditing){
+                if(JSON.stringify(cellEditing.raw) === cellEditing.initialRaw) cancelCellEdit();
+                else commitCellEdit();
+            }
+            if(!hasUnsavedProductMapChanges()) return true;
+            pendingNavigation = proceed;
+            openFeatureModal(leaveModal, '#pmLeaveStay');
+            return false;
+        }
+        document.addEventListener('pw:before-navigate', evt => {
+            if(!requestProductMapLeave(evt.detail.proceed)) evt.preventDefault();
+        });
+        document.addEventListener('click', evt => {
+            if(evt.defaultPrevented || evt.button !== 0 || evt.ctrlKey || evt.metaKey || evt.shiftKey || evt.altKey) return;
+            const link = evt.target.closest('a[href]');
+            if(!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+            const destination = new URL(link.href, location.href);
+            if(!['http:', 'https:'].includes(destination.protocol)) return;
+            if(destination.pathname === location.pathname && destination.search === location.search && destination.hash) return;
+            if(!requestProductMapLeave(() => location.assign(destination.href))){
+                evt.preventDefault();
+                evt.stopImmediatePropagation();
+            }
+        }, true);
+        byId('pmLeaveDiscard').addEventListener('click', () => {
+            const proceed = pendingNavigation;
+            pendingNavigation = null;
+            closeFeatureModal(leaveModal, false);
+            discardProductMapChanges();
+            if(proceed) proceed();
+        });
+        byId('pmLeaveSave').addEventListener('click', () => {
+            const proceed = pendingNavigation;
+            pendingNavigation = null;
+            closeFeatureModal(leaveModal, false);
+            if(cellEditing && !commitCellEdit()) return;
+            if(templateImportBackup || inlineDrafts.length) saveInlineChanges();
+            if(!hasPendingProductMapChanges() && proceed) proceed();
+        });
+        window.addEventListener('beforeunload', evt => {
+            if(!hasUnsavedProductMapChanges()) return;
+            evt.preventDefault();
+            evt.returnValue = '';
+        });
         function pickListUrl(download = false){
             const query = new URLSearchParams({
                 sn: terminalContext.sn,
@@ -5847,6 +5925,7 @@ paymentTimeout=180`
             const row = productRows.find(item => item.id === id);
             if(!row) return;
             cellEditing = { id, field, raw: rawFromProduct(row) };
+            cellEditing.initialRaw = JSON.stringify(cellEditing.raw);
             inlineErrors.delete(id);
             renderProductMapInline();
             focusActiveCellEditor();
@@ -6082,6 +6161,7 @@ paymentTimeout=180`
             const id = input.getAttribute('data-pm-cell-editor');
             const field = input.getAttribute('data-pm-cell-field');
             setTimeout(() => {
+                if(leaveModal.classList.contains('open')) return;
                 if(!cellEditing || cellEditing.id !== id || cellEditing.field !== field) return;
                 const active = document.activeElement;
                 if(active && active.matches(`[data-pm-cell-editor="${id}"][data-pm-cell-field="${field}"]`)) return;

@@ -280,7 +280,7 @@
     if (terminalSns.some(function (terminalSn) {
       var rowIds = {};
       return candidate.productMaps[terminalSn].some(function (row) {
-        if (!row || !cleanText(row.id) || rowIds[row.id] || !categoryIds[row.categoryId] || (cleanText(row.productId) && !productIds[row.productId])) return true;
+        if (!row || !cleanText(row.id) || rowIds[row.id] || (cleanText(row.categoryId) && !categoryIds[row.categoryId]) || (cleanText(row.productId) && !productIds[row.productId])) return true;
         rowIds[row.id] = true;
         return false;
       });

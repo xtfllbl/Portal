@@ -1,0 +1,157 @@
+const { test, expect } = require('@playwright/test');
+const url = '/1.terminalmanage_nayax.html?tab=productmap';
+async function addDraft(page) {
+  await page.locator('#pmMapMenuButton').click();
+  await page.locator('#pmInlineAddButton').click();
+  return page.locator('#pmTableBody tr[data-inline-key]').first();
+}
+for (const width of [1440, 390]) {
+  test(`Product Map protects unsaved drafts and resumes the chosen tab at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(url);
+    await addDraft(page);
+    const dex = page.locator('#primaryTabs [data-tab="dex"]');
+    const modal = page.locator('#pmLeaveModal');
+    await dex.click();
+    await expect(modal).toBeVisible();
+    await expect(page.locator('#tab-productmap')).toBeVisible();
+    await expect(page.locator('#pmLeaveStay')).toBeFocused();
+    await expect(page.locator('#pmLeaveDiscard')).toHaveText('Cancel Changes');
+    await expect(page.locator('#pmLeaveSave')).toHaveText('Save Changes');
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.locator('#pmLeaveSave')).toBeFocused();
+    const metrics = await modal.locator('.feature-modal-footer button').evaluateAll(buttons => buttons.map(b => b.getBoundingClientRect().height));
+    expect(metrics).toEqual([40, 40, 40]);
+    const box = await modal.locator('.feature-modal').boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width);
+    await page.screenshot({ path: `/tmp/pm-leave-${width}.png` });
+    await page.locator('#pmLeaveStay').click();
+    await expect(modal).toBeHidden();
+    await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(1);
+    await page.locator('#primaryTabs [data-tab="productmap"]').press('ArrowRight');
+    await expect(modal).toBeVisible();
+    await page.locator('#pmLeaveSave').click();
+    await expect(modal).toBeHidden();
+    await expect(page.locator('#tab-productmap')).toBeVisible();
+    await expect(page.locator('#pmValidationSummary')).toContainText('MDB Code is required.');
+    await page.locator('[data-inline-field="mdbCode"]').fill('77');
+    await dex.click();
+    await page.locator('#pmLeaveSave').click();
+    await expect(page.locator('#tab-dex')).toBeVisible();
+    await page.locator('#primaryTabs [data-tab="productmap"]').click();
+    await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(0);
+    await expect(page.locator('[data-pm-cell-field="mdbCode"] .pm-cell-edit-value', { hasText: '77' })).toHaveCount(1);
+    await addDraft(page);
+    await dex.click();
+    await page.locator('#pmLeaveDiscard').click();
+    await expect(page.locator('#tab-dex')).toBeVisible();
+    await page.locator('#primaryTabs [data-tab="productmap"]').click();
+    await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(0);
+    await dex.click();
+    await expect(modal).toBeHidden();
+  });
+}
+test('Product Map guards page navigation and refresh, with Escape retaining the draft', async ({ page }) => {
+  await page.goto(url);
+  await addDraft(page);
+  const back = page.getByRole('link', { name: 'Back to Device Management' });
+  const target = await back.getAttribute('href');
+  await back.click();
+  await expect(page.locator('#pmLeaveModal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(1);
+  await page.getByRole('link', { name: 'Transactions', exact: true }).click();
+  await expect(page.locator('#pmLeaveModal')).toBeVisible();
+  await page.locator('#pmLeaveStay').click();
+  const dialogPromise = page.waitForEvent('dialog');
+  const reload = page.reload({ timeout: 2000 }).catch(() => {});
+  const dialog = await dialogPromise;
+  expect(dialog.type()).toBe('beforeunload');
+  await dialog.dismiss();
+  await reload;
+  await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(1);
+  await back.click();
+  await page.locator('#pmLeaveDiscard').click();
+  await expect(page).toHaveURL(new URL(target, page.url()).href);
+});
+test('Product Map preserves cell auto-save and blocks invalid cell navigation', async ({ page }) => {
+  await page.goto(url);
+  const firstRow = page.locator('#pmTableBody tr[data-pm-id]').first();
+  await firstRow.locator('[data-pm-cell-field="mdbCode"]').click();
+  await firstRow.locator('[data-pm-cell-editor]').fill('77');
+  await page.locator('#primaryTabs [data-tab="dex"]').click();
+  await expect(page.locator('#tab-dex')).toBeVisible();
+  await expect(page.locator('#pmLeaveModal')).toBeHidden();
+  await page.locator('#primaryTabs [data-tab="productmap"]').click();
+  await expect(firstRow.locator('[data-pm-cell-field="mdbCode"] .pm-cell-edit-value')).toHaveText('77');
+  await firstRow.locator('[data-pm-cell-field="mdbCode"]').click();
+  await firstRow.locator('[data-pm-cell-editor]').fill('1');
+  await page.locator('#primaryTabs [data-tab="dex"]').click();
+  await expect(page.locator('#pmLeaveModal')).toBeVisible();
+  await page.locator('#pmLeaveSave').click();
+  await expect(page.locator('#tab-productmap')).toBeVisible();
+  await expect(firstRow.locator('[data-pm-cell-editor]')).toHaveClass(/is-invalid/);
+  await page.locator('#primaryTabs [data-tab="dex"]').click();
+  await page.locator('#pmLeaveDiscard').click();
+  await page.locator('#primaryTabs [data-tab="productmap"]').click();
+  await expect(firstRow.locator('[data-pm-cell-field="mdbCode"] .pm-cell-edit-value')).toHaveText('77');
+});
+test('Product Map defers changing the portal profile until navigation is approved', async ({ page }) => {
+  await page.goto(url);
+  await addDraft(page);
+  const profile = await page.evaluate(() => localStorage.getItem('paywizard.portalAccessProfile.v1'));
+  await page.locator('[data-pw-profile-trigger]').click();
+  await page.locator('[data-pw-profile="attended"]').click();
+  await expect(page.locator('#pmLeaveModal')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('paywizard.portalAccessProfile.v1'))).toBe(profile);
+  await page.locator('#pmLeaveStay').click();
+  await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(1);
+});
+test('Product Map stays on the page when persistence fails and then saves to the original link', async ({ page }) => {
+  await page.goto(url);
+  const draft = await addDraft(page);
+  await draft.locator('[data-inline-field="mdbCode"]').fill('77');
+  await page.evaluate(() => {
+    window.originalSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if(key === 'paywizard.productCatalog.v2') throw new Error('Storage unavailable');
+      return window.originalSetItem.call(this, key, value);
+    };
+  });
+  const back = page.getByRole('link', { name: 'Back to Device Management' });
+  const destination = new URL(await back.getAttribute('href'), page.url()).href;
+  await back.click();
+  await page.locator('#pmLeaveSave').click();
+  await expect(page.locator('#tab-productmap')).toBeVisible();
+  await expect(page.locator('#pmTableBody tr[data-inline-key]')).toHaveCount(1);
+  await page.evaluate(() => { Storage.prototype.setItem = window.originalSetItem; });
+  await back.click();
+  await page.locator('#pmLeaveSave').click();
+  await expect(page).toHaveURL(destination);
+  await page.goto(url);
+  await expect(page.locator('[data-pm-cell-field="mdbCode"] .pm-cell-edit-value', { hasText: '77' })).toHaveCount(1);
+});
+test('Product Map restores a staged template on discard and persists it on save before leaving', async ({ page }) => {
+  await page.goto(url);
+  await page.locator('#pmMapMenuButton').click();
+  await page.getByRole('menuitem', { name: 'Save as Template' }).click();
+  await page.locator('#pmTemplateName').fill('Leave guard template');
+  await page.locator('#pmTemplateMachineModel').fill('Vendo 721');
+  await page.getByRole('button', { name: 'Save Template', exact: true }).click();
+  await expect(page.locator('#pmSaveTemplateModal')).toBeHidden();
+  await page.goto(url + '&sn=LEAVE-GUARD-TARGET');
+  for (const action of ['pmLeaveDiscard', 'pmLeaveSave']) {
+    await page.locator('#pmMapMenuButton').click();
+    await page.getByRole('menuitem', { name: 'Import Template' }).click();
+    await page.getByRole('button', { name: 'Import Template', exact: true }).click();
+    await page.locator('#pmConfirmAccept').click();
+    await expect(page.locator('#pmTableBody tr.pm-template-import-row')).toHaveCount(8);
+    await page.locator('#primaryTabs [data-tab="dex"]').click();
+    await expect(page.locator('#pmLeaveModal')).toBeVisible();
+    await page.locator('#' + action).click();
+    await expect(page.locator('#tab-dex')).toBeVisible();
+    await page.locator('#primaryTabs [data-tab="productmap"]').click();
+    await expect(page.locator('#pmTableBody tr[data-pm-id]')).toHaveCount(action === 'pmLeaveSave' ? 8 : 0);
+  }
+});

@@ -571,9 +571,13 @@
     if (!option) return;
     var nextProfile = option.getAttribute("data-pw-profile");
     if (!profiles[nextProfile]) return;
-    try { localStorage.setItem(profileStoreKey, nextProfile); } catch (_) {}
-    var fallback = fallbackFor(fileName, nextProfile);
-    window.location.assign(fallback || window.location.href);
+    var proceed = function () {
+      try { localStorage.setItem(profileStoreKey, nextProfile); } catch (_) {}
+      var fallback = fallbackFor(fileName, nextProfile);
+      window.location.assign(fallback || window.location.href);
+    };
+    var request = new CustomEvent("pw:before-navigate", { cancelable: true, detail: { proceed: proceed } });
+    if (document.dispatchEvent(request)) proceed();
   });
   document.addEventListener("click", function (event) {
     if (!event.target.closest(".pw-platform-profile-control")) setProfileMenu(false);
