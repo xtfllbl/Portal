@@ -181,7 +181,13 @@
     const more = document.createElement('button'); more.type = 'button'; more.className = 'billing-more'; more.setAttribute('aria-label', 'Actions for invoice ' + record.invoice); more.setAttribute('aria-expanded', 'false'); more.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">more_horiz</span>';
     const menu = document.createElement('div'); menu.className = 'billing-link-menu'; menu.hidden = true;
     function item(text, fn, disabled) { const button = document.createElement('button'); button.type = 'button'; button.textContent = text; button.disabled = !!disabled; button.onclick = () => { menu.hidden = true; more.setAttribute('aria-expanded', 'false'); fn(); }; menu.append(button); }
-    item('Preview payment link', () => window.open(store.link(record), '_blank', 'noopener'), !record.linkToken);
+    // Native navigation preserves the user's link activation in popup-restricted browsers.
+    if (record.linkToken) {
+      const preview = document.createElement('a'); preview.textContent = 'Preview payment link';
+      preview.href = store.link(record); preview.target = '_blank'; preview.rel = 'noopener';
+      preview.onclick = () => { menu.hidden = true; more.setAttribute('aria-expanded', 'false'); };
+      menu.append(preview);
+    } else item('Preview payment link', () => {}, true);
     item('Send Link', () => { sending = record; actionOpener = more; $('linkRecipient').value = recipient(record); $('sendLinkInvoice').textContent = record.invoice; $('sendLinkUrl').value = store.link(record); $('sendLinkError').textContent = ''; $('sendLinkDialog').showModal(); }, !record.linkToken || store.expired(record) || !!record.authorization || record.status === 'Paid');
     item('View billing details', () => {
       actionOpener = more;
@@ -191,7 +197,7 @@
       $('billingDetailsDialog').showModal();
     });
     item('View payment records', () => showPayments(record));
-    more.onclick = () => { const open = menu.hidden; document.querySelectorAll('.billing-link-menu').forEach(m => m.hidden = true); document.querySelectorAll('.billing-more').forEach(b => b.setAttribute('aria-expanded', 'false')); menu.hidden = !open; more.setAttribute('aria-expanded', String(open)); if (open) { const box = more.getBoundingClientRect(); menu.style.left = Math.max(8, Math.min(innerWidth - 223, box.right - 215)) + 'px'; menu.style.top = Math.max(8, Math.min(innerHeight - 190, box.bottom + 6)) + 'px'; menu.querySelector('button:not(:disabled)')?.focus(); } };
+    more.onclick = () => { const open = menu.hidden; document.querySelectorAll('.billing-link-menu').forEach(m => m.hidden = true); document.querySelectorAll('.billing-more').forEach(b => b.setAttribute('aria-expanded', 'false')); menu.hidden = !open; more.setAttribute('aria-expanded', String(open)); if (open) { const box = more.getBoundingClientRect(); menu.style.left = Math.max(8, Math.min(innerWidth - 223, box.right - 215)) + 'px'; menu.style.top = Math.max(8, Math.min(innerHeight - 190, box.bottom + 6)) + 'px'; menu.querySelector('a[href], button:not(:disabled)')?.focus(); } };
     wrap.append(copy, more, menu); cell.append(wrap);
   }
   function showPayments(record) {

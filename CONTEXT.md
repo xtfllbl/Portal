@@ -48,6 +48,10 @@ _Avoid_: Auto-renewal consent, saving a card number
 The email recipient chosen by an operations user when sending a Billing Payment Link. The recipient address does not determine or change the associated Billing Record's merchant assignment.
 _Avoid_: Billing owner, merchant account identity
 
+**Billing Payment Link Email**:
+An email addressed to a Billing Link Recipient that provides the Billing Payment Link for a specific Billing Record and invites the recipient to review the bill and complete payment or recurring payment authorization.
+_Avoid_: Billing Payment Receipt, payment confirmation
+
 **Billing Link Expiry**:
 The end of the period during which a Billing Payment Link can be used for initial payment or recurring payment authorization. It does not end an existing Fixed-term Billing Contract or revoke an existing Recurring Payment Authorization.
 _Avoid_: Contract end date, authorization cancellation
