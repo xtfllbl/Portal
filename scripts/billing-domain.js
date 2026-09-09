@@ -80,6 +80,9 @@ function collect(bill, { now = new Date(), source = 'scheduled', failAt = 0 } = 
   bill.status = state.paidInstallments === bill.cycle ? 'Paid' : bill.installments.some(i => i.status === 'Failed') ? 'Overdue' : 'Active';
   return bill;
 }
+function checkExpectedPayments(bill, input, now) {
+  if (Array.isArray(input.expectedInstallments) && JSON.stringify(input.expectedInstallments) !== JSON.stringify(summary(bill, now).dueInstallments)) throw new Error('The payable installments have changed. Refresh the bill and confirm the updated amounts.');
+}
 function checkout(bill, input, now = new Date(), simulation = {}) {
   if (bill.requests[input.requestId]) return bill;
   if (!/^[a-zA-Z0-9-]{16,80}$/.test(input.requestId || '')) throw new Error('Invalid payment request.');
@@ -90,6 +93,7 @@ function checkout(bill, input, now = new Date(), simulation = {}) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '') || input.email.length > 254) throw new Error('Enter a valid email.');
   if (input.acceptedTerms !== true || bill.recurring && input.recurringConsent !== true) throw new Error('Please confirm the payment authorization.');
   if (!/^[0-9]{4}$/.test(input.last4 || '') || !['Visa', 'Mastercard', 'Card'].includes(input.brand)) throw new Error('Invalid simulated payment method.');
+  checkExpectedPayments(bill, input, now);
   if (bill.recurring) bill.authorization = { status: 'Authorized', token: 'sim_' + randomUUID(), brand: input.brand, last4: input.last4, email: input.email, authorizedAt: now.toISOString(), consentVersion: 'fixed-term-v3' };
   collect(bill, { now, source: input.source === 'portal' ? 'portal' : 'public', ...simulation });
   bill.requests[input.requestId] = now.toISOString();
@@ -103,6 +107,7 @@ function retryPayment(bill, input, now = new Date(), simulation = {}) {
   if (stopped(bill)) throw new Error('Collection has been stopped for this bill.');
   if (!summary(bill, now).canRetry) throw new Error('No authorized overdue payment is available to retry.');
   if (input.confirmed !== true) throw new Error('Confirm the installment payments before retrying.');
+  checkExpectedPayments(bill, input, now);
   collect(bill, {now, source: input.source === 'portal' ? 'portal-retry' : 'public-retry', ...simulation});
   bill.requests[key] = now.toISOString();
   return bill;
@@ -111,7 +116,7 @@ function recordAudit(bill, event) { (bill.audit ||= []).push(event); }
 function stopCollection(bill, input, now = new Date(), actor = 'WizarPOS Provider (demo operator)') {
   if (!summary(bill, now).canStop) throw new Error('Only issued, unsettled bills can be stopped.');
   const reason = String(input.reason || '').trim();
-  if (!reason || reason.length > 500) throw new Error('Enter a stop reason of 1 to 500 characters.');
+  if (reason.length > 500) throw new Error('Stop reason must be at most 500 characters.');
   bill.collectionStop = {at: now.toISOString(), actor, reason};
   bill.status = 'Stopped';
   if (bill.authorization) bill.authorization.status = 'Revoked';

@@ -15,16 +15,16 @@ for (const width of [1440,390]) {
   await page.locator('#saveDraft').click();
   await expect(page.locator('#billingMessage')).toHaveText('Draft saved.');
   await page.reload();
-  await page.getByRole('tab',{name:'Billing Records'}).click();
-  await page.getByRole('button',{name:'Edit standalone draft'}).click();
+  await page.getByRole('tab',{name:'Drafts'}).click();
+  await page.locator('#billingRows tr').filter({hasText:'$20.00'}).getByRole('button',{name:'Edit standalone draft'}).click();
   await expect(page.locator('[data-assignment=standalone]')).toHaveAttribute('aria-pressed','true');
   await expect(page.locator('#notes')).toHaveValue('Static demo service');
   await page.screenshot({path:'artifacts/billing-static-'+width+'.png',fullPage:true});
   const heights=await page.locator('.billing-assignment button').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height));
   expect(heights).toEqual([44,44]);
   await page.locator('#applyBilling').click();
-  await expect(page.locator('#recordsPanel')).toBeVisible();
-  await expect(page.locator('#billingRows tr').first()).toContainText('Pending');
+  await expect(page).toHaveURL(/44\.billing_overview/);
+  await expect(page.locator('#overviewRows tr').first()).toContainText('Pending');
   const link=await page.evaluate(()=>window.PaywizardBillingStore.link(window.PaywizardBillingStore.read().find(r=>r.notes==='Static demo service')));
   expect(link).toContain('#local.');
   const checkout=await context.newPage();await checkout.goto(link);
@@ -38,8 +38,8 @@ for (const width of [1440,390]) {
   await checkout.locator('#submitCard').click();
   await expect(checkout.locator('#paymentResult')).toContainText('Thanks for your payment');
   await checkout.reload();await expect(checkout.locator('#cardForm')).toBeHidden();
-  await page.reload();await page.getByRole('tab',{name:'Billing Records'}).click();
-  await expect(page.locator('#billingRows tr').first()).toContainText('Paid');
+  await page.reload();
+  await expect(page.locator('#overviewRows tr').first()).toContainText('Paid');
   const foreign=await browser.newContext();
   try {
     const outside=await foreign.newPage();await outside.goto(link);
@@ -79,7 +79,7 @@ test('first visit to an unconfigured Vercel deployment remains usable as local d
 test('Live Server connects to a separate shared demo and receives an external payment result',async({page,browser})=>{
  const {createServer}=require('node:http');
  const {createCloudHandler}=await import('../server/billing-cloud.mjs');
- const staticOrigin='http://127.0.0.1:8876';
+ const staticOrigin=test.info().project.use.baseURL;
  let records=[],handler;
  const server=createServer(async(req,res)=>{
   if(req.url.startsWith('/api/billing/'))return handler(req,res);
@@ -110,7 +110,7 @@ test('Live Server connects to a separate shared demo and receives an external pa
   await page.locator('#amount').fill('25');
   await page.locator('#notes').fill('Cross-origin shared demo');
   await page.locator('#applyBilling').click();
-  await expect(page.locator('#recordsPanel')).toBeVisible();
+  await expect(page).toHaveURL(/44\.billing_overview/);
   const record=records.find(r=>r.notes==='Cross-origin shared demo');
   expect(record).toBeTruthy();
   const checkout=await external.newPage();
@@ -127,8 +127,7 @@ test('Live Server connects to a separate shared demo and receives an external pa
   await expect(checkout.locator('#paymentResult')).toBeVisible();
   await page.reload();
   await expect(page.locator('.billing-runtime')).toContainText('Shared demo');
-  await page.getByRole('tab',{name:'Billing Records'}).click();
-  await expect(page.locator('#billingRows tr').filter({hasText:record.invoice})).toContainText('Paid');
+  await expect(page.locator('#overviewRows tr').filter({hasText:record.invoice})).toContainText('Paid');
   expect(record.payments.length).toBe(1);
  }finally{await external.close();await new Promise(resolve=>server.close(resolve));}
 });
@@ -143,7 +142,7 @@ test('local monthly authorization survives reload and completes without shared s
  await page.locator('#expiry').fill('2099-02-01');
  await page.locator('#notes').fill('Local monthly contract');
  await page.locator('#applyBilling').click();
- await expect(page.locator('#recordsPanel')).toBeVisible();
+ await expect(page).toHaveURL(/44\.billing_overview/);
  const link=await page.evaluate(()=>window.PaywizardBillingStore.link(window.PaywizardBillingStore.read().find(r=>r.notes==='Local monthly contract')));
  const checkout=await context.newPage();await checkout.goto(link);
  await checkout.locator('#cardEmail').fill('demo@example.com');
@@ -158,8 +157,8 @@ test('local monthly authorization survives reload and completes without shared s
  await checkout.reload();
  await expect(checkout.locator('#cardForm')).toBeHidden();
  await page.clock.setFixedTime(new Date('2099-03-31T12:00:00Z'));
- await page.reload();await page.getByRole('tab',{name:'Billing Records'}).click();
- await expect(page.locator('#billingRows tr').first()).toContainText('Paid');
+ await page.reload();
+ await expect(page.locator('#overviewRows tr').first()).toContainText('Paid');
  const record=await page.evaluate(()=>window.PaywizardBillingStore.read().find(r=>r.notes==='Local monthly contract'));
  expect(record.payments).toHaveLength(3);
  expect(record.payments.map(p=>p.amount)).toEqual([12,12,12]);

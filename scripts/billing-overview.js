@@ -17,7 +17,7 @@
   }
   function render() {
     closeMenu(); const list = filtered(), size = Number($('pageSize').value), pages = Math.max(1,Math.ceil(list.length / size)); page = Math.min(Math.max(page,1),pages);
-    $('overviewRows').innerHTML = list.slice((page-1)*size,page*size).map(r => '<tr data-id="' + esc(r.id) + '">' + values(r).map((v,i) => '<td' + (i === 11 ? ' class="overview-notes" title="' + esc(v) + '"' : '') + '>' + ([6,10].includes(i) ? badge(v) : esc(v)) + '</td>').join('') + '<td class="overview-actions-cell"><div class="billing-link-actions"><button type="button" data-copy="' + esc(r.id) + '" ' + (!ready ? 'disabled' : '') + '>Copy URL</button><button type="button" class="billing-more" data-more="' + esc(r.id) + '" aria-label="Actions for invoice ' + esc(r.invoice) + '" aria-haspopup="menu" aria-controls="overviewMenu" aria-expanded="false" ' + (!ready ? 'disabled' : '') + '><span class="material-symbols-rounded" aria-hidden="true">more_horiz</span></button></div></td></tr>').join('') || '<tr><td colspan="13" class="empty">' + (ready ? 'No billing records found.' : 'Loading billing records…') + '</td></tr>';
+    $('overviewRows').innerHTML = list.slice((page-1)*size,page*size).map(r => '<tr data-id="' + esc(r.id) + '">' + values(r).map((v,i) => '<td' + (i === 11 ? ' class="overview-notes" title="' + esc(v) + '"' : '') + '>' + ([6,10].includes(i) ? badge(v) : esc(v)) + '</td>').join('') + '<td class="overview-actions-cell"><div class="billing-link-actions"><button type="button" data-' + (r.canRenew?'renew':'copy') + '="' + esc(r.id) + '" ' + (!ready ? 'disabled' : '') + '>' + (r.canRenew?'Renew Link':'Copy URL') + '</button><button type="button" class="billing-more" data-more="' + esc(r.id) + '" aria-label="Actions for invoice ' + esc(r.invoice) + '" aria-haspopup="menu" aria-controls="overviewMenu" aria-expanded="false" ' + (!ready ? 'disabled' : '') + '><span class="material-symbols-rounded" aria-hidden="true">more_horiz</span></button></div></td></tr>').join('') || '<tr><td colspan="13" class="empty">' + (ready ? 'No billing records found.' : 'Loading billing records…') + '</td></tr>';
     $('pageButtons').replaceChildren();
     function button(label,target,disabled,current) { const b = document.createElement('button'); b.type='button'; b.textContent=label; b.disabled=disabled; b.setAttribute('aria-label', /^\d+$/.test(label) ? 'Page ' + label : label); if(current)b.setAttribute('aria-current','page'); b.onclick=()=>{page=target;render();}; $('pageButtons').append(b); }
     button('First',1,page===1);button('Prev',page-1,page===1);
@@ -26,7 +26,7 @@
     $('pageSummary').textContent=page+' / '+pages+' ('+list.length+')'; $('exportOverview').disabled=!ready||!list.length;
   }
   function detailsList(target, rows) { target.innerHTML=rows.map(([label,value])=>'<dt>'+esc(label)+'</dt><dd>'+esc(value)+'</dd>').join(''); }
-  function openDialog(id) { closeMenu(); $(id).showModal(); }
+  function openDialog(id) { closeMenu(); $(id).showModal(); $(id).scrollTop=0; }
   function recipient(r) { const m=window.PaywizardPlatformMerchantStore?.readAll().find(m=>String(m.merchantId)===r.merchantId); return r.deliveries?.at(-1)?.email || m?.email || m?.contactEmail || ''; }
   function details(r) {
     const rows=[['Invoice No.',r.invoice],['Billing assignment',store.isMerchantRecord(r)?'Merchant Billing':'Standalone Billing']];
@@ -34,10 +34,9 @@
     rows.push(['Bill type',r.billType],['Payment status',r.status],['Payment',r.recurring?'Fixed-term monthly':'One-time'],[r.recurring?'Monthly amount':'Amount',money(r.amount,r.currency)],['Total amount',money(store.total(r),r.currency)]);
     if(r.recurring)rows.push(['Billing period',date(r.start)+' – '+date(store.endDate(r))],['Paid installments',store.count(r)+' of '+r.cycle],['Next payment',date(r.nextPaymentDate)]);
     rows.push(['Link status',r.linkStatus],['Link expires (UTC)',date(r.expiry)],['Billing notes',r.notes||'—']);
-    if(r.includedData!=null)rows.push(['Included data',r.includedData+' MB']);
-    if(r.collectionStop)rows.push(['Stopped at',r.collectionStop.at],['Stop reason',r.collectionStop.reason]);
+    if(r.includedData!=null)rows.push(['Included data',r.includedData.toLocaleString('en-US')+' MB']);
+    if(r.collectionStop)rows.push(['Stopped at',r.collectionStop.at]);
     detailsList($('savedBillingDetails'),rows);
-    $('billingAudit').innerHTML = (r.audit?.length || r.deliveries?.length) ? '<h3>Activity</h3>' + [...(r.audit||[]).map(a=>({at:a.at, label:a.action, text:[a.actor,a.previousExpiry?'Expiry: '+a.previousExpiry+' → '+a.expiry:'',a.reason].filter(Boolean).join(' · ')})),...(r.deliveries||[]).map(d=>({at:d.at,label:'Send Link · '+d.status,text:d.email}))].sort((a,b)=>b.at.localeCompare(a.at)).map(a=>'<div class="audit-event"><strong>'+esc(a.label)+'</strong>'+esc(a.at.replace('T',' ').slice(0,19)+' UTC')+'<br>'+esc(a.text)+'</div>').join('') : '';
     openDialog('billingDetailsDialog');
   }
   function payments(r) {
@@ -46,19 +45,22 @@
     $('attemptRows').innerHTML=(r.payments||[]).map(p=>'<tr>'+[p.id,p.installment,money(p.amount,p.currency),p.status,p.at.replace('T',' ').slice(0,19)+' UTC'].map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="5" class="empty">No payment attempts.</td></tr>';
     openDialog('paymentRecordsDialog');
   }
+  function renewDialog(r) { selected=r;$('renewInvoice').textContent=r.invoice;$('renewExpiry').value=new Date(Date.now()+30*86400000).toISOString().slice(0,10);$('renewExpiry').min=new Date(Date.now()+86400000).toISOString().slice(0,10);$('renewRecipient').value=recipient(r);$('renewError').textContent='';openDialog('renewDialog'); }
   function openMenu(r,button) {
     closeMenu();selected=r;opener=button;menu.replaceChildren();
     function item(text,fn,disabled=false,danger=false) { const b=document.createElement('button');b.type='button';b.textContent=text;b.disabled=disabled;b.setAttribute('role','menuitem');if(danger)b.className='danger-text';b.onclick=()=>{closeMenu();fn();};menu.append(b); }
+    if(r.canRenew)item('Copy URL',()=>{opener=button;navigator.clipboard.writeText(store.link(r)).then(()=>message('Payment link copied.')).catch(()=>{$('copyUrlValue').value=store.link(r);openDialog('copyUrlDialog');$('copyUrlValue').select();});});
     const preview=document.createElement('a');preview.textContent='Preview payment link';preview.href=store.link(r);preview.target='_blank';preview.rel='noopener';preview.setAttribute('role','menuitem');preview.onclick=()=>closeMenu();menu.append(preview);
     item('Send Link',()=>{$('sendLinkInvoice').textContent=r.invoice;$('sendLinkUrl').value=store.link(r);$('linkRecipient').value=recipient(r);$('sendLinkError').textContent='';openDialog('sendLinkDialog');},r.linkStatus!=='Valid');
     item('View billing details',()=>details(r)); item('View payment records',()=>payments(r));
-    if(r.canRenew)item('Renew Link',()=>{$('renewInvoice').textContent=r.invoice;$('renewExpiry').value=new Date(Date.now()+30*86400000).toISOString().slice(0,10);$('renewExpiry').min=new Date(Date.now()+86400000).toISOString().slice(0,10);$('renewRecipient').value=recipient(r);$('renewError').textContent='';openDialog('renewDialog');});
-    if(r.canStop)item('Stop Collection',()=>{$('stopInvoice').textContent=r.invoice;const paid=r.installments.filter(i=>i.status==='Paid').reduce((sum,i)=>sum+Math.round(i.amount*100),0)/100;detailsList($('stopAmounts'),[['Paid amount',money(paid,r.currency)],['Unpaid amount',money(store.total(r)-paid,r.currency)]]);$('stopReason').value='';$('stopError').textContent='';openDialog('stopDialog');},false,true);
+    if(r.canRenew)item('Renew Link',()=>renewDialog(r));
+    if(r.canStop)item('Stop Collection',()=>{$('stopInvoice').textContent=r.invoice;const paid=r.installments.filter(i=>i.status==='Paid').reduce((sum,i)=>sum+Math.round(i.amount*100),0)/100;detailsList($('stopAmounts'),[['Paid amount',money(paid,r.currency)],['Unpaid amount',money(store.total(r)-paid,r.currency)]]);$('stopError').textContent='';openDialog('stopDialog');},false,true);
     menu.hidden=false;button.setAttribute('aria-expanded','true');const box=button.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(innerWidth-248,box.right-240))+'px';menu.style.top=Math.max(8,Math.min(innerHeight-menu.offsetHeight-8,box.bottom+6))+'px';menu.querySelector('a,button:not(:disabled)').focus();
   }
   $('overviewRows').onclick=async event=>{
     const b=event.target.closest('button');if(!b||!ready)return;
-    const r=records.find(r=>r.id===(b.dataset.copy||b.dataset.more));if(!r)return;
+    const r=records.find(r=>r.id===(b.dataset.copy||b.dataset.more||b.dataset.renew));if(!r)return;
+    if(b.dataset.renew){opener=b;return renewDialog(r);}
     if(b.dataset.more){if(!menu.hidden&&selected?.id===r.id)return closeMenu(true);return openMenu(r,b);}
     opener=b;try{await navigator.clipboard.writeText(store.link(r));message('Payment link copied.');}catch(_){$('copyUrlValue').value=store.link(r);openDialog('copyUrlDialog');$('copyUrlValue').select();}
   };
@@ -74,7 +76,7 @@
     try{await fn();records=store.read();$(dialog).close();render();message(success);}catch(e){$(error).textContent=e.message;}finally{busy=false;controls.forEach(b=>b.disabled=false);}
   }
   $('sendLinkForm').onsubmit=e=>{e.preventDefault();const email=$('linkRecipient').value.trim();mutate('sendLinkDialog','sendLinkError',()=>store.send(selected.id,email),'Email delivery simulated. No email was sent.');};
-  $('stopForm').onsubmit=e=>{e.preventDefault();const reason=$('stopReason').value.trim();if(!reason){$('stopError').textContent='Enter a stop reason.';return;}mutate('stopDialog','stopError',()=>store.stop(selected.id,reason),'Collection stopped. No new payments will be collected.');};
+  $('stopForm').onsubmit=e=>{e.preventDefault();mutate('stopDialog','stopError',()=>store.stop(selected.id),'Collection stopped. No new payments will be collected.');};
   $('renewForm').onsubmit=e=>{e.preventDefault();const input={expiry:$('renewExpiry').value,email:$('renewRecipient').value.trim(),send:e.submitter?.value==='send'};if(input.send&&!input.email){$('renewError').textContent='Enter a recipient email to send the link.';return;}mutate('renewDialog','renewError',()=>store.renew(selected.id,input),input.send?'Link renewed. Email delivery simulated; no email was sent.':'Link renewed. The original URL is available again.');};
   $('overviewFilters').onsubmit=e=>{e.preventDefault();const from=$('overviewFrom').value,to=$('overviewTo').value;if(from&&to&&from>to){$('overviewTo').setCustomValidity('End date must be on or after start date.');$('overviewTo').reportValidity();return;}filters={assignment:$('overviewAssignment').value,merchant:$('overviewMerchant').value.trim().toLowerCase(),status:$('overviewStatus').value,cycle:$('overviewCycle').value,from,to};page=1;render();};
   $('overviewFrom').oninput=$('overviewTo').oninput=()=>$('overviewTo').setCustomValidity('');

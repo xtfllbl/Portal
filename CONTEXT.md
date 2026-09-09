@@ -9,7 +9,7 @@ A confirmation of one successful payment against a Billing Record, addressed to 
 _Avoid_: Payment link invitation, contract total, invoice payment request
 
 **Local Billing Demo**:
-A simulated billing experience whose records and payment outcomes belong to the current browser. Sharing a local demo link allows another browser to demonstrate the bill independently; it does not share an authoritative payment outcome.
+The default and only selectable billing experience in the portal. Records and payment outcomes belong to the current browser; there is no demo-mode selector. Sharing a local demo link allows another browser to demonstrate the bill independently; it does not share an authoritative payment outcome.
 _Avoid_: Shared billing state, real payment, synchronized payment link
 
 **Shared Billing Demo**:

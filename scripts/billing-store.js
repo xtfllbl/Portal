@@ -115,6 +115,19 @@
       // Stable IDs make this an additive migration; existing bills and payment outcomes win.
       const now = new Date();
       const date = offset => domain.day(new Date(now.getTime() + offset * 86400000));
+      // Add renewal examples once, without resetting a user's renewal/payment results.
+      for (let i = 0; i < 3; i++) {
+        const id = 'billing-renew-examples-v1-' + i;
+        if (records.some(record => record.id === id)) continue;
+        const standalone = i === 1, merchant = merchants[i % merchants.length];
+        records.push(domain.makeBill({id, assignment:standalone ? 'standalone' : 'merchant',
+          merchantId:standalone ? null : merchant.id, merchantName:standalone ? '' : merchant.name,
+          invoice:'RENEW-' + String(i + 1).padStart(4,'0'), billType:'General Billing',
+          currency:['USD','CAD','EUR'][i], amount:[49,125,29][i], recurring:i === 2,
+          cycle:i === 2 ? 12 : 1, start:i === 2 ? date(-10) : '', expiry:date(-7-i),
+          notes:['Expired merchant payment link','Expired standalone payment link','Expired monthly first-payment link'][i],
+          status:'Pending', createdAt:new Date(now.getTime()-i*1000).toISOString()},now));
+      }
       for (let i = 0; i < 32; i++) {
         const id = 'billing-scenarios-v1-' + String(i + 1).padStart(2, '0');
         if (records.some(record => record.id === id)) continue;
@@ -135,38 +148,12 @@
       }
     });
   }
-  async function initialize(accessKey) {
-    const config = settings(); endpoint = config.origin || '';
-    if (mode !== 'shared' && config.mode !== 'local') {
-      try {
-        const info = await api('config');
-        if (info.mode !== 'shared') throw new Error('Invalid shared demo response.');
-        if (info.configured === false) {
-          if (config.mode === 'shared' || localStorage.getItem('pw-billing-shared:' + endpoint) === '1') throw new Error('Shared demo setup is incomplete. Open Demo settings to connect a configured site.');
-          mode = 'local';
-        } else {
-          remoteKnown = true; mode = 'shared';
-          try { localStorage.setItem('pw-billing-shared:' + endpoint, '1'); } catch (_) {}
-        }
-      } catch (error) {
-        const known = remoteKnown || localStorage.getItem('pw-billing-shared:' + endpoint) === '1';
-        if (config.mode === 'shared' || known || !error.missing) throw error;
-        mode = 'local';
-      }
-    }
-    if (config.mode === 'local') mode = 'local';
-    if (mode === 'local') {
-      if (fullLocal() === null) writeLocal(readSharedCache().map(r => domain.makeBill(r, new Date(), true)));
-      await enrichLocalDemo();
-      window.dispatchEvent(new Event('billing-mode')); return localRead();
-    }
-    mode = 'shared';
-    const session = await api('session', accessKey ? {accessKey} : {});
-    if (session.token) sessionStorage.setItem('pw-billing-access:' + endpoint, session.token);
-    // Import only the legacy shared cache; local demo records stay isolated.
-    const data = await api('import', {records:readSharedCache()});
-    publicOrigin = data.publicOrigin || endpoint || location.origin; write(data.records);
-    window.dispatchEvent(new Event('billing-mode')); return data.records;
+  async function initialize() {
+    // Ignore previously saved shared settings; preserve browser records and old public links.
+    mode = 'local'; endpoint = ''; publicOrigin = location.origin;
+    if (fullLocal() === null) writeLocal(readSharedCache().map(r => domain.makeBill(r, new Date(), true)));
+    await enrichLocalDemo();
+    window.dispatchEvent(new Event('billing-mode')); return localRead();
   }
   async function save(record) {
     if (mode !== 'local') { const result = await api('records', record); await sync(); return result; }

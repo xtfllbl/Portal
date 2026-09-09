@@ -153,6 +153,7 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "44.billing_overview.html",
     "42.billing_payments.html",
     "41.billing_setup.html",
     "2.agent_list_iso.html",

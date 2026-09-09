@@ -18,7 +18,7 @@
     const catchUp = bill.recurring && due.length > 1;
     summary.hidden = !catchUp;
     if (catchUp) {
-      line('Payments today', 'strong');
+      line('Payments today · ' + due.length + ' installments · Total ' + money(bill.dueAmount ?? bill.amount * due.length, bill.currency), 'strong');
       due.forEach(number => line('Installment ' + number + ' · ' + amount));
       line('Charged separately, oldest first. Payments stop if a charge fails.');
     }
@@ -42,7 +42,7 @@
   }
   function details(requestId) {
     const number=$('cardNumber').value.replace(/\D/g,'');
-    return {requestId,email:$('cardEmail').value.trim(),last4:number.slice(-4),brand:number.startsWith('4')?'Visa':number.startsWith('5')?'Mastercard':'Card',recurringConsent:$('recurringConsent').checked,acceptedTerms:[...form.querySelectorAll('.card-agreements input')].every(el=>el.checked)};
+    return {requestId,expectedInstallments:bill.dueInstallments,email:$('cardEmail').value.trim(),last4:number.slice(-4),brand:number.startsWith('4')?'Visa':number.startsWith('5')?'Mastercard':'Card',recurringConsent:$('recurringConsent').checked,acceptedTerms:[...form.querySelectorAll('.card-agreements input')].every(el=>el.checked)};
   }
   form.addEventListener('input',event=>{if(event.target.setCustomValidity)event.target.setCustomValidity('');ready();});
   form.addEventListener('change',ready);

@@ -1,32 +1,62 @@
-# Rule Owner form QA
+# Billing Overview QA — 2026-09-09
 
 final result: passed
 
-Target: docs/design/rule-owner/form-revision/design-1.png (latest selected option 1).
-Implementation: 39.customer_alerts.html?role=operations-manager.
-Evidence: artifacts/owner-form-desktop.png and artifacts/owner-form-mobile.png.
+No actionable P0/P1/P2 findings remain in the reviewed scope.
 
-Compared source and rendered Store-selection state with Harbor Market and the Store menu open. The reference is a modal-only image; the desktop capture includes the surrounding portal. Modal widths differ by display scale. Single-column layout, underlined fields, internal dropdown search, disabled Continue and fixed action footer match the chosen structure.
+## Visual evidence
 
-Initial P2: shared portal styles overrode field label sizes and the Owner Level underline. Fixed with scoped overrides; post-fix desktop and mobile captures inspected. At shorter viewport heights menu rows scroll instead of obscuring the footer.
+- Source visual truth: the four screenshots supplied in this conversation, saved as `artifacts/billing-overview/reference-1.png` through `reference-4.png`.
+- Desktop implementation: `artifacts/billing-overview/overview-desktop-final.png`, route `/44.billing_overview.html`, WizarPOS Provider, issued bills, Merchant Name filtered to Vending.
+- Source Overview image: 2048 × 1140 pixels as supplied to the session. Normalized to 1710 × 952 in `reference-overview-normalized.png`; compared together with the 1710 × 952 browser capture, CSS viewport 1710 × 952, device scale factor 1. Dataset differs intentionally; comparison is of layout and controls, not transaction values.
+- Full-view comparison: normalized source Overview and final implementation were opened together in one image comparison input. Shared portal navigation and branding are the project's existing design, as requested; they intentionally differ from the source MAINTAIN portal.
+- Focused comparison: source `reference-4.png` and `menu-desktop.png` were opened together to inspect the Copy URL / overflow menu, typography, borders, spacing and action order. Source is a magnified crop; no pixel-perfect size claim is made for that crop.
+- Additional evidence: `overview-mobile.png`, `renew-desktop.png`, `renew-mobile.png`, `stop-desktop.png`, `stop-mobile.png`, `retry-mobile.png`, `records-desktop-fixed.png`.
+- Mobile was exercised at a 390 × 844 CSS viewport, scale factor 1. Browser screenshot output is 375 × 812; DOM measurements, rather than screenshot pixels, establish layout and button heights. Document content width was 375 with no document overflow; the table has its own horizontal scroll region. Automated tests also cover 390 and 1440 CSS pixels.
 
-Browser checks: 1/2/3/4 fields appear immediately for SP/AGT/MCH/STR, downstream controls disabled; 20 service-provider choices; search and selection through Direct merchants / Harbor Market / Riverside; owner passed to rule form; Change restores selections; changing SP clears downstream values and disables Continue. At 390x844 both footer actions measure 40px and remain within viewport; no horizontal document overflow.
+## Comparison history and fixes
 
-Build and JavaScript syntax checks passed. The updated Playwright regression test was not run in this turn; browser interaction checks above were executed through the Browser runtime.
+1. [P2, resolved] Overview omitted the shared portal's panel gutter. Added page 44 to the shared shell's panel page list. Evidence: `overview-desktop-v1.png` before; `overview-desktop-final.png` after. Main content now has the same spacing as adjacent project pages.
+2. [P2, resolved] Initial column widths pushed too much billing information off screen. Reduced the table width from 1960 to 1765 pixels with explicit column tracks, preserving sticky actions and native horizontal scrolling. Final desktop comparison shows the intended dense table structure.
+3. [P2, resolved] Opening a long Payment Records dialog focused the bottom Close button and scrolled past its title. Made the title the initial focus target and reset dialog scroll on opening. `records-desktop.png` records the problem; `records-desktop-fixed.png` confirms title and first installment visible, with measured scrollTop 0 and title top 41 pixels.
 
-No outstanding P0/P1/P2 findings. P3: reference font is approximated with the existing portal font, and compact viewports display fewer menu rows at once.
+## Required fidelity surfaces
 
-## Dropdown layout correction
+- Fonts/typography: existing project Poppins, heading weights and Material Symbols retained. Table text and wrapping were inspected in the full desktop capture and menu detail. The source Overview's narrower typography is intentionally adapted to the current project style.
+- Spacing/layout: shared sidebar, top bar, panel gutters, black table header, filters, pagination and sticky actions verified. Mobile filters wrap without hiding controls. Operation buttons measure 40 pixels in the reviewed dialogs; row action buttons share a 36-pixel height.
+- Colors/tokens: existing neutral portal surfaces, dark header and action buttons, restrained borders and semantic status colors retained. Stopped/Overdue/Expired remain distinguishable through text as well as color.
+- Image quality/assets: existing Paywizard raster logo and library icons used; no generated or hand-drawn replacement branding. Assets render sharply at tested sizes.
+- Copy/content: removed redundant row subtitles per AGENTS.md. Billing status and payment-link state are separate. Renew text explicitly preserves the original link and schedule. Stop text explains permanence, retained payments and the in-flight exception. Retry lists each installment, the total and saved card before explicit confirmation.
 
-Previous QA missed that menus participated in document flow and expanded the modal. Corrected to a fixed-position floating menu anchored to its trigger, with viewport bounds, upward opening when space below is insufficient, resize/scroll repositioning, and internal list scrolling. Removed popup scrollIntoView.
+## Verified behavior
 
-Browser verification after viewport layout settled: desktop modal and footer bounding rectangles are exactly identical before/after opening (modal 720 x 313.796875). Mobile at 390 x 844 also has identical before/after modal and footer rectangles; both actions remain 40px high. Search and selection still enable Continue. An initial mobile measurement raced viewport resizing; repeated measurements after layout settled matched exactly. Build and diff checks passed. Regression assertion added for modal/footer geometry; CLI test suite not run in this turn.
+- Creation and draft editing remain in Setup; issued bills open in Overview. Legacy records links redirect to Overview. Merchant and standalone billing remain separate in merchant views.
+- Filters, reset, pagination, CSV export, menu keyboard dismissal, details and separate payment attempts work.
+- Expired unpaid unauthorized bill: renew and renew/send update expiry, retain the exact URL and schedule, and append audit metadata. The previously expired public link becomes payable after refresh.
+- Stop: a reason is required; old links become non-payable and cannot renew; prior payments remain visible. Provider role visibility, direct URL access and role-switch transitions verified.
+- Failed first recurring payment: retains authorization; retry requires saved-card confirmation, lists due installments, and produces separate oldest-first attempts. Duplicate requests do not duplicate payments; changed installment lists are rejected.
+- Browser interaction checks and automated page-error assertions found no application errors in the exercised flows.
 
+## Validation and limits
 
-## Actual-height positioning and shared modal styling
+- `npm run test:billing`: 29 passed.
+- Shared browser regression (Setup, Overview, checkout): 19 passed. After the final dialog-focus adjustment, the six Overview browser tests passed again.
+- Built static demo regression: 7 passed, including independent-browser local links and a separately hosted shared service.
+- `npm run build` and `git diff --check`: passed.
+- Test servers used isolated ports and a temporary database; existing project demo data was preserved.
+- Payment processing and email delivery remain simulated. Real processor cancellation, in-flight callbacks, delivery and production authorization require integration. Static local links share updates within the same browser storage; shared mode is required for cross-browser synchronization.
 
-Implemented the approved correction: use shared modal labels, inputs, spacing, borders and action buttons; remove underline and size overrides. Popup measured at trigger width before choosing direction, remeasured after constraining height; top placement anchors actual bottom 4px above trigger. Search rerenders reposition immediately. Window/visual viewport resize and scrolling reposition; offscreen triggers close their popup.
+## Implementation checklist
 
-Verified the reported Baltic Payment Hub / Madrid Retail Agency / Oak & Bean West single-result case in Chrome: popup sits directly above Merchant rather than leaving a 300px gap. Automated picker checks passed at 1440x900 and 390x844 for all four owner levels, zero/one/many result transitions, 4px gaps, equal widths, unchanged modal/footer geometry and 36px action buttons. Existing owner selection, restoration and reset test passed.
+- [x] Screenshot structure adapted to current portal components.
+- [x] Management actions and payer states connected.
+- [x] Desktop/mobile button heights and overflow checked.
+- [x] Visual findings fixed and captured again.
+- [x] State/API, browser and static build checks complete.
+- [x] Local preview available; no production deployment performed.
 
-Full Customer Alerts suite: 17 passed, 2 failed. Failures: terminal SN text assertion at tests/customer-alerts.spec.js:222; role-scoped rule-save workflow did not close the rule modal at line 649. These are outside the dropdown positioning checks and remain unresolved. No claim of a fully passing suite. Build and JavaScript syntax passed.
+## Local-only follow-up — 2026-09-09
+
+The user removed Shared Demo from the portal scope. Initialization now always uses local records, ignoring old shared settings, with no mode selector or management API request. Legacy public shared links retain their existing compatibility path. Three additive, stable-ID expired examples (RENEW-0001–0003) are inserted once; renewed or paid results are never reset. Eligible rows expose Renew Link directly; Copy URL remains in the overflow menu until renewal.
+
+Validation: 29 state/API tests and two new desktop/mobile local-only browser tests passed; build passed. New tests cover saved shared settings, no API calls, expired public page, renewal, same URL, reload persistence, no duplicate examples, equal dialog button heights and page overflow. Evidence: `artifacts/billing-local-1440.png` and `artifacts/billing-local-390.png`. Earlier shared-mode UI test results above are historical, not acceptance claims for the local-only UI.

@@ -31,8 +31,8 @@
     $('pendingCards').innerHTML = pending.map(r => `<article class="pending-card" aria-label="Invoice ${esc(r.invoice)}">
       <div class="invoice-top"><div><p class="invoice-amount">${esc(money(Number(r.amount), r.currency))}</p>
       <p class="invoice-meta"><span>Invoice No.</span><strong>${esc(r.invoice)}</strong></p><p class="invoice-meta"><span>Payment Link Expire Date</span><strong>${esc(date(r.expiry))}</strong></p></div>
-      <div class="invoice-actions">${badge(r.recurring ? 'Recurring' : 'One-time')}${badge(store.expired(r) ? 'Expired' : 'Pending', store.expired(r) ? 'Link Expired' : 'Pending Payment')}
-      <button type="button" class="primary" data-pay="${esc(r.id)}" ${store.expired(r) ? 'disabled' : ''}><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Pay Now</button></div></div>
+      <div class="invoice-actions">${badge(r.recurring ? 'Recurring' : 'One-time')}${badge(r.canRetry ? 'Overdue' : store.expired(r) ? 'Expired' : 'Pending', r.canRetry ? 'Payment overdue' : store.expired(r) ? 'Link Expired' : 'Pending Payment')}
+      <button type="button" class="primary" data-pay="${esc(r.id)}" ${store.expired(r) && !r.canRetry ? 'disabled' : ''}><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>${r.canRetry ? 'Retry Payment' : 'Pay Now'}</button></div></div>
       <dl class="invoice-details"><div class="notes"><dt>Billing Notes</dt><dd>${esc(r.notes || '—')}</dd></div><div class="billing-amount"><dt>Billing Amount</dt><dd>${esc(money(Number(r.amount), r.currency))}</dd></div><div class="billing-cycle"><dt>Billing Cycle</dt><dd>${r.recurring ? esc(r.cycle) + ' Months' : 'One-time'}</dd></div><div class="renewal"><dt>Recurring</dt><dd>${r.recurring ? 'On (Fixed-term)' : 'Off'}</dd></div></dl></article>`).join('');
     if (!pending.length) $('pendingCards').innerHTML = '<div class="payment-empty">' + (selected ? 'No pending payments.' : 'Select a merchant to view billing and payments.') + '</div>';
     renderHistory();
@@ -74,7 +74,8 @@
     const id = button.dataset.pay;
     if (!reload()) return;
     const record = ownRecords().find(r => r.id === id);
-    if (!record || !store.pending(record) || store.expired(record)) return message('This installment is no longer available.');
+    if (!record || !store.pending(record) || store.expired(record) && !record.canRetry) return message('This installment is no longer available.');
+    if (record.canRetry) return window.PaywizardBillingRetry.open(record, input => store.retry(record.id, selected, input), result => {reload();message(result.status === 'Overdue' ? 'A charge failed. Remaining installments are unpaid.' : 'Payment recorded.');});
     paying = id; opener = $('pendingCards').querySelector('[data-pay="' + CSS.escape(id) + '"]');
     $('cardForm').reset(); updateRegions(); $('submitCard').disabled = true; $('cardError').hidden = true; $('cardForm').querySelectorAll('input').forEach(input => input.setCustomValidity('')); requestId = crypto.randomUUID(); window.PaywizardBillingCardForm.prepare(record); $('cardDialog').showModal(); $('cardEmail').focus();
   };
@@ -97,7 +98,7 @@
     busy = true; window.PaywizardBillingCardForm.setBusy(true); $('closeCard').disabled = true;
     try {
       const result = await store.pay(paying, selected, window.PaywizardBillingCardForm.details(requestId));
-      if (!result.paidInstallments) { requestId = crypto.randomUUID(); $('cardError').textContent = 'The charge failed. No installment was paid. Please try again.'; $('cardError').hidden = false; return; }
+      if (!result.paidInstallments && !result.authorization) { requestId = crypto.randomUUID(); $('cardError').textContent = 'The charge failed. No installment was paid. Please try again.'; $('cardError').hidden = false; return; }
       $('cardDialog').close(); reload(); message(result.status === 'Overdue' ? 'A charge failed. Collection stopped; remaining installments are unpaid.' : 'Payment recorded. Each installment has its own payment record.');
     } catch (error) { $('cardError').textContent = error.message; $('cardError').hidden = false; }
     finally { busy = false; window.PaywizardBillingCardForm.setBusy(false); $('closeCard').disabled = false; }

@@ -24,3 +24,20 @@ test('cache accepts explicit standalone records and legacy merchants without inv
   assert.throws(() => setup(JSON.stringify([bad])).store.read(), /Invalid billing data/);
  }
 });
+
+test('local renewal retains the original URL and old link reads the stopped record',async()=>{
+ const crypto=require('node:crypto').webcrypto,domain=require('../../scripts/billing-domain.js');
+ const data=new Map([['paywizard-billing-runtime-v1',JSON.stringify({mode:'local'})],['paywizard-billing-local-v1','[]']]);
+ const context={crypto,Date,URL,TextEncoder,TextDecoder,Uint8Array,btoa,atob,navigator:{},Event:class{},location:{origin:'http://localhost',href:'http://localhost/44.billing_overview.html'},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)},window:{PaywizardBillingDomain:domain,PaywizardPlatformMerchantStore:{readAll:()=>[{merchantId:'m1'}]},dispatchEvent(){},addEventListener(){}}};
+ vm.runInNewContext(source,context);const store=context.window.PaywizardBillingStore;await store.initialize();
+ const bill=await store.save({id:'local-renew-test',assignment:'standalone',currency:'USD',amount:24,recurring:true,cycle:3,start:'2020-01-01',expiry:'2020-02-01'});
+ const url=store.link(bill),token=new URL(url).hash.slice(1);
+ assert.equal((await store.publicBill(token)).linkStatus,'Expired');
+ const renewal=await store.renew(bill.id,{expiry:'2099-10-09'});assert.equal(store.link(renewal),url);
+ assert.equal((await store.publicBill(token)).linkStatus,'Valid');
+ await store.stop(bill.id,'Stop local collection');
+ assert.equal((await store.publicBill(token)).status,'Stopped');
+ assert.equal(store.link(store.read().find(r=>r.id===bill.id)),url);
+ await assert.rejects(()=>store.publicBill(token,{requestId:crypto.randomUUID(),email:'payer@example.com',last4:'4242',brand:'Visa',acceptedTerms:true,recurringConsent:true}),/stopped/);
+ assert.equal(JSON.parse(data.get('paywizard-billing-local-v1')).find(r=>r.id===bill.id).audit.length,2);
+});
