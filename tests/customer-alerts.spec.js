@@ -104,9 +104,9 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   await alertPanel.getByRole("tab", { name: "Rules", exact: true }).click();
   await expect(alertPanel.locator('[data-alert-view-panel="incidents"]')).toBeHidden();
   await expect(alertPanel.locator('[data-alert-view-panel="rules"]')).toBeVisible();
-  await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(5);
+  await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(9);
   await alertPanel.locator("[data-alert-role-switcher]").selectOption("operations-manager");
-  await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(6);
+  await expect(alertPanel.locator("[data-alert-rules] tr")).toHaveCount(10);
   await expect(page.getByRole("row", { name: /Payment Service Offline/ })).toContainText("20 minutes");
   await expect(page.getByRole("row", { name: /Payment Service Offline/ })).toContainText("Active");
   const createdRule = alertPanel.locator("[data-alert-rules] tr").filter({ hasText: "20 minutes" });
@@ -456,7 +456,7 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
     "Store · Midtown Store",
     "Operations Manager · All Customers"
   ]);
-  await expect(page.locator('[data-alert-count="active"]')).toHaveText("8");
+  await expect(page.locator('[data-alert-count="active"]')).toHaveText("12");
   await expect(page.locator(".alert-kpi-card")).toHaveCount(2);
   await expect(page.locator(".alert-kpi-card").first()).toContainText("Active Alerts");
   await expect(page.getByRole("columnheader", { name: "Target", exact: true }).first()).toBeVisible();
@@ -554,12 +554,12 @@ test("deletes active rules from Alert Center and updates the active count", asyn
   await page.reload();
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
 
-  await expect(page.locator('[data-alert-count="rules"]')).toHaveText("3");
+  await expect(page.locator('[data-alert-count="rules"]')).toHaveText("4");
   const activeRule = page.locator('[data-rule-id="r-provider-universal"]');
   await activeRule.getByRole("button", { name: "Delete rule" }).click();
   await page.getByRole("dialog", { name: "Delete Rule" }).getByRole("button", { name: "Delete Rule", exact: true }).click();
   await expect(activeRule).toHaveCount(0);
-  await expect(page.locator('[data-alert-count="rules"]')).toHaveText("2");
+  await expect(page.locator('[data-alert-count="rules"]')).toHaveText("3");
 
   await page.getByRole("tab", { name: "Alerts", exact: true }).click();
   await expect(page.locator('[data-incident-id="i-mid-07"]')).toBeVisible();
@@ -623,7 +623,7 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   for (const matrix of matrices) {
     await page.goto(`/39.customer_alerts.html?role=${matrix.role}`);
     await page.getByRole("tab", { name: "Rules", exact: true }).click();
-    await expect(page.getByRole("row", { name: matrix.row })).toBeVisible();
+    await expect(page.getByRole("row", { name: matrix.row }).first()).toBeVisible();
     await page.getByRole("button", { name: "Create Alert Rule" }).click();
     const roleDialog = page.getByRole("dialog", { name: "Create Alert Rule" });
     await expect(roleDialog.getByRole("heading", { name: "Monitoring Range" })).toBeVisible();
@@ -753,12 +753,12 @@ test("keeps the selected tab while switching roles, resets filters, and removes 
 test("seeds Store and Terminal rules with supported lifecycle incidents", async ({ page }) => {
   await resetAlertState(page);
   const seeded = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), ALERT_STATE_KEY);
-  expect(seeded.rules).toHaveLength(11);
-  expect(seeded.incidents).toHaveLength(22);
+  expect(seeded.rules).toHaveLength(20);
+  expect(seeded.incidents).toHaveLength(26);
   expect(new Set(seeded.rules.map((rule) => rule.condition)).size).toBe(8);
-  expect(seeded.rules.filter((rule) => rule.targetType === "Terminal" && rule.targetId === "WP6267UQ36002376")).toHaveLength(5);
+  expect(seeded.rules.filter((rule) => rule.targetType === "Terminal" && rule.targetId === "WP6267UQ36002376")).toHaveLength(9);
   expect(seeded.rules.every((rule) => ["Store", "Terminal"].includes(rule.targetType))).toBe(true);
-  expect(seeded.incidents.filter((incident) => incident.terminalId === "WP6267UQ36002376")).toHaveLength(8);
+  expect(seeded.incidents.filter((incident) => incident.terminalId === "WP6267UQ36002376")).toHaveLength(12);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0042")).toHaveLength(4);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "NYC-Q3-0043")).toHaveLength(2);
   expect(seeded.incidents.filter((incident) => incident.terminalId === "BOS-Q3-0018")).toHaveLength(3);

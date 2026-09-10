@@ -396,7 +396,7 @@ Timeline 是 Incident 的审计流程查看器：
 - Email 未选择时不显示收件人区域，且保存数据中不包含外部邮箱。
 - Email 已选择但无有效收件人时禁止保存。
 - Repeat 未选择时不显示频率；选择后可配置 2、4、8 小时。
-- 九类 Condition 在无参数、单参数和多参数情况下均无空列、内容溢出或异常留白。
+- 八类 Condition 在无参数、单参数和多参数情况下均无空列、内容溢出或异常留白。
 
 ### 11.5 Operations Customer Alerts
 
@@ -457,3 +457,8 @@ Demo terminals DEMO-AGT1-001, DEMO-AGT2-001, and DEMO-AGT3-001 exercise direct m
 - 当前原型仅配置与回填，不执行真实时段调度。跨窗口阈值累计、未恢复事件及重复通知在窗口外的处理属于后端后续定义，本次不改变现有事件演示行为。
 
 - 时区选择支持按地区名称、城市或 UTC 偏移搜索；候选项和选中值显示当前偏移（如 Asia/Shanghai (+08:00)），遵循当前夏令时。保存仍使用地区时区标识；搜索无匹配时显示空状态，取消搜索保留原选择。
+
+
+### Observed Evidence 文案与全量案例（2026-09-10）
+
+文案、Target 组合、数据无效处理和生命周期统一以 [Customer Alert Evidence 规格](customer-alert-evidence.md) 为准。Observed Evidence 随实际观测更新，手动关闭后冻结；恢复检查使用相同模板。多 BIN 事件按 Rule＋Terminal 合并，Selected Product 按稳定 Product ID 匹配。

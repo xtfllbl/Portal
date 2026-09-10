@@ -228,6 +228,14 @@ _Avoid_: OPC Offline, Device Connection
 The daily time window in which an Alert Rule monitors its target, interpreted in the rule's selected time zone. It defaults to 24-hour monitoring and may be a custom interval that ends on the next day.
 _Avoid_: Employee working hours, notification delivery schedule
 
+**Unevaluable Observation**:
+An observation that cannot determine whether an Alert Rule's condition is normal or abnormal because required data is missing, stale, unsupported, or invalid. It cannot open an Incident or count as Recovery and resets consecutive Recovery Checks.
+_Avoid_: Normal observation, zero inventory, recovered signal
+
+**Product Monitoring Match**:
+The BINs on a Terminal whose stable Product ID matches the product selected by an Alert Rule, independent of BIN numbering or product display names.
+_Avoid_: Matching product names, same BIN number across a Store
+
 **On Hand**:
 Paywizard's current count of sellable units in a BIN and the first-release inventory signal used by Customer Alerts.
 _Avoid_: DEX product level
@@ -239,6 +247,10 @@ _Avoid_: Refrigeration Fault, raw DEX event
 **Refrigeration Fault**:
 A device-reported cooling fault normalized by Paywizard into a customer-facing condition without exposing vendor or DEX event codes.
 _Avoid_: Temperature Out of Range
+
+**Observed Evidence**:
+The most recent observed facts for an Alert Incident, including recovery-confirmation progress where applicable. Resolution retains the recovery observation; manual closure freezes the evidence at closure, with closure reasons and later observations recorded in the timeline.
+_Avoid_: Closure reason, acknowledgement, inferred replenishment action
 
 **Alert Incident**:
 One continuous occurrence of an Alert Rule's abnormal condition, tracked independently from other conditions on the same target.

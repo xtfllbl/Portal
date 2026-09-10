@@ -1,6 +1,9 @@
 (function () {
   "use strict";
 
+  const evidenceModel = window.CustomerAlertEvidence;
+  const evidenceCases = window.CustomerAlertEvidenceCases;
+
   const STORAGE_KEY = "paywizard.customerAlerts.v1";
   const surface = document.querySelector("[data-alert-page]");
   const modal = document.querySelector("[data-alert-modal]");
@@ -1035,12 +1038,35 @@
     { id: "r-merchant-selected-product", condition: "selected_product", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "A1 · Sparkling Water below 30% PAR", recipients: ["Portal Inbox", "stock@merchant.example"], channels: ["Portal Inbox", "Email"], status: "Paused", modified: "2026-08-26 13:05", owner: "1 of a Kind World Travel LLC", parameters: { product: "A1 · Sparkling Water", threshold: 30 }, recoveryChecksRequired: 2 }
   ];
 
+  function productParameters(parameters = {}) {
+    const product = evidenceCases.productOptions.find(item => item.id === parameters.productId || item.label === parameters.product);
+    return product ? { ...parameters, productId: product.id, productName: product.name } : parameters;
+  }
+  demoRules.forEach(rule => { if (rule.condition === "selected_product") rule.parameters = productParameters(rule.parameters); });
+
+  function observedEvidence(incident, observation, parameters) {
+    const evaluated = evidenceModel.evaluate(incident.condition, parameters, observation);
+    const hit = incident.recoveryHitCount || 0;
+    const required = incident.recoveryChecksRequired || 2;
+    const recovering = incident.monitoringState === "Active" && hit > 0 && hit < required && evaluated.outcome === "normal";
+    const key = recovering ? "recovery" : evaluated.key;
+    const values = recovering ? { evidence: evaluated.text, hit, required } : evaluated.values;
+    return { observation, evidence: evidenceModel.render(key, values), evidenceKey: key, evidenceValues: values, evidenceDetails: evaluated.details, evidenceVersion: 1 };
+  }
+
   function demoIncident(input) {
+    const rule = demoRules.find(rule => rule.id === input.ruleId);
+    const parameters = rule?.parameters || evidenceCases.params[input.condition];
+    const phase = input.monitoringState !== "Closed" && (input.monitoringState === "Resolved" || input.recoveryHitCount > 0) ? "normal" : "abnormal";
+    const legacyEvidence = input.evidence;
+    const observation = input.observation || evidenceCases.sample(input.condition, phase, parameters);
+    input = { ...input, ...observedEvidence(input, observation, parameters), legacyEvidence };
     const acknowledgedAt = input.acknowledgedAt || "";
-    const events = [{ at: input.opened, type: "opened", label: "Opened", evidence: input.evidence }];
+    const opening = evidenceModel.evaluate(input.condition, parameters, evidenceCases.sample(input.condition, "abnormal", parameters));
+    const events = [{ at: input.opened, type: "opened", label: "Opened", evidence: opening.text, evidenceDetails: opening.details }];
     if (acknowledgedAt) events.push({ at: acknowledgedAt, type: "acknowledged", label: "Acknowledged", evidence: `Acknowledged by ${input.acknowledgedBy || "Alex Morgan"}` });
-    if (input.recoveryHitCount) events.push({ at: input.lastCheckedAt || input.recoveredAt || "2026-08-28 10:30", type: "recovery_check", label: `Recovery check ${input.recoveryHitCount || 1}/${input.recoveryChecksRequired || 2}`, evidence: "The monitored signal returned to normal." });
-    if (input.monitoringState === "Resolved") events.push({ at: input.recoveredAt, type: "resolved", label: "Resolved", evidence: "Recovery requirements were satisfied by the monitoring system." });
+    if (input.recoveryHitCount) events.push({ at: input.lastCheckedAt || input.recoveredAt || "2026-08-28 10:30", type: "recovery_check", label: `Recovery check ${input.recoveryHitCount || 1}/${input.recoveryChecksRequired || 2}`, evidence: input.evidence, evidenceDetails: input.evidenceDetails });
+    if (input.monitoringState === "Resolved") events.push({ at: input.recoveredAt, type: "resolved", label: "Resolved", evidence: input.evidence, evidenceDetails: input.evidenceDetails });
     if (input.monitoringState === "Closed") events.push({ at: input.closedAt, type: "manual_closure", label: "Closed manually", evidence: `${input.closeReason}${input.closeNote ? ` · ${input.closeNote}` : ""} · ${input.closedBy || "robasz"}` });
     return { recoveryChecksRequired: 2, recoveryHitCount: 0, acknowledgedAt, acknowledgedBy: acknowledgedAt ? (input.acknowledgedBy || "Alex Morgan") : "", recoveredAt: "", closedAt: "", closedBy: "", closeReason: "", closeNote: "", nextChecks: ["normal", "normal"], events, ...input };
   }
@@ -1069,6 +1095,35 @@
     demoIncident({ id: "i-seattle-05", ruleId: "r-agent-seattle-transaction", monitoringState: "Resolved", condition: "no_approved_transaction", terminalId: "WP7300EV33001088", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "Approved transaction received", opened: "2026-08-26 08:20", duration: "4h 45m", recoveryHitCount: 2, recoveredAt: "2026-08-26 13:05", nextChecks: [] }),
     demoIncident({ id: "i-seattle-06", ruleId: "r-agent-seattle", monitoringState: "Closed", condition: "opc_offline", terminalId: "WP7300EV33001088", terminalName: "EV Charger Bay 07", store: "EV Charger Hub", evidence: "Payment Service unavailable during charger maintenance", opened: "2026-08-25 14:00", duration: "2h 10m", acknowledgedAt: "2026-08-25 14:03", closedAt: "2026-08-25 14:05", closedBy: "Seattle Field Agent", closeReason: "Planned maintenance", recoveredAt: "2026-08-25 16:10", nextChecks: [] })
   ];
+
+  const evidenceExampleRule = { ...demoRules.find(rule => rule.id === "r-merchant-temp-range"), id: "r-evidence-temp-f", parameters: { lower: 35.6, upper: 46.4, unit: "F" }, criteria: "Outside 35.6–46.4 °F" };
+  [
+    { id: "i-evidence-multi-bin", ruleId: "r-merchant-any-bin", condition: "any_bin", observation: { bins: ["A1", "A2", "B1", "B2"].map(binId => ({ binId, onHand: 0 })) } },
+    { id: "i-evidence-temp-low", ruleId: "r-evidence-temp-f", condition: "temperature_range", observation: { temperature: 32, unit: "F" } },
+    { id: "i-evidence-stale", ruleId: "r-merchant-temp-range", condition: "temperature_range", observation: { reason: "stale" } },
+    { id: "i-evidence-product", ruleId: "r-merchant-selected-product", condition: "selected_product", observation: { bins: [{ binId: "D8", productId: "demo-product-water", onHand: 1, par: 10 }] } }
+  ].forEach((example, index) => {
+    const sourceRule = demoRules.find(rule => rule.id === example.ruleId) || evidenceExampleRule;
+    const ruleId = `r-${example.id}`;
+    demoRules.push({ ...sourceRule, id: ruleId, status: "Active" });
+    demoIncidents.push(demoIncident({
+      ...example, ruleId, monitoringState: "Active", terminalId: "WP6267UQ36002376", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store",
+      opened: `2026-08-${20 + index} 10:00`, duration: "18m", nextChecks: ["unknown", "normal", "normal"]
+    }));
+  });
+
+  // Keep historical demo incidents inside the scope of their demonstration rule.
+  demoIncidents.forEach(incident => {
+    const rule = demoRules.find(rule => rule.id === incident.ruleId);
+    const path = findTargetPath("Terminal", incident.terminalId);
+    if (!rule || !path) return;
+    const targetId = rule.targetType === "Store" ? path.store.id : incident.terminalId;
+    if (rule.targetId === targetId) return;
+    const id = `${rule.id}--${targetId}`;
+    if (!demoRules.some(item => item.id === id)) demoRules.push({ ...rule, id, targetId, targetName: rule.targetType === "Store" ? path.store.name : incident.terminalName });
+    incident.originalRuleId = incident.ruleId;
+    incident.ruleId = id;
+  });
 
   const defaultState = () => ({ rules: demoRules.map((rule) => ({ ...rule })), incidents: demoIncidents.map((incident) => ({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })), deletedRuleIds: [] });
 
@@ -1169,6 +1224,7 @@
       migrated.ownerPath = owner.path;
       migrated.owner = owner.name;
     }
+    if (migrated.condition === "selected_product") migrated.parameters = productParameters(migrated.parameters);
     if (migrated.condition !== "temperature_range") return migrated;
     const parameters = migrated.parameters || {};
     migrated.parameters = {
@@ -1212,6 +1268,16 @@
   }
 
   function migrateIncident(incident) {
+    if (!incident.evidenceVersion) {
+      const seed = demoIncidents.find(item => item.id === incident.id && item.legacyEvidence === incident.evidence);
+      if (seed) {
+        const phase = incident.monitoringState !== "Closed" && (incident.monitoringState === "Resolved" || incident.recoveryHitCount > 0) ? "normal" : "abnormal";
+        const parameters = demoRules.find(rule => rule.id === incident.ruleId)?.parameters || evidenceCases.params[incident.condition];
+        incident = { ...incident, legacyEvidence: incident.evidence, ...observedEvidence(incident, evidenceCases.sample(incident.condition, phase, parameters), parameters) };
+      } else {
+        incident = { ...incident, legacyEvidence: incident.evidence, evidenceVersion: 1, evidenceKey: "legacy", evidenceValues: { previous: incident.evidence || "Unavailable" }, evidence: evidenceModel.render("legacy", { previous: incident.evidence || "Unavailable" }), evidenceDetails: [] };
+      }
+    }
     const legacyState = incident.state;
     const storedMonitoringState = incident.monitoringState || (legacyState === "Resolved" ? "Resolved" : "Active");
     const monitoringState = storedMonitoringState === "Recovering" ? "Active" : storedMonitoringState;
@@ -1391,7 +1457,7 @@
       const incidentRule = state.rules.find((rule) => rule.id === item.ruleId);
       const incidentOwner = accountForRule(incidentRule || {});
       const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(ownerTypeLabel(incidentOwner) || incidentRule?.ownerType || "Customer Account")} · ${escapeHtml(incidentOwner?.name || incidentRule?.ownerName || incidentRule?.owner || "Unknown owner")}</strong></td>` : "";
-      const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.terminalName)} · ${escapeHtml(item.store)}</td>` : "";
+      const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(evidenceModel.target(item))}</td>` : "";
       const opened = `${escapeHtml(item.opened)}${item.duration ? ` · ${escapeHtml(item.duration)}` : ""}`;
       const actionable = item.monitoringState === "Active";
       const acknowledgementLabel = item.acknowledgedAt ? `Acknowledged by ${item.acknowledgedBy || "Unknown user"} at ${item.acknowledgedAt}` : "Needs acknowledgement";
@@ -2064,6 +2130,7 @@
     if (!channels.length) { modal.querySelector("[data-alert-channel]").focus(); return; }
     if (channels.includes("Email") && !recipients.some((item) => item.includes("@"))) { recipientError.textContent = "Add an external email recipient for Email."; recipientInput.focus(); return; }
     const condition = conditionSelect.value;
+    if (condition === "selected_product") Object.assign(parameters, productParameters(parameters));
     const existing = editingId ? state.rules.find((item) => item.id === editingId) : null;
     const monitoringTarget = targetMetadata();
     if (!monitoringTarget) {
@@ -2199,7 +2266,8 @@
       .map((item, index) => ({ item, index }))
       .sort((left, right) => String(left.item.at || "").localeCompare(String(right.item.at || "")) || left.index - right.index)
       .map(({ item }) => item);
-    const canRunCheck = (incident.monitoringState === "Active" || incident.monitoringState === "Closed") && !incident.recoveredAt && (pageType === "terminal" ? canManageIncident(incident) : (!currentRole.isOperations || canManageAlerts));
+    const incidentRule = state.rules.find(rule => rule.id === incident.ruleId);
+    const canRunCheck = incidentRule?.status !== "Archived" && (incident.monitoringState === "Active" || incident.monitoringState === "Closed") && !incident.recoveredAt && (pageType === "terminal" ? canManageIncident(incident) : (!currentRole.isOperations || canManageAlerts));
     const canClose = canManageIncident(incident) && incident.monitoringState === "Active";
     incidentModal.querySelector("[data-alert-incident-body]").innerHTML = `
       <div class="alert-incident-meta" aria-label="Alert details">
@@ -2209,10 +2277,12 @@
         <span aria-hidden="true">·</span>
         <span>Opened ${escapeHtml(incident.opened)}${incident.duration ? ` · ${escapeHtml(incident.duration)}` : ""}</span>
       </div>
+      <p data-alert-observed-evidence>${escapeHtml(incident.evidence)}</p>
+      ${incident.evidenceDetails?.length ? `<ul aria-label="Observed BIN details">${incident.evidenceDetails.map(detail => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
       <div class="alert-sr-only" role="status" aria-live="polite" data-alert-timeline-status></div>
       <ol class="alert-timeline" aria-label="Alert history">
         ${events.map((item, index) => {
-          return `<li class="alert-timeline-event${index === events.length - 1 ? " latest" : ""}" data-alert-event-type="${escapeHtml(item.type || "event")}"${index === events.length - 1 ? ' data-alert-latest-event tabindex="-1"' : ""}><span class="alert-timeline-marker" aria-hidden="true"></span><div class="alert-timeline-content"><div class="alert-timeline-head"><strong>${escapeHtml(item.label)}</strong><time datetime="${escapeHtml(String(item.at || "").replace(" ", "T"))}">${escapeHtml(item.at)}</time></div>${item.evidence ? `<p>${escapeHtml(item.evidence)}</p>` : ""}</div></li>`;
+          return `<li class="alert-timeline-event${index === events.length - 1 ? " latest" : ""}" data-alert-event-type="${escapeHtml(item.type || "event")}"${index === events.length - 1 ? ' data-alert-latest-event tabindex="-1"' : ""}><span class="alert-timeline-marker" aria-hidden="true"></span><div class="alert-timeline-content"><div class="alert-timeline-head"><strong>${escapeHtml(item.label)}</strong><time datetime="${escapeHtml(String(item.at || "").replace(" ", "T"))}">${escapeHtml(item.at)}</time></div>${item.evidence ? `<p>${escapeHtml(item.evidence)}</p>` : ""}${item.evidenceDetails?.length ? `<ul>${item.evidenceDetails.map(detail => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}</div></li>`;
         }).join("")}
       </ol>
       ${canRunCheck || canClose ? `<div class="alert-timeline-actions" aria-label="Alert actions">${canRunCheck ? `<button class="alert-timeline-action" type="button" data-alert-run-check="${escapeHtml(incident.id)}">Run next monitoring check</button>` : ""}${canClose ? `<button class="alert-timeline-action" type="button" data-alert-close-incident="${escapeHtml(incident.id)}">Close incident</button>` : ""}</div>` : ""}`;
@@ -2269,35 +2339,30 @@
   function runMonitoringCheck(incidentId) {
     const incident = state.incidents.find((item) => item.id === incidentId);
     if (!incident || !canManageIncident(incident) || incident.monitoringState === "Resolved" || (incident.monitoringState === "Closed" && incident.recoveredAt)) return;
+    if (state.rules.find(rule => rule.id === incident.ruleId)?.status === "Archived") return;
     const nextChecks = Array.isArray(incident.nextChecks) ? [...incident.nextChecks] : [];
-    const result = nextChecks.shift() || "normal";
+    const next = nextChecks.shift() || "normal";
     const required = incidentRecoveryRequirement(incident);
     const events = [...(incident.events || [])];
     const eventAt = nextIncidentEventAt(events);
-    let monitoringState = incident.monitoringState;
-    let recoveryHitCount = Number(incident.recoveryHitCount) || 0;
-    let recoveredAt = incident.recoveredAt || "";
-    if (result === "abnormal") {
-      recoveryHitCount = 0;
-      if (monitoringState !== "Closed") monitoringState = "Active";
-      events.push({ at: eventAt, type: "recovery_reset", label: "Recovery reset", evidence: "The monitored condition was abnormal on this check." });
-    } else {
-      recoveryHitCount += 1;
-      if (recoveryHitCount >= required) {
-        recoveredAt = eventAt;
-        if (monitoringState !== "Closed") monitoringState = "Resolved";
-        events.push({ at: eventAt, type: "resolved", label: monitoringState === "Closed" ? "Recovery observed after closure" : "Resolved", evidence: "Recovery requirements were satisfied by the monitoring system." });
-      } else {
-        if (monitoringState !== "Closed") monitoringState = "Active";
-        events.push({ at: eventAt, type: "recovery_check", label: `Recovery check ${recoveryHitCount}/${required}`, evidence: "The monitored signal returned to normal." });
-      }
-    }
-    state.incidents = state.incidents.map((item) => item.id === incidentId ? { ...item, monitoringState, recoveryHitCount, recoveryChecksRequired: required, recoveredAt, nextChecks, events } : item);
+    const rule = state.rules.find(rule => rule.id === incident.ruleId);
+    const parameters = rule?.parameters || {};
+    // These are explicit prototype observations, not production telemetry.
+    const observation = typeof next === "object" ? next : evidenceCases.sample(incident.condition, next, parameters);
+    const evaluated = evidenceModel.evaluate(incident.condition, parameters, observation);
+    const transition = evidenceModel.advance(incident, evaluated, required);
+    const { eventEvidence, eventDetails, eventKey, eventValues, eventType, recoveryConfirmed, outcome, ...changes } = transition;
+    const recoveredAt = recoveryConfirmed ? eventAt : incident.recoveredAt || "";
+    const label = eventType === "resolved" ? (incident.monitoringState === "Closed" ? "Recovery observed after closure" : "Resolved")
+      : eventType === "recovery_check" ? `Recovery check ${changes.recoveryHitCount}/${required}`
+      : eventType === "recovery_reset" ? "Recovery reset" : eventType === "not_evaluated" ? "Not evaluated" : "Observation";
+    events.push({ at: eventAt, type: eventType, label, evidence: eventEvidence, evidenceDetails: eventDetails, evidenceKey: eventKey, evidenceValues: eventValues });
+    state.incidents = state.incidents.map(item => item.id === incidentId ? { ...item, ...changes, observation: incident.monitoringState === "Closed" ? item.observation : observation, latestCheckObservation: observation, evidenceVersion: 1, lastCheckedAt: eventAt, recoveredAt, nextChecks, events } : item);
     writeState();
     renderAll();
     const updated = state.incidents.find((item) => item.id === incidentId);
     const canRunAgain = updated && (updated.monitoringState === "Active" || updated.monitoringState === "Closed") && !updated.recoveredAt;
-    openIncident(incidentId, true, canRunAgain ? "run" : "latest", result === "abnormal" ? "Monitoring check recorded: condition remains abnormal." : updated?.monitoringState === "Resolved" || updated?.recoveredAt ? "Monitoring check recorded: recovery confirmed." : `Monitoring check recorded: recovery check ${recoveryHitCount} of ${required}.`);
+    openIncident(incidentId, true, canRunAgain ? "run" : "latest", outcome === "unknown" ? "Monitoring check recorded: unable to evaluate; recovery progress reset." : outcome !== "normal" ? "Monitoring check recorded: condition remains abnormal." : updated?.monitoringState === "Resolved" || updated?.recoveredAt ? "Monitoring check recorded: recovery confirmed." : `Monitoring check recorded: recovery check ${updated.recoveryHitCount} of ${required}.`);
   }
 
   surface.addEventListener("click", (event) => {

@@ -1,0 +1,3 @@
+# Generate Customer Alert evidence from structured observations
+
+Customer Alert evidence is generated from typed observations and one shared template catalogue, also used to generate the developer matrix and example page. Active evidence follows the latest observation, while manual closure freezes the list snapshot and records later observations only in the timeline; this preserves what operators saw when closing without claiming recovery. Unknown observations reset consecutive recovery checks, and multi-BIN observations remain one incident per rule and terminal, with complete details retained separately from the bounded list summary.
