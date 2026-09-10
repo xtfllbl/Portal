@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advertising | PAYwizard Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/advertising.css">
+</head>
+<body>
+<main class="ads-page" id="advertisingApp">
+  <header class="ads-heading"><h1>Advertising</h1><div class="ads-actions"><button class="ads-primary" id="createCampaign"><span aria-hidden="true">＋</span> New Campaign</button></div></header>
+  <div id="adsContext" hidden></div>
+  <nav class="ads-tabs" aria-label="Advertising sections">
+    <button data-view="campaigns" aria-current="page">Campaigns</button><button data-view="media">Media Library</button><button data-view="deployments">Deployments</button>
+  </nav>
+  <section id="adsContent" aria-live="polite"></section>
+  <section id="adsEditor" hidden>
+    <div class="ads-editor-heading"><div class="ads-actions"><button id="backCampaigns" class="ads-icon-button ads-back" aria-label="Back to campaigns"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><h2 id="editorTitle">New Campaign</h2></div><span id="draftState" class="ads-badge">Unsaved draft</span></div>
+    <form id="campaignForm">
+      <div class="ads-editor-grid">
+        <div class="ads-editor-fields">
+          <section class="ads-card ads-basics">
+            <label>Name<input id="campaignName" maxlength="80" required placeholder="e.g. Morning coffee"></label>
+            <fieldset class="ads-mode-field"><legend>Display Mode</legend><div class="ads-mode-options">
+              <label class="ads-mode"><input type="radio" name="mode" value="embedded" checked><span>Payment screen</span></label>
+              <label class="ads-mode"><input type="radio" name="mode" value="fullscreen"><span>Full screen</span></label>
+            </div></fieldset>
+            <div id="fullScreenOptions" class="ads-fields" hidden><label>Content type<select id="contentType"><option value="image">Image carousel</option><option value="video">Video loop</option></select></label><label>Start after idle (seconds)<input id="idleSeconds" type="number" min="5" max="600" step="1" value="30"></label></div>
+          </section>
+          <section class="ads-card"><div class="ads-section-heading"><h3>Playlist</h3><button type="button" id="addPlaylistMedia"><svg class="ads-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add Media</button></div><div id="playlistRows"></div><div class="ads-fields ads-playback-fields"><label>Playback order<select id="playOrder"><option value="sequential">In playlist order</option><option value="shuffle">Shuffle each cycle</option></select></label><label>Image fit<select id="imageFit"><option value="contain">Fit entire image</option><option value="cover">Fill area (crop edges)</option></select></label></div></section>
+          <section class="ads-card"><h3>Schedule</h3><label class="ads-check"><input id="alwaysOn" type="checkbox" checked> Always active</label><div class="ads-fields" id="scheduleFields" hidden><label>Start (UTC)<input id="scheduleStart" type="datetime-local"></label><label>End (UTC)<input id="scheduleEnd" type="datetime-local"></label></div></section>
+          <section class="ads-card"><div class="ads-section-heading"><h3>Target Terminals</h3><span id="targetCount" class="ads-badge">0 selected</span></div><input id="targetSearch" type="search" aria-label="Search target terminals" placeholder="Search terminal, SN or store"><div id="targetRows"></div></section>
+          <p id="editorError" class="ads-error" role="alert" hidden></p>
+        </div>
+        <aside class="ads-preview-column" aria-label="Terminal preview">
+          <h3>Terminal Preview</h3>
+          <label class="ads-model-field">Model<select id="previewModel"><option value="q3v">Q3V (UPT) · 480 × 800</option><option value="q3min">Q3min · 480 × 480</option></select></label>
+          <div id="editorDevice"></div>
+          <div class="ads-preview-controls"><span id="editorPreviewStatus" role="status"></span><button id="replayEditor" type="button" class="ads-icon-button" aria-label="Replay playlist" title="Replay playlist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6"/></svg></button></div>
+        </aside>
+      </div>
+      <footer class="ads-editor-footer"><button type="button" id="cancelCampaign">Cancel</button><div class="ads-actions"><button type="submit" value="draft">Save Draft</button><button class="ads-primary" type="submit" value="publish">Review &amp; Publish</button></div></footer>
+    </form>
+  </section>
+</main>
+<dialog class="ads-dialog" id="mediaDialog" aria-labelledby="mediaTitle"><form id="mediaForm"><div class="ads-section-heading"><h2 id="mediaTitle">Upload Media</h2><button type="button" data-close="mediaDialog" aria-label="Close upload">×</button></div><label>Media name<input id="mediaName" maxlength="80" required></label><label>Advertiser<input id="mediaAdvertiser" maxlength="80" required></label><label class="ads-upload">Choose an image or video<input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" required><span>JPG, PNG, WebP ≤ 10 MB · MP4, WebM ≤ 50 MB</span></label><p class="ads-notice">Files are saved in this browser. Video playback depends on the uploaded codec; preview before publishing.</p><p id="uploadError" class="ads-error" role="alert" hidden></p><div class="ads-dialog-actions"><button type="button" data-close="mediaDialog">Cancel</button><button class="ads-primary" type="submit" id="uploadSubmit">Upload</button></div></form></dialog>
+<dialog class="ads-dialog ads-picker" id="pickerDialog" aria-labelledby="pickerTitle"><div class="ads-section-heading"><h2 id="pickerTitle">Select Media</h2><button data-close="pickerDialog" aria-label="Close media picker">×</button></div><div id="pickerItems" class="ads-media-grid"></div><div class="ads-dialog-actions"><button data-close="pickerDialog">Close</button></div></dialog>
+<dialog class="ads-dialog" id="confirmDialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle">Publish Campaign</h2><div id="confirmBody"></div><p id="confirmError" class="ads-error" role="alert" hidden></p><div class="ads-dialog-actions"><button data-close="confirmDialog">Cancel</button><button class="ads-primary" id="confirmAction">Publish</button></div></dialog>
+<dialog class="ads-dialog ads-preview-dialog" id="previewDialog" aria-labelledby="previewTitle"><div class="ads-section-heading"><h2 id="previewTitle">Terminal Preview</h2><button data-close="previewDialog" aria-label="Close preview">×</button></div><div id="liveDevice"></div><div class="ads-preview-status" id="previewStatus" role="status"></div><div class="ads-dialog-actions"><button id="simulatePayment">Start Payment</button><button id="returnIdle">Return to Idle</button><button id="restartPreview" class="ads-primary">Restart Preview</button></div></dialog>
+<div id="adsToast" role="status" hidden></div>
+<script src="scripts/platform-admin-shell.js"></script>
+<script src="scripts/advertising-domain.js"></script>
+<script src="scripts/advertising-store.js"></script>
+<script src="scripts/advertising-preview.js"></script>
+<script src="scripts/advertising.js"></script>
+</body></html>

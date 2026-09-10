@@ -158,6 +158,9 @@
     .mitem{width:100%;height:44px;border:none;background:transparent;border-radius:10px;color:#41495a;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:14px}
     .mitem svg{width:18px;height:18px;flex:0 0 18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
     .mitem:hover{background:#f4f6fa}
+    .transaction-notice{flex:none;display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:10px 12px;border:1px solid #e3e5ea;border-radius:8px;background:#f7f8fa;color:#626b7b;font-size:12px;line-height:1.5}
+    .transaction-notice svg{width:16px;height:16px;flex:0 0 16px;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+    .transaction-notice p{min-width:0;margin:0;overflow-wrap:break-word}
     .tablewrap{flex:1;min-height:0;margin-top:14px;border-radius:6px;overflow:hidden}
     .scroll{height:100%;overflow:auto;padding-bottom:2px}
     .app.filters-open .tablewrap{flex:none;min-height:0;height:auto;overflow:visible;scroll-margin-top:12px}
@@ -536,12 +539,16 @@
             </div>
           </div>
         </section>
+        <div class="transaction-notice" role="note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6"></path><path d="M12 7h.01"></path></svg>
+          <p id="transactionDisclaimer">Transaction data is provided for informational purposes only. Paywizard is not a payment processor.</p>
+        </div>
         <div class="sticky-table-head" id="stickyTableHead" aria-hidden="true">
           <table><thead><tr id="stickyHeadRow"></tr></thead></table>
         </div>
         <div class="tablewrap">
           <div class="scroll">
-            <table>
+            <table aria-describedby="transactionDisclaimer">
               <thead><tr id="headRow"></tr></thead>
               <tbody id="bodyRows"></tbody>
             </table>
@@ -803,6 +810,7 @@
         hasUnsavedViewChanges:false
       };
       const head=document.getElementById("headRow"),body=document.getElementById("bodyRows"),colList=document.getElementById("colList");
+      const transactionDisclaimer=document.getElementById("transactionDisclaimer").textContent.trim();
       const pageSummary=document.getElementById("pageSummary"),pageNumbers=document.getElementById("pageNumbers"),prevPage=document.getElementById("prevPage"),nextPage=document.getElementById("nextPage"),pageSize=document.getElementById("pageSize");
       const filterBtn=document.getElementById("filterBtn"),colsBtn=document.getElementById("colsBtn"),menuBtn=document.getElementById("menuBtn"),exportBtn=document.getElementById("exportBtn");
       const dateRangeBtn=document.getElementById("dateRangeBtn"),dateRangePop=document.getElementById("dateRangePop");
@@ -1980,11 +1988,14 @@
         const stamp="20260407_120000";
         let blob,name;
         if(fmt==="json"){
-          blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+          blob=new Blob([JSON.stringify({disclaimer:transactionDisclaimer,transactions:data},null,2)],{type:"application/json;charset=utf-8"});
           name=`transaction_list_${state.tab}_${stamp}.json`;
         }else{
           const headers=cols.map(c=>defs[c.key][2]);
-          const csv=[headers.join(",")].concat(data.map(r=>headers.map(h=>`"${String(r[h]??"").replace(/"/g,'""')}"`).join(","))).join("\n");
+          const csvCell=value=>`"${String(value??"").replace(/"/g,'""')}"`;
+          // Keep the notice outside the transaction rows, including empty exports.
+          const noticeRow=[transactionDisclaimer,...headers.slice(1).map(()=>"")].map(csvCell).join(",");
+          const csv=[noticeRow,headers.map(csvCell).join(",")].concat(data.map(r=>headers.map(h=>csvCell(r[h])).join(","))).join("\r\n");
           blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           name=`transaction_list_${state.tab}_${stamp}.csv`;
         }

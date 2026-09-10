@@ -23,6 +23,7 @@
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
+    "45.advertising.html": page("body > main.ads-page", "advertising", "advertising", ["Advertising"], []),
     "42.billing_payments.html": page("body > main.payments-page", "billing-payments", "billing-payments", ["Billing & Payments"], []),
     "44.billing_overview.html": page("body > main.overview-page", "matintain", "billing-overview", ["Matintain", "Billing Overview"], []),
     "41.billing_setup.html": page("body > main.billing-page", "matintain", "billing-setup", ["Matintain", "Billing Setup"], []),
@@ -103,6 +104,7 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
+    if (target.active === "advertising" && !["wizarpos", "full-service", "unattended"].includes(profile)) return "12.transaction_list.html";
     if (target.module === "matintain" && profile !== "wizarpos") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
     if (profiles[profile].merchant) {
@@ -153,6 +155,7 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "45.advertising.html",
     "44.billing_overview.html",
     "42.billing_payments.html",
     "41.billing_setup.html",
@@ -291,6 +294,7 @@
       isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
+      ["wizarpos", "full-service", "unattended"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
       !isMerchant ? link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps") : "",
       link("Remote Diagnostic", "13.remote_control.html", "cast_connected", "remote"),
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
@@ -303,6 +307,7 @@
   }
 
   var breadcrumbTargets = {
+    "Advertising": "45.advertising.html",
     "Billing Setup": "41.billing_setup.html",
     "Transactions": "12.transaction_list.html",
     "Agents": "2.agent_list_iso.html",

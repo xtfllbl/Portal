@@ -4,6 +4,26 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Advertising Campaign**:
+A named advertising playlist, display mode, schedule and set of target Unattended Terminals, managed by an existing portal management account. Each terminal is assigned one advertising display mode at a time.
+_Avoid_: Terminal Logo, payment parameter template
+
+**Advertiser**:
+The brand or organization associated with advertising content. In the first advertising release, this information does not grant a separate portal account or access to terminals.
+_Avoid_: Campaign manager, terminal owner, Portal Access Profile
+
+**Payment-screen Advertising**:
+An image carousel occupying the central content area of the terminal's idle payment screen while its serial number, payment methods, Terminal Logo and merchant footer remain visible.
+_Avoid_: Full-screen Advertising, Terminal Logo
+
+**Full-screen Advertising**:
+An image carousel or muted video loop shown after an Unattended Terminal has been idle for a configured period. A screen touch returns to the payment flow, and a payment request takes priority over advertising.
+_Avoid_: Payment-screen Advertising, payment interaction screen
+
+**Advertising Deployment**:
+A terminal's requested advertising version and its separately acknowledged active version. Publication alone does not mean the terminal has downloaded or activated that version.
+_Avoid_: Published campaign, download completion
+
 **System Header Logo**:
 The brand identifier displayed in the header area of portal pages.
 _Avoid_: Terminal Logo
