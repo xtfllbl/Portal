@@ -1124,6 +1124,7 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/alert-monitoring-hours.css">
 </head>
 <body>
   <div class="page-shell">
@@ -1328,6 +1329,8 @@
                   <div class="field-error" id="storeError" hidden>Select a store.</div>
                 </div>
 
+                <div class="full" id="slaMonitoringHours"></div>
+
                 <div class="field full">
                   <label for="terminalSelect">Terminal</label>
                   <select id="terminalSelect" required></select>
@@ -1462,6 +1465,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="scripts/alert-monitoring-hours.js"></script>
   <script>
     (function () {
       const serviceProviders = [
@@ -2013,9 +2017,12 @@
         populateTerminalSelect(serviceProviderId, agentId, merchantId, elements.storeSelect.value, selectedSn);
       }
 
+      const monitoringHours = window.AlertMonitoringHours.mount(document.getElementById("slaMonitoringHours"), "sla-hours");
+
       function getCurrentRuleFromForm() {
         const scope = elements.scopeSelect.value || "terminal";
         return {
+          monitoringHours: monitoringHours.get(),
           serviceProviderId: elements.serviceProviderSelect.value,
           agentId: elements.agentSelect.disabled ? "" : elements.agentSelect.value,
           scope,
@@ -2209,6 +2216,7 @@
         editingRuleId = rule ? rule.id : null;
         elements.modalTitle.textContent = rule ? "Edit Rule" : "Add Rule";
         elements.form.reset();
+        monitoringHours.set(rule?.monitoringHours);
         draftRecipients = rule ? [...rule.recipients] : [];
 
         if (rule) {
@@ -2266,7 +2274,7 @@
       function saveRule(event) {
         event.preventDefault();
         clearErrors();
-        if (!validateForm()) {
+        if (!monitoringHours.reportValidity() || !validateForm()) {
           return;
         }
 
@@ -2278,6 +2286,7 @@
           merchantId: formRule.merchantId,
           storeId: formRule.storeId,
           terminalSn: formRule.terminalSn,
+          monitoringHours: formRule.monitoringHours,
           offline: formRule.offline,
           noTransaction: formRule.noTransaction,
           recipients: [...draftRecipients],

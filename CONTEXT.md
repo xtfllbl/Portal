@@ -224,6 +224,10 @@ _Avoid_: Device Connection, TMS connectivity
 A Customer Alert condition indicating that the terminal's Payment Service is unavailable for the configured duration.
 _Avoid_: OPC Offline, Device Connection
 
+**Monitoring Hours**:
+The daily time window in which an Alert Rule monitors its target, interpreted in the rule's selected time zone. It defaults to 24-hour monitoring and may be a custom interval that ends on the next day.
+_Avoid_: Employee working hours, notification delivery schedule
+
 **On Hand**:
 Paywizard's current count of sellable units in a BIN and the first-release inventory signal used by Customer Alerts.
 _Avoid_: DEX product level

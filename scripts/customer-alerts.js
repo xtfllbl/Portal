@@ -1441,6 +1441,9 @@
   const conditionSelect = modal.querySelector("[data-alert-condition]");
   const target = modal.querySelector("[data-alert-target]");
   const conditionFields = modal.querySelector("[data-alert-condition-fields]");
+  const monitoringHoursHost = document.createElement("div");
+  conditionFields.after(monitoringHoursHost);
+  const monitoringHours = window.AlertMonitoringHours.mount(monitoringHoursHost, "alert-hours");
   const coverage = modal.querySelector("[data-alert-coverage]");
   const coverageCard = modal.querySelector("[data-alert-coverage-card]");
   const recipientInput = modal.querySelector("[data-alert-recipient-input]");
@@ -1721,6 +1724,7 @@
   }
 
   function renderConditionFields(current = {}) {
+    monitoringHours.setVisible(conditionSelect.value === "opc_offline" && Boolean(targetMetadata()));
     conditionFields.classList.toggle("temperature-range-fields", conditionSelect.value === "temperature_range");
     const selectedTarget = targetMetadata();
     if (!selectedTarget) {
@@ -2008,7 +2012,9 @@
         ownerChangeButton.hidden = Boolean(rule);
       }
     }
+    monitoringHours.set(rule?.monitoringHours);
     conditionSelect.value = rule?.condition || "opc_offline";
+    monitoringHours.setVisible(conditionSelect.value === "opc_offline");
     if (pageType === "terminal") {
       target.value = terminalId;
       conditionSelect.disabled = Boolean(rule);
@@ -2047,7 +2053,8 @@
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     validateConditionFields();
-    if (!form.reportValidity()) return;
+    if (!monitoringHours.reportValidity() || !form.reportValidity()) return;
+    const schedule = monitoringHours.get();
     const parameters = {};
     conditionFields.querySelectorAll("[data-alert-param]").forEach((field) => {
       if (field.type === "radio" && !field.checked) return;
@@ -2066,13 +2073,14 @@
     }
     if (existing && !canManageRule(existing)) return;
     const owner = existing ? accountForRule(existing) : currentRole.isOperations ? selectedRuleOwner : accountFor(currentRole.ownerType, currentRole.ownerId);
-    const duplicate = !existing && state.rules.find((item) => item.status !== "Archived" && item.ownerId === owner?.id && item.ownerType === owner?.type && item.targetType === monitoringTarget.type && item.targetId === monitoringTarget.id && item.condition === condition && JSON.stringify(item.parameters || {}) === JSON.stringify(parameters) && JSON.stringify(item.channels || []) === JSON.stringify(channels) && JSON.stringify(item.recipients || []) === JSON.stringify([...channels.filter((channel) => channel === "Portal Inbox"), ...(channels.includes("Email") ? recipients : [])]));
+    const duplicate = !existing && state.rules.find((item) => item.status !== "Archived" && item.ownerId === owner?.id && item.ownerType === owner?.type && item.targetType === monitoringTarget.type && item.targetId === monitoringTarget.id && item.condition === condition && JSON.stringify(item.parameters || {}) === JSON.stringify(parameters) && JSON.stringify(window.AlertMonitoringHours.normalize(item.monitoringHours)) === JSON.stringify(schedule) && JSON.stringify(item.channels || []) === JSON.stringify(channels) && JSON.stringify(item.recipients || []) === JSON.stringify([...channels.filter((channel) => channel === "Portal Inbox"), ...(channels.includes("Email") ? recipients : [])]));
     if (duplicate) {
       targetError.textContent = "An identical active rule already exists for this owner and target.";
       return;
     }
     const rule = {
       id: existing?.id || `r-${Date.now()}`, condition, parameters,
+      ...(condition === "opc_offline" ? { monitoringHours: schedule } : {}),
       targetType: monitoringTarget.type, targetId: monitoringTarget.id,
       targetName: monitoringTarget.name,
       criteria: criteriaFor(recipeFor(condition), parameters), recipients: [...channels.filter((channel) => channel === "Portal Inbox"), ...(channels.includes("Email") ? recipients : [])], channels,

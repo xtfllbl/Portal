@@ -168,7 +168,7 @@ Store Target 为动态范围：规则自动覆盖当前及未来归属到该 Sto
 
 | Condition | 触发参数 | 主要信号/限制 |
 | --- | --- | --- |
-| Payment Service Offline | Unavailable for（分钟） | Payment Service 不可用时触发。 |
+| Payment Service Offline | Unavailable for（分钟）、Monitoring Hours | Payment Service 不可用时触发。 |
 | No Approved Transaction | No transaction for（小时）、Opening grace（分钟）、Evaluation schedule | 使用最后一笔 Approved Transaction；MVP 评估计划为 Store business hours。 |
 | Machine Stock Below % PAR | Below（% PAR） | 使用全部 Product Map 的 On Hand / PAR。 |
 | Any BIN Below Quantity | Below quantity（units） | 逐个评估 Product Map BIN。 |
@@ -444,3 +444,16 @@ Timeline 是 Incident 的审计流程查看器：
 Agent ancestry uses parentId and level (1–3). Existing agents remain level 1. Owner Level exposes SP, Agent, Merchant and Store, with all agent depths combined under Agent. Terminal creation lists only actual owner types and restricts the Agent search to its ancestor chain. In Alert Center, all fields through the chosen owner type are searchable immediately. Selecting a lower account backfills ancestors; explicit upper selections narrow descendants. Automatically backfilled values do not impose new filters, so another bottom-level search can switch paths. All-options clear explicit filters and downstream selections. Agent results include Level; search matches account name, ID and ancestor names, and same-name accounts include their path and ID. Rule ownerType remains Agent with the selected account ID; ancestor IDs are included in organization filtering and descendant monitoring coverage.
 
 Demo terminals DEMO-AGT1-001, DEMO-AGT2-001, and DEMO-AGT3-001 exercise direct merchants at each depth, under Universal Processing. Existing IDs and saved data are retained.
+
+
+### Monitoring Hours（2026-09-10 确认）
+
+- 适用于 `39.customer_alerts.html` 和 `1.terminalmanage_nayax.html` 的 Payment Service Offline 创建/编辑规则弹窗；其他 Customer Alert 条件不显示、不保存此配置。
+- `32.sla_alert_rules.html` 的创建/编辑规则弹窗提供同一配置，作用于该 SLA 规则启用的监控条件。
+- 默认 24 hours；旧规则没有配置时也按 24 小时解释。选择 Custom hours 后必须填写 Time Zone、Start Time、End Time。
+- 每天重复一个时段，不配置星期、节假日或多个时段。结束时间早于开始时间表示次日，并显示 next day；相同时间不允许保存，全天监控应选择 24 hours。
+- 时区默认浏览器时区（不可用时 UTC），允许修改；所选地区时区随规则保存，编辑不按查看者时区转换。地区时区用于遵循该地区的夏令时，而非固定 UTC 偏移。
+- Alerts 的本地保存、刷新和编辑保留时段；重复规则判断包含时段。SLA 沿用页面内存保存，刷新重置为示例数据。
+- 当前原型仅配置与回填，不执行真实时段调度。跨窗口阈值累计、未恢复事件及重复通知在窗口外的处理属于后端后续定义，本次不改变现有事件演示行为。
+
+- 时区选择支持按地区名称、城市或 UTC 偏移搜索；候选项和选中值显示当前偏移（如 Asia/Shanghai (+08:00)），遵循当前夏令时。保存仍使用地区时区标识；搜索无匹配时显示空状态，取消搜索保留原选择。
