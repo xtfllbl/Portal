@@ -4,6 +4,14 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**System Header Logo**:
+The brand identifier displayed in the header area of portal pages.
+_Avoid_: Terminal Logo
+
+**Terminal Logo**:
+The brand image intended for a terminal's idle screen and customer receipts.
+_Avoid_: System Header Logo
+
 **Billing Payment Receipt**:
 A confirmation of one successful payment against a Billing Record, addressed to the payer email supplied at checkout. For fixed-term billing, each successful installment has its own receipt; full completion means all agreed installments have been paid.
 _Avoid_: Payment link invitation, contract total, invoice payment request

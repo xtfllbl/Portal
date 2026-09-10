@@ -427,6 +427,15 @@
   if (/^5\./.test(fileName)) document.body.classList.add("pw-admin", "pw-merchant-flow-page");
   document.body.insertBefore(frame, document.body.firstChild);
 
+  window.paywizardBrandingReady = new Promise(function (resolve, reject) {
+    var brandingScript = document.createElement('script');
+    brandingScript.src = new URL('branding-store.js', document.currentScript.src).href;
+    brandingScript.onload = function () { resolve(window.PaywizardBranding); };
+    brandingScript.onerror = function () { reject(new Error('Unable to load logo settings.')); };
+    document.head.appendChild(brandingScript);
+  });
+  window.paywizardBrandingReady.catch(function () { /* Branding must not block portal navigation. */ });
+
   if (fileName === "39.customer_alerts.html") {
     frame.classList.add("alerts-app-frame");
     frame.querySelector(".pw-platform-sidebar").classList.add("alerts-sidebar");

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Provider Custom Email Service</title>
+  <title>Branding | Paywizard</title>
   <style>
     :root {
       --page-bg: #f7f8fa;
@@ -632,6 +632,7 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/branding.css">
 </head>
 <body>
   <div class="page-shell">
@@ -767,12 +768,56 @@
     <main class="content-panel">
       <h1 class="page-title">Branding</h1>
       <div class="tabs" role="tablist" aria-label="Branding settings">
-        <button class="tab" type="button" role="tab" aria-selected="false">Logo Management</button>
-        <button class="tab active" type="button" role="tab" aria-selected="true">Email Service</button>
-        <button class="tab" type="button" role="tab" aria-selected="false">TMS Setting</button>
+        <button class="tab active" id="logo-tab" type="button" role="tab" aria-controls="logo-panel" aria-selected="true" data-branding-tab="logo">Logo Management</button>
+        <button class="tab" id="email-tab" type="button" role="tab" aria-controls="email-panel" aria-selected="false" tabindex="-1" data-branding-tab="email">Email Setting</button>
+        <button class="tab" type="button" role="tab" aria-selected="false" disabled title="TMS settings are not available in this prototype">TMS Setting</button>
       </div>
-
-      <section class="settings-box" aria-label="Email settings">
+      <section id="logo-panel" class="logo-panel" role="tabpanel" aria-labelledby="logo-tab">
+        <section class="logo-section" data-logo="header" aria-labelledby="header-title">
+          <h2 id="header-title">System Header Logo</h2>
+          <div class="logo-grid">
+            <div class="logo-upload-card">
+              <button class="logo-dropzone" type="button" data-upload aria-label="Upload System Header Logo" aria-describedby="header-error" disabled>
+                <span data-empty><span class="material-symbols-rounded upload-icon" aria-hidden="true">upload</span><span>Click or drag images here to upload</span></span>
+                <img data-preview hidden alt="System Header Logo preview">
+              </button>
+              <input type="file" accept="image/jpeg,image/png" data-file hidden aria-label="System Header Logo file">
+              <div class="logo-file-row" data-file-row hidden><span data-filename></span><div class="logo-file-actions"><button class="action-btn" type="button" data-replace>Replace</button><button class="action-btn" type="button" data-remove>Remove</button></div></div>
+              <p class="logo-error" id="header-error" data-error role="alert" hidden></p>
+            </div>
+            <div class="logo-guidelines">
+              <h3>Logo Upload Guidelines</h3>
+              <dl>
+                <dt>File Specifications</dt><dd>JPG or PNG, up to <strong>2 MB</strong>.</dd>
+                <dt>Design Recommendations</dt><dd>Display area: <strong>176 × 44 px</strong>. Use a transparent PNG at these dimensions for the best result. Other sizes are scaled to fit without cropping.</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+        <section class="logo-section" data-logo="terminal" aria-labelledby="terminal-title">
+          <h2 id="terminal-title">Terminal Logo</h2>
+          <div class="logo-grid">
+            <div class="logo-upload-card">
+              <button class="logo-dropzone" type="button" data-upload aria-label="Upload Terminal Logo" aria-describedby="terminal-error" disabled>
+                <span data-empty><span class="material-symbols-rounded upload-icon" aria-hidden="true">upload</span><span>Click or drag images here to upload</span></span>
+                <img data-preview hidden alt="Terminal Logo preview">
+              </button>
+              <input type="file" accept="image/jpeg,image/png" data-file hidden aria-label="Terminal Logo file">
+              <div class="logo-file-row" data-file-row hidden><span data-filename></span><div class="logo-file-actions"><button class="action-btn" type="button" data-replace>Replace</button><button class="action-btn" type="button" data-remove>Remove</button></div></div>
+              <p class="logo-error" id="terminal-error" data-error role="alert" hidden></p>
+            </div>
+            <div class="logo-guidelines">
+              <h3>Terminal Logo Guidelines</h3>
+              <dl>
+                <dt>File Specifications</dt><dd>JPG or PNG, up to <strong>2 MB</strong>.</dd>
+                <dt>Design Recommendations</dt><dd>Display area: <strong>240 × 160 px</strong>. Use a transparent PNG at these dimensions for the best result. Other sizes are scaled to fit without cropping.</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+        <div class="logo-save-row"><p data-logo-status role="status">Loading logos…</p><button class="action-btn primary" type="button" data-save-logos disabled><span class="material-symbols-rounded" aria-hidden="true">save</span>Save</button></div>
+      </section>
+      <section id="email-panel" class="settings-box" role="tabpanel" aria-labelledby="email-tab" hidden>
         <div class="service-toolbar">
           <div class="service-selector">
             <div class="mode-toggle" role="radiogroup" aria-label="Email service mode">
@@ -904,5 +949,6 @@
     })();
   </script>
   <script src="scripts/platform-admin-shell.js"></script>
+  <script src="scripts/branding.js"></script>
 </body>
 </html>
