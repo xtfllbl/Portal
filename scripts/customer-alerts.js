@@ -314,6 +314,31 @@
     };
   }
 
+  function migrateIncidentOwner(incident, rules) {
+    if (rules.some(rule => rule.id === incident.ruleId) || (incident.ownerType && (incident.ownerName || incident.owner))) return incident;
+    let owner = accountForRule(incident);
+    if (!owner && !incident.ruleId) {
+      const path = findTargetPath("Terminal", incident.terminalId);
+      // Original Alert Center seeds had no ruleId. Earlier migrations also removed
+      // source, so recover only these documented records by their full identity.
+      const legacyOwners = [
+        { id: "i-1007", condition: "no_approved_transaction", terminalId: "WP6267UQ36002376", opened: "2026-08-28 07:24", source: "My organization" },
+        { id: "i-1006", condition: "any_bin", terminalId: "NYC-Q3-0042", opened: "2026-08-28 06:10", source: "Customer Alert · Managed by Service Provider" },
+        { id: "i-1005", condition: "opc_offline", terminalId: "BOS-Q3-0018", opened: "2026-08-27 21:04", source: "Platform-managed Alert" }
+      ];
+      const legacy = legacyOwners.find(item => ["id", "condition", "terminalId", "opened"].every(key => item[key] === incident[key]));
+      const source = incident.source || legacy?.source;
+      if (source === "Platform-managed Alert") owner = { type: "Platform", id: "paywizard", name: "Paywizard", path: "Paywizard" };
+      else if (source === "Customer Alert · Managed by Service Provider" && path) owner = accountFor("Service Provider", path.provider.id);
+      else if (legacy && source === "My organization" && path) owner = accountFor("Merchant", path.merchant.id);
+      else if (!source) {
+        const matches = demoIncidents.filter(item => ["condition", "terminalId", "opened"].every(key => item[key] === incident[key]));
+        if (matches.length === 1) owner = accountForRule(demoRules.find(rule => rule.id === matches[0].ruleId) || {});
+      }
+    }
+    return owner ? { ...incident, ownerType: owner.type, ownerId: owner.id, ownerName: owner.name, owner: owner.name, ownerPath: owner.path } : incident;
+  }
+
   function readState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -336,7 +361,7 @@
         return migrated;
       });
       parsed.incidents = parsed.incidents.map((incident) => {
-        const migrated = migrateIncident(incident);
+        const migrated = migrateIncident(migrateIncidentOwner(incident, parsed.rules));
         if (JSON.stringify(migrated) !== JSON.stringify(incident)) changed = true;
         return migrated;
       });
@@ -424,6 +449,10 @@
     return organizationMatches && ownerMatches;
   }
 
+  function incidentOwnerRecord(incident) {
+    return state.rules.find(rule => rule.id === incident.ruleId) || (incident.ownerType ? incident : null);
+  }
+
   function visibleIncidents() {
     const items = roleVisibleIncidents();
     const { state: stateFilter, acknowledgement: ackFilter, store: storeFilter, terminal: terminalFilter, condition: conditionFilter } = appliedCenterFilters;
@@ -433,7 +462,7 @@
       const storeMatches = !storeFilter || item.store.toLowerCase().includes(storeFilter);
       const terminalMatches = !terminalFilter || `${item.terminalName} ${item.terminalId}`.toLowerCase().includes(terminalFilter);
       const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
-      const rule = state.rules.find((candidate) => candidate.id === item.ruleId);
+      const rule = incidentOwnerRecord(item);
       return (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && storeMatches && terminalMatches && conditionMatches && operationsFilterMatches(rule);
     });
   }
@@ -456,7 +485,7 @@
     if (!body) return;
     const items = visibleIncidents();
     body.innerHTML = items.length ? items.map((item) => {
-      const incidentRule = state.rules.find((rule) => rule.id === item.ruleId);
+      const incidentRule = incidentOwnerRecord(item);
       const incidentOwner = accountForRule(incidentRule || {});
       const ownerCell = currentRole.isOperations ? `<td class="alert-owner-cell"><strong>${escapeHtml(ownerTypeLabel(incidentOwner) || incidentRule?.ownerType || "Customer Account")} · ${escapeHtml(incidentOwner?.name || incidentRule?.ownerName || incidentRule?.owner || "Unknown owner")}</strong></td>` : "";
       const targetCell = pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(evidenceModel.target(item))}</td>` : "";
@@ -495,7 +524,7 @@
   }
 
   function renderCounts() {
-    const incidents = roleVisibleIncidents().filter((incident) => operationsFilterMatches(state.rules.find((rule) => rule.id === incident.ruleId)));
+    const incidents = roleVisibleIncidents().filter((incident) => operationsFilterMatches(incidentOwnerRecord(incident)));
     const rules = roleVisibleRules().filter(operationsFilterMatches);
     const values = { active: incidents.filter((item) => item.monitoringState === "Active").length, rules: rules.filter((rule) => rule.status === "Active").length };
     Object.entries(values).forEach(([key, value]) => { surface.querySelectorAll(`[data-alert-count="${key}"]`).forEach((node) => { node.textContent = String(value); }); });
