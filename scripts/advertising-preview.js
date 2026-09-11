@@ -1,10 +1,24 @@
 (function () {
   'use strict';
   // Native display sizes come from the supplied Q3V (UPT) and Q3min datasheets.
-  // The quadrilaterals map those displays onto the product photographs' perspective.
+  // Each quadrilateral follows the screen in its approved product view asset.
+  // Hardware and its asymmetric controls must never be horizontally reflected.
   const models = {
-    q3v: { name: 'Q3V (UPT)', width: 480, height: 800, bodyWidth: 846, bodyHeight: 1269, corners: [[318, 315], [671, 309], [668, 920], [320, 937]] },
-    q3min: { name: 'Q3min', width: 480, height: 480, bodyWidth: 782, bodyHeight: 963, corners: [[88, 140], [739, 164], [739, 846], [88, 874]] }
+    q3v: {
+      name: 'Q3V (UPT)', width: 480, height: 800,
+      // Original supplied photograph: clip only its surroundings, retaining the hardware pixels.
+      body: 'assets/advertising/q3v-supplied-front.png', bodyWidth: 2160, bodyHeight: 2634,
+      view: { x: 850, y: 700, width: 968, height: 1438 },
+      outline: 'M1333 739 C1190 739 1100 742 1014 747 C950 750 892 801 892 872 L892 1935 C892 2018 928 2064 1001 2080 C1210 2099 1461 2099 1662 2080 C1733 2073 1773 2017 1773 1945 L1773 870 C1773 805 1728 753 1668 748 C1554 741 1450 739 1333 739 Z',
+      // Equal scale on both axes: 480 × 800 maps to 453 × 755, including the old UI edge pixels.
+      corners: [[1108, 1034], [1561, 1034], [1561, 1789], [1108, 1789]]
+    },
+    q3min: {
+      name: 'Q3min', width: 480, height: 480,
+      body: 'assets/advertising/q3min-left.png', bodyWidth: 1254, bodyHeight: 1254,
+      view: { x: 150, y: 40, width: 970, height: 1170 },
+      corners: [[227, 264], [969, 219], [969, 1073], [227, 1033]]
+    }
   };
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function projection(model) {
@@ -18,14 +32,16 @@
   }
   function mount({ host, status, campaign, modelId = 'q3v', assetFor, urlFor, sn = 'WP53307Q39000001', merchant = 'Meat The Bun Ltd' }) {
     const D = window.PaywizardAdvertisingDomain;
-    const c = D.copy(campaign);
+    const c = D.normalize(campaign, campaign.items.map(item => item.asset || assetFor(item.assetId)).filter(Boolean));
     const model = models[modelId] || models.q3v;
     if (!models[modelId]) modelId = 'q3v';
-    host.innerHTML = `<div class="ads-device-stage" data-model="${modelId}" style="aspect-ratio:${model.bodyWidth}/${model.bodyHeight}"><div class="ads-hardware" style="width:${model.bodyWidth}px;height:${model.bodyHeight}px"><img class="ads-device-body" src="assets/advertising/${modelId}-body.png" alt="${model.name} terminal" style="mask-image:url(assets/advertising/${modelId}-mask.png)"><div class="ads-native-display ${modelId}" data-width="${model.width}" data-height="${model.height}" style="width:${model.width}px;height:${model.height}px;transform:${projection(model)}"></div></div></div>`;
+    const view = model.view || { x: 0, y: 0, width: model.bodyWidth, height: model.bodyHeight };
+    const bodyStyle = model.outline ? `clip-path:path('${model.outline}')` : model.body ? '' : `mask-image:url(assets/advertising/${modelId}-mask.png)`;
+    host.innerHTML = `<div class="ads-device-stage" data-model="${modelId}" style="aspect-ratio:${view.width}/${view.height}"><div class="ads-hardware" style="width:${model.bodyWidth}px;height:${model.bodyHeight}px"><img class="ads-device-body" src="${model.body || `assets/advertising/${modelId}-body.png`}" alt="${model.name} terminal" style="${bodyStyle}"><div class="ads-native-display ${modelId}" data-width="${model.width}" data-height="${model.height}" style="width:${model.width}px;height:${model.height}px;transform:${projection(model)}"></div></div></div>`;
     const stage = host.querySelector('.ads-device-stage');
     const hardware = host.querySelector('.ads-hardware');
     const display = host.querySelector('.ads-native-display');
-    const resize = () => { hardware.style.transform = `scale(${stage.clientWidth / model.bodyWidth})`; };
+    const resize = () => { hardware.style.transform = `scale(${stage.clientWidth / view.width}) translate(${-view.x}px, ${-view.y}px)`; };
     const observer = new ResizeObserver(resize); observer.observe(stage); resize();
     let disposed = false, timer, idleTimer, generation = 0, index = 0, order = [], mediaNode = null, inPayment = false, suspended = false;
     const report = text => { status.textContent = text; };
@@ -44,13 +60,11 @@
     }
     function makeOrder() {
       order = c.items.map((_, i) => i);
-      if (c.order === 'shuffle') for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
       index = 0;
     }
     async function playNext() {
       if (disposed || inPayment || suspended) return;
       halt();
-      if (!D.scheduled(c)) { screen(); report('Outside scheduled hours'); return; }
       if (!c.items.length) { screen(); report('Add media to the playlist'); return; }
       if (!order.length || index >= order.length) makeOrder();
       const item = c.items[order[index++]];
@@ -84,7 +98,6 @@
     }
     function idle(immediate = false) {
       halt(); inPayment = false; screen();
-      if (!D.scheduled(c)) { report('Outside scheduled hours'); return; }
       if (c.mode === 'fullscreen' && !immediate) {
         let remaining = Math.max(5, Number(c.idleSeconds) || 30);
         const tick = () => { if (disposed || inPayment || suspended) return; if (remaining <= 0) playNext(); else { report(`Starts in ${remaining--}s`); idleTimer = setTimeout(tick, 1000); } };
@@ -94,15 +107,8 @@
     function restart() { index = 0; order = []; idle(true); }
     const visibility = () => { suspended = document.hidden; if (suspended) { halt(); report('Paused'); } else if (!inPayment) idle(true); };
     document.addEventListener('visibilitychange', visibility);
-    let wasScheduled = D.scheduled(c);
-    const scheduleTimer = setInterval(() => {
-      const scheduled = D.scheduled(c);
-      if (!scheduled && wasScheduled && !inPayment) { halt(); screen(); report('Outside scheduled hours'); }
-      else if (scheduled && !wasScheduled && !inPayment && !suspended) idle();
-      wasScheduled = scheduled;
-    }, 500);
     idle(true);
-    return { restart, payment, idle, dispose() { disposed = true; halt(); clearInterval(scheduleTimer); observer.disconnect(); document.removeEventListener('visibilitychange', visibility); } };
+    return { restart, payment, idle, dispose() { disposed = true; halt(); observer.disconnect(); document.removeEventListener('visibilitychange', visibility); } };
   }
   window.PaywizardAdvertisingPreview = { models, mount };
 })();

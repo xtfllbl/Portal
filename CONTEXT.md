@@ -5,24 +5,40 @@ Paywizard Portal provides operational and customer-facing management for payment
 ## Language
 
 **Advertising Campaign**:
-A named advertising playlist, display mode, schedule and set of target Unattended Terminals, managed by an existing portal management account. Each terminal is assigned one advertising display mode at a time.
+A named advertising playlist, display mode and set of target Stores and/or individual Unattended Terminals, managed by an existing portal management account. A playlist contains images or videos, never both, and repeats in its listed order. Each terminal is assigned one advertising display mode at a time.
 _Avoid_: Terminal Logo, payment parameter template
+
+**Advertising Store Target**:
+A Store selected as a continuing scope for an Advertising Campaign. Its current and future Unattended Terminals are included, and terminals leaving the Store leave this scope. A campaign may combine Store targets with individual Terminal targets; overlapping membership counts once.
+_Avoid_: Terminal snapshot, store filter, Dynamic Store Target for Customer Alerts
+
+**Advertising Target Conflict**:
+A terminal in a campaign's intended scope that is already assigned another non-stopped campaign. An existing conflict blocks publication. A conflict caused by later Store membership changes preserves the existing assignment and leaves the new assignment pending resolution; other targets continue normally.
+_Avoid_: Automatic overwrite, terminal sync failure
+
+**Advertising Media Preview**:
+A view of an individual advertising image or video in its own proportions, independent of any terminal model or campaign playback settings.
+_Avoid_: Terminal Preview, Campaign Preview
+
+**Advertising Campaign Preview**:
+The editor's inline simulation of the configuration being edited on a selected terminal model. Campaigns has no separate Preview action or dialog.
+_Avoid_: Media Preview
 
 **Advertiser**:
 The brand or organization associated with advertising content. In the first advertising release, this information does not grant a separate portal account or access to terminals.
 _Avoid_: Campaign manager, terminal owner, Portal Access Profile
 
-**Payment-screen Advertising**:
+**Idle-screen Advertising**:
 An image carousel occupying the central content area of the terminal's idle payment screen while its serial number, payment methods, Terminal Logo and merchant footer remain visible.
-_Avoid_: Full-screen Advertising, Terminal Logo
+_Avoid_: Payment-screen Advertising, Full-screen Advertising, Terminal Logo
 
 **Full-screen Advertising**:
 An image carousel or muted video loop shown after an Unattended Terminal has been idle for a configured period. A screen touch returns to the payment flow, and a payment request takes priority over advertising.
-_Avoid_: Payment-screen Advertising, payment interaction screen
+_Avoid_: Idle-screen Advertising, payment interaction screen
 
-**Advertising Deployment**:
-A terminal's requested advertising version and its separately acknowledged active version. Publication alone does not mean the terminal has downloaded or activated that version.
-_Avoid_: Published campaign, download completion
+**Advertising Target Assignment**:
+The published, non-stopped Campaign currently assigned to a Terminal in the portal prototype. It is used for single-campaign conflict protection and dynamic Store coverage; it does not represent a device acknowledgement or download status.
+_Avoid_: Terminal sync, download completion
 
 **System Header Logo**:
 The brand identifier displayed in the header area of portal pages.
@@ -137,7 +153,7 @@ The Portal Access Profile limited to viewing and paying the merchant's bills, wi
 _Avoid_: Read-only Merchant, External Payer
 
 **Customer Account**:
-A service provider, agent, merchant, or store account that forms an isolated ownership and access boundary for Customer Alerts. Paywizard operators select a Customer Account when performing Delegated Rule Creation; they do not assume that account's login role.
+A service provider, agent, merchant, or store account that forms an ownership and access boundary for Customer Alerts and defines the terminal scope of an Advertising Account Context. Paywizard operators select a Customer Account when performing Delegated Rule Creation; they do not assume that account's login role.
 _Avoid_: Role Simulator, Monitoring Target
 
 **Attended Store**:

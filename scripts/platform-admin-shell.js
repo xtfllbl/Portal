@@ -104,7 +104,7 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
-    if (target.active === "advertising" && !["wizarpos", "full-service", "unattended"].includes(profile)) return "12.transaction_list.html";
+    if (target.active === "advertising") return ["wizarpos", "full-service", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
     if (target.module === "matintain" && profile !== "wizarpos") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
     if (profiles[profile].merchant) {
@@ -283,6 +283,7 @@
       disabled("Dashboard", "dashboard"),
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
       device,
+      activeProfile === "unattended-store" ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
       group("User Management", "manage_accounts", "users", unavailableSub("User List") + unavailableSub("Role Permissions"))
     ].join("");
 
@@ -294,7 +295,7 @@
       isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
-      ["wizarpos", "full-service", "unattended"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
+      ["wizarpos", "full-service", "unattended", "unattended-merchant"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
       !isMerchant ? link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps") : "",
       link("Remote Diagnostic", "13.remote_control.html", "cast_connected", "remote"),
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",

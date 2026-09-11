@@ -23,10 +23,8 @@
       { ...base, id: 'lunch-break', name: 'Lunch break', advertiser: 'Meat The Bun', mode: 'fullscreen', items: [{ assetId: 'bun', seconds: 10 }, { assetId: 'fresh', seconds: 8 }], targets: [terminals[3].sn] },
       { ...base, id: 'coffee-moments', name: 'Coffee moments', mode: 'fullscreen', mediaType: 'video', items: [{ assetId: 'coffee-video', seconds: 6 }], targets: [] }
     ];
-    const state = { schema: 1, assets, terminals, campaigns: [], deployments: {} };
+    const state = { schema: 2, assets, terminals, campaigns: [], assignments: {} };
     D.publish(state, campaigns[0]);
-    D.sync(state, terminals[0].sn, 'success');
-    D.sync(state, terminals[1].sn, 'busy');
     state.campaigns.push(campaigns[1], campaigns[2]);
     return state;
   }
@@ -34,8 +32,8 @@
     const raw = localStorage.getItem(key);
     if (!raw) return seed();
     const value = JSON.parse(raw);
-    if (value.schema !== 1 || !Array.isArray(value.assets) || !Array.isArray(value.campaigns) || !Array.isArray(value.terminals) || !value.deployments) throw new Error('Saved advertising data could not be read. Existing browser data has been preserved.');
-    return value;
+    if (![1, 2].includes(value.schema) || !Array.isArray(value.assets) || !Array.isArray(value.campaigns) || !Array.isArray(value.terminals)) throw new Error('Saved advertising data could not be read. Existing browser data has been preserved.');
+    return D.upgrade(value);
   }
   function save(state) { localStorage.setItem(key, JSON.stringify(state)); }
   function db() {

@@ -7,7 +7,6 @@
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => crypto.randomUUID();
-  const date = value => value ? new Date(value).toLocaleString('en-GB', { timeZone: 'UTC', year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
   const size = bytes => bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
   let state;
   try { state = S.read(); S.save(state); } catch (error) { $('adsContent').innerHTML = `<p class="ads-error">${esc(error.message)}</p>`; $('createCampaign').disabled = true; return; }
@@ -16,27 +15,46 @@
   let dirty = false;
   let toastTimer;
   let confirmFn;
-  let stopPreview = null;
+  let stopAssetPreview = null;
   let editorPreview = null;
   let editorPreviewKey = '';
   const P = window.PaywizardAdvertisingPreview;
+  const directory = window.PaywizardCustomerAccountDirectory.create(window.PaywizardCustomerAccountData.createHierarchy());
+  // This demo uses the complete directory. Former account-switch preferences
+  // do not restrict target selection, saved drafts or new publications.
+  commit(next => {
+    next.stores = directory.accounts.filter(n => n.type === 'store').map(n => ({ id: n.id, name: n.name, merchant: directory.account(n.parentKey)?.name || '', accountKeys: n.lineageKeys }));
+    for (const old of next.terminals) if (old.accountKeys && !directory.terminals.some(t => t.sn === old.sn)) {
+      old.accountKeys = []; delete old.storeId;
+    }
+    for (const terminal of directory.terminals) {
+      const identity = { sn: terminal.sn, accountKeys: terminal.lineageKeys, providerId: terminal.providerId, agentId: terminal.agentId, merchantId: terminal.merchantId, storeId: terminal.storeId, merchant: terminal.merchant, store: terminal.store };
+      const existing = next.terminals.find(item => item.sn === terminal.sn);
+      if (existing) Object.assign(existing, identity);
+      else next.terminals.push({ ...identity, name: terminal.name });
+    }
+  });
   const icon = (name, up = false) => `<img class="ads-icon${up ? ' ads-icon-up' : ''}" src="assets/icons/${name}.svg" alt="">`;
+  const rowAction = (action, value, label, name, iconName) => `<button type="button" class="ads-row-action${action === 'edit' ? ' primary' : action === 'stop' ? ' danger' : ''}" data-${action}="${esc(value)}" data-tooltip="${esc(label)}" aria-label="${esc(label)} ${esc(name)}"><span class="material-symbols-rounded" aria-hidden="true">${iconName}</span></button>`;
+  const targetPicker = window.PaywizardAdvertisingTargetPicker.mount({ host: $('targetPicker'), directory, state: () => state, draft: () => draft, changed: () => { dirty = true; syncEditor(); } });
   let search = '';
   let filter = '';
   const params = new URLSearchParams(location.search);
-  const contextSn = params.get('sn')?.trim() || '';
-  if (contextSn && !state.terminals.some(t => t.sn === contextSn)) {
-    state.terminals.push({ sn: contextSn, name: params.get('terminalName') || contextSn, merchant: params.get('merchantName') || 'Selected terminal', store: 'Selected terminal', online: false });
-    S.save(state);
-  }
+  let contextSn = params.get('sn')?.trim() || '';
   const contextTerminal = state.terminals.find(t => t.sn === contextSn);
-  const terminal = sn => state.terminals.find(t => t.sn === sn);
   const campaign = id => state.campaigns.find(c => c.id === id);
   const media = id => state.assets.find(a => a.id === id);
-  const badge = status => `<span class="ads-badge ${/Up to date|Published/.test(status) ? 'live' : /failed|Missing/.test(status) ? 'failed' : /Queued|Waiting|pending/.test(status) ? 'pending' : ''}">${esc(status)}</span>`;
+  const badge = status => `<span class="ads-badge ${/Published/.test(status) ? 'live' : /failed|Missing/.test(status) ? 'failed' : /pending/.test(status) ? 'pending' : ''}">${esc(status)}</span>`;
   function toast(message) { clearTimeout(toastTimer); $('adsToast').textContent = message; $('adsToast').hidden = false; toastTimer = setTimeout(() => $('adsToast').hidden = true, 4500); }
-  function errorAt(id, message) { $(id).textContent = message; $(id).hidden = !message; }
-  function commit(change) { const next = S.read(); const value = change(next); S.save(next); state = next; return value; }
+  function errorAt(id, message) {
+    const node = $(id);
+    node.textContent = message; node.hidden = !message;
+    if (message && (id === 'editorError' || id === 'confirmError')) {
+      node.scrollIntoView({ block: 'center', behavior: 'instant' });
+      node.focus({ preventScroll: true });
+    }
+  }
+  function commit(change) { const next = S.read(); const value = change(next); D.reconcile(next); S.save(next); state = next; return value; }
   function table(headings, rows, empty = 'No matching records.') {
     return `<div class="ads-table-wrap" role="region" aria-label="${esc(currentView)} table" tabindex="0"><table class="ads-table"><thead><tr>${headings.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows || `<tr><td colspan="${headings.length}" class="ads-empty">${empty}</td></tr>`}</tbody></table></div>`;
   }
@@ -56,7 +74,7 @@
   }
   function setView(view) {
     editorPreview?.dispose(); editorPreview = null; editorPreviewKey = ''; 
-    currentView = ['campaigns', 'media', 'deployments'].includes(view) ? view : 'campaigns';
+    currentView = ['campaigns', 'media'].includes(view) ? view : 'campaigns';
     search = ''; filter = ''; draft = null; dirty = false;
     $('adsEditor').hidden = true; $('adsContent').hidden = false;
     document.querySelector('.ads-tabs').hidden = false;
@@ -68,52 +86,52 @@
   function renderView() {
     if (currentView === 'campaigns') renderCampaigns();
     else if (currentView === 'media') renderMedia();
-    else if (currentView === 'deployments') renderDeployments();
   }
   function renderCampaigns() {
-    const items = state.campaigns.filter(c => (!contextSn || c.targets.includes(contextSn)) && c.name.toLowerCase().includes(search.toLowerCase()) && (!filter || (filter === 'published' ? c.published : !c.published)));
-    $('adsContent').innerHTML = `<div class="ads-toolbar"><input id="campaignSearch" type="search" aria-label="Search campaigns" placeholder="Search campaign" value="${esc(search)}"><select id="campaignFilter" aria-label="Campaign status"><option value="">All statuses</option><option value="published" ${filter === 'published' ? 'selected' : ''}>Published</option><option value="draft" ${filter === 'draft' ? 'selected' : ''}>Draft</option></select><span class="ads-count">${items.length} campaigns</span></div>` + table(['CAMPAIGN', 'DISPLAY MODE', 'PLAYLIST', 'TERMINALS', 'STATUS', 'ACTIONS'], items.map(c => `<tr><td><div class="ads-campaign-name">${thumbnail(media(c.items[0]?.assetId))}<button class="ads-name-button" data-edit="${esc(c.id)}">${esc(c.name)}</button></div></td><td>${esc(D.modeLabel(c))}</td><td>${c.items.length} ${c.mediaType === 'video' ? 'videos' : 'images'}</td><td>${c.targets.length}</td><td>${badge(c.published ? `Published · v${c.published.version}` : 'Draft')}</td><td><div class="ads-table-actions"><button data-edit="${esc(c.id)}">Edit</button><button data-copy="${esc(c.id)}" aria-label="Duplicate ${esc(c.name)}">Duplicate</button></div></td></tr>`).join(''), contextSn ? 'No campaigns assigned to this terminal. Create a campaign to get started.' : 'No campaigns found. Create a campaign to get started.');
+    const items = state.campaigns.filter(c => (!contextSn || D.resolveTargets(c, state.terminals).includes(contextSn)) && c.name.toLowerCase().includes(search.toLowerCase()) && (!filter || (filter === 'stopped' ? c.publicationStopped : filter === 'published' ? c.published && !c.publicationStopped : !c.published)));
+    $('adsContent').innerHTML = `<div class="ads-toolbar"><input id="campaignSearch" type="search" aria-label="Search campaigns" placeholder="Search campaign" value="${esc(search)}"><select id="campaignFilter" aria-label="Campaign status"><option value="">All statuses</option><option value="published" ${filter === 'published' ? 'selected' : ''}>Published</option><option value="draft" ${filter === 'draft' ? 'selected' : ''}>Draft</option><option value="stopped" ${filter === 'stopped' ? 'selected' : ''}>Stopped</option></select><span class="ads-count">${items.length} campaigns</span></div>` + table(['CAMPAIGN', 'DISPLAY MODE', 'PLAYLIST', 'TARGETS', 'STATUS', 'ACTIONS'], items.map(c => `<tr><td><div class="ads-campaign-name">${thumbnail(media(c.items[0]?.assetId))}<button class="ads-name-button" data-edit="${esc(c.id)}">${esc(c.name)}</button></div></td><td>${esc(D.modeLabel(c))}</td><td>${c.items.length} ${c.mediaType === 'video' ? 'videos' : 'images'}</td><td>${esc(targetSummary(c))}</td><td>${badge(c.publicationStopped ? 'Stopped' : c.published ? `Published · v${c.published.version}` : 'Draft')}${state.targetConflicts?.some(item => item.campaignId === c.id) ? ' <span class="ads-badge pending">Target conflict</span>' : ''}</td><td><div class="ads-table-actions">${rowAction('edit', c.id, 'Edit', c.name, 'edit_square')}${rowAction('copy', c.id, 'Duplicate', c.name, 'content_copy')}${c.published && !c.publicationStopped ? rowAction('stop', c.id, 'Stop Campaign', c.name, 'block') : ''}</div></td></tr>`).join(''), contextSn ? 'No campaigns assigned to this terminal. Create a campaign to get started.' : 'No campaigns found. Create a campaign to get started.');
     hydrate();
     $('campaignSearch').addEventListener('input', event => { search = event.target.value; const cursor = event.target.selectionStart; renderCampaigns(); $('campaignSearch').focus(); $('campaignSearch').setSelectionRange(cursor, cursor); });
     $('campaignFilter').addEventListener('change', event => { filter = event.target.value; renderCampaigns(); });
   }
   function mediaCard(asset, picker = false) {
-    return `<article class="ads-media-card"><div class="ads-media-cover">${asset.type === 'video' && !asset.poster ? `<video data-asset="${esc(asset.id)}" muted playsinline preload="metadata"></video>` : `<img data-asset="${esc(asset.id)}" alt="${esc(asset.name)}">`}${badge(asset.type === 'image' ? 'Image' : `${Math.round(asset.seconds || 0)}s video`)}</div><div class="ads-media-info"><strong>${esc(asset.name)}</strong><div class="ads-media-facts"><span>${asset.width} × ${asset.height}</span><span>${size(asset.bytes)}</span></div><div class="ads-actions">${picker ? `<button data-add-asset="${esc(asset.id)}" class="ads-primary">Add to Playlist</button>` : `<button data-preview-asset="${esc(asset.id)}">Preview</button><button data-delete-asset="${esc(asset.id)}" aria-label="Delete ${esc(asset.name)}">Delete</button>`}</div></div></article>`;
+    const cover = `<span class="ads-media-cover">${asset.type === 'video' && !asset.poster ? `<video data-asset="${esc(asset.id)}" muted playsinline preload="metadata"></video>` : `<img data-asset="${esc(asset.id)}" alt="${esc(asset.name)}">`}${badge(asset.type === 'image' ? 'Image' : `${Math.round(asset.seconds || 0)}s video`)}</span>`;
+    const info = `<strong>${esc(asset.name)}</strong><span class="ads-media-facts"><span>${asset.width} × ${asset.height}</span><span>${size(asset.bytes)}</span></span>`;
+    if (picker) return `<article class="ads-media-card">${cover}<div class="ads-media-info">${info}<div class="ads-actions"><button data-add-asset="${esc(asset.id)}" class="ads-primary">Add to Playlist</button></div></div></article>`;
+    return `<article class="ads-media-card"><button type="button" class="ads-media-open" data-preview-asset="${esc(asset.id)}" aria-label="Preview ${esc(asset.name)}">${cover}<span class="ads-media-info">${info}</span></button><button type="button" class="ads-media-delete" data-delete-asset="${esc(asset.id)}" data-tooltip="Delete" aria-label="Delete ${esc(asset.name)}">${icon('delete')}</button></article>`;
   }
   function renderMedia() {
-    const items = state.assets.filter(a => `${a.name} ${a.advertiser}`.toLowerCase().includes(search.toLowerCase()) && (!filter || a.type === filter));
-    $('adsContent').innerHTML = `<div class="ads-toolbar"><input id="mediaSearch" type="search" aria-label="Search media" placeholder="Search media or advertiser" value="${esc(search)}"><select id="mediaFilter" aria-label="Media type"><option value="">All media</option><option value="image" ${filter === 'image' ? 'selected' : ''}>Images</option><option value="video" ${filter === 'video' ? 'selected' : ''}>Videos</option></select><span class="ads-count">${items.length} items</span><button id="uploadMedia" class="ads-primary">↑ Upload Media</button></div><div class="ads-media-grid">${items.map(a => mediaCard(a)).join('') || '<div class="ads-empty">No media found.</div>'}</div>`;
+    const items = state.assets.filter(a => a.name.toLowerCase().includes(search.toLowerCase()) && (!filter || a.type === filter));
+    $('adsContent').innerHTML = `<div class="ads-toolbar"><input id="mediaSearch" type="search" aria-label="Search media" placeholder="Search media" value="${esc(search)}"><select id="mediaFilter" aria-label="Media type"><option value="">All media</option><option value="image" ${filter === 'image' ? 'selected' : ''}>Images</option><option value="video" ${filter === 'video' ? 'selected' : ''}>Videos</option></select><span class="ads-count">${items.length} items</span><button id="uploadMedia" class="ads-primary">Upload Media</button></div><div class="ads-media-grid">${items.map(a => mediaCard(a)).join('') || '<div class="ads-empty">No media found.</div>'}</div>`;
     hydrate();
     $('uploadMedia').onclick = () => { $('mediaForm').reset(); errorAt('uploadError', ''); $('mediaDialog').showModal(); };
     $('mediaSearch').oninput = event => { search = event.target.value; const cursor = event.target.selectionStart; renderMedia(); $('mediaSearch').focus(); $('mediaSearch').setSelectionRange(cursor, cursor); };
     $('mediaFilter').onchange = event => { filter = event.target.value; renderMedia(); };
   }
-  function renderDeployments() {
-    const items = Object.values(state.deployments).filter(d => (!contextSn || d.sn === contextSn) && `${d.sn} ${terminal(d.sn)?.name} ${d.requested.name}`.toLowerCase().includes(search.toLowerCase()) && (!filter || d.status === filter));
-    $('adsContent').innerHTML = `<div class="ads-notice-box">Demo device acknowledgements. Publishing queues a version; a terminal keeps its current version until download succeeds and it is idle. Use Simulate Sync to explore outcomes.</div><div class="ads-toolbar"><input id="deploymentSearch" type="search" aria-label="Search deployments" placeholder="Search SN, terminal or campaign" value="${esc(search)}"><select id="deploymentFilter" aria-label="Deployment status"><option value="">All statuses</option>${['Up to date', 'Queued', 'Waiting for connection', 'Waiting for idle', 'Download failed', 'Stop pending', 'Stopped'].map(s => `<option ${filter === s ? 'selected' : ''}>${s}</option>`).join('')}</select><span class="ads-count">${items.length} terminals</span></div>` + table(['TERMINAL SN', 'STORE', 'CAMPAIGN', 'REQUESTED', 'ACTIVE', 'STATUS', 'LAST UPDATE (UTC)', 'ACTIONS'], items.map(d => `<tr><td><a href="1.terminalmanage_nayax.html?${esc(new URLSearchParams({ sn: d.sn, terminalName: terminal(d.sn)?.name || d.sn, merchantName: terminal(d.sn)?.merchant || '', tab: 'basic' }))}">${esc(d.sn)}</a></td><td>${esc(terminal(d.sn)?.store)}</td><td>${esc(d.requested.name)}</td><td>${d.stopped ? 'Stop' : `v${d.requested.version}`}</td><td>${d.active ? `v${d.active.version} · ${esc(d.active.name)}` : 'Default screen'}</td><td>${badge(d.status)}</td><td>${date(d.updatedAt)}</td><td><div class="ads-table-actions"><button data-sync="${esc(d.sn)}">Simulate Sync</button><button data-preview-deployment="${esc(d.sn)}" ${!d.active ? 'disabled' : ''}>Preview Active</button>${!d.stopped ? `<button data-stop="${esc(d.campaignId)}">Stop Campaign</button>` : ''}</div></td></tr>`).join(''));
-    $('deploymentSearch').oninput = event => { search = event.target.value; const cursor = event.target.selectionStart; renderDeployments(); $('deploymentSearch').focus(); $('deploymentSearch').setSelectionRange(cursor, cursor); };
-    $('deploymentFilter').onchange = event => { filter = event.target.value; renderDeployments(); };
-  }
   function openEditor(value) {
-    draft = value ? D.copy(value) : { id: uid(), name: '', mode: 'embedded', mediaType: 'image', idleSeconds: 30, order: 'sequential', fit: 'contain', items: [], targets: contextSn ? [contextSn] : [], alwaysOn: true, start: '', end: '' };
+    draft = value ? D.normalize(value, state.assets) : { id: uid(), name: '', mode: 'embedded', mediaType: 'image', idleSeconds: 30, order: 'sequential', fit: 'contain', items: [], targets: state.terminals.some(terminal => terminal.sn === contextSn) ? [contextSn] : [], alwaysOn: true, start: '', end: '' };
+    delete draft.accountKey; draft.targetStores ||= [];
     dirty = false; $('adsContent').hidden = true; $('adsEditor').hidden = false; document.querySelector('.ads-tabs').hidden = true; $('createCampaign').hidden = true;
     $('editorTitle').textContent = value ? draft.name : 'New Campaign'; $('campaignName').value = draft.name;
     document.querySelector(`input[name="mode"][value="${draft.mode}"]`).checked = true;
-    $('contentType').value = draft.mediaType; $('idleSeconds').value = draft.idleSeconds; $('playOrder').value = draft.order; $('imageFit').value = draft.fit;
-    $('alwaysOn').checked = draft.alwaysOn; $('scheduleStart').value = draft.start?.slice(0, 16) || ''; $('scheduleEnd').value = draft.end?.slice(0, 16) || '';
-    $('targetSearch').value = ''; errorAt('editorError', ''); syncEditor(); renderPlaylist(); renderTargets();
+    $('idleSeconds').value = draft.idleSeconds; $('imageFit').value = draft.fit;
+    errorAt('editorError', ''); syncEditor(); renderPlaylist(); targetPicker.reset();
     const url = new URL(location.href); url.searchParams.set('campaign', draft.id); history.replaceState({}, '', url);
     $('campaignName').focus();
   }
   function collect() {
     if (!draft) return;
-    Object.assign(draft, { name: $('campaignName').value.trim(), mode: document.querySelector('input[name="mode"]:checked').value, mediaType: document.querySelector('input[name="mode"]:checked').value === 'embedded' ? 'image' : $('contentType').value, idleSeconds: Number($('idleSeconds').value), order: $('playOrder').value, fit: $('imageFit').value, alwaysOn: $('alwaysOn').checked, start: $('scheduleStart').value ? $('scheduleStart').value + ':00Z' : '', end: $('scheduleEnd').value ? $('scheduleEnd').value + ':00Z' : '' });
+    Object.assign(draft, { name: $('campaignName').value.trim(), mode: document.querySelector('input[name="mode"]:checked').value, mediaType: D.mediaType(draft, state.assets) || 'image', idleSeconds: Number($('idleSeconds').value), order: 'sequential', fit: $('imageFit').value, alwaysOn: true, start: '', end: '' });
     return draft;
   }
   function syncEditor() {
     collect();
-    $('fullScreenOptions').hidden = draft.mode !== 'fullscreen'; $('scheduleFields').hidden = draft.alwaysOn;
-    $('draftState').textContent = dirty ? 'Unsaved changes' : draft.published ? `Draft · published v${draft.published.version}` : 'Draft';
+    $('fullScreenOptions').hidden = draft.mode !== 'fullscreen';
+    const published = !!draft.published;
+    $('saveCampaignDraft').hidden = published;
+    $('saveCampaignDraft').disabled = published;
+    $('saveCampaignDraft').type = published ? 'button' : 'submit';
+    $('draftState').textContent = dirty ? 'Unsaved changes' : published ? `${draft.publicationStopped ? 'Stopped' : 'Published'} · v${draft.published.version}` : 'Draft';
     const key = JSON.stringify([draft.id, draft.mode, draft.mediaType, draft.items, draft.fit, draft.order, draft.idleSeconds, draft.alwaysOn, draft.start, draft.end, $('previewModel').value]);
     if (key !== editorPreviewKey) {
       editorPreview?.dispose();
@@ -125,41 +143,52 @@
     $('playlistRows').innerHTML = draft.items.length ? draft.items.map((item, index) => { const asset = media(item.assetId); return `<div class="ads-playlist-row"><span>${index + 1}</span>${thumbnail(asset)}<span class="ads-playlist-name">${esc(asset?.name || 'Missing media')}${asset?.type !== draft.mediaType ? ' <span class="ads-badge failed">Incompatible</span>' : ''}</span>${asset?.type === 'video' ? `<span class="ads-badge">${Math.round(asset.seconds)}s · full video</span>` : `<label><input type="number" min="3" max="120" step="1" value="${item.seconds}" data-duration="${index}" aria-label="Duration for ${esc(asset?.name)}"> sec</label>`}<div class="ads-actions"><button type="button" data-move="${index}" data-direction="-1" aria-label="Move ${esc(asset?.name)} up" ${index === 0 ? 'disabled' : ''}>${icon('chevron-down', true)}</button><button type="button" data-move="${index}" data-direction="1" aria-label="Move ${esc(asset?.name)} down" ${index === draft.items.length - 1 ? 'disabled' : ''}>${icon('chevron-down')}</button><button type="button" data-remove="${index}" aria-label="Remove ${esc(asset?.name)}">${icon('close')}</button></div></div>`; }).join('') : '<div class="ads-empty">Add images or videos from the media library.</div>';
     hydrate($('playlistRows'));
   }
-  function renderTargets() {
-    const term = $('targetSearch').value.toLowerCase();
-    const items = state.terminals.filter(t => `${t.name} ${t.sn} ${t.store} ${t.merchant}`.toLowerCase().includes(term));
-    $('targetRows').innerHTML = items.map(t => { const d = state.deployments[t.sn]; const conflict = d && !d.stopped && d.campaignId !== draft.id; return `<label class="ads-target"><input type="checkbox" value="${esc(t.sn)}" data-target-terminal ${draft.targets.includes(t.sn) ? 'checked' : ''}><span><b>${esc(t.name)}</b><small>${esc(t.sn)} · ${esc(t.store)}</small>${conflict ? `<small>Assigned to ${esc(d.requested.name)}</small>` : ''}</span>${badge(t.online ? 'Online' : 'Offline')}</label>`; }).join('') || '<div class="ads-empty">No matching terminals.</div>';
-    $('targetCount').textContent = `${draft.targets.length} selected`;
+  function targetSummary(value) {
+    const stores = value.targetStores?.length || 0;
+    const terminals = value.targets.filter(sn => !state.terminals.some(t => t.sn === sn && value.targetStores?.includes(t.storeId))).length;
+    return [stores ? `${stores} store${stores === 1 ? '' : 's'}` : '', terminals ? `${terminals} terminal${terminals === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ') || '0';
   }
   function confirm(title, body, action, fn) { $('confirmTitle').textContent = title; $('confirmBody').innerHTML = body; $('confirmAction').textContent = action; $('confirmAction').disabled = false; errorAt('confirmError', ''); confirmFn = fn; $('confirmDialog').showModal(); }
   $('confirmAction').onclick = async () => { $('confirmAction').disabled = true; try { await confirmFn(); $('confirmDialog').close(); } catch (error) { errorAt('confirmError', error.message); } finally { $('confirmAction').disabled = false; } };
-  function leaveEditor() { if (dirty) confirm('Discard Changes?', '<p>Your unsaved changes will be discarded. The last saved draft and published version will be kept.</p>', 'Discard Changes', () => setView('campaigns')); else setView('campaigns'); }
+  function leaveEditor() { if (dirty) confirm('Discard Changes?', '<p>Your unsaved changes will be discarded. The saved campaign will be kept.</p>', 'Discard Changes', () => setView('campaigns')); else setView('campaigns'); }
   $('createCampaign').onclick = () => openEditor(); $('backCampaigns').onclick = leaveEditor; $('cancelCampaign').onclick = leaveEditor;
-  $('targetSearch').oninput = renderTargets;
   $('campaignForm').addEventListener('input', event => {
-    if (['targetSearch', 'previewModel'].includes(event.target.id)) return;
+    if (event.target.id === 'previewModel') return;
+    if (event.target.name === 'mode' && event.target.value === 'embedded' && draft.items.some(item => media(item.assetId)?.type === 'video')) {
+      document.querySelector('input[name="mode"][value="fullscreen"]').checked = true;
+      toast('Remove videos from the playlist before using Idle screen.');
+      return;
+    }
     if (event.target.matches('[data-duration]')) draft.items[Number(event.target.dataset.duration)].seconds = Number(event.target.value);
-    if (event.target.matches('[data-target-terminal]')) draft.targets = event.target.checked ? [...new Set([...draft.targets, event.target.value])] : draft.targets.filter(sn => sn !== event.target.value);
-    dirty = true; syncEditor(); $('targetCount').textContent = `${draft.targets.length} selected`;
-    if (event.target.name === 'mode' || event.target.id === 'contentType') renderPlaylist();
+    dirty = true; syncEditor();
+    if (event.target.name === 'mode') renderPlaylist();
   });
-  $('addPlaylistMedia').onclick = () => { collect(); $('pickerItems').innerHTML = state.assets.filter(a => a.type === draft.mediaType).map(a => mediaCard(a, true)).join('') || '<div class="ads-empty">No compatible media. Save your draft and upload media in the Media Library.</div>'; $('pickerDialog').showModal(); hydrate($('pickerDialog')); };
+  $('addPlaylistMedia').onclick = () => {
+    collect();
+    const type = draft.mode === 'embedded' ? 'image' : D.mediaType(draft, state.assets);
+    $('pickerItems').innerHTML = state.assets.filter(asset => !type || asset.type === type).map(asset => mediaCard(asset, true)).join('') || '<div class="ads-empty">No compatible media. Save your draft and upload media in the Media Library.</div>';
+    $('pickerDialog').showModal(); hydrate($('pickerDialog'));
+  };
   $('previewModel').onchange = syncEditor;
   $('replayEditor').onclick = () => editorPreview?.restart();
   $('campaignForm').onsubmit = async event => {
     event.preventDefault(); collect(); errorAt('editorError', '');
-    if (event.submitter?.value === 'publish') {
-      const error = D.validate(draft, state.assets, state.terminals);
-      if (error) { errorAt('editorError', error); $('editorError').scrollIntoView({ block: 'center' }); return; }
+    const allowed = state.terminals;
+    if (!targetPicker.validateSelection()) return;
+    if (draft.published || campaign(draft.id)?.published || event.submitter?.value === 'publish') {
+      const error = D.validate(draft, state.assets, allowed, state.stores);
+      if (error) { errorAt('editorError', error); return; }
+      const storesInUse = D.storeConflicts(state, draft);
+      if (storesInUse.length) { errorAt('editorError', `Selected stores are assigned to ${storesInUse.map(c => c.name).join(', ')}. Stop the existing campaign before reassigning.`); return; }
       const overlap = D.conflicts(state, draft);
-      if (overlap.length) { errorAt('editorError', `Already assigned: ${overlap.map(d => d.sn).join(', ')}. Stop the existing campaign in Deployments before reassigning.`); return; }
+      if (overlap.length) { errorAt('editorError', `Already assigned: ${overlap.map(d => d.sn).join(', ')}. Stop the existing campaign in Campaigns before reassigning.`); return; }
       const snapshot = D.copy(draft);
-      confirm('Publish Campaign', `<dl class="ads-summary"><dt>Campaign</dt><dd>${esc(snapshot.name)}</dd><dt>Display mode</dt><dd>${esc(D.modeLabel(snapshot))}</dd><dt>Version</dt><dd>v${(campaign(snapshot.id)?.published?.version || 0) + 1}</dd><dt>Targets</dt><dd>${snapshot.targets.length} terminals</dd><dt>Playlist</dt><dd>${snapshot.items.length} items</dd><dt>Schedule</dt><dd>${snapshot.alwaysOn ? 'Always active' : `${date(snapshot.start)} – ${date(snapshot.end)} UTC`}</dd></dl><p class="ads-notice">This creates a demo deployment. Offline or busy terminals keep their active version until a successful idle sync. Payment requests take priority.</p>`, 'Publish', async () => {
+      confirm('Publish Campaign', `<dl class="ads-summary"><dt>Campaign</dt><dd>${esc(snapshot.name)}</dd><dt>Display mode</dt><dd>${esc(D.modeLabel(snapshot))}</dd><dt>Version</dt><dd>v${(campaign(snapshot.id)?.published?.version || 0) + 1}</dd><dt>Targets</dt><dd>${esc(targetSummary(snapshot))} (${D.resolveTargets(snapshot, allowed).length} terminals covered)</dd><dt>Playlist</dt><dd>${snapshot.items.length} items</dd></dl>`, 'Publish', async () => {
         for (const item of snapshot.items) await S.url(media(item.assetId));
-        commit(next => D.publish(next, snapshot)); dirty = false; setView('deployments'); toast('Campaign published. Demo deployments are queued.');
+        commit(next => { const error = D.validate(snapshot, next.assets, next.terminals, next.stores); if (error) throw new Error(error); D.publish(next, snapshot); }); dirty = false; setView('campaigns'); toast('Campaign published.');
       });
     } else {
-      try { const saved = D.copy(draft); saved.updatedAt = new Date().toISOString(); commit(next => { saved.published = next.campaigns.find(c => c.id === saved.id)?.published; next.campaigns = next.campaigns.filter(c => c.id !== saved.id).concat(saved); }); draft = D.copy(saved); dirty = false; syncEditor(); toast('Draft saved in this browser.'); }
+      try { const saved = commit(next => D.saveDraft(next, draft)); draft = D.copy(saved); dirty = false; syncEditor(); toast('Draft saved in this browser.'); }
       catch (error) { errorAt('editorError', error.message); }
     }
   };
@@ -177,11 +206,18 @@
       node.onerror = fail; if (imageType) node.onload = success; else { node.onloadeddata = success; node.muted = true; node.preload = 'auto'; } node.src = url;
     }); } finally { URL.revokeObjectURL(url); }
   }
-  $('mediaFile').onchange = () => { if (!$('mediaName').value) $('mediaName').value = $('mediaFile').files[0]?.name.replace(/\.[^.]+$/, '') || ''; };
   $('mediaForm').onsubmit = async event => {
     event.preventDefault(); errorAt('uploadError', ''); $('uploadSubmit').disabled = true; $('uploadSubmit').textContent = 'Uploading…';
     let id;
-    try { const file = $('mediaFile').files[0]; if (!file) throw new Error('Choose a file.'); const metadata = await inspectFile(file); id = uid(); await S.put(id, file); commit(next => next.assets.push({ id, name: $('mediaName').value.trim(), advertiser: $('mediaAdvertiser').value.trim(), mime: file.type, bytes: file.size, ...metadata })); $('mediaDialog').close(); renderMedia(); toast('Media saved in this browser.'); }
+    try {
+      const file = $('mediaFile').files[0];
+      if (!file) throw new Error('Choose a file.');
+      const name = $('mediaName').value.trim() || file.name;
+      const metadata = await inspectFile(file);
+      id = uid(); await S.put(id, file);
+      commit(next => next.assets.push({ id, name, mime: file.type, bytes: file.size, ...metadata }));
+      $('mediaDialog').close(); renderMedia(); toast('Media uploaded.');
+    }
     catch (error) { if (id && !media(id)) S.remove(id).catch(() => {}); errorAt('uploadError', error.message); }
     finally { $('uploadSubmit').disabled = false; $('uploadSubmit').textContent = 'Upload'; }
   };
@@ -192,35 +228,56 @@
       if (data.view) setView(data.view);
       else if (data.close) $(data.close).close();
       else if (data.edit) openEditor(campaign(data.edit));
-      else if (data.copy) { const c = D.copy(campaign(data.copy)); delete c.published; c.id = uid(); c.name += ' (copy)'; c.targets = contextSn ? [contextSn] : []; openEditor(c); dirty = true; syncEditor(); }
-      else if (data.previewDeployment) startPreview(state.deployments[data.previewDeployment].active, data.previewDeployment);
-      else if (data.previewAsset) { const a = media(data.previewAsset); startPreview({ id: 'media-preview', name: a.name, advertiser: a.advertiser, mode: 'fullscreen', mediaType: a.type, idleSeconds: 5, alwaysOn: true, fit: 'contain', order: 'sequential', items: [{ assetId: a.id, seconds: 8 }], targets: [] }); }
-      else if (data.addAsset) { draft.items.push({ assetId: data.addAsset, seconds: media(data.addAsset).type === 'video' ? media(data.addAsset).seconds : 8 }); dirty = true; syncEditor(); renderPlaylist(); $('pickerDialog').close(); }
+      else if (data.copy) { const c = D.copy(campaign(data.copy)); delete c.published; delete c.publicationStopped; delete c.accountKey; c.targetStores = []; c.id = uid(); c.name += ' (copy)'; c.targets = state.terminals.some(terminal => terminal.sn === contextSn) ? [contextSn] : []; openEditor(c); dirty = true; syncEditor(); }
+      else if (data.previewAsset) await startAssetPreview(media(data.previewAsset));
+      else if (data.addAsset) {
+        const asset = media(data.addAsset), type = draft.mode === 'embedded' ? 'image' : D.mediaType(draft, state.assets);
+        if (!asset || (type && asset.type !== type)) return toast('Use only images or only videos in one playlist.');
+        draft.items.push({ assetId: data.addAsset, seconds: asset.type === 'video' ? asset.seconds : 8 });
+        dirty = true; syncEditor(); renderPlaylist(); $('pickerDialog').close();
+      }
       else if (data.move !== undefined) { const from = Number(data.move); const to = from + Number(data.direction); if (to < 0 || to >= draft.items.length) return; [draft.items[from], draft.items[to]] = [draft.items[to], draft.items[from]]; dirty = true; syncEditor(); renderPlaylist(); }
       else if (data.remove !== undefined) { draft.items.splice(Number(data.remove), 1); dirty = true; syncEditor(); renderPlaylist(); }
       else if (data.deleteAsset) { if (D.inUse(state, data.deleteAsset)) return toast('This media is used by a draft or published version and cannot be deleted.'); confirm('Delete Media?', `<p>Delete “${esc(media(data.deleteAsset).name)}” from this browser?</p>`, 'Delete', async () => { commit(next => { next.assets = next.assets.filter(a => a.id !== data.deleteAsset); }); await S.remove(data.deleteAsset); renderMedia(); toast('Media deleted.'); }); }
-      else if (data.sync) {
-        const d = state.deployments[data.sync];
-        confirm('Simulate Terminal Sync', `<dl class="ads-summary"><dt>Terminal</dt><dd>${esc(d.sn)}</dd><dt>Requested</dt><dd>${d.stopped ? 'Stop playback' : `v${d.requested.version}`}</dd><dt>Active</dt><dd>${d.active ? 'v' + d.active.version : 'Default screen'}</dd></dl><label>Device outcome<select id="syncOutcome"><option value="success">Online &amp; idle — apply update</option><option value="offline" ${!terminal(d.sn)?.online ? 'selected' : ''}>Offline — keep current version</option><option value="busy">Payment in progress — wait for idle</option><option value="failed">Download failed — keep current version</option></select></label><p class="ads-notice">Simulated acknowledgement only. No command is sent to a real terminal.</p>`, 'Apply Simulation', async () => { const outcome = $('syncOutcome').value; if (outcome === 'success' && !d.stopped) for (const item of d.requested.items) await S.url(item.asset); commit(next => D.sync(next, d.sn, outcome)); renderDeployments(); toast('Demo sync result saved.'); });
-      } else if (data.stop) confirm('Stop Campaign?', `<p>Stop “${esc(campaign(data.stop)?.name)}” on all its assigned terminals?</p><p class="ads-notice">A stop request is queued. Offline terminals can keep playing the cached version until they reconnect. Use Simulate Sync to acknowledge the stop.</p>`, 'Stop Campaign', () => { commit(next => D.stop(next, data.stop)); renderDeployments(); toast('Stop requests queued.'); });
+      else if (data.stop) confirm('Stop Campaign?', `<p>Stop “${esc(campaign(data.stop)?.name)}” for its selected stores and terminals?</p>`, 'Stop Campaign', () => { commit(next => D.stop(next, data.stop)); renderCampaigns(); toast('Campaign stopped.'); });
     } catch (error) { toast(error.message); }
   });
-  function startPreview(value, selectedSn) {
-    if (!value) return;
-    if (stopPreview) stopPreview();
-    const sn = selectedSn || contextSn || value.targets?.[0] || 'WP53307Q39000001';
-    $('previewTitle').textContent = value.name || 'Terminal Preview';
-    if (!$('previewDialog').open) $('previewDialog').showModal();
-    const player = P.mount({ host: $('liveDevice'), status: $('previewStatus'), campaign: value, sn, merchant: terminal(sn)?.merchant, assetFor: media, urlFor: S.url });
-    $('simulatePayment').onclick = () => player.payment();
-    $('returnIdle').onclick = () => player.idle();
-    $('restartPreview').onclick = () => player.restart();
-    stopPreview = () => { player.dispose(); stopPreview = null; };
+  async function startAssetPreview(asset) {
+    if (!asset) return;
+    stopAssetPreview?.();
+    const dialog = $('assetPreviewDialog');
+    const host = $('assetPreviewContent');
+    const node = document.createElement(asset.type === 'video' ? 'video' : 'img');
+    let disposed = false;
+    $('assetPreviewTitle').textContent = asset.name;
+    errorAt('assetPreviewError', '');
+    if (asset.type === 'video') {
+      node.controls = true; node.muted = true; node.playsInline = true; node.loop = true;
+      node.setAttribute('aria-label', asset.name);
+    } else node.alt = asset.name;
+    host.replaceChildren(node);
+    stopAssetPreview = () => {
+      disposed = true;
+      node.onerror = null;
+      if (asset.type === 'video') node.pause();
+      node.removeAttribute('src');
+      if (asset.type === 'video') node.load();
+      host.replaceChildren();
+      stopAssetPreview = null;
+    };
+    node.onerror = () => { if (!disposed) errorAt('assetPreviewError', 'Media could not be loaded.'); };
+    if (!dialog.open) dialog.showModal();
+    try {
+      const src = await S.url(asset);
+      if (disposed) return;
+      node.src = src;
+      if (asset.type === 'video') node.play().catch(() => { /* Native controls remain available if autoplay is blocked. */ });
+    } catch (error) { if (!disposed) errorAt('assetPreviewError', error.message); }
   }
-  $('previewDialog').addEventListener('close', () => { if (stopPreview) stopPreview(); });
+  $('assetPreviewDialog').addEventListener('close', () => stopAssetPreview?.());
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
-  window.addEventListener('pagehide', () => { editorPreview?.dispose(); if (stopPreview) stopPreview(); });
+  window.addEventListener('pagehide', () => { editorPreview?.dispose(); stopAssetPreview?.(); });
   document.addEventListener('pw:before-navigate', event => { if (!dirty) return; event.preventDefault(); confirm('Discard Changes?', '<p>Leave this campaign and discard unsaved changes?</p>', 'Discard Changes', () => { dirty = false; event.detail.proceed(); }); });
-  setView(params.get('view') || (contextSn ? 'deployments' : 'campaigns'));
+  setView(params.get('view') || 'campaigns');
   if (params.get('campaign') && campaign(params.get('campaign'))) openEditor(campaign(params.get('campaign')));
 })();
