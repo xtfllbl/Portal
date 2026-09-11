@@ -204,7 +204,7 @@
   }
   function ownerContext(account) {
     if (!account) return null;
-    const visibleFields = account.type === "Service Provider" ? ["agent", "scope", "merchant", "store", "terminal"] : account.type === "Agent" ? ["scope", "merchant", "store", "terminal"] : account.type === "Merchant" ? ["scope", "store", "terminal"] : ["scope", "terminal"];
+    const visibleFields = account.type === "Service Provider" ? ["scope", "merchant", "store", "terminal"] : account.type === "Agent" ? ["scope", "merchant", "store", "terminal"] : account.type === "Merchant" ? ["scope", "store", "terminal"] : ["scope", "terminal"];
     return { ...account, ownerType: account.type, ownerId: account.id, ownerName: account.name, scopes: ["Store", "Terminal"], visibleFields };
   }
 
