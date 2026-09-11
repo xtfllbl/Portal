@@ -15,13 +15,14 @@
   <nav class="ads-tabs" aria-label="Advertising sections">
     <button data-view="campaigns" aria-current="page">Campaigns</button><button data-view="media">Media Library</button>
   </nav>
-  <section id="adsContent" aria-live="polite"></section>
+  <section id="advertisingContent" aria-live="polite"></section>
   <section id="adsEditor" hidden>
     <div class="ads-editor-heading"><div class="ads-actions"><button id="backCampaigns" class="ads-icon-button ads-back" aria-label="Back to campaigns"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><h2 id="editorTitle">New Campaign</h2></div><span id="draftState" class="ads-badge">Unsaved draft</span></div>
     <form id="campaignForm">
       <div class="ads-editor-grid">
         <div class="ads-editor-fields">
-          <section class="ads-card ads-basics">
+          <!-- Scoped panel names avoid the .ads-card cosmetic-filter rule. -->
+          <section class="pw-campaign-panel ads-basics">
             <label>Name<input id="campaignName" maxlength="80" required placeholder="e.g. Morning coffee"></label>
             <fieldset class="ads-mode-field"><legend>Display Mode</legend><div class="ads-mode-options">
               <label class="ads-mode"><input type="radio" name="mode" value="embedded" checked><span>Idle screen</span></label>
@@ -29,8 +30,8 @@
             </div></fieldset>
             <div id="fullScreenOptions" class="ads-fields" hidden><label>Start after idle (seconds)<input id="idleSeconds" type="number" min="5" max="600" step="1" value="30"></label></div>
           </section>
-          <section class="ads-card"><div class="ads-section-heading"><h3>Playlist</h3><button type="button" id="addPlaylistMedia"><svg class="ads-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add Media</button></div><div id="playlistRows"></div><div class="ads-fields ads-playback-fields"><label>Image fit<select id="imageFit"><option value="contain">Fit entire image</option><option value="cover">Fill area (crop edges)</option></select></label></div></section>
-          <section class="ads-card" id="targetSection"><div class="ads-section-heading"><h3>Targets</h3><span id="targetCount" class="ads-badge">0 selected</span></div><div id="targetPicker"></div></section>
+          <section class="pw-campaign-panel"><div class="ads-section-heading"><h3>Playlist</h3><button type="button" id="addPlaylistMedia"><svg class="ads-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add Media</button></div><div id="playlistRows"></div><div class="ads-fields ads-playback-fields"><label>Image fit<select id="imageFit"><option value="contain">Fit entire image</option><option value="cover">Fill area (crop edges)</option></select></label></div></section>
+          <section class="pw-campaign-panel" id="targetSection"><div class="ads-section-heading"><h3>Targets</h3><span id="targetCount" class="ads-badge">0 selected</span></div><div id="targetPicker"></div></section>
           <p id="editorError" class="ads-error" role="alert" tabindex="-1" hidden></p>
         </div>
         <aside class="ads-preview-column" aria-label="Terminal preview">

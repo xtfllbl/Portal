@@ -9,7 +9,7 @@
   const uid = () => crypto.randomUUID();
   const size = bytes => bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
   let state;
-  try { state = S.read(); S.save(state); } catch (error) { $('adsContent').innerHTML = `<p class="ads-error">${esc(error.message)}</p>`; $('createCampaign').disabled = true; return; }
+  try { state = S.read(); S.save(state); } catch (error) { $('advertisingContent').innerHTML = `<p class="ads-error">${esc(error.message)}</p>`; $('createCampaign').disabled = true; return; }
   let currentView = 'campaigns';
   let draft = null;
   let dirty = false;
@@ -76,7 +76,7 @@
     editorPreview?.dispose(); editorPreview = null; editorPreviewKey = ''; 
     currentView = ['campaigns', 'media'].includes(view) ? view : 'campaigns';
     search = ''; filter = ''; draft = null; dirty = false;
-    $('adsEditor').hidden = true; $('adsContent').hidden = false;
+    $('adsEditor').hidden = true; $('advertisingContent').hidden = false;
     document.querySelector('.ads-tabs').hidden = false;
     $('createCampaign').hidden = currentView !== 'campaigns';
     document.querySelectorAll('[data-view]').forEach(b => { if (b.dataset.view === currentView) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
@@ -89,7 +89,7 @@
   }
   function renderCampaigns() {
     const items = state.campaigns.filter(c => (!contextSn || D.resolveTargets(c, state.terminals).includes(contextSn)) && c.name.toLowerCase().includes(search.toLowerCase()) && (!filter || (filter === 'stopped' ? c.publicationStopped : filter === 'published' ? c.published && !c.publicationStopped : !c.published)));
-    $('adsContent').innerHTML = `<div class="ads-toolbar"><input id="campaignSearch" type="search" aria-label="Search campaigns" placeholder="Search campaign" value="${esc(search)}"><select id="campaignFilter" aria-label="Campaign status"><option value="">All statuses</option><option value="published" ${filter === 'published' ? 'selected' : ''}>Published</option><option value="draft" ${filter === 'draft' ? 'selected' : ''}>Draft</option><option value="stopped" ${filter === 'stopped' ? 'selected' : ''}>Stopped</option></select><span class="ads-count">${items.length} campaigns</span></div>` + table(['CAMPAIGN', 'DISPLAY MODE', 'PLAYLIST', 'TARGETS', 'STATUS', 'ACTIONS'], items.map(c => `<tr><td><div class="ads-campaign-name">${thumbnail(media(c.items[0]?.assetId))}<button class="ads-name-button" data-edit="${esc(c.id)}">${esc(c.name)}</button></div></td><td>${esc(D.modeLabel(c))}</td><td>${c.items.length} ${c.mediaType === 'video' ? 'videos' : 'images'}</td><td>${esc(targetSummary(c))}</td><td>${badge(c.publicationStopped ? 'Stopped' : c.published ? `Published · v${c.published.version}` : 'Draft')}${state.targetConflicts?.some(item => item.campaignId === c.id) ? ' <span class="ads-badge pending">Target conflict</span>' : ''}</td><td><div class="ads-table-actions">${rowAction('edit', c.id, 'Edit', c.name, 'edit_square')}${rowAction('copy', c.id, 'Duplicate', c.name, 'content_copy')}${c.published && !c.publicationStopped ? rowAction('stop', c.id, 'Stop Campaign', c.name, 'block') : ''}</div></td></tr>`).join(''), contextSn ? 'No campaigns assigned to this terminal. Create a campaign to get started.' : 'No campaigns found. Create a campaign to get started.');
+    $('advertisingContent').innerHTML = `<div class="ads-toolbar"><input id="campaignSearch" type="search" aria-label="Search campaigns" placeholder="Search campaign" value="${esc(search)}"><select id="campaignFilter" aria-label="Campaign status"><option value="">All statuses</option><option value="published" ${filter === 'published' ? 'selected' : ''}>Published</option><option value="draft" ${filter === 'draft' ? 'selected' : ''}>Draft</option><option value="stopped" ${filter === 'stopped' ? 'selected' : ''}>Stopped</option></select><span class="ads-count">${items.length} campaigns</span></div>` + table(['CAMPAIGN', 'DISPLAY MODE', 'PLAYLIST', 'TARGETS', 'STATUS', 'ACTIONS'], items.map(c => `<tr><td><div class="ads-campaign-name">${thumbnail(media(c.items[0]?.assetId))}<button class="ads-name-button" data-edit="${esc(c.id)}">${esc(c.name)}</button></div></td><td>${esc(D.modeLabel(c))}</td><td>${c.items.length} ${c.mediaType === 'video' ? 'videos' : 'images'}</td><td>${esc(targetSummary(c))}</td><td>${badge(c.publicationStopped ? 'Stopped' : c.published ? `Published · v${c.published.version}` : 'Draft')}${state.targetConflicts?.some(item => item.campaignId === c.id) ? ' <span class="ads-badge pending">Target conflict</span>' : ''}</td><td><div class="ads-table-actions">${rowAction('edit', c.id, 'Edit', c.name, 'edit_square')}${rowAction('copy', c.id, 'Duplicate', c.name, 'content_copy')}${c.published && !c.publicationStopped ? rowAction('stop', c.id, 'Stop Campaign', c.name, 'block') : ''}</div></td></tr>`).join(''), contextSn ? 'No campaigns assigned to this terminal. Create a campaign to get started.' : 'No campaigns found. Create a campaign to get started.');
     hydrate();
     $('campaignSearch').addEventListener('input', event => { search = event.target.value; const cursor = event.target.selectionStart; renderCampaigns(); $('campaignSearch').focus(); $('campaignSearch').setSelectionRange(cursor, cursor); });
     $('campaignFilter').addEventListener('change', event => { filter = event.target.value; renderCampaigns(); });
@@ -102,7 +102,7 @@
   }
   function renderMedia() {
     const items = state.assets.filter(a => a.name.toLowerCase().includes(search.toLowerCase()) && (!filter || a.type === filter));
-    $('adsContent').innerHTML = `<div class="ads-toolbar"><input id="mediaSearch" type="search" aria-label="Search media" placeholder="Search media" value="${esc(search)}"><select id="mediaFilter" aria-label="Media type"><option value="">All media</option><option value="image" ${filter === 'image' ? 'selected' : ''}>Images</option><option value="video" ${filter === 'video' ? 'selected' : ''}>Videos</option></select><span class="ads-count">${items.length} items</span><button id="uploadMedia" class="ads-primary">Upload Media</button></div><div class="ads-media-grid">${items.map(a => mediaCard(a)).join('') || '<div class="ads-empty">No media found.</div>'}</div>`;
+    $('advertisingContent').innerHTML = `<div class="ads-toolbar"><input id="mediaSearch" type="search" aria-label="Search media" placeholder="Search media" value="${esc(search)}"><select id="mediaFilter" aria-label="Media type"><option value="">All media</option><option value="image" ${filter === 'image' ? 'selected' : ''}>Images</option><option value="video" ${filter === 'video' ? 'selected' : ''}>Videos</option></select><span class="ads-count">${items.length} items</span><button id="uploadMedia" class="ads-primary">Upload Media</button></div><div class="ads-media-grid">${items.map(a => mediaCard(a)).join('') || '<div class="ads-empty">No media found.</div>'}</div>`;
     hydrate();
     $('uploadMedia').onclick = () => { $('mediaForm').reset(); errorAt('uploadError', ''); $('mediaDialog').showModal(); };
     $('mediaSearch').oninput = event => { search = event.target.value; const cursor = event.target.selectionStart; renderMedia(); $('mediaSearch').focus(); $('mediaSearch').setSelectionRange(cursor, cursor); };
@@ -111,7 +111,7 @@
   function openEditor(value) {
     draft = value ? D.normalize(value, state.assets) : { id: uid(), name: '', mode: 'embedded', mediaType: 'image', idleSeconds: 30, order: 'sequential', fit: 'contain', items: [], targets: state.terminals.some(terminal => terminal.sn === contextSn) ? [contextSn] : [], alwaysOn: true, start: '', end: '' };
     delete draft.accountKey; draft.targetStores ||= [];
-    dirty = false; $('adsContent').hidden = true; $('adsEditor').hidden = false; document.querySelector('.ads-tabs').hidden = true; $('createCampaign').hidden = true;
+    dirty = false; $('advertisingContent').hidden = true; $('adsEditor').hidden = false; document.querySelector('.ads-tabs').hidden = true; $('createCampaign').hidden = true;
     $('editorTitle').textContent = value ? draft.name : 'New Campaign'; $('campaignName').value = draft.name;
     document.querySelector(`input[name="mode"][value="${draft.mode}"]`).checked = true;
     $('idleSeconds').value = draft.idleSeconds; $('imageFit').value = draft.fit;
