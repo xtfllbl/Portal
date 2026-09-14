@@ -172,6 +172,41 @@
         .sync-text { position: absolute; right: 18px; bottom: 8px; font-size: 11px; color: rgba(255,255,255,.8); }
         .card-banner .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12); color: #fff; }
         .card-banner .icon-btn:hover { background: rgba(255,255,255,.2); }
+        .terminal-action-wrap { position: relative; }
+        .terminal-action-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 190px;
+            padding: 6px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.28);
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 30;
+        }
+        .terminal-action-menu.open { display: flex; }
+        .terminal-action-item {
+            appearance: none;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .terminal-action-item:hover { background: #f8fafc; }
+        .subscription-push-status { margin: 0 0 12px; font-size: 13px; color: #475569; }
+        .banner-status { flex-shrink: 0; }
+        .banner-status .connection-summary { min-height: 36px; }
+        .banner-status .icon-btn { width: 36px; height: 36px; }
         /* Primary tabs live inside the banner */
         .toolbar { display: none; }
         .banner-tabs { margin-top: 10px; display: flex; gap: 14px; }
@@ -233,9 +268,7 @@
         #tab-appfw .app-table-title:first-child { margin-top: 0; }
         .app-para-table .minor-code { margin-left: 10px; color: #2563eb; font-size: 12px; text-decoration: none; }
         .app-para-table .minor-code:hover { text-decoration: underline; }
-        .installed-app-table { min-width: 980px; }
-        .installed-app-table th:last-child,
-        .installed-app-table td:last-child { width: 140px; }
+        .installed-app-table { min-width: 1160px; }
         .panel-action-row {
             display: flex;
             justify-content: flex-end;
@@ -260,18 +293,6 @@
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
         }
         .content-head .panel-action-btn.hidden { display: none; }
-        .app-status-badge {
-            display: inline-flex;
-            align-items: center;
-            min-height: 24px;
-            padding: 2px 10px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 800;
-        }
-        .app-status-badge.success { background: #d7f5e2; color: #10823b; }
-        .app-status-badge.failed { background: #fee2e2; color: #b91c1c; }
-        .app-status-badge.pushed { background: #dbeafe; color: #1d4ed8; }
         #table-para.parameter-panel {
             border: 0;
             border-radius: 0;
@@ -324,6 +345,7 @@
             font-size: 13px;
             font-weight: 800;
         }
+        .param-status-badge.pushed { background: #dbeafe; color: #1d4ed8; }
         .param-status-badge.applied { background: #d7f5e2; color: #10823b; }
         .param-status-badge.created { background: #f2f2f3; color: #3f3f46; }
         .param-status-badge.key-init { background: #dbeafe; color: #1d4ed8; }
@@ -351,82 +373,6 @@
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
-        }
-        #tab-logs .content-head { margin-bottom: 12px; }
-        #tab-logs .table-wrap { overflow-x: auto; }
-        .terminal-log-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: auto;
-        }
-        .terminal-log-refresh {
-            width: 34px;
-            height: 34px;
-            border: 1px solid #dedfe3;
-            border-radius: 8px;
-            background: #ffffff;
-            color: #4b5563;
-            display: inline-grid;
-            place-items: center;
-            cursor: pointer;
-        }
-        .terminal-log-refresh:hover {
-            background: #f5f5f6;
-            border-color: #c9cbd1;
-            color: #111827;
-        }
-        .terminal-log-refresh svg {
-            width: 16px;
-            height: 16px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        .terminal-log-table { min-width: 760px; }
-        .terminal-log-table th:last-child,
-        .terminal-log-table td:last-child {
-            width: 110px;
-            text-align: right;
-        }
-        .terminal-log-file {
-            color: #2684ff;
-            font-weight: 650;
-            text-decoration: none;
-        }
-        .terminal-log-file:hover { text-decoration: underline; }
-        .terminal-log-download {
-            width: 34px;
-            height: 34px;
-            border: 1px solid #dedfe3;
-            border-radius: 8px;
-            background: #ffffff;
-            color: #111827;
-            display: inline-grid;
-            place-items: center;
-            cursor: pointer;
-        }
-        .terminal-log-download:hover {
-            background: #f8fafc;
-            border-color: #c9cbd1;
-        }
-        .terminal-log-download svg {
-            width: 17px;
-            height: 17px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        .terminal-log-status {
-            min-height: 18px;
-            margin-top: 10px;
-            color: #64748b;
-            font-size: 12px;
-            font-weight: 650;
         }
         .hidden { display: none; }
         .old { display: none; }
@@ -939,7 +885,8 @@
             .connection-popover {
                 left: 0;
                 right: auto;
-                max-width: min(310px, calc(100vw - 48px));
+                box-sizing: border-box;
+                max-width: min(310px, calc(100vw - 72px));
             }
             .connection-popover::before {
                 left: 28px;
@@ -952,9 +899,6 @@
                 align-items: flex-start;
             }
             .panel-action-row {
-                margin-left: 0;
-            }
-            .terminal-log-actions {
                 margin-left: 0;
             }
             .operation-summary-row {
@@ -1206,8 +1150,11 @@
                         <div
                             id="connectionStatus"
                             class="connection-status"
+                            data-device-online="false"
                             data-service-online="true"
+                            data-device-since="2025-06-15 15:15:21"
                             data-service-since="2025-06-15 15:15:21"
+                            data-device-offline-duration="8m"
                             data-service-offline-duration="8m"
                             data-last-update="2025-06-15 15:15:21"
                         >
@@ -1220,14 +1167,24 @@
                                 aria-controls="connectionStatusPopover"
                             >
                                 <span class="connection-dot" aria-hidden="true"></span>
-                                <span id="connectionPrimary" class="connection-primary">Online</span>
+                                <span id="connectionPrimary" class="connection-primary">Partially Online</span>
                             </button>
                             <div id="connectionStatusPopover" class="connection-popover" role="dialog" aria-label="Connection status">
+                                <div class="connection-detail-row">
+                                    <span class="connection-detail-label">Device Service</span>
+                                    <span id="deviceConnectionState" class="connection-detail-state is-offline">Offline 8m</span>
+                                </div>
                                 <div class="connection-detail-row">
                                     <span class="connection-detail-label">Payment Service</span>
                                     <span id="terminalServiceState" class="connection-detail-state">Online</span>
                                 </div>
                                 <div class="connection-last-update">Last update: <span id="connectionLastUpdate">2025-06-15 15:15:21</span></div>
+                            </div>
+                        </div>
+                        <div class="terminal-action-wrap">
+                            <button id="terminalActionBtn" class="icon-btn" title="More" aria-label="More" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="terminalActionMenu">⋮</button>
+                            <div id="terminalActionMenu" class="terminal-action-menu" role="menu" aria-label="Terminal actions" aria-hidden="true">
+                                <button id="pushSubscribedAction" class="terminal-action-item" role="menuitem" type="button">Push Subscription</button>
                             </div>
                         </div>
                     </div>
@@ -1242,7 +1199,6 @@
                 <div class="banner-tabs" id="primaryTabs" role="tablist">
                     <button class="tab active" data-tab="basic" role="tab" aria-selected="true">Basic Information</button>
                     <button class="tab" data-tab="appfw" role="tab" aria-selected="false">APP &amp; Parameters</button>
-                    <button class="tab" data-tab="logs" role="tab" aria-selected="false">Terminal Logs</button>
                 </div>
                 <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
             </div>
@@ -1395,35 +1351,50 @@
 
                 <!-- App & Parameters -->
                 <section id="tab-appfw" class="hidden" role="tabpanel" aria-labelledby="appfw">
+                    <div id="subscriptionPushStatus" class="subscription-push-status hidden" role="status" tabindex="-1"></div>
                     <div class="content-head">
                         <div class="subtabs" id="subTabs">
                             <button class="subtab active" data-sub="app">APP</button>
                             <button class="subtab" data-sub="para">Parameters</button>
                             <button class="subtab" data-sub="key">KEY</button>
-                            <button class="subtab" data-sub="firmware">Firmware</button>
                         </div>
                         <div class="panel-action-row" aria-label="APP and parameter actions">
-                            <button id="updateAppBtn" class="btn-primary panel-action-btn" data-action-for="app" type="button">Update APP</button>
                             <button id="injectKeyBtn" class="btn-primary panel-action-btn hidden" data-action-for="key" type="button">Inject Key</button>
-                            <button id="updateFirmwareBtn" class="btn-primary panel-action-btn hidden" data-action-for="firmware" type="button">Update Firmware</button>
                         </div>
                     </div>
 
                     <div id="table-app">
+                        <div class="app-table-title">Installed APP List</div>
                         <div class="table-wrap">
                             <table id="installedAppTable" class="table app-para-table installed-app-table">
-                                <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Update Time</th><th>Status</th></tr></thead>
-                                <tbody id="installedAppTableBody">
-                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.1.0 (310)</td><td>2026-03-04 09:18:22</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>
-                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td><span class="app-status-badge success">Success</span></td></tr>
-                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>2.3.3-global</td><td>2026-02-10 11:24:07</td><td><span class="app-status-badge success">Success</span></td></tr>
-                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.116</td><td>2026-03-03 15:42:31</td><td><span class="app-status-badge failed">Failed</span></td></tr>
-                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.113</td><td>2026-02-12 16:54:11</td><td><span class="app-status-badge success">Success</span></td></tr>
-                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.3_260302</td><td>2026-03-02 10:16:05</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>
-                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.2_2601271</td><td>2026-02-02 16:43:19</td><td><span class="app-status-badge success">Success</span></td></tr>
-                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.8</td><td>2026-02-20 14:08:46</td><td><span class="app-status-badge failed">Failed</span></td></tr>
-                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.7</td><td>2026-02-11 14:12:33</td><td><span class="app-status-badge success">Success</span></td></tr>
-                                    <tr><td>InitConnectionMode</td><td>com.wizarpos.setusbattrs</td><td>1.0</td><td>2024-05-21 10:31:50</td><td><span class="app-status-badge success">Success</span></td></tr>
+                                <thead><tr><th>Label</th><th>Package Name</th><th>Version</th><th>Installed Time</th><th>Cert DN</th></tr></thead>
+                                <tbody>
+                                    <tr><td>PayWizard</td><td>com.wizarpos.opc</td><td>3.0.0 (300)</td><td>2026-02-13 17:56:52</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>TsysPay</td><td>com.smartpos.paywizard.tsys.smartpay</td><td>1.3.113</td><td>2026-02-12 16:54:11</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>aidIdemo</td><td>com.wizarpos.aidldemo</td><td>1.0.7</td><td>2026-02-11 14:12:33</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>Payment Emulator</td><td>com.wizarpos.paywizard.demo</td><td>2.2.2_2601271</td><td>2026-02-02 16:43:19</td><td>EMAILADDRESS=support...</td></tr>
+                                    <tr><td>InitConnectionMode</td><td>com.wizarpos.setusbattrs</td><td>1.0</td><td>2024-05-21 10:31:50</td><td>EMAILADDRESS=support...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="app-table-title">Subscribed APP List</div>
+                        <div class="table-wrap">
+                            <table id="subscribedAppTable" class="table app-para-table">
+                                <thead><tr><th>Name</th><th>Package</th><th>Version</th><th>Update Time</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td>support_PayWizard_Demo_V2.2.2_2601271 <a href="#" class="minor-code">201</a></td>
+                                        <td>com.wizarpos.paywizard.demo</td>
+                                        <td>2.2.2_2601271</td>
+                                        <td>2026-02-11</td>
+                                    </tr>
+                                    <tr>
+                                        <td>opcDavidChen2.3.3</td>
+                                        <td>com.wizarpos.opc</td>
+                                        <td>2.3.3-global</td>
+                                        <td>2026-02-10</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -1543,133 +1514,9 @@
                         </div>
                     </div>
 
-                    <div class="parameter-panel hidden" id="table-firmware">
-                        <div class="table-wrap">
-                            <table id="firmwareHistoryTable" class="table app-para-table param-history-table">
-                                <thead>
-                                    <tr>
-                                        <th>Firmware Name</th>
-                                        <th>Model</th>
-                                        <th>Version</th>
-                                        <th>Status</th>
-                                        <th>Update Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="firmwareHistoryTableBody">
-                                    <tr>
-                                        <td>Q3MINI-R Secure Firmware</td>
-                                        <td>Q3MINI-R</td>
-                                        <td>3.5.0_20260702</td>
-                                        <td><span class="app-status-badge pushed">Pushed</span></td>
-                                        <td>2026-07-02 18:24:10</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Q3MINI-R Secure Firmware</td>
-                                        <td>Q3MINI-R</td>
-                                        <td>3.4.0_20260618</td>
-                                        <td><span class="app-status-badge success">Success</span></td>
-                                        <td>2026-06-18 11:24:36</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Q3MINI-R EMV Kernel Firmware</td>
-                                        <td>Q3MINI-R</td>
-                                        <td>3.3.8_20260603</td>
-                                        <td><span class="app-status-badge success">Success</span></td>
-                                        <td>2026-06-03 09:10:22</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Q3MINI-R Secure Firmware</td>
-                                        <td>Q3MINI-R</td>
-                                        <td>3.4.1_20260624</td>
-                                        <td><span class="app-status-badge failed">Failed</span></td>
-                                        <td>2026-06-24 15:42:09</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </section>
 
-                <!-- Terminal Logs -->
-                <section id="tab-logs" class="hidden" role="tabpanel" aria-labelledby="logs">
-                    <div class="content-head">
-                        <div class="section-title">Terminal Logs</div>
-                        <div class="terminal-log-actions">
-                            <button id="uploadLogBtn" class="btn-primary" type="button">Upload Log</button>
-                            <button id="refreshLogsBtn" class="terminal-log-refresh" type="button" title="Refresh Logs" aria-label="Refresh Logs">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M20 11a8 8 0 1 0-2.34 5.66"></path>
-                                    <path d="M20 4v7h-7"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="table-wrap">
-                        <table id="terminalLogsTable" class="table terminal-log-table">
-                            <thead>
-                                <tr>
-                                    <th>File Name</th>
-                                    <th>Size</th>
-                                    <th>Upload Time</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="terminalLogsTableBody">
-                                <tr>
-                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703140649.zip">WP6267UQ36002376-20260703140649.zip</a></td>
-                                    <td>885.10 KB</td>
-                                    <td>2026-07-03 14:06:49</td>
-                                    <td>
-                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703140649.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703140649.zip">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703135155.zip">WP6267UQ36002376-20260703135155.zip</a></td>
-                                    <td>781.10 KB</td>
-                                    <td>2026-07-03 13:51:55</td>
-                                    <td>
-                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703135155.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703135155.zip">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703131643.zip">WP6267UQ36002376-20260703131643.zip</a></td>
-                                    <td>874.32 KB</td>
-                                    <td>2026-07-03 13:16:43</td>
-                                    <td>
-                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703131643.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703131643.zip">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260703111852.zip">WP6267UQ36002376-20260703111852.zip</a></td>
-                                    <td>22.88 MB</td>
-                                    <td>2026-07-03 11:18:52</td>
-                                    <td>
-                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260703111852.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260703111852.zip">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><a href="#" class="terminal-log-file" data-log-download="WP6267UQ36002376-20260701031635.zip">WP6267UQ36002376-20260701031635.zip</a></td>
-                                    <td>22.76 MB</td>
-                                    <td>2026-07-01 03:16:35</td>
-                                    <td>
-                                        <button class="terminal-log-download" type="button" data-log-download="WP6267UQ36002376-20260701031635.zip" title="Download log" aria-label="Download WP6267UQ36002376-20260701031635.zip">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="terminalLogStatus" class="terminal-log-status" aria-live="polite"></div>
-                </section>
+
 
             </div>
         </div>
@@ -1757,8 +1604,7 @@
         const tabs = document.querySelectorAll('#primaryTabs .tab');
         const sections = {
             basic: document.getElementById('tab-basic'),
-            appfw: document.getElementById('tab-appfw'),
-            logs: document.getElementById('tab-logs')
+            appfw: document.getElementById('tab-appfw')
         };
 
         function showTab(key) {
@@ -1782,8 +1628,7 @@
         const tables = {
             app: document.getElementById('table-app'),
             para: document.getElementById('table-para'),
-            key: document.getElementById('table-key'),
-            firmware: document.getElementById('table-firmware')
+            key: document.getElementById('table-key')
         };
 
         function showSub(key) {
@@ -1800,109 +1645,6 @@
     })();
 
     (function(){
-        const uploadBtn = document.getElementById('uploadLogBtn');
-        const refreshBtn = document.getElementById('refreshLogsBtn');
-        const tbody = document.getElementById('terminalLogsTableBody');
-        const status = document.getElementById('terminalLogStatus');
-        if(!uploadBtn || !refreshBtn || !tbody) return;
-
-        let pendingLog = null;
-        let generatedLogCount = 0;
-        const generatedSizes = ['918.42 KB', '1.12 MB', '846.70 KB', '23.04 MB'];
-        const downloadIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>';
-
-        function escapeHtml(value){
-            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-        }
-
-        function pad(value){
-            return String(value).padStart(2, '0');
-        }
-
-        function formatUploadTime(date){
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-        }
-
-        function formatFileStamp(date){
-            return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
-        }
-
-        function setStatus(message){
-            if(status) status.textContent = message;
-        }
-
-        function logRowHtml(log){
-            const fileName = escapeHtml(log.fileName);
-            return `
-                <tr>
-                    <td><a href="#" class="terminal-log-file" data-log-download="${fileName}">${fileName}</a></td>
-                    <td>${escapeHtml(log.size)}</td>
-                    <td>${escapeHtml(log.uploadTime)}</td>
-                    <td>
-                        <button class="terminal-log-download" type="button" data-log-download="${fileName}" title="Download log" aria-label="Download ${fileName}">
-                            ${downloadIcon}
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }
-
-        function makePendingLog(){
-            const now = new Date();
-            const fileName = `${terminalContext.sn}-${formatFileStamp(now)}.zip`;
-            const size = generatedSizes[generatedLogCount % generatedSizes.length];
-            generatedLogCount += 1;
-            return {
-                fileName,
-                size,
-                uploadTime: formatUploadTime(now)
-            };
-        }
-
-        function downloadLog(fileName){
-            const content = [
-                `Terminal Log: ${fileName}`,
-                `SN: ${terminalContext.sn}`,
-                `TID: ${terminalContext.tid}`,
-                `Generated At: ${formatUploadTime(new Date())}`,
-                '',
-                'This prototype file represents the terminal log package downloaded from the portal.'
-            ].join('\n');
-            const blob = new Blob([content], { type: 'application/zip' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        uploadBtn.addEventListener('click', () => {
-            pendingLog = makePendingLog();
-            setStatus(`Upload log command sent to ${terminalContext.sn}. Refresh after the terminal finishes uploading.`);
-        });
-
-        refreshBtn.addEventListener('click', () => {
-            if(pendingLog){
-                tbody.insertAdjacentHTML('afterbegin', logRowHtml(pendingLog));
-                setStatus(`Log list refreshed. ${pendingLog.fileName} is now available.`);
-                pendingLog = null;
-                return;
-            }
-            setStatus(`Log list refreshed at ${formatUploadTime(new Date())}.`);
-        });
-
-        tbody.addEventListener('click', evt => {
-            const trigger = evt.target.closest('[data-log-download]');
-            if(!trigger) return;
-            evt.preventDefault();
-            downloadLog(trigger.dataset.logDownload);
-        });
-    })();
-
-    (function(){
         const modal = document.getElementById('operationConfirmModal');
         const title = document.getElementById('operationConfirmTitle');
         const body = document.getElementById('operationConfirmBody');
@@ -1911,23 +1653,9 @@
         const submitBtn = document.getElementById('submitOperationConfirm');
         if(!modal || !title || !body || !submitBtn) return;
 
-        const appUpdate = {
-            opcName: 'Paywizard OPC Reader',
-            opcPackage: 'com.wizarpos.opc',
-            opcVersion: '3.3.0_beta',
-            paymentChannel: 'TSYS_Transit_Reader',
-            paymentName: 'Q3MINI-R TSYS Transit Payment App',
-            paymentPackage: 'com.smartpos.paywizard.tsys.smartpay',
-            paymentVersion: '2.7.9_20260628'
-        };
         const keyInjection = {
             keyName: `ELAVON_TPK_${terminalContext.sn}_20260703`,
             sn: terminalContext.sn
-        };
-        const firmwareUpdate = {
-            name: 'Q3MINI-R Secure Firmware',
-            model: 'Q3MINI-R',
-            version: '3.5.1_20260703'
         };
         let currentOperation = null;
 
@@ -1954,41 +1682,11 @@
             `;
         }
 
-        function scopeHtml(scope){
-            if(!scope || !Array.isArray(scope.options) || scope.options.length === 0) return '';
-            const titleText = scope.title || 'Update Scope';
-            return `
-                <div class="operation-scope" aria-labelledby="operationScopeTitle">
-                    <h4 class="operation-scope-title" id="operationScopeTitle">${escapeHtml(titleText)}</h4>
-                    ${scope.options.map(option => `
-                        <label class="operation-scope-choice" for="${escapeHtml(option.id)}">
-                            <input type="checkbox" id="${escapeHtml(option.id)}" data-scope-option="${escapeHtml(option.value)}" ${option.checked === false ? '' : 'checked'}>
-                            <span>${escapeHtml(option.label)}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        function selectedScopeOptions(){
-            return Array.from(body.querySelectorAll('[data-scope-option]:checked')).map(input => input.dataset.scopeOption);
-        }
-
-        function syncSubmitState(){
-            const scopeInputs = body.querySelectorAll('[data-scope-option]');
-            if(scopeInputs.length === 0){
-                submitBtn.disabled = false;
-                return;
-            }
-            submitBtn.disabled = !Array.from(scopeInputs).some(input => input.checked);
-        }
-
         function openOperation(config){
             currentOperation = config;
             title.textContent = config.title;
-            body.innerHTML = summaryHtml(config.rows) + scopeHtml(config.scope);
+            body.innerHTML = summaryHtml(config.rows);
             submitBtn.textContent = config.submitText;
-            syncSubmitState();
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
         }
@@ -1998,20 +1696,6 @@
             modal.setAttribute('aria-hidden', 'true');
             submitBtn.disabled = false;
             currentOperation = null;
-        }
-
-        function pushAppUpdate(scopeOptions = ['paywizard', 'paymentApp']){
-            const tbody = document.getElementById('installedAppTableBody');
-            if(!tbody) return;
-            const now = nowText();
-            const rows = [];
-            if(scopeOptions.includes('paywizard')){
-                rows.push(`<tr><td>PayWizard</td><td>${escapeHtml(appUpdate.opcPackage)}</td><td>${escapeHtml(appUpdate.opcVersion)}</td><td>${escapeHtml(now)}</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>`);
-            }
-            if(scopeOptions.includes('paymentApp')){
-                rows.push(`<tr><td>TsysPay</td><td>${escapeHtml(appUpdate.paymentPackage)}</td><td>${escapeHtml(appUpdate.paymentVersion)}</td><td>${escapeHtml(now)}</td><td><span class="app-status-badge pushed">Pushed</span></td></tr>`);
-            }
-            if(rows.length) tbody.insertAdjacentHTML('afterbegin', rows.join(''));
         }
 
         function injectKey(){
@@ -2027,43 +1711,6 @@
             `);
         }
 
-        function pushFirmwareUpdate(){
-            const tbody = document.getElementById('firmwareHistoryTableBody');
-            if(!tbody) return;
-            tbody.insertAdjacentHTML('afterbegin', `
-                <tr>
-                    <td>${escapeHtml(firmwareUpdate.name)}</td>
-                    <td>${escapeHtml(firmwareUpdate.model)}</td>
-                    <td>${escapeHtml(firmwareUpdate.version)}</td>
-                    <td><span class="app-status-badge pushed">Pushed</span></td>
-                    <td>${escapeHtml(nowText())}</td>
-                </tr>
-            `);
-        }
-
-        document.getElementById('updateAppBtn')?.addEventListener('click', () => {
-            openOperation({
-                title: 'Update APP',
-                submitText: 'Push Update',
-                rows: [
-                    { label: 'Target SN', value: terminalContext.sn },
-                    { label: 'Latest OPC', value: `${appUpdate.opcName} ${appUpdate.opcVersion}` },
-                    { label: 'OPC Package', value: appUpdate.opcPackage },
-                    { label: 'Payment Channel', value: appUpdate.paymentChannel },
-                    { label: 'Payment APP', value: `${appUpdate.paymentName} ${appUpdate.paymentVersion}` },
-                    { label: 'Payment Package', value: appUpdate.paymentPackage }
-                ],
-                scope: {
-                    title: 'Update Scope',
-                    options: [
-                        { id: 'updatePaymentAppScope', value: 'paymentApp', label: 'Update Payment App', checked: true },
-                        { id: 'updatePaywizardScope', value: 'paywizard', label: 'Update PAYwizard', checked: true }
-                    ]
-                },
-                onConfirm: () => pushAppUpdate(selectedScopeOptions())
-            });
-        });
-
         document.getElementById('injectKeyBtn')?.addEventListener('click', () => {
             openOperation({
                 title: 'Inject Key',
@@ -2076,23 +1723,6 @@
             });
         });
 
-        document.getElementById('updateFirmwareBtn')?.addEventListener('click', () => {
-            openOperation({
-                title: 'Update Firmware',
-                submitText: 'Push Update',
-                rows: [
-                    { label: 'Target SN', value: terminalContext.sn },
-                    { label: 'Firmware Name', value: firmwareUpdate.name },
-                    { label: 'Model', value: firmwareUpdate.model },
-                    { label: 'Latest Version', value: firmwareUpdate.version }
-                ],
-                onConfirm: pushFirmwareUpdate
-            });
-        });
-
-        body.addEventListener('change', evt => {
-            if(evt.target?.matches('[data-scope-option]')) syncSubmitState();
-        });
         submitBtn.addEventListener('click', () => {
             if(currentOperation?.onConfirm) currentOperation.onConfirm();
             closeOperation();
@@ -2349,15 +1979,13 @@ paymentTimeout=180`
             modal.setAttribute('aria-hidden', 'true');
         }
 
-        document.querySelectorAll('[data-param-view]').forEach(button => {
-            button.addEventListener('click', () => openPreview(button.getAttribute('data-param-view')));
-        });
-        document.querySelectorAll('#subscribedParaTable .param-name-link').forEach(link => {
-            link.addEventListener('click', evt => {
-                evt.preventDefault();
-                const row = link.closest('[data-param-record]');
-                if(row) openPreview(row.getAttribute('data-param-record'));
-            });
+        document.getElementById('subscribedParaTable').addEventListener('click', evt => {
+            const button = evt.target.closest('[data-param-view]');
+            const link = evt.target.closest('.param-name-link');
+            if(!button && !link) return;
+            evt.preventDefault();
+            const recordId = button ? button.dataset.paramView : link.closest('[data-param-record]')?.dataset.paramRecord;
+            if(recordId) openPreview(recordId);
         });
         closeTop.addEventListener('click', closePreview);
         closeFooter.addEventListener('click', closePreview);
@@ -2375,6 +2003,7 @@ paymentTimeout=180`
 
         const statusButton = document.getElementById('connectionStatusButton');
         const primary = document.getElementById('connectionPrimary');
+        const deviceState = document.getElementById('deviceConnectionState');
         const serviceState = document.getElementById('terminalServiceState');
         const lastUpdate = document.getElementById('connectionLastUpdate');
 
@@ -2411,32 +2040,38 @@ paymentTimeout=180`
         }
 
         function refreshConnectionStatus(){
-            const forcedService = getStatusParam(['serviceOnline', 'terminalServiceOnline', 'opcOnline', 'terminalOnline', 'online']);
+            const forcedDevice = getStatusParam(['deviceOnline', 'terminalOnline', 'online']);
+            const forcedService = getStatusParam(['serviceOnline', 'terminalServiceOnline', 'opcOnline']);
+            if(forcedDevice !== null) connectionStatus.dataset.deviceOnline = String(forcedDevice);
             if(forcedService !== null) connectionStatus.dataset.serviceOnline = String(forcedService);
 
+            const deviceOnline = connectionStatus.dataset.deviceOnline === 'true';
             const serviceOnline = connectionStatus.dataset.serviceOnline === 'true';
+            const bothOnline = deviceOnline && serviceOnline;
+            const bothOffline = !deviceOnline && !serviceOnline;
 
-            connectionStatus.classList.toggle('is-online', serviceOnline);
-            connectionStatus.classList.toggle('is-offline', !serviceOnline);
-            connectionStatus.classList.remove('is-partial');
+            connectionStatus.classList.toggle('is-online', bothOnline);
+            connectionStatus.classList.toggle('is-offline', bothOffline);
+            connectionStatus.classList.toggle('is-partial', !bothOnline && !bothOffline);
 
             if(primary){
-                primary.textContent = serviceOnline ? 'Online' : 'Offline';
+                primary.textContent = bothOnline ? 'Online' : bothOffline ? 'Offline' : 'Partially Online';
             }
 
+            renderDetail(deviceState, deviceOnline, 'device');
             renderDetail(serviceState, serviceOnline, 'service');
             if(lastUpdate) lastUpdate.textContent = connectionStatus.dataset.lastUpdate || '--';
 
             if(statusButton){
                 statusButton.setAttribute(
                     'aria-label',
-                    `Connection status: ${primary ? primary.textContent : ''}. Payment Service ${serviceOnline ? 'online' : 'offline'}.`
+                    `Connection status: ${primary ? primary.textContent : ''}. Device Service ${deviceOnline ? 'online' : 'offline'}. Payment Service ${serviceOnline ? 'online' : 'offline'}.`
                 );
             }
         }
 
         window.getDeviceConnectionOnline = function(){
-            return connectionStatus.dataset.serviceOnline === 'true';
+            return connectionStatus.dataset.deviceOnline === 'true';
         };
 
         refreshConnectionStatus();
@@ -2454,6 +2089,8 @@ paymentTimeout=180`
             if(evt.key === 'Escape') setConnectionOpen(false);
         });
     })();
+
+
 
     (function(){
         const sidebar = document.querySelector('.sidebar');
@@ -2649,6 +2286,71 @@ paymentTimeout=180`
                 const link = sub.getAttribute('data-link');
                 if(link) window.location.href = link;
             });
+        });
+    })();
+
+
+    (function(){
+        const trigger = document.getElementById('terminalActionBtn');
+        const menu = document.getElementById('terminalActionMenu');
+        const push = document.getElementById('pushSubscribedAction');
+        const notice = document.getElementById('subscriptionPushStatus');
+        const pendingSubscriptionPushes = [];
+
+        function setOpen(open, restoreFocus = false){
+            menu.classList.toggle('open', open);
+            menu.setAttribute('aria-hidden', String(!open));
+            trigger.setAttribute('aria-expanded', String(open));
+            if(open) push.focus();
+            else if(restoreFocus) trigger.focus();
+        }
+        trigger.addEventListener('click', () => setOpen(!menu.classList.contains('open')));
+        trigger.addEventListener('keydown', event => {
+            if(event.key === 'ArrowDown'){
+                event.preventDefault();
+                setOpen(true);
+            }
+        });
+        document.addEventListener('click', event => {
+            if(!trigger.parentElement.contains(event.target)) setOpen(false);
+        });
+        document.addEventListener('keydown', event => {
+            if(event.key === 'Escape' && menu.classList.contains('open')) setOpen(false, true);
+            if(event.key === 'Tab') setOpen(false);
+        });
+        push.addEventListener('click', () => {
+            // Local prototype: subscribed APP pushes await device acknowledgement.
+            const appTasks = Array.from(document.querySelectorAll('#subscribedAppTable tbody tr')).map(row => ({
+                packageName: row.cells[1].textContent.trim(),
+                version: row.cells[2].textContent.trim(),
+                status: 'Pending'
+            }));
+            pendingSubscriptionPushes.push(...appTasks);
+            function pushLatest(tableId, statusIndex, timeIndex, badgeClass){
+                const tbody = document.querySelector(`#${tableId} tbody`);
+                const packages = new Set();
+                const copies = [];
+                Array.from(tbody.rows).forEach(row => {
+                    const packageName = row.cells[1].textContent.trim();
+                    if(packages.has(packageName)) return;
+                    packages.add(packageName);
+                    const copy = row.cloneNode(true);
+                    copy.cells[statusIndex].innerHTML = `<span class="${badgeClass}">Pushed</span>`;
+                    // Parameter Applied Time remains empty until application is acknowledged.
+                    copy.cells[timeIndex].textContent = '-';
+                    copies.push(copy);
+                });
+                copies.reverse().forEach(row => tbody.prepend(row));
+                return packages.size;
+            }
+            const apps = appTasks.length;
+            const parameters = pushLatest('subscribedParaTable', 3, 4, 'param-status-badge pushed');
+            setOpen(false);
+            document.querySelector('#primaryTabs [data-tab="appfw"]').click();
+            notice.textContent = `Subscription push queued: ${apps} APP and ${parameters} parameter records.`;
+            notice.classList.remove('hidden');
+            notice.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            notice.focus({ preventScroll: true });
         });
     })();
 
