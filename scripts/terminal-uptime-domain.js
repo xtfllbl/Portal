@@ -165,7 +165,7 @@
     return { date, segments, ...totals, confirmedOffline, hasGap, hasOffline, state, rate, isToday, inProgress, timeZones: [...new Set(segments.map(x => x.timeZone))], storeIds: [...new Set(segments.map(x => x.storeId))] };
   }
   function rateText(value) {
-    if (value.rate === null) return value.state === 'unavailable' ? 'Data unavailable' : value.state === 'pending' ? 'Not open yet' : 'Closed';
+    if (value.rate === null) return value.state === 'closed' ? 'Closed' : '—';
     if (value.rate === 100) return '100%';
     if (value.rate > 99.95) return '<100%';
     // Round down to the displayed precision so 94.999% cannot appear as 95%.

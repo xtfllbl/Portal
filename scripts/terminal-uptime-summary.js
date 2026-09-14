@@ -27,7 +27,7 @@
     dialog.querySelector('[data-summary-previous]').disabled = !report(D.addDays(date, -1));
     dialog.querySelector('[data-summary-next]').disabled = !report(D.addDays(date, 1));
     dialog.querySelector('[data-summary-history]').href = historyUrl(date);
-    if (!dialog.open) dialog.showModal();
+    V.openDrawer(dialog);
   }
   function render() {
     const membership = terminal?.memberships.filter(m => allowed.includes(m.storeId)).sort((a, b) => b.from - a.from)[0];
@@ -50,7 +50,7 @@
   host.addEventListener('click', event => {
     const cell = event.target.closest('[data-day]'); if (cell) openDay(cell.dataset.day);
   });
-  dialog.querySelector('[data-summary-close]').addEventListener('click', () => dialog.close());
+  dialog.querySelector('[data-summary-close]').addEventListener('click', () => V.closeDrawer(dialog));
   dialog.querySelector('[data-summary-previous]').addEventListener('click', () => openDay(D.addDays(selectedDate, -1)));
   dialog.querySelector('[data-summary-next]').addEventListener('click', () => openDay(D.addDays(selectedDate, 1)));
   load();

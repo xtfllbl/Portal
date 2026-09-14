@@ -132,6 +132,35 @@
     incident.ruleId = id;
   });
 
+  // Stable public numbers are independent of legacy prototype relation keys.
+  demoRules.forEach((rule, index) => { rule.ruleNumber = 100001 + index; });
+  const seedRuleNumbers = new Map(demoRules.map(rule => [rule.id, rule.ruleNumber]));
+
+  function assignRuleNumbers(data) {
+    const used = new Set(seedRuleNumbers.values());
+    const assigned = new Set();
+    data.rules.forEach(rule => {
+      if (Number.isSafeInteger(rule.ruleNumber) && rule.ruleNumber > 0) used.add(rule.ruleNumber);
+    });
+    let next = Math.max(100001, Number.isSafeInteger(data.nextRuleNumber) ? data.nextRuleNumber : 100001, ...Array.from(used, number => number + 1));
+    data.rules.forEach(rule => {
+      const seedNumber = seedRuleNumbers.get(rule.id);
+      let number = seedNumber || rule.ruleNumber;
+      if (!Number.isSafeInteger(number) || number < 1 || assigned.has(number) || (!seedNumber && seedRuleNumbersHas(number))) {
+        while (used.has(next)) next++;
+        number = next++;
+      }
+      rule.ruleNumber = number;
+      used.add(number);
+      assigned.add(number);
+    });
+    data.nextRuleNumber = next;
+  }
+
+  function seedRuleNumbersHas(number) {
+    return demoRules.some(rule => rule.ruleNumber === number);
+  }
+
   const defaultState = () => ({ rules: demoRules.map((rule) => ({ ...rule })), incidents: demoIncidents.map((incident) => ({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })), deletedRuleIds: [] });
 
   const escapeHtml = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
@@ -375,10 +404,13 @@
       demoIncidents.forEach((incident) => {
         if (!parsed.incidents.some((item) => item.id === incident.id)) { parsed.incidents.push(migrateIncident({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })); changed = true; }
       });
-      if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      const numberedBefore = JSON.stringify(parsed);
+      assignRuleNumbers(parsed);
+      if (changed || JSON.stringify(parsed) !== numberedBefore) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       return parsed;
     } catch (_) {
       const state = defaultState();
+      assignRuleNumbers(state);
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
       return state;
     }
@@ -400,7 +432,7 @@
   const canManageIncident = (incident) => canManageRule(state.rules.find((rule) => rule.id === incident?.ruleId));
   let canManageAlerts = currentRole.isOperations ? currentRole.canManage : query.get("manageAlerts") !== "false";
   let selectedRuleOwner = null;
-  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current" };
+  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current", ruleId: "" };
   surface.querySelectorAll("[data-alert-terminal-name]").forEach((node) => { node.textContent = terminalName; });
 
   function roleResources(context = currentRole) {
@@ -449,6 +481,10 @@
     return organizationMatches && ownerMatches;
   }
 
+  function ruleNumberMatches(rule) {
+    return !currentRole.isOperations || !appliedCenterFilters.ruleId || String(rule?.ruleNumber || "").includes(appliedCenterFilters.ruleId);
+  }
+
   function incidentOwnerRecord(incident) {
     return state.rules.find(rule => rule.id === incident.ruleId) || (incident.ownerType ? incident : null);
   }
@@ -463,7 +499,7 @@
       const terminalMatches = !terminalFilter || `${item.terminalName} ${item.terminalId}`.toLowerCase().includes(terminalFilter);
       const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
       const rule = incidentOwnerRecord(item);
-      return (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && storeMatches && terminalMatches && conditionMatches && operationsFilterMatches(rule);
+      return (stateFilter === "all" || item.monitoringState === stateFilter) && acknowledgementMatches && storeMatches && terminalMatches && conditionMatches && operationsFilterMatches(rule) && ruleNumberMatches(state.rules.find(rule => rule.id === item.ruleId));
     });
   }
 
@@ -476,7 +512,7 @@
       const storeMatches = !storeFilter || path?.store?.name.toLowerCase().includes(storeFilter);
       const terminalMatches = !terminalFilter || `${path?.terminal?.name || ""} ${path?.terminal?.id || ""}`.toLowerCase().includes(terminalFilter);
       const statusMatches = !currentRole.isOperations || ruleStatus === "all" || (ruleStatus === "Archived" ? item.status === "Archived" : item.status !== "Archived");
-      return conditionMatches && storeMatches && terminalMatches && statusMatches && operationsFilterMatches(item);
+      return conditionMatches && storeMatches && terminalMatches && statusMatches && operationsFilterMatches(item) && ruleNumberMatches(item);
     });
   }
 
@@ -494,6 +530,7 @@
       const acknowledgementLabel = item.acknowledgedAt ? `Acknowledged by ${item.acknowledgedBy || "Unknown user"} at ${item.acknowledgedAt}` : "Needs acknowledgement";
       return `
         <tr data-incident-id="${escapeHtml(item.id)}">
+          ${currentRole.isOperations ? `<td class="alert-rule-id-cell">${escapeHtml(state.rules.find(rule => rule.id === item.ruleId)?.ruleNumber || "—")}</td>` : ""}
           <td><span class="alert-state-stack"><span class="alert-status incident-state ${item.monitoringState.toLowerCase()}">${escapeHtml(item.monitoringState)}</span>${item.acknowledgedAt ? `<span class="alert-ack-icon" role="img" aria-label="${escapeHtml(acknowledgementLabel)}" title="${escapeHtml(acknowledgementLabel)}" data-tooltip="${escapeHtml(acknowledgementLabel)}" tabindex="0"><span class="material-symbols-rounded" aria-hidden="true">task_alt</span></span>` : ""}<span class="alert-sr-only">Acknowledgement: ${item.acknowledgedAt ? "Acknowledged" : "Needs acknowledgement"}</span></span></td>
           <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
           ${ownerCell}
@@ -501,7 +538,7 @@
           <td>${escapeHtml(item.evidence)}</td><td>${opened}</td>
           <td class="alert-actions-cell">${actionable && !item.acknowledgedAt && (pageType === "terminal" ? canManageIncident(item) : (!currentRole.isOperations || canManageAlerts)) ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-acknowledge="${escapeHtml(item.id)}" aria-label="Acknowledge" title="Acknowledge" data-tooltip="Acknowledge"><span class="material-symbols-rounded" aria-hidden="true">done</span></button>` : ""}${actionable && canManageIncident(item) ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-close-incident="${escapeHtml(item.id)}" aria-label="Close incident" title="Close incident" data-tooltip="Close incident"><span class="material-symbols-rounded" aria-hidden="true">stop_circle</span></button>` : ""}<button class="alert-table-button alert-icon-button" type="button" data-alert-view="${escapeHtml(item.id)}" aria-label="View timeline" title="View timeline" data-tooltip="View timeline"><span class="material-symbols-rounded" aria-hidden="true">timeline</span></button></td>
         </tr>`;
-    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 7 : 6) : (currentRole.isOperations ? 6 : 5)}">No incidents match the current filters.</td></tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 8 : 6) : (currentRole.isOperations ? 7 : 5)}">No incidents match the current filters.</td></tr>`;
   }
 
   function renderRules() {
@@ -514,13 +551,14 @@
       const editable = canManageRule(item) && item.status !== "Archived";
       return `
       <tr data-rule-id="${escapeHtml(item.id)}">
+        ${currentRole.isOperations ? `<td class="alert-rule-id-cell">${escapeHtml(item.ruleNumber)}</td>` : ""}
         <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
         ${ownerCell}
         ${pageType === "center" ? `<td class="alert-target-cell">${escapeHtml(item.targetType)} · ${escapeHtml(item.targetName)}</td>` : ""}
         <td>${escapeHtml(item.criteria)}</td><td>${escapeHtml(item.recipients.map(notificationLabel).join(", "))}</td><td><span class="alert-status ${item.status.toLowerCase()}">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.modified)}</td>
         <td>${editable ? `<button class="alert-table-button alert-icon-button" type="button" data-alert-toggle="${escapeHtml(item.id)}" aria-label="${item.status === "Active" ? "Pause" : "Resume"}" title="${item.status === "Active" ? "Pause" : "Resume"}" data-tooltip="${item.status === "Active" ? "Pause" : "Resume"}"><span class="material-symbols-rounded" aria-hidden="true">${item.status === "Active" ? "pause" : "play_arrow"}</span></button><button class="alert-table-button alert-icon-button" type="button" data-alert-edit="${escapeHtml(item.id)}" aria-label="Edit" title="Edit" data-tooltip="Edit"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button><button class="alert-table-button alert-icon-button alert-delete-button" type="button" data-alert-delete="${escapeHtml(item.id)}" aria-label="Delete rule" title="Delete rule" data-tooltip="Delete rule"><span class="material-symbols-rounded" aria-hidden="true">delete</span></button>` : '<span class="alerts-page-copy">View only</span>'}</td>
       </tr>`;
-    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 8 : 7) : (currentRole.isOperations ? 7 : 6)}">No organization-owned rules match this context.</td></tr>`;
+    }).join("") : `<tr><td class="alert-empty" colspan="${pageType === "center" ? (currentRole.isOperations ? 9 : 7) : (currentRole.isOperations ? 8 : 6)}">No organization-owned rules match this context.</td></tr>`;
   }
 
   function renderCounts() {
@@ -602,10 +640,10 @@
   }
 
   function resetCenterFilters() {
-    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter], [data-alert-organization-filter], [data-alert-owner-filter]").forEach((control) => { control.value = ""; });
+    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter], [data-alert-organization-filter], [data-alert-owner-filter], [data-alert-rule-id-filter]").forEach((control) => { control.value = ""; });
     surface.querySelectorAll("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-condition-filter]").forEach((control) => { control.value = "all"; });
     if (ruleStatusFilter) ruleStatusFilter.value = "current";
-    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current" };
+    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current", ruleId: "" };
   }
 
   function applyCenterFilters() {
@@ -617,7 +655,8 @@
       condition: surface.querySelector("[data-alert-condition-filter]")?.value || "all",
       organization: organizationFilter?.value || "",
       owner: ownerFilter?.value || "",
-      ruleStatus: ruleStatusFilter?.value || "current"
+      ruleStatus: ruleStatusFilter?.value || "current",
+      ruleId: currentRole.isOperations ? surface.querySelector("[data-alert-rule-id-filter]")?.value.trim() || "" : ""
     };
     renderAll();
   }
@@ -1177,7 +1216,7 @@
       return;
     }
     const rule = {
-      id: existing?.id || `r-${Date.now()}`, condition, parameters,
+      id: existing?.id || `r-${Date.now()}`, ruleNumber: existing?.ruleNumber || state.nextRuleNumber++, condition, parameters,
       ...(condition === "opc_offline" ? { monitoringHours: schedule } : {}),
       targetType: monitoringTarget.type, targetId: monitoringTarget.id,
       targetName: monitoringTarget.name,
@@ -1427,7 +1466,7 @@
     }
   });
   surface.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && event.target.matches("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter]")) {
+    if (event.key === "Enter" && event.target.matches("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter], [data-alert-rule-id-filter]")) {
       event.preventDefault();
       applyCenterFilters();
     }

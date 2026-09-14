@@ -164,7 +164,7 @@ test('today no-report gaps count only elapsed operating time, never future time'
 test('known collection failures prevent a daily score without blaming the terminal for the gap', () => {
   const d = fixture(), begin = at(day + 'T00:00:00');
   d.terminals[0].observations = [{ from: begin, to: begin + H, state: 'unknown', cause: 'collection_failure' }, { from: begin + H, to: begin + 24 * H, state: 'online' }];
-  const r = report(d); assert.equal(r.collectionUnavailable, H); assert.equal(r.unreported, 0); assert.equal(r.offline, 0); assert.equal(r.rate, null); assert.equal(r.state, 'unavailable'); assert.equal(D.rateText(r), 'Data unavailable');
+  const r = report(d); assert.equal(r.collectionUnavailable, H); assert.equal(r.unreported, 0); assert.equal(r.offline, 0); assert.equal(r.rate, null); assert.equal(r.state, 'unavailable'); assert.equal(D.rateText(r), '—');
   d.stores[0].versions[0].schedule = custom(); assert.equal(report(d).rate, 100);
 });
 test('ordinary fully unreported historical days are 0% while closed days remain Closed', () => {
@@ -190,7 +190,7 @@ test('summary and matrix demo authorization cannot expand the profile scope', ()
   assert.equal(foreign.scope, 'store:s-midtown'); assert.deepEqual(D.scopeStores(d, foreign.scope), []);
 });
 
-test('one Unreachable duration and timeline combine adjacent legacy offline and missing reports without changing uptime', () => {
+test('one Offline duration and timeline combine adjacent legacy offline and missing reports without changing uptime', () => {
   const d = fixture(), begin = at(day + 'T00:00:00');
   d.terminals[0].observations = [
     { from: begin, to: begin + H, state: 'online' },
@@ -203,10 +203,35 @@ test('one Unreachable duration and timeline combine adjacent legacy offline and 
   require('node:vm').runInNewContext(require('node:fs').readFileSync(require.resolve('../../scripts/terminal-uptime-view.js'), 'utf8'), context);
   const V = context.window.PaywizardUptimeView, details = V.dayContent(d, d.terminals[0], r), cell = V.cell(r, 'SN-1');
   assert.equal(r.rate, 23 / 24 * 100);
-  assert.match(details, /Unreachable time<\/span><strong class="red">1h<\/strong>/);
-  assert.match(details, /01:00:00–02:00:00<\/td><td><i class="up-dot unreachable"><\/i>Unreachable/);
+  assert.match(details, /Offline<\/span><strong class="red">1h<\/strong>/);
+  assert.match(details, /01:00:00–02:00:00<\/td><td><i class="up-dot unreachable"><\/i>Offline/);
   assert.equal((details.match(/<article>/g) || []).length, 2);
-  assert.doesNotMatch(details + cell, /Confirmed offline|No report|no report|>Offline</);
-  assert.match(cell, /Unreachable time 1h/);
+  assert.doesNotMatch(details + cell, /Confirmed offline|No report|no report|Unreachable/);
+  assert.match(cell, /Offline 1h/);
   assert.equal(JSON.stringify(r), before, 'rendering must preserve original observation evidence');
+});
+
+test('no-score days stay distinguishable and never discard partially known durations', () => {
+  const context = { window: { PaywizardUptimeDomain: D } };
+  require('node:vm').runInNewContext(require('node:fs').readFileSync(require.resolve('../../scripts/terminal-uptime-view.js'), 'utf8'), context);
+  const V = context.window.PaywizardUptimeView, d = fixture(custom()), begin = at(day + 'T00:00:00');
+  const pending = report(d, day, ['a'], begin + 7 * H);
+  assert.equal(D.rateText(pending), '—');
+  assert.match(V.cell(pending, 'SN-1'), /Starts at 08:00/);
+  assert.doesNotMatch(V.dayContent(d, d.terminals[0], pending), /up-day-stats|Not open yet/);
+  d.terminals[0].observations = [{ from: begin, to: begin + 24 * H, state: 'unknown', cause: 'collection_failure' }];
+  const unavailable = report(d);
+  assert.equal(D.rateText(unavailable), '—');
+  assert.match(V.cell(unavailable, 'SN-1'), /No data/);
+  assert.doesNotMatch(V.dayContent(d, d.terminals[0], unavailable), /up-day-stats|Data unavailable/);
+  d.terminals[0].observations = [
+    { from: begin, to: begin + 9 * H, state: 'unknown', cause: 'collection_failure' },
+    { from: begin + 9 * H, to: begin + 24 * H, state: 'online' }
+  ];
+  const partial = report(d), before = JSON.stringify(partial);
+  const detail = V.dayContent(d, d.terminals[0], partial);
+  assert.equal(D.rateText(partial), '—');
+  assert.match(detail, /Online<\/span><strong class="green">11h<\/strong>/);
+  assert.match(detail, /1h of operating hours without data/);
+  assert.equal(JSON.stringify(partial), before);
 });

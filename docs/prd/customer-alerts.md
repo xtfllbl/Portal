@@ -462,3 +462,19 @@ Demo terminals DEMO-AGT1-001, DEMO-AGT2-001, and DEMO-AGT3-001 exercise direct m
 ### Observed Evidence 文案与全量案例（2026-09-10）
 
 文案、Target 组合、数据无效处理和生命周期统一以 [Customer Alert Evidence 规格](customer-alert-evidence.md) 为准。Observed Evidence 随实际观测更新，手动关闭后冻结；恢复检查使用相同模板。多 BIN 事件按 Rule＋Terminal 合并，Selected Product 按稳定 Product ID 匹配。
+
+
+## 15. 运维 Rule ID 展示与搜索（2026-09-14）
+
+- Rule ID 使用简短纯数字，例如 `100001`；同一条规则在 Alerts、Rules 和 Customer Alert 邮件中使用相同编号，不随排序、编辑、暂停或归档而变化，也不重复分配给另一条规则。
+- 仅 Operations Manager 在 Alerts 中心、终端 Alerts 页的 Alerts / Rules 四张表看到首列 Rule ID 和对应搜索入口。客户侧角色不显示该列或搜索框，切换角色会清空该筛选。
+- 输入完整或部分数字后点击 Search 或按 Enter 搜索；与其他现有筛选取交集。清空再搜索恢复列表，两个 tab 共用输入值。无匹配时显示现有空态。
+- 保留现有列表范围：终端 Rules 只列直接绑定该终端的未归档规则；门店规则及归档规则可在 Alerts 中心按原有范围和规则状态筛选查询。
+- 所有 Customer Alert 通知邮件在版权文字上方以 12px 灰字显示 `Triggered by Rule ID: 100009`。母版使用 `${ruleId}`，标题、告警主内容及通知条件保持原样。
+- 旧告警若确实缺失关联规则，则 Rule ID 显示 `—`，不为其编造编号，也不将它与其他规则错误匹配。
+
+### 原型数据兼容与正式接入
+
+当前原型保留内部 `id` / `incident.ruleId` 的历史字符串关联键，另持久化数值 `ruleNumber` 作为界面 Rule ID；存量规则首次读取时补齐，新规则按 `nextRuleNumber` 分配。原型演示编号从 100001 起，不按客户或终端重新计数。邮件参数 `${ruleId}` 必须取对应规则的数字 `ruleNumber`，不是原型内部字符串键。
+
+正式服务须由后端统一分配并保证编号唯一；本次只修改交互原型、邮件母版及示例，不代表已接入实际邮件发送服务。

@@ -59,7 +59,7 @@
     }, 'Organization');
     const scopedStores = data.stores.filter(s => allowed.includes(s.id) && (!organization || s.lineageKeys.includes(organization)));
     combo('storePicker', [{ key: '', name: 'All stores' }, ...scopedStores.map(s => ({ key: s.id, name: s.name }))], storeFilter, value => { storeFilter = value; page = 0; render(); }, 'Store');
-    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With Unreachable time' }, { key: 'unavailable', name: 'With unavailable data' }], statusFilter, value => { statusFilter = value; page = 0; render(); }, 'Show');
+    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With offline time' }, { key: 'unavailable', name: 'With unavailable data' }], statusFilter, value => { statusFilter = value; page = 0; render(); }, 'Show');
   }
   function summary(t, date, storeIds = selectedStores()) {
     const key = [data.revision, data.observedAt, asOf, t.sn, date, storeIds.join(',')].join('|');
@@ -89,7 +89,7 @@
     $('uptimeHead').innerHTML = '<tr><th class="up-terminal-col">Terminal S/N</th><th class="up-store-col">Store</th>' + dates.map(d => `<th class="up-date-col" scope="col" title="${d} · terminal local date">${dateLabel(d)}${d === limits.latest ? ' •' : ''}</th>`).join('') + '</tr>';
     $('uptimeRows').innerHTML = rows.slice(page * 10, page * 10 + 10).map(row => {
       const t = row.terminal, storeNames = [...new Set(row.shown.flatMap(r => r.storeIds))].map(id => data.stores.find(s => s.id === id)?.name).filter(Boolean);
-      return `<tr data-sn="${esc(t.sn)}"><td class="up-terminal-col"><a class="up-terminal-label" href="${esc(terminalUrl(t.sn))}" title="${esc(t.name)}">${esc(t.sn)}</a><span class="up-mobile-store" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td><td class="up-store-col"><span class="up-store-label">${esc(storeNames.join(' / '))}</span></td>` + row.cells.map(r => {
+      return `<tr data-sn="${esc(t.sn)}"><td class="up-terminal-col"><a class="up-terminal-label" href="${esc(terminalUrl(t.sn))}" title="${esc(t.name)}">${esc(t.sn)}</a><span class="up-mobile-store" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td><td class="up-store-col"><span class="up-store-label" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td>` + row.cells.map(r => {
         // No pre-enrollment status, placeholder, button, or tooltip is emitted.
         if (!r) return '<td class="up-before" aria-hidden="true"></td>';
         return `<td>${V.cell(r, t.sn)}</td>`;
@@ -101,8 +101,8 @@
     $('uptimeUpdated').title = new Date(data.observedAt).toISOString();
     $('uptimePageInfo').textContent = rows.length ? `${page * 10 + 1}–${Math.min(page * 10 + 10, rows.length)} of ${rows.length}` : '0 terminals';
     $('previousPage').disabled = page === 0; $('nextPage').disabled = (page + 1) * 10 >= rows.length;
-    const storeWidth = innerWidth <= 700 ? 110 : innerWidth <= 1150 ? 125 : 155;
-    const terminalWidth = innerWidth <= 700 ? 155 : innerWidth <= 1150 ? 195 : 230;
+    const storeWidth = innerWidth <= 1150 ? 150 : 200;
+    const terminalWidth = innerWidth <= 1150 ? 180 : 200;
     const matrix = $('uptimeHead').closest('table');
     matrix.classList.toggle('up-week-view', dates.length <= 7);
     matrix.style.minWidth = dates.length <= 7 ? '100%' : `${terminalWidth + storeWidth + dates.length * (innerWidth <= 700 ? 76 : 82)}px`;
@@ -118,7 +118,8 @@
     $('uptimeDayContent').innerHTML = V.dayContent(data, t, r);
     $('dayPrevious').disabled = !summary(t, D.addDays(date, -1)); $('dayNext').disabled = !summary(t, D.addDays(date, 1));
     $('dayHours').disabled = !D.canManageTerminal(data, auth, t, asOf);
-    if (!$('uptimeDayDialog').open) $('uptimeDayDialog').showModal();
+    $('uptimeDayContent').scrollTop = 0;
+    V.openDrawer($('uptimeDayDialog'));
   }
   function targetOptions() {
     return [
@@ -188,7 +189,11 @@
     }).join('') + '</div>';
   }
   function planFor(key) { return key.startsWith('w:') ? editor.draft.week[Number(key.slice(2))] : editor.draft.exceptions[Number(key.slice(2))].plan; }
-  function closeDialog(id) { combos.forEach(c => c.close()); $(id).close(); if (id === 'operatingHoursDialog') editor = null; }
+  function closeDialog(id) {
+    combos.forEach(c => c.close());
+    if (id === 'uptimeDayDialog') return V.closeDrawer($(id));
+    $(id).close(); if (id === 'operatingHoursDialog') editor = null;
+  }
   $('operatingHoursForm').addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button || !editor || !editor.canEdit || button.disabled) return;
     if (button.hasAttribute('data-hours-mode')) {
@@ -232,7 +237,7 @@
   $('uptimeDayDialog').addEventListener('cancel', () => { selectedDay = null; });
   $('dayPrevious').addEventListener('click', () => openDay(selectedDay.sn, D.addDays(selectedDay.date, -1)));
   $('dayNext').addEventListener('click', () => openDay(selectedDay.sn, D.addDays(selectedDay.date, 1)));
-  $('dayHours').addEventListener('click', () => { const sn = selectedDay.sn; closeDialog('uptimeDayDialog'); openHours('terminal:' + sn); });
+  $('dayHours').addEventListener('click', async () => { const sn = selectedDay.sn; await closeDialog('uptimeDayDialog'); openHours('terminal:' + sn); });
   $('manageHours').addEventListener('click', () => openHours(fixedTerminal ? 'terminal:' + fixedTerminal : storeFilter ? 'store:' + storeFilter : null));
   $('refreshUptime').addEventListener('click', () => {
     try {

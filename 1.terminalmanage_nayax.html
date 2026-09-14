@@ -35,37 +35,9 @@
 
         /* Blue banner header to match the provided structure */
         .card-banner { background: var(--banner); color: #fff; padding: 16px 18px 12px; position: relative; }
-        .banner-top { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .terminal-back-link {
-            height: 40px;
-            min-height: 40px;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            white-space: nowrap;
-            padding: 7px 11px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 8px;
-            background: #080808;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 750;
-            line-height: 1;
-            text-decoration: none;
-        }
-        .terminal-back-link img { width: 17px; height: 17px; filter: brightness(0) invert(1); }
-        .terminal-back-link:hover { background: #181818; border-color: rgba(255,255,255,.18); }
-        .terminal-back-link:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
         .banner-meta { margin-top: 4px; color: rgba(255,255,255,.9); font-size: 12px; }
         .banner-meta b { color: #fff; }
         .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); margin-left: auto; }
-        .banner-top .connection-summary, .banner-top .icon-btn { height: 40px; min-height: 40px; box-sizing: border-box; }
-        @media (max-width: 560px) {
-            .banner-top > .terminal-back-link { flex: 1 1 100%; justify-content: center; }
-            .banner-top > .banner-status { width: 100%; }
-        }
         .connection-status {
             position: relative;
             display: inline-flex;
@@ -1951,6 +1923,7 @@
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
   <link rel="stylesheet" href="styles/alert-monitoring-hours.css">
 <script src="scripts/terminal-type.js" defer></script>
+    <link rel="stylesheet" href="styles/terminal-banner.css">
 </head>
 <body>
     <header class="top-header">
@@ -2797,10 +2770,17 @@
                         <button class="alert-center-view-tab" type="button" role="tab" aria-selected="false" aria-controls="terminalAlertRules" data-alert-view-tab="rules">Rules</button>
                     </div>
 
+                    <div class="alert-center-toolbar" role="search" aria-label="Rule ID search" data-alert-operations-only hidden>
+                        <div class="alert-filter-group">
+                            <input class="alert-filter-control alert-rule-id-filter" type="search" inputmode="numeric" aria-label="Rule ID" placeholder="Rule ID" autocomplete="off" data-alert-rule-id-filter data-alert-operations-only hidden>
+                            <button class="alert-btn dark alert-filter-submit" type="button" data-alert-filter-submit>Search</button>
+                        </div>
+                    </div>
+
                     <div id="terminalAlertIncidents" class="alerts-terminal-panel" role="tabpanel" data-alert-view-panel="incidents">
                         <div class="alerts-table-wrap">
                             <table class="table alerts-table">
-                                <thead><tr><th>State</th><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Evidence</th><th>Opened</th><th>Actions</th></tr></thead>
+                                <thead><tr><th class="alert-rule-id-cell" data-alert-operations-only hidden>Rule ID</th><th>State</th><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Evidence</th><th>Opened</th><th>Actions</th></tr></thead>
                                 <tbody data-alert-incidents></tbody>
                             </table>
                         </div>
@@ -2809,7 +2789,7 @@
                     <div id="terminalAlertRules" class="alerts-terminal-panel hidden" role="tabpanel" data-alert-view-panel="rules">
                         <div class="alerts-table-wrap">
                             <table class="table alerts-table">
-                                <thead><tr><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
+                                <thead><tr><th class="alert-rule-id-cell" data-alert-operations-only hidden>Rule ID</th><th>Condition</th><th data-alert-operations-only hidden>Rule Owner</th><th>Criteria</th><th>Notifications</th><th>Status</th><th>Modified</th><th>Actions</th></tr></thead>
                                 <tbody data-alert-rules></tbody>
                             </table>
                         </div>
