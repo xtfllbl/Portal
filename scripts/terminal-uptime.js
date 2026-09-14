@@ -97,8 +97,9 @@
           const zone = plan?.schedule.timeZone || 'UTC', localDate = D.parts(asOf, zone).date;
           const dayStart = D.localEpoch(dates[index], 0, zone), dayEnd = D.localEpoch(D.addDays(dates[index], 1), 0, zone);
           const inMembership = t.memberships.some(m => storeIds.includes(m.storeId) && m.from < dayEnd && (m.to ?? Infinity) > dayStart);
-          const label = dates[index] < D.parts(t.enrolledAt, zone).date ? 'Not enrolled' : !inMembership ? 'Outside period' : dates[index] > localDate ? 'Upcoming' : 'Outside period';
-          return `<td><span class="up-empty-day" title="${esc(label === 'Upcoming' ? `Local date: ${localDate} · ${zone}` : 'Outside the terminal’s visible enrollment or Store membership period.')}">${label}</span></td>`;
+          const label = dates[index] < D.parts(t.enrolledAt, zone).date ? 'Not enrolled' : !inMembership ? '—' : dates[index] > localDate ? 'Upcoming' : '—';
+          const hint = label === 'Upcoming' ? `Local date: ${localDate} · ${zone}` : label === 'Not enrolled' ? 'Monitoring had not started for this terminal on this date.' : 'No visible history for this date.';
+          return `<td><span class="up-empty-day" title="${esc(hint)}" aria-label="${esc(hint)}">${label}</span></td>`;
         }
         return `<td>${V.cell(r, t.sn)}</td>`;
       }).join('') + '</tr>';

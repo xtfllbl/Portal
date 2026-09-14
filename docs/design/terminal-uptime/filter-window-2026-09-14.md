@@ -34,3 +34,7 @@
 - 日历方向键可从 9 月 1 日跨到 8 月 31 日，预览同步更新为 8 月 25–31 日。
 - 新接入终端 `NYC-Q3-0043` 保留七列，前五日显示不可点击的 Not enrolled；带 `date=2026-09-13` 的入口显示 9 月 7–13 日，并打开 9 月 13 日详情。
 - `node --test tests/unit/terminal-uptime.test.cjs`：38 项通过；JavaScript 语法检查、静态构建与 `git diff --check` 通过。
+
+## 无可见历史的显示补充
+
+用户要求简化 Outside period 的显示。矩阵中原 Outside period 日格统一改为 `—`，不可点击；悬停提示 `No visible history for this date.`。这表示当前筛选和权限范围内该日期没有可展示的终端归属历史，也可能已超出保留范围，不据此判断具体故障或泄露其他门店信息。仍在监控范围内但无有效心跳的 No data，以及接入前 Not enrolled、未来当地日期 Upcoming 保持各自含义。

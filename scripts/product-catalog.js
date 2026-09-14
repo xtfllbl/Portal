@@ -856,6 +856,7 @@
     if (!name) addFieldError(fields, "name", "Template Name is required.");
     if (name.length > 100) addFieldError(fields, "name", "Template Name must be 100 characters or fewer.");
     if (!machineModel) addFieldError(fields, "machineModel", "Machine Model is required.");
+    if (machineModel.length > 100) addFieldError(fields, "machineModel", "Machine Model must be 100 characters or fewer.");
     if (cleanText(merged.description).length > 1000) addFieldError(fields, "description", "Description must be 1,000 characters or fewer.");
     if (!rows.length) addFieldError(fields, "rows", "The Product Map must contain at least one BIN.");
     if (state.productMapTemplates.some(function (item) {

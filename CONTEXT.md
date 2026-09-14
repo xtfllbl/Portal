@@ -4,6 +4,14 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Product Map Template**:
+A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.
+_Avoid_: Live link to a terminal Product Map
+
+**Machine Model**:
+The machine model designation associated with a Product Map Template. It describes the machine rather than identifying the source terminal or its hardware serial number.
+_Avoid_: Terminal S/N, Source Terminal
+
 **Advertising Campaign**:
 A named advertising playlist, display mode and set of target Stores and/or individual Unattended Terminals, managed by an existing portal management account. A playlist contains images or videos, never both, and repeats in its listed order. Each terminal is assigned one advertising display mode at a time.
 _Avoid_: Terminal Logo, payment parameter template
