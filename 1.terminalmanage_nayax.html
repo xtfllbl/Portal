@@ -3205,14 +3205,17 @@
         };
         setText('crumbTerminalLabel', context.terminalName);
         setText('bannerMerchant', context.merchantName);
-        setText('bannerSn', context.sn);
+        // Preserve legacy record keys while showing the hardware serial supplied
+        // by the Uptime Matrix for its migrated demonstration terminals.
+        const displaySn = pick('hardwareSn') || context.sn;
+        setText('bannerSn', displaySn);
         setText('bannerTid', context.tid);
         setText('bannerModel', context.machineModel);
         setText('bannerTci', context.tci);
         setText('infoMerchant', context.merchantName);
-        setText('infoSn', context.sn);
+        setText('infoSn', displaySn);
         setText('infoTid', context.tid);
-        setText('detailsSn', context.sn);
+        setText('detailsSn', displaySn);
         setText('detailsTerminalName', context.terminalName);
         setText('detailsModel', context.machineModel);
         setText('detailsTci', context.tci);

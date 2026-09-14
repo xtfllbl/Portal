@@ -4,9 +4,10 @@
   const directory = window.PaywizardCustomerAccountDirectory.create(window.PaywizardCustomerAccountData.createHierarchy());
   const $ = id => document.getElementById(id), esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const icon = name => `<span class="material-symbols-rounded" aria-hidden="true">${name}</span>`;
-  const params = new URLSearchParams(location.search), fixedTerminal = params.get('sn') || '';
+  const params = new URLSearchParams(location.search), fixedTerminal = S.resolveSn(params.get('sn') || '');
   let data, auth, allowed, asOf = Date.now(), start, end, organization = '', storeFilter = '', statusFilter = 'all', search = fixedTerminal, page = 0;
   let summaryCache = new Map(), rows = [], dates = [], selectedDay = null, editor = null, toastTimer;
+  let draft = { organization: '', store: '', status: 'all', end: '' }, weekPicker;
   const combos = new Map(), days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   function combo(id, options, value, onChange, label, disabled = false) {
     combos.get(id)?.destroy();
@@ -24,7 +25,9 @@
     return S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', params);
   }
   function terminalUrl(sn) {
-    const query = new URLSearchParams({ sn });
+    const terminal = data.terminals.find(t => t.sn === sn);
+    const query = new URLSearchParams({ sn: terminal?.legacySn || sn, terminalName: terminal?.name || sn });
+    if (terminal?.legacySn) query.set('hardwareSn', sn);
     if (auth.scope !== 'all') query.set('scope', auth.scope);
     if (!auth.manage) query.set('access', 'view');
     return '1.terminalmanage_nayax.html?' + query;
@@ -54,12 +57,14 @@
   function filters() {
     const accounts = directory.accounts.filter(a => a.type !== 'store' && data.stores.some(s => allowed.includes(s.id) && s.lineageKeys.includes(a.key)));
     $('organizationField').hidden = auth.scope.startsWith('store:');
-    combo('organizationPicker', [{ key: '', name: 'All organizations' }, ...accounts.map(a => ({ key: a.key, name: `${a.name} · ${a.type === 'provider' ? 'SP' : a.type === 'agent' ? 'Agent' : 'Merchant'}` }))], organization, value => {
-      organization = value; if (storeFilter && !D.scopeStores(data, value || auth.scope).includes(storeFilter)) storeFilter = ''; filters(); page = 0; render();
+    combo('organizationPicker', [{ key: '', name: 'All organizations' }, ...accounts.map(a => ({ key: a.key, name: `${a.name} · ${a.type === 'provider' ? 'SP' : a.type === 'agent' ? 'Agent' : 'Merchant'}` }))], draft.organization, value => {
+      draft.organization = value;
+      if (draft.store && !D.scopeStores(data, value || auth.scope).includes(draft.store)) draft.store = '';
+      filters();
     }, 'Organization');
-    const scopedStores = data.stores.filter(s => allowed.includes(s.id) && (!organization || s.lineageKeys.includes(organization)));
-    combo('storePicker', [{ key: '', name: 'All stores' }, ...scopedStores.map(s => ({ key: s.id, name: s.name }))], storeFilter, value => { storeFilter = value; page = 0; render(); }, 'Store');
-    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With offline time' }, { key: 'unavailable', name: 'With unavailable data' }], statusFilter, value => { statusFilter = value; page = 0; render(); }, 'Show');
+    const scopedStores = data.stores.filter(s => allowed.includes(s.id) && (!draft.organization || s.lineageKeys.includes(draft.organization)));
+    combo('storePicker', [{ key: '', name: 'All stores' }, ...scopedStores.map(s => ({ key: s.id, name: s.name }))], draft.store, value => { draft.store = value; }, 'Store');
+    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With offline time' }, { key: 'unavailable', name: 'With no data' }], draft.status, value => { draft.status = value; }, 'Show');
   }
   function summary(t, date, storeIds = selectedStores()) {
     const key = [data.revision, data.observedAt, asOf, t.sn, date, storeIds.join(',')].join('|');
@@ -68,30 +73,33 @@
   }
   function render() {
     const limits = dateLimits();
-    if (!D.validDate(start) || !D.validDate(end) || start > end || start < limits.earliest || end > limits.latest || (Date.parse(end) - Date.parse(start)) / D.DAY > 89) {
-      $('previousWeek').disabled = true; $('nextWeek').disabled = true;
-      error('uptimeError', `Choose a date range within ${limits.earliest}–${limits.latest}, with at most 90 days.`, true); return;
+    if (!D.validDate(end) || start !== D.addDays(end, -6) || end < limits.earliest || end > limits.latest) {
+      error('uptimeError', `Choose an end date from ${limits.earliest} to ${limits.latest}. Each range contains 7 days.`, true); return;
     }
     error('uptimeError', '');
     dates = []; for (let d = start; d <= end; d = D.addDays(d, 1)) dates.push(d);
     const storeIds = selectedStores(), term = search.trim().toLowerCase();
-    const candidates = data.terminals.filter(t => (!fixedTerminal || t.sn === fixedTerminal) && (!term || `${t.sn} ${t.name}`.toLowerCase().includes(term)) && t.memberships.some(m => storeIds.includes(m.storeId)));
+    const candidates = data.terminals.filter(t => (!fixedTerminal || t.sn === fixedTerminal) && (!term || `${t.sn} ${t.legacySn || ''} ${t.name}`.toLowerCase().includes(term)) && t.memberships.some(m => storeIds.includes(m.storeId)));
     rows = candidates.map(t => {
       const cells = dates.map(d => summary(t, d, storeIds)), shown = cells.filter(Boolean);
-      return { terminal: t, cells, unreachable: shown.reduce((n, x) => n + x.offline, 0), unavailable: shown.some(x => x.collectionUnavailable > 0), shown };
+      return { terminal: t, cells, unreachable: shown.reduce((n, x) => n + x.offline, 0), unavailable: shown.some(x => x.state === 'unavailable'), shown };
     }).filter(r => r.shown.length && (statusFilter === 'all' || (statusFilter === 'unreachable' ? r.unreachable > 0 : r.unavailable)));
     const rank = r => r.unreachable ? 0 : r.unavailable ? 1 : 2;
     rows.sort((a, b) => rank(a) - rank(b) || b.unreachable - a.unreachable || a.terminal.sn.localeCompare(b.terminal.sn));
     page = Math.max(0, Math.min(page, Math.ceil(rows.length / 10) - 1));
-    $('uptimeStart').value = start; $('uptimeEnd').value = end;
-    ['uptimeStart', 'uptimeEnd'].forEach(id => { $(id).min = limits.earliest; $(id).max = limits.latest; });
-    $('previousWeek').disabled = start <= limits.earliest; $('nextWeek').disabled = end >= limits.latest;
     $('uptimeHead').innerHTML = '<tr><th class="up-terminal-col">Terminal S/N</th><th class="up-store-col">Store</th>' + dates.map(d => `<th class="up-date-col" scope="col" title="${d} · terminal local date">${dateLabel(d)}${d === limits.latest ? ' •' : ''}</th>`).join('') + '</tr>';
     $('uptimeRows').innerHTML = rows.slice(page * 10, page * 10 + 10).map(row => {
       const t = row.terminal, storeNames = [...new Set(row.shown.flatMap(r => r.storeIds))].map(id => data.stores.find(s => s.id === id)?.name).filter(Boolean);
-      return `<tr data-sn="${esc(t.sn)}"><td class="up-terminal-col"><a class="up-terminal-label" href="${esc(terminalUrl(t.sn))}" title="${esc(t.name)}">${esc(t.sn)}</a><span class="up-mobile-store" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td><td class="up-store-col"><span class="up-store-label" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td>` + row.cells.map(r => {
-        // No pre-enrollment status, placeholder, button, or tooltip is emitted.
-        if (!r) return '<td class="up-before" aria-hidden="true"></td>';
+      return `<tr data-sn="${esc(t.sn)}"><td class="up-terminal-col"><a class="up-terminal-label" href="${esc(terminalUrl(t.sn))}" title="${esc(t.name)}">${esc(t.sn)}</a><span class="up-mobile-store" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td><td class="up-store-col"><span class="up-store-label" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td>` + row.cells.map((r, index) => {
+        if (!r) {
+          const membership = t.memberships.filter(m => storeIds.includes(m.storeId)).sort((a, b) => b.from - a.from)[0];
+          const plan = membership && D.effective(data, t, Math.min(asOf, (membership.to ?? asOf + 1) - 1));
+          const zone = plan?.schedule.timeZone || 'UTC', localDate = D.parts(asOf, zone).date;
+          const dayStart = D.localEpoch(dates[index], 0, zone), dayEnd = D.localEpoch(D.addDays(dates[index], 1), 0, zone);
+          const inMembership = t.memberships.some(m => storeIds.includes(m.storeId) && m.from < dayEnd && (m.to ?? Infinity) > dayStart);
+          const label = dates[index] < D.parts(t.enrolledAt, zone).date ? 'Not enrolled' : !inMembership ? 'Outside period' : dates[index] > localDate ? 'Upcoming' : 'Outside period';
+          return `<td><span class="up-empty-day" title="${esc(label === 'Upcoming' ? `Local date: ${localDate} · ${zone}` : 'Outside the terminal’s visible enrollment or Store membership period.')}">${label}</span></td>`;
+        }
         return `<td>${V.cell(r, t.sn)}</td>`;
       }).join('') + '</tr>';
     }).join('');
@@ -239,29 +247,25 @@
   $('dayNext').addEventListener('click', () => openDay(selectedDay.sn, D.addDays(selectedDay.date, 1)));
   $('dayHours').addEventListener('click', async () => { const sn = selectedDay.sn; await closeDialog('uptimeDayDialog'); openHours('terminal:' + sn); });
   $('manageHours').addEventListener('click', () => openHours(fixedTerminal ? 'terminal:' + fixedTerminal : storeFilter ? 'store:' + storeFilter : null));
-  $('refreshUptime').addEventListener('click', () => {
-    try {
-      const now = Date.now();
-      data = S.load(localStorage, directory, now); asOf = now; summaryCache.clear(); auth = profileAuth(); allowed = D.scopeStores(data, auth.scope); filters(); render(); toast('Uptime data refreshed');
-    } catch (e) { error('uptimeError', 'Refresh failed. Last successful data is still displayed. ' + e.message, true); }
-  });
-  $('terminalSearch').addEventListener('input', event => { search = event.target.value; page = 0; render(); });
-  $('uptimeStart').addEventListener('change', event => { start = event.target.value; page = 0; render(); });
-  $('uptimeEnd').addEventListener('change', event => { end = event.target.value; page = 0; render(); });
-  $('recentWeek').addEventListener('click', () => { const limits = dateLimits(); end = limits.latest; start = [D.addDays(end, -6), limits.earliest].sort().pop(); page = 0; render(); });
-  function shiftRange(direction) {
-    const limits = dateLimits(), span = Math.round((Date.parse(end) - Date.parse(start)) / D.DAY); start = D.addDays(start, direction * 7); end = D.addDays(end, direction * 7);
-    if (start < limits.earliest) { start = limits.earliest; end = D.addDays(start, span); }
-    if (end > limits.latest) { end = limits.latest; start = D.addDays(end, -span); }
-    if (start < limits.earliest) start = limits.earliest;
+  $('uptimeFilters').addEventListener('submit', event => {
+    event.preventDefault();
+    const limits = dateLimits();
+    if (!D.validDate(draft.end) || draft.end < limits.earliest || draft.end > limits.latest) {
+      error('uptimeError', `Choose an end date from ${limits.earliest} to ${limits.latest}. Each range contains 7 days.`, true); return;
+    }
+    combos.forEach(c => c.close()); weekPicker.close();
+    organization = draft.organization; storeFilter = draft.store; statusFilter = draft.status;
+    search = fixedTerminal || $('terminalSearch').value; end = draft.end; start = D.addDays(end, -6);
     page = 0; render();
-  }
-  $('previousWeek').addEventListener('click', () => shiftRange(-1)); $('nextWeek').addEventListener('click', () => shiftRange(1));
+  });
   $('previousPage').addEventListener('click', () => { page--; render(); }); $('nextPage').addEventListener('click', () => { page++; render(); });
   window.addEventListener('resize', () => { if (data) render(); });
   try {
     data = S.load(localStorage, directory, asOf); auth = profileAuth(); allowed = D.scopeStores(data, auth.scope);
-    const limits = dateLimits(); end = limits.latest; start = [D.addDays(end, -6), limits.earliest].sort().pop();
+    const limits = dateLimits(), requestedDate = params.get('date');
+    end = D.validDate(requestedDate) && requestedDate >= limits.earliest && requestedDate <= limits.latest ? requestedDate : limits.latest;
+    start = D.addDays(end, -6); draft.end = end;
+    weekPicker = window.PaywizardUptimeWeekPicker.mount({ value: end, limits: dateLimits, onChange: value => { draft.end = value; } });
     if (fixedTerminal) {
       $('terminalSearch').value = fixedTerminal; $('terminalSearch').readOnly = true;
     }
@@ -269,5 +273,5 @@
     if (params.get('hours') === '1' && fixedTerminal && !$('manageHours').disabled) openHours('terminal:' + fixedTerminal);
     const requestedDay = params.get('date');
     if (fixedTerminal && D.validDate(requestedDay)) openDay(fixedTerminal, requestedDay);
-  } catch (e) { error('uptimeError', e.message, true); $('manageHours').disabled = true; $('refreshUptime').disabled = true; }
+  } catch (e) { error('uptimeError', e.message, true); $('manageHours').disabled = true; }
 })();

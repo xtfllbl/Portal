@@ -89,14 +89,14 @@ test('read-only and out-of-scope users cannot save schedules', () => {
   assert.equal(d.revision, 0); assert.equal(d.audit.length, 0);
 });
 test('source observation correction can fill a gap without applying a new schedule retroactively', () => {
-  const d = fixture(); d.terminals[0].observations = []; assert.equal(report(d).rate, 0);
+  const d = fixture(); d.terminals[0].observations = []; assert.equal(report(d).rate, null);
   const updated = D.saveSchedule(d, { scope: 'store:a' }, { type: 'store', id: 'a' }, closed(), 'custom', now);
   updated.terminals[0].observations = [{ from: at('2026-09-10T00:00:00'), to: at('2026-09-11T00:00:00'), state: 'online' }];
   assert.equal(report(updated).rate, 100); assert.equal(report(updated).operating, 24 * H);
 });
 test('conflicting source observations become Unknown instead of silently choosing Online', () => {
   const d = fixture(); d.terminals[0].observations.push({ from: at(day + 'T10:00:00'), to: at(day + 'T11:00:00'), state: 'offline' });
-  assert.equal(report(d).unknown, H); assert.equal(report(d).rate, null);
+  assert.equal(report(d).unknown, H); assert.equal(report(d).offline, H); assert.equal(report(d).rate, 23 / 24 * 100);
 });
 test('three-calendar-month retention clamps month ends and hides expired dates', () => {
   assert.equal(D.monthsAgo('2026-05-31'), '2026-02-28'); assert.equal(D.monthsAgo('2024-05-31'), '2024-02-29');
@@ -161,16 +161,68 @@ test('today no-report gaps count only elapsed operating time, never future time'
   d.terminals[0].observations = [{ from: begin, to: begin + H, state: 'online' }];
   const r = report(d, day, ['a'], cutoff); assert.equal(r.rate, 50); assert.equal(r.offline, H); assert.equal(r.unreported, H); assert.equal(r.futureOperating, 10 * H); assert.equal(r.inProgress, true);
 });
-test('known collection failures prevent a daily score without blaming the terminal for the gap', () => {
+test('a day with valid heartbeats remains assessable when other intervals have legacy collection gaps', () => {
   const d = fixture(), begin = at(day + 'T00:00:00');
   d.terminals[0].observations = [{ from: begin, to: begin + H, state: 'unknown', cause: 'collection_failure' }, { from: begin + H, to: begin + 24 * H, state: 'online' }];
-  const r = report(d); assert.equal(r.collectionUnavailable, H); assert.equal(r.unreported, 0); assert.equal(r.offline, 0); assert.equal(r.rate, null); assert.equal(r.state, 'unavailable'); assert.equal(D.rateText(r), '—');
+  const r = report(d); assert.equal(r.collectionUnavailable, H); assert.equal(r.unreported, 0); assert.equal(r.offline, H); assert.equal(r.rate, 23 / 24 * 100); assert.equal(r.state, 'online'); assert.equal(D.rateText(r), '95.8%');
   d.stores[0].versions[0].schedule = custom(); assert.equal(report(d).rate, 100);
 });
-test('ordinary fully unreported historical days are 0% while closed days remain Closed', () => {
+test('fully unreported historical days are No data and do not accrue Offline while closed days remain Closed', () => {
   const d = fixture(); d.terminals[0].observations = [];
-  const r = report(d); assert.equal(r.rate, 0); assert.equal(r.offline, 24 * H); assert.equal(r.unreported, 24 * H); assert.equal(r.confirmedOffline, 0); assert.equal(r.inProgress, false);
+  const r = report(d); assert.equal(r.rate, null); assert.equal(D.rateText(r), 'No data'); assert.equal(r.hasHeartbeat, false); assert.equal(r.hasOffline, false); assert.equal(r.offline, 0); assert.equal(r.unreported, 24 * H); assert.equal(r.confirmedOffline, 0); assert.equal(r.inProgress, false);
   d.stores[0].versions[0].schedule = closed(); assert.equal(D.rateText(report(d)), 'Closed');
+});
+test('one minute of valid heartbeat coverage permits a rate without treating the remaining day as online', () => {
+  const d = fixture(), begin = at(day + 'T00:00:00');
+  d.terminals[0].observations = [{ from: begin + 12 * H, to: begin + 12 * H + D.MINUTE, state: 'online' }];
+  const r = report(d);
+  assert.equal(r.hasHeartbeat, true); assert.equal(r.online, D.MINUTE);
+  assert.equal(r.offline, 24 * H - D.MINUTE); assert.equal(r.rate, 100 / 1440);
+  assert.equal(r.online + r.offline, r.operating);
+});
+test('legacy offline records are not successful reports; yesterday and future heartbeats cannot qualify today', () => {
+  const d = fixture(), begin = at(day + 'T00:00:00');
+  d.terminals[0].observations = [
+    { from: begin - H, to: begin, state: 'online' },
+    { from: begin, to: begin + 8 * H, state: 'offline' },
+    { from: begin + 12 * H, to: begin + 13 * H, state: 'online' }
+  ];
+  const r = report(d, day, ['a'], begin + 10 * H);
+  assert.equal(r.hasHeartbeat, false); assert.equal(r.state, 'unavailable');
+  assert.equal(r.rate, null); assert.equal(r.offline, 0); assert.equal(r.inProgress, true);
+  const later = report(d, day, ['a'], begin + 12 * H + D.MINUTE);
+  assert.equal(later.hasHeartbeat, true); assert.equal(later.online, D.MINUTE);
+  assert.equal(later.offline, 12 * H); assert.equal(later.rate, D.MINUTE / (12 * H + D.MINUTE) * 100);
+});
+test('a valid heartbeat outside hours qualifies the local day but contributes no operating online time', () => {
+  const d = fixture(custom()), begin = at(day + 'T00:00:00');
+  d.terminals[0].observations = [{ from: begin + H, to: begin + H + D.MINUTE, state: 'online' }];
+  const r = report(d); assert.equal(r.hasHeartbeat, true); assert.equal(r.rate, 0);
+  assert.equal(r.online, 0); assert.equal(r.offline, 12 * H); assert.equal(r.state, 'offline');
+});
+test('heartbeats in another Store permission period do not qualify a visible day', () => {
+  const d = fixture(), begin = at(day + 'T00:00:00');
+  d.terminals[0].memberships = [{ storeId: 'a', from: begin, to: begin + 12 * H }, { storeId: 'b', from: begin + 12 * H, to: null }];
+  d.terminals[0].observations = [{ from: begin + 14 * H, to: begin + 15 * H, state: 'online' }];
+  assert.equal(report(d, day, ['a']).state, 'unavailable');
+  assert.equal(report(d, day, ['b']).hasHeartbeat, true);
+});
+test('legacy demo S/N migration preserves schedules, membership, pattern and audit references across reopening', () => {
+  const directory = require('../../scripts/customer-account-directory.js').create(require('../../scripts/customer-account-data.js').createHierarchy());
+  let value; const storage = { getItem: () => value || null, setItem: (_, next) => { value = next; } };
+  const original = S.load(storage, directory, now);
+  assert.ok(original.terminals.every(t => /^WP[A-Z0-9]+$/.test(t.sn)));
+  assert.equal(new Set(original.terminals.map(t => t.sn)).size, original.terminals.length);
+  const target = original.terminals.find(t => t.legacySn === 'NYC-Q3-0042');
+  const edited = D.saveSchedule(original, { scope: 'all' }, { type: 'terminal', id: target.sn }, custom(), 'custom', now);
+  const old = D.clone(edited), legacy = old.terminals.find(t => t.sn === target.sn);
+  legacy.sn = 'NYC-Q3-0042'; delete legacy.legacySn; old.audit[0].target.id = 'NYC-Q3-0042';
+  value = JSON.stringify(old);
+  const loaded = S.load(storage, directory, now + H), actual = loaded.terminals.find(t => t.sn === target.sn);
+  assert.deepEqual(actual.memberships, legacy.memberships); assert.deepEqual(actual.versions, legacy.versions);
+  assert.equal(actual.pattern, legacy.pattern); assert.equal(actual.legacySn, 'NYC-Q3-0042');
+  assert.equal(loaded.audit[0].target.id, target.sn); assert.equal(loaded.revision, edited.revision);
+  assert.deepEqual(S.load(storage, directory, now + H), loaded);
 });
 test('opening a saved demo on another day advances observations once and preserves edited schedules', () => {
   const directory = require('../../scripts/customer-account-directory.js').create(require('../../scripts/customer-account-data.js').createHierarchy());
@@ -182,6 +234,16 @@ test('opening a saved demo on another day advances observations once and preserv
   assert.equal(loaded.observedAt, now + 3 * D.DAY); assert.deepEqual(loaded.stores, edited.stores); assert.deepEqual(loaded.audit, edited.audit);
   const r = D.reportDay(loaded, t, '2026-09-12', loaded.stores.map(s => s.id), now + 3 * D.DAY);
   assert.equal(r.unreported, 0); assert.notEqual(r.rate, null); assert.equal(r.inProgress, false);
+});
+test('the current zero-heartbeat demo remains No data after becoming a historical day', () => {
+  const directory = require('../../scripts/customer-account-directory.js').create(require('../../scripts/customer-account-data.js').createHierarchy());
+  let value; const storage = { getItem: () => value || null, setItem: (_, next) => { value = next; } };
+  const original = S.load(storage, directory, now), terminal = original.terminals.find(t => t.pattern === 8);
+  const date = D.parts(now, terminal.telemetryZone).date;
+  assert.equal(D.reportDay(original, terminal, date, original.stores.map(s => s.id), now).state, 'unavailable');
+  const next = S.load(storage, directory, now + D.DAY), after = next.terminals.find(t => t.sn === terminal.sn);
+  assert.equal(after.noHeartbeatSince, terminal.noHeartbeatSince);
+  assert.equal(D.reportDay(next, after, date, next.stores.map(s => s.id), now + D.DAY).state, 'unavailable');
 });
 test('summary and matrix demo authorization cannot expand the profile scope', () => {
   const d = fixture();
@@ -221,17 +283,19 @@ test('no-score days stay distinguishable and never discard partially known durat
   assert.doesNotMatch(V.dayContent(d, d.terminals[0], pending), /up-day-stats|Not open yet/);
   d.terminals[0].observations = [{ from: begin, to: begin + 24 * H, state: 'unknown', cause: 'collection_failure' }];
   const unavailable = report(d);
-  assert.equal(D.rateText(unavailable), '—');
+  assert.equal(D.rateText(unavailable), 'No data');
   assert.match(V.cell(unavailable, 'SN-1'), /No data/);
+  assert.match(V.cell(unavailable, 'SN-1'), /<span>No data<\/span>/);
   assert.doesNotMatch(V.dayContent(d, d.terminals[0], unavailable), /up-day-stats|Data unavailable/);
+  assert.doesNotMatch(V.dayContent(d, d.terminals[0], unavailable), /up-dot unreachable/);
   d.terminals[0].observations = [
     { from: begin, to: begin + 9 * H, state: 'unknown', cause: 'collection_failure' },
     { from: begin + 9 * H, to: begin + 24 * H, state: 'online' }
   ];
   const partial = report(d), before = JSON.stringify(partial);
   const detail = V.dayContent(d, d.terminals[0], partial);
-  assert.equal(D.rateText(partial), '—');
+  assert.equal(D.rateText(partial), '91.6%');
   assert.match(detail, /Online<\/span><strong class="green">11h<\/strong>/);
-  assert.match(detail, /1h of operating hours without data/);
+  assert.match(detail, /Offline<\/span><strong class="red">1h<\/strong>/);
   assert.equal(JSON.stringify(partial), before);
 });

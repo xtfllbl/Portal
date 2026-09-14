@@ -156,16 +156,20 @@
       else segments.push(segment);
     }
     if (!segments.length) return null;
+    // Only an authoritative Online interval is heartbeat evidence. Legacy
+    // offline / unknown records are derived absence, never successful reports.
+    // Eligibility spans the visible local day, including outside operating hours.
+    const hasHeartbeat = segments.some(s => s.state === 'online');
     const confirmedOffline = totals.offline;
-    totals.offline += totals.unreported;
+    totals.offline = hasHeartbeat ? totals.offline + totals.unknown : 0;
     const hasGap = totals.unknown > 0, hasOffline = totals.offline > 0;
-    const rate = totals.operating && !totals.collectionUnavailable ? totals.online / totals.operating * 100 : null;
-    const state = totals.collectionUnavailable ? 'unavailable' : rate !== null ? health(rate) : totals.futureOperating ? 'pending' : 'closed';
+    const rate = totals.operating && hasHeartbeat ? totals.online / totals.operating * 100 : null;
+    const state = totals.operating ? hasHeartbeat ? health(rate) : 'unavailable' : totals.futureOperating ? 'pending' : 'closed';
     const inProgress = isToday && totals.operating > 0;
-    return { date, segments, ...totals, confirmedOffline, hasGap, hasOffline, state, rate, isToday, inProgress, timeZones: [...new Set(segments.map(x => x.timeZone))], storeIds: [...new Set(segments.map(x => x.storeId))] };
+    return { date, segments, ...totals, hasHeartbeat, confirmedOffline, hasGap, hasOffline, state, rate, isToday, inProgress, timeZones: [...new Set(segments.map(x => x.timeZone))], storeIds: [...new Set(segments.map(x => x.storeId))] };
   }
   function rateText(value) {
-    if (value.rate === null) return value.state === 'closed' ? 'Closed' : '—';
+    if (value.rate === null) return value.state === 'closed' ? 'Closed' : value.state === 'unavailable' ? 'No data' : '—';
     if (value.rate === 100) return '100%';
     if (value.rate > 99.95) return '<100%';
     // Round down to the displayed precision so 94.999% cannot appear as 95%.

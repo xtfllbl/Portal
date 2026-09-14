@@ -292,6 +292,10 @@ _Avoid_: Viewer's calendar day, opening-date business day
 A visual overview of each physical Unattended Terminal's Payment Service online history by day, identified by S/N and available independently of whether Customer Alert Rules have been enabled.
 _Avoid_: Device Connection uptime, Alert Incident list, current connection status
 
+**Terminal S/N**:
+The hardware serial number identifying a physical Terminal. WizarPOS terminal serial numbers begin with WP; terminal names, location labels and demonstration identifiers are not serial numbers.
+_Avoid_: Terminal name, Store name, demo identifier, TCI
+
 **Terminal Uptime Summary**:
 An embedded view, titled Service Uptime, of a single Unattended Terminal's recent seven days of Payment Service history, connected to the longer historical view.
 _Avoid_: Navigation link alone, separate first-step report, current connection status
@@ -305,15 +309,23 @@ The period during which a physical Terminal belongs to a particular Store; histo
 _Avoid_: Current Store applied to all history, TCI binding history alone
 
 **Daily Payment Service Uptime**:
-The proportion of elapsed Operating Hours within a Terminal Reporting Day during which Payment Service was online, reported when the counted period is nonzero and has no known collection failure or conflicting observations. Offline time counts as not online without assigning a fault cause.
+The proportion of elapsed Operating Hours within a Terminal Reporting Day during which Payment Service was online. A day requires at least one Valid Payment Service Heartbeat to be eligible for a rate; a day with none is No Data, while unreported periods within an eligible day count as not online without assigning a fault cause.
 _Avoid_: All-day uptime regardless of Operating Hours, uptime inferred from absent alerts
+
+**Valid Payment Service Heartbeat**:
+A successfully received Payment Service heartbeat that is evidence of the terminal being online. A terminal does not report Offline; Offline is inferred from the absence of expected heartbeats.
+_Avoid_: Offline report, successful payment, inferred missing-report record
+
+**Uptime No Data**:
+A Terminal Reporting Day with no Valid Payment Service Heartbeat, for which no daily uptime percentage is available. It is distinct from a measured 0% and from planned closure or a future reporting day.
+_Avoid_: Zero percent uptime, Closed, Upcoming, partial unreported time in an eligible day
 
 **Unknown Payment Service State**:
 A period for which the available evidence cannot establish whether a Terminal's Payment Service was online or offline.
 _Avoid_: Confirmed offline, confirmed online, outside Operating Hours
 
 **Offline**:
-An elapsed period in which expected Payment Service communication is absent, counted as not online in Service Uptime without determining whether the cause is the network, terminal, or another fault. A known platform collection failure remains a separate data-availability condition.
+An elapsed period in which expected Payment Service communication is absent, counted as not online in Service Uptime without determining whether the cause is the network, terminal, or another fault. It is assessed within a day that has at least one Valid Payment Service Heartbeat; a wholly unreported day is Uptime No Data.
 _Avoid_: Unreachable, Confirmed offline, No report, proven network fault, confirmed machine failure, future operating time
 
 **Uptime In Progress**:

@@ -4,6 +4,30 @@
 })(typeof window !== 'undefined' ? window : this, function (D) {
   'use strict';
   const KEY = 'paywizard.terminal-uptime.demo.v1';
+  // Stable demo hardware serials; legacy identifiers remain aliases for links
+  // and other prototype modules whose persisted records use those identifiers.
+  const SERIALS = Object.freeze({
+    'NYC-Q3-0042': 'WP2013Q326000042',
+    'NYC-Q3-0043': 'WP2013Q326000043',
+    'BOS-Q3-0018': 'WP2013Q326000018',
+    'DEMO-AGT1-001': 'WP2013Q326001001',
+    'DEMO-AGT2-001': 'WP2013Q326002001',
+    'DEMO-AGT3-001': 'WP2013Q326003001'
+  });
+  const resolveSn = sn => SERIALS[sn] || sn;
+  function migrateSerials(data, now) {
+    for (const terminal of data.terminals) {
+      const serial = resolveSn(terminal.sn);
+      if (serial !== terminal.sn) { terminal.legacySn = terminal.sn; terminal.sn = serial; }
+      // Keep a persistent zero-heartbeat scenario, so reopening tomorrow never
+      // rewrites today's missing-heartbeat history into an Online day.
+      if (terminal.pattern === 8 && terminal.noHeartbeatSince == null) terminal.noHeartbeatSince = D.localEpoch(D.parts(now, terminal.telemetryZone).date, 0, terminal.telemetryZone);
+    }
+    for (const entry of data.audit) {
+      if (entry.target?.type === 'terminal') entry.target.id = resolveSn(entry.target.id);
+    }
+    return data;
+  }
   const custom = (start, end) => ({ mode: 'custom', intervals: [{ start, end }] });
   function zoneFor(store) {
     if (/berlin|warsaw/i.test(store.name)) return /warsaw/i.test(store.name) ? 'Europe/Warsaw' : 'Europe/Berlin';
@@ -49,7 +73,7 @@
     }
     const retired = terminals.find(t => t.sn === 'WP52205Q33000981');
     if (retired) retired.memberships[0].to = now - 2 * D.DAY;
-    return refresh(data, now);
+    return refresh(migrateSerials(data, now), now);
   }
   function refresh(input, until = Date.now()) {
     const data = D.clone(input);
@@ -68,7 +92,7 @@
         if (t.pattern === 5 && n % 5 === 0) patches = [[10 * 60, 12 * 60, 'offline']];
         if (t.pattern === 6) patches = [[12 * 60 + 10, 13 * 60 + 50, 'offline']];
         if (t.pattern === 7 && n % 3 === 0) patches = [[8 * 60 + 30, 8 * 60 + 30.5, 'offline']];
-        if (t.pattern === 8 && n % 4 === 0) patches = [[0, 1440, 'unknown', 'collection_failure']];
+        if (t.pattern === 8 && (n % 4 === 0 || from >= t.noHeartbeatSince)) patches = [[0, 1440, 'unknown', 'unreported']];
         let cursor = from;
         for (const [a, b, state, cause] of patches) {
           const begin = Math.max(from, D.localEpoch(date, Math.floor(a), zone) + (a % 1) * D.MINUTE);
@@ -91,7 +115,7 @@
     if (data.schema !== 1 || !Array.isArray(data.stores) || !Array.isArray(data.terminals) || !Array.isArray(data.audit)) throw new Error('Saved Uptime data is not supported. Your saved data has been preserved.');
     // Opening a page fetches a fresh demo snapshot once. No polling is involved.
     // Regenerate observations without replacing schedules, membership or audit.
-    return persist(storage, refresh(data, now), data.revision);
+    return persist(storage, refresh(migrateSerials(data, now), now), data.revision);
   }
   function persist(storage, data, expectedRevision) {
     const raw = storage.getItem(KEY);
@@ -104,5 +128,5 @@
     const base = D.scopeStores(data, scope), requested = params.get('scope'), subset = requested && D.scopeStores(data, requested);
     return { scope: subset?.length && subset.every(id => base.includes(id)) ? requested : scope, manage: params.get('access') !== 'view' };
   }
-  return { KEY, seed, refresh, load, persist, viewerAuth };
+  return { KEY, seed, refresh, load, persist, viewerAuth, resolveSn };
 });

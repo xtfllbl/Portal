@@ -10,20 +10,28 @@
 </head>
 <body>
 <main class="uptime-page" id="uptimeApp">
-  <header class="up-heading"><div class="up-title"><h1>Uptime Matrix</h1><span class="up-badge">Simulated data</span></div><div class="up-actions"><button id="refreshUptime" type="button"><span class="material-symbols-rounded" aria-hidden="true">refresh</span>Refresh</button><button id="manageHours" class="up-primary" type="button"><span class="material-symbols-rounded" aria-hidden="true">schedule</span>Operating Hours</button></div></header>
+  <header class="up-heading"><div class="up-title"><h1>Uptime Matrix</h1></div><div class="up-actions"><button id="manageHours" class="up-primary" type="button"><span class="material-symbols-rounded" aria-hidden="true">schedule</span>Operating Hours</button></div></header>
   <div id="uptimeError" class="up-error" role="alert" tabindex="-1" hidden></div>
-  <div class="up-filters" id="uptimeFilters">
-    <label id="organizationField">Organization<div id="organizationPicker"></div></label>
-    <label>Store<div id="storePicker"></div></label>
-    <label>Terminal<input type="search" id="terminalSearch" placeholder="Search name or S/N" autocomplete="off"></label>
-    <label>Show<div id="statusPicker"></div></label>
-  </div>
+  <form class="up-filters" id="uptimeFilters" aria-label="Uptime filters" novalidate>
+    <div id="organizationField"><div id="organizationPicker"></div></div>
+    <div id="storePicker"></div>
+    <input type="search" id="terminalSearch" placeholder="Name or S/N" aria-label="Terminal name or S/N" autocomplete="off">
+    <div id="statusPicker"></div>
+    <button id="uptimeRange" class="up-range-trigger" type="button" aria-label="Date range" aria-haspopup="dialog" aria-expanded="false" popovertarget="uptimeCalendar"><span id="uptimeRangeLabel"></span><span class="material-symbols-rounded" aria-hidden="true">calendar_today</span></button>
+    <button id="uptimeSearch" class="up-primary up-icon" type="submit" aria-label="Search uptime" title="Search"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
+    <div id="uptimeCalendar" class="up-calendar" popover role="dialog" aria-label="Select a seven-day range">
+      <div class="up-calendar-heading"><button id="uptimeMonthPrevious" type="button" aria-label="Previous month"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button><strong id="uptimeMonth" aria-live="polite"></strong><button id="uptimeMonthNext" type="button" aria-label="Next month"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button></div>
+      <p class="up-calendar-hint">Select the last day · 7 days</p>
+      <div class="up-calendar-weekdays" aria-hidden="true"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+      <div id="uptimeCalendarDays" class="up-calendar-days" role="group" aria-label="End date"></div>
+      <div id="uptimeCalendarRange" class="up-calendar-range" aria-live="polite"></div>
+    </div>
+  </form>
   <section class="up-matrix-panel" aria-label="Payment Service uptime">
-    <div class="up-range-bar"><div class="up-date-navigation"><button id="previousWeek" class="up-icon" type="button" aria-label="Previous 7 days"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button><label class="up-date-field"><span class="up-sr">Start date</span><input type="date" id="uptimeStart" aria-label="Start date"></label><span aria-hidden="true">–</span><label class="up-date-field"><span class="up-sr">End date</span><input type="date" id="uptimeEnd" aria-label="End date"></label><button id="nextWeek" class="up-icon" type="button" aria-label="Next 7 days"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button><button id="recentWeek" type="button">Last 7 days</button></div><span id="uptimeUpdated" class="up-meta"></span></div>
-    <div class="up-legend" aria-label="Matrix legend"><span><i class="up-key online"></i>≥95%</span><span><i class="up-key warning"></i>90–&lt;95%</span><span><i class="up-key offline"></i>&lt;90%</span><span><i class="up-key closed"></i>Outside hours</span><span class="up-progress-legend"><span class="material-symbols-rounded" aria-hidden="true">schedule</span>Today in progress</span><span class="up-meta" id="uptimeCount"></span></div>
+    <div class="up-legend" aria-label="Matrix legend"><span><i class="up-key online"></i>≥95%</span><span><i class="up-key warning"></i>90–&lt;95%</span><span><i class="up-key offline"></i>&lt;90%</span><span><i class="up-key closed"></i>Outside hours</span><span><i class="up-key unavailable"></i>No data</span><span class="up-meta" id="uptimeUpdated"></span></div>
     <div class="up-matrix-scroll" tabindex="0" aria-label="Terminal daily uptime matrix"><table class="up-matrix"><thead id="uptimeHead"></thead><tbody id="uptimeRows"></tbody></table></div>
     <div id="uptimeEmpty" class="up-empty" hidden>No terminal history in this date range.</div>
-    <footer class="up-table-footer"><span id="uptimePageInfo"></span><div class="up-actions"><button id="previousPage" class="up-icon" type="button" aria-label="Previous page"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button><button id="nextPage" class="up-icon" type="button" aria-label="Next page"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button></div></footer>
+    <footer class="up-table-footer"><span id="uptimePageInfo"></span><span class="up-meta" id="uptimeCount"></span><div class="up-actions"><button id="previousPage" class="up-icon" type="button" aria-label="Previous page"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button><button id="nextPage" class="up-icon" type="button" aria-label="Next page"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button></div></footer>
   </section>
 </main>
 <dialog class="up-dialog up-drawer" id="uptimeDayDialog" aria-labelledby="uptimeDayTitle">
@@ -53,6 +61,7 @@
 <script src="scripts/terminal-uptime-store.js"></script>
 <script src="scripts/terminal-uptime-view.js"></script>
 <script src="scripts/uptime-combobox.js"></script>
+<script src="scripts/uptime-week-picker.js"></script>
 <script src="scripts/terminal-uptime.js"></script>
 </body>
 </html>

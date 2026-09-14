@@ -4,7 +4,7 @@
   if (!host) return;
   const D = window.PaywizardUptimeDomain, S = window.PaywizardUptimeStore, V = window.PaywizardUptimeView;
   const directory = window.PaywizardCustomerAccountDirectory.create(window.PaywizardCustomerAccountData.createHierarchy());
-  const params = new URLSearchParams(location.search), sn = params.get('sn') || document.getElementById('bannerSn')?.textContent.trim();
+  const params = new URLSearchParams(location.search), sn = S.resolveSn(params.get('sn') || document.getElementById('bannerSn')?.textContent.trim());
   let data, terminal, allowed, auth, asOf, selectedDate;
   const dialog = document.createElement('dialog');
   dialog.className = 'up-dialog up-drawer'; dialog.id = 'terminalSummaryDayDialog'; dialog.setAttribute('aria-labelledby', 'terminalSummaryDayTitle');
