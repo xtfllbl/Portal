@@ -288,6 +288,10 @@ _Avoid_: Viewer's calendar day, opening-date business day
 A visual overview of each physical Unattended Terminal's Payment Service online history by day, identified by S/N and available independently of whether Customer Alert Rules have been enabled.
 _Avoid_: Device Connection uptime, Alert Incident list, current connection status
 
+**Terminal Uptime Summary**:
+An embedded view, titled Service Uptime, of a single Unattended Terminal's recent seven days of Payment Service history, connected to the longer historical view.
+_Avoid_: Navigation link alone, separate first-step report, current connection status
+
 **Uptime Enrollment**:
 The authoritative start of a physical Terminal's inclusion in Payment Service history, independent of Alert Rule creation. Its displayed history starts on that local calendar date and excludes the preceding dates.
 _Avoid_: First alert, first successful payment, fabricated earlier uptime
@@ -297,12 +301,20 @@ The period during which a physical Terminal belongs to a particular Store; histo
 _Avoid_: Current Store applied to all history, TCI binding history alone
 
 **Daily Payment Service Uptime**:
-The proportion of elapsed Operating Hours within a Terminal Reporting Day during which Payment Service was online, reported only when the counted period is nonzero and fully observed.
+The proportion of elapsed Operating Hours within a Terminal Reporting Day during which Payment Service was online, reported when the counted period is nonzero and has no known collection failure or conflicting observations. Unreachable time counts as not online without assigning a fault cause.
 _Avoid_: All-day uptime regardless of Operating Hours, uptime inferred from absent alerts
 
 **Unknown Payment Service State**:
 A period for which the available evidence cannot establish whether a Terminal's Payment Service was online or offline.
 _Avoid_: Confirmed offline, confirmed online, outside Operating Hours
+
+**Unreachable**:
+An elapsed period in which expected Payment Service communication is absent, counted as not online in Service Uptime without determining whether the cause is the network, terminal, or another fault. A known platform collection failure remains a separate data-availability condition.
+_Avoid_: Confirmed offline, No report, proven network fault, confirmed machine failure, future operating time
+
+**Uptime In Progress**:
+The presentation marker for a Terminal Reporting Day that is still today in the terminal's local time zone; its uptime uses only elapsed Operating Hours and remains provisional until that day ends.
+_Avoid_: Missing-data status, historical incomplete day, automatic refresh
 
 **Unevaluable Observation**:
 An observation that cannot determine whether an Alert Rule's condition is normal or abnormal because required data is missing, stale, unsupported, or invalid. It cannot open an Incident or count as Recovery and resets consecutive Recovery Checks.

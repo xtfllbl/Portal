@@ -68,14 +68,14 @@
         if (t.pattern === 5 && n % 5 === 0) patches = [[10 * 60, 12 * 60, 'offline']];
         if (t.pattern === 6) patches = [[12 * 60 + 10, 13 * 60 + 50, 'offline']];
         if (t.pattern === 7 && n % 3 === 0) patches = [[8 * 60 + 30, 8 * 60 + 30.5, 'offline']];
-        if (t.pattern === 8 && n % 4 === 0) patches = [[0, 1440, 'unknown']];
+        if (t.pattern === 8 && n % 4 === 0) patches = [[0, 1440, 'unknown', 'collection_failure']];
         let cursor = from;
-        for (const [a, b, state] of patches) {
+        for (const [a, b, state, cause] of patches) {
           const begin = Math.max(from, D.localEpoch(date, Math.floor(a), zone) + (a % 1) * D.MINUTE);
           const finish = Math.min(to, D.localEpoch(date, Math.floor(b), zone) + (b % 1) * D.MINUTE);
           if (finish <= begin) continue;
           if (begin > cursor) observations.push({ from: cursor, to: begin, state: 'online' });
-          observations.push({ from: begin, to: finish, state }); cursor = finish;
+          observations.push({ from: begin, to: finish, state, ...(cause ? { cause } : {}) }); cursor = finish;
         }
         if (cursor < to) observations.push({ from: cursor, to, state: 'online' });
       }
@@ -89,7 +89,9 @@
     let data;
     try { data = JSON.parse(raw); } catch (_) { throw new Error('Saved Uptime data cannot be read. Your saved data has been preserved.'); }
     if (data.schema !== 1 || !Array.isArray(data.stores) || !Array.isArray(data.terminals) || !Array.isArray(data.audit)) throw new Error('Saved Uptime data is not supported. Your saved data has been preserved.');
-    return data;
+    // Opening a page fetches a fresh demo snapshot once. No polling is involved.
+    // Regenerate observations without replacing schedules, membership or audit.
+    return persist(storage, refresh(data, now), data.revision);
   }
   function persist(storage, data, expectedRevision) {
     const raw = storage.getItem(KEY);
@@ -97,5 +99,10 @@
     try { storage.setItem(KEY, JSON.stringify(data)); } catch (_) { throw new Error('Could not save Operating Hours in this browser. Free some storage and try again; your changes are still in this form.'); }
     return data;
   }
-  return { KEY, seed, refresh, load, persist };
+  function viewerAuth(data, profile, params) {
+    const scope = profile.includes('store') ? 'store:s-midtown' : profile.includes('merchant') ? 'merchant:merchant-kind-world' : profile === 'wizarpos' ? 'all' : 'provider:sp-universal';
+    const base = D.scopeStores(data, scope), requested = params.get('scope'), subset = requested && D.scopeStores(data, requested);
+    return { scope: subset?.length && subset.every(id => base.includes(id)) ? requested : scope, manage: params.get('access') !== 'view' };
+  }
+  return { KEY, seed, refresh, load, persist, viewerAuth };
 });

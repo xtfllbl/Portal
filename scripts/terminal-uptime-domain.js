@@ -110,12 +110,16 @@
   function canManageTerminal(data, auth, terminal, at) {
     const m = membershipAt(terminal, at); return !!m && canManageStore(data, auth, m.storeId);
   }
-  function rawState(terminal, at) {
+  function rawObservation(terminal, at) {
     // Observations are bounded authoritative intervals. No carrying the last
     // known Online state indefinitely; overlapping/conflicting data is unknown.
     const matches = terminal.observations.filter(x => at >= x.from && at < x.to);
-    return matches.length === 1 && ['online', 'offline', 'unknown'].includes(matches[0].state) ? matches[0].state : 'unknown';
+    if (matches.length > 1) return { state: 'unknown', cause: 'conflicting_observations' };
+    if (matches.length !== 1 || !['online', 'offline', 'unknown'].includes(matches[0].state)) return { state: 'unknown', cause: 'unreported' };
+    return { state: matches[0].state, cause: matches[0].state === 'unknown' ? matches[0].cause || 'unreported' : null };
   }
+  const rawState = (terminal, at) => rawObservation(terminal, at).state;
+  const health = rate => rate >= 95 ? 'online' : rate >= 90 ? 'warning' : 'offline';
   function reportDay(data, terminal, date, allowedStores, asOf) {
     if (!validDate(date)) return null;
     const utc = Date.parse(date + 'T00:00:00Z'), start = utc - 15 * 3600000, end = utc + 39 * 3600000;
@@ -128,7 +132,8 @@
     terminal.versions.forEach(x => boundaries.add(x.from));
     data.stores.forEach(s => s.versions.forEach(x => boundaries.add(x.from)));
     const times = [...boundaries].filter(x => Number.isFinite(x) && x >= start && x <= end).sort((a, b) => a - b);
-    const segments = [], totals = { online: 0, offline: 0, unknown: 0, operating: 0, futureOperating: 0 };
+    const segments = [], totals = { online: 0, offline: 0, unknown: 0, unreported: 0, collectionUnavailable: 0, operating: 0, futureOperating: 0 };
+    let isToday = false;
     for (let i = 0; i < times.length - 1; i++) {
       const from = times[i], to = times[i + 1], at = (from + to) / 2;
       if (from < terminal.enrolledAt) continue;
@@ -136,26 +141,35 @@
       if (!e || !allowedStores.includes(e.store.id)) continue;
       const p = parts(at, e.schedule.timeZone), today = parts(asOf, e.schedule.timeZone).date;
       if (p.date !== date || date < monthsAgo(today) || date > today) continue;
+      if (date === today) isToday = true;
       const isOperating = operating(e.schedule, p.date, p.minute);
-      const state = from >= asOf ? 'future' : rawState({ observations }, at);
+      const observation = from >= asOf ? { state: 'future', cause: null } : rawObservation({ observations }, at);
+      const { state, cause } = observation;
       if (isOperating && state === 'future') totals.futureOperating += to - from;
-      else if (isOperating) { totals[state] += to - from; totals.operating += to - from; }
-      const segment = { from, to, state, operating: isOperating, timeZone: e.schedule.timeZone, storeId: e.store.id, source: e.source, versionFrom: e.version?.from || e.membership.from };
+      else if (isOperating) {
+        totals[state] += to - from; totals.operating += to - from;
+        if (state === 'unknown') totals[['collection_failure', 'conflicting_observations'].includes(cause) ? 'collectionUnavailable' : 'unreported'] += to - from;
+      }
+      const segment = { from, to, state, cause, operating: isOperating, timeZone: e.schedule.timeZone, storeId: e.store.id, source: e.source, versionFrom: e.version?.from || e.membership.from };
       const prev = segments[segments.length - 1];
-      if (prev && prev.to === from && ['state', 'operating', 'timeZone', 'storeId', 'source', 'versionFrom'].every(k => prev[k] === segment[k])) prev.to = to;
+      if (prev && prev.to === from && ['state', 'cause', 'operating', 'timeZone', 'storeId', 'source', 'versionFrom'].every(k => prev[k] === segment[k])) prev.to = to;
       else segments.push(segment);
     }
     if (!segments.length) return null;
+    const confirmedOffline = totals.offline;
+    totals.offline += totals.unreported;
     const hasGap = totals.unknown > 0, hasOffline = totals.offline > 0;
-    const state = hasOffline ? 'offline' : hasGap ? 'unknown' : totals.operating ? 'online' : totals.futureOperating ? 'pending' : 'closed';
-    const rate = totals.operating && !hasGap ? totals.online / totals.operating * 100 : null;
-    return { date, segments, ...totals, hasGap, hasOffline, state, rate, timeZones: [...new Set(segments.map(x => x.timeZone))], storeIds: [...new Set(segments.map(x => x.storeId))] };
+    const rate = totals.operating && !totals.collectionUnavailable ? totals.online / totals.operating * 100 : null;
+    const state = totals.collectionUnavailable ? 'unavailable' : rate !== null ? health(rate) : totals.futureOperating ? 'pending' : 'closed';
+    const inProgress = isToday && totals.operating > 0;
+    return { date, segments, ...totals, confirmedOffline, hasGap, hasOffline, state, rate, isToday, inProgress, timeZones: [...new Set(segments.map(x => x.timeZone))], storeIds: [...new Set(segments.map(x => x.storeId))] };
   }
   function rateText(value) {
-    if (value.rate === null) return value.hasGap ? 'Incomplete' : value.state === 'pending' ? 'Not open yet' : 'Closed';
+    if (value.rate === null) return value.state === 'unavailable' ? 'Data unavailable' : value.state === 'pending' ? 'Not open yet' : 'Closed';
     if (value.rate === 100) return '100%';
     if (value.rate > 99.95) return '<100%';
-    return `${Number(value.rate.toFixed(1))}%`;
+    // Round down to the displayed precision so 94.999% cannot appear as 95%.
+    return `${Number((Math.floor(value.rate * 10 + 1e-9) / 10).toFixed(1))}%`;
   }
   function duration(ms) {
     const seconds = Math.round(ms / 1000), h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;

@@ -3,32 +3,37 @@
 | 项目 | 内容 |
 | --- | --- |
 | 状态 | 产品规则已确认；可交互原型已实现；生产接口待对接 |
-| 确认日期 | 2026-09-11 |
+| 确认日期 | 2026-09-11；2026-09-14 修订确认 |
 | 正式规格 Issue | [Portal #7](https://github.com/xtfllbl/Portal/issues/7) |
 | 原型入口 | [46.terminal_uptime.html](../../46.terminal_uptime.html) |
-| 访谈证据 | [Q1–Q21 决策记录](../design/terminal-uptime/README.md) |
+| 访谈证据 | [Q1–Q21 决策记录](../design/terminal-uptime/README.md)、[Q22–Q24 修订与调研](../design/terminal-uptime/revision-2026-09-14.md)、[Q25 布局与统一状态](../design/terminal-uptime/refinement-2026-09-14.md) |
 | 领域决策 | [ADR 0010](../adr/0010-independent-payment-service-uptime-and-operating-hours.md)、[ADR 0011](../adr/0011-preserve-effective-operating-hours-for-uptime-history.md)、[ADR 0012](../adr/0012-identify-uptime-history-by-physical-terminal.md) |
+
+> 本文包含 2026-09-14 最新补充：七天模块名为 Service Uptime，位于 Terminal Transaction Statistics 正上方；未收到服务通信统一显示 Unreachable。绿色 ≥95%、黄色 ≥90% 且 <95%、红色 <90%，当天仍使用 In progress。早期访谈和验收中的不同位置、控件及异常分类仅为历史记录。
 
 ## 1. 目标与本期范围
 
-商户、代理、服务商与 Paywizard 运维需要在未启用 Customer Alerts 时，仍能查看无人值守支付终端每天的 Payment Service 在线情况。按营业时间衡量在线表现，区分正常关机、实际离线和数据缺失。
+商户、代理、服务商与 Paywizard 运维需要在未启用 Customer Alerts 时，仍能查看无人值守支付终端每天的 Payment Service 在线情况。按营业时间衡量在线表现，区分计划非营业时段、服务可联系状态与平台采集可用性，不从缺少通信推断网络或设备故障原因。
 
-本期交付七天矩阵、单日时间轴、独立 Operating Hours 配置、门店继承与终端覆盖、历史版本及可交互演示。只统计 Payment Service（OPC 服务连接），不增加 Device Connection 指标，不将连接在线解释为出货成功或交易必定成功。
+本期交付单终端首页七天摘要、七天矩阵、单日时间轴、独立 Operating Hours 配置、门店继承与终端覆盖、历史版本及可交互演示。只统计 Payment Service（OPC 服务连接），不增加 Device Connection 指标，不将连接在线解释为出货成功或交易必定成功。
 
 现有 Customer Alerts 与 SLA Alerts 的 Monitoring Hours、触发、恢复、通知均维持当前行为。后续跟随营业时间、跨窗口离线累计及旧规则迁移不属于本期。未增加导出、跨门店批量覆盖或可复用时间表库。
 
 ## 2. 界面与导航
 
 - 共享导航：Device Management → Uptime Matrix。面向支持无人值守业务的 Provider、Merchant、Store 视角；Billing-only 和纯 Attended 视角无此入口及直接访问能力。
-- 单终端页顶部提供 Uptime Matrix，带该终端 S/N 进入；矩阵内 S/N 返回现有单终端页。
+- 无参数进入无人值守终端页时默认 Basic Information，直接嵌入 Service Uptime 七天摘要，位于地图及硬件/终端信息之后、Terminal Transaction Statistics 正上方；保留显式 APP / DEX 等 tab 深链。
+- 摘要日格显示日期、百分比、日内状态条及当天进度。点击日格就地打开详情抽屉，Previous day / Next day 查看相邻可见日期；View history 携带 S/N 进入矩阵，可进一步选择历史日期。摘要与矩阵共用计算、权限和详情组件。
+- 摘要头部只保留 Service Uptime 标题和 View history，移除装饰图标、Simulated data 标记及独立 Refresh 按钮。仍显示终端地区时区和数据更新时间；打开页面加载一次，详细矩阵保留手动 Refresh。
+- 保留原有地图、硬件信息、终端详情和图片。矩阵内 S/N 使用与 Terminal List 相同的蓝色加粗链接样式（#006fd6、无常驻下划线），点击返回对应单终端页，并保留查看范围和只读上下文。
 - 原型首页有独立 Uptime Matrix 分组和页面目录条目。
 - 复用 Portal 侧栏、顶栏、字体、颜色、间距；没有额外副标题或新增角色演示切换器。
 - 表头采用 Terminal List 的 34px 浅灰表头、11px 字体。表单操作按钮 40px，分页行操作 36px，同一操作区等高。
-- 桌面为 S/N、Store、日期列；手机将每台终端的 S/N 与 Store 放在色块行上方，默认七天可同时阅读。更长自定义范围在矩阵容器内横向滚动，不撑宽页面。
+- 桌面为 S/N、Store、日期列；手机将每台终端的 S/N 与 Store 放在色块行上方，默认七天可同时阅读。更长自定义范围在矩阵容器内横向滚动，不撑宽页面。单终端摘要在手机上排为四格加三格，确保百分比与当天文字可读。
 
 ## 3. 日期与历史
 
-1. 默认最近七个当地日历日期，包含今天。跨时区总览使用可见范围内最新当地日期作为范围结束日；每台终端的实际归日仍使用其当时有效时间表的地区时区，尚未来到的本地日期不生成状态格。
+1. 默认最近七个当地日历日期，包含今天。单终端摘要和带 S/N 的矩阵以该终端当前（解绑时最后授权归属）的有效时区确定同一结束日。跨时区总览使用可见范围内最新当地日期作为范围结束日；每台终端的实际归日仍使用其当时有效时间表的地区时区，尚未来到的本地日期不生成状态格。
 2. 历史保留三个日历月，以当地日期向前推三个月；目标月份没有对应日期时取月末。原型只允许查看保留范围内日期，单次最多 90 天。
 3. 终端从权威接入当天开始展示，之前日期不展示，不填绿、不填红、不显示“未纳入统计”占位格。在多终端共用日期列时，此终端接入前的交叉位置为空且不可点击；单终端入口的日期范围直接收敛到接入当天。
 4. 接入当天只统计实际接入时刻之后的有效营业时间。后续缺失观测才属于 Unknown。
@@ -39,27 +44,32 @@
 
 令计入范围为：所选当地日期 ∩ 已接入时段 ∩ 有权查看的 Store 归属时段 ∩ 当时有效的 Operating Hours ∩ 本次截止时刻之前。
 
-在该范围内分别累计 Online、Offline、Unknown 的实际持续时间。观测区间采用左闭右开 `[from, to)`；不以告警事件数量、告警阈值、成功交易或查看者本地时间推算在线时长。
+产品仅区分 Online 和 Unreachable 两种服务状态。Unreachable 表示应收到服务通信但未收到，不判断是网络中断、设备故障还是其他原因。旧原型中的 offline 与普通 unknown 缺口统一归为 Unreachable，不再作为 Confirmed offline 和 No report 两种产品状态。观测区间采用左闭右开 `[from, to)`；不以告警事件数量、告警阈值、成功交易或查看者本地时间推算在线时长。
 
-当计入时长大于零且 Unknown 为零：
+计入时长大于零，且不存在营业内已知采集不可用或观测冲突时：
 
-`Daily uptime = Online / (Online + Offline) × 100%`
+`Daily uptime = Online / (Online + Unreachable) × 100%`
 
-Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短暂离线必须保留，不因不足告警阈值而忽略；舍入后接近 100% 的非满分值显示 `<100%`，不能把实际离线显示为 100%。
+历史和今天已经发生的 Unreachable 时长均只计入分母一次，不改动此前百分比、营业内口径与颜色阈值。全部应上报时段都未收到通信的历史营业日为 0%。非营业及未来时段不参与分母。本期不增加无真实数据支撑的丢包率、信号质量或故障原因判断。
+
+若计入时段存在明确的平台采集故障或冲突观测，日格仍显示 Data unavailable，不计算单一日在线率，也不标绿；Online、Unreachable 与无法评估的时长在详情保留。此例外是平台数据可用性问题，不是另一种终端故障类型。营业外的采集问题不影响营业内在线率。页面查询失败保留上次成功结果并显示错误，不把一次查询失败补成终端 Unreachable。
 
 | 情况 | 日格 | 百分比与详情 |
 | --- | --- | --- |
-| 营业内全程已知在线 | 绿色 | 100% |
-| 营业内有已确认离线，观测完整 | 红色 | 真实在线率；详情保留全部离线段 |
-| 营业内有 Unknown，没有已确认离线 | 紫灰斜纹 | Incomplete；分列三种时长 |
-| 同时有离线与 Unknown | 红色叠加斜纹 | Incomplete；不能用未知覆盖已知离线 |
+| 在线率 ≥95% | 绿色 | 实际在线率，保留短暂 Unreachable 明细 |
+| 在线率 ≥90% 且 <95% | 黄色 | 同上；90% 为黄色，95% 为绿色 |
+| 在线率 <90% | 红色 | 同上；不会因离线不足告警阈值而忽略 |
+| 终端当地今天，已有计入营业时长 | 健康颜色 + 时钟与 In progress | 截至本次查看的暂计百分比；提示 Today is still in progress |
+| 营业内有已知采集故障或冲突观测 | 灰色 Data unavailable | 无单一百分比；若是今天，仍附 In progress |
 | 全天无营业安排 | 灰色 Closed | 不展示百分比；原始状态仍可查看 |
 | 当天尚未开始营业 | 灰色 Not open yet | 不展示百分比 |
 | 接入前、未来日期、无权查看的归属日期 | 不生成状态格 | 不可下钻 |
 
-手机上斜纹格中的 `?` 对应 Missing data，待营业格用 `—` 节省空间；按钮仍保留完整无障碍名称和可点击详情。颜色不是唯一信息来源。
+阈值使用未舍入值判断，为本产品经用户确认的运营分级，不是跨行业标准或 SLA 承诺。普通百分比向下保留一位小数（整数省略小数），避免 94.999% 显示为绿色边界的 95%。非满分且高于 99.95% 显示 `<100%`，实际 100% 才显示 `100%`。短暂离线不因颜色达到绿色而从时间轴消失。
 
-底部微型时间条和详情时间轴同时表达 Online、Offline、Unknown、非营业时段和未来时段。非营业时段不影响日格状态；详情列表仍保留当时实际的 Payment Service 状态。
+In progress 表示终端当地日历日尚未结束，与是否缺报无关；营业已结束但当地日期尚未结束仍可显示。到当地次日，在下次进入页面或手动刷新时移除标签，历史不出现 Incomplete。已完成日期仍允许后续权威数据纠正。手机矩阵用时钟图标配合 Today in progress 图例节省空间，按钮无障碍名称和详情保留完整说明；首页摘要保留 In progress 文字。
+
+日格不再整块叠加斜纹。微型时间条和详情时间轴表达 Online（绿）、Unreachable（统一红色）、采集不可用、非营业和未来时段；移除原 No report 的单独斜纹分类。相邻且属于同一营业计划、归属及授权边界的同类服务状态合并展示，原始证据保留在适配数据中。
 
 ## 5. 矩阵操作
 
@@ -68,7 +78,7 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 | Organization | 范围内有上级组织时 | 支持点选、输入搜索及键盘操作；选项只来自当前可见范围；选择后限制 Store 候选 | 搜索不提交筛选值；没有匹配显示 No matches，关闭保留原选择 |
 | Store | 所有有权查看的用户 | 在 Organization 范围内选择门店；影响矩阵、日期汇总和排序 | 上级变化使门店无效时清除该门店，其余有效筛选保留 |
 | Terminal 搜索 | 总览；单终端入口固定 S/N | 按名称或 S/N 搜索；不会改变授权边界 | 无匹配显示空态 |
-| Show | 所有用户 | All terminals / With downtime / With missing data；后者包含同时有离线和 Unknown 的终端 | 无匹配显示空态 |
+| Show | 所有用户 | All terminals / With Unreachable time / With unavailable data；分别显示全部、营业内 Unreachable 大于零、营业内存在已知采集不可用或冲突观测的终端 | 无匹配显示空态 |
 | 日期输入 | 保留范围内，开始不晚于结束，最多 90 天 | 更新矩阵；单终端日期下限包含接入与授权归属边界 | 保留上一次结果并显示范围错误，定位错误提示 |
 | Previous / Next 7 days | 未到可查看范围边界 | 日期窗口移动七天，边界处裁剪；边界按钮禁用 | 不请求或显示接入前数据 |
 | Last 7 days | 所有用户 | 恢复默认七天，遇接入日期下限则缩短 | 无历史显示空态 |
@@ -77,18 +87,18 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 | Refresh | 页面可读取数据 | 手动重新读取数据，更新数据时间；允许权威历史补齐 | 保留最后成功结果并提示失败；不将请求失败直接判为设备离线 |
 | Operating Hours | 当前可见目标存在 | 打开配置器；单终端入口默认该终端，总览默认选定门店 | 无当前管理对象的单终端入口禁用；查看权限不足不泄露目标 |
 
-默认排序依次为：有已确认离线、只有数据缺失、正常或休息；有离线组按所选期间营业内离线累计时长降序，使用 S/N 稳定打破并列。组织筛选与只读状态不会使无权查看的历史进入排序。
+默认排序依次为：有 Unreachable、只有采集质量问题、正常或休息；第一组按所选期间营业内 Unreachable 累计时长降序，使用 S/N 稳定打破并列。组织筛选与只读状态不会使无权查看的历史进入排序。
 
 **不设置自动刷新或轮询。** 页面只在首次打开、用户操作或手动 Refresh 时更新展示。数据更新时间明确标记，未覆盖的观测区间不能无限沿用最后的 Online。
 
 ## 6. 单日详情
 
-- 显示终端名称、S/N、发生时 Store、有效地区时区、当天营业安排、日在线率或 Incomplete。
-- Online、Offline、Unknown 三个数值只统计营业内已发生时长。
+- 显示终端名称、S/N、发生时 Store、有效地区时区、当天营业安排、日在线率或 Data unavailable，以及适用时的 In progress。
+- 仅保留 Online 和 Unreachable time 两项营业内已发生时长；不得重复累加旧原型的缺报部分。Unreachable 的说明为未收到服务通信、原因未知；已知采集不可用或冲突仍单列无法评估时长及说明。
 - 全天时间轴保留非营业和未来区间；初次接入日从实际接入时刻开始，授权中途变化时只展示有权查看的片段。
-- 明细列：时间段、Payment Service 状态、是否在营业时间内、持续时长。源观测的秒级边界会保留，不以分钟采样吞掉短暂离线。
+- 明细列：时间段、Payment Service 状态、是否在营业时间内、持续时长。保留秒级精度和真实服务状态变化边界，不以分钟采样吞掉短暂 Unreachable；相邻旧 offline 与普通 unknown 段可以合并显示为同一段 Unreachable。
 - Previous day / Next day 只在相邻日可见时启用，禁止跨过接入、归属、保留范围或未来日期边界。
-- Operating Hours 仅在当前用户可管理该终端且终端仍有授权内当前归属时启用。历史属于旧店不等于有权修改已转到其他店的终端。
+- 矩阵抽屉提供 Operating Hours；首页摘要抽屉提供带日期的 View history。Operating Hours 仅在当前用户可管理该终端且终端仍有授权内当前归属时启用。历史属于旧店不等于有权修改已转到其他店的终端。
 
 ## 7. Operating Hours 模型
 
@@ -145,13 +155,15 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 | 文件 | 职责 |
 | --- | --- |
 | `scripts/terminal-uptime-domain.js` | 时区归日、有效计划、跨夜/例外、区间累计、权限范围、版本保存及校验；可供 Node 测试直接调用 |
-| `scripts/terminal-uptime-store.js` | 共享演示目录适配、确定性模拟观测、本地版本保存、跨标签页版本冲突检测、手动刷新适配器 |
+| `scripts/terminal-uptime-store.js` | 共享演示目录适配、确定性模拟观测、本地版本保存、跨标签页版本冲突检测、页面打开一次加载与手动刷新适配器、两页共用演示访问范围 |
+| `scripts/terminal-uptime-view.js` | 两页共用的日格、阈值图例、当天标签与单日详情 |
+| `scripts/terminal-uptime-summary.js` | 无人值守终端首页七天摘要、就地抽屉及历史链接 |
 | `scripts/terminal-uptime.js` | 矩阵、筛选、日期、分页、详情、Operating Hours 编辑、手动刷新 |
 | `scripts/uptime-combobox.js` | 搜索、直接点选、键盘操作及不被裁切的候选层 |
 | `styles/terminal-uptime.css` | 桌面/手机展示及与 Portal 一致的表头和按钮规格 |
 | `scripts/customer-account-data.js`、`scripts/customer-account-directory.js` | 复用的演示组织/门店/终端目录 |
 
-模拟数据显式标记 Simulated data，并覆盖正常、短暂离线、缺失、混合异常、分段营业、跨夜、日期休息、新接入、换店和解绑场景。本地存储键为 `paywizard.terminal-uptime.demo.v1`，保存配置和版本，刷新页面不重置。模拟观测不会发送邮件、产生真实告警或连接真实 Payment Service。
+所有当前数据仍是模拟；详细矩阵保留 Simulated data 标记，首页摘要按用户要求移除该标记。样例覆盖正常、不同原始来源的 Unreachable、平台采集异常、分段营业、跨夜、日期休息、新接入、换店和解绑场景。本地存储键为 `paywizard.terminal-uptime.demo.v1`，保存配置和版本，刷新页面不重置。进入页面时推进本次模拟观测截止时间，同时保留时间表、归属、审计与预设异常；修复跨日重开仍使用旧观测而产生大面积缺报的问题。此动作仅发生一次，不设置轮询。模拟观测不会发送邮件、产生真实告警或连接真实 Payment Service。旧适配器的 offline、unknown、confirmedOffline、unreported 仅是内部原始记录与核对字段，不代表已证实的故障原因或两个用户状态；`offline` 汇总本身已包含普通缺报一次，统一展示直接复用该合计。
 
 现有 Portal Access Profile 和 `scope` / `access=view` 是演示与验收上下文，不是生产身份验证或安全授权。原型的前端筛选不能保护真实多租户数据；生产必须在服务端裁剪返回数据。
 
@@ -162,8 +174,8 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 | 身份与权限 | 可信登录主体、当前可见 Store 范围、Store/Terminal 管理权限；组织树权威 ID |
 | 终端身份 | 稳定物理 S/N、展示名称、真实接入统计时间；不能从固定样例或第一条告警猜测 |
 | 归属历史 | `{ sn, storeId, from, to }`，准确覆盖加入、换店、解绑；同一时刻归属不得冲突 |
-| Payment Service 观测 | UTC 实际事件时间或有界区间 `{ from, to, state }`；state 为 online/offline/unknown，缺口仍为 unknown |
-| 数据质量 | 权威的新鲜度、缺失、冲突、迟到和修正口径；不能把接口异常当作设备离线，也不能无限延长最后一条 online |
+| Payment Service 观测 | UTC 实际事件时间或有界区间 `{ from, to, state, cause? }`；适配上游原始状态，对产品统一输出 Online / Unreachable；已知平台采集异常单独标记。缺少通信不能成为某种已证实故障原因 |
+| 数据质量 | 权威的新鲜度、缺失、冲突、迟到和修正口径；明确 cause 区分 unreported、collection_failure、conflicting_observations。没有故障证据时不臆测原因；不能把页面查询失败当作终端离线，也不能无限延长最后一条 online |
 | Operating Hours | 地区时区、七天计划、日期例外；终端 mode 为 follow/custom，custom 覆盖全部内容 |
 | 版本与审计 | 服务端生效时间、可信修改人、版本号、所属资源；过去版本不可被当前配置替换 |
 | 返回元信息 | 观测更新时间、查询截止时刻、保留边界、每行实际可见起点；请求应支持分页与筛选 |
@@ -180,7 +192,7 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 
 ## 10. 验收
 
-自动化领域测试：`node --test tests/unit/terminal-uptime.test.cjs`。页面视觉与交互验收见 [verification.md](../design/terminal-uptime/verification.md)。
+自动化领域测试：`node --test tests/unit/terminal-uptime.test.cjs`。本轮自动化与桌面/手机验收见 [2026-09-14 修订验收](../design/terminal-uptime/verification-2026-09-14.md)；[首版验收](../design/terminal-uptime/verification.md) 保留为历史证据。
 
 | 编号 | 必须成立的结果 |
 | --- | --- |
@@ -188,9 +200,9 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 | AC-02 | 默认七天，可查看三个日历月范围内的历史 |
 | AC-03 | 接入日前不生成日格；单终端入口和日期导航都不能展示接入前状态 |
 | AC-04 | 营业外关机不扣在线率；未来时间不参与分母 |
-| AC-05 | Unknown 不算在线或离线，缺失时不显示单一百分比；混合离线仍红色 |
+| AC-05 | 原 offline 与普通缺报统一计为 Unreachable 一次，统计、时间条、明细、ARIA 和筛选使用同一分类；采集故障/冲突仍为 Data unavailable |
 | AC-06 | 秒级短暂离线可见，不能通过舍入变成 100% |
-| AC-07 | 休息日、尚未营业、数据缺失分别展示 |
+| AC-07 | 今天暂计值与 In progress 同时展示；过去日期不显示 Incomplete；休息日、尚未营业、采集不可用分别展示 |
 | AC-08 | 多时段、跨夜、指定日期优先级和周末安排正确 |
 | AC-09 | 地区时区和夏令时使用实际时长；查看者时区不改变归日 |
 | AC-10 | 门店继承、完整终端覆盖、恢复跟随和生效版本正确 |
@@ -198,6 +210,10 @@ Unknown 大于零时不展示单一在线率，显示 Incomplete。确认的短�
 | AC-12 | 换店、解绑、当前管理权限与历史读取权限正确分离 |
 | AC-13 | 只读用户无法保存，越权目标无法修改 |
 | AC-14 | 保存、刷新回填、取消不保存、配额失败和版本冲突保留输入 |
-| AC-15 | 无自动刷新；手动 Refresh 更新数据时间，不改变已保存计划 |
+| AC-15 | 无自动刷新；摘要无独立刷新按钮；矩阵手动 Refresh 更新数据时间，不改变已保存计划 |
 | AC-16 | 桌面/手机按钮等高、搜索弹层不裁切、错误自动定位，七天矩阵可读 |
 | AC-17 | 原型首页、共享导航、单终端入口互通；既有 Alerts 行为不改变 |
+| AC-18 | Basic Information 中 Service Uptime 紧邻交易统计上方；头部仅标题和 View history；显式 tab 深链保留，日格就地展开 |
+| AC-19 | 95% 为绿色、90% 为黄色、低于 90% 为红色；颜色与标签、明细一致，阈值比较不受舍入影响 |
+| AC-20 | 跨日重开推进模拟数据，保留计划和审计，不产生旧截止时间导致的非预设缺报 |
+| AC-21 | 矩阵 S/N 为蓝色加粗链接，无常驻下划线；保持原跳转与访问范围 |

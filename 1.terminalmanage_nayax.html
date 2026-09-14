@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/na-theme.css">
     <link rel="stylesheet" href="styles/customer-alerts.css">
+    <link rel="stylesheet" href="styles/terminal-uptime.css">
     <style>
         :root {
             --banner: #111111;   /* near-black header */
@@ -2173,7 +2174,6 @@
                         <img src="assets/icons/arrow-circle-left.svg" alt="" aria-hidden="true">
                         <span>Back to Device Management</span>
                     </a>
-                    <a class="terminal-back-link" id="terminalUptimeLink" href="46.terminal_uptime.html?sn=WP6267UQ36002376"><span class="material-symbols-rounded" aria-hidden="true">bar_chart</span><span>Uptime Matrix</span></a>
                     <div class="banner-status">
                         <div
                             id="connectionStatus"
@@ -2324,8 +2324,8 @@
                         .panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); }
                         .panel.pad { padding: 12px; }
                         .panel-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: #0f172a; }
-                        .left-stack { min-width: 0; display: grid; grid-template-rows: minmax(240px, 1fr) auto; gap: 12px; }
-                        .map-card { position: relative; min-height: 240px; display: grid; place-items: center; overflow: hidden; }
+                        .left-stack { min-width: 0; display: grid; grid-template-rows: 160px auto; align-content: start; gap: 12px; }
+                        .map-card { position: relative; min-height: 120px; display: grid; place-items: center; overflow: hidden; }
                         .map-bg { position: absolute; inset: 0; background: linear-gradient(180deg,#f3f4f6, #e5e7eb); filter: grayscale(1) contrast(1); }
                         .map-hint { position: relative; color: #6b7280; font-weight: 600; font-size: 14px; letter-spacing: .2px; }
                         .map-refresh { position: absolute; right: 10px; top: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #111; }
@@ -2414,7 +2414,6 @@
                         }
                     </style>
 
-                    <h2 class="section-title" style="margin-bottom:10px">Dashboard</h2>
                     <div class="dash-grid">
                         <!-- Left stack: map + stats -->
                         <div class="left-stack">
@@ -2478,6 +2477,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <section class="up-summary" id="terminalUptimeSummary" aria-label="Service Uptime"></section>
 
                     <!-- Terminal transaction statistics -->
                     <div class="txn-section">
@@ -3598,7 +3599,7 @@
             nextTab.focus();
         }));
         const requestedTab = new URLSearchParams(window.location.search).get('tab');
-        showTab(sections[requestedTab] ? requestedTab : 'appfw', Boolean(requestedTab));
+        showTab(sections[requestedTab] ? requestedTab : 'basic', Boolean(requestedTab));
 
         const subTabs = document.querySelectorAll('#subTabs .subtab');
         const tables = {
@@ -7575,12 +7576,11 @@ paymentTimeout=180`
         announceProductMap('Product Map loaded.');
     })();
 </script>
-  <script>
-    (function () {
-      var link = document.getElementById('terminalUptimeLink');
-      if (link) link.href = '46.terminal_uptime.html?sn=' + encodeURIComponent(new URLSearchParams(location.search).get('sn') || document.getElementById('bannerSn').textContent.trim());
-    })();
-  </script>
   <script src="scripts/platform-admin-shell.js"></script>
+  <script src="scripts/customer-account-directory.js" defer></script>
+  <script src="scripts/terminal-uptime-domain.js" defer></script>
+  <script src="scripts/terminal-uptime-store.js" defer></script>
+  <script src="scripts/terminal-uptime-view.js" defer></script>
+  <script src="scripts/terminal-uptime-summary.js" defer></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const D = window.PaywizardUptimeDomain, S = window.PaywizardUptimeStore, Combo = window.PaywizardUptimeCombobox;
+  const D = window.PaywizardUptimeDomain, S = window.PaywizardUptimeStore, Combo = window.PaywizardUptimeCombobox, V = window.PaywizardUptimeView;
   const directory = window.PaywizardCustomerAccountDirectory.create(window.PaywizardCustomerAccountData.createHierarchy());
   const $ = id => document.getElementById(id), esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const icon = name => `<span class="material-symbols-rounded" aria-hidden="true">${name}</span>`;
@@ -18,23 +18,26 @@
   }
   function toast(message) { clearTimeout(toastTimer); $('uptimeToast').textContent = message; $('uptimeToast').hidden = false; toastTimer = setTimeout(() => { $('uptimeToast').hidden = true; }, 3500); }
   function dateLabel(date) { return new Date(date + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }); }
-  function timeLabel(at, zone, seconds = false) { return new Date(at).toLocaleTimeString('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', ...(seconds ? { second: '2-digit' } : {}) }); }
   const hhmm = minutes => String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0');
   const parseTime = value => /^\d{2}:\d{2}$/.test(value) ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3)) : null;
   function profileAuth() {
-    const profile = localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos';
-    const scope = profile.includes('store') ? 'store:s-midtown' : profile.includes('merchant') ? 'merchant:merchant-kind-world' : profile === 'wizarpos' ? 'all' : 'provider:sp-universal';
-    const base = D.scopeStores(data, scope), requested = params.get('scope');
-    if (requested && D.scopeStores(data, requested).every(id => base.includes(id)) && D.scopeStores(data, requested).length) return { scope: requested, manage: params.get('access') !== 'view' };
-    return { scope, manage: params.get('access') !== 'view' };
+    return S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', params);
+  }
+  function terminalUrl(sn) {
+    const query = new URLSearchParams({ sn });
+    if (auth.scope !== 'all') query.set('scope', auth.scope);
+    if (!auth.manage) query.set('access', 'view');
+    return '1.terminalmanage_nayax.html?' + query;
   }
   function dateLimits() {
-    const zones = data.stores.filter(s => allowed.includes(s.id)).flatMap(s => s.versions.filter(v => v.from <= asOf && v.schedule).map(v => v.schedule.timeZone));
-    data.terminals.forEach(t => { const e = D.effective(data, t, asOf); if (e && allowed.includes(e.store.id)) zones.push(e.schedule.timeZone); });
+    const terminal = fixedTerminal ? data.terminals.find(t => t.sn === fixedTerminal) : null;
+    const membership = terminal?.memberships.filter(m => allowed.includes(m.storeId)).sort((a, b) => b.from - a.from)[0];
+    const plan = membership && D.effective(data, terminal, Math.min(asOf, (membership.to ?? asOf + 1) - 1));
+    const zones = plan ? [plan.schedule.timeZone] : data.stores.filter(s => allowed.includes(s.id)).flatMap(s => s.versions.filter(v => v.from <= asOf && v.schedule).map(v => v.schedule.timeZone));
+    if (!terminal) data.terminals.forEach(t => { const e = D.effective(data, t, asOf); if (e && allowed.includes(e.store.id)) zones.push(e.schedule.timeZone); });
     const localDates = (zones.length ? zones : ['UTC']).map(z => D.parts(asOf, z).date).sort();
     const latest = localDates[localDates.length - 1];
     let earliest = D.monthsAgo(localDates[0]);
-    const terminal = fixedTerminal && data.terminals.find(t => t.sn === fixedTerminal);
     if (terminal) {
       const starts = terminal.memberships.filter(m => allowed.includes(m.storeId)).map(m => {
         const joined = Math.max(terminal.enrolledAt, m.from), e = D.effective(data, terminal, joined);
@@ -56,23 +59,12 @@
     }, 'Organization');
     const scopedStores = data.stores.filter(s => allowed.includes(s.id) && (!organization || s.lineageKeys.includes(organization)));
     combo('storePicker', [{ key: '', name: 'All stores' }, ...scopedStores.map(s => ({ key: s.id, name: s.name }))], storeFilter, value => { storeFilter = value; page = 0; render(); }, 'Store');
-    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'offline', name: 'With downtime' }, { key: 'unknown', name: 'With missing data' }], statusFilter, value => { statusFilter = value; page = 0; render(); }, 'Show');
+    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With Unreachable time' }, { key: 'unavailable', name: 'With unavailable data' }], statusFilter, value => { statusFilter = value; page = 0; render(); }, 'Show');
   }
   function summary(t, date, storeIds = selectedStores()) {
     const key = [data.revision, data.observedAt, asOf, t.sn, date, storeIds.join(',')].join('|');
     if (!summaryCache.has(key)) summaryCache.set(key, D.reportDay(data, t, date, storeIds, asOf));
     return summaryCache.get(key);
-  }
-  function track(result, detail = false) {
-    const first = result.segments[0].from, last = result.segments[result.segments.length - 1].to, length = last - first;
-    let cursor = first;
-    return result.segments.map(s => {
-      const gap = s.from > cursor ? `<span style="width:${(s.from - cursor) / length * 100}%" aria-hidden="true"></span>` : '';
-      cursor = s.to;
-      const css = s.state === 'future' ? 'future' : !s.operating ? 'outside' : s.state;
-      const label = `${timeLabel(s.from, s.timeZone, detail)}–${timeLabel(s.to, s.timeZone, detail)} · ${s.state} · ${s.operating ? 'Operating hours' : 'Outside operating hours'}`;
-      return gap + `<span class="up-segment ${css}" style="width:${(s.to - s.from) / length * 100}%" title="${esc(label)}"></span>`;
-    }).join('');
   }
   function render() {
     const limits = dateLimits();
@@ -86,10 +78,10 @@
     const candidates = data.terminals.filter(t => (!fixedTerminal || t.sn === fixedTerminal) && (!term || `${t.sn} ${t.name}`.toLowerCase().includes(term)) && t.memberships.some(m => storeIds.includes(m.storeId)));
     rows = candidates.map(t => {
       const cells = dates.map(d => summary(t, d, storeIds)), shown = cells.filter(Boolean);
-      return { terminal: t, cells, offline: shown.reduce((n, x) => n + x.offline, 0), gap: shown.some(x => x.hasGap), shown };
-    }).filter(r => r.shown.length && (statusFilter === 'all' || (statusFilter === 'offline' ? r.offline > 0 : r.gap)));
-    const rank = r => r.offline ? 0 : r.gap ? 1 : 2;
-    rows.sort((a, b) => rank(a) - rank(b) || b.offline - a.offline || a.terminal.sn.localeCompare(b.terminal.sn));
+      return { terminal: t, cells, unreachable: shown.reduce((n, x) => n + x.offline, 0), unavailable: shown.some(x => x.collectionUnavailable > 0), shown };
+    }).filter(r => r.shown.length && (statusFilter === 'all' || (statusFilter === 'unreachable' ? r.unreachable > 0 : r.unavailable)));
+    const rank = r => r.unreachable ? 0 : r.unavailable ? 1 : 2;
+    rows.sort((a, b) => rank(a) - rank(b) || b.unreachable - a.unreachable || a.terminal.sn.localeCompare(b.terminal.sn));
     page = Math.max(0, Math.min(page, Math.ceil(rows.length / 10) - 1));
     $('uptimeStart').value = start; $('uptimeEnd').value = end;
     ['uptimeStart', 'uptimeEnd'].forEach(id => { $(id).min = limits.earliest; $(id).max = limits.latest; });
@@ -97,16 +89,15 @@
     $('uptimeHead').innerHTML = '<tr><th class="up-terminal-col">Terminal S/N</th><th class="up-store-col">Store</th>' + dates.map(d => `<th class="up-date-col" scope="col" title="${d} · terminal local date">${dateLabel(d)}${d === limits.latest ? ' •' : ''}</th>`).join('') + '</tr>';
     $('uptimeRows').innerHTML = rows.slice(page * 10, page * 10 + 10).map(row => {
       const t = row.terminal, storeNames = [...new Set(row.shown.flatMap(r => r.storeIds))].map(id => data.stores.find(s => s.id === id)?.name).filter(Boolean);
-      return `<tr data-sn="${esc(t.sn)}"><td class="up-terminal-col"><a class="up-terminal-label" href="1.terminalmanage_nayax.html?sn=${encodeURIComponent(t.sn)}" title="${esc(t.name)}">${esc(t.sn)}</a><span class="up-mobile-store" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td><td class="up-store-col"><span class="up-store-label">${esc(storeNames.join(' / '))}</span></td>` + row.cells.map((r, i) => {
+      return `<tr data-sn="${esc(t.sn)}"><td class="up-terminal-col"><a class="up-terminal-label" href="${esc(terminalUrl(t.sn))}" title="${esc(t.name)}">${esc(t.sn)}</a><span class="up-mobile-store" title="${esc(storeNames.join(' / '))}">${esc(storeNames.join(' / '))}</span></td><td class="up-store-col"><span class="up-store-label">${esc(storeNames.join(' / '))}</span></td>` + row.cells.map(r => {
         // No pre-enrollment status, placeholder, button, or tooltip is emitted.
         if (!r) return '<td class="up-before" aria-hidden="true"></td>';
-        const label = `${t.sn}, ${r.date}, ${D.rateText(r)}${r.hasOffline ? ', downtime ' + D.duration(r.offline) : ''}${r.hasGap ? ', missing data ' + D.duration(r.unknown) : ''}`;
-        return `<td><button class="up-cell ${r.state}${r.hasGap ? ' has-gap' : ''}" data-day="${dates[i]}" data-terminal="${esc(t.sn)}" aria-label="${esc(label)}"><span class="up-cell-text">${esc(D.rateText(r))}</span><span class="up-mini-track" aria-hidden="true">${track(r)}</span></button></td>`;
+        return `<td>${V.cell(r, t.sn)}</td>`;
       }).join('') + '</tr>';
     }).join('');
     $('uptimeEmpty').hidden = rows.length > 0;
     $('uptimeCount').textContent = `${rows.length} terminal${rows.length === 1 ? '' : 's'} · Payment Service`;
-    $('uptimeUpdated').textContent = 'Data updated: ' + new Date(data.observedAt).toLocaleString('en-GB', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    $('uptimeUpdated').textContent = 'Data updated: ' + new Date(data.observedAt).toLocaleString('en-GB', { timeZone: 'UTC', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' UTC';
     $('uptimeUpdated').title = new Date(data.observedAt).toISOString();
     $('uptimePageInfo').textContent = rows.length ? `${page * 10 + 1}–${Math.min(page * 10 + 10, rows.length)} of ${rows.length}` : '0 terminals';
     $('previousPage').disabled = page === 0; $('nextPage').disabled = (page + 1) * 10 >= rows.length;
@@ -124,12 +115,7 @@
     if (!r) return;
     selectedDay = { sn, date };
     $('uptimeDayTitle').textContent = `${dateLabel(date)} · Payment Service`;
-    const stores = r.storeIds.map(id => data.stores.find(s => s.id === id)?.name).join(' / ');
-    const opening = r.segments.filter(s => s.operating).reduce((all, s) => {
-      const p = all[all.length - 1]; if (p && p.to === s.from && p.timeZone === s.timeZone) p.to = s.to; else all.push({ ...s }); return all;
-    }, []);
-    const scheduleText = opening.map(s => `${timeLabel(s.from, s.timeZone)}–${D.parts(s.to, s.timeZone).date > date ? '24:00' : timeLabel(s.to, s.timeZone)}`).join(', ') || 'Closed';
-    $('uptimeDayContent').innerHTML = `<dl class="up-day-facts"><div><dt>Terminal</dt><dd>${esc(t.name)}</dd></div><div><dt>S/N</dt><dd>${esc(t.sn)}</dd></div><div><dt>Store</dt><dd>${esc(stores)}</dd></div><div><dt>Time zone</dt><dd>${esc(r.timeZones.join(' / '))}</dd></div><div><dt>Operating hours</dt><dd>${esc(scheduleText)}</dd></div><div><dt>Uptime within operating hours</dt><dd>${esc(D.rateText(r))}${r.hasOffline && r.hasGap ? ' · Confirmed downtime' : ''}</dd></div></dl><div class="up-day-stats"><article><span>Online</span><strong class="green">${D.duration(r.online)}</strong></article><article><span>Offline</span><strong class="red">${D.duration(r.offline)}</strong></article><article><span>Unknown</span><strong class="purple">${D.duration(r.unknown)}</strong></article></div><section class="up-timeline" aria-label="Daily Payment Service timeline"><div class="up-timeline-track">${track(r, true)}</div><div class="up-axis"><span>${timeLabel(r.segments[0].from, r.segments[0].timeZone)}</span><span>${D.duration(r.segments[r.segments.length - 1].to - r.segments[0].from)} elapsed day span</span><span>${D.parts(r.segments[r.segments.length - 1].to, r.timeZones[r.timeZones.length - 1]).date > date ? '24:00' : timeLabel(r.segments[r.segments.length - 1].to, r.timeZones[r.timeZones.length - 1])}</span></div><div class="up-legend"><span><i class="up-key online"></i>Online</span><span><i class="up-key offline"></i>Offline</span><span><i class="up-key unknown"></i>Unknown</span><span><i class="up-key closed"></i>Outside hours</span></div></section><table class="up-detail-table"><thead><tr><th>Time</th><th>Payment Service</th><th>Operating hours</th><th>Duration</th></tr></thead><tbody>${r.segments.map(s => `<tr><td>${timeLabel(s.from, s.timeZone, true)}–${D.parts(s.to, s.timeZone).date > date ? '24:00:00' : timeLabel(s.to, s.timeZone, true)}</td><td><i class="up-dot ${s.state}"></i>${s.state === 'future' ? 'Upcoming' : s.state[0].toUpperCase() + s.state.slice(1)}</td><td>${s.operating ? 'Within hours' : 'Outside hours'}</td><td>${D.duration(s.to - s.from)}</td></tr>`).join('')}</tbody></table>`;
+    $('uptimeDayContent').innerHTML = V.dayContent(data, t, r);
     $('dayPrevious').disabled = !summary(t, D.addDays(date, -1)); $('dayNext').disabled = !summary(t, D.addDays(date, 1));
     $('dayHours').disabled = !D.canManageTerminal(data, auth, t, asOf);
     if (!$('uptimeDayDialog').open) $('uptimeDayDialog').showModal();
@@ -235,7 +221,7 @@
     event.preventDefault(); if (!editor?.canEdit) return;
     try {
       const now = Date.now(), next = D.saveSchedule(data, auth, editor.target, editor.draft, editor.mode, now);
-      data = S.persist(localStorage, next, data.revision); asOf = now; summaryCache.clear(); closeDialog('operatingHoursDialog'); render(); toast('Operating Hours saved');
+      data = S.persist(localStorage, S.refresh(next, now), data.revision); asOf = now; summaryCache.clear(); closeDialog('operatingHoursDialog'); render(); toast('Operating Hours saved');
     } catch (e) { error('hoursError', e.message, true); }
   });
   document.addEventListener('click', event => {
@@ -250,8 +236,8 @@
   $('manageHours').addEventListener('click', () => openHours(fixedTerminal ? 'terminal:' + fixedTerminal : storeFilter ? 'store:' + storeFilter : null));
   $('refreshUptime').addEventListener('click', () => {
     try {
-      const latest = S.load(localStorage, directory), now = Date.now(), next = S.refresh(latest, now);
-      data = S.persist(localStorage, next, latest.revision); asOf = now; summaryCache.clear(); auth = profileAuth(); allowed = D.scopeStores(data, auth.scope); filters(); render(); toast('Uptime data refreshed');
+      const now = Date.now();
+      data = S.load(localStorage, directory, now); asOf = now; summaryCache.clear(); auth = profileAuth(); allowed = D.scopeStores(data, auth.scope); filters(); render(); toast('Uptime data refreshed');
     } catch (e) { error('uptimeError', 'Refresh failed. Last successful data is still displayed. ' + e.message, true); }
   });
   $('terminalSearch').addEventListener('input', event => { search = event.target.value; page = 0; render(); });
@@ -275,5 +261,8 @@
       $('terminalSearch').value = fixedTerminal; $('terminalSearch').readOnly = true;
     }
     filters(); render();
+    if (params.get('hours') === '1' && fixedTerminal && !$('manageHours').disabled) openHours('terminal:' + fixedTerminal);
+    const requestedDay = params.get('date');
+    if (fixedTerminal && D.validDate(requestedDay)) openDay(fixedTerminal, requestedDay);
   } catch (e) { error('uptimeError', e.message, true); $('manageHours').disabled = true; $('refreshUptime').disabled = true; }
 })();
