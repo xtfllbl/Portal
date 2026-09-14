@@ -255,6 +255,7 @@
       migrated.ownerPath = owner.path;
       migrated.owner = owner.name;
     }
+    if (migrated.historicalReference) return migrated;
     if (migrated.condition === "selected_product") migrated.parameters = productParameters(migrated.parameters);
     if (migrated.condition !== "temperature_range") return migrated;
     const parameters = migrated.parameters || {};
@@ -368,6 +369,47 @@
     return owner ? { ...incident, ownerType: owner.type, ownerId: owner.id, ownerName: owner.name, owner: owner.name, ownerPath: owner.path } : incident;
   }
 
+  function restoreIncidentRules(data) {
+    const rulesById = new Map(data.rules.map(rule => [rule.id, rule]));
+    data.incidents.forEach(incident => {
+      if (rulesById.has(incident.ruleId)) return;
+      // Only reuse a documented demo relation when identity AND ownership agree.
+      // Equal conditions on one terminal can belong to different customer rules.
+      if (!incident.ruleId) {
+        const matches = demoIncidents.filter(item => ["condition", "terminalId", "opened"].every(key => item[key] === incident[key])).filter(item => {
+          const rule = migrateRule(demoRules.find(rule => rule.id === item.ruleId));
+          return (!incident.ownerType || incident.ownerType === rule.ownerType) && (!incident.ownerId || incident.ownerId === rule.ownerId);
+        });
+        incident.ruleId = matches.length === 1 ? matches[0].ruleId : `r-history-${incident.id}`;
+      }
+      if (rulesById.has(incident.ruleId)) return;
+      const seed = demoRules.find(rule => rule.id === incident.ruleId);
+      const owner = incident.ownerType ? {
+        ownerType: incident.ownerType, ownerId: incident.ownerId,
+        ownerName: incident.ownerName || incident.owner, owner: incident.ownerName || incident.owner,
+        ownerPath: incident.ownerPath
+      } : {};
+      // Old prototypes hard-deleted rules. Retain their reference for history,
+      // never reactivate monitoring or guess another customer's rule/criteria.
+      const restored = {
+        ...(seed ? migrateRule(seed) : {}),
+        id: incident.ruleId,
+        condition: seed?.condition || incident.condition,
+        targetType: seed?.targetType || "Terminal",
+        targetId: seed?.targetId || incident.terminalId,
+        targetName: seed?.targetName || incident.terminalName || incident.terminalId,
+        criteria: seed?.criteria || incident.criteria || "Historical criteria unavailable",
+        parameters: seed?.parameters || incident.parameters || {},
+        recipients: [], channels: [], repeatHours: null,
+        modified: seed?.modified || incident.opened,
+        ...owner,
+        status: "Archived", historicalReference: true
+      };
+      data.rules.push(restored);
+      rulesById.set(restored.id, restored);
+    });
+  }
+
   function readState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -405,6 +447,7 @@
         if (!parsed.incidents.some((item) => item.id === incident.id)) { parsed.incidents.push(migrateIncident({ ...incident, events: incident.events.map((event) => ({ ...event })), nextChecks: [...incident.nextChecks] })); changed = true; }
       });
       const numberedBefore = JSON.stringify(parsed);
+      restoreIncidentRules(parsed);
       assignRuleNumbers(parsed);
       if (changed || JSON.stringify(parsed) !== numberedBefore) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       return parsed;
@@ -530,7 +573,7 @@
       const acknowledgementLabel = item.acknowledgedAt ? `Acknowledged by ${item.acknowledgedBy || "Unknown user"} at ${item.acknowledgedAt}` : "Needs acknowledgement";
       return `
         <tr data-incident-id="${escapeHtml(item.id)}">
-          ${currentRole.isOperations ? `<td class="alert-rule-id-cell">${escapeHtml(state.rules.find(rule => rule.id === item.ruleId)?.ruleNumber || "—")}</td>` : ""}
+          ${currentRole.isOperations ? `<td class="alert-rule-id-cell">${escapeHtml(state.rules.find(rule => rule.id === item.ruleId)?.ruleNumber)}</td>` : ""}
           <td><span class="alert-state-stack"><span class="alert-status incident-state ${item.monitoringState.toLowerCase()}">${escapeHtml(item.monitoringState)}</span>${item.acknowledgedAt ? `<span class="alert-ack-icon" role="img" aria-label="${escapeHtml(acknowledgementLabel)}" title="${escapeHtml(acknowledgementLabel)}" data-tooltip="${escapeHtml(acknowledgementLabel)}" tabindex="0"><span class="material-symbols-rounded" aria-hidden="true">task_alt</span></span>` : ""}<span class="alert-sr-only">Acknowledgement: ${item.acknowledgedAt ? "Acknowledged" : "Needs acknowledgement"}</span></span></td>
           <td><div class="alert-condition-cell"><strong>${escapeHtml(recipeFor(item.condition).label)}</strong></div></td>
           ${ownerCell}

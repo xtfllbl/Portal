@@ -99,3 +99,16 @@ test('new rules receive distinct persistent numeric IDs', async ({ page }) => {
   expect(after.nextRuleNumber).toBe(created[0].ruleNumber + 1);
   expect(new Set(after.rules.map(rule => rule.ruleNumber)).size).toBe(after.rules.length);
 });
+
+test('legacy incident always has a numeric Rule ID', async ({ page }) => {
+  await page.goto(center);
+  await page.evaluate(key => localStorage.setItem(key, JSON.stringify({
+    rules: [], deletedRuleIds: [], incidents: [{
+      id: 'i-1007', condition: 'no_approved_transaction',
+      terminalId: 'WP6267UQ36002376', terminalName: 'Terminal - WP6267UQ36002376',
+      store: 'Midtown Store', opened: '2026-08-28 07:24', monitoringState: 'Resolved'
+    }]
+  })), key);
+  await page.reload();
+  expect(await page.locator('[data-incident-id="i-1007"] .alert-rule-id-cell').textContent()).toMatch(/^\d+$/);
+});

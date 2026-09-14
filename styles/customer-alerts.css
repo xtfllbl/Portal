@@ -278,8 +278,8 @@
 .alert-filter-group { width: 100%; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .alert-filter-control {
   width: 168px;
-  height: 39px;
-  min-height: 39px;
+  height: 40px;
+  min-height: 40px;
   padding: 0 12px;
   border: 1px solid var(--alert-line-strong);
   border-radius: 8px;
@@ -289,7 +289,10 @@
   outline: none;
 }
 .alert-filter-control:focus { border-color: #80c9ed; box-shadow: 0 0 0 3px rgba(14, 165, 233, .1); }
-.alert-filter-submit { height: 39px; min-height: 39px; padding-inline: 18px; }
+.alert-btn.alert-filter-submit { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 40px; width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 8px; }
+.alert-filter-submit .material-symbols-rounded { font-size: 19px; }
+.alert-filter-group > .alert-filter-submit { justify-self: end; }
+.alert-filter-submit:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
 select.alert-filter-control {
   appearance: none;
   padding-right: 34px;
@@ -748,3 +751,19 @@ select.alert-filter-control {
 .alerts-table .alert-rule-id-cell { width: 76px; min-width: 76px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .alert-filter-control.alert-rule-id-filter { width: 140px; min-width: 120px; }
 @media (max-width: 700px) { .alert-filter-control.alert-rule-id-filter { width: 100%; min-width: 0; } }
+
+/* Keep the center filters aligned as their available content width changes. */
+.alert-center-card { container-type: inline-size; container-name: alert-filters; }
+.alert-center-main .alert-center-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) 40px; align-items: end; gap: 8px; }
+.alert-center-main .alert-filter-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.alert-center-main .alert-filter-control { width: 100%; min-width: 0; height: 40px; min-height: 40px; }
+@container alert-filters (min-width: 960px) {
+  .alert-center-main .alert-filter-group { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .alert-center-main .alert-center-toolbar:has([data-alert-rule-id-filter]:not([hidden])) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .alert-center-main .alert-center-toolbar:has([data-alert-rule-id-filter]:not([hidden])) .alert-filter-group { display: contents; }
+}
+@container alert-filters (max-width: 599px) {
+  .alert-center-main .alert-center-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alert-center-main .alert-filter-group { display: contents; }
+  .alert-center-main .alert-filter-submit { justify-self: start; grid-column: 2; }
+}

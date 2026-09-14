@@ -221,7 +221,7 @@ A single monitored condition applied to a single Monitoring Target, including th
 _Avoid_: Multi-condition rule, Alert Incident
 
 **Rule ID**:
-A short numeric identifier for one Alert Rule, shared by its related Alert Incidents and notification emails. It remains unchanged when the rule is edited, paused, or archived.
+A short numeric identifier for one Alert Rule, required on every related Alert Incident and notification email. It remains unchanged when the rule is edited, paused, or archived; historical incidents retain their rule reference.
 _Avoid_: Alert Incident ID, rule name, table row number
 
 **Archived Alert Rule**:
