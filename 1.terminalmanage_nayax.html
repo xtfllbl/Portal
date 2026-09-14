@@ -34,9 +34,13 @@
 
         /* Blue banner header to match the provided structure */
         .card-banner { background: var(--banner); color: #fff; padding: 16px 18px 12px; position: relative; }
-        .banner-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .banner-top { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
         .terminal-back-link {
-            min-height: 34px;
+            height: 40px;
+            min-height: 40px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            white-space: nowrap;
             padding: 7px 11px;
             display: inline-flex;
             align-items: center;
@@ -55,7 +59,12 @@
         .terminal-back-link:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
         .banner-meta { margin-top: 4px; color: rgba(255,255,255,.9); font-size: 12px; }
         .banner-meta b { color: #fff; }
-        .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); }
+        .banner-status { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,.92); margin-left: auto; }
+        .banner-top .connection-summary, .banner-top .icon-btn { height: 40px; min-height: 40px; box-sizing: border-box; }
+        @media (max-width: 560px) {
+            .banner-top > .terminal-back-link { flex: 1 1 100%; justify-content: center; }
+            .banner-top > .banner-status { width: 100%; }
+        }
         .connection-status {
             position: relative;
             display: inline-flex;
@@ -2164,6 +2173,7 @@
                         <img src="assets/icons/arrow-circle-left.svg" alt="" aria-hidden="true">
                         <span>Back to Device Management</span>
                     </a>
+                    <a class="terminal-back-link" id="terminalUptimeLink" href="46.terminal_uptime.html?sn=WP6267UQ36002376"><span class="material-symbols-rounded" aria-hidden="true">bar_chart</span><span>Uptime Matrix</span></a>
                     <div class="banner-status">
                         <div
                             id="connectionStatus"
@@ -7565,6 +7575,12 @@ paymentTimeout=180`
         announceProductMap('Product Map loaded.');
     })();
 </script>
+  <script>
+    (function () {
+      var link = document.getElementById('terminalUptimeLink');
+      if (link) link.href = '46.terminal_uptime.html?sn=' + encodeURIComponent(new URLSearchParams(location.search).get('sn') || document.getElementById('bannerSn').textContent.trim());
+    })();
+  </script>
   <script src="scripts/platform-admin-shell.js"></script>
 </body>
 </html>

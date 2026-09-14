@@ -1,0 +1,7 @@
+# Keep Payment Service uptime and operating hours independent of alert rules
+
+The Terminal Uptime Matrix reports only Payment Service history and remains available without enabled Customer Alert Rules, so Alert Incidents cannot be its source of truth for online coverage. Operating Hours are a shared operating schedule inherited from the Terminal's Store by default, with a complete individual terminal override and an option to resume inheritance, rather than being owned by an Alert Rule. This preserves visibility for customers who have not configured alerts and gives the matrix and future alert enhancements a common schedule without duplicating operating expectations in each rule.
+
+A terminal override includes its weekly periods, date-specific exceptions and regional time zone; it does not merge later Store changes into selected fields. This keeps the effective schedule understandable and avoids unexpected Store holiday or time-zone changes affecting an explicitly independent terminal schedule.
+
+These are confirmed domain boundaries for the intended feature, not a claim that production history collection or scheduling is implemented. The first release covers the matrix and shared Operating Hours configuration while existing alert behavior and Monitoring Hours remain unchanged; following the shared schedule and migrating existing alert rules are deferred. Historical schedule interpretation is recorded in ADR 0011; detailed statistics and presentation are refined in the design interview.

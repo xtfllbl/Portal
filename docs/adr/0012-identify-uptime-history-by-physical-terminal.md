@@ -1,0 +1,5 @@
+# Identify Payment Service uptime history by physical terminal
+
+The Terminal Uptime Matrix identifies each physical payment terminal by S/N, retaining separate histories when a different terminal replaces it under the same TCI configuration. Using the reusable logical configuration as the identity would combine different devices' online performance and obscure whether a replacement changed reliability. Store and organization membership provide access and filtering context rather than replacing the physical terminal's identity.
+
+Historical visibility uses the Store recorded during the observation period and the viewer's current permission to access that Store. The former Store retains its own history after a transfer or unassignment until the three-month retention boundary, while the new Store receives no earlier Store's history; an authorized parent can view both. A transfer starts by following the new Store's Operating Hours, preserving the old override only for interpreting the earlier membership period rather than carrying it into the new Store.

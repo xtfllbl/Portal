@@ -23,6 +23,7 @@
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
+    "46.terminal_uptime.html": page("body > main.uptime-page", "device", "uptime-matrix", ["Device Management", "Uptime Matrix"], []),
     "45.advertising.html": page("body > main.ads-page", "advertising", "advertising", ["Advertising"], []),
     "42.billing_payments.html": page("body > main.payments-page", "billing-payments", "billing-payments", ["Billing & Payments"], []),
     "44.billing_overview.html": page("body > main.overview-page", "matintain", "billing-overview", ["Matintain", "Billing Overview"], []),
@@ -104,6 +105,7 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
+    if (target.active === "uptime-matrix") return ["wizarpos", "full-service", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
     if (target.active === "advertising") return ["wizarpos", "full-service", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
     if (target.module === "matintain" && profile !== "wizarpos") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
@@ -155,6 +157,7 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "46.terminal_uptime.html",
     "45.advertising.html",
     "44.billing_overview.html",
     "42.billing_payments.html",
@@ -247,6 +250,7 @@
     var deviceItems = [
       terminalProfile(activeProfile) !== "unattended" ? sub("Attended Terminals", "1.terminalmanage.html", "attended-terminals") : "",
       terminalProfile(activeProfile) !== "attended" ? sub("Unattended Terminals", "1.terminalmanage_nayax.html", "unattended-terminals") : "",
+      terminalProfile(activeProfile) !== "attended" ? sub("Uptime Matrix", "46.terminal_uptime.html", "uptime-matrix") : "",
       isWizarpos ? sub("Card Readers", "1.terminalmanage_CardReader.html", "card-readers") : ""
     ].join("");
     var prepaidItems = [
@@ -308,6 +312,7 @@
   }
 
   var breadcrumbTargets = {
+    "Uptime Matrix": "46.terminal_uptime.html",
     "Advertising": "45.advertising.html",
     "Billing Setup": "41.billing_setup.html",
     "Transactions": "12.transaction_list.html",

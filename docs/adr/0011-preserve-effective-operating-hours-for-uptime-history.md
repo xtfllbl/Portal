@@ -1,0 +1,5 @@
+# Preserve the effective operating schedule when interpreting uptime history
+
+Daily Payment Service uptime is assessed only within elapsed Operating Hours and grouped by the terminal's local calendar day, splitting overnight periods across the dates they overlap. Schedule changes affect only time from their effective moment onward; historical periods retain the Operating Hours effective at the time rather than being reinterpreted through the latest schedule. This prevents a later closure or shorter schedule from erasing previously counted downtime, at the cost of retaining effective schedule versions; Store changes affect terminals following that Store but do not replace individual terminal overrides.
+
+Unknown Payment Service periods remain distinct from confirmed online or offline periods and must not be presented as fully observed uptime. Non-operating and future periods do not participate in the uptime calculation; raw all-day observations remain available in the detail view. These decisions define intended behavior, not an implemented production telemetry or scheduling service.

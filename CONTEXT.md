@@ -264,6 +264,46 @@ _Avoid_: OPC Offline, Device Connection
 The daily time window in which an Alert Rule monitors its target, interpreted in the rule's selected time zone. It defaults to 24-hour monitoring and may be a custom interval that ends on the next day.
 _Avoid_: Employee working hours, notification delivery schedule
 
+**Operating Hours**:
+An Unattended Terminal's planned operating periods in a selected regional time zone, including weekly arrangements and date-specific exceptions. A terminal follows its Store's schedule by default, with an optional individual override that can be removed to resume inheritance.
+_Avoid_: Monitoring Hours, observed online time, employee working hours
+
+**Terminal Operating Hours Override**:
+A Terminal's complete independent Operating Hours, including its weekly periods, date-specific exceptions and regional time zone. It replaces the inherited Store schedule until the terminal resumes following that Store.
+_Avoid_: Partial Store schedule amendment, Alert Rule override
+
+**Operating Hours Exception**:
+A date-specific replacement for the regular weekly Operating Hours, including a planned closure or different operating periods.
+_Avoid_: Observed outage, Alert Rule exception
+
+**Operating Hours Version**:
+The Operating Hours effective during a particular period, retained to interpret that period's uptime even after the operating schedule changes.
+_Avoid_: Current schedule applied to all history
+
+**Terminal Reporting Day**:
+A local calendar day from midnight to the next midnight in the Terminal's Operating Hours time zone; an overnight operating period contributes to each calendar day it overlaps.
+_Avoid_: Viewer's calendar day, opening-date business day
+
+**Terminal Uptime Matrix**:
+A visual overview of each physical Unattended Terminal's Payment Service online history by day, identified by S/N and available independently of whether Customer Alert Rules have been enabled.
+_Avoid_: Device Connection uptime, Alert Incident list, current connection status
+
+**Uptime Enrollment**:
+The authoritative start of a physical Terminal's inclusion in Payment Service history, independent of Alert Rule creation. Its displayed history starts on that local calendar date and excludes the preceding dates.
+_Avoid_: First alert, first successful payment, fabricated earlier uptime
+
+**Terminal Membership Period**:
+The period during which a physical Terminal belongs to a particular Store; historical uptime belongs to the Store recorded for that period and is visible to users who currently have access to that Store.
+_Avoid_: Current Store applied to all history, TCI binding history alone
+
+**Daily Payment Service Uptime**:
+The proportion of elapsed Operating Hours within a Terminal Reporting Day during which Payment Service was online, reported only when the counted period is nonzero and fully observed.
+_Avoid_: All-day uptime regardless of Operating Hours, uptime inferred from absent alerts
+
+**Unknown Payment Service State**:
+A period for which the available evidence cannot establish whether a Terminal's Payment Service was online or offline.
+_Avoid_: Confirmed offline, confirmed online, outside Operating Hours
+
 **Unevaluable Observation**:
 An observation that cannot determine whether an Alert Rule's condition is normal or abnormal because required data is missing, stale, unsupported, or invalid. It cannot open an Incident or count as Recovery and resets consecutive Recovery Checks.
 _Avoid_: Normal observation, zero inventory, recovered signal
