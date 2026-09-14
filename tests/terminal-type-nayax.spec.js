@@ -52,7 +52,7 @@ test("keeps the header compact and aligns the Terminal Type card with the dashbo
   let alignment = await measureVisibleBottoms();
   expect(Math.abs(alignment.statsBottom - alignment.typeBottom)).toBeLessThanOrEqual(1);
 
-  await page.getByRole("button", { name: "Collapse menu" }).click();
+  await page.getByRole("button", { name: "Collapse navigation" }).click();
   alignment = await measureVisibleBottoms();
   expect(Math.abs(alignment.statsBottom - alignment.typeBottom)).toBeLessThanOrEqual(1);
 });
@@ -154,4 +154,33 @@ test("supports keyboard navigation, cancel, backdrop close, Escape and mobile la
   await trigger.click();
   await expect(page.getByRole("dialog", { name: "Edit Terminal Type" })).toBeVisible();
   expect(pageErrors).toEqual([]);
+});
+
+
+test("attended details carry TCI and share the editable terminal type", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await resetTerminalTypes(page, "/1.terminalmanage.html?tab=basic&sn=ATTENDED12345678&tci=TC87654321&terminalName=Counter%20One");
+  await expect(page.locator("#detailsTci")).toHaveText("TC87654321");
+  await expect(page.locator("#bannerTci")).toHaveText("TC87654321");
+  await expect(page.locator("#detailsTerminalName")).toHaveText("Counter One");
+  await expect(page.locator("#viewTerminalTransactionsLink")).toHaveAttribute("href", /tci=TC87654321/);
+  await expect(page.locator("#terminalTypeName")).toHaveText("Standalone Terminal");
+  await expect(page.locator(".right-stack")).not.toContainText("Group List");
+  const alignment = await page.evaluate(() => {
+    const rect = selector => document.querySelector(selector).getBoundingClientRect();
+    return [rect(".map-card").top - rect(".terminal-details-card").top, rect(".stat-grid").bottom - rect("#terminalTypeCard").bottom];
+  });
+  expect(alignment.every(delta => Math.abs(delta) <= 1)).toBe(true);
+  await page.locator("#terminalTypeButton").click();
+  await page.getByRole("menuitem", { name: "Terminal + ECR", exact: true }).click();
+  await expect(page.locator("#terminalTypeName")).toHaveText("Terminal + ECR");
+  await page.reload();
+  await expect(page.locator("#terminalTypeName")).toHaveText("Terminal + ECR");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator("#terminalTypeButton").click();
+  await expect(page.getByRole("dialog", { name: "Edit Terminal Type" })).toBeVisible();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
 });

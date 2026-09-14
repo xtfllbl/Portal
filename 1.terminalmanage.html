@@ -937,6 +937,7 @@
     </style>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+<script src="scripts/terminal-type.js" defer></script>
 </head>
 <body>
     <header class="top-header">
@@ -1198,7 +1199,8 @@
                     <b>Merchant:</b> <span id="bannerMerchant">1 of a Kind World Travel LLC 41381</span> &nbsp;/&nbsp;
                     <b>SN:</b> <span id="bannerSn">WP6267UQ36002376</span> &nbsp;/&nbsp;
                     <b>TID:</b> <span id="bannerTid">UZN10E08</span> &nbsp;/&nbsp;
-                    <b>Model Name:</b> Q3RU
+                    <b>Model Name:</b> <span id="bannerModel">Q3RU</span> &nbsp;/&nbsp;
+                    <b>TCI:</b> <span id="bannerTci">TC36002376</span>
                 </div>
                 <div class="banner-tabs" id="primaryTabs" role="tablist">
                     <button class="tab active" data-tab="basic" role="tab" aria-selected="true">Basic Information</button>
@@ -1297,55 +1299,7 @@
             <div class="content" id="newContent">
                 <!-- Basic Information -->
                 <section id="tab-basic" role="tabpanel" aria-labelledby="basic">
-                    <!-- Basic tab styles kept local to avoid changing global sheet -->
-                    <style>
-                        .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
-                        .panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); }
-                        .panel.pad { padding: 12px; }
-                        .panel-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: #0f172a; }
-                        .map-card { position: relative; min-height: 240px; display: grid; place-items: center; overflow: hidden; }
-                        .map-bg { position: absolute; inset: 0; background: linear-gradient(180deg,#f3f4f6, #e5e7eb); filter: grayscale(1) contrast(1); }
-                        .map-hint { position: relative; color: #6b7280; font-weight: 600; font-size: 14px; letter-spacing: .2px; }
-                        .map-refresh { position: absolute; right: 10px; top: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; display: grid; place-items: center; cursor: pointer; color: #111; }
-                        .stat-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-                        .stat-card { padding: 12px; }
-                        .stat-head { display: flex; align-items: center; gap: 8px; color: #4b5563; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
-                        .stat-value { font-size: 22px; font-weight: 800; margin: 8px 0 6px; color: #0b1220; }
-                        .stat-sub { color: #6b7280; font-weight: 600; font-size: 12px; }
-                        .bar { height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
-                        .bar > span { display: block; height: 100%; background: #111; border-radius: inherit; }
-                        .details-grid { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: start; }
-                        .kv-list { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 8px; align-items: baseline; }
-                        .kv-list dt { color: #6b7280; font-size: 13px; font-weight: 700; }
-                        .kv-list dd { margin: 0; color: #0b1220; font-weight: 700; }
-                        .device-thumb { width: 100%; height: 140px; border: 1px solid var(--border); border-radius: 10px; background: linear-gradient(180deg,#eee,#ddd); display: grid; place-items: center; color: #475569; font-weight: 700; font-size: 12px; }
-                        .btn-ghost { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: #111; font-weight: 700; font-size: 12px; }
-                        .btn-ghost:hover { background: #f8fafc; }
-                        .group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
-                        .group-meta { color: #6b7280; font-size: 12px; }
-                        .group-name { font-weight: 750; }
-                        .txn-section { margin-top: 18px; }
-                        .txn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-                        .txn-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
-                        .txn-kpi-card { display: grid; gap: 4px; }
-                        .txn-kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
-                        .txn-kpi-value { font-size: 24px; font-weight: 800; color: #0b1220; line-height: 1.2; }
-                        .txn-kpi-note { color: #64748b; font-size: 12px; font-weight: 600; }
-                        .txn-table-wrap { overflow-x: auto; }
-                        .txn-table { min-width: 860px; }
-                        .txn-table thead th { text-align: center; white-space: nowrap; }
-                        .txn-table thead tr:last-child th:first-child { text-align: left; }
-                        .txn-table tbody td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-                        .txn-table tbody td:first-child { text-align: left; font-weight: 700; color: #0f172a; }
-                        .txn-footnote { margin-top: 8px; color: #64748b; font-size: 12px; font-weight: 600; }
-                        @media (max-width: 900px) {
-                            .txn-head { flex-direction: column; align-items: flex-start; }
-                            .txn-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-                        }
-                        @media (max-width: 560px) {
-                            .txn-kpi-grid { grid-template-columns: 1fr; }
-                        }
-                    </style>
+                    <link rel="stylesheet" href="styles/terminal-basic.css">
 
                     <h2 class="section-title" style="margin-bottom:10px">Dashboard</h2>
                     <div class="dash-grid">
@@ -1381,29 +1335,32 @@
                             </div>
                         </div>
 
-                        <!-- Right stack: details + groups -->
-                        <div class="right-stack" style="display:grid; gap:12px; align-content:start;">
-                            <div class="panel pad">
+                        <!-- Right stack: terminal details + type -->
+                        <div class="right-stack">
+                            <div class="panel terminal-details-card">
                                 <div class="panel-title">Terminal Details</div>
-                                <div class="details-grid">
+                                <div class="terminal-details-body">
+                                    <div class="terminal-device-visual"><img src="assets/terminal-q3-device.png" alt="Q3RU terminal device"></div>
                                     <dl class="kv-list">
-                                        <dt>SN</dt><dd id="detailsSn">WP6267UQ36002376</dd>
-                                        <dt>Model</dt><dd>Q3RU</dd>
-                                        <dt>PN</dt><dd>Q3RU-0AA-RD5-0JA0</dd>
-                                        <dt>Type</dt><dd>Payment Device - Smart POS</dd>
+                                        <dt>SN:</dt><dd id="detailsSn">WP6267UQ36002376</dd>
+                                        <dt>Terminal Name:</dt><dd id="detailsTerminalName">Terminal - WP6267UQ36002376</dd>
+                                        <dt>Model:</dt><dd id="detailsModel">Q3RU</dd>
+                                        <dt>Version:</dt><dd>1.0.40-1176</dd>
+                                        <dt>TCI:</dt><dd id="detailsTci">TC36002376</dd>
                                     </dl>
-                                    <div class="device-thumb">Device Image</div>
                                 </div>
-                                <div style="margin-top:10px"><button class="btn-ghost" type="button">View Detail »</button></div>
                             </div>
-                            <div class="panel pad">
-                                <div class="panel-title">Group List</div>
-                                <div class="group-item">
-                                    <div style="width:28px;height:28px;border-radius:8px;border:1px solid var(--border);display:grid;place-items:center;">👥</div>
-                                    <div>
-                                        <div class="group-name">Q3RU VendLink-UPT New</div>
-                                        <div class="group-meta">Group Type: General Group · Reseller: Universal Processing · Added: 2024-09-11 18:42</div>
-                                    </div>
+                            <div id="terminalTypeCard" data-default-type="attended_standalone" class="panel terminal-type-card">
+                                <div class="terminal-type-card-head">
+                                    <div class="panel-title">Terminal Type</div>
+                                    <button id="terminalTypeButton" class="terminal-type-change" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="terminalTypeModal" aria-label="Edit terminal type, current Standalone Terminal" title="Edit terminal type"><img src="assets/icons/edit.svg" alt="" aria-hidden="true"></button>
+                                </div>
+                                <div id="terminalTypeSummary" class="terminal-type-summary attended" aria-live="polite">
+                                    <span id="terminalTypeIcon" class="terminal-type-icon attended" aria-hidden="true"><img src="assets/icons/terminal-standalone.svg" alt=""></span>
+                                    <span class="terminal-type-copy">
+                                        <span id="terminalTypeAttendance" class="terminal-type-attendance attended">Attended</span>
+                                        <span id="terminalTypeName" class="terminal-type-name">Vending Machine</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -1767,25 +1724,47 @@
             </div>
         </div>
     </div>
+    <div id="terminalTypeModal" class="feature-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="terminalTypeModalTitle">
+        <div class="feature-modal compact terminal-type-dialog">
+            <div class="feature-modal-header">
+                <h2 id="terminalTypeModalTitle" class="feature-modal-title">Edit Terminal Type</h2>
+            </div>
+            <div class="feature-modal-body">
+                <div id="terminalTypeOptions" class="terminal-type-options" role="menu" aria-label="Terminal type options"></div>
+            </div>
+            <div class="feature-modal-footer terminal-type-modal-footer">
+                <button id="terminalTypeCancel" class="btn-secondary" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="prototypeToast" class="prototype-toast" role="status" aria-live="polite"></div>
 <script>
     const terminalContext = (() => {
         const defaults = {
             terminalName: 'Terminal - WP6267UQ36002376',
             sn: 'WP6267UQ36002376',
             tid: 'UZN10E08',
-            merchantName: '1 of a Kind World Travel LLC 41381'
+            merchantName: '1 of a Kind World Travel LLC 41381',
+            machineModel: 'Q3RU'
         };
         const params = new URLSearchParams(window.location.search);
         const pick = key => {
             const value = params.get(key);
             return value ? value.trim() : '';
         };
+        const deriveTci = sn => {
+            const digits = String(sn || '').replace(/\D/g, '');
+            return digits.length >= 8 ? `TC${digits.slice(-8)}` : '-';
+        };
         const context = {
             terminalName: pick('terminalName') || defaults.terminalName,
             sn: pick('sn') || defaults.sn,
             tid: pick('tid') || defaults.tid,
-            merchantName: pick('merchantName') || defaults.merchantName
+            merchantName: pick('merchantName') || defaults.merchantName,
+            machineModel: pick('machineModel') || defaults.machineModel
         };
+        context.tci = pick('tci') || deriveTci(context.sn);
         const setText = (id, value) => {
             const el = document.getElementById(id);
             if(el) el.textContent = value;
@@ -1799,11 +1778,17 @@
         setText('infoSn', context.sn);
         setText('infoTid', context.tid);
         setText('detailsSn', context.sn);
+        setText('detailsTerminalName', context.terminalName);
+        setText('detailsModel', context.machineModel);
+        setText('detailsTci', context.tci);
+        setText('bannerModel', context.machineModel);
+        setText('bannerTci', context.tci);
         const viewTransactionsLink = document.getElementById('viewTerminalTransactionsLink');
         if(viewTransactionsLink){
             const query = new URLSearchParams({
                 sn: context.sn,
                 tid: context.tid,
+                tci: context.tci,
                 merchantName: context.merchantName,
                 terminalName: context.terminalName
             });
