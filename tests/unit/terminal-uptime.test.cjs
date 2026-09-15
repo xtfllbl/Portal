@@ -333,3 +333,60 @@ test('registering a conflicting physical S/N cannot silently move it or rewrite 
   assert.throws(() => S.registerContext(before, { merchantId: 'm', storeId: 's', storeName: 'Other store', timeZone: 'UTC', terminals: [{ sn: 'SN-1' }] }, now), /different store/);
   assert.deepEqual(before, snapshot);
 });
+
+test('retiring special dates preserves historical reports and changes only time after activation', () => {
+  const schedule = D.allDay('UTC');
+  schedule.exceptions = ['2026-09-10', '2026-09-11', '2026-09-12'].map(date => ({ date, plan: { mode: 'closed', intervals: [] } }));
+  const original = fixture(schedule), before = report(original), enabledAt = at('2026-09-11T12:00:00');
+  const migrated = S.retireSpecialDates(original, enabledAt);
+  assert.deepEqual(report(migrated), before);
+  assert.equal(report(migrated, '2026-09-11').operating, 6 * H);
+  assert.equal(D.operating(D.effective(migrated, migrated.terminals[0], now).schedule, '2026-09-12', 600), true);
+  assert.deepEqual(migrated.stores[0].versions[0], original.stores[0].versions[0]);
+  assert.equal(migrated.stores[0].versions.length, 2);
+  assert.equal(migrated.revision, original.revision + 1);
+  assert.deepEqual(S.retireSpecialDates(migrated, now + H), migrated);
+  assert.equal(original.weeklyOnlySince, undefined);
+});
+test('retiring terminal exceptions preserves full overrides and never revives overrides invalidated by transfer or follow', () => {
+  const d = fixture(custom());
+  const schedule = custom(1320, 120); schedule.exceptions = [{ date: '2026-09-12', plan: { mode: 'closed', intervals: [] } }];
+  d.terminals[0].versions.push({ from: at('2026-09-09T00:00:00'), sequence: 0, storeId: 'a', mode: 'custom', schedule });
+  const next = S.retireSpecialDates(d, now);
+  assert.equal(D.effective(next, next.terminals[0], now).source, 'Terminal override');
+  assert.deepEqual(D.effective(next, next.terminals[0], now).schedule.week, schedule.week);
+  assert.equal(D.effective(next, next.terminals[0], now).schedule.exceptions.length, 0);
+  assert.deepEqual(next.terminals[0].versions[0], d.terminals[0].versions[0]);
+  const moved = D.clone(d); moved.terminals[0].memberships[0].to = now - H;
+  moved.terminals[0].memberships.push({ storeId: 'a', from: now - H, to: null });
+  const afterMove = S.retireSpecialDates(moved, now);
+  assert.equal(afterMove.terminals[0].versions.length, 1);
+  assert.equal(D.effective(afterMove, afterMove.terminals[0], now).source, 'Store schedule');
+  const followed = D.saveSchedule(d, { scope: 'all' }, { type: 'terminal', id: 'SN-1' }, null, 'follow', now - H);
+  const afterFollow = S.retireSpecialDates(followed, now);
+  assert.equal(afterFollow.terminals[0].versions.length, 2);
+  assert.equal(D.effective(afterFollow, afterFollow.terminals[0], now).source, 'Store schedule');
+});
+test('new saves reject date exceptions for both Store and Terminal while allowing weekly plans', () => {
+  const d = fixture(), schedule = custom();
+  schedule.exceptions = [{ date: day, plan: { mode: 'closed', intervals: [] } }];
+  for (const target of [{ type: 'store', id: 'a' }, { type: 'terminal', id: 'SN-1' }]) {
+    assert.throws(() => D.saveSchedule(d, { scope: 'all' }, target, schedule, 'custom', now), /no longer supported/);
+    assert.doesNotThrow(() => D.saveSchedule(d, { scope: 'all' }, target, custom(), 'custom', now));
+  }
+});
+test('load persists retirement atomically and rejects stale pre-migration writes', () => {
+  const schedule = custom(); schedule.exceptions = [{ date: '2026-09-12', plan: { mode: 'closed', intervals: [] } }];
+  const original = fixture(schedule); original.terminals[0].configurationOnly = true;
+  let raw = JSON.stringify(original);
+  const storage = { getItem: () => raw, setItem: (_, value) => { raw = value; } };
+  const loaded = S.load(storage, {}, now);
+  assert.equal(loaded.weeklyOnlySince, now);
+  assert.equal(loaded.stores[0].versions.at(-1).schedule.exceptions.length, 0);
+  assert.deepEqual(JSON.parse(raw), loaded);
+  assert.equal(S.load(storage, {}, now + H).stores[0].versions.length, 2);
+  assert.throws(() => S.persist(storage, original, original.revision), /another tab/);
+  const failed = { getItem: () => JSON.stringify(original), setItem: () => { throw new Error('quota'); } };
+  assert.throws(() => S.load(failed, {}, now), /Could not save/);
+  assert.deepEqual(JSON.parse(failed.getItem()), original);
+});

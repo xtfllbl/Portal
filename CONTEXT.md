@@ -277,15 +277,15 @@ The daily time window in which an Alert Rule monitors its target, interpreted in
 _Avoid_: Employee working hours, notification delivery schedule
 
 **Operating Hours**:
-An Unattended Terminal's planned operating periods in a selected regional time zone, including weekly arrangements and date-specific exceptions. A terminal follows its Store's schedule by default, with an optional individual override that can be removed to resume inheritance; its Merchant has no separate inherited schedule.
+An Unattended Terminal's planned operating periods in a selected regional time zone, defined by a repeating Monday-to-Sunday week. A terminal follows its Store's schedule by default, with an optional individual override that can be removed to resume inheritance; its Merchant has no separate inherited schedule.
 _Avoid_: Monitoring Hours, observed online time, employee working hours
 
 **Terminal Operating Hours Override**:
-A Terminal's complete independent Operating Hours, including its weekly periods, date-specific exceptions and regional time zone. It replaces the inherited Store schedule until the terminal resumes following that Store.
+A Terminal's complete independent Operating Hours, including its weekly periods and regional time zone. It replaces the inherited Store schedule until the terminal resumes following that Store.
 _Avoid_: Partial Store schedule amendment, Alert Rule override
 
 **Operating Hours Exception**:
-A date-specific replacement for the regular weekly Operating Hours, including a planned closure or different operating periods.
+A legacy date-specific replacement for weekly Operating Hours, retained only to interpret historical periods before Special dates was retired. Current Operating Hours have no date-specific exceptions.
 _Avoid_: Observed outage, Alert Rule exception
 
 **Operating Hours Version**:

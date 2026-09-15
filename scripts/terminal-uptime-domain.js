@@ -185,6 +185,7 @@
     const store = target.type === 'store' ? next.stores.find(x => x.id === target.id) : null;
     if ((!terminal && !store) || (terminal ? !canManageTerminal(next, auth, terminal, at) : !canManageStore(next, auth, store.id))) throw new Error('You do not have permission to manage this operating schedule.');
     if (mode !== 'follow') { const errors = validateSchedule(schedule); if (errors.length) throw new Error(errors[0]); }
+    if (mode !== 'follow' && schedule.exceptions.length) throw new Error('Special dates are no longer supported. Use the weekly schedule.');
     if (store && mode === 'follow') throw new Error('A Store must have its own operating schedule.');
     const versions = (terminal || store).versions;
     if (versions.some(x => x.from > at)) throw new Error('This schedule has a newer version. Refresh and try again.');

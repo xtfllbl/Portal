@@ -2,8 +2,10 @@
 
 The Terminal Uptime Matrix reports only Payment Service history and remains available without enabled Customer Alert Rules, so Alert Incidents cannot be its source of truth for online coverage. Operating Hours are a shared operating schedule inherited from the Terminal's Store by default, with a complete individual terminal override and an option to resume inheritance, rather than being owned by an Alert Rule. This preserves visibility for customers who have not configured alerts and gives the matrix and future alert enhancements a common schedule without duplicating operating expectations in each rule.
 
-A terminal override includes its weekly periods, date-specific exceptions and regional time zone; it does not merge later Store changes into selected fields. This keeps the effective schedule understandable and avoids unexpected Store holiday or time-zone changes affecting an explicitly independent terminal schedule.
+A terminal override includes its weekly periods and regional time zone; it does not merge later Store changes into selected fields. This keeps the effective schedule understandable and avoids unexpected Store weekly-hours or time-zone changes affecting an explicitly independent terminal schedule.
 
 The 2026-09-14 editor review reaffirmed the Store as the shared schedule owner, with no Merchant schedule inheritance layer. Stores under one Merchant can operate at different locations, hours and time zones; the Merchant manages those Store schedules without introducing another inherited default whose changes would have a broader and less obvious impact.
 
 These are confirmed domain boundaries for the intended feature, not a claim that production history collection or scheduling is implemented. The first release covers the matrix and shared Operating Hours configuration while existing alert behavior and Monitoring Hours remain unchanged; following the shared schedule and migrating existing alert rules are deferred. Historical schedule interpretation is recorded in ADR 0011; detailed statistics and presentation are refined in the design interview.
+
+On 2026-09-15, the user retired Special dates to simplify platform management. Operating Hours now consist only of a repeating week and a regional time zone; legacy date exceptions remain solely for historical interpretation. See ADR 0011 for the activation boundary.

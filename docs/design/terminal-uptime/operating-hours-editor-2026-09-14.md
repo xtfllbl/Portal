@@ -53,7 +53,7 @@ Weekly schedule / Special dates 两个页签。周视图拖动按 15 分钟步�
 ## 实现与数据边界
 
 - 共享组件：`scripts/operating-hours-editor.js`、`styles/operating-hours-editor.css`。矩阵移除旧的逐日编辑实现，改为调用共享组件。
-- 入口：`46.terminal_uptime.html`、`1.terminalmanage_nayax.html`、`5.merchant_detail_iso.html`、`5.merchant_detail_no_store_iso.html`、`5.merchant_device_settings_iso.html`。商户静态菜单与动态新增门店菜单均已接入；商户设备原有 Edit Params 跳转携带明确商户上下文。
+- 入口：`46.terminal_uptime.html`、`1.terminalmanage_nayax.html`、`5.merchant_detail_iso.html`、`5.merchant_detail_no_store_iso.html`。商户静态菜单与动态新增门店菜单均已接入。2026-09-15 按用户截图修订，移除 Device Settings 页头入口及其专用接入代码。
 - 商户详情的 `82910293 / st_204 / Midtown Location` 与共享目录的 `merchant-kind-world / s-midtown / Midtown Store` 是不同对象，不能按名称合并。商户页面门店以 `portal:{merchantId}:{storeId}` 注册；沿用原始商户、门店 ID，并保存到同一营业时间存储。S/N 冲突时不静默迁移或重写旧归属。
 - 注册门店不要求已有终端。新注册终端仅有配置身份，`configurationOnly` 阻止生成演示观测和在线率；不回填历史。门店资料和设备绑定仍由原页面管理，营业时间组件不替代其业务记录。
 - 沿用现有演示访问范围，URL 的商户上下文不授予额外权限。生产登录授权、统一组织 ID、设备绑定同步与遥测仍属于后端对接项。
@@ -75,3 +75,49 @@ Weekly schedule / Special dates 两个页签。周视图拖动按 15 分钟步�
 | 新增与空门店 | no-store 页面创建门店后，动态 Settings 含 Operating Hours；零终端门店可打开编辑器，影响数量为 0。 |
 | 只读 | access=view 不显示 Save，Follow Store / Custom hours 和时间输入禁用；仍可查看与搜索目标。 |
 | 回归 | 41 项领域测试通过，包含 38 项既有回归及 3 项新增身份隔离、无伪造遥测、S/N 冲突测试。修改的 JS 语法检查、npm run build、git diff --check 通过。未检查手机页面，遵循本轮项目要求。 |
+
+## 2026-09-15 UI 修订
+
+- 用户明确要求移除 Device Settings 页头的 Operating Hours 入口。门店 Settings 与无人值守终端 Service Uptime 入口保留。
+- Service Uptime 的 Operating Hours 按钮复用相邻 View history 的控件样式：40px 高度、胶囊圆角、13px 加粗字体、相同边框及水平内边距。移除单独覆盖该按钮的矩形样式。
+- 本次仅调整入口与按钮外观，时间表归属、继承、编辑与保存规则沿用现行设计；不新增领域术语或 ADR。上方桌面验收表保留 9 月 14 日实现时的历史记录。
+- 本次桌面验收通过：Device Settings 页头不再显示入口；Service Uptime 两个按钮的实测高度均为 40px，字号 13px、字重 700、圆角 999px、水平内边距 12px、边框一致。点击 Operating Hours 正常打开当前终端的周日历，Cancel 正常返回。JS 语法检查、构建与差异格式检查通过，未部署。
+
+## 2026-09-15 第二轮简化要求
+
+状态：用户回复「ok」确认退役边界；已实现，桌面验收通过。
+
+- 单终端 Follow Store 状态只展示继承来源、模式切换与 Effective hours；隐藏周日历、日编辑面板和禁用的时区选择器。时区作为有效时间表的信息展示。切换 Custom hours 才展示周计划编辑区。
+- 所有 Operating Hours 入口移除 Change history 展示模块，包括门店与独立终端；本项指界面模块，不等于删除支撑历史在线率解释的时间表版本。
+- Effective hours 为始终展开、不可折叠的主要区域，固定按 Monday 到 Sunday 展示每周有效时段，不再从今天起显示连续七个日期。完整计算跨午夜在次日的有效时段。
+- 移除 Special dates 功能及入口，以每周重复计划管理营业时间。此要求取代上方 Q2、Q5 中关于特殊日期编辑的确认；既有特殊日期从新版启用时停止生效，旧版本保留解释过去在线率；不得留下用户无法管理但仍生效的隐形例外。
+
+本轮验收：Follow Store 无日历和禁用时区控件；Custom hours、Edit Store hours 与矩阵只读入口均显示不可折叠的 Monday–Sunday Effective hours，无 Change history/Special dates。周一 09:17–18:00 保存并重开正确回填；相同起止阻止保存并聚焦可见错误；周一 22:00–周二 02:00 在有效时间中分为周一 22:00–24:00、周二 00:00–02:00。45 项领域测试通过，覆盖退役生效边界、历史不变、幂等、继承与换店、存储失败和旧页面版本冲突；语法检查、构建、git diff --check 通过。保存测试在 8999 独立来源完成，未部署。
+
+## 2026-09-15 第三轮控件修订
+
+- 用户要求修复自定义时段控件并使其更紧凑、调整时区位置，以及只在 Follow Store 显示 Edit Store hours。本轮不改变门店归属、继承、周计划与保存生效规则，不新增领域术语或 ADR。
+- 浏览器证据：终端首页公共 label 样式带来 8px margin-bottom，使删除按钮比时间输入框低 8px；重复标题、空跨日提示叠加后，两行起点相距 86px。改为统一 Start / End 列标题、三列网格，输入与删除按钮均为 40px 高，普通相邻行起点相距 48px；空跨日提示不占空间。
+- 修复 Add period 在原结束时间达到 23:00 后回退 08:00 的重叠问题：只预填校验有效的后续时段，最多到午夜；无法预填时新增空行供填写。未填完整的时段不绘制误导时间块或显示跨日标记。
+- 时区合并到 Effective hours 标题右侧，替代原先静态时区与 Weekly schedule 旁选择器的重复展示。Follow Store 显示文本；Store/Custom hours 提供可搜索且支持键盘的选择器。
+- Edit Store hours 同时要求 Follow Store 和门店管理权限；Custom hours 不显示此入口。
+
+本轮验收通过：终端与门店的输入框、删除按钮实测高度同为 40px 且 y 坐标一致；移除右侧重复的当日 Effective hours，完整周摘要继续在上方常驻。23:00 新增得到 23:00–00:00，23:30 新增得到 23:30–00:00；无后续空档时空行不生成误导时间块、阻止保存并聚焦错误，删除恢复有效预览。搜索 Shanghai、Enter 选中 Asia/Shanghai 后与 09:17 起始时段保存并重开回填一致；Custom hours 无 Edit Store hours，Follow Store 恢复入口并仅展示门店时区。使用 localhost:8998 独立来源完成保存验证；JS 语法检查、构建、差异检查通过，未部署。
+
+## 2026-09-15 复制区域与生效说明
+
+Copy to other days 默认展开，切换星期和完成替换后继续展开；允许用户手动折叠。Replace selected days 采用 Portal 深色按钮及复制图标，保留覆盖所选星期的语义。页脚将 Applies from Save. 改为 Changes take effect when you save.，表示点击 Save 后新安排生效，先前历史按原版本解释。
+
+桌面验收：打开编辑器与切换星期后复制区默认展开；将周六 Closed 复制至周一、周二后，周摘要正确更新且复制区保持展开。替换按钮为 40px 深色白字并带复制图标。页脚新文案正确，语法检查、构建、git diff --check 通过；未保存本次演示草稿，未部署。
+
+## 2026-09-15 状态颜色与对象标题
+
+用户要求区分 Closed 与有营业时间的 Effective hours、将日模式选中态改为黑色并移除对象图标。有效时间摘要复用现有 Portal 浅绿色背景与深绿色文字表示有营业时段，Closed 保留灰色；以合并后的有效时间判断，跨夜延续不误标 Closed。24 hours / Closed / Custom 使用黑底白字选中态。移除 Store/Terminal 图标及其占位，标签和名称与模式切换、Effective hours 外框左对齐。仅样式调整，不改变营业计划、继承与保存逻辑。
+
+桌面验收通过：Closed 卡片为灰色，有营业时段为浅绿色；周一 22:00–周二 02:00 的周二有效卡片仍为绿色，周三 Closed 为灰色。三种日模式选中态为黑底白字。门店和终端图标数量为零，名称、模式区域与有效时间外框实测左边缘一致。JS 语法、构建、git diff --check 通过；演示草稿已取消，未部署。
+
+## 2026-09-15 统一营业时间配色
+
+用户确认统一使用低饱和绿色表达计划营业、灰色表达休息、黑色表达选中与操作。日历时间块改为比 Effective hours 摘要更淡的绿色底、绿色边线和深绿色文字；全天与自定义一致。选中星期表头黑底白字，当前编辑星期的时间块加深边框（跨午夜片段一并高亮）。拖动手柄、复选框与门店编辑入口去除紫色。此配色不代表设备实际在线状态。
+
+桌面验收通过：全天与自定义时间块均为浅绿，Closed 摘要为灰色；切换星期后表头黑底白字和加深边框随编辑对象更新。JS 语法检查、构建及差异检查通过，未部署。

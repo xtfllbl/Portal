@@ -6,6 +6,7 @@
   const icon = name => `<span class="material-symbols-rounded" aria-hidden="true">${name}</span>`;
   const time = m => m == null ? '' : `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
   const parseTime = value => /^\d{2}:\d{2}$/.test(value) ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3)) : null;
+  const nextDay = p => Number.isInteger(p.start) && Number.isInteger(p.end) && p.end < p.start;
   const btn = (label, attrs = '') => `<button type="button" ${attrs}>${label}</button>`;
   let dialog, state, data, auth, directory, options, drag, suppressClick = false;
   const combos = new Map();
@@ -24,20 +25,17 @@
     if (dialog) return;
     dialog = document.createElement('dialog'); dialog.id = 'operatingHoursDialog';
     dialog.className = 'up-dialog oh-dialog'; dialog.setAttribute('aria-labelledby', 'hoursTitle');
-    dialog.innerHTML = `<form id="operatingHoursForm" novalidate><header class="up-dialog-heading"><h2 id="hoursTitle">Operating Hours</h2>${btn(icon('close'), 'class="up-icon" data-oh-close aria-label="Close Operating Hours"')}</header><div class="up-dialog-body"><div id="hoursTarget"></div><div id="hoursMode"></div><div class="oh-toolbar"><div class="oh-tabs" role="tablist" aria-label="Schedule views">${btn('Weekly schedule', 'role="tab" id="ohWeeklyTab" data-tab="weekly" aria-controls="hoursWorkspace"')}${btn('Special dates', 'role="tab" id="ohDatesTab" data-tab="dates" aria-controls="hoursWorkspace"')}</div><label class="up-field oh-zone">Time zone<div id="hoursZonePicker"></div></label></div><p class="up-error" id="hoursError" role="alert" tabindex="-1" hidden></p><div id="hoursWorkspace" role="tabpanel"></div><details class="oh-effective"><summary>Effective hours</summary><div id="hoursPreview"></div></details><details class="up-history"><summary id="hoursHistoryTitle">Change history</summary><div id="hoursHistory"></div></details></div><footer class="up-dialog-footer"><span id="hoursImpact" class="up-impact"></span><div class="up-actions">${btn('Cancel', 'data-oh-close')}<button type="submit" class="up-primary" id="saveOperatingHours">Save</button></div></footer></form>`;
+    dialog.innerHTML = `<form id="operatingHoursForm" novalidate><header class="up-dialog-heading"><h2 id="hoursTitle">Operating Hours</h2>${btn(icon('close'), 'class="up-icon" data-oh-close aria-label="Close Operating Hours"')}</header><div class="up-dialog-body"><div id="hoursTarget"></div><div id="hoursMode"></div><p class="up-error" id="hoursError" role="alert" tabindex="-1" hidden></p><section class="oh-effective" aria-labelledby="hoursEffectiveTitle"><div class="oh-effective-heading"><h3 id="hoursEffectiveTitle">Effective hours</h3><div class="oh-zone-context"><label class="oh-zone-label" id="hoursZoneLabel">Time zone</label><div class="oh-zone" id="hoursZonePicker"></div><span id="hoursEffectiveZone"></span></div></div><div id="hoursPreview"></div></section><div class="oh-toolbar" id="hoursToolbar"><h3 id="hoursWeeklyTitle">Weekly schedule</h3></div><div id="hoursWorkspace" aria-labelledby="hoursWeeklyTitle"></div></div><footer class="up-dialog-footer"><span id="hoursImpact" class="up-impact"></span><div class="up-actions">${btn('Cancel', 'data-oh-close')}<button type="submit" class="up-primary" id="saveOperatingHours">Save</button></div></footer></form>`;
     document.body.append(dialog);
     dialog.addEventListener('click', click);
     dialog.addEventListener('change', change);
+    dialog.addEventListener('toggle', event => {
+      if (state && event.target.matches('.oh-copy')) state.copy = event.target.open;
+    }, true);
     dialog.addEventListener('pointerdown', pointerDown);
     dialog.addEventListener('pointermove', pointerMove);
     dialog.addEventListener('pointerup', pointerUp);
     dialog.addEventListener('pointercancel', cancelDrag);
-    dialog.addEventListener('keydown', event => {
-      const tab = event.target.closest('[role=tab]');
-      if (tab && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
-        event.preventDefault(); state.tab = event.key === 'Home' ? 'weekly' : event.key === 'End' ? 'dates' : state.tab === 'weekly' ? 'dates' : 'weekly'; renderWorkspace(); dialog.querySelector(`[data-tab="${state.tab}"]`).focus();
-      }
-    });
     dialog.addEventListener('cancel', () => { destroyCombos(); state = null; });
     $('operatingHoursForm').addEventListener('submit', save);
   }
@@ -51,12 +49,12 @@
     if (!store || !allowedStores().some(s => s.id === store.id) || (type === 'terminal' && !terminal)) throw new Error('This operating schedule is not available in your current access scope.');
     const effective = terminal && D.effective(data, terminal, state.at);
     const version = [...store.versions].filter(v => v.from <= state.at).sort((a, b) => b.from - a.from || b.sequence - a.sequence)[0];
-    Object.assign(state, { target: { type, id: terminal ? terminal.sn : store.id }, terminal, store, mode: terminal && effective.source !== 'Terminal override' ? 'follow' : 'custom', draft: D.clone(terminal ? effective.schedule : version?.schedule || D.allDay(store.timeZone)), canEdit: terminal ? D.canManageTerminal(data, auth, terminal, state.at) : D.canManageStore(data, auth, store.id), merchant: merchantOf(store), storeFilter: store.id, day: 0, copy: false });
-    state.date = D.parts(state.at, current().timeZone).date; state.month = state.date.slice(0, 7); render();
+    Object.assign(state, { target: { type, id: terminal ? terminal.sn : store.id }, terminal, store, mode: terminal && effective.source !== 'Terminal override' ? 'follow' : 'custom', draft: D.clone(terminal ? effective.schedule : version?.schedule || D.allDay(store.timeZone)), canEdit: terminal ? D.canManageTerminal(data, auth, terminal, state.at) : D.canManageStore(data, auth, store.id), merchant: merchantOf(store), storeFilter: store.id, day: 0, copy: true });
+    render();
   }
   function renderTarget() {
     if (state.locked) {
-      $('hoursTarget').innerHTML = `<div class="oh-context">${icon(state.terminal ? 'point_of_sale' : 'store')}<div><span>${state.terminal ? 'Terminal' : 'Store'}</span><strong>${esc(state.terminal ? (state.terminal.name.includes(state.terminal.sn) ? state.terminal.name : state.terminal.name + ' · ' + state.terminal.sn) : state.store.name)}</strong></div></div>`; return;
+      $('hoursTarget').innerHTML = `<div class="oh-context"><div><span>${state.terminal ? 'Terminal' : 'Store'}</span><strong>${esc(state.terminal ? (state.terminal.name.includes(state.terminal.sn) ? state.terminal.name : state.terminal.name + ' · ' + state.terminal.sn) : state.store.name)}</strong></div></div>`; return;
     }
     $('hoursTarget').innerHTML = `<div class="oh-target-row"><div class="up-field">Set hours for<div class="oh-segment">${['store', 'terminal'].map(type => btn(type === 'store' ? 'Store' : 'Terminal', `data-dimension="${type}" aria-pressed="${state.target.type === type}"`)).join('')}</div></div><label class="up-field">Merchant<div id="hoursMerchantPicker"></div></label><label class="up-field">Store<div id="hoursStorePicker"></div></label>${state.target.type === 'terminal' ? '<label class="up-field">Terminal<div id="hoursTerminalPicker"></div></label>' : ''}</div>`;
     const stores = allowedStores(), merchants = [...new Set(stores.map(merchantOf))];
@@ -79,31 +77,38 @@
   function render() {
     destroyCombos(); renderTarget();
     const terminal = state.terminal, following = state.mode === 'follow';
-    $('hoursMode').innerHTML = terminal ? `<div class="oh-inheritance"><div class="oh-segment">${btn('Follow Store', `data-hours-mode="follow" aria-pressed="${following}" ${!state.canEdit ? 'disabled' : ''}`)}${btn('Custom hours', `data-hours-mode="custom" aria-pressed="${!following}" ${!state.canEdit ? 'disabled' : ''}`)}</div><span>${following ? 'Following ' : 'Independent of '}${esc(state.store.name)}</span>${D.canManageStore(data, auth, state.store.id) ? btn('Edit Store hours', 'data-edit-store class="oh-text-button"') : ''}</div>` : '';
-    const schedule = current(), zones = [...new Set([schedule.timeZone, 'UTC', ...(Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [])])];
-    combo('hoursZonePicker', zones.map(key => ({ key, name: key.replace(/_/g, ' ') })), schedule.timeZone, zone => { state.draft.timeZone = zone; refreshVisuals(); }, 'Operating hours time zone', !editable());
-    const versions = (terminal || state.store).versions.filter(v => !terminal || allowedStores().some(s => s.id === v.storeId));
-    $('hoursHistoryTitle').textContent = `Change history (${versions.length})`;
-    $('hoursHistory').innerHTML = `<table class="up-detail-table"><thead><tr><th>Effective from</th><th>Changed by</th><th>Schedule</th><th>Time zone</th></tr></thead><tbody>${[...versions].reverse().map(v => `<tr><td>${esc(new Date(v.from).toLocaleString('en-GB'))}</td><td>${esc(v.actor)}</td><td>${v.mode === 'follow' ? 'Follow Store' : terminal ? 'Terminal override' : 'Store schedule'}</td><td>${esc(v.schedule?.timeZone || 'Store time zone')}</td></tr>`).join('')}</tbody></table>`;
+    $('hoursMode').innerHTML = terminal ? `<div class="oh-inheritance"><div class="oh-segment">${btn('Follow Store', `data-hours-mode="follow" aria-pressed="${following}" ${!state.canEdit ? 'disabled' : ''}`)}${btn('Custom hours', `data-hours-mode="custom" aria-pressed="${!following}" ${!state.canEdit ? 'disabled' : ''}`)}</div><span>${following ? 'Following ' : 'Independent of '}${esc(state.store.name)}</span>${following && D.canManageStore(data, auth, state.store.id) ? btn('Edit Store hours', 'data-edit-store class="oh-text-button"') : ''}</div>` : '';
+    $('hoursToolbar').hidden = following;
+    $('hoursZonePicker').hidden = following;
+    $('hoursEffectiveZone').hidden = !following;
+    $('hoursZoneLabel').removeAttribute('for');
+    if (!following) {
+      const schedule = current(), zones = [...new Set([schedule.timeZone, 'UTC', ...(Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [])])];
+      combo('hoursZonePicker', zones.map(key => ({ key, name: key.replace(/_/g, ' ') })), schedule.timeZone, zone => { state.draft.timeZone = zone; refreshVisuals(); }, 'Operating hours time zone', !editable());
+      $('hoursZoneLabel').htmlFor = $('hoursZonePicker').querySelector('input').id;
+    } else $('hoursZonePicker').innerHTML = '';
     $('saveOperatingHours').hidden = !state.canEdit;
     const count = data.terminals.filter(t => { const e = D.effective(data, t, state.at); return e?.store.id === state.store.id && e.source !== 'Terminal override'; }).length;
-    $('hoursImpact').textContent = !state.canEdit ? 'View only. Editing requires management permission.' : `${!terminal ? `${count} following terminal${count === 1 ? '' : 's'} affected. ` : ''}Applies from Save. Previous hours remain in history.`;
+    $('hoursImpact').textContent = !state.canEdit ? 'View only. Editing requires management permission.' : `${!terminal ? `${count} following terminal${count === 1 ? '' : 's'} affected. ` : ''}Changes take effect when you save.`;
     renderWorkspace();
   }
   function renderWorkspace() {
-    dialog.querySelectorAll('[data-tab]').forEach(el => { el.setAttribute('aria-selected', String(el.dataset.tab === state.tab)); el.tabIndex = el.dataset.tab === state.tab ? 0 : -1; });
-    $('hoursWorkspace').setAttribute('aria-labelledby', state.tab === 'weekly' ? 'ohWeeklyTab' : 'ohDatesTab');
-    $('hoursWorkspace').innerHTML = `<div class="oh-workspace"><div id="hoursCalendar"></div><aside id="hoursDayEditor" class="oh-day-editor"></aside></div>`;
+    const following = state.mode === 'follow';
+    $('hoursWorkspace').hidden = following;
+    $('hoursWorkspace').innerHTML = following ? '' : `<div class="oh-workspace"><div id="hoursCalendar"></div><aside id="hoursDayEditor" class="oh-day-editor"></aside></div>`;
     refreshVisuals(true);
   }
   function refreshVisuals(withPanel = false) {
-    if (state.tab === 'weekly') renderWeek(); else renderMonth();
-    if (withPanel) renderDayEditor();
+    if (state.mode !== 'follow') {
+      renderWeek();
+      if (withPanel) renderDayEditor();
+    }
     preview();
   }
   function blocks() {
     return current().week.flatMap((p, day) => D.spans(p).flatMap(([start, end], index) => {
       if (!Number.isFinite(start) || !Number.isFinite(end)) return [];
+      if (p.mode === 'custom' && (!Number.isInteger(p.intervals[index].start) || !Number.isInteger(p.intervals[index].end) || p.intervals[index].start === p.intervals[index].end)) return [];
       const label = p.mode === 'all' ? '24 hours' : `${time(start)}–${time(end % 1440)}${end >= 1440 ? ' · next day' : ''}`;
       const pieces = [{ day, start, end: Math.min(end, 1440), origin: day, index, label, all: p.mode === 'all', startEdge: true, endEdge: end <= 1440 }];
       if (end > 1440) pieces.push({ day: (day + 1) % 7, start: 0, end: end - 1440, origin: day, index, label, all: false, startEdge: false, endEdge: true });
@@ -112,58 +117,40 @@
   }
   function renderWeek() {
     const pieces = blocks();
-    $('hoursCalendar').innerHTML = `<div class="oh-week-heading"><span></span>${days.map((day, i) => btn(day.slice(0, 3), `data-weekday="${i}" aria-label="Edit ${day}" aria-pressed="${state.day === i}"`)).join('')}</div><div class="oh-week-grid"><div class="oh-time-axis">${Array.from({ length: 13 }, (_, i) => `<span style="top:${i / 12 * 100}%">${time(i * 120)}</span>`).join('')}</div>${days.map((day, i) => `<div class="oh-day-column ${state.day === i ? 'is-selected' : ''}" data-column="${i}" aria-label="${day} operating periods">${pieces.filter(p => p.day === i).map(p => `<button type="button" class="oh-time-block ${p.all ? 'is-all-day' : ''}" style="top:${p.start / 14.4}%;height:${Math.max(0.8, (p.end - p.start) / 14.4)}%" data-block-day="${p.origin}" data-block-index="${p.index}" data-piece-day="${p.day}" aria-label="${days[p.origin]} ${esc(p.label)}" title="${days[p.origin]} ${esc(p.label)}">${editable() && !p.all && p.startEdge ? '<span class="oh-resize start" data-edge="start"></span>' : ''}<span class="oh-block-label">${esc(p.label)}</span>${editable() && !p.all && p.endEdge ? '<span class="oh-resize end" data-edge="end"></span>' : ''}</button>`).join('')}${!pieces.some(p => p.day === i) ? '<span class="oh-closed">Closed</span>' : ''}</div>`).join('')}</div>`;
+    $('hoursCalendar').innerHTML = `<div class="oh-week-heading"><span></span>${days.map((day, i) => btn(day.slice(0, 3), `data-weekday="${i}" aria-label="Edit ${day}" aria-pressed="${state.day === i}"`)).join('')}</div><div class="oh-week-grid"><div class="oh-time-axis">${Array.from({ length: 13 }, (_, i) => `<span style="top:${i / 12 * 100}%">${time(i * 120)}</span>`).join('')}</div>${days.map((day, i) => `<div class="oh-day-column ${state.day === i ? 'is-selected' : ''}" data-column="${i}" aria-label="${day} operating periods">${pieces.filter(p => p.day === i).map(p => `<button type="button" class="oh-time-block ${state.day === p.origin ? 'is-editing-day' : ''} ${p.all ? 'is-all-day' : ''}" style="top:${p.start / 14.4}%;height:${Math.max(0.8, (p.end - p.start) / 14.4)}%" data-block-day="${p.origin}" data-block-index="${p.index}" data-piece-day="${p.day}" aria-label="${days[p.origin]} ${esc(p.label)}" title="${days[p.origin]} ${esc(p.label)}">${editable() && !p.all && p.startEdge ? '<span class="oh-resize start" data-edge="start"></span>' : ''}<span class="oh-block-label">${esc(p.label)}</span>${editable() && !p.all && p.endEdge ? '<span class="oh-resize end" data-edge="end"></span>' : ''}</button>`).join('')}${!pieces.some(p => p.day === i) ? '<span class="oh-closed">Closed</span>' : ''}</div>`).join('')}</div>`;
   }
-  function renderMonth() {
-    const first = state.month + '-01', offset = D.weekDay(first), start = D.addDays(first, -offset), schedule = current();
-    const monthName = new Date(first + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' });
-    $('hoursCalendar').innerHTML = `<div class="oh-month-heading">${btn(icon('chevron_left'), 'data-month="-1" class="up-icon" aria-label="Previous month"')}<strong>${monthName}</strong>${btn(icon('chevron_right'), 'data-month="1" class="up-icon" aria-label="Next month"')}</div><div class="oh-month-weekdays">${days.map(d => `<span>${d.slice(0, 3)}</span>`).join('')}</div><div class="oh-month-grid">${Array.from({ length: 42 }, (_, i) => {
-      const date = D.addDays(start, i), exception = schedule.exceptions.find(x => x.date === date), outside = !date.startsWith(state.month), plan = exception?.plan;
-      return btn(`<span>${Number(date.slice(8))}</span>${exception ? `<small>${plan.mode === 'closed' ? 'Closed' : plan.mode === 'all' ? '24 hours' : 'Custom hours'}</small>` : ''}`, `class="oh-date ${outside ? 'outside-month' : ''} ${exception ? 'has-exception' : ''}" data-date="${date}" aria-label="${date}${exception ? ' · ' + (plan.mode === 'closed' ? 'Closed' : 'Special hours') : ''}" aria-pressed="${date === state.date}"`);
-    }).join('')}</div>`;
-  }
-  function selectedPlan() {
-    if (state.tab === 'weekly') return current().week[state.day];
-    return current().exceptions.find(x => x.date === state.date)?.plan || null;
-  }
-  function mutablePlan() {
-    if (state.tab === 'weekly') return state.draft.week[state.day];
-    let exception = state.draft.exceptions.find(x => x.date === state.date);
-    if (!exception) { exception = { date: state.date, plan: { mode: 'closed', intervals: [] } }; state.draft.exceptions.push(exception); }
-    return exception.plan;
-  }
+  function selectedPlan() { return current().week[state.day]; }
+  function mutablePlan() { return state.draft.week[state.day]; }
   function renderDayEditor() {
-    const plan = selectedPlan(), disabled = !editable(), title = state.tab === 'weekly' ? days[state.day] : state.date;
-    $('hoursDayEditor').innerHTML = `<div class="oh-day-title"><h3>${esc(title)}</h3>${disabled ? '<span class="oh-readonly-badge">View only</span>' : ''}</div>${!plan ? '<p class="oh-note">Following weekly schedule</p>' : ''}<div class="oh-plan-modes">${[['all', '24 hours'], ['closed', 'Closed'], ['custom', 'Custom']].map(([mode, label]) => btn(label, `data-plan-mode="${mode}" aria-pressed="${plan?.mode === mode}" ${disabled ? 'disabled' : ''}`)).join('')}</div>${plan?.mode === 'custom' ? `<div class="oh-period-list">${plan.intervals.map((p, index) => `<div class="oh-period"><div class="oh-period-inputs"><label>Start<input type="time" step="60" value="${time(p.start)}" data-period="${index}" data-time="start" aria-label="${title} period ${index + 1} start" ${disabled ? 'disabled' : ''}></label><label>End<input type="time" step="60" value="${time(p.end)}" data-period="${index}" data-time="end" aria-label="${title} period ${index + 1} end" ${disabled ? 'disabled' : ''}></label>${btn(icon('close'), `data-remove-period="${index}" class="up-icon" aria-label="Remove period ${index + 1}" ${disabled ? 'disabled' : ''}`)}</div><span class="oh-next-day" data-next-day="${index}">${p.end < p.start ? 'Ends next day' : ''}</span></div>`).join('')}</div>${btn(icon('add') + 'Add period', `data-add-period class="oh-add-period" ${disabled ? 'disabled' : ''}`)}` : ''}${state.tab === 'weekly' ? `<details class="oh-copy" ${state.copy ? 'open' : ''}><summary>Copy to other days</summary><div class="oh-copy-days">${days.map((d, i) => i === state.day ? '' : `<label><input type="checkbox" value="${i}" name="copyDay" ${disabled ? 'disabled' : ''}>${d}</label>`).join('')}</div>${btn('Replace selected days', `data-copy-days ${disabled ? 'disabled' : ''}`)}</details>` : plan ? btn(icon('delete') + 'Remove special hours', `data-remove-exception class="oh-remove-exception" ${disabled ? 'disabled' : ''}`) : ''}<div class="oh-day-effective"><span>Effective hours</span><div id="hoursSelectedPreview"></div></div>`;
+    const plan = selectedPlan(), disabled = !editable(), title = days[state.day];
+    $('hoursDayEditor').innerHTML = `<div class="oh-day-title"><h3>${esc(title)}</h3>${disabled ? '<span class="oh-readonly-badge">View only</span>' : ''}</div>${!plan ? '<p class="oh-note">Following weekly schedule</p>' : ''}<div class="oh-plan-modes">${[['all', '24 hours'], ['closed', 'Closed'], ['custom', 'Custom']].map(([mode, label]) => btn(label, `data-plan-mode="${mode}" aria-pressed="${plan?.mode === mode}" ${disabled ? 'disabled' : ''}`)).join('')}</div>${plan?.mode === 'custom' ? `<div class="oh-period-head" aria-hidden="true"><span>Start</span><span>End</span><span></span></div><div class="oh-period-list">${plan.intervals.map((p, index) => `<div class="oh-period"><div class="oh-period-inputs"><input type="time" step="60" value="${time(p.start)}" data-period="${index}" data-time="start" aria-label="${title} period ${index + 1} start" ${disabled ? 'disabled' : ''}><input type="time" step="60" value="${time(p.end)}" data-period="${index}" data-time="end" aria-label="${title} period ${index + 1} end" ${disabled ? 'disabled' : ''}>${btn(icon('close'), `data-remove-period="${index}" class="up-icon" aria-label="Remove period ${index + 1}" ${disabled ? 'disabled' : ''}`)}</div><span class="oh-next-day" data-next-day="${index}">${nextDay(p) ? 'Ends next day' : ''}</span></div>`).join('')}</div>${btn(icon('add') + 'Add period', `data-add-period class="oh-add-period" ${disabled ? 'disabled' : ''}`)}` : ''}<details class="oh-copy" ${state.copy ? 'open' : ''}><summary>Copy to other days</summary><div class="oh-copy-days">${days.map((d, i) => i === state.day ? '' : `<label><input type="checkbox" value="${i}" name="copyDay" ${disabled ? 'disabled' : ''}>${d}</label>`).join('')}</div>${btn(icon('content_copy') + 'Replace selected days', `class="up-primary" data-copy-days ${disabled ? 'disabled' : ''}`)}</details>`;
   }
-  function effectivePeriods(date) {
-    let start = null; const periods = [];
-    for (let m = 0; m <= 1440; m++) { const on = m < 1440 && D.operating(current(), date, m); if (on && start === null) start = m; if (!on && start !== null) { periods.push(`${time(start)}–${time(m)}`); start = null; } }
-    return periods.length ? periods : ['Closed'];
+  function effectivePeriods(day) {
+    // Fold the previous day's overnight carry into each weekday and merge touching spans.
+    const periods = blocks().filter(b => b.day === day).sort((a, b) => a.start - b.start), merged = [];
+    for (const period of periods) {
+      const last = merged.at(-1);
+      if (last && period.start <= last.end) last.end = Math.max(last.end, period.end);
+      else merged.push({ start: period.start, end: period.end });
+    }
+    return merged.length ? merged.map(p => `${time(p.start)}–${time(p.end)}`) : ['Closed'];
   }
   function preview() {
     const errors = D.validateSchedule(current()); showError(errors[0] || '');
     dialog.querySelectorAll('[data-time]').forEach(input => input.setAttribute('aria-invalid', String(!!errors.length)));
-    if (errors.length) { $('hoursSelectedPreview').textContent = 'Correct the highlighted schedule.'; $('hoursPreview').textContent = ''; return; }
-    const today = D.parts(state.at, current().timeZone).date;
-    // The weekly editor previews the repeating week, independently of date exceptions.
-    const selected = state.tab === 'dates' ? effectivePeriods(state.date) : (() => {
-      const parts = blocks().filter(b => b.day === state.day).sort((a, b) => a.start - b.start);
-      return parts.length ? parts.map(p => `${time(p.start)}–${time(p.end)}`) : ['Closed'];
-    })();
-    $('hoursSelectedPreview').innerHTML = selected.map(p => `<strong>${p}</strong>`).join('');
-    $('hoursPreview').innerHTML = `<div class="up-preview-grid">${Array.from({ length: 7 }, (_, i) => { const date = D.addDays(today, i); return `<div class="up-preview-day"><b>${date}</b>${effectivePeriods(date).map(p => `<span>${p}</span>`).join('')}</div>`; }).join('')}</div>`;
+    $('hoursEffectiveZone').textContent = current().timeZone.replace(/_/g, ' ');
+    if (errors.length) {
+      $('hoursPreview').textContent = 'Correct the schedule to see effective hours.'; return;
+    }
+    $('hoursPreview').innerHTML = `<div class="up-preview-grid">${days.map((day, i) => { const periods = effectivePeriods(i), closed = periods.length === 1 && periods[0] === 'Closed'; return `<div class="up-preview-day ${closed ? 'is-closed' : 'is-operating'}"><b>${day}</b>${periods.map(p => `<span>${p}</span>`).join('')}</div>`; }).join('')}</div>`;
   }
   function click(event) {
     const button = event.target.closest('button'); if (!button || button.disabled || !state) return;
     if (suppressClick && button.hasAttribute('data-block-day')) { suppressClick = false; return; }
     if (button.hasAttribute('data-oh-close')) { close(); return; }
-    if (button.dataset.tab) { state.tab = button.dataset.tab; renderWorkspace(); return; }
     if (button.dataset.dimension) { chooseStore(state.store.id, button.dataset.dimension); return; }
     if (button.hasAttribute('data-edit-store')) { targetFor('store', state.store.id); return; }
-    if (button.hasAttribute('data-weekday') || button.hasAttribute('data-block-day')) { state.day = Number(button.dataset.weekday ?? button.dataset.blockDay); state.copy = false; refreshVisuals(true); return; }
-    if (button.dataset.date) { state.date = button.dataset.date; state.month = state.date.slice(0, 7); refreshVisuals(true); return; }
-    if (button.dataset.month) { const d = new Date(state.month + '-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + Number(button.dataset.month)); state.month = d.toISOString().slice(0, 7); renderMonth(); return; }
+    if (button.hasAttribute('data-weekday') || button.hasAttribute('data-block-day')) { state.day = Number(button.dataset.weekday ?? button.dataset.blockDay); state.copy = true; refreshVisuals(true); return; }
     if (!state.canEdit) return;
     if (button.dataset.hoursMode) {
       if (state.mode === 'follow' && button.dataset.hoursMode === 'custom') state.draft = D.clone(current());
@@ -174,16 +161,19 @@
       const p = mutablePlan(); p.mode = button.dataset.planMode;
       if (p.mode === 'custom' && !p.intervals.length) p.intervals = [{ start: 480, end: 1200 }];
     } else if (button.hasAttribute('data-add-period')) {
-      const p = mutablePlan(), last = p.intervals.at(-1), start = last?.end > 0 && last.end < 1380 ? last.end : 480;
-      p.intervals.push({ start, end: start + 60 });
+      const p = mutablePlan(), last = p.intervals.at(-1);
+      const candidate = last && Number.isInteger(last.end) && last.end > last.start
+        ? { start: last.end, end: Math.min(1440, last.end + 60) % 1440 }
+        : { start: null, end: null };
+      const proposed = D.clone(state.draft); proposed.week[state.day].intervals.push(candidate);
+      // Prefill only a valid continuation; never jump back to 08:00 and overlap an existing period.
+      p.intervals.push(D.validateSchedule(proposed).length ? { start: null, end: null } : candidate);
     } else if (button.hasAttribute('data-remove-period')) {
       const p = mutablePlan(); p.intervals.splice(Number(button.dataset.removePeriod), 1);
-    } else if (button.hasAttribute('data-remove-exception')) {
-      state.draft.exceptions = state.draft.exceptions.filter(x => x.date !== state.date);
     } else if (button.hasAttribute('data-copy-days')) {
       const targets = [...dialog.querySelectorAll('[name=copyDay]:checked')].map(el => Number(el.value));
       if (!targets.length) { showError('Select the weekdays to replace.', true); return; }
-      targets.forEach(day => { state.draft.week[day] = D.clone(state.draft.week[state.day]); }); state.copy = false;
+      targets.forEach(day => { state.draft.week[day] = D.clone(state.draft.week[state.day]); }); state.copy = true;
     } else return;
     refreshVisuals(true);
   }
@@ -191,11 +181,11 @@
     const input = event.target;
     if (!editable() || !input.dataset.time) return;
     const period = mutablePlan().intervals[Number(input.dataset.period)]; period[input.dataset.time] = parseTime(input.value);
-    dialog.querySelector(`[data-next-day="${input.dataset.period}"]`).textContent = period.end < period.start ? 'Ends next day' : '';
+    dialog.querySelector(`[data-next-day="${input.dataset.period}"]`).textContent = nextDay(period) ? 'Ends next day' : '';
     refreshVisuals();
   }
   function pointerDown(event) {
-    if (!editable() || state.tab !== 'weekly' || event.button !== 0 || drag) return;
+    if (!editable() || event.button !== 0 || drag) return;
     const column = event.target.closest('[data-column]'); if (!column) return;
     const block = event.target.closest('[data-block-day]'), day = Number(column.dataset.column), rect = column.getBoundingClientRect();
     if (block && current().week[Number(block.dataset.blockDay)].mode === 'all') return;
@@ -276,7 +266,7 @@
     auth = S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', new URLSearchParams(location.search));
     const store = data.stores.find(s => s.id === 's-midtown' && D.scopeStores(data, auth.scope).includes(s.id)) || data.stores.find(s => D.scopeStores(data, auth.scope).includes(s.id));
     if (!store) throw new Error('No operating schedules are available in your current access scope.');
-    state = { at, locked: !!config.locked, tab: 'weekly' };
+    state = { at, locked: !!config.locked };
     targetFor(config.target?.type || 'store', config.target?.id || store.id);
     dialog.showModal(); combos.forEach(c => c.close()); $('hoursTitle').tabIndex = -1; $('hoursTitle').focus();
   }

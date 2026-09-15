@@ -28,6 +28,27 @@
     }
     return data;
   }
+  function retireSpecialDates(input, now) {
+    if (input.weeklyOnlySince != null) return input;
+    const data = D.clone(input), actor = 'Weekly schedule migration';
+    const latest = versions => [...versions].filter(v => v.from <= now).sort((a, b) => b.from - a.from || (b.sequence || 0) - (a.sequence || 0))[0];
+    function retire(entity, type, currentVersion) {
+      if (!currentVersion?.schedule?.exceptions?.length) return;
+      const version = { ...D.clone(currentVersion), from: now, sequence: Math.max(0, ...entity.versions.map(v => v.sequence || 0)) + 1, actor,
+        schedule: { ...D.clone(currentVersion.schedule), exceptions: [] } };
+      entity.versions.push(version);
+      data.audit.push({ at: now, actor, target: { type, id: type === 'store' ? entity.id : entity.sn }, action: 'Retire special dates', version: D.clone(version) });
+    }
+    for (const store of data.stores) retire(store, 'store', latest(store.versions));
+    for (const terminal of data.terminals) {
+      const effective = D.effective(data, terminal, now);
+      // Do not revive an override invalidated by a Store transfer or a Follow Store version.
+      if (effective?.source === 'Terminal override') retire(terminal, 'terminal', effective.version);
+    }
+    data.weeklyOnlySince = now;
+    data.revision = (input.revision || 0) + 1;
+    return data;
+  }
   const custom = (start, end) => ({ mode: 'custom', intervals: [{ start, end }] });
   function zoneFor(store) {
     if (/berlin|warsaw/i.test(store.name)) return /warsaw/i.test(store.name) ? 'Europe/Warsaw' : 'Europe/Berlin';
@@ -73,7 +94,7 @@
     }
     const retired = terminals.find(t => t.sn === 'WP52205Q33000981');
     if (retired) retired.memberships[0].to = now - 2 * D.DAY;
-    return refresh(migrateSerials(data, now), now);
+    return refresh(retireSpecialDates(migrateSerials(data, now), now), now);
   }
   function refresh(input, until = Date.now()) {
     const data = D.clone(input);
@@ -116,7 +137,7 @@
     if (data.schema !== 1 || !Array.isArray(data.stores) || !Array.isArray(data.terminals) || !Array.isArray(data.audit)) throw new Error('Saved Uptime data is not supported. Your saved data has been preserved.');
     // Opening a page fetches a fresh demo snapshot once. No polling is involved.
     // Regenerate observations without replacing schedules, membership or audit.
-    return persist(storage, refresh(migrateSerials(data, now), now), data.revision);
+    return persist(storage, refresh(retireSpecialDates(migrateSerials(data, now), now), now), data.revision);
   }
   function persist(storage, data, expectedRevision) {
     const raw = storage.getItem(KEY);
@@ -153,5 +174,5 @@
     if (changed) next.revision = input.revision + 1;
     return { data: next, storeId: id, changed };
   }
-  return { KEY, seed, refresh, load, persist, viewerAuth, resolveSn, registerContext };
+  return { KEY, seed, refresh, load, persist, viewerAuth, resolveSn, registerContext, retireSpecialDates };
 });
