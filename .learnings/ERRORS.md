@@ -4,6 +4,42 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260915-009] zsh expanded query strings during Vercel verification
+
+**Logged**: 2026-09-15T15:12:00+08:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+An unquoted URL route containing `?tab=basic` was interpreted as a zsh glob before production HTTP checks ran.
+
+### Error
+```
+zsh: no matches found: /1.terminalmanage.html?tab=basic
+```
+
+### Context
+- The Vercel deployment had already reached production Ready.
+- The failure affected only the follow-up route and artifact verification loop.
+
+### Suggested Fix
+Quote each URL containing a query string, or verify static route paths without query parameters before browser acceptance checks.
+
+### Metadata
+- Reproducible: yes
+- Related Files: none
+- Pattern-Key: shell.query-string-glob
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+### Resolution
+- **Resolved**: 2026-09-15T15:12:00+08:00
+- **Notes**: Continued with individually quoted URLs and static artifact comparisons.
+
+---
+
 ## [ERR-20260915-008] Vercel protected deployment URL masked artifact check
 
 **Logged**: 2026-09-15T15:00:00+08:00

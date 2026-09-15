@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Related transactions acceptance fixture</title>
+<link rel="stylesheet" href="/styles/na-theme.css"><link rel="stylesheet" href="/styles/related-transactions.css">
+<style>body{font-family:Arial,sans-serif;padding:32px;background:#f5f7fb}button{height:40px;margin:4px;padding:0 14px}main{padding:20px;background:white;max-width:1280px}</style>
+<h1>Related transactions acceptance fixture</h1>
+<p>Development-only scenarios. This page is excluded from the static build.</p>
+<button id="failure">Load failure and retry</button><button id="large">Large group</button><button id="late">Late original record</button><button id="restricted">Restricted records</button>
+<main id="testView"></main>
+<script src="/scripts/transaction-records.js"></script><script src="/scripts/related-transactions.js"></script>
+<script>
+const seed=PaywizardTransactions.getRecords()[0],target=document.getElementById('testView');
+const child=(id,extra={})=>({...seed,paywizardId:id,transId:'T-'+id,type:'Refund',originalRecordId:seed.paywizardId,originalTransId:seed.transId,...extra});
+document.getElementById('failure').onclick=()=>{let calls=0;PaywizardRelated.mount(target,{id:seed.paywizardId,load:()=>++calls===1?Promise.reject(new Error('Fixture load failure')):[seed,child('RETRY-SUCCESS')]});};
+document.getElementById('large').onclick=()=>{const records=[seed,...Array.from({length:26},(_,i)=>child('LONG-TRANSACTION-REFERENCE-'+String(i).padStart(3,'0')+'-ABCDEFGHIJKLMNOPQRSTUVWXYZ',{processorTime:'2026-04-28 12:00:'+String(i).padStart(2,'0')}))];PaywizardRelated.mount(target,{id:records.at(-1).paywizardId,load:()=>records});};
+document.getElementById('late').onclick=()=>{const r=child('LATE-REFUND');const panel=PaywizardRelated.mount(target,{id:r.paywizardId,load:()=>[r,...(document.getElementById('originalArrived')?.disabled?[seed]:[])]});const button=document.createElement('button');button.id='originalArrived';button.textContent='Receive original record';button.onclick=()=>{button.disabled=true;panel.refresh();};target.before(button);};
+document.getElementById('restricted').onclick=()=>PaywizardRelated.mount(target,{id:seed.paywizardId,load:()=>[seed,child('NOT-VISIBLE')],canView:r=>r.paywizardId===seed.paywizardId});
+</script></html>
