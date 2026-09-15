@@ -190,12 +190,12 @@ test("Transactions custom views are isolated by portal access profile", async ({
 
 test("Device Management terminal links follow the active profile", async ({ page }) => {
   await setProfile(page, "wizarpos", "/2.resellermerchantterminal.html");
-  await expect(page.locator(".terminal-table .sn-link").nth(0)).toHaveAttribute("href", "1.terminalmanage.html");
+  await expect(page.locator(".terminal-table .sn-link").nth(0)).toHaveAttribute("href", /1\.terminalmanage\.html\?.*sn=WP1110KQ20000115/);
   await expect(page.locator(".terminal-table .sn-link").nth(1)).toHaveAttribute("href", "1.terminalmanage_nayax.html");
 
   await setProfile(page, "attended", "/2.resellermerchantterminal.html");
-  expect(await page.locator(".terminal-table .sn-link").evaluateAll((links) => new Set(links.map((link) => link.getAttribute("href"))).size)).toBe(1);
-  await expect(page.locator(".terminal-table .sn-link").first()).toHaveAttribute("href", "1.terminalmanage.html");
+  expect(await page.locator(".terminal-table .sn-link").evaluateAll((links) => new Set(links.map((link) => new URL(link.href).pathname)).size)).toBe(1);
+  await expect(page.locator(".terminal-table .sn-link").first()).toHaveAttribute("href", /1\.terminalmanage\.html\?.*sn=WP1110KQ20000115/);
 
   await setProfile(page, "unattended", "/2.resellermerchantterminal.html");
   expect(await page.locator(".terminal-table .sn-link").evaluateAll((links) => new Set(links.map((link) => link.getAttribute("href"))).size)).toBe(1);
@@ -273,7 +273,10 @@ for (const width of [1440, 390]) {
       await expect(page.locator('[data-pw-menu="users"] .pw-platform-sub-item')).toHaveText(["User List", "Role Permissions"]);
       await expect(page.locator('[data-pw-menu="device"] a')).toHaveText([profile === "attended-store" ? "Attended Terminals" : "Unattended Terminals"]);
       await page.goto('/2.resellermerchantterminal.html');
-      await expect(page.locator('.terminal-table .sn-link').first()).toHaveAttribute('href', profile === "attended-store" ? "1.terminalmanage.html" : "1.terminalmanage_nayax.html");
+      await expect(page.locator('.terminal-table .sn-link').first()).toHaveAttribute(
+        'href',
+        profile === "attended-store" ? /1\.terminalmanage\.html\?.*sn=WP1110KQ20000115/ : "1.terminalmanage_nayax.html"
+      );
       for (const target of ['41.billing_setup.html', '42.billing_payments.html', '5.merchant_detail_iso.html', '13.remote_control.html', '20.provider_custom_email_service.html', '2.agent_list_iso.html']) {
         await page.goto('/' + target);
         await expect(page).toHaveURL(/12\.transaction_list\.html$/);

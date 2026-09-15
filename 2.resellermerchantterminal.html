@@ -2218,8 +2218,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr data-terminal-status="active">
-                                            <td><a class="sn-link" href="1.terminalmanage.html">WP6047UQ33000052</a></td><td>WP6047UQ33000052</td><td class="tci-cell">TC33000052</td><td>Q3RU</td>
+                                        <tr data-terminal-status="active" data-terminal-tid="Q2P000115">
+                                            <td><a class="sn-link" href="1.terminalmanage.html?sn=WP1110KQ20000115&amp;terminalName=Terminal%20-%20WP1110KQ20000115&amp;tid=Q2P000115&amp;tci=TC20000115&amp;machineModel=Q2PRO">WP1110KQ20000115</a></td><td>Terminal - WP1110KQ20000115</td><td class="tci-cell">TC20000115</td><td>Q2PRO</td>
                                             <td><span class="status-tag active" data-terminal-status="active">ACTIVE</span></td>
                                             <td>Retail Tech Pte Ltd</td><td>Retail Tech Pte Ltd</td><td>2026-06-25 14:01:25</td>
                                             <td class="actions-cell"><div class="terminal-row-actions"><button class="terminal-icon-button delete" aria-label="Delete terminal"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg></button><button class="terminal-icon-button diagnostic" aria-label="Open remote diagnostics"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><circle cx="12" cy="8" r="2"/><path d="M12 13v4"/><path d="M9 17h6"/><path d="M8 21h8"/></svg></button></div></td>
@@ -3753,12 +3753,26 @@
 
         function terminalHrefForRow(row){
           var profile = currentPortalProfile();
-          if(profile === 'attended') return '1.terminalmanage.html';
-          if(profile === 'unattended') return '1.terminalmanage_nayax.html';
           var model = row && row.cells[3] ? String(row.cells[3].textContent || '').trim() : '';
+          var attendedHref = function(){
+            if(model.toUpperCase() !== 'Q2PRO') return '1.terminalmanage.html';
+            var sn = String(row.cells[0].textContent || '').trim();
+            var terminalName = String(row.cells[1].textContent || '').trim();
+            var tci = String(row.cells[2].textContent || '').trim();
+            var params = new URLSearchParams({
+              sn: sn,
+              terminalName: terminalName,
+              tid: row.dataset.terminalTid || 'Q2P000115',
+              tci: tci,
+              machineModel: model
+            });
+            return '1.terminalmanage.html?' + params.toString();
+          };
+          if(profile === 'attended') return attendedHref();
+          if(profile === 'unattended') return '1.terminalmanage_nayax.html';
           return /(?:nayax|unattended|vending|q3mini-v|im30)/i.test(model)
             ? '1.terminalmanage_nayax.html'
-            : '1.terminalmanage.html';
+            : attendedHref();
         }
 
         if(terminalTableBody){

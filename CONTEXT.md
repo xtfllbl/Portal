@@ -9,8 +9,16 @@ A queryable record of an observed payment, refund, cancellation or related payme
 _Avoid_: Retail Order, Payment Order, Transaction Attempt
 
 **Related Transactions**:
-Transaction Records connected by explicit references to a payment transaction and operations performed against it or its subsequent transactions. Their scope follows payment relationships, independently of any external retail or restaurant order.
+Transaction Records connected by explicit references to a payment transaction and operations performed against it or its subsequent transactions, including the original record, sibling operations and later operations in that payment process. Their scope follows payment relationships, independently of any external retail or restaurant order.
 _Avoid_: Order transactions, same-card transactions, same-amount transactions
+
+**Original Transaction**:
+The initial purchase or authorization in a related payment process. It may differ from the transaction directly affected by a subsequent operation.
+_Avoid_: Direct operation target, previous chronological record
+
+**Applies To**:
+The transaction directly affected by a payment operation, such as the capture being refunded or the refund being canceled.
+_Avoid_: Original Transaction, previous chronological record
 
 **Product Map Template**:
 A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.

@@ -4,6 +4,78 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260915-004] terminal link test expected path without context
+
+**Logged**: 2026-09-15T14:24:00+08:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Two portal-access assertions still expected a bare Attended detail path after the list link began carrying terminal context.
+
+### Error
+```
+Expected: 1.terminalmanage.html
+Received: 1.terminalmanage.html?sn=WP1110KQ20000115&...
+```
+
+### Context
+- The Q2PRO list entry now passes SN, Terminal Name, TID, TCI, and Model to keep list and detail identities consistent.
+
+### Suggested Fix
+Assert the Attended destination and required SN while permitting the confirmed query parameters.
+
+### Metadata
+- Reproducible: yes
+- Related Files: tests/portal-access-profiles.spec.js, 2.resellermerchantterminal.html
+- Pattern-Key: tests.route-query-expectation
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+### Resolution
+- **Resolved**: 2026-09-15T14:24:00+08:00
+- **Notes**: Updated the two Attended Store assertions to accept the terminal-context query.
+
+---
+
+## [ERR-20260915-003] Playwright web server port collision
+
+**Logged**: 2026-09-15T14:21:00+08:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+The focused Playwright run could not start because its configured web-server port was already occupied.
+
+### Error
+```
+Error: http://127.0.0.1:8765 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+```
+
+### Context
+- Attempted the focused terminal and portal-access Playwright suites with the default configuration.
+- The failure happened before any page assertion ran.
+
+### Suggested Fix
+Use the already-running preview with a temporary `reuseExistingServer` configuration, or stop the verified owning process before retrying.
+
+### Metadata
+- Reproducible: yes
+- Related Files: playwright.config.js
+- Pattern-Key: tests.port-collision
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+### Resolution
+- **Resolved**: 2026-09-15T14:21:00+08:00
+- **Notes**: Continued with a temporary Playwright configuration that reuses the existing server.
+
+---
+
 ## [ERR-20260915-004] browser map instance probe
 
 **Logged**: 2026-09-15T00:00:00+08:00

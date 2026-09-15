@@ -184,3 +184,20 @@ test("attended details carry TCI and share the editable terminal type", async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test("attended defaults use a distinct Q2PRO demonstration terminal", async ({ page }) => {
+  await resetTerminalTypes(page, "/1.terminalmanage.html?tab=basic");
+
+  await expect(page.locator("#bannerSn")).toHaveText("WP1110KQ20000115");
+  await expect(page.locator("#bannerTid")).toHaveText("Q2P000115");
+  await expect(page.locator("#bannerTci")).toHaveText("TC20000115");
+  await expect(page.locator("#detailsTerminalName")).toHaveText("Terminal - WP1110KQ20000115");
+  await expect(page.locator("#detailsModel")).toHaveText("Q2PRO");
+  await expect(page.locator(".terminal-device-visual img")).toHaveAttribute("src", "assets/terminal-q2pro-device.png");
+  await expect(page.locator(".terminal-details-card")).toContainText("5.4.50.17 (54067)");
+  await expect(page.locator(".stat-card").nth(0)).toContainText("85%");
+  await expect(page.locator(".stat-card").nth(1)).toContainText("36%");
+  await expect(page.locator(".stat-card").nth(2)).toContainText("43%");
+  await expect(page.locator(".stat-card").nth(3)).toContainText("29.29%");
+  await expect(page.locator("[data-terminal-location-map]")).toHaveAttribute("data-location-name", "New York, NY");
+});
