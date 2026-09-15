@@ -1,3 +1,66 @@
+# Operating Hours 黑白灰配色验收 — 2026-09-15
+
+final result: passed
+
+Latest amendment — 2026-09-15，关键选项选中态：用户进一步确认三组互斥选择（Store / Terminal、Follow Store / Custom hours、24 hours / Closed / Custom）采用炭黑底白字、字重 600。下方效果图的浅灰选中方案在这三组控件上已被本次确认取代；星期表头、选中列、复制按钮、营业块等沿用原验收结论。总入口与终端详情桌面实测三组按钮高度仍为 40px，切换正确，控制台无错误。构建与差异检查通过。截图：`artifacts/operating-hours-monochrome/strong-selection-matrix.png`、`artifacts/operating-hours-monochrome/strong-selection-terminal.png`。本次仅两条 CSS 规则变化，未改变业务逻辑，未部署。
+
+## Evidence and scope
+
+- Source visual truth: `/Users/beaver/.codex/generated_images/01a0a315-d052-7892-8182-d11160d612a0/exec-465ef5ea-b60e-4bf5-8f65-2b46da1c638b.png`，用户看图后回复「执行」。
+- Implementation screenshot: `artifacts/operating-hours-monochrome/implementation.png`。
+- Additional entry screenshot: `artifacts/operating-hours-monochrome/terminal-detail.png`。
+- Route: `http://127.0.0.1:8998/46.terminal_uptime.html` → Operating Hours → Terminal → Custom hours。
+- Comparison viewport: 1920 × 853 CSS px。效果图仅包含弹窗，为 1511 × 1041 pixels；浏览器弹窗为 1180 × 812.594 CSS px，截图裁剪为 1180 × 813 pixels。浏览器报告 DPR 2，截图工具输出 CSS 像素尺寸。以相同弹窗宽度比对，源图缩放系数为 1180/1511，等效高度约 813px，未将尺寸密度差异计为偏差。
+- Matched state: 1 of a Kind World Travel LLC / Midtown Store / WP6267UQ36002376，周一至周五全天营业，周六及周日 Closed，Sunday 被选中。由 UI 创建验收草稿，未保存到业务数据。
+- Full-view evidence: 在同一工具响应中同时打开源图和实际弹窗截图，按弹窗外框比例比较整体布局、控件、文字、颜色和状态。
+- Focused comparison: 两图中分段控件、Sunday 表头与列背景、Sunday 日模式、复制按钮、七天摘要均可直接读清；另以 DOM 实测验证这些控件的颜色、表头高度和按钮高度，无需额外局部截图。
+
+## Findings
+
+无需要修复的 P0/P1/P2 问题。
+
+| Fidelity surface | Result |
+| --- | --- |
+| Fonts / typography | 沿用项目 Poppins，标题、字段、星期与正文的字号层级保持一致；英文标签无溢出。图像生成的字形细节与浏览器抗锯齿差异属于预期，未据此替换项目字体。 |
+| Spacing / layout | 共用外框、连续表头、七列时间表和右侧编辑器比例与效果图一致；表头按钮 34px，模式/复制/保存按钮 40px。保留固定页脚与正文滚动。 |
+| Colors / tokens | 交互选中 #eeeef0 / #29292c；选中列 #f1f1f3；复制按钮白底灰边黑字；绿色只保留于营业文字与营业时间块。Closed 表头与当前列不呈绿色。 |
+| Images / icons | 此界面没有需要生成的照片或插画；复用 Material Symbols Rounded 的复制、关闭和下拉图标，未将效果图当作页面背景或静态交互层。 |
+| Copy / content | 保留所有字段、按钮、星期和生效说明；同一数据状态下内容与源图一致。专属终端入口按既有规则展示固定对象，不展示总入口的对象选择器。 |
+
+## Primary interactions
+
+- Store / Terminal、Follow Store / Custom hours 与星期切换正常；Follow Store 保持只读摘要。
+- 选中复选框为黑色，复制操作将周一 09:17–18:00 正确回填到周二。
+- 时区搜索 Shanghai，Enter 选择 Asia/Shanghai。
+- 相同起止时间阻止保存，错误提示获得焦点且位于正文可视范围。
+- 终端详情 Service Uptime → Operating Hours 使用同一共享样式。
+- Console errors: Uptime Matrix 验收期间查询结果为空。
+- Build / validation: npm run build、JS 语法检查、git diff --check 通过。本轮仅调整 CSS，未新增测试或修改营业逻辑。
+- 手机视口未检查，遵循项目明确要求。未部署。
+
+## Comparison history
+
+首次同状态视觉对照未发现可行动的 P0/P1/P2 问题，因此没有额外视觉修复循环。
+
+## Open Questions
+
+无。
+
+## Follow-up Polish
+
+无阻塞项；生成图的轻微字形差异保留为预期渲染差异。
+
+## Implementation Checklist
+
+- [x] 通用控件恢复黑白灰。
+- [x] 绿色仅表达计划营业。
+- [x] 保留一体布局与业务交互。
+- [x] 对照效果图并验证总入口、终端详情入口。
+
+---
+
+## Historical QA retained below
+
 # Transactions disclaimer QA — 2026-09-10
 
 final result: passed
