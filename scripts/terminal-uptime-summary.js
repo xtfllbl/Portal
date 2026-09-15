@@ -34,7 +34,7 @@
     const effective = membership && D.effective(data, terminal, Math.min(asOf, (membership.to ?? asOf + 1) - 1));
     const zone = effective?.schedule.timeZone || 'UTC', today = D.parts(asOf, zone).date;
     const days = Array.from({ length: 7 }, (_, i) => report(D.addDays(today, i - 6))).filter(Boolean);
-    host.innerHTML = `<header class="up-summary-heading"><div class="up-summary-title"><h2>Service Uptime</h2></div><div class="up-actions"><a class="up-link-button btn-secondary" href="${V.esc(historyUrl())}">View history${V.icon('arrow_outward')}</a></div></header><div class="up-summary-grid">${days.length ? days.map(r => V.cell(r, sn, true)).join('') : '<p class="up-summary-empty">No terminal history in the last 7 days.</p>'}</div><footer class="up-summary-footer"><div class="up-legend" aria-label="Uptime legend">${V.legend()}</div><span class="up-meta" title="${new Date(data.observedAt).toISOString()}">${V.esc(zone.replace(/_/g, ' '))} · Updated ${new Date(data.observedAt).toLocaleString('en-GB', { timeZone: zone, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span></footer><p class="up-error" role="alert" tabindex="-1" hidden></p>`;
+    host.innerHTML = `<header class="up-summary-heading"><div class="up-summary-title"><h2>Service Uptime</h2></div><div class="up-actions"><button type="button" class="oh-summary-hours" data-summary-hours ${!terminal || !D.canManageTerminal(data, auth, terminal, asOf) ? 'disabled' : ''}>${V.icon('schedule')}Operating Hours</button><a class="up-link-button btn-secondary" href="${V.esc(historyUrl())}">View history${V.icon('arrow_outward')}</a></div></header><div class="up-summary-grid">${days.length ? days.map(r => V.cell(r, sn, true)).join('') : '<p class="up-summary-empty">No terminal history in the last 7 days.</p>'}</div><footer class="up-summary-footer"><div class="up-legend" aria-label="Uptime legend">${V.legend()}</div><span class="up-meta" title="${new Date(data.observedAt).toISOString()}">${V.esc(zone.replace(/_/g, ' '))} · Updated ${new Date(data.observedAt).toLocaleString('en-GB', { timeZone: zone, month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span></footer><p class="up-error" role="alert" tabindex="-1" hidden></p>`;
   }
   function load() {
     try {
@@ -48,10 +48,16 @@
     }
   }
   host.addEventListener('click', event => {
+    if (event.target.closest('[data-summary-hours]')) {
+      try { window.PaywizardOperatingHours.open({ target: { type: 'terminal', id: sn }, locked: true }); }
+      catch (e) { const error = host.querySelector('.up-error'); error.textContent = e.message; error.hidden = false; error.scrollIntoView({ block: 'center' }); error.focus(); }
+      return;
+    }
     const cell = event.target.closest('[data-day]'); if (cell) openDay(cell.dataset.day);
   });
   dialog.querySelector('[data-summary-close]').addEventListener('click', () => V.closeDrawer(dialog));
   dialog.querySelector('[data-summary-previous]').addEventListener('click', () => openDay(D.addDays(selectedDate, -1)));
   dialog.querySelector('[data-summary-next]').addEventListener('click', () => openDay(D.addDays(selectedDate, 1)));
+  window.addEventListener('paywizard:operating-hours-saved', load);
   load();
 })();

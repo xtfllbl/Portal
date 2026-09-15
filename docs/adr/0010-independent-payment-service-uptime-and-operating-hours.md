@@ -4,4 +4,6 @@ The Terminal Uptime Matrix reports only Payment Service history and remains avai
 
 A terminal override includes its weekly periods, date-specific exceptions and regional time zone; it does not merge later Store changes into selected fields. This keeps the effective schedule understandable and avoids unexpected Store holiday or time-zone changes affecting an explicitly independent terminal schedule.
 
+The 2026-09-14 editor review reaffirmed the Store as the shared schedule owner, with no Merchant schedule inheritance layer. Stores under one Merchant can operate at different locations, hours and time zones; the Merchant manages those Store schedules without introducing another inherited default whose changes would have a broader and less obvious impact.
+
 These are confirmed domain boundaries for the intended feature, not a claim that production history collection or scheduling is implemented. The first release covers the matrix and shared Operating Hours configuration while existing alert behavior and Monitoring Hours remain unchanged; following the shared schedule and migrating existing alert rules are deferred. Historical schedule interpretation is recorded in ADR 0011; detailed statistics and presentation are refined in the design interview.

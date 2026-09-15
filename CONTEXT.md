@@ -277,7 +277,7 @@ The daily time window in which an Alert Rule monitors its target, interpreted in
 _Avoid_: Employee working hours, notification delivery schedule
 
 **Operating Hours**:
-An Unattended Terminal's planned operating periods in a selected regional time zone, including weekly arrangements and date-specific exceptions. A terminal follows its Store's schedule by default, with an optional individual override that can be removed to resume inheritance.
+An Unattended Terminal's planned operating periods in a selected regional time zone, including weekly arrangements and date-specific exceptions. A terminal follows its Store's schedule by default, with an optional individual override that can be removed to resume inheritance; its Merchant has no separate inherited schedule.
 _Avoid_: Monitoring Hours, observed online time, employee working hours
 
 **Terminal Operating Hours Override**:

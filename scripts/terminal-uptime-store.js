@@ -78,6 +78,7 @@
   function refresh(input, until = Date.now()) {
     const data = D.clone(input);
     for (const t of data.terminals) {
+      if (t.configurationOnly) continue;
       const zone = t.telemetryZone, today = D.parts(until, zone).date;
       const earliest = D.addDays(D.monthsAgo(today), -1), observations = [];
       for (let date = earliest; date <= today; date = D.addDays(date, 1)) {
@@ -128,5 +129,29 @@
     const base = D.scopeStores(data, scope), requested = params.get('scope'), subset = requested && D.scopeStores(data, requested);
     return { scope: subset?.length && subset.every(id => base.includes(id)) ? requested : scope, manage: params.get('access') !== 'view' };
   }
-  return { KEY, seed, refresh, load, persist, viewerAuth, resolveSn };
+  // Register explicit merchant-page identities, without fabricating telemetry or
+  // mapping similarly named stores onto the separate account-directory fixtures.
+  function registerContext(input, context, now = Date.now()) {
+    if (!context.merchantId || !context.storeId) throw new Error('The merchant and store identity are required to edit operating hours.');
+    const next = D.clone(input), id = 'portal:' + context.merchantId + ':' + context.storeId;
+    let store = next.stores.find(s => s.id === id);
+    if (!store) {
+      if (!D.validZone(context.timeZone)) throw new Error('Set a valid store time zone before editing operating hours.');
+      store = { id, name: context.storeName, merchantName: context.merchantName, sourceMerchantId: context.merchantId, sourceStoreId: context.storeId, lineageKeys: ['merchant:portal:' + context.merchantId, 'store:' + id], timeZone: context.timeZone, versions: [] };
+      next.stores.push(store);
+    } else { store.name = context.storeName || store.name; store.merchantName = context.merchantName || store.merchantName; }
+    for (const item of context.terminals || []) {
+      const sn = resolveSn(item.sn?.trim()); if (!sn || sn === '-') continue;
+      const existing = next.terminals.find(t => t.sn === sn);
+      if (existing) {
+        if (D.membershipAt(existing, now)?.storeId !== id) throw new Error('Terminal ' + sn + ' belongs to a different store. Correct its store assignment before editing these hours.');
+        existing.name = item.name || existing.name; continue;
+      }
+      next.terminals.push({ sn, name: item.name || sn, configurationOnly: true, enrolledAt: now, telemetryZone: store.timeZone, memberships: [{ storeId: id, from: now, to: null }], versions: [], observations: [] });
+    }
+    const changed = JSON.stringify(next) !== JSON.stringify(input);
+    if (changed) next.revision = input.revision + 1;
+    return { data: next, storeId: id, changed };
+  }
+  return { KEY, seed, refresh, load, persist, viewerAuth, resolveSn, registerContext };
 });

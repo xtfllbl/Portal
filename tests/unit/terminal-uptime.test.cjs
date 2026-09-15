@@ -299,3 +299,37 @@ test('no-score days stay distinguishable and never discard partially known durat
   assert.match(detail, /Offline<\/span><strong class="red">1h<\/strong>/);
   assert.equal(JSON.stringify(partial), before);
 });
+
+test('merchant-page store identities do not alias directory stores and zero-terminal stores can save', () => {
+  const before = fixture();
+  const registration = S.registerContext(before, { merchantId: '82910293', merchantName: 'Tasty Treats', storeId: 'st_204', storeName: 'Store A', timeZone: 'America/New_York', terminals: [] }, now);
+  assert.equal(before.stores.length, 2);
+  assert.equal(registration.storeId, 'portal:82910293:st_204');
+  assert.equal(registration.data.stores.length, 3);
+  const auth = { scope: 'merchant:portal:82910293', manage: true };
+  const saved = D.saveSchedule(registration.data, auth, { type: 'store', id: registration.storeId }, custom(), 'custom', now);
+  assert.equal(saved.stores[2].versions.length, 1);
+  assert.equal(saved.stores[0].versions.length, 1);
+  assert.deepEqual(D.scopeStores(saved, auth.scope), [registration.storeId]);
+  assert.equal(S.registerContext(saved, { merchantId: '82910293', merchantName: 'Tasty Treats', storeId: 'st_204', storeName: 'Store A', timeZone: 'UTC', terminals: [] }, now).changed, false);
+});
+
+test('configuration-only terminals follow store edits across reload without fabricated uptime history', () => {
+  const directory = { accounts: [], terminals: [] }, storage = { raw: null, getItem() { return this.raw; }, setItem(k, v) { this.raw = v; } };
+  const base = { schema: 1, revision: 0, stores: [], terminals: [], audit: [], observedAt: now };
+  const context = { merchantId: 'm', merchantName: 'Merchant', storeId: 's', storeName: 'Store', timeZone: 'UTC', terminals: [{ sn: 'CONFIG-SN', name: 'Kiosk' }] };
+  const registered = S.registerContext(base, context, now);
+  const saved = D.saveSchedule(registered.data, { scope: 'all', manage: true }, { type: 'store', id: registered.storeId }, custom(500, 1100), 'custom', now);
+  storage.setItem(S.KEY, JSON.stringify(saved));
+  const reloaded = S.load(storage, directory, now + D.DAY);
+  assert.deepEqual(reloaded.terminals[0].observations, []);
+  assert.equal(D.reportDay(reloaded, reloaded.terminals[0], '2026-09-12', [registered.storeId], now + D.DAY), null);
+  assert.equal(D.effective(reloaded, reloaded.terminals[0], now + D.DAY).schedule.week[0].intervals[0].start, 500);
+  assert.equal(reloaded.stores[0].versions[0].from, now);
+});
+
+test('registering a conflicting physical S/N cannot silently move it or rewrite history', () => {
+  const before = fixture(), snapshot = D.clone(before);
+  assert.throws(() => S.registerContext(before, { merchantId: 'm', storeId: 's', storeName: 'Other store', timeZone: 'UTC', terminals: [{ sn: 'SN-1' }] }, now), /different store/);
+  assert.deepEqual(before, snapshot);
+});

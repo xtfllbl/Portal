@@ -2407,6 +2407,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/merchant-admin-unified.css">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+<link rel="stylesheet" href="styles/terminal-uptime.css">
+<link rel="stylesheet" href="styles/operating-hours-editor.css">
 </head>
 <body data-pw-breadcrumb="Merchants|Merchant List|Merchant Overview">
     <div class="page-shell">
@@ -4190,6 +4192,7 @@
             };
 
             menu.appendChild(makeItem('Edit Store Info', 'edit-store'));
+            menu.appendChild(makeItem('Operating Hours', 'operating-hours'));
             menu.appendChild(makeItem('Payment Parameter Setting', 'payment'));
             menu.appendChild(makeItem('Disable Merchant', 'toggle-status'));
             menu.appendChild(makeItem('Resend Email', 'resend'));
@@ -4885,7 +4888,9 @@
 
         const openDeviceSettingsPage = (row) => {
             if (!row) return;
+            window.PaywizardMerchantHours.registerStoreForDevice(row, merchantState);
             const params = new URLSearchParams({
+                hoursMerchant: merchantState.id,
                 storeId: row.dataset.storeId || '',
                 storeName: row.dataset.storeName || '',
                 sn: row.dataset.sn || '',
@@ -5157,6 +5162,11 @@
                     if (!row) return;
                     const action = settingsItem.dataset.action;
                     const storeName = row.dataset.storeName || 'Store';
+                    if (action === 'operating-hours') {
+                        closeStoreMenus();
+                        window.PaywizardMerchantHours.openStore(row, merchantState);
+                        return;
+                    }
                     if (action === 'edit-store') {
                         closeStoreMenus();
                         openStoreModal('edit', row);
@@ -5683,5 +5693,13 @@
         }
     </script>
   <script src="scripts/platform-admin-shell.js"></script>
+
+<script src="scripts/customer-account-data.js"></script>
+<script src="scripts/customer-account-directory.js"></script>
+<script src="scripts/terminal-uptime-domain.js"></script>
+<script src="scripts/terminal-uptime-store.js"></script>
+<script src="scripts/uptime-combobox.js"></script>
+<script src="scripts/operating-hours-editor.js"></script>
+<script src="scripts/operating-hours-merchant.js"></script>
 </body>
 </html>

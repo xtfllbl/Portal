@@ -6,9 +6,9 @@
   const icon = name => `<span class="material-symbols-rounded" aria-hidden="true">${name}</span>`;
   const params = new URLSearchParams(location.search), fixedTerminal = S.resolveSn(params.get('sn') || '');
   let data, auth, allowed, asOf = Date.now(), start, end, organization = '', storeFilter = '', statusFilter = 'all', search = fixedTerminal, page = 0;
-  let summaryCache = new Map(), rows = [], dates = [], selectedDay = null, editor = null, toastTimer;
+  let summaryCache = new Map(), rows = [], dates = [], selectedDay = null;
   let draft = { organization: '', store: '', status: 'all', end: '' }, weekPicker;
-  const combos = new Map(), days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const combos = new Map();
   function combo(id, options, value, onChange, label, disabled = false) {
     combos.get(id)?.destroy();
     combos.set(id, Combo.mount($(id), { options, value, onChange, label, disabled }));
@@ -17,10 +17,7 @@
     const node = $(id); node.textContent = message || ''; node.hidden = !message;
     if (message && focus) { node.scrollIntoView({ block: 'center', behavior: 'instant' }); node.focus({ preventScroll: true }); }
   }
-  function toast(message) { clearTimeout(toastTimer); $('uptimeToast').textContent = message; $('uptimeToast').hidden = false; toastTimer = setTimeout(() => { $('uptimeToast').hidden = true; }, 3500); }
   function dateLabel(date) { return new Date(date + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }); }
-  const hhmm = minutes => String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0');
-  const parseTime = value => /^\d{2}:\d{2}$/.test(value) ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3)) : null;
   function profileAuth() {
     return S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', params);
   }
@@ -130,119 +127,25 @@
     $('uptimeDayContent').scrollTop = 0;
     V.openDrawer($('uptimeDayDialog'));
   }
-  function targetOptions() {
-    return [
-      ...data.stores.filter(s => allowed.includes(s.id)).map(s => ({ key: 'store:' + s.id, name: 'Store · ' + s.name })),
-      ...data.terminals.filter(t => t.memberships.some(m => allowed.includes(m.storeId)) && D.membershipAt(t, asOf) && allowed.includes(D.membershipAt(t, asOf).storeId)).map(t => ({ key: 'terminal:' + t.sn, name: 'Terminal · ' + t.sn + ' · ' + t.name }))
-    ];
-  }
-  function setTarget(key) {
-    const split = key.indexOf(':'), target = { type: key.slice(0, split), id: key.slice(split + 1) };
-    const terminal = target.type === 'terminal' ? data.terminals.find(t => t.sn === target.id) : null;
-    const store = target.type === 'store' ? data.stores.find(s => s.id === target.id) : null;
-    const effective = terminal ? D.effective(data, terminal, asOf) : null;
-    const schedule = terminal ? effective.schedule : [...store.versions].sort((a, b) => b.from - a.from || b.sequence - a.sequence).find(v => v.from <= asOf)?.schedule || D.allDay(store.timeZone);
-    editor = { target, terminal, store, mode: terminal && effective.source !== 'Terminal override' ? 'follow' : 'custom', draft: D.clone(schedule), canEdit: terminal ? D.canManageTerminal(data, auth, terminal, asOf) : D.canManageStore(data, auth, store.id) };
-    error('hoursError', ''); renderEditor();
-  }
   function openHours(key) {
-    const options = targetOptions(); if (!options.length) return;
-    const chosen = options.some(o => o.key === key) ? key : options.some(o => o.key === 'store:s-midtown') ? 'store:s-midtown' : options[0].key;
-    combo('hoursTargetPicker', options, chosen, setTarget, 'Store or terminal');
-    setTarget(chosen); $('operatingHoursDialog').showModal();
+    const split = key?.indexOf(':');
+    try {
+      window.PaywizardOperatingHours.open({
+        target: key ? { type: key.slice(0, split), id: key.slice(split + 1) } : undefined,
+        locked: !!fixedTerminal,
+        onSave(next) { data = next; asOf = Date.now(); auth = profileAuth(); allowed = D.scopeStores(data, auth.scope); summaryCache.clear(); render(); }
+      });
+    } catch (e) { error('uptimeError', e.message, true); }
   }
-  function displayedSchedule() {
-    if (editor.mode !== 'follow') return editor.draft;
-    const t = { ...editor.terminal, versions: [] };
-    return D.effective(data, t, asOf).schedule;
-  }
-  function modeButtons(plan, key, disabled) {
-    return `<div class="up-day-mode" role="group" aria-label="${esc(key.startsWith('w:') ? days[Number(key.slice(2))] : 'Exception')} operating mode">${[['all', '24 hours'], ['closed', 'Closed'], ['custom', 'Custom']].map(([mode, label]) => `<button type="button" data-plan="${key}" data-mode="${mode}" aria-pressed="${plan.mode === mode}" ${disabled ? 'disabled' : ''}>${label}</button>`).join('')}</div>`;
-  }
-  function periodFields(plan, key, disabled) {
-    if (plan.mode !== 'custom') return '';
-    const label = key.startsWith('w:') ? days[Number(key.slice(2))] : 'Exception ' + (Number(key.slice(2)) + 1);
-    return `<div class="up-periods">${plan.intervals.map((p, i) => `<div class="up-period"><input type="time" aria-label="${esc(label)} period ${i + 1} start" value="${p.start === null ? '' : hhmm(p.start)}" data-plan="${key}" data-period="${i}" data-time="start" ${disabled ? 'disabled' : ''}><span>–</span><input type="time" aria-label="${esc(label)} period ${i + 1} end" value="${p.end === null ? '' : hhmm(p.end)}" data-plan="${key}" data-period="${i}" data-time="end" ${disabled ? 'disabled' : ''}><span class="up-next-day">${p.start !== null && p.end !== null && p.end < p.start ? 'next day' : ''}</span><button type="button" class="up-icon" data-remove-period="${i}" data-plan="${key}" aria-label="Remove ${esc(label)} period ${i + 1}" ${disabled ? 'disabled' : ''}>${icon('close')}</button></div>`).join('')}<button type="button" class="up-add-period" data-add-period="${key}" ${disabled ? 'disabled' : ''}>${icon('add')}Add period</button></div>`;
-  }
-  function renderEditor() {
-    const schedule = displayedSchedule(), disabled = !editor.canEdit || editor.mode === 'follow';
-    $('hoursMode').innerHTML = editor.terminal ? `<button type="button" data-hours-mode="follow" aria-pressed="${editor.mode === 'follow'}" ${!editor.canEdit ? 'disabled' : ''}>Follow Store</button><button type="button" data-hours-mode="custom" aria-pressed="${editor.mode === 'custom'}" ${!editor.canEdit ? 'disabled' : ''}>Custom hours</button>` : '';
-    $('hoursFields').innerHTML = `${!editor.canEdit ? '<p class="up-readonly">View only</p>' : ''}<label class="up-field">Time zone<div id="hoursZonePicker"></div></label><div class="up-week">${schedule.week.map((plan, i) => `<div class="up-week-row"><div class="up-weekday">${days[i]}</div>${modeButtons(plan, 'w:' + i, disabled)}${periodFields(plan, 'w:' + i, disabled)}</div>`).join('')}</div><section class="up-exceptions"><div class="up-section-heading"><h3>Date exceptions</h3><button type="button" id="addException" ${disabled ? 'disabled' : ''}>${icon('add')}Add date</button></div>${schedule.exceptions.map((x, i) => `<div class="up-exception-row"><div class="up-exception-header"><input type="date" value="${esc(x.date)}" data-exception-date="${i}" aria-label="Exception ${i + 1} date" ${disabled ? 'disabled' : ''}>${modeButtons(x.plan, 'e:' + i, disabled)}<button type="button" class="up-icon" data-remove-exception="${i}" aria-label="Remove exception ${i + 1}" ${disabled ? 'disabled' : ''}>${icon('delete')}</button></div>${periodFields(x.plan, 'e:' + i, disabled)}</div>`).join('')}</section>`;
-    const zones = [...new Set([schedule.timeZone, 'UTC', ...(Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : ['America/New_York', 'America/Los_Angeles', 'Europe/Berlin', 'Europe/Warsaw', 'Asia/Shanghai'])])];
-    combo('hoursZonePicker', zones.map(z => ({ key: z, name: z.replace(/_/g, ' ') })), schedule.timeZone, z => { editor.draft.timeZone = z; preview(); }, 'Time zone', disabled);
-    const versions = (editor.terminal || editor.store).versions.filter(v => !editor.terminal || allowed.includes(v.storeId));
-    $('hoursHistoryTitle').textContent = `Change history (${versions.length})`;
-    $('hoursHistory').innerHTML = `<table class="up-detail-table"><thead><tr><th>Effective from</th><th>Changed by</th><th>Schedule</th><th>Time zone</th></tr></thead><tbody>${[...versions].reverse().map(v => `<tr><td>${esc(new Date(v.from).toLocaleString('en-GB'))}</td><td>${esc(v.actor)}</td><td>${v.mode === 'follow' ? 'Follow Store' : editor.terminal ? 'Terminal override' : 'Store schedule'}</td><td>${esc(v.schedule?.timeZone || 'Store time zone')}</td></tr>`).join('')}</tbody></table>`;
-    $('saveOperatingHours').hidden = !editor.canEdit;
-    let impact = 'Applies from Save. Previous operating hours remain in history.';
-    if (editor.store) {
-      const count = data.terminals.filter(t => { const e = D.effective(data, t, asOf); return e?.store.id === editor.store.id && e.source !== 'Terminal override'; }).length;
-      impact = `${count} following terminal${count === 1 ? '' : 's'} affected. ` + impact;
-    }
-    $('hoursImpact').textContent = editor.canEdit ? impact : 'You can view this schedule. Editing requires management permission.';
-    preview();
-  }
-  function preview() {
-    const schedule = displayedSchedule(), errors = D.validateSchedule(schedule);
-    error('hoursError', errors[0] || '');
-    $('hoursFields').querySelectorAll('.up-week-row').forEach((row, i) => {
-      const invalid = errors.some(message => message.includes(days[i])); row.classList.toggle('up-invalid', invalid);
-      row.querySelectorAll('input').forEach(input => input.setAttribute('aria-invalid', String(invalid)));
-    });
-    if (errors.length) { $('hoursPreview').innerHTML = '<div class="up-readonly">Correct the highlighted schedule before previewing.</div>'; return; }
-    const today = D.parts(asOf, schedule.timeZone).date;
-    $('hoursPreview').innerHTML = '<div class="up-preview-grid">' + Array.from({ length: 7 }, (_, i) => {
-      const date = D.addDays(today, i), periods = []; let opened = null;
-      for (let m = 0; m <= 1440; m++) { const on = m < 1440 && D.operating(schedule, date, m); if (on && opened === null) opened = m; if (!on && opened !== null) { periods.push(hhmm(opened) + '–' + hhmm(m)); opened = null; } }
-      return `<div class="up-preview-day"><b>${dateLabel(date)}</b>${periods.length ? periods.map(p => `<span>${p}</span>`).join('') : '<span>Closed</span>'}</div>`;
-    }).join('') + '</div>';
-  }
-  function planFor(key) { return key.startsWith('w:') ? editor.draft.week[Number(key.slice(2))] : editor.draft.exceptions[Number(key.slice(2))].plan; }
   function closeDialog(id) {
     combos.forEach(c => c.close());
     if (id === 'uptimeDayDialog') return V.closeDrawer($(id));
-    $(id).close(); if (id === 'operatingHoursDialog') editor = null;
+    $(id)?.close();
   }
-  $('operatingHoursForm').addEventListener('click', event => {
-    const button = event.target.closest('button'); if (!button || !editor || !editor.canEdit || button.disabled) return;
-    if (button.hasAttribute('data-hours-mode')) {
-      if (button.dataset.hoursMode === 'custom' && editor.mode === 'follow') editor.draft = D.clone(displayedSchedule());
-      editor.mode = button.dataset.hoursMode; renderEditor();
-    } else if (button.hasAttribute('data-mode')) {
-      const plan = planFor(button.dataset.plan); plan.mode = button.dataset.mode;
-      if (plan.mode === 'custom' && !plan.intervals.length) plan.intervals = [{ start: 480, end: 1200 }]; renderEditor();
-    } else if (button.hasAttribute('data-add-period')) {
-      const plan = planFor(button.dataset.addPeriod), last = plan.intervals[plan.intervals.length - 1], next = last?.end && last.end < 1380 ? last.end : 480;
-      plan.intervals.push({ start: next, end: next + 60 }); renderEditor();
-    } else if (button.hasAttribute('data-remove-period')) {
-      planFor(button.dataset.plan).intervals.splice(Number(button.dataset.removePeriod), 1); renderEditor();
-    } else if (button.id === 'addException') {
-      let date = D.parts(asOf, editor.draft.timeZone).date;
-      while (editor.draft.exceptions.some(x => x.date === date)) date = D.addDays(date, 1);
-      editor.draft.exceptions.push({ date, plan: { mode: 'closed', intervals: [] } }); renderEditor();
-      $('hoursFields').querySelector('.up-exception-row:last-child')?.scrollIntoView({ block: 'center' });
-    } else if (button.hasAttribute('data-remove-exception')) { editor.draft.exceptions.splice(Number(button.dataset.removeException), 1); renderEditor(); }
-  });
-  $('operatingHoursForm').addEventListener('change', event => {
-    const input = event.target; if (!editor || !editor.canEdit || editor.mode === 'follow') return;
-    if (input.hasAttribute('data-time')) {
-      const p = planFor(input.dataset.plan).intervals[Number(input.dataset.period)]; p[input.dataset.time] = parseTime(input.value);
-      input.closest('.up-period').querySelector('.up-next-day').textContent = p.start !== null && p.end !== null && p.end < p.start ? 'next day' : ''; preview();
-    }
-    if (input.hasAttribute('data-exception-date')) { editor.draft.exceptions[Number(input.dataset.exceptionDate)].date = input.value; preview(); }
-  });
-  $('operatingHoursForm').addEventListener('submit', event => {
-    event.preventDefault(); if (!editor?.canEdit) return;
-    try {
-      const now = Date.now(), next = D.saveSchedule(data, auth, editor.target, editor.draft, editor.mode, now);
-      data = S.persist(localStorage, S.refresh(next, now), data.revision); asOf = now; summaryCache.clear(); closeDialog('operatingHoursDialog'); render(); toast('Operating Hours saved');
-    } catch (e) { error('hoursError', e.message, true); }
-  });
   document.addEventListener('click', event => {
     const close = event.target.closest('[data-close]'); if (close) closeDialog(close.dataset.close);
     const day = event.target.closest('[data-day][data-terminal]'); if (day) openDay(day.dataset.terminal, day.dataset.day);
   });
-  $('operatingHoursDialog').addEventListener('cancel', () => { combos.forEach(c => c.close()); editor = null; });
   $('uptimeDayDialog').addEventListener('cancel', () => { selectedDay = null; });
   $('dayPrevious').addEventListener('click', () => openDay(selectedDay.sn, D.addDays(selectedDay.date, -1)));
   $('dayNext').addEventListener('click', () => openDay(selectedDay.sn, D.addDays(selectedDay.date, 1)));

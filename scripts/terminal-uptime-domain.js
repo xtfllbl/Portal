@@ -121,7 +121,7 @@
   const rawState = (terminal, at) => rawObservation(terminal, at).state;
   const health = rate => rate >= 95 ? 'online' : rate >= 90 ? 'warning' : 'offline';
   function reportDay(data, terminal, date, allowedStores, asOf) {
-    if (!validDate(date)) return null;
+    if (terminal.configurationOnly || !validDate(date)) return null;
     const utc = Date.parse(date + 'T00:00:00Z'), start = utc - 15 * 3600000, end = utc + 39 * 3600000;
     if (terminal.enrolledAt >= end || !terminal.memberships.some(m => allowedStores.includes(m.storeId) && m.from < end && (m.to ?? Infinity) > start)) return null;
     const boundaries = new Set([start, end, asOf, terminal.enrolledAt]);
