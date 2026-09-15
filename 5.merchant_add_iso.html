@@ -1452,8 +1452,9 @@
   <link rel="stylesheet" href="styles/merchant-admin-unified.css">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
   <link rel="stylesheet" href="styles/onboarding-device.css">
+    <link rel="stylesheet" href="styles/merchant-creation.css">
 </head>
-<body data-pw-breadcrumb="Merchants|Merchant List|New Merchant Onboarding">
+<body class="merchant-creation-page" data-pw-breadcrumb="Merchants|Merchant List|New Merchant Onboarding">
     <div class="page-shell">
         <aside class="sidebar">
             <div class="brand">
@@ -1666,7 +1667,6 @@
                         <div class="wizard-header">
                             <div>
                                 <h2 class="wizard-title">New Merchant Onboarding</h2>
-                                <p class="wizard-subtitle">Create a new merchant, add store info, and provision devices.</p>
                             </div>
                             <div class="wizard-meta">Fields marked * are required</div>
                         </div>
@@ -1694,15 +1694,16 @@
                             </div>
                         </div>
 
-                        <form class="wizard-form" autocomplete="off">
-                            <div class="wizard-panel active" data-step="1">
+                        <form class="wizard-form" id="onboarding-form" autocomplete="off" novalidate>
+                            <div class="wizard-panel active merchant-info" id="merchant-info-step" data-step="1">
                                 <h3 class="panel-title">Merchant Info</h3>
-                                <p class="panel-note">Enter the primary merchant contact and business details.</p>
-
+                                <div class="source-alert" id="merchant-step-error" role="alert" tabindex="-1" hidden>
+                                    <strong>Complete Merchant Info</strong><span id="merchant-step-error-copy"></span>
+                                </div>
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="merchant-dba">DBA (MERCHANT NAME) *</label>
-                                        <input class="input-field" id="merchant-dba" type="text" placeholder="Business Name">
+                                        <input class="input-field" id="merchant-dba" type="text" placeholder="Business Name" required>
                                     </div>
                                     <div class="field">
                                         <label for="merchant-contact">Contact Name</label>
@@ -1713,11 +1714,48 @@
                                 <div class="form-grid two">
                                     <div class="field">
                                         <label for="merchant-email">Email *</label>
-                                        <input class="input-field" id="merchant-email" type="email" placeholder="name@domain.com">
+                                        <input class="input-field" id="merchant-email" type="email" placeholder="name@domain.com" required>
                                     </div>
                                     <div class="field">
                                         <label for="merchant-phone">Phone Number</label>
                                         <input class="input-field" id="merchant-phone" type="tel" placeholder="+1 555 555 5555">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid two">
+                                    <div class="field">
+                                        <label for="merchant-country">Country or Region *</label>
+                                        <select class="input-field" id="merchant-country" required>
+                                            <option value="">Select Country/Region</option>
+                                            <option value="United States">United States</option>
+                                            <option value="Canada">Canada</option>
+                                            <option value="United Kingdom">United Kingdom</option>
+                                            <option value="Australia">Australia</option>
+                                            <option value="New Zealand">New Zealand</option>
+                                            <option value="Germany">Germany</option>
+                                            <option value="France">France</option>
+                                            <option value="Italy">Italy</option>
+                                            <option value="Spain">Spain</option>
+                                            <option value="Netherlands">Netherlands</option>
+                                            <option value="Sweden">Sweden</option>
+                                            <option value="Norway">Norway</option>
+                                            <option value="Denmark">Denmark</option>
+                                            <option value="Switzerland">Switzerland</option>
+                                            <option value="Japan">Japan</option>
+                                            <option value="China">China</option>
+                                            <option value="Hong Kong">Hong Kong</option>
+                                            <option value="Singapore">Singapore</option>
+                                            <option value="India">India</option>
+                                            <option value="Mexico">Mexico</option>
+                                            <option value="Brazil">Brazil</option>
+                                            <option value="South Africa">South Africa</option>
+                                            <option value="United Arab Emirates">United Arab Emirates</option>
+                                            <option value="Saudi Arabia">Saudi Arabia</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="merchant-currency">Currency *</label>
+                                        <input class="input-field" id="merchant-currency" type="text" placeholder="Auto-filled" required>
                                     </div>
                                 </div>
 
@@ -1747,10 +1785,10 @@
                                     </div>
                                 </div>
 
-                                <div class="form-grid three">
-                                   <div class="field">
+                                <div class="form-grid three merchant-access-row">
+                                    <div class="field">
                                         <label for="merchant-owner">Owner (Agent) *</label>
-                                        <select class="input-field" id="merchant-owner">
+                                        <select class="input-field" id="merchant-owner" required>
                                             <option value="">Select Owner</option>
                                             <option>Payyou</option>
                                             <option>Valor Training ISO</option>
@@ -1758,38 +1796,22 @@
                                         </select>
                                     </div>
                                     <div class="field">
-                                        <label for="merchant-country">Country *</label>
-                                        <select class="input-field" id="merchant-country">
-                                            <option value="">Select Country</option>
-                                            <option value="United States">United States</option>
-                                            <option value="Canada">Canada</option>
-                                            <option value="United Kingdom">United Kingdom</option>
-                                            <option value="Australia">Australia</option>
-                                            <option value="New Zealand">New Zealand</option>
-                                            <option value="Germany">Germany</option>
-                                            <option value="France">France</option>
-                                            <option value="Italy">Italy</option>
-                                            <option value="Spain">Spain</option>
-                                            <option value="Netherlands">Netherlands</option>
-                                            <option value="Sweden">Sweden</option>
-                                            <option value="Norway">Norway</option>
-                                            <option value="Denmark">Denmark</option>
-                                            <option value="Switzerland">Switzerland</option>
-                                            <option value="Japan">Japan</option>
-                                            <option value="China">China</option>
-                                            <option value="Hong Kong">Hong Kong</option>
-                                            <option value="Singapore">Singapore</option>
-                                            <option value="India">India</option>
-                                            <option value="Mexico">Mexico</option>
-                                            <option value="Brazil">Brazil</option>
-                                            <option value="South Africa">South Africa</option>
-                                            <option value="United Arab Emirates">United Arab Emirates</option>
-                                            <option value="Saudi Arabia">Saudi Arabia</option>
+                                        <label for="merchant-business-model">Business Model *</label>
+                                        <select class="input-field" id="merchant-business-model" aria-describedby="business-model-notice" required disabled>
+                                            <option value="">Select Owner first</option>
+                                            <option value="Attended-Service">Attended-Service</option>
+                                            <option value="Unattended-Service">Unattended-Service</option>
                                         </select>
+                                        <span id="business-model-notice" class="field-notice" role="status" hidden></span>
                                     </div>
                                     <div class="field">
-                                        <label for="merchant-currency">Currency *</label>
-                                        <input class="input-field" id="merchant-currency" type="text" placeholder="Auto-filled">
+                                        <label for="merchant-permissions">Merchant Permissions *</label>
+                                        <select class="input-field" id="merchant-permissions" required>
+                                            <option value="">Select Permissions</option>
+                                            <option value="Merchant Admin">Merchant Admin</option>
+                                            <option value="Merchant Operator">Merchant Operator</option>
+                                            <option value="Merchant Viewer">Merchant Viewer</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -2802,6 +2824,14 @@
                                                 <span class="review-value" id="review-merchant-owner">Not provided</span>
                                             </div>
                                             <div class="review-item">
+                                                <span class="review-label">Business Model</span>
+                                                <span class="review-value" id="review-merchant-business-model">Not provided</span>
+                                            </div>
+                                            <div class="review-item">
+                                                <span class="review-label">Merchant Permissions</span>
+                                                <span class="review-value" id="review-merchant-permissions">Not provided</span>
+                                            </div>
+                                            <div class="review-item">
                                                 <span class="review-label">Email</span>
                                                 <span class="review-value" id="review-merchant-email">Not provided</span>
                                             </div>
@@ -2891,6 +2921,10 @@
         </div>
     </div>
 
+    <script src="scripts/uptime-combobox.js"></script>
+    <script src="scripts/merchant-creation-selects.js"></script>
+    <script src="scripts/merchant-business-model.js"></script>
+    <script src="scripts/merchant-info-form.js"></script>
     <script>
         const steps = Array.from(document.querySelectorAll('.wizard-step'));
         const panels = Array.from(document.querySelectorAll('.wizard-panel'));
@@ -2909,6 +2943,22 @@
         const reviewCardChecks = Array.from(document.querySelectorAll('.review-card-check'));
         const reviewIconMarkup = '<svg class="review-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 9h6"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>';
 
+        const merchantError = document.getElementById('merchant-step-error');
+        const merchantInfo = window.PaywizardMerchantInfoForm.mount(document.getElementById('merchant-info-step'), {
+            showError(message) {
+                if (currentStep !== 1) setStep(1);
+                document.getElementById('merchant-step-error-copy').textContent = message;
+                merchantError.hidden = false;
+                merchantError.scrollIntoView({ block: 'center', behavior: 'instant' });
+                merchantError.focus({ preventScroll: true });
+            },
+            clearError() { merchantError.hidden = true; }
+        });
+        document.getElementById('onboarding-form').addEventListener('submit', event => {
+            event.preventDefault();
+            if (currentStep === 1) setStep(2);
+        });
+
         const onboardingMockData = {
             merchant: {
                 'merchant-dba': 'Mock Coffee Market',
@@ -2921,6 +2971,8 @@
                 'merchant-city': 'Nashville',
                 'merchant-state': 'TN',
                 'merchant-owner': 'Payyou',
+                'merchant-business-model': 'Unattended-Service',
+                'merchant-permissions': 'Merchant Admin',
                 'merchant-country': 'United States'
             },
             store: {
@@ -3007,6 +3059,7 @@
         function setStep(step) {
             const maxStep = steps.length || 1;
             let nextStep = Math.min(Math.max(step, 1), maxStep);
+            if (nextStep > 1 && !onboardingCompleted && !merchantInfo.validate()) return;
 
             if (!onboardingCompleted && nextStep > reviewStep) {
                 nextStep = reviewStep;
@@ -3109,7 +3162,9 @@
 
         function updateReview() {
             setReviewValue('review-merchant-dba', getFieldValue('merchant-dba'));
-            setReviewValue('review-merchant-owner', getFieldValue('merchant-owner'));
+            setReviewValue('review-merchant-owner', merchantInfo.selection().owner);
+            setReviewValue('review-merchant-business-model', merchantInfo.selection().businessModel);
+            setReviewValue('review-merchant-permissions', merchantInfo.selection().permissions);
             setReviewValue('review-merchant-email', getFieldValue('merchant-email'));
 
             setReviewValue('review-store-name', getFieldValue('store-name'));
@@ -3164,6 +3219,7 @@
                 if (onboardingCompleted) {
                     return;
                 }
+                if (!merchantInfo.validate()) return;
                 onboardingCompleted = true;
                 setStep(finishStep);
             });
@@ -3225,6 +3281,9 @@
         });
 
         const reviewFieldIds = [
+            'merchant-owner',
+            'merchant-business-model',
+            'merchant-permissions',
             'merchant-dba',
             'merchant-email',
             'store-name',

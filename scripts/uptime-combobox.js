@@ -50,6 +50,6 @@
     const reposition = () => { if (opened) position(); };
     const observer = new ResizeObserver(reposition); observer.observe(host);
     host.closest('.up-dialog-body')?.addEventListener('scroll', reposition, { passive: true });
-    return { close, destroy() { close(); observer.disconnect(); host.closest('.up-dialog-body')?.removeEventListener('scroll', reposition); } };
+    return { close, reposition, destroy() { close(); observer.disconnect(); host.closest('.up-dialog-body')?.removeEventListener('scroll', reposition); } };
   }
 })();

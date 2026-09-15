@@ -144,6 +144,14 @@ _Avoid_: Platform Back-office Page
 The primary destination for a back-office module in shared navigation; detail, edit, and task pages remain part of the module but are not separate navigation destinations.
 _Avoid_: every page in a module
 
+**Owner Business Model**:
+The payment-business scope of a merchant's owning account: Full-Service covers attended and unattended businesses, Attended-Service covers attended businesses, and Unattended-Service covers unattended businesses.
+_Avoid_: Portal Access Profile, Merchant Permissions, current operator's role
+
+**Merchant Business Model**:
+The merchant's attended or unattended payment-business classification, constrained by its Owner Business Model. A Full-Service owner permits a choice of Attended-Service or Unattended-Service; an owner with either single-service model determines the merchant's corresponding model.
+_Avoid_: Owner Business Model, Merchant Permissions, Portal Access Profile
+
 **Portal Access Profile**:
 A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Full-Service Provider, Attended Provider, and Unattended Provider; merchant profiles are Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
 _Avoid_: Login Role, Security Role, Permission Set
