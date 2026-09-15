@@ -4,6 +4,44 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260915-008] Vercel protected deployment URL masked artifact check
+
+**Logged**: 2026-09-15T15:00:00+08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: infra
+
+### Summary
+The unique Vercel deployment URL returned HTTP 200 after redirects but served the Vercel login page, so a direct artifact comparison failed even though the production alias was correct.
+
+### Error
+```
+deployment_http=200
+deployment_index_match=no
+```
+
+### Context
+- The unique deployment hostname redirected through Vercel SSO and ended at `Login - Vercel`.
+- The production alias returned HTTP 200 and matched `dist/index.html` byte for byte.
+- `vercel inspect` independently confirmed the deployment was production and Ready.
+
+### Suggested Fix
+Inspect redirect headers and page markers when a Vercel artifact comparison fails. For protected deployment hostnames, verify readiness with `vercel inspect` and verify the public production alias against the local artifact.
+
+### Metadata
+- Reproducible: yes
+- Related Files: .vercel/project.json, dist/index.html
+- Pattern-Key: auth.deployment-protection
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+### Resolution
+- **Resolved**: 2026-09-15T15:00:00+08:00
+- **Notes**: Confirmed the mismatch was the Vercel SSO login page; production alias parity passed.
+
+---
+
 ## [ERR-20260915-007] Product Map suite has unrelated UI expectation drift
 
 **Logged**: 2026-09-15T15:25:00+08:00
@@ -170,13 +208,13 @@ Use the already-running preview with a temporary `reuseExistingServer` configura
 - Reproducible: yes
 - Related Files: playwright.config.js
 - Pattern-Key: tests.port-collision
-- Recurrence-Count: 2
+- Recurrence-Count: 4
 - First-Seen: 2026-09-15
 - Last-Seen: 2026-09-15
 
 ### Resolution
 - **Resolved**: 2026-09-15T14:21:00+08:00
-- **Notes**: Continued with a temporary Playwright configuration that reuses the existing server. Recurred during the Terminal Name audit and was handled with the same verified workaround.
+- **Notes**: Continued with a temporary Playwright configuration that reuses the existing server. Recurred during the Terminal Name audit, the map-control layering regression run, and the follow-up location-control spacing check; the verified workaround is to stop the owned preview before rerunning Playwright.
 
 ---
 

@@ -3,6 +3,7 @@
 
   var TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   var ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+  var INITIAL_ZOOM = 15;
 
   function setStatus(container, message) {
     var status = container.parentElement.querySelector("[data-terminal-map-status]");
@@ -25,6 +26,37 @@
     coordinates.textContent = lat.toFixed(4) + ", " + lng.toFixed(4);
     wrapper.append(title, coordinates);
     return wrapper;
+  }
+
+  function addLocationControl(map, lat, lng) {
+    var LocationControl = window.L.Control.extend({
+      options: { position: "topright" },
+      onAdd: function () {
+        var wrapper = window.L.DomUtil.create("div", "leaflet-bar leaflet-control terminal-location-control");
+        var button = document.createElement("button");
+        var icon = document.createElement("span");
+
+        button.type = "button";
+        button.title = "Return to terminal location";
+        button.setAttribute("aria-label", "Return to terminal location");
+        icon.className = "material-symbols-rounded";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = "my_location";
+        button.appendChild(icon);
+        wrapper.appendChild(button);
+
+        window.L.DomEvent.disableClickPropagation(wrapper);
+        window.L.DomEvent.disableScrollPropagation(wrapper);
+        window.L.DomEvent.on(button, "click", function (event) {
+          window.L.DomEvent.stop(event);
+          map.setView([lat, lng], INITIAL_ZOOM, { animate: false });
+        });
+
+        return wrapper;
+      }
+    });
+
+    return new LocationControl().addTo(map);
   }
 
   function initializeMap(container) {
@@ -51,9 +83,10 @@
       scrollWheelZoom: true,
       touchZoom: true,
       zoomControl: false
-    }).setView([lat, lng], 15);
+    }).setView([lat, lng], INITIAL_ZOOM);
 
     window.L.control.zoom({ position: "topright" }).addTo(map);
+    addLocationControl(map, lat, lng);
 
     var tiles = window.L.tileLayer(TILE_URL, {
       attribution: ATTRIBUTION,
