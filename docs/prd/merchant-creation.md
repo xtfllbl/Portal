@@ -53,3 +53,12 @@
 用户授权按三分之一原则补齐示例模式。现有三个 Owner 依次为 Payyou → Full-Service、Valor Training ISO → Attended-Service、Nexus Partners → Unattended-Service。Onboarding 中额外的唯一 Owner 名称按排序继续循环分配，整个样例集合三种模式数量之差不超过一；仅将当前预填 Owner 补入表单选项。
 
 这些是前端演示分配，不声明真实客户的模式。生产环境应由所选 Owner 的权威账户资料提供模式并在服务端校验，不从当前操作者的 Portal Access Profile 推导。业务模式未知时不允许提交不兼容或空模式。
+
+## 2026-09-15 本轮验收
+
+- 独立创建：1280px 桌面确认 Full-Service 三选项弹层完整显示；搜索和 Enter 选择成功；补齐必填项后创建成功，详情回填 Full-Service。
+- 一条龙：Fill Mock Data 后改为 Full-Service，可进入 Store 并返回 Merchant，模式选择保留。
+- 两种详情：模式回填、Owner 搜索、单一模式锁定和保存通过；静态商户升级后刷新保留 Full-Service；含混合终端的商户改成单一模式被阻止，错误在实际滚动容器内可见并获得焦点。
+- Full-Service Merchant：Attended、Unattended、Uptime Matrix 均可进入；同一 Downtown Location 的 Add Device 保持两类终端场景可选。
+- `node --test tests/unit/merchant-business-model.test.cjs tests/unit/terminal-uptime.test.cjs`：51 通过；包括 Full-Service 商户不能通过 URL 扩大历史数据范围的检查。
+- 修改脚本语法检查、`npm run build`、`git diff --check` 通过。本轮为本地原型修改，未部署。

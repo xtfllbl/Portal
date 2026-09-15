@@ -11,6 +11,10 @@
 
 截图涉及无人值守终端 Service Uptime 与 Uptime Matrix 的 Payment Service 详情；两处均属于本次统一范围。
 
-## 状态
+## 实现与验收
 
-需求已确认，代码与桌面页面验收待完成。
+- 两处 Payment Service 详情通过 `scripts/terminal-uptime-view.js` 统一处理灰区关闭，沿用已有退出动画与焦点恢复。
+- 按下与点击都位于抽屉外才关闭；内部空白点击、从内部向外拖动均保留抽屉。
+- 全仓核查的另一处 Export Tasks 右侧面板已支持外部点击与 Esc 关闭，保留已有行为。
+- 当前没有可编辑的右侧抽屉；Operating Hours 和 Edit Merchant Profile 是居中弹窗。未保存修改保护作为右侧编辑抽屉的统一要求保留，不扩大为本轮居中弹窗改造。
+- 桌面浏览器已打开矩阵及单终端 Service Uptime 的实际抽屉，核查外部关闭、内部点击与向外拖动；两处时间线、表格及底部按钮布局保持正常。

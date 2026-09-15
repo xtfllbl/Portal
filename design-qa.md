@@ -1,3 +1,63 @@
+# Terminal Location interactive map QA — 2026-09-15
+
+final result: passed
+
+## Evidence and scope
+
+- Source visual truth: the user-supplied Attended and Unattended terminal screenshots in this conversation (3420 × 1904 original pixels), used for the shared portal shell, Dashboard map-card placement, dimensions, spacing and surrounding content. The confirmed behavior target is a real interactive map engine carrying fixed demo coordinates, not a generated map image.
+- Implementation screenshots: `artifacts/terminal-location-attended.png` and `artifacts/terminal-location-unattended.png`.
+- Routes: `1.terminalmanage.html?tab=basic` and `1.terminalmanage_nayax.html?tab=basic`.
+- Viewport and normalization: 1710 × 952 CSS pixels at the browser viewport; both implementation screenshots are 1710 × 952 pixels. The supplied 3420 × 1904 screenshots are exactly 2× these dimensions, so the comparison uses a 0.5 source scale without crop or aspect-ratio change.
+- States: Basic Information / Dashboard with loaded OpenStreetMap tiles; each terminal marker popup open. Attended uses New York `40.7580, -73.9855`; Unattended uses Los Angeles `34.0522, -118.2437`.
+- Full-view comparison: both supplied full-page references and both full-view implementation captures were reviewed at the same normalized viewport. The shell, banner, tabs, Dashboard heading, map-card bounds, statistics cards and right-side terminal cards retain their original positions and density.
+- Focused comparison: a separate crop was unnecessary because the 1710 × 952 captures show the map tiles, marker, popup, zoom control and attribution at readable size. DOM interaction checks additionally verified the exact popup text, ready state, tile changes after zoom and map-pane movement after drag.
+
+## Findings
+
+No remaining actionable P0/P1/P2 issues.
+
+| Fidelity surface | Result |
+| --- | --- |
+| Fonts / typography | Portal Poppins typography remains unchanged. Leaflet controls use compact conventional map-control type; popup name and coordinates follow the existing 13px/12px information hierarchy. |
+| Spacing / layout | The existing map-card bounds, left/right column ratio, 12px statistics gap and surrounding panel alignment are preserved. Zoom controls sit inside the map at top-right without colliding with the terminal panels. |
+| Colors / tokens | Real OSM street-map colors replace the rejected gray/static surface. Existing white panels, gray borders, black banner and semantic terminal-type colors remain unchanged. |
+| Image quality / assets | Generated raster map assets were removed. Leaflet 1.9.4 and its official marker raster assets are vendored locally; the live OSM tiles remain sharp while panning and zooming. Visible OSM attribution is preserved. |
+| Copy / content | The rejected `Terminal Location Not Uploaded`, refresh button and persistent coordinate card are absent. Marker popups show only the confirmed city and fixed demo coordinates. Tile-load failure uses `Map temporarily unavailable`. |
+
+## Primary interactions
+
+- Attended: zoom-in changed the loaded tile set; drag changed the map pane; marker popup displayed `New York, NY` and `40.7580, -73.9855`; map state was `ready`.
+- Unattended: zoom-in changed the loaded tile set; drag changed the map pane; marker popup displayed `Los Angeles, CA` and `34.0522, -118.2437`; map state was `ready`.
+- Both maps retain Leaflet keyboard, double-click, wheel, touch and box-zoom support plus visible `+ / −` controls.
+- Final Unattended verification returned no browser warning/error entries. The Attended rendered capture and all visible interaction checks completed without a page error.
+- `npm run build`, JavaScript syntax checks and `git diff --check` passed. A focused Playwright regression spec was added; CLI browser execution was not duplicated after equivalent live-browser interaction coverage.
+- Mobile was not checked, following the repository instruction that this prototype does not require mobile-browser compatibility.
+
+## Comparison history
+
+- [P1, resolved] The first implementation used a generated static map image. The user rejected its visual quality and lack of interaction.
+- Fix: removed both generated map images and replaced them with locally vendored Leaflet plus live OpenStreetMap tiles, fixed per-page demo coordinates, native marker popup and zoom/pan interactions.
+- Post-fix evidence: both 1710 × 952 implementation screenshots show real named roads, a standard marker, readable popup, zoom controls and attribution without disturbing the surrounding dashboard layout.
+
+## Open Questions
+
+None.
+
+## Follow-up Polish
+
+None. Google-specific styling is intentionally not reproduced because the confirmed free provider is OpenStreetMap.
+
+## Implementation Checklist
+
+- [x] Replace static map image with a real interactive map engine.
+- [x] Use distinct fixed mock coordinates for Attended and Unattended.
+- [x] Support zoom, pan and marker popup.
+- [x] Remove refresh and persistent coordinate-card UI.
+- [x] Add a visible tile-load failure state.
+- [x] Preserve attribution and the existing dashboard layout.
+
+---
+
 # Operating Hours 黑白灰配色验收 — 2026-09-15
 
 final result: passed

@@ -4,6 +4,14 @@ Paywizard Portal provides operational and customer-facing management for payment
 
 ## Language
 
+**Transaction Record**:
+A queryable record of an observed payment, refund, cancellation or related payment operation fact.
+_Avoid_: Retail Order, Payment Order, Transaction Attempt
+
+**Related Transactions**:
+Transaction Records connected by explicit references to a payment transaction and operations performed against it or its subsequent transactions. Their scope follows payment relationships, independently of any external retail or restaurant order.
+_Avoid_: Order transactions, same-card transactions, same-amount transactions
+
 **Product Map Template**:
 A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.
 _Avoid_: Live link to a terminal Product Map
