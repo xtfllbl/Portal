@@ -149,12 +149,16 @@ The payment-business scope of a merchant's owning account: Full-Service covers a
 _Avoid_: Portal Access Profile, Merchant Permissions, current operator's role
 
 **Merchant Business Model**:
-The merchant's attended or unattended payment-business classification, constrained by its Owner Business Model. A Full-Service owner permits a choice of Attended-Service or Unattended-Service; an owner with either single-service model determines the merchant's corresponding model.
+The merchant's payment-business scope, constrained by its Owner Business Model. A Full-Service owner permits Full-Service (both attended and unattended terminals, including within the same Store), Attended-Service, or Unattended-Service; an owner with either single-service model determines the merchant's corresponding model.
 _Avoid_: Owner Business Model, Merchant Permissions, Portal Access Profile
 
 **Portal Access Profile**:
-A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Full-Service Provider, Attended Provider, and Unattended Provider; merchant profiles are Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
+A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Full-Service Provider, Attended Provider, and Unattended Provider; merchant profiles are Full-Service Merchant, Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
 _Avoid_: Login Role, Security Role, Permission Set
+
+**Full-Service Merchant**:
+The Portal Access Profile for a merchant operating both attended and unattended payment businesses, with both terminal entry points and the corresponding merchant capabilities.
+_Avoid_: Full-Service Provider, WizarPOS Provider
 
 **Attended Merchant**:
 The Portal Access Profile for a merchant whose payment terminals are operated by an attendant, with access to its merchant-management experience and billing.

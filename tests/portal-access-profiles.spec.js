@@ -15,7 +15,7 @@ test("the user control switches and persists the active portal access profile", 
   await page.locator("[data-pw-profile-trigger]").click();
   await expect(page.locator("[data-pw-profile-menu]")).toBeVisible();
   await expect(page.locator("[data-pw-profile]")).toHaveText([
-    "WizarPOS Providercheck", "Full-Service Providercheck", "Billing-only Merchantcheck",
+    "WizarPOS Providercheck", "Full-Service Providercheck", "Full-Service Merchantcheck", "Billing-only Merchantcheck",
     "Unattended Providercheck", "Unattended Merchantcheck", "Unattended Storecheck",
     "Attended Providercheck", "Attended Merchantcheck", "Attended Storecheck"
   ]);
@@ -223,7 +223,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
       if (viewport.width < 761) await page.getByRole("button", { name: "Close navigation", exact: true }).click({ position: { x: viewport.width - 5, y: 100 } });
       await page.locator("[data-pw-profile-trigger]").click();
       const heights = await page.locator("[data-pw-profile]").evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
-      expect(heights).toHaveLength(9);
+      expect(heights).toHaveLength(10);
       expect(new Set(heights).size).toBe(1);
       await expect(page.locator('[data-pw-profile="billing-merchant"]')).toBeInViewport();
       await page.locator('[data-pw-profile="billing-merchant"]').click();
@@ -325,7 +325,7 @@ test("Full-Service Provider combines ordinary provider menus without WizarPOS pr
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await page.locator('[data-pw-profile-trigger]').click();
-    await expect(page.locator('.pw-platform-profile-column').first().locator('.pw-profile-option-label')).toHaveText(['WizarPOS Provider', 'Full-Service Provider', 'Billing-only Merchant']);
+    await expect(page.locator('.pw-platform-profile-column').first().locator('.pw-profile-option-label')).toHaveText(['WizarPOS Provider', 'Full-Service Provider', 'Full-Service Merchant', 'Billing-only Merchant']);
     const option = page.locator('[data-pw-profile="full-service"]');
     await expect(option).toHaveAttribute('aria-checked', 'true');
     await page.screenshot({ path: `artifacts/full-service-provider-${width}.png` });

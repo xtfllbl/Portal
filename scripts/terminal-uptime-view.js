@@ -8,6 +8,17 @@
   function openDrawer(dialog) {
     if (!drawerBindings.has(dialog)) {
       dialog.addEventListener('cancel', event => { event.preventDefault(); closeDrawer(dialog); });
+      let outsideStart = false;
+      const outside = event => {
+        const rect = dialog.getBoundingClientRect();
+        return event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
+      };
+      dialog.addEventListener('pointerdown', event => { outsideStart = event.button === 0 && outside(event); });
+      dialog.addEventListener('pointercancel', () => { outsideStart = false; });
+      dialog.addEventListener('click', event => {
+        if (outsideStart && outside(event)) closeDrawer(dialog);
+        outsideStart = false;
+      });
       drawerBindings.add(dialog);
     }
     if (!dialog.open) dialog.showModal();

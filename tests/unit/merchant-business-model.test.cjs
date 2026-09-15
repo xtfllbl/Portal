@@ -20,11 +20,11 @@ test('onboarding Owner fixtures are balanced, deduplicated and independent of so
   }
 });
 
-test('Full-Service requires an explicit merchant choice and never offers Full-Service', () => {
+test('Full-Service supports mixed merchants and requires an explicit initial choice', () => {
   assert.deepEqual(resolve('Full-Service'), {
-    value: '', choices: ['Attended-Service', 'Unattended-Service'], locked: false, changed: false
+    value: '', choices: ['Full-Service', 'Attended-Service', 'Unattended-Service'], locked: false, changed: false
   });
-  assert.equal(resolve('Full-Service', 'Full-Service').value, '');
+  assert.equal(resolve('Full-Service', 'Full-Service').value, 'Full-Service');
 });
 
 test('single-service Owners prefill and lock their model', () => {

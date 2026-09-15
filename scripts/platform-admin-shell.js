@@ -13,6 +13,7 @@
     "full-service": { label: "Full-Service Provider" },
     attended: { label: "Attended Provider" },
     unattended: { label: "Unattended Provider" },
+    "full-service-merchant": { label: "Full-Service Merchant", merchant: true, terminal: "full-service" },
     "attended-merchant": { label: "Attended Merchant", merchant: true, terminal: "attended" },
     "unattended-merchant": { label: "Unattended Merchant", merchant: true, terminal: "unattended" },
     "attended-store": { label: "Attended Store", store: true, terminal: "attended" },
@@ -105,8 +106,8 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
-    if (target.active === "uptime-matrix") return ["wizarpos", "full-service", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
-    if (target.active === "advertising") return ["wizarpos", "full-service", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
+    if (target.active === "uptime-matrix") return ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
+    if (target.active === "advertising") return ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
     if (target.module === "matintain" && profile !== "wizarpos") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
     if (profiles[profile].merchant) {
@@ -299,7 +300,7 @@
       isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
-      ["wizarpos", "full-service", "unattended", "unattended-merchant"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
+      ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
       !isMerchant ? link("APP Management", "10.customer_app_upload_manage.html", "apps", "apps") : "",
       link("Remote Diagnostic", "13.remote_control.html", "cast_connected", "remote"),
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
@@ -364,7 +365,7 @@
 
   function buildProfileOptions() {
     var groups = [
-      { name: "WizarPOS", kind: "platform", keys: ["wizarpos", "full-service", "billing-merchant"] },
+      { name: "WizarPOS", kind: "platform", keys: ["wizarpos", "full-service", "full-service-merchant", "billing-merchant"] },
       { name: "Unattended", kind: "unattended", keys: ["unattended", "unattended-merchant", "unattended-store"] },
       { name: "Attended", kind: "attended", keys: ["attended", "attended-merchant", "attended-store"] }
     ];
@@ -377,7 +378,7 @@
     };
     return '<div class="pw-platform-profile-grid">' + groups.map(function (group) {
       return '<div class="pw-platform-profile-column" role="group" aria-label="' + group.name + '">' + group.keys.map(function (key) {
-        var kind = key === "billing-merchant" ? "billing" : key === "full-service" ? "full" : group.kind;
+        var kind = key === "billing-merchant" ? "billing" : ["full-service", "full-service-merchant"].includes(key) ? "full" : group.kind;
         return '<button class="pw-platform-profile-option' + (key === activeProfile ? ' active' : '') + '" type="button" role="menuitemradio" aria-checked="' + String(key === activeProfile) + '" data-pw-profile="' + key + '">' +
           '<span class="pw-profile-icon ' + kind + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + icons[kind] + '</svg></span>' +
           '<span class="pw-profile-option-label">' + escapeHtml(profiles[key].label) + '</span><span class="material-symbols-rounded pw-profile-check" aria-hidden="true">check</span></button>';

@@ -5,7 +5,7 @@
 ## 已确认规则
 
 - Owner Business Model 为 Full-Service、Attended-Service、Unattended-Service 三类。
-- 商户 Business Model 仅为 Attended-Service 或 Unattended-Service。
+- 商户 Business Model 为 Full-Service、Attended-Service 或 Unattended-Service。Full-Service Owner 下可选择这三类；Full-Service 商户可同时拥有 Attended 与 Unattended 终端，同一家门店也允许混用。（2026-09-15 用户修正，替代原先商户仅能二选一的规则。）
 - 未选择 Owner 时，Business Model 留空且不可操作。
 - Full-Service Owner 下初始留空，用户必须选择商户模式；单一模式 Owner 自动带出对应值并锁定。
 - 更换 Owner 时保留兼容的已选模式；不兼容时切换至新 Owner 支持的模式，并在字段旁提示变化。清除 Owner 同时清除商户模式。
@@ -38,6 +38,17 @@
 - 一条龙继续使用原有演示完成机制，不新增商户后端或本地持久化流程。
 
 ## 原型数据边界
+
+### 已有商户与商户门户（2026-09-15 确认）
+
+- 有门店、无门店两种商户详情的 Edit Profile 均提供 Business Model，并支持在 Full-Service Owner 下升级为 Full-Service。Owner 与 Business Model 支持点选、搜索和键盘操作。
+- 编辑沿用创建规则的兼容选择保留与单一模式锁定。更改模式或 Owner 导致现有终端不兼容时，提示原因并阻止保存；不自动改动终端类型。保存失败时定位并聚焦弹窗内错误，保留输入。
+- 业务模式与 Owner 保存到当前浏览器：已创建商户更新原有商户记录；静态样例仅保存按 Merchant ID 隔离的业务模式覆盖，不把样例伪造成新创建商户。
+- Full-Service Merchant 门户同时展示 Attended Terminals、Unattended Terminals 和 Uptime Matrix，并沿用两种商户门户的对应功能与权限边界。交易和终端总览识别这一模式。
+- 门店设备配置继续支持两类场景，不把 Full-Service 作为第三种终端类型。
+- 门户身份沿用原型已有的切换入口。业务模式不代表真实登录鉴权；生产账户解析与服务端访问控制仍需后端实现。
+
+### 示例 Owner 数据
 
 用户授权按三分之一原则补齐示例模式。现有三个 Owner 依次为 Payyou → Full-Service、Valor Training ISO → Attended-Service、Nexus Partners → Unattended-Service。Onboarding 中额外的唯一 Owner 名称按排序继续循环分配，整个样例集合三种模式数量之差不超过一；仅将当前预填 Owner 补入表单选项。
 

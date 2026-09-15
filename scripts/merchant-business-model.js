@@ -9,10 +9,10 @@
     return Object.fromEntries(names.concat(additional).map((name, index) => [name, models[index % 3]]));
   }
   function resolve(ownerModel, previous = '') {
-    const choices = ownerModel === models[0] ? models.slice(1)
+    const choices = ownerModel === models[0] ? models.slice()
       : models.slice(1).includes(ownerModel) ? [ownerModel] : [];
     const value = choices.includes(previous) ? previous : choices.length === 1 ? choices[0] : '';
-    return { choices, value, locked: choices.length !== 2, changed: Boolean(previous && previous !== value) };
+    return { choices, value, locked: choices.length <= 1, changed: Boolean(previous && previous !== value) };
   }
   const api = { ownerModels, resolve };
   if (typeof module === 'object' && module.exports) module.exports = api;

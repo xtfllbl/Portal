@@ -250,6 +250,7 @@ test('summary and matrix demo authorization cannot expand the profile scope', ()
   assert.deepEqual(S.viewerAuth(d, 'wizarpos', new URLSearchParams('scope=store:a&access=view')), { scope: 'store:a', manage: false });
   const foreign = S.viewerAuth(d, 'unattended-store', new URLSearchParams('scope=all'));
   assert.equal(foreign.scope, 'store:s-midtown'); assert.deepEqual(D.scopeStores(d, foreign.scope), []);
+  assert.equal(S.viewerAuth(d, 'full-service-merchant', new URLSearchParams('scope=all')).scope, 'merchant:merchant-kind-world');
 });
 
 test('one Offline duration and timeline combine adjacent legacy offline and missing reports without changing uptime', () => {

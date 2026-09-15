@@ -2409,6 +2409,7 @@
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
 <link rel="stylesheet" href="styles/terminal-uptime.css">
 <link rel="stylesheet" href="styles/operating-hours-editor.css">
+<link rel="stylesheet" href="styles/merchant-creation.css">
 </head>
 <body data-pw-breadcrumb="Merchants|Merchant List|Merchant Overview">
     <div class="page-shell">
@@ -2647,6 +2648,7 @@
                                 <div class="info-title">DBA (Merchant Name)</div>
                                 <div class="info-value" data-role="merchant-dba">Tasty Treats (NYC)</div>
                                 <div class="info-sub" data-role="merchant-owner">Owner: Valor Training ISO</div>
+                                <div class="info-sub" data-role="merchant-business-model"></div>
                                 <div class="info-sub" data-role="merchant-country">Country: United States</div>
                             </div>
                             <div class="info-block">
@@ -2771,15 +2773,14 @@
             <div class="modal-header">
                 <div>
                     <h3 class="modal-title" id="merchant-profile-title">Edit Merchant Profile</h3>
-                    <p class="modal-note">Update the merchant contact and business details.</p>
                 </div>
                 <button class="modal-close" type="button" data-close="merchant-profile-modal" aria-label="Close"></button>
             </div>
-            <form id="merchant-profile-form" autocomplete="off">
+            <form id="merchant-profile-form" class="merchant-info merchant-profile-editor" autocomplete="off">
                 <div class="modal-body">
+                    <div id="merchant-edit-model-error" class="source-alert" role="alert" tabindex="-1" hidden></div>
                     <div>
                         <h4 class="modal-section-title">Merchant Info</h4>
-                        <p class="modal-section-note">Fields mirror the merchant onboarding profile.</p>
                     </div>
                     <div class="form-grid two">
                         <div class="field">
@@ -2825,7 +2826,7 @@
                             <input class="input-field" id="merchant-edit-state" type="text">
                         </div>
                     </div>
-                    <div class="form-grid three">
+                    <div class="form-grid two">
                         <div class="field">
                             <label for="merchant-edit-owner">Owner (Agent) *</label>
                             <select class="input-field" id="merchant-edit-owner" required>
@@ -2835,6 +2836,18 @@
                                 <option>Nexus Partners</option>
                             </select>
                         </div>
+                        <div class="field">
+                            <label for="merchant-edit-business-model">Business Model *</label>
+                            <select class="input-field" id="merchant-edit-business-model" aria-describedby="merchant-edit-model-notice" required>
+                                <option value="">Select Business Model</option>
+                                <option value="Full-Service">Full-Service</option>
+                                <option value="Attended-Service">Attended-Service</option>
+                                <option value="Unattended-Service">Unattended-Service</option>
+                            </select>
+                            <span id="merchant-edit-model-notice" class="field-notice" role="status" hidden></span>
+                        </div>
+                    </div>
+                    <div class="form-grid two">
                         <div class="field">
                             <label for="merchant-edit-country">Country *</label>
                             <select class="input-field" id="merchant-edit-country" required>
@@ -3639,6 +3652,10 @@
         </div>
     </div>
     <script src="scripts/platform-merchant-store.js"></script>
+    <script src="scripts/uptime-combobox.js"></script>
+    <script src="scripts/merchant-business-model.js"></script>
+    <script src="scripts/merchant-creation-selects.js"></script>
+    <script src="scripts/merchant-business-model-editor.js"></script>
     <script>
         const storeGrid = document.querySelector('.store-grid-head')?.parentElement;
         const platformStore = window.PaywizardPlatformMerchantStore;
@@ -3767,6 +3784,7 @@
                 mcc: dynamicMerchant.mcc || ''
             });
         }
+        const merchantBusinessEditor = window.PaywizardMerchantBusinessEditor.mount(merchantProfileForm, merchantState);
         const DEVICE_TERMINAL_NAME_KEY = 'pw_device_terminal_names';
         const VALIDATE_TEST_CARDS = [
             {
@@ -3848,6 +3866,7 @@
             setText('[data-role="merchant-meta"]', `Merchant ID: ${merchantState.id} | MCC: ${merchantState.mcc}`);
             setText('[data-role="merchant-dba"]', merchantState.dba);
             setText('[data-role="merchant-owner"]', `Owner: ${merchantState.owner}`);
+            setText('[data-role="merchant-business-model"]', `Business Model: ${merchantState.businessModel || '—'}`);
             setText('[data-role="merchant-country"]', `Country: ${merchantState.country}`);
             setText('[data-role="merchant-contact"]', merchantState.contact);
             setText('[data-role="merchant-email"]', merchantState.email);
@@ -3870,6 +3889,7 @@
             setValue('merchant-edit-owner', merchantState.owner);
             setValue('merchant-edit-country', merchantState.country);
             setValue('merchant-edit-mcc', merchantState.mcc);
+            merchantBusinessEditor.refresh();
             openModal(merchantProfileModal);
         };
 
@@ -5387,6 +5407,7 @@
         if (merchantProfileForm) {
             merchantProfileForm.addEventListener('submit', (event) => {
                 event.preventDefault();
+                if (!merchantBusinessEditor.save()) return;
                 merchantState.dba = getValue('merchant-edit-dba');
                 merchantState.contact = getValue('merchant-edit-contact');
                 merchantState.phone = getValue('merchant-edit-phone');
@@ -5674,8 +5695,8 @@
         getDeviceRows().forEach((row) => {
             applyTerminalNameToRow(row, getTerminalNameForRow(row));
         });
+        applyMerchantProfile();
         if (dynamicMerchant) {
-            applyMerchantProfile();
             document.title = `${dynamicMerchant.dba || 'Merchant'} | Merchant Overview`;
             const avatar = document.querySelector('.avatar');
             if (avatar) avatar.textContent = String(dynamicMerchant.dba || 'M').split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase();
@@ -5696,7 +5717,7 @@
 <script src="scripts/customer-account-directory.js"></script>
 <script src="scripts/terminal-uptime-domain.js"></script>
 <script src="scripts/terminal-uptime-store.js"></script>
-<script src="scripts/uptime-combobox.js"></script>
+
 <script src="scripts/operating-hours-editor.js"></script>
 <script src="scripts/operating-hours-merchant.js"></script>
 </body>
