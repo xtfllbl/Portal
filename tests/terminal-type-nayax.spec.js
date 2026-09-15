@@ -120,6 +120,13 @@ test("uses URL initialization, lets stored SN state win, and recovers from inval
   await expect.poll(() => page.evaluate((key) => sessionStorage.getItem(key), STORAGE_KEY)).toBeNull();
 });
 
+test("does not substitute S/N when the optional Terminal Name is absent", async ({ page }) => {
+  await page.goto("/1.terminalmanage_nayax.html?tab=basic&sn=SECOND-SN");
+  await expect(page.locator("#detailsTerminalName")).toBeHidden();
+  await expect(page.locator("#detailsTerminalName").locator("xpath=preceding-sibling::dt[1]")).toBeHidden();
+  await expect(page.locator("#detailsTerminalName")).not.toHaveText("SECOND-SN");
+});
+
 test("supports keyboard navigation, cancel, backdrop close, Escape and mobile layout", async ({ page }) => {
   const pageErrors = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
@@ -191,7 +198,7 @@ test("attended defaults use a distinct Q2PRO demonstration terminal", async ({ p
   await expect(page.locator("#bannerSn")).toHaveText("WP1110KQ20000115");
   await expect(page.locator("#bannerTid")).toHaveText("Q2P000115");
   await expect(page.locator("#bannerTci")).toHaveText("TC20000115");
-  await expect(page.locator("#detailsTerminalName")).toHaveText("Terminal - WP1110KQ20000115");
+  await expect(page.locator("#detailsTerminalName")).toHaveText("Retail Tech Front Counter 01");
   await expect(page.locator("#detailsModel")).toHaveText("Q2PRO");
   await expect(page.locator(".terminal-device-visual img")).toHaveAttribute("src", "assets/terminal-q2pro-device.png");
   await expect(page.locator(".terminal-details-card")).toContainText("5.4.50.17 (54067)");

@@ -168,7 +168,7 @@
         if (D.membershipAt(existing, now)?.storeId !== id) throw new Error('Terminal ' + sn + ' belongs to a different store. Correct its store assignment before editing these hours.');
         existing.name = item.name || existing.name; continue;
       }
-      next.terminals.push({ sn, name: item.name || sn, configurationOnly: true, enrolledAt: now, telemetryZone: store.timeZone, memberships: [{ storeId: id, from: now, to: null }], versions: [], observations: [] });
+      next.terminals.push({ sn, name: String(item.name || '').trim(), configurationOnly: true, enrolledAt: now, telemetryZone: store.timeZone, memberships: [{ storeId: id, from: now, to: null }], versions: [], observations: [] });
     }
     const changed = JSON.stringify(next) !== JSON.stringify(input);
     if (changed) next.revision = input.revision + 1;

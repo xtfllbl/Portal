@@ -332,6 +332,10 @@ _Avoid_: Device Connection uptime, Alert Incident list, current connection statu
 The hardware serial number identifying a physical Terminal. WizarPOS terminal serial numbers begin with WP; terminal names, location labels and demonstration identifiers are not serial numbers.
 _Avoid_: Terminal name, Store name, demo identifier, TCI
 
+**Terminal Name**:
+An optional, human-readable business label for a Terminal that describes its location, purpose or operating context. When present, the same Terminal Name is used consistently across portal pages, notifications, emails and demonstrations; when absent, no name is displayed. It is independent of the physical Terminal S/N.
+_Avoid_: Terminal S/N, Terminal plus S/N, placeholder for a missing name
+
 **Terminal Uptime Summary**:
 An embedded view, titled Service Uptime, of a single Unattended Terminal's recent seven days of Payment Service history, connected to the longer historical view.
 _Avoid_: Navigation link alone, separate first-step report, current connection status

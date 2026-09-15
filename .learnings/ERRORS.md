@@ -4,6 +4,110 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260915-007] Product Map suite has unrelated UI expectation drift
+
+**Logged**: 2026-09-15T15:25:00+08:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+Five Product Map tests still expect controls or metadata that the current page no longer renders, outside the Terminal Name changes.
+
+### Error
+```
+Expected Fill Machine 100% and .terminal-sn elements were not found; two template-import assertions remained All changes saved.
+```
+
+### Context
+- Terminal Name assertions in the same suite reached and passed with `Midtown Cooler 01`.
+- The changed production lines do not alter the existing Stock menu labels, staged-import implementation, or template title layout.
+- The dedicated Terminal Name regression and all directly affected suites pass.
+
+### Suggested Fix
+Reconcile the Product Map tests with the currently approved Stock menu, import behavior, and template metadata layout in a separate task.
+
+### Metadata
+- Reproducible: yes
+- Related Files: tests/products-product-map.spec.js, 1.terminalmanage_nayax.html, 36.product_map_templates.html
+- Pattern-Key: tests.ui-baseline-drift
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+---
+
+## [ERR-20260915-006] optional terminal context overwrote a supplied name
+
+**Logged**: 2026-09-15T15:15:00+08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+The optional Terminal Name logic used only the presence of `sn` to decide whether to read a supplied `terminalName`, overwriting name-only contexts with the default mock name.
+
+### Error
+```
+Expected: Airport Snacks
+Received: Midtown Cooler 01
+```
+
+### Context
+- Product Map tests intentionally pass a Terminal Name without overriding the default S/N.
+
+### Suggested Fix
+Use the provided Terminal Name whenever either `sn` or `terminalName` is present; use the default mock name only when neither parameter is supplied.
+
+### Metadata
+- Reproducible: yes
+- Related Files: 1.terminalmanage.html, 1.terminalmanage_nayax.html, 1.terminalmanage_CardReader.html
+- Pattern-Key: frontend.optional-context-default
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+### Resolution
+- **Resolved**: 2026-09-15T15:15:00+08:00
+- **Notes**: Updated all three terminal context initializers to preserve name-only URL contexts.
+
+---
+
+## [ERR-20260915-005] temporary Playwright config resolved test directory from tmp
+
+**Logged**: 2026-09-15T15:10:00+08:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A temporary Playwright configuration inherited a relative test directory that resolved from `/tmp`, so no tests were discovered.
+
+### Error
+```
+Error: No tests found.
+```
+
+### Context
+- The temporary configuration was used only to reuse the verified Vite server already listening on the configured port.
+
+### Suggested Fix
+Set `testDir` to the repository's absolute test directory in temporary configurations stored outside the repository.
+
+### Metadata
+- Reproducible: yes
+- Related Files: playwright.config.js
+- Pattern-Key: tests.relative-config-path
+- Recurrence-Count: 1
+- First-Seen: 2026-09-15
+- Last-Seen: 2026-09-15
+
+### Resolution
+- **Resolved**: 2026-09-15T15:10:00+08:00
+- **Notes**: Added the repository's absolute test directory to the temporary configuration.
+
+---
+
 ## [ERR-20260915-004] terminal link test expected path without context
 
 **Logged**: 2026-09-15T14:24:00+08:00
@@ -66,13 +170,13 @@ Use the already-running preview with a temporary `reuseExistingServer` configura
 - Reproducible: yes
 - Related Files: playwright.config.js
 - Pattern-Key: tests.port-collision
-- Recurrence-Count: 1
+- Recurrence-Count: 2
 - First-Seen: 2026-09-15
 - Last-Seen: 2026-09-15
 
 ### Resolution
 - **Resolved**: 2026-09-15T14:21:00+08:00
-- **Notes**: Continued with a temporary Playwright configuration that reuses the existing server.
+- **Notes**: Continued with a temporary Playwright configuration that reuses the existing server. Recurred during the Terminal Name audit and was handled with the same verified workaround.
 
 ---
 

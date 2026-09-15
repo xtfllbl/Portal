@@ -23,7 +23,8 @@
   }
   function terminalUrl(sn) {
     const terminal = data.terminals.find(t => t.sn === sn);
-    const query = new URLSearchParams({ sn: terminal?.legacySn || sn, terminalName: terminal?.name || sn });
+    const query = new URLSearchParams({ sn: terminal?.legacySn || sn });
+    if (terminal?.name) query.set('terminalName', terminal.name);
     if (terminal?.legacySn) query.set('hardwareSn', sn);
     if (auth.scope !== 'all') query.set('scope', auth.scope);
     if (!auth.manage) query.set('access', 'view');

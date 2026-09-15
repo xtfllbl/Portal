@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const key = 'paywizard.customerAlerts.v1';
 // The first three records come from the original Alert Center seed (e389914).
 const legacyIncidents = [
-  { id: 'i-1007', condition: 'no_approved_transaction', terminalId: 'WP6267UQ36002376', terminalName: 'Terminal - WP6267UQ36002376', store: 'Midtown Store', evidence: 'Last approved transaction 3h 18m ago', opened: '2026-08-28 07:24', source: 'My organization' },
+  { id: 'i-1007', condition: 'no_approved_transaction', terminalId: 'WP6267UQ36002376', terminalName: 'Midtown Cooler 01', store: 'Midtown Store', evidence: 'Last approved transaction 3h 18m ago', opened: '2026-08-28 07:24', source: 'My organization' },
   { id: 'i-1006', condition: 'any_bin', terminalId: 'NYC-Q3-0042', terminalName: 'Lobby Vending Q3', store: 'Midtown Store', evidence: 'BIN A4 On Hand 1 · threshold 2', opened: '2026-08-28 06:10', source: 'Customer Alert · Managed by Service Provider' },
   { id: 'i-1005', condition: 'opc_offline', terminalId: 'BOS-Q3-0018', terminalName: 'Cafeteria Q3', store: 'Boston Office', evidence: 'Payment Service recovered after 42m', opened: '2026-08-27 21:04', source: 'Platform-managed Alert' },
   { id: 'i-agent-seattle', condition: 'opc_offline', terminalId: 'WP7300EV33001088', terminalName: 'EV Charger Bay 07', store: 'EV Charger Hub', evidence: 'Payment Service unavailable for 18 minutes', opened: '2026-08-28 10:24' },

@@ -3,7 +3,7 @@ const { test, expect } = require("@playwright/test");
 
 const PRODUCTS_URL = "/35.product_management.html";
 const PRODUCT_MAP_URL = "/1.terminalmanage_nayax.html?tab=productmap";
-const PICK_LIST_URL = "/37.pick_list.html?sn=WP6267UQ36002376&tid=UZN10E08&merchantName=1%20of%20a%20Kind%20World%20Travel%20LLC%2041381&terminalName=Terminal%20-%20WP6267UQ36002376&machineModel=Q3RU";
+const PICK_LIST_URL = "/37.pick_list.html?sn=WP6267UQ36002376&tid=UZN10E08&merchantName=1%20of%20a%20Kind%20World%20Travel%20LLC%2041381&terminalName=Midtown%20Cooler%2001&machineModel=Q3RU";
 const TERMINAL_SN = "WP6267UQ36002376";
 
 async function resetCatalog(page) {
@@ -81,7 +81,7 @@ test("shows only the five-column shortage list in Product Map order", async ({ p
   await expect(page.getByText("Terminal Inventory", { exact: true })).toHaveCount(0);
   await expect(page.locator(".title-line h1")).toHaveText("Pick List");
   await expect(page.locator(".title-separator")).toHaveText("|");
-  await expect(page.locator("#terminalName")).toHaveText(`Terminal - ${TERMINAL_SN}`);
+  await expect(page.locator("#terminalName")).toHaveText("Midtown Cooler 01");
   await expect(page.locator("#pageNote strong")).toHaveText(`SN ${TERMINAL_SN}`);
   await expect(page.locator("thead th")).toHaveText(["PA Code", "MDB Code", "Product", "Product Group", "Pick Qty"]);
   await expect(page.locator("#pickListBody tr")).toHaveCount(6);
@@ -188,7 +188,7 @@ test("validates a past completion time without leaving Product Map", async ({ pa
 test("downloads Excel-compatible XML and invokes PDF printing from one compact dialog", async ({ page }) => {
   await resetCatalog(page);
   const exportTerminalName = "上海站 A & 01";
-  await page.goto(PICK_LIST_URL.replace(`Terminal%20-%20${TERMINAL_SN}`, encodeURIComponent(exportTerminalName)));
+  await page.goto(PICK_LIST_URL.replace("Midtown%20Cooler%2001", encodeURIComponent(exportTerminalName)));
   await page.evaluate((sn) => {
     const api = window.PaywizardProductCatalog;
     const rows = api.getProductMap(sn);

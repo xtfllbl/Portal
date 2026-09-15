@@ -53,7 +53,7 @@
     function dateText(value){var d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}
     function price(cents){return cents==null?'—':(Number(cents)/100).toFixed(2)}
     function selected(){return state.templates.find(function(t){return t.id===state.selectedId})||null}
-    function sourceName(t){return t.sourceTerminalName||t.sourceTerminalSn||'No source'}
+    function sourceName(t){return t.sourceTerminalName||(t.sourceTerminalSn?'S/N '+t.sourceTerminalSn:'No source')}
     function filtered(){var q=state.query.trim().toLowerCase();return state.templates.filter(function(t){return !q||(t.name+' '+t.machineModel+' '+sourceName(t)+' '+t.sourceTerminalSn).toLowerCase().includes(q)})}
     function load(){state.templates=api.getProductMapTemplates();if(!state.templates.some(function(t){return t.id===state.selectedId}))state.selectedId=state.templates[0]?state.templates[0].id:'';render()}
     function render(){renderList();renderDetail()}

@@ -2338,7 +2338,7 @@
                                     <div class="terminal-device-visual"><img src="assets/terminal-q3-device.png" alt="Q3RU terminal device"></div>
                                     <dl class="kv-list">
                                         <dt>SN:</dt><dd id="detailsSn">WP6267UQ36002376</dd>
-                                        <dt>Terminal Name:</dt><dd id="detailsTerminalName">Terminal - WP6267UQ36002376</dd>
+                                        <dt>Terminal Name:</dt><dd id="detailsTerminalName">Midtown Cooler 01</dd>
                                         <dt>Model:</dt><dd id="detailsModel">Q3RU</dd>
                                         <dt>Version:</dt><dd>1.0.40-1176</dd>
                                         <dt>TCI:</dt><dd id="detailsTci">TC36002376</dd>
@@ -3177,7 +3177,7 @@
 <script>
     const terminalContext = (() => {
         const defaults = {
-            terminalName: 'Terminal - WP6267UQ36002376',
+            terminalName: 'Midtown Cooler 01',
             sn: 'WP6267UQ36002376',
             tid: 'UZN10E08',
             tci: 'TC36002376',
@@ -3194,7 +3194,7 @@
             return digits.length >= 8 ? `TC${digits.slice(-8)}` : '-';
         };
         const context = {
-            terminalName: pick('terminalName') || defaults.terminalName,
+            terminalName: params.has('sn') || params.has('terminalName') ? pick('terminalName') : defaults.terminalName,
             sn: pick('sn') || defaults.sn,
             tid: pick('tid') || defaults.tid,
             tci: '',
@@ -3220,6 +3220,11 @@
         setText('infoTid', context.tid);
         setText('detailsSn', displaySn);
         setText('detailsTerminalName', context.terminalName);
+        const terminalNameValue = document.getElementById('detailsTerminalName');
+        if(terminalNameValue){
+            terminalNameValue.hidden = !context.terminalName;
+            if(terminalNameValue.previousElementSibling) terminalNameValue.previousElementSibling.hidden = !context.terminalName;
+        }
         setText('detailsModel', context.machineModel);
         setText('detailsTci', context.tci);
         const viewTransactionsLink = document.getElementById('viewTerminalTransactionsLink');
@@ -3233,7 +3238,7 @@
             });
             viewTransactionsLink.href = `12.transaction_list.html?${query.toString()}`;
         }
-        document.title = `${context.terminalName} - Terminal Management`;
+        document.title = context.terminalName ? `${context.terminalName} - Terminal Management` : 'Terminal Management';
         return context;
     })();
     window.terminalContext = terminalContext;
@@ -5568,7 +5573,7 @@ paymentTimeout=180`
                 selectedTemplateId = templates[0].id;
             }
             templateElements.list.innerHTML = templates.map(template => {
-                const sourceName = template.sourceTerminalName || template.sourceTerminalSn || 'No source terminal';
+                const sourceName = template.sourceTerminalName || (template.sourceTerminalSn ? `S/N ${template.sourceTerminalSn}` : 'No source terminal');
                 return `<button class="template-picker-option${template.id === selectedTemplateId ? ' active' : ''}" type="button" data-template-id="${escapeHtml(template.id)}" aria-pressed="${template.id === selectedTemplateId}"><div class="template-picker-heading"><div class="template-picker-name">${escapeHtml(template.name)}</div><span class="template-model-badge">${escapeHtml(template.machineModel)}</span></div><div class="template-picker-meta">${escapeHtml(sourceName)} · ${template.rows.length} BINS · Updated ${escapeHtml(templateDate(template.updatedAt))}</div></button>`;
             }).join('');
             templateElements.apply.disabled = !selectedTemplateId;

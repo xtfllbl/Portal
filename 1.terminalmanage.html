@@ -1346,7 +1346,7 @@
                                     <div class="terminal-device-visual"><img src="assets/terminal-q2pro-device.png" alt="Q2PRO terminal device"></div>
                                     <dl class="kv-list">
                                         <dt>SN:</dt><dd id="detailsSn">WP1110KQ20000115</dd>
-                                        <dt>Terminal Name:</dt><dd id="detailsTerminalName">Terminal - WP1110KQ20000115</dd>
+                                        <dt>Terminal Name:</dt><dd id="detailsTerminalName">Retail Tech Front Counter 01</dd>
                                         <dt>Model:</dt><dd id="detailsModel">Q2PRO</dd>
                                         <dt>Version:</dt><dd>5.4.50.17 (54067)</dd>
                                         <dt>TCI:</dt><dd id="detailsTci">TC20000115</dd>
@@ -1707,7 +1707,7 @@
 <script>
     const terminalContext = (() => {
         const defaults = {
-            terminalName: 'Terminal - WP1110KQ20000115',
+            terminalName: 'Retail Tech Front Counter 01',
             sn: 'WP1110KQ20000115',
             tid: 'Q2P000115',
             merchantName: '1 of a Kind World Travel LLC 41381',
@@ -1723,7 +1723,7 @@
             return digits.length >= 8 ? `TC${digits.slice(-8)}` : '-';
         };
         const context = {
-            terminalName: pick('terminalName') || defaults.terminalName,
+            terminalName: params.has('sn') || params.has('terminalName') ? pick('terminalName') : defaults.terminalName,
             sn: pick('sn') || defaults.sn,
             tid: pick('tid') || defaults.tid,
             merchantName: pick('merchantName') || defaults.merchantName,
@@ -1743,6 +1743,11 @@
         setText('infoTid', context.tid);
         setText('detailsSn', context.sn);
         setText('detailsTerminalName', context.terminalName);
+        const terminalNameValue = document.getElementById('detailsTerminalName');
+        if(terminalNameValue){
+            terminalNameValue.hidden = !context.terminalName;
+            if(terminalNameValue.previousElementSibling) terminalNameValue.previousElementSibling.hidden = !context.terminalName;
+        }
         setText('detailsModel', context.machineModel);
         setText('detailsTci', context.tci);
         setText('bannerModel', context.machineModel);

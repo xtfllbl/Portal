@@ -3587,7 +3587,7 @@
                         </div>
                         <div class="field">
                             <label for="device-label-modal">Terminal Name</label>
-                            <input class="input-field" id="device-label-modal" type="text" placeholder="WP6267UQ36000934">
+                            <input class="input-field" id="device-label-modal" type="text" placeholder="Front Counter">
                         </div>
                     </div>
                     <div class="form-grid two">
@@ -4975,12 +4975,12 @@
         const getTerminalNameForRow = (row) => {
             if (!row) return '';
             const stored = getStoredTerminalName(row.dataset.sn || '');
-            return stored || row.dataset.label || row.dataset.sn || '';
+            return stored || row.dataset.label || '';
         };
 
         const applyTerminalNameToRow = (row, value) => {
             if (!row) return;
-            const terminalName = (value || '').trim() || row.dataset.sn || 'Terminal';
+            const terminalName = (value || '').trim();
             row.dataset.label = terminalName;
             const textEl = row.querySelector('[data-role="terminal-text"]');
             const inputEl = row.querySelector('[data-role="terminal-input"]');
@@ -5008,7 +5008,7 @@
         const commitTerminalName = (row) => {
             if (!row) return;
             const inputEl = row.querySelector('[data-role="terminal-input"]');
-            const nextValue = (inputEl?.value || '').trim() || row.dataset.sn || 'Terminal';
+            const nextValue = (inputEl?.value || '').trim();
             applyTerminalNameToRow(row, nextValue);
             setStoredTerminalName(row.dataset.sn || '', nextValue);
             closeTerminalEditor(row);
@@ -5938,7 +5938,7 @@
         const openDeleteDeviceModal = (row) => {
             if (!deviceDeleteModal || !row) return;
             pendingDeleteDeviceRow = row;
-            const terminalName = getTerminalNameForRow(row) || row.dataset.sn || 'Terminal';
+            const terminalName = getTerminalNameForRow(row) || 'Device';
             if (deleteDeviceName) deleteDeviceName.textContent = terminalName;
             if (deleteDeviceSn) deleteDeviceSn.textContent = row.dataset.sn || '-';
             if (deleteDeviceStore) deleteDeviceStore.textContent = row.dataset.storeName || '-';
@@ -6271,11 +6271,14 @@
         const openValidateModal = (row) => {
             if (!validateModal || !row) return;
             const storeName = row.dataset.storeName || 'Store';
-            const terminalName = getTerminalNameForRow(row) || row.dataset.sn || 'Device';
+            const terminalName = getTerminalNameForRow(row);
             const sn = row.dataset.sn || '';
 
             if (validateStoreChip) validateStoreChip.textContent = `Store: ${storeName}`;
-            if (validateTerminalChip) validateTerminalChip.textContent = `Terminal: ${terminalName}`;
+            if (validateTerminalChip) {
+                validateTerminalChip.textContent = terminalName ? `Terminal: ${terminalName}` : '';
+                validateTerminalChip.hidden = !terminalName;
+            }
             if (validateSnText) validateSnText.textContent = `SN: ${sn || '-'}`;
             if (validateAmountSelect) validateAmountSelect.value = 'close';
             if (validateCardSelect) validateCardSelect.value = VALIDATE_TEST_CARDS[0]?.id || '';

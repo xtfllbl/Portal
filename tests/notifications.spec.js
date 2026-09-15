@@ -64,7 +64,7 @@ test("uses shared Alert Incident state and opens a deep-linked incident", async 
         monitoringState: "Active",
         condition: "opc_offline",
         terminalId: "WP6267UQ36002376",
-        terminalName: "Terminal - WP6267UQ36002376",
+        terminalName: "Midtown Cooler 01",
         store: "Midtown Store",
         evidence: "Payment Service unavailable for 22 minutes",
         opened: "2026-08-30 11:22",

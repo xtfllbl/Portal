@@ -329,6 +329,12 @@ test('configuration-only terminals follow store edits across reload without fabr
   assert.equal(reloaded.stores[0].versions[0].from, now);
 });
 
+test('registration keeps an optional Terminal Name empty instead of copying the S/N', () => {
+  const base = { schema: 1, revision: 0, stores: [], terminals: [], audit: [], observedAt: now };
+  const registered = S.registerContext(base, { merchantId: 'm', merchantName: 'Merchant', storeId: 's', storeName: 'Store', timeZone: 'UTC', terminals: [{ sn: 'CONFIG-SN' }] }, now);
+  assert.equal(registered.data.terminals[0].name, '');
+});
+
 test('registering a conflicting physical S/N cannot silently move it or rewrite history', () => {
   const before = fixture(), snapshot = D.clone(before);
   assert.throws(() => S.registerContext(before, { merchantId: 'm', storeId: 's', storeName: 'Other store', timeZone: 'UTC', terminals: [{ sn: 'SN-1' }] }, now), /different store/);

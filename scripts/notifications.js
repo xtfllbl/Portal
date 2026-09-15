@@ -16,14 +16,14 @@
   };
 
   const fallbackAlertIncidents = [
-    { id: "i-mid-01", condition: "opc_offline", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "Payment Service unavailable for 18 minutes", opened: "2026-08-28 10:24" },
-    { id: "i-mid-02", condition: "machine_stock", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "On Hand 18 / PAR 24 · 75%", opened: "2026-08-28 06:52" },
-    { id: "i-mid-03", condition: "temperature_range", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "Temperature returned to 6.4 °C", opened: "2026-08-28 05:40" },
+    { id: "i-mid-01", condition: "opc_offline", terminalName: "Midtown Cooler 01", store: "Midtown Store", evidence: "Payment Service unavailable for 18 minutes", opened: "2026-08-28 10:24" },
+    { id: "i-mid-02", condition: "machine_stock", terminalName: "Midtown Cooler 01", store: "Midtown Store", evidence: "On Hand 18 / PAR 24 · 75%", opened: "2026-08-28 06:52" },
+    { id: "i-mid-03", condition: "temperature_range", terminalName: "Midtown Cooler 01", store: "Midtown Store", evidence: "Temperature returned to 6.4 °C", opened: "2026-08-28 05:40" },
     { id: "i-lobby-01", condition: "any_bin", terminalName: "Lobby Vending Q3", store: "Midtown Store", evidence: "BIN A4 On Hand 1 · threshold 2", opened: "2026-08-28 06:10" },
     { id: "i-break-01", condition: "sold_out", terminalName: "Breakroom Cooler Q3", store: "Midtown Store", evidence: "BIN B2 has On Hand = 0", opened: "2026-08-28 07:45" },
     { id: "i-boston-01", condition: "refrigeration_fault", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "Normalized refrigeration fault is active", opened: "2026-08-28 09:12" },
     { id: "i-lobby-02", condition: "no_approved_transaction", terminalName: "Lobby Vending Q3", store: "Midtown Store", evidence: "No approved transaction for 2h 16m", opened: "2026-08-27 20:30" },
-    { id: "i-mid-04", condition: "any_bin", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "BIN B1 replenished to 6 units", opened: "2026-08-27 19:10" },
+    { id: "i-mid-04", condition: "any_bin", terminalName: "Midtown Cooler 01", store: "Midtown Store", evidence: "BIN B1 replenished to 6 units", opened: "2026-08-27 19:10" },
     { id: "i-boston-02", condition: "sold_out", terminalName: "Cafeteria Q3", store: "Boston Office", evidence: "All monitored BINs have stock", opened: "2026-08-27 21:04" }
   ];
 

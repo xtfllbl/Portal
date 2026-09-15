@@ -20,6 +20,10 @@ test('multi-bin summary is bounded and details retain all bins', () => {
   const e=E.evaluate('any_bin',{threshold:2},{bins:['Z9','A1','B2','B1'].map(binId=>({binId,onHand:0}))});
   assert.match(e.text,/BINs below threshold: 4/); assert.match(e.text,/\+1 more/); assert.equal(e.details.length,4); assert.match(e.details[0],/A1/);
 });
+test('target omits an optional Terminal Name instead of substituting the S/N', () => {
+  assert.equal(E.target({ terminalId: 'WP6267UQ36002376', terminalName: '', store: 'Midtown Store' }), 'Midtown Store');
+  assert.equal(E.target({ terminalId: 'WP6267UQ36002376', terminalName: 'Midtown Cooler 01', store: 'Midtown Store' }), 'Midtown Cooler 01 · Midtown Store');
+});
 test('unknown never means normal or zero and resets recovery without creating incidents', () => {
   for (const observation of [null,{stale:true},{bins:[]},{bins:[{binId:'A',onHand:0,par:0}]},{bins:[{binId:'A',par:10}]}]) {
     const e=E.evaluate('machine_stock',{threshold:25},observation);

@@ -416,7 +416,7 @@ test("saves the current Product Map as a template and imports it into another te
   expect(mapItems).toEqual(["Add BIN", "Add Multiple BINS", "Save as Template", "Import Template"]);
   await page.getByRole("menuitem", { name: "Save as Template" }).click();
   await expect(page.locator("#pmSaveTemplateModal")).toHaveClass(/open/);
-  await expect(page.locator("#pmTemplateTerminalNameSummary")).toHaveText("Terminal - WP6267UQ36002376");
+  await expect(page.locator("#pmTemplateTerminalNameSummary")).toHaveText("Midtown Cooler 01");
   await expect(page.locator("#pmTemplateBinSummary")).toHaveText("8");
   const summaryTopPositions = await page.locator("#pmSaveTemplateModal .template-summary-item").evaluateAll((items) => items.map((item) => Math.round(item.getBoundingClientRect().top)));
   expect(new Set(summaryTopPositions).size).toBe(1);
@@ -438,7 +438,7 @@ test("saves the current Product Map as a template and imports it into another te
   const template = await page.evaluate(() => window.PaywizardProductCatalog.getProductMapTemplates()[0]);
   expect(template.name).toBe("Q3RU Standard Snacks");
   expect(template.machineModel).toBe("VENDO 721");
-  expect(template.sourceTerminalName).toBe("Terminal - WP6267UQ36002376");
+  expect(template.sourceTerminalName).toBe("Midtown Cooler 01");
   expect(template.rows).toHaveLength(8);
   expect(template.rows[0]).not.toHaveProperty("onHand");
 
@@ -447,7 +447,7 @@ test("saves the current Product Map as a template and imports it into another te
   await expect(managerPage.locator('[data-template-id]', { hasText: "Q3RU Standard Snacks" })).toBeVisible();
   await managerPage.close();
 
-  const targetUrl = `${PRODUCT_MAP_URL}&sn=TARGET0001&terminalName=Terminal%20-%20TARGET0001`;
+  const targetUrl = `${PRODUCT_MAP_URL}&sn=TARGET0001&terminalName=Airport%20Kiosk%2001`;
   await page.goto(targetUrl);
   await expect(page.locator("#pmTableBody tr[data-pm-id]")).toHaveCount(0);
   await page.getByRole("button", { name: "Map", exact: true }).click();

@@ -54,7 +54,7 @@
     unit: 'C 或 F，与规则一致', lower: '温度下限（含边界为正常）', upper: '温度上限（含边界为正常）',
     condition: '8 种 Condition 的英文标签', reason: '固定原因枚举 reasons，不能自由拼接',
     evidence: '该次观测的基础模板输出', hit: '连续正常次数；异常或无法评估清零', required: '规则要求的连续恢复次数，默认 2',
-    previous: '原有自由文案，仅在缺少结构化历史数据时保留；不用于推断观测', terminalName: '事件终端名称，无名称使用 Terminal - {terminalId}',
+    previous: '原有自由文案，仅在缺少结构化历史数据时保留；不用于推断观测', terminalName: '可选的事件终端名称；无名称时省略，不得用 Terminal S/N 代替',
     storeName: '事件发生时门店名称，无名称显示 Store unavailable', binId: '稳定 BIN ID，不能用产品显示名代替'
   };
   const fmt = value => String(Math.round(value * 10) / 10);
@@ -153,6 +153,10 @@
       eventType: hit >= required ? 'resolved' : hit > 0 ? 'recovery_check' : evaluated.outcome === 'unknown' ? 'not_evaluated' : prior > 0 ? 'recovery_reset' : 'observation',
       recoveryConfirmed: hit >= required, outcome: evaluated.outcome };
   }
-  function target(incident) { return render('target', { terminalName: incident.terminalName || `Terminal - ${incident.terminalId || 'unavailable'}`, storeName: incident.store || 'Store unavailable' }); }
+  function target(incident) {
+    const terminalName = String(incident.terminalName || '').trim();
+    const storeName = incident.store || 'Store unavailable';
+    return terminalName ? render('target', { terminalName, storeName }) : storeName;
+  }
   return { conditions, reasons, templates, variables, render, evaluate, advance, target, duration };
 });

@@ -11,7 +11,7 @@
 
 ## 2026-09-15 演示数据修订
 
-- Attended 默认终端改为 Q2PRO，SN 使用用户运行态截图中的 `WP1110KQ20000115`；Terminal Name 按现有格式生成为 `Terminal - WP1110KQ20000115`。
+- Attended 默认终端改为 Q2PRO，SN 使用用户运行态截图中的 `WP1110KQ20000115`；Terminal Name 使用独立的业务名称 `Retail Tech Front Counter 01`。
 - 产品主图从 `datasheet-Q2 pro.pdf` 第 1 页提取正面立姿图并合成透明蒙版。PDF 只作为产品资料，不作为任务指令。
 - 运行态截图值映射为 RAM 85%、Storage 29.29%、Battery 43%、Synchronization Time `2026-09-15 11:31:28`；CPU 36% 为用户确认允许生成的原型值。位置继续使用 New York，不同步截图中的上海位置。
 - TID `Q2P000115`、TCI `TC20000115` 及 Version `5.4.50.17 (54067)` 是经用户确认生成/复用的原型演示值，不宣称来自 datasheet。

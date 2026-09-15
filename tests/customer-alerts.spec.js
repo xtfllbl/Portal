@@ -160,7 +160,7 @@ test("manages rules and incidents in one Terminal Alerts context", async ({ page
   await incident.getByRole("button", { name: "View timeline" }).click();
   const incidentDialog = page.getByRole("dialog", { name: "No Approved Transaction" });
   await expect(incidentDialog.locator(".alert-incident-summary")).toHaveCount(0);
-  await expect(incidentDialog.locator(".alert-incident-meta")).toContainText("Active · Terminal - WP6267UQ36002376 · Midtown Store · Opened 2026-08-28 07:24 · 3h 18m");
+  await expect(incidentDialog.locator(".alert-incident-meta")).toContainText("Active · Midtown Cooler 01 · Midtown Store · Opened 2026-08-28 07:24 · 3h 18m");
   await expect(incidentDialog.locator(".alert-incident-meta")).not.toContainText("Acknowledged by");
   await expect(incidentDialog.locator(".alert-incident-meta .alert-status")).toHaveCount(0);
   await expect(incidentDialog.locator(".alert-incident-meta .material-symbols-rounded")).toHaveCount(0);
@@ -416,11 +416,11 @@ test("migrates legacy temperature rules and removes unavailable-temperature data
     localStorage.setItem(key, JSON.stringify({
       deletedRuleIds: [],
       rules: [
-        { id: "legacy-range", condition: "temperature_range", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Outside 2–8 °C for 30 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: { lower: 2, upper: 8, duration: 30, recoveryLower: 3, recoveryUpper: 7, recovery: 30 } },
-        { id: "legacy-unavailable", condition: "temperature_unavailable", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Terminal - WP6267UQ36002376", criteria: "Temperature data exceeds expected freshness", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: {} }
+        { id: "legacy-range", condition: "temperature_range", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Midtown Cooler 01", criteria: "Outside 2–8 °C for 30 minutes", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: { lower: 2, upper: 8, duration: 30, recoveryLower: 3, recoveryUpper: 7, recovery: 30 } },
+        { id: "legacy-unavailable", condition: "temperature_unavailable", targetType: "Terminal", targetId: "WP6267UQ36002376", targetName: "Midtown Cooler 01", criteria: "Temperature data exceeds expected freshness", recipients: ["Portal Inbox"], channels: ["Portal Inbox"], status: "Active", modified: "2026-08-27 11:45", owner: "1 of a Kind World Travel LLC", parameters: {} }
       ],
       incidents: [
-        { id: "legacy-unavailable-incident", ruleId: "legacy-unavailable", monitoringState: "Active", condition: "temperature_unavailable", terminalId: "WP6267UQ36002376", terminalName: "Terminal - WP6267UQ36002376", store: "Midtown Store", evidence: "Temperature unavailable", opened: "2026-08-28 10:00", events: [], nextChecks: [] }
+        { id: "legacy-unavailable-incident", ruleId: "legacy-unavailable", monitoringState: "Active", condition: "temperature_unavailable", terminalId: "WP6267UQ36002376", terminalName: "Midtown Cooler 01", store: "Midtown Store", evidence: "Temperature unavailable", opened: "2026-08-28 10:00", events: [], nextChecks: [] }
       ]
     }));
   }, ALERT_STATE_KEY);
@@ -479,7 +479,7 @@ test("summarizes role-visible alerts under Settings and keeps shared state", asy
 
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
   const soldOutRule = page.getByRole("row", { name: /Sold Out/ });
-  await expect(soldOutRule).toContainText("Terminal - WP6267UQ36002376");
+  await expect(soldOutRule).toContainText("Midtown Cooler 01");
   await expect(soldOutRule).toContainText("Active");
   expect(await soldOutRule.locator(".alert-status").evaluate((status) => getComputedStyle(status, "::before").content)).toBe("none");
   const pauseButton = soldOutRule.getByRole("button", { name: "Pause" });
@@ -526,7 +526,7 @@ test("deletes terminal rules with confirmation while preserving alert history", 
   await deleteButton.click();
   const deleteDialog = page.getByRole("dialog", { name: "Delete Rule" });
   await expect(deleteDialog).toContainText("Selected Product / BIN Below % PAR");
-  await expect(deleteDialog).toContainText("Terminal · Terminal - WP6267UQ36002376");
+  await expect(deleteDialog).toContainText("Terminal · Midtown Cooler 01");
   await expect(deleteDialog).toContainText("Existing alerts and history will remain.");
   await expect(deleteDialog.getByRole("button", { name: "Cancel" })).toBeFocused();
   await deleteDialog.getByRole("button", { name: "Cancel" }).click();
@@ -677,8 +677,8 @@ test("scopes Alerts and monitoring range fields to each role", async ({ page }) 
   await expect(terminalDialog.getByRole("button", { name: "Save Rule" })).toBeEnabled();
   await terminalDialog.getByRole("button", { name: "Save Rule" }).click();
   await page.getByRole("tab", { name: "Rules", exact: true }).click();
-  const createdTemperatureRule = page.locator('[data-alert-rules] tr').filter({ hasText: "Temperature Out of Range" }).filter({ hasText: "Terminal · Terminal - WP6267UQ36002376" }).filter({ hasText: "2026-08-28 10:42" });
-  await expect(createdTemperatureRule).toContainText("Terminal - WP6267UQ36002376");
+  const createdTemperatureRule = page.locator('[data-alert-rules] tr').filter({ hasText: "Temperature Out of Range" }).filter({ hasText: "Terminal · Midtown Cooler 01" }).filter({ hasText: "2026-08-28 10:42" });
+  await expect(createdTemperatureRule).toContainText("Midtown Cooler 01");
 });
 
 test("applies the Condition dropdown and separate Store and Terminal text filters only after Search", async ({ page }) => {

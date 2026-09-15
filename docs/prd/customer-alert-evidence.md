@@ -20,7 +20,7 @@
 | Terminal | 该终端 | 每条规则对当前终端评估一次 |
 | Store | 门店内具体终端 | 动态逐终端评估，不合并门店库存；未来加入的终端自动进入范围 |
 
-中心 Target 文案为 `{terminalName} · {storeName}`；无终端名称时使用 `Terminal - {terminalId}`，无门店名称时显示 `Store unavailable`。终端页已有上下文，不额外增加重复 Target 列。
+中心 Target 文案在有名称时为 `{terminalName} · {storeName}`；Terminal Name 是可选字段，无名称时只显示 `{storeName}`，不得使用 Terminal S/N 代替名称。无门店名称时显示 `Store unavailable`。终端页已有上下文，不额外增加重复 Target 列。
 
 同一 Rule＋Terminal 的同一次持续异常只有一个事件。Any BIN、Sold Out 和 Selected Product 多 BIN 异常合并；按 BIN ID 排序，列表最多 3 个明细并追加 `; +N more`，详情和时间线保存完整清单。所有受监控 BIN 均有效且正常时，才能进入恢复。
 
