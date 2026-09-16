@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/payment-brands.css">
   <style>
     :root{
       --bg:#f6f7fb;--card:#fff;--line:#d9dde7;--ink:#272f3d;--muted:#757d8f;--dark:#1d1e23;
@@ -614,6 +615,7 @@
   </div>
   <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
   <link rel="stylesheet" href="styles/related-transactions.css">
+  <script src="scripts/payment-brands.js"></script>
   <script src="scripts/transaction-records.js"></script>
   <script src="scripts/related-transactions.js"></script>
   <script>
@@ -1844,14 +1846,13 @@
           return `<span class="method ${esc(paymentMethodClass(method))}">${esc(method)}</span>`;
         }
         if(k==="cardPan"){
-          const brand=r.cardBrand||"visa";
+          const brand=r.cardBrand||"";
           const account=r.cardDisplayNo?`<span><span class="account-main">${esc(r.cardPanMasked)}</span><span class="account-sub">${esc(r.cardDisplayNo)}</span></span>`:`<span>${esc(r.cardPanMasked)}</span>`;
           if(brand==="prepaid"){
             return `<a class="account-link" href="19.prepaid_card_detail.html?cardUid=${encodeURIComponent(r.cardPanPlain||r.cardPanMasked)}" title="Open prepaid card details">${account}</a>`;
           }
           if(brand==="qr") return account;
-          const label=brand;
-          return `<span class="pan"><span class="chip ${esc(brand)}">${esc(label)}</span>${account}</span>`;
+          return `<span class="pan">${PaywizardPaymentBrands.logo(brand)}${account}</span>`;
         }
         if(k==="type"){
           const type=norm(r.type);

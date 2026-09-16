@@ -74,5 +74,6 @@
 - 79 条 mock 记录全部遵守最终结果约束。普通分页数据只生成独立 Purchase 或失败 Purchase；Refund、Incremental Authorization、Auth Completion 和 Void 只出现在有明确父引用的关系链中。
 - Fiserv Mastercard 的已结算链路为 Pre-Authorization → Incremental Authorization → Auth Completion → Partial Refund，退款直接作用于 Auth Completion。TSYS Mastercard 的未结算链路为 Pre-Authorization → Auth Completion → Void，撤销直接作用于 Auth Completion。
 - Transaction Record 只保存 Completed 或 Failed 最终结果，不展示 Pending。点击其他关联交易 ID 时打开目标详情顶部，深色反白 `Now viewing transaction …` 悬浮提示从页面上方向下滑入并停在顶栏内部的主内容区中央，不占页面布局，约 3 秒后向上收回；当前交易自身 ID 不可点击。
+- Card Scheme 与 Payment Method 分开表达：交易列表的银行卡记录只在卡号前展示约 30×18px 的轻量 Visa、Mastercard 品牌标识，未知卡组织使用同尺寸的通用灰色银行卡图标；交易详情在原有卡组织文字前展示同款标识。Prepaid、QR 不展示 Card Scheme Logo。
 
 验证：`node --test tests/unit/related-transactions.test.cjs tests/unit/transaction-detail-model.test.cjs` 15 项通过；`npm run build`、所有相关脚本的 `node --check` 和 `git diff --check` 通过。

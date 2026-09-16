@@ -40,6 +40,14 @@ _Avoid_: Transaction ID, global record key
 The authorization approval value returned by the payment processor or issuer when available for an approved transaction.
 _Avoid_: generated success label, decline reason, Transaction ID
 
+**Card Scheme**:
+The payment-card network identified for a card transaction, such as Visa or Mastercard. It is distinct from the method used to pay.
+_Avoid_: Payment Method, Card Type, prepaid, QR
+
+**Payment Method**:
+The payment instrument category used for a transaction, such as Card, Prepaid or QR. It does not identify the Card Scheme.
+_Avoid_: Card Scheme, Card Brand
+
 **Product Map Template**:
 A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.
 _Avoid_: Live link to a terminal Product Map

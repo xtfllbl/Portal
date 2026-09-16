@@ -6,6 +6,37 @@ Corrections, insights, and knowledge gaps captured during development.
 
 ---
 
+## [LRN-20260916-001] correction
+
+**Logged**: 2026-09-16T12:20:00+08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+Payment-scheme logos in transaction rows are compact identifiers beside the account number, not prominent card artwork.
+
+### Details
+The initial 42 by 27 pixel treatment made the logo compete with the masked PAN. The real platform reference uses a roughly text-height logo, with the account number remaining the primary information.
+
+### Suggested Action
+Default transaction Card Scheme logos to approximately 30 by 19 pixels and validate their visual hierarchy against a real-platform screenshot.
+
+### Metadata
+- Source: user_feedback
+- Related Files: styles/payment-brands.css, 12.transaction_list.html
+- Tags: transactions, card-scheme, logo, visual-hierarchy
+- Pattern-Key: frontend.oversized-brand-logo
+- Recurrence-Count: 1
+- First-Seen: 2026-09-16
+- Last-Seen: 2026-09-16
+
+### Resolution
+- **Resolved**: 2026-09-16T12:20:00+08:00
+- **Notes**: List and detail Card Scheme logos were reduced to 30 by 19 pixels.
+
+---
+
 ## [LRN-20260915-001] correction
 
 **Logged**: 2026-09-15T00:00:00+08:00

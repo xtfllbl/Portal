@@ -4,6 +4,42 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260916-001] payment brand presentation test
+
+**Logged**: 2026-09-16T12:00:00+08:00
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+The first payment-brand formatter preserved the lowercase fixture value `prepaid` instead of the canonical display label `Prepaid`.
+
+### Error
+```
+Expected detail markup to contain Prepaid; received prepaid.
+```
+
+### Context
+- Found by the focused `payment-brands.test.cjs` run.
+- Card Scheme logos were correct; only the non-scheme Payment Method label casing was affected.
+
+### Suggested Fix
+Use the resolved Payment Method label for Prepaid and QR while preserving full source text such as Visa Credit for Card Schemes.
+
+### Metadata
+- Reproducible: yes
+- Related Files: scripts/payment-brands.js, tests/unit/payment-brands.test.cjs
+- Pattern-Key: tests.assertion-mismatch
+- Recurrence-Count: 1
+- First-Seen: 2026-09-16
+- Last-Seen: 2026-09-16
+
+### Resolution
+- **Resolved**: 2026-09-16T12:00:00+08:00
+- **Notes**: The detail formatter now uses canonical Payment Method labels and preserves Card Scheme descriptors.
+
+---
+
 ## [ERR-20260916-001] npm test
 
 **Logged**: 2026-09-16T10:15:00+08:00
