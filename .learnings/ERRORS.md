@@ -4,6 +4,42 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260916-001] npm test
+
+**Logged**: 2026-09-16T10:15:00+08:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+The repository has no generic npm test script.
+
+### Error
+```
+npm error Missing script: "test"
+```
+
+### Context
+- Attempted to run the transaction unit tests through a conventional npm script.
+- The package defines targeted scripts and the transaction tests use Node's built-in test runner.
+
+### Suggested Fix
+Run `node --test tests/unit/related-transactions.test.cjs tests/unit/transaction-detail-model.test.cjs` for this feature, then run the existing build.
+
+### Metadata
+- Reproducible: yes
+- Related Files: package.json, tests/unit
+- Pattern-Key: tests.missing-script
+- Recurrence-Count: 1
+- First-Seen: 2026-09-16
+- Last-Seen: 2026-09-16
+
+### Resolution
+- **Resolved**: 2026-09-16T10:15:00+08:00
+- **Notes**: Switched to the repository's Node test runner.
+
+---
+
 ## [ERR-20260915-009] zsh expanded query strings during Vercel verification
 
 **Logged**: 2026-09-15T15:12:00+08:00

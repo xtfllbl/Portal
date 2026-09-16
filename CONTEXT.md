@@ -8,6 +8,10 @@ Paywizard Portal provides operational and customer-facing management for payment
 A queryable record of an observed payment, refund, cancellation or related payment operation fact.
 _Avoid_: Retail Order, Payment Order, Transaction Attempt
 
+**Transaction Result**:
+The final outcome stored for a Transaction Record in the portal: Completed or Failed. A payment request that is still processing is not yet a Transaction Record and must not appear as Pending in the transaction list or related transaction history.
+_Avoid_: Pending transaction, processing request, provisional result
+
 **Related Transactions**:
 Transaction Records connected by explicit references to a payment transaction and operations performed against it or its subsequent transactions, including the original record, sibling operations and later operations in that payment process. Their scope follows payment relationships, independently of any external retail or restaurant order.
 _Avoid_: Order transactions, same-card transactions, same-amount transactions
@@ -19,6 +23,22 @@ _Avoid_: Direct operation target, previous chronological record
 **Applies To**:
 The transaction directly affected by a payment operation, such as the capture being refunded or the refund being canceled.
 _Avoid_: Original Transaction, previous chronological record
+
+**Transaction ID**:
+The single user-visible identifier for one Transaction Record. It is an opaque value whose format can vary by payment source and must not be interpreted from its prefix, length or character set.
+_Avoid_: PAYWizard ID, Trans Log ID, Trans Index Code, inferred transaction type
+
+**Retrieval Reference Number (RRN)**:
+A payment-network or processor reference returned for a transaction when available. It supports payment investigation and is not the Transaction Record's portal identity.
+_Avoid_: Transaction ID, Acquirer Reference Number, merchant order reference
+
+**System Trace Audit Number (STAN)**:
+The trace value assigned to a payment message within the relevant terminal or processing scope. The portal labels it Trace No.; it is not globally unique.
+_Avoid_: Transaction ID, global record key
+
+**Approval Code**:
+The authorization approval value returned by the payment processor or issuer when available for an approved transaction.
+_Avoid_: generated success label, decline reason, Transaction ID
 
 **Product Map Template**:
 A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.

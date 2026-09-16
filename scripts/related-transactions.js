@@ -5,22 +5,23 @@ const data=window.PaywizardTransactions;
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function mount(container,options){
  let group=null,page=0,generation=0;const size=10;
- const link=(id,label=id)=>`<a href="${esc(data.detailHref(id,options.fromList))}" data-related-id="${esc(id)}">${esc(label)}</a>`;
+ const link=(id,label=id)=>id===options.id?`<span class="pw-related-current-id" aria-current="page">${esc(label)}</span>`:`<a href="${esc(data.detailHref(id,options.fromList,true))}" data-related-id="${esc(id)}">${esc(label)}</a>`;
  function render(){
   const start=page*size,items=group.items.slice(start,start+size);
-  const refs=group.items.some(r=>r.originalRecordId||r.originalTransId);
+  const refs=group.items.some(r=>r.originalRecordKey||r.originalTransactionId);
+  const byKey=new Map(group.items.map(r=>[r.recordKey,r]));
   const empty=group.total===1;
   options.onVisibility?.(!empty||refs||group.incomplete);
   if(empty){
-   const reference=group.items[0].originalRecordId||group.items[0].originalTransId;
+   const reference=group.items[0].originalTransactionId;
    container.innerHTML=refs||group.incomplete?`<p class="pw-related-note" role="status">Related records are unavailable.${reference?' Applies To: '+esc(reference)+'.':''}</p>`:'<p class="pw-related-note" role="status">No related transactions found.</p>';
    return;
   }
-  container.innerHTML=`<div class="pw-related-meta"><span>${group.total} ${group.total===1?'transaction':'transactions'}</span>${group.root?`<span>Original Transaction: ${link(group.root.paywizardId)}</span>`:''}</div>
+  container.innerHTML=`<div class="pw-related-meta"><span>${group.total} ${group.total===1?'transaction':'transactions'}</span>${group.root?`<span>Original Transaction: ${link(group.root.recordKey,group.root.transactionId)}</span>`:''}</div>
    ${group.incomplete?'<p class="pw-related-note" role="status">The relationship is incomplete. Only confirmed records are shown.</p>':''}
    <div class="pw-related-scroll" tabindex="0" aria-label="Related transaction records"><table class="pw-related-table"><thead><tr><th>Time (UTC)</th><th>Type</th><th>Amount</th><th>Result</th><th>Applies To</th><th>Transaction ID</th></tr></thead><tbody>${items.map(r=>{
-    const parent=group.parents.get(r.paywizardId),reference=r.originalRecordId||r.originalTransId;
-    return `<tr${r.paywizardId===options.id?' class="pw-related-current" aria-current="true"':''}><td>${esc(r.processorTime)}</td><td><span class="pw-related-type">${esc(r.type==='Failed'?'Unknown':r.type)}${r.paywizardId===options.id?'<span class="pw-related-current-tag">Current</span>':''}</span></td><td class="pw-related-amount">${esc(r.currency)} ${esc(r.amount)}</td><td><span class="pw-related-result ${['completed','failed','pending'].includes(r.status)?r.status:'unknown'}">${esc(data.resultLabel(r))}</span></td><td>${parent?link(parent):reference?`<span>${esc(reference)}</span><span class="pw-related-unavailable">Unavailable</span>`:'—'}</td><td>${link(r.paywizardId)}</td></tr>`;
+    const parent=group.parents.get(r.recordKey),parentRow=byKey.get(parent),reference=r.originalTransactionId;
+    return `<tr${r.recordKey===options.id?' class="pw-related-current" aria-current="true"':''}><td>${esc(r.processorTime)}</td><td><span class="pw-related-type">${esc(r.type==='Failed'?'Unknown':r.type)}${r.recordKey===options.id?'<span class="pw-related-current-tag">Current</span>':''}</span></td><td class="pw-related-amount">${esc(r.currency)} ${esc(r.amount)}</td><td><span class="pw-related-result ${['completed','failed'].includes(r.status)?r.status:'unknown'}">${esc(data.resultLabel(r))}</span></td><td>${parentRow?link(parent,parentRow.transactionId):reference?`<span>${esc(reference)}</span><span class="pw-related-unavailable">Unavailable</span>`:'—'}</td><td>${link(r.recordKey,r.transactionId)}</td></tr>`;
    }).join('')}</tbody></table></div>
    ${group.total>size?`<div class="pw-related-pages"><span>${start+1}–${Math.min(start+size,group.total)} of ${group.total}</span><button type="button" data-page="current">Locate current</button><button type="button" data-page="prev" ${page===0?'disabled':''}>Previous</button><button type="button" data-page="next" ${(page+1)*size>=group.total?'disabled':''}>Next</button></div>`:''}`;
   const current=container.querySelector('.pw-related-current'),scroller=container.querySelector('.pw-related-scroll');
@@ -28,11 +29,11 @@ function mount(container,options){
  }
  async function refresh(){
   const ticket=++generation;options.onVisibility?.(true);
-  const pending=document.createElement('p');pending.className='pw-related-note';pending.setAttribute('role','status');pending.textContent='Loading related transactions… Transaction ID: '+options.id;
-  if(!group)container.replaceChildren(pending);else container.prepend(pending);
+  const loading=document.createElement('p');loading.className='pw-related-note';loading.setAttribute('role','status');loading.textContent='Loading related transactions… Transaction ID: '+options.id;
+  if(!group)container.replaceChildren(loading);else container.prepend(loading);
   try{
    const records=await options.load();if(ticket!==generation||!container.isConnected)return;
-   group=data.related(records,options.id,options.canView);page=Math.floor(group.items.findIndex(r=>r.paywizardId===options.id)/size);render();
+   group=data.related(records,options.id,options.canView);page=Math.floor(group.items.findIndex(r=>r.recordKey===options.id)/size);render();
   }catch(error){
    if(ticket!==generation||!container.isConnected)return;
    if(group)render();else container.replaceChildren();options.onVisibility?.(true);
@@ -44,7 +45,7 @@ function mount(container,options){
   const a=event.target.closest('[data-related-id]');if(a){options.beforeNavigate?.();return;}
   if(event.target.closest('[data-retry]')){refresh();return;}
   const button=event.target.closest('[data-page]');if(!button)return;
-  page=button.dataset.page==='current'?Math.floor(group.items.findIndex(r=>r.paywizardId===options.id)/size):page+(button.dataset.page==='next'?1:-1);render();
+  page=button.dataset.page==='current'?Math.floor(group.items.findIndex(r=>r.recordKey===options.id)/size):page+(button.dataset.page==='next'?1:-1);render();
   container.querySelector(`[data-page="${button.dataset.page}"]`)?.focus({preventScroll:true});
  };
  refresh();return {refresh};

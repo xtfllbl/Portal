@@ -517,15 +517,14 @@
             <span class="filterstate" id="filterState">0 Active</span>
           </div>
           <div class="grid">
-            <input class="field" id="fTransLogId" placeholder="Trans Log ID">
-            <input class="field" id="fTransId" placeholder="Trans ID">
-            <input class="field" id="fTransIndexCode" placeholder="Trans Index Code">
-            <input class="field" id="fPaywizardId" placeholder="PAYwizard ID">
+            <input class="field" id="fTransactionId" placeholder="Transaction ID">
+            <input class="field" id="fRrn" placeholder="Reference Number (RRN)">
+            <input class="field" id="fTrace" placeholder="Trace No. (STAN)">
             <input class="field" id="fTid" placeholder="TID">
             <input class="field" id="fTci" placeholder="TCI">
             <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
             <input class="field" id="fApprovalCode" placeholder="Approval Code">
-            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Sale</option><option>Auth</option><option>Refund</option><option>Tip Adjust</option><option>Capture</option><option>Incremental</option><option>Failed</option></select></div>
+            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Refund</option><option>Partial Refund</option><option>Tip Adjust</option><option>Pre-Authorization</option><option>Incremental Authorization</option><option>Auth Completion</option><option>Void</option></select></div>
             <input class="field" id="fSn" placeholder="SN, comma list, or range">
             <input class="field" id="fStoreId" placeholder="Store ID">
             <input class="field" id="fTerminalName" placeholder="Terminal Name">
@@ -619,8 +618,8 @@
   <script src="scripts/related-transactions.js"></script>
   <script>
     (() => {
-      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","paymentMethod","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","tci","sn","terminalName"];
-      const defaultOrder=["processorTime","timezone","tci","sn","terminalName","paymentMethod","cardPan","type","currency","tid","storeId","transLogId","batch","merchantName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","paywizardId","transId","transIndexCode","trace","storeName","email"];
+      const defaultVisible=["processorTime","terminalTime","timezone","invoiceNumber","paymentMethod","cardPan","approvalCode","type","amount","currency","mid","tid","merchantName","storeName","tci","sn","terminalName","transactionId"];
+      const defaultOrder=["processorTime","timezone","tci","sn","terminalName","paymentMethod","cardPan","type","currency","tid","storeId","transactionId","rrn","batch","merchantName","phoneNumber","terminalTime","invoiceNumber","approvalCode","amount","mid","trace","storeName","email"];
       const defs={
         processorTime:["DATE & TIME (PROCESSOR)",220,"Date & Time (Processor)"],
         terminalTime:["DATE & TIME (TERMINAL)",220,"Date & Time (Terminal)"],
@@ -638,10 +637,8 @@
         merchantName:["MERCHANT NAME",168,"Merchant Name"],
         storeName:["STORE NAME",146,"Store Name"],
         sn:["SN",340,"SN"],
-        paywizardId:["PAYwizard ID",170,"PAYwizard ID"],
-        transId:["TRANS ID",146,"Trans ID"],
-        transLogId:["TRANS LOG ID",170,"Trans Log ID"],
-        transIndexCode:["TRANS INDEX CODE",176,"Trans Index Code"],
+        transactionId:["TRANSACTION ID",196,"Transaction ID"],
+        rrn:["REFERENCE NUMBER (RRN)",190,"Reference Number (RRN)"],
         batch:["BATCH",110,"Batch"],
         trace:["TRACE",110,"Trace"],
         terminalName:["TERMINAL NAME",190,"Terminal Name"],
@@ -706,7 +703,7 @@
       const columnViewSwitchDelay=2000;
       const cloneColumns=cols=>cols.map(c=>({key:c.key,visible:c.visible}));
       const defaultColumns=()=>defaultOrder.map(k=>({key:k,visible:defaultVisible.includes(k)}));
-      const unattdVisible=["processorTime","timezone","tci","sn","terminalName","tid","storeId","mid","paymentMethod","cardPan","type","amount","currency","transLogId","batch","trace","merchantName","storeName"];
+      const unattdVisible=["processorTime","timezone","tci","sn","terminalName","tid","storeId","mid","paymentMethod","cardPan","type","amount","currency","transactionId","batch","trace","merchantName","storeName"];
       const unattdColumns=()=>defaultOrder.map(k=>({key:k,visible:unattdVisible.includes(k)}));
       const allSystemViews=[
         {id:"default",name:"Attended",desc:"Attended payment view",getColumns:defaultColumns},
@@ -759,7 +756,7 @@
         page:1,
         pageSize:10,
         selectedTransactionId:"",
-        filters:{transLogId:"",transId:"",transIndexCode:"",paywizardId:"",tid:"",tci:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:"",paymentMethod:""},
+        filters:{transactionId:"",rrn:"",trace:"",tid:"",tci:"",invoiceNumber:"",approvalCode:"",type:"",sn:"",storeId:"",terminalName:"",cardPan:"",amount:"",mid:"",merchantName:"",storeName:"",paymentMethod:""},
         columns:initialSelectedView?cloneColumns(initialSelectedView.getColumns?initialSelectedView.getColumns():initialSelectedView.columns):systemViews[0].getColumns(),
         savedViews:initialSavedViews,
         selectedViewId:initialSelectedViewId,
@@ -779,10 +776,9 @@
       const presetList=document.getElementById("presetList"),presetMeta=document.getElementById("presetMeta"),presetNote=document.getElementById("presetNote");
       const saveViewBtn=document.getElementById("saveViewBtn"),renameViewBtn=document.getElementById("renameViewBtn"),deleteViewBtn=document.getElementById("deleteViewBtn");
       const fields={
-        transLogId:document.getElementById("fTransLogId"),
-        transId:document.getElementById("fTransId"),
-        transIndexCode:document.getElementById("fTransIndexCode"),
-        paywizardId:document.getElementById("fPaywizardId"),
+        transactionId:document.getElementById("fTransactionId"),
+        rrn:document.getElementById("fRrn"),
+        trace:document.getElementById("fTrace"),
         tid:document.getElementById("fTid"),
         tci:document.getElementById("fTci"),
         invoiceNumber:document.getElementById("fInvoiceNumber"),
@@ -817,8 +813,8 @@
       const followupConfig={
         refund:{label:"Refund",title:"Create Refund",amountLabel:"Refund Amount",icon:"undo",resultType:"Refund",maxOriginal:true,confirmLabel:"Initiate Refund"},
         tip_adjust:{label:"Tip Adjust",title:"Create Tip Adjust",amountLabel:"New Tip Amount",icon:"add_card",resultType:"Tip Adjust",maxOriginal:false,confirmLabel:"Initiate Tip Adjust"},
-        capture:{label:"Capture",title:"Create Capture",amountLabel:"Capture Amount",icon:"task_alt",resultType:"Capture",maxOriginal:true,confirmLabel:"Initiate Capture"},
-        incremental:{label:"Incremental",title:"Create Incremental Authorization",amountLabel:"Incremental Amount",icon:"trending_up",resultType:"Incremental",maxOriginal:false,confirmLabel:"Initiate Incremental"}
+        capture:{label:"Auth Completion",title:"Create Auth Completion",amountLabel:"Completion Amount",icon:"task_alt",resultType:"Auth Completion",maxOriginal:true,confirmLabel:"Initiate Completion"},
+        incremental:{label:"Incremental Authorization",title:"Create Incremental Authorization",amountLabel:"Incremental Amount",icon:"trending_up",resultType:"Incremental Authorization",maxOriginal:false,confirmLabel:"Initiate Incremental Authorization"}
       };
       const rowActionState={row:null,anchor:null};
       const followupState={row:null,action:"",terminalMode:"current",selectedTerminal:null,terminalOptions:[],currentTerminalOnline:false,terminalRouteBlocked:false};
@@ -834,7 +830,7 @@
         if(row?.status!=="completed") return [];
         const type=norm(row?.type).replace(/[^a-z]/g,"");
         if(type==="sale"||type==="purchase") return ["refund","tip_adjust"];
-        if(type==="auth"||type==="authorization"||type==="preauth") return ["capture","incremental"];
+        if(type==="auth"||type==="authorization"||type==="preauth"||type==="preauthorization") return ["capture","incremental"];
         return [];
       };
       const rowActionItem=(label,icon,attributes)=>`<button class="row-action-item" type="button" role="menuitem" ${attributes}><img class="action-icon" src="assets/icons/${esc(icon)}.svg" alt=""><span>${esc(label)}</span></button>`;
@@ -913,8 +909,15 @@
         const time=new Date(String(value||"").replace(" ","T")).getTime();
         return Number.isFinite(time)?time:0;
       };
+      const linkedTypeMatches=(value,type)=>{
+        const actual=norm(value);
+        if(type==="refund") return actual==="refund"||actual==="partial refund";
+        if(type==="incremental") return actual==="incremental"||actual==="incremental authorization";
+        if(type==="capture") return actual==="capture"||actual==="auth completion";
+        return !type||actual===norm(type);
+      };
       const linkedTransactions=(row,type)=>rows
-        .filter(item=>item.status==="completed"&&item.mid===row.mid&&transactionChannelForRow(item)===transactionChannelForRow(row)&&String(item.originalTransId||"")===String(row?.transId||"")&&(!type||norm(item.type)===norm(type)))
+        .filter(item=>item.status==="completed"&&item.mid===row.mid&&transactionChannelForRow(item)===transactionChannelForRow(row)&&String(item.originalRecordKey||"")===String(row?.recordKey||"")&&linkedTypeMatches(item.type,type))
         .sort((a,b)=>timestampValue(a.processorTime)-timestampValue(b.processorTime));
       const resolveRefundBreakdown=row=>{
         const currency=row?.currency||"USD";
@@ -1070,7 +1073,7 @@
           followupLedger.classList.remove("show");
           return;
         }
-        const rowsHtml=adjustments.map(adjustment=>`<div class="ledger-row"><span title="${esc(adjustment.processorTime)}">${esc(adjustment.processorTime)}</span><strong title="${esc(adjustment.transId)}">${esc(adjustment.transId)}</strong><span>${esc(money(breakdown.currency,adjustment.computedTipAmount))}</span></div>`).join("");
+        const rowsHtml=adjustments.map(adjustment=>`<div class="ledger-row"><span title="${esc(adjustment.processorTime)}">${esc(adjustment.processorTime)}</span><strong title="${esc(adjustment.transactionId)}">${esc(adjustment.transactionId)}</strong><span>${esc(money(breakdown.currency,adjustment.computedTipAmount))}</span></div>`).join("");
         followupLedger.innerHTML=`<div class="ledger-head"><div class="ledger-title">Tip adjustment history</div></div><div class="ledger-table"><div class="ledger-row head"><span>Date & Time</span><span>Transaction ID</span><span>Tip Amount</span></div>${rowsHtml}</div>`;
         followupLedger.classList.add("show");
       };
@@ -1081,7 +1084,7 @@
           followupLedger.classList.remove("show");
           return;
         }
-        const rowsHtml=incrementals.map(incremental=>`<div class="ledger-row"><span title="${esc(incremental.processorTime)}">${esc(incremental.processorTime)}</span><strong title="${esc(incremental.transId)}">${esc(incremental.transId)}</strong><span>${esc(money(breakdown.currency,incremental.computedIncrementalAmount))}</span></div>`).join("");
+        const rowsHtml=incrementals.map(incremental=>`<div class="ledger-row"><span title="${esc(incremental.processorTime)}">${esc(incremental.processorTime)}</span><strong title="${esc(incremental.transactionId)}">${esc(incremental.transactionId)}</strong><span>${esc(money(breakdown.currency,incremental.computedIncrementalAmount))}</span></div>`).join("");
         followupLedger.innerHTML=`<div class="ledger-head"><div class="ledger-title">Incremental authorization history</div></div><div class="ledger-table"><div class="ledger-row head"><span>Date & Time</span><span>Transaction ID</span><span>Incremental Amount</span></div>${rowsHtml}</div>`;
         followupLedger.classList.add("show");
       };
@@ -1121,7 +1124,7 @@
           if(authorizationBreakdown.capturedAmount>0) summaryItems.push(["Captured",money(authorizationBreakdown.currency,authorizationBreakdown.capturedAmount)]);
         }
         summaryItems.push(
-          ["Transaction ID",row.transId],
+          ["Transaction ID",row.transactionId],
           ["Terminal SN",row.sn,currentTerminalOnline?"":"Offline"],
           ["MID",row.mid],
           ["TID",row.tid],
@@ -1152,6 +1155,8 @@
       const createFollowupRow=(row,action,amount,terminal,terminalMode)=>{
         const config=followupConfig[action];
         const stamp=String(Date.now());
+        const channel=transactionChannelForRow(row);
+        const transactionId=channel==="FISERV"?String(90000000000+(Number(stamp.slice(-10))%9999999999)):channel==="TSYS"?`M210003${stamp}`:`TXN-${stamp.slice(-11)}`;
         const routeTerminal=terminal||row;
         const isTipAdjust=action==="tip_adjust";
         const sourceBreakdown=isTipAdjust?resolveRefundBreakdown(row):null;
@@ -1166,7 +1171,7 @@
           processorTime:new Date().toISOString().slice(0,19).replace("T"," "),
           terminalTime:"-",
           invoiceNumber:stamp.slice(-12),
-          approvalCode:"APPROVED",
+          approvalCode:`A${stamp.slice(-5)}`,
           type:config.resultType,
           amount:formatAmount(amount),
           ...tipFields,
@@ -1178,14 +1183,14 @@
           storeId:routeTerminal.storeId||row.storeId,
           terminalUsage:routeTerminal.terminalUsage||row.terminalUsage,
           terminalScene:routeTerminal.terminalScene||row.terminalScene,
-          transactionChannel:transactionChannelForRow(row),
-          paywizardId:`PWF-${stamp}`,
-          transId:`TRX-${config.resultType.toUpperCase().replace(/\s+/g,"-")}-${stamp.slice(-8)}`,
-          transLogId:`LOG-${stamp}`,
-          transIndexCode:`IDX-${stamp}`,
+          transactionChannel:channel,
+          recordKey:`followup-${stamp}-${Math.random().toString(36).slice(2,7)}`,
+          transactionId,
+          rrn:(row.paymentMethod||"Card")==="Card"?stamp.slice(-12):"",
           trace:stamp.slice(-6),
-          originalTransId:row.transId,
-          originalRecordId:row.paywizardId,
+          batch:action==="refund"?(row.batch||""):"",
+          originalTransactionId:row.transactionId,
+          originalRecordKey:row.recordKey,
           processorTimezone:"UTC",receiptAvailable:true,
           originalTid:row.tid,
           originalTerminalSn:row.sn,
@@ -1814,10 +1819,9 @@
       };
       const matches=r=>{
         if(r.status!==state.tab) return false;
-        return (!state.filters.transLogId||norm(r.transLogId).includes(norm(state.filters.transLogId))) &&
-          (!state.filters.transId||norm(r.transId).includes(norm(state.filters.transId))) &&
-          (!state.filters.transIndexCode||norm(r.transIndexCode).includes(norm(state.filters.transIndexCode))) &&
-          (!state.filters.paywizardId||norm(r.paywizardId).includes(norm(state.filters.paywizardId))) &&
+        return (!state.filters.transactionId||norm(r.transactionId).includes(norm(state.filters.transactionId))) &&
+          (!state.filters.rrn||norm(r.rrn).includes(norm(state.filters.rrn))) &&
+          (!state.filters.trace||norm(r.trace).includes(norm(state.filters.trace))) &&
           (!state.filters.tid||norm(r.tid).includes(norm(state.filters.tid))) &&
           (!state.filters.tci||norm(r.tci).includes(norm(state.filters.tci))) &&
           (!state.filters.invoiceNumber||norm(r.invoiceNumber).includes(norm(state.filters.invoiceNumber))) &&
@@ -1851,7 +1855,7 @@
         }
         if(k==="type"){
           const type=norm(r.type);
-          const c=type==="refund"?"refund":type==="failed"?"failed":type==="auth"?"auth":["tip adjust","capture","incremental"].includes(type)?"followup":"purchase";
+          const c=type.includes("refund")?"refund":type==="failed"?"failed":type.includes("authorization")||type==="auth"?"auth":["tip adjust","auth completion","void"].includes(type)?"followup":"purchase";
           return `<span class="pill ${c}">${esc(r.type)}</span>`;
         }
         if(k==="sn") return renderSnCell(r);
@@ -1890,8 +1894,8 @@
         const pageRows=data.slice(start,end);
         head.innerHTML=cols.map(renderHeadCell).join("")+`<th style="min-width:82px">ACTIONS</th>`;
         body.innerHTML=pageRows.length?pageRows.map(r=>{
-          const selected=state.selectedTransactionId===r.paywizardId;
-          return `<tr class="transaction-row${selected?" selected":""}" data-row-transaction-id="${esc(r.paywizardId)}" tabindex="0" aria-selected="${selected}">${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" data-transaction-id="${esc(r.paywizardId)}" aria-label="More actions for ${esc(r.transId)}" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`;
+          const selected=state.selectedTransactionId===r.recordKey;
+          return `<tr class="transaction-row${selected?" selected":""}" data-row-record-key="${esc(r.recordKey)}" tabindex="0" aria-selected="${selected}">${cols.map(c=>`<td class="${c.key==="sn"?"sn-cell":""}" style="min-width:${defs[c.key][1]}px">${cell(c.key,r)}</td>`).join("")}<td style="min-width:82px;text-align:center"><button class="more" type="button" data-record-key="${esc(r.recordKey)}" aria-label="More actions for ${esc(r.transactionId)}" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg></button></td></tr>`;
         }).join(""):`<tr class="empty"><td colspan="${cols.length+1}">No transactions match the current filters.</td></tr>`;
         renderPagination(data.length,totalPages,start,end);
         closeRowActionMenu();
@@ -2063,14 +2067,14 @@
         if(link&&snDetailState.anchor===link) closeSnDetail();
       });
       body.addEventListener("click",e=>{
-        const actionButton=e.target.closest(".more[data-transaction-id]");
+        const actionButton=e.target.closest(".more[data-record-key]");
         if(actionButton){
           e.preventDefault();
           e.stopPropagation();
           closeSnDetail();
           closeSnPicker();
           setPop("");
-          const row=rows.find(item=>item.paywizardId===actionButton.dataset.transactionId);
+          const row=rows.find(item=>item.recordKey===actionButton.dataset.recordKey);
           if(row) openRowActionMenu(row,actionButton);
           return;
         }
@@ -2086,10 +2090,10 @@
         if(e.target.closest("a,button,input,select,textarea,label")) return;
         const row=e.target.closest(".transaction-row");
         if(!row) return;
-        const transactionId=row.dataset.rowTransactionId||"";
-        state.selectedTransactionId=state.selectedTransactionId===transactionId?"":transactionId;
+        const recordKey=row.dataset.rowRecordKey||"";
+        state.selectedTransactionId=state.selectedTransactionId===recordKey?"":recordKey;
         body.querySelectorAll(".transaction-row").forEach(item=>{
-          const selected=item.dataset.rowTransactionId===state.selectedTransactionId;
+          const selected=item.dataset.rowRecordKey===state.selectedTransactionId;
           item.classList.toggle("selected",selected);
           item.setAttribute("aria-selected",String(selected));
         });
@@ -2116,12 +2120,12 @@
         const action=button.dataset.rowAction;
         if(action==="details"){
           saveTransactionList();
-          window.location.href=PaywizardTransactions.detailHref(row.paywizardId,true);
+          window.location.href=PaywizardTransactions.detailHref(row.recordKey,true);
           return;
         }
         if(action==="related"){
           const anchor=rowActionState.anchor;closeRowActionMenu();
-          PaywizardRelated.open({id:row.paywizardId,load:()=>rows,anchor,beforeNavigate:saveTransactionList,fromList:true});return;
+          PaywizardRelated.open({id:row.recordKey,load:()=>rows,anchor,beforeNavigate:saveTransactionList,fromList:true});return;
         }
         if(action==="terminal"){if(!isTerminalUncontrolled(row))window.location.href=terminalManageHref(row);return;}
         if(action==="receipt"){
@@ -2198,7 +2202,7 @@
           rows.unshift(newRow);
           closeFollowupModal();
           renderTable();
-          showActionToast(`${config.label} transaction ${newRow.transId} has been initiated via ${newRow.tid}.`);
+          showActionToast(`${config.label} transaction ${newRow.transactionId} has been initiated via ${newRow.tid}.`);
         },650);
       });
       snPicker.addEventListener("click",e=>{
@@ -2288,7 +2292,7 @@
         if(!e.target.closest(".datefield")) closeDateRange();
         if(!e.target.closest(".sn-main-link")) closeSnDetail();
         if(!e.target.closest(".sn-picker-pop")&&!e.target.closest(".sn-icon-btn")) closeSnPicker();
-        if(!e.target.closest(".row-action-pop")&&!e.target.closest(".more[data-transaction-id]")) closeRowActionMenu();
+        if(!e.target.closest(".row-action-pop")&&!e.target.closest(".more[data-record-key]")) closeRowActionMenu();
         if(e.target.closest(".anchor")) return;
         setPop("");
       });
