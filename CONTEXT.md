@@ -8,6 +8,10 @@ Paywizard Portal provides operational and customer-facing management for payment
 A queryable record of an observed payment, refund, cancellation or related payment operation fact.
 _Avoid_: Retail Order, Payment Order, Transaction Attempt
 
+**Refund**:
+A transaction that returns all or part of a previous payment amount. Its transaction type is Refund regardless of the amount returned; its result is recorded separately.
+_Avoid_: Partial Refund as a separate transaction type
+
 **Transaction Result**:
 The final outcome stored for a Transaction Record in the portal: Completed or Failed. A payment request that is still processing is not yet a Transaction Record and must not appear as Pending in the transaction list or related transaction history.
 _Avoid_: Pending transaction, processing request, provisional result

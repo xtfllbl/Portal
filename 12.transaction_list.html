@@ -525,7 +525,7 @@
             <input class="field" id="fTci" placeholder="TCI">
             <input class="field" id="fInvoiceNumber" placeholder="Invoice No.">
             <input class="field" id="fApprovalCode" placeholder="Approval Code">
-            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Refund</option><option>Partial Refund</option><option>Tip Adjust</option><option>Pre-Authorization</option><option>Incremental Authorization</option><option>Auth Completion</option><option>Void</option></select></div>
+            <div class="sel"><select class="field" id="fType"><option value="">Type</option><option>Purchase</option><option>Refund</option><option>Tip Adjust</option><option>Pre-Authorization</option><option>Incremental Authorization</option><option>Auth Completion</option><option>Void</option></select></div>
             <input class="field" id="fSn" placeholder="SN, comma list, or range">
             <input class="field" id="fStoreId" placeholder="Store ID">
             <input class="field" id="fTerminalName" placeholder="Terminal Name">
@@ -2310,7 +2310,7 @@
       window.addEventListener('pagehide',saveTransactionList);
       if(new URLSearchParams(location.search).has('restore')||performance.getEntriesByType('navigation')[0]?.type==='back_forward'){
         try{restored=JSON.parse(sessionStorage.getItem(listSnapshotKey));}catch(_){}
-        if(restored?.state){Object.assign(state,restored.state);pageSize.value=String(state.pageSize);syncFilters();toggleFilters(restored.filterOpen);dateRangeBtn.textContent=restored.date;
+        if(restored?.state){Object.assign(state,restored.state);state.filters.type=PaywizardTransactions.normalizeType(state.filters.type);pageSize.value=String(state.pageSize);syncFilters();toggleFilters(restored.filterOpen);dateRangeBtn.textContent=restored.date;
           document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));
         }
       }
