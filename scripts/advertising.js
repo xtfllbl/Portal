@@ -22,18 +22,7 @@
   const directory = window.PaywizardCustomerAccountDirectory.create(window.PaywizardCustomerAccountData.createHierarchy());
   // This demo uses the complete directory. Former account-switch preferences
   // do not restrict target selection, saved drafts or new publications.
-  commit(next => {
-    next.stores = directory.accounts.filter(n => n.type === 'store').map(n => ({ id: n.id, name: n.name, merchant: directory.account(n.parentKey)?.name || '', accountKeys: n.lineageKeys }));
-    for (const old of next.terminals) if (old.accountKeys && !directory.terminals.some(t => t.sn === old.sn)) {
-      old.accountKeys = []; delete old.storeId;
-    }
-    for (const terminal of directory.terminals) {
-      const identity = { sn: terminal.sn, accountKeys: terminal.lineageKeys, providerId: terminal.providerId, agentId: terminal.agentId, merchantId: terminal.merchantId, storeId: terminal.storeId, merchant: terminal.merchant, store: terminal.store };
-      const existing = next.terminals.find(item => item.sn === terminal.sn);
-      if (existing) Object.assign(existing, identity);
-      else next.terminals.push({ ...identity, name: terminal.name });
-    }
-  });
+  commit(next => D.syncDirectory(next, directory));
   const icon = (name, up = false) => `<img class="ads-icon${up ? ' ads-icon-up' : ''}" src="assets/icons/${name}.svg" alt="">`;
   const rowAction = (action, value, label, name, iconName) => `<button type="button" class="ads-row-action${action === 'edit' ? ' primary' : action === 'stop' ? ' danger' : ''}" data-${action}="${esc(value)}" data-tooltip="${esc(label)}" aria-label="${esc(label)} ${esc(name)}"><span class="material-symbols-rounded" aria-hidden="true">${iconName}</span></button>`;
   const targetPicker = window.PaywizardAdvertisingTargetPicker.mount({ host: $('targetPicker'), directory, state: () => state, draft: () => draft, changed: () => { dirty = true; syncEditor(); } });
@@ -67,10 +56,20 @@
     }));
   }
   function thumbnail(asset) { return asset ? `<img class="ads-thumb" data-asset="${esc(asset.id)}" alt="" ${asset.type === 'video' && !asset.poster ? 'hidden' : ''}>` : ''; }
-  if (contextTerminal) {
+  if (contextSn) {
     $('adsContext').hidden = false;
-    const back = new URLSearchParams({ sn: contextSn, terminalName: contextTerminal.name, merchantName: contextTerminal.merchant, tab: 'basic' });
-    $('adsContext').innerHTML = `<div class="ads-context-strip"><strong>${esc(contextTerminal.name)} · ${esc(contextSn)}</strong><div class="ads-actions"><a class="ads-link-button" href="1.terminalmanage_nayax.html?${esc(back)}">Terminal Details</a><a class="ads-link-button" href="45.advertising.html">All Terminals</a></div></div>`;
+    const name = params.has('terminalName') ? params.get('terminalName').trim() : contextTerminal?.name || '';
+    const displaySn = params.get('hardwareSn')?.trim() || contextSn;
+    const back = new URLSearchParams({ sn: contextSn, terminalName: name, merchantName: contextTerminal?.merchant || '', tab: 'advertising' });
+    let returnUrl = `1.terminalmanage_nayax.html?${back}`;
+    try {
+      const requested = new URL(params.get('returnTo') || returnUrl, location.href);
+      if (requested.origin === location.origin && requested.pathname === new URL('1.terminalmanage_nayax.html', location.href).pathname && requested.searchParams.get('sn') === contextSn) {
+        requested.searchParams.set('tab', 'advertising');
+        returnUrl = requested.pathname + requested.search;
+      }
+    } catch (_) { /* Keep the local terminal return route. */ }
+    $('adsContext').innerHTML = `<div class="ads-context-strip"><strong>${name ? `${esc(name)} · ` : ''}S/N: ${esc(displaySn)}</strong><div class="ads-actions"><a class="ads-link-button" href="${esc(returnUrl)}">Terminal Details</a><a class="ads-link-button" href="45.advertising.html">All Terminals</a></div></div>`;
   }
   function setView(view) {
     editorPreview?.dispose(); editorPreview = null; editorPreviewKey = ''; 
@@ -128,6 +127,8 @@
     collect();
     $('fullScreenOptions').hidden = draft.mode !== 'fullscreen';
     const published = !!draft.published;
+    $('campaignScopeNotice').hidden = !contextSn || !published;
+    $('campaignScopeNotice').textContent = `Shared campaign · ${D.resolveTargets(draft, state.terminals).length} terminals selected. Publishing updates this campaign for all selected terminals.`;
     $('saveCampaignDraft').hidden = published;
     $('saveCampaignDraft').disabled = published;
     $('saveCampaignDraft').type = published ? 'button' : 'submit';

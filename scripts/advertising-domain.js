@@ -15,6 +15,28 @@
     const stores = new Set(campaign.targetStores || []);
     return [...new Set([...(campaign.targets || []), ...terminals.filter(t => stores.has(t.storeId) && inScope(t, campaign.accountKey)).map(t => t.sn)])];
   }
+  // Both the campaign editor and terminal summary use the same current directory.
+  function syncDirectory(state, directory) {
+    state.stores = directory.accounts.filter(n => n.type === 'store').map(n => ({ id: n.id, name: n.name, merchant: directory.account(n.parentKey)?.name || '', accountKeys: n.lineageKeys }));
+    for (const old of state.terminals) if (old.accountKeys && !directory.terminals.some(t => t.sn === old.sn)) {
+      old.accountKeys = []; delete old.storeId;
+    }
+    for (const terminal of directory.terminals) {
+      const identity = { sn: terminal.sn, name: terminal.name, accountKeys: terminal.lineageKeys, providerId: terminal.providerId, agentId: terminal.agentId, merchantId: terminal.merchantId, storeId: terminal.storeId, merchant: terminal.merchant, store: terminal.store };
+      const existing = state.terminals.find(item => item.sn === terminal.sn);
+      if (existing) Object.assign(existing, identity);
+      else state.terminals.push(identity);
+    }
+    reconcile(state);
+  }
+  function terminalAssignment(state, sn) {
+    const owner = state.assignments?.[sn]?.campaignId;
+    const campaign = state.campaigns.find(c => c.id === owner && c.published && !c.publicationStopped);
+    if (!campaign) return null;
+    const terminal = state.terminals.find(t => t.sn === sn);
+    const storeId = campaign.published.targetStores?.includes(terminal?.storeId) ? terminal.storeId : null;
+    return { campaignId: campaign.id, published: campaign.published, storeId, storeName: storeId ? state.stores?.find(s => s.id === storeId)?.name || terminal.store || '' : '' };
+  }
   function validate(campaign, assets, terminals, stores = []) {
     if (!campaign.name.trim()) return 'Enter a campaign name.';
     if (!['embedded', 'fullscreen'].includes(campaign.mode)) return 'Select a display mode.';
@@ -124,5 +146,5 @@
   function inUse(state, assetId) {
     return state.campaigns.some(c => c.items.some(i => i.assetId === assetId) || c.published?.items.some(i => i.assetId === assetId));
   }
-  return { copy, modeLabel, mediaType, normalize, inScope, resolveTargets, validate, conflicts, storeConflicts, targetAvailability, saveDraft, reconcile, upgrade, publish, stop, inUse };
+  return { copy, modeLabel, mediaType, normalize, inScope, resolveTargets, syncDirectory, terminalAssignment, validate, conflicts, storeConflicts, targetAvailability, saveDraft, reconcile, upgrade, publish, stop, inUse };
 });

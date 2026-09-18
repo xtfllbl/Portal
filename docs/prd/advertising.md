@@ -12,7 +12,7 @@ The user requested a functional portal prototype on 2026-09-10, with the followi
 - The editor follows the existing Billing Setup form/preview layout and portal icon conventions.
 - Each terminal uses one advertising display mode at a time: Idle-screen Advertising or Full-screen Advertising.
 - Advertising is a standalone top-level navigation item immediately above APP Management.
-- Terminal Details has no Advertising tab.
+- Unattended Terminal Details has a read-only Advertising tab after Alerts, with View Campaign linked to the terminal-filtered Advertising campaign list.
 - Playback Statistics, playback event collection, and statistics export are excluded.
 - The Advertising page has no Local demo badge.
 
@@ -24,7 +24,21 @@ Canonical decision map: [无人值守终端广告配置与播放闭环](https://
 
 `45.advertising.html` uses the existing shared portal header and sidebar. It contains only Campaigns and Media Library. Deployments and its simulated sync/download/acknowledgement functions are removed. Legacy `?view=deployments` links return to Campaigns. WizarPOS Provider, Full-Service Provider, Unattended Provider, Unattended Merchant, and Unattended Store can access it in the Role Simulator. Other profiles hide the menu and reject direct routes. Advertising uses the shared customer-account directory for Agent, Merchant and Store filters and also retains existing demonstration terminals. Demo account selection and its account-mismatch messages are removed. The target picker shows the complete prototype directory, regardless of former account-switch preferences. Opening a saved campaign clears its obsolete editable `accountKey`; saving and new publications use the selected stores and terminals directly. Published snapshots are retained until republished. The global portal role selector and page visibility rules remain unchanged. This is a prototype presentation, not server-side authentication.
 
-Terminal Details has no Advertising tab or advertising actions. Previously shared advertising URLs containing an SN can still filter campaigns by that SN; All Terminals exits that filter. The advertising directory contains demonstration terminals and does not modify existing terminal or Product Map data.
+Unattended Terminal Details exposes the current campaign in its Advertising tab. Advertising URLs containing an SN filter campaigns by that SN; All Terminals exits that filter. The advertising directory contains demonstration terminals and does not modify existing terminal or Product Map data.
+
+### Terminal detail Advertising tab
+
+Confirmed on 2026-09-18:
+
+- Terminal Details should expose the terminal's current published, non-stopped Advertising Target Assignment. This describes portal configuration, not confirmed device playback.
+- The user accepted Campaign name, display mode, media thumbnails and count, and assignment source (direct terminal selection or the named Store), including individual media preview.
+- View Campaign opens the Campaigns list in Advertising, filtered by the current terminal, retaining the terminal context strip, filters and existing row actions. It does not automatically enter the editor; the customer chooses whether to edit from the list. Editing remains shared across the campaign targets.
+- With no current assignment, display No advertising configured and a Manage Advertising entry to the campaign list filtered by that terminal. Draft and stopped campaigns are not current assignments.
+- Advertising is a primary tab immediately after Alerts. Preserve the existing Basic Information layout, including Service Uptime. The tab follows Advertising portal access and is available for Unattended terminal types.
+- Selected primary tabs use white underlines across Attended, Unattended and Card Reader terminal details. View Campaign keeps white text and icon color without a link underline in hover, focus, active and visited states.
+- The summary reads the published snapshot through the terminal's current assignment, preserving existing ownership when store coverage conflicts. Opening it does not publish or modify a campaign. Store membership is resolved from the same directory as the campaign editor.
+- When the customer selects Edit from the list, the editor opens the saved campaign and shows the shared target count. Terminal Details returns to the originating terminal's Advertising tab, preserving its name and other route context. A missing Terminal Name remains absent, and S/N is explicitly labeled.
+- Image and video previews retain their original proportions. Video previews have controls and start muted; closing the preview releases playback. Missing media remains visible as unavailable and explains that it can be checked or replaced by opening View Campaign and then selecting Edit.
 
 ## Campaigns and editing
 

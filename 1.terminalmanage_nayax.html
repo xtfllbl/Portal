@@ -1927,6 +1927,7 @@
   <link rel="stylesheet" href="styles/alert-monitoring-hours.css">
 <script src="scripts/terminal-type.js" defer></script>
     <link rel="stylesheet" href="styles/terminal-banner.css">
+    <link rel="stylesheet" href="styles/terminal-advertising.css">
 <link rel="stylesheet" href="styles/operating-hours-editor.css">
 </head>
 <body>
@@ -2205,6 +2206,7 @@
                     <button id="primaryTabProductMap" class="tab" data-tab="productmap" role="tab" aria-controls="tab-productmap" aria-selected="false" tabindex="-1">Product Map</button>
                     <button id="primaryTabDex" class="tab" data-tab="dex" role="tab" aria-controls="tab-dex" aria-selected="false" tabindex="-1">DEX</button>
                     <button id="primaryTabAlerts" class="tab" data-tab="alerts" role="tab" aria-controls="tab-alerts" aria-selected="false" tabindex="-1">Alerts</button>
+                    <button id="primaryTabAdvertising" class="tab" data-tab="advertising" role="tab" aria-controls="tab-advertising" aria-selected="false" tabindex="-1">Advertising</button>
                 </div>
                 <div class="sync-text">Synchronization Time: 2024-09-23 17:05</div>
             </div>
@@ -2754,6 +2756,10 @@
                     </div>
                 </section>
 
+                <!-- Current advertising configuration -->
+                <section id="tab-advertising" class="hidden" role="tabpanel" aria-labelledby="primaryTabAdvertising" tabindex="0">
+                    <div id="terminalAdvertising" class="terminal-campaign" aria-live="polite"></div>
+                </section>
                 <!-- Customer Alerts -->
                 <section id="tab-alerts" class="hidden customer-alerts-surface" role="tabpanel" aria-labelledby="primaryTabAlerts" tabindex="0" data-alert-page="terminal">
                     <div class="alerts-command-bar" aria-label="Alert actions">
@@ -3251,7 +3257,8 @@
             push: document.getElementById('tab-push'),
             productmap: document.getElementById('tab-productmap'),
             dex: document.getElementById('tab-dex'),
-            alerts: document.getElementById('tab-alerts')
+            alerts: document.getElementById('tab-alerts'),
+            advertising: document.getElementById('tab-advertising')
         };
 
         function showTab(key, updateUrl, leaveApproved = false) {
@@ -3283,15 +3290,17 @@
         }
 
         tabs.forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab, true)));
-        tabs.forEach((btn, index) => btn.addEventListener('keydown', evt => {
+        tabs.forEach(btn => btn.addEventListener('keydown', evt => {
+            const visibleTabs = Array.from(tabs).filter(tab => !tab.hidden);
+            const index = visibleTabs.indexOf(btn);
             let nextIndex = index;
-            if(evt.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
-            else if(evt.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+            if(evt.key === 'ArrowRight') nextIndex = (index + 1) % visibleTabs.length;
+            else if(evt.key === 'ArrowLeft') nextIndex = (index - 1 + visibleTabs.length) % visibleTabs.length;
             else if(evt.key === 'Home') nextIndex = 0;
-            else if(evt.key === 'End') nextIndex = tabs.length - 1;
+            else if(evt.key === 'End') nextIndex = visibleTabs.length - 1;
             else return;
             evt.preventDefault();
-            const nextTab = tabs[nextIndex];
+            const nextTab = visibleTabs[nextIndex];
             showTab(nextTab.dataset.tab, true);
             nextTab.focus();
         }));
@@ -7281,5 +7290,8 @@ paymentTimeout=180`
   <script src="scripts/uptime-combobox.js" defer></script>
   <script src="scripts/operating-hours-editor.js" defer></script>
   <script src="scripts/terminal-uptime-summary.js" defer></script>
+  <script src="scripts/advertising-domain.js" defer></script>
+  <script src="scripts/advertising-store.js" defer></script>
+  <script src="scripts/terminal-advertising.js" defer></script>
 </body>
 </html>

@@ -468,3 +468,33 @@ Resolve the script relative to the `user-context/SKILL.md` directory, or update 
 - **Notes**: Located the installed script under the user-context skill and continued with that path.
 
 ---
+
+## [ERR-20260918-TAD] Browser extension connection timeout
+
+**Logged**: 2026-09-18T01:41:08.133898+00:00
+**Priority**: medium
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Browser runtime setup succeeded but Chrome session naming and tab listing repeatedly timed out, preventing visual acceptance of the terminal Advertising tab.
+
+### Error
+`js execution timed out; kernel reset, rerun your request`
+
+### Context
+Chrome is running and native-host manifest checks passed. The documented extension-installed diagnostic could not read Chrome Local State (EPERM), so extension availability remains unverified. No browser UI checks completed during the initial attempt.
+
+### Suggested Fix
+Reconnect the ChatGPT Browser extension, then validate the terminal Advertising tab, media previews, empty state, editor jump and return on desktop. Do not treat build or unit test results as visual acceptance.
+
+### Metadata
+- Reproducible: yes
+- Related Files: 1.terminalmanage_nayax.html, scripts/terminal-advertising.js
+- Pattern-Key: net.timeout
+
+---
+
+### Resolution
+- **Resolved**: 2026-09-18
+- **Notes**: The existing browser connection recovered in the follow-up turn. Desktop screenshots verified the Advertising tab after Alerts, View Campaign opening the terminal-filtered list with the editor hidden, optional Edit, return to the original Advertising tab, image preview, and draft-only empty state.
