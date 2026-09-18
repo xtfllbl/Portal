@@ -69,7 +69,7 @@ A Store selected as a continuing scope for an Advertising Campaign. Its current 
 _Avoid_: Terminal snapshot, store filter, Dynamic Store Target for Customer Alerts
 
 **Advertising Target Conflict**:
-A terminal in a campaign's intended scope that is already assigned another non-stopped campaign. An existing conflict blocks publication. A conflict caused by later Store membership changes preserves the existing assignment and leaves the new assignment pending resolution; other targets continue normally.
+A terminal in a campaign's intended scope that is already assigned another published, non-stopped campaign. An existing conflict blocks publication. A conflict caused by later Store membership changes preserves the existing assignment only while the original published scope still includes that terminal, and leaves the new assignment pending resolution; other targets continue normally.
 _Avoid_: Automatic overwrite, terminal sync failure
 
 **Advertising Media Preview**:
