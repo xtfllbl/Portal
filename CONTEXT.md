@@ -385,7 +385,7 @@ The proportion of elapsed Operating Hours within a Terminal Reporting Day during
 _Avoid_: All-day uptime regardless of Operating Hours, uptime inferred from absent alerts
 
 **Valid Payment Service Heartbeat**:
-A successfully received Payment Service heartbeat that is evidence of the terminal being online. A terminal does not report Offline; Offline is inferred from the absence of expected heartbeats.
+A successfully received Payment Service heartbeat that is evidence of the terminal being online; terminals send these heartbeats every three minutes. An isolated missed heartbeat is tolerated, but a second consecutive miss makes the absence count as Offline from the first missed heartbeat's expected time until a valid heartbeat resumes.
 _Avoid_: Offline report, successful payment, inferred missing-report record
 
 **Uptime No Data**:
@@ -397,7 +397,7 @@ A period for which the available evidence cannot establish whether a Terminal's 
 _Avoid_: Confirmed offline, confirmed online, outside Operating Hours
 
 **Offline**:
-An elapsed period in which expected Payment Service communication is absent, counted as not online in Service Uptime without determining whether the cause is the network, terminal, or another fault. It is assessed within a day that has at least one Valid Payment Service Heartbeat; a wholly unreported day is Uptime No Data.
+An elapsed period in which expected Payment Service communication is absent beyond the permitted single missed heartbeat, counted from the first missed heartbeat's expected time until communication resumes without assigning a fault cause. It is assessed within a day that has at least one Valid Payment Service Heartbeat; a wholly unreported day is Uptime No Data, and time before any valid online evidence is not presumed online.
 _Avoid_: Unreachable, Confirmed offline, No report, proven network fault, confirmed machine failure, future operating time
 
 **Uptime In Progress**:

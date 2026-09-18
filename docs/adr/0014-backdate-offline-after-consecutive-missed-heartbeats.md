@@ -1,0 +1,5 @@
+# Backdate Offline after consecutive missed Payment Service heartbeats
+
+Accepted on 2026-09-18: terminals send a Payment Service heartbeat every three minutes, and one isolated missed heartbeat is tolerated without reducing uptime; if the second consecutive expected heartbeat is also absent, Offline is recorded from the first missed heartbeat's expected time until a valid heartbeat resumes. This balances tolerance for a single reporting error against accurate accounting for sustained communication loss, instead of permanently forgiving the first missing interval after a continuous outage is established.
+
+Confirmation time and Offline start time therefore differ: a later observation can revise a previously provisional interval, including a previous local day's result when the interval crosses midnight. History must preserve the effective Operating Hours and authorized Store membership, and the zero-heartbeat-day No data rule still applies; the complete reporting and acceptance rules are in [the requirements](../prd/terminal-uptime.md#3-心跳容错与离线判定).
