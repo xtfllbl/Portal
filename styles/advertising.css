@@ -93,31 +93,36 @@ svg.ads-icon, .ads-icon-button svg { fill: none; stroke: currentColor; stroke-wi
 .ads-device-stage { position: relative; width: 100%; max-width: 350px; margin: 0 auto; overflow: hidden; }
 .ads-hardware { position: absolute; top: 0; left: 0; transform-origin: top left; }
 .ads-device-body { position: absolute; width: 100%; height: 100%; inset: 0; mask-size: 100% 100%; mask-mode: luminance; pointer-events: none; }
-.ads-native-display { position: absolute; left: 0; top: 0; transform-origin: top left; overflow: hidden; background: #030303; border-radius: 3px; }
+.ads-native-display { position: absolute; left: 0; top: 0; transform-origin: top left; overflow: hidden; background: #000; border-radius: 3px; }
 .ads-native-display.q3v { border-radius: 0; }
 .ads-native-display.q3min { border-radius: 15px; }
-.ads-native-display .ads-device { width: 100%; height: 100%; background: #030303; color: #fff; font-family: Arial, sans-serif; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-.ads-device-head { display: flex; justify-content: space-between; gap: 12px; font-size: 19px; font-weight: 700; padding: 22px 20px; }
-.ads-device-center { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 14px 0; overflow: hidden; }
-.ads-ready { font-size: 60px; line-height: 1.08; text-align: center; font-weight: 750; padding: 20px 10px; }
-.ads-live-media-slot { width: 100%; height: 100%; }
+/* OPC standby template at 480/800 scale. Extra Q3V height belongs to the central content area. */
+.ads-native-display .ads-device { width: 100%; height: 100%; padding: 32.4px 26.4px 14.4px; background: #000; color: #fff; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.ads-device-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 19.2px; font-weight: 500; letter-spacing: .01em; line-height: 1; white-space: nowrap; }
+.ads-device-center { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 19.2px 0 34.8px; overflow: hidden; }
+.ads-ready { width: 408px; max-width: 100%; font-size: 55.2px; line-height: .98; text-align: center; font-weight: 800; letter-spacing: -.055em; }
+.ads-live-media-slot { width: 100%; height: 100%; min-height: 0; }
 .ads-screen-media { display: block; width: 100%; height: 100%; object-fit: contain; }
-.ads-device-payments { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 22px 24px 12px; }
-.ads-pay-brand { min-width: 66px; background: #f8f8fa; color: #171717; border-radius: 5px; padding: 10px; font-size: 14px; font-weight: 700; text-align: center; }
-.ads-pay-brand img { width: 43px; height: 17px; object-fit: contain; }
-.ads-terminal-logo { text-align: center; font-size: 54px; font-weight: 800; letter-spacing: -2px; padding: 16px 0 26px; }
-.ads-terminal-logo span { letter-spacing: -3px; }
-.ads-device-footer { display: flex; justify-content: space-between; gap: 14px; font-size: 14px; font-weight: 600; color: #aaa; padding: 0 16px 18px; }
-.ads-screen-overlay { position: absolute; inset: 0; background: #030303; cursor: pointer; }
+.ads-device-footer-stack { flex: none; width: 100%; min-height: 232.8px; margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 8.4px; }
+.ads-device-payments { --standby-payment-size: 64.8px; display: flex; justify-content: center; align-items: center; align-content: flex-start; flex-wrap: wrap; gap: 10.8px; width: 100%; max-width: 300px; margin: 0 auto; }
+.ads-pay-brand { width: var(--standby-payment-size); height: var(--standby-payment-size); flex: 0 0 var(--standby-payment-size); display: flex; align-items: center; justify-content: center; min-width: 0; }
+.ads-pay-brand img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2.4px 7.2px rgba(255,255,255,.06)); }
+.ads-terminal-logo { width: 252px; max-width: 100%; min-height: 55.2px; display: flex; justify-content: center; align-items: center; }
+.ads-terminal-logo img { display: block; width: 232.8px; max-width: 100%; height: auto; }
+.ads-device-footer { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 4.8px 1.2px; }
+.ads-device-merchant { flex: 1; min-width: 0; font-size: 9.6px; line-height: 1.12; font-weight: 600; letter-spacing: -.02em; color: rgba(255,255,255,.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ads-device-tid { flex: none; font-size: 7.8px; line-height: 1.1; font-weight: 500; letter-spacing: .01em; color: rgba(255,255,255,.46); text-align: right; }
+.ads-screen-overlay { position: absolute; inset: 0; background: #000; cursor: pointer; }
 .ads-touch-hint { position: absolute; bottom: 25px; left: 55px; right: 55px; text-align: center; color: #fff; background: #111d; border: 1px solid #fff5; border-radius: 30px; font-size: 20px; padding: 13px; pointer-events: none; }
-.q3min .ads-device-head { font-size: 15px; padding: 14px 16px; }
-.q3min .ads-device-center { padding: 4px 0; }
+/* Approved square-screen adaptation: same assets and 4 + 3 brand order, tighter vertical spacing. */
+.q3min .ads-device { padding: 20px 26.4px 12px; }
+.q3min .ads-device-head { font-size: 17px; }
+.q3min .ads-device-center { padding: 12px 0 18px; }
 .q3min .ads-ready { font-size: 43px; }
-.q3min .ads-device-payments { gap: 6px; padding: 10px 12px 4px; }
-.q3min .ads-pay-brand { min-width: 52px; padding: 7px 5px; font-size: 10px; }
-.q3min .ads-pay-brand img { width: 34px; height: 12px; }
-.q3min .ads-terminal-logo { font-size: 34px; padding: 8px 0 10px; }
-.q3min .ads-device-footer { font-size: 11px; padding-bottom: 12px; }
+.q3min .ads-device-footer-stack { min-height: 0; gap: 6px; }
+.q3min .ads-device-payments { --standby-payment-size: 48px; gap: 8px; max-width: 220px; }
+.q3min .ads-terminal-logo { width: 184px; min-height: 0; }
+.q3min .ads-terminal-logo img { width: 170px; }
 .q3min .ads-touch-hint { font-size: 18px; bottom: 20px; padding: 10px; }
 
 @media (max-width: 1150px) {

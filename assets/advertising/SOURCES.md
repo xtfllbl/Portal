@@ -21,3 +21,12 @@ The PDF identifies the portrait product as UPT; the preview uses the user's file
 `q3min-left.png` remains the accepted left-facing illustrative view made from the Q3min PDF reference with the built-in image generation tool. Its asset, viewport crop, and 480 × 480 display projection are unchanged. It uses its own opaque pale-gray background, without the PDF mask.
 
 The rejected generated slim frame (`q3v-front-slim.png`), earlier Q3V side-view assets (`q3v-left.png`, `q3v-left-refined.png`, and `q3v-supplied-left.png`) and original multiview sheet (`q3v-supplied-views.png`) are retained as references. Historical generation prompts are in [VIEW_PROMPTS.md](VIEW_PROMPTS.md).
+
+## Idle-screen artwork and layout
+
+The files in `standby/` are unmodified copies from `/Users/beaver/Paywizard/模版资料/OPC/`, used by the supplied `0.OPC_standby.html`:
+
+- `icon_visa.svg`, `icon_mastercard.svg`, `icon_amex.svg`, `icon_discover.svg`, `icon_union pay.svg`, `icon_apple pay.svg`, `icon_google pay.svg` (original 1024 × 1024 SVG canvases, including their internal whitespace).
+- `wizarpos_white_logo.png` (512 × 147, white/blue brand artwork).
+
+The template has an 800 × 1280 design canvas. Q3V retains its width-scaled element dimensions at 480 × 800, with a flexible central advertising region. Q3min's 480 × 480 adaptation was approved on 2026-09-18: same assets and 4 + 3 payment-brand order, adjusted spacing and sizes, and no stretching of individual artwork. Device frames and screen projections remain as documented above.

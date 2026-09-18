@@ -45,9 +45,30 @@
     const observer = new ResizeObserver(resize); observer.observe(stage); resize();
     let disposed = false, timer, idleTimer, generation = 0, index = 0, order = [], mediaNode = null, inPayment = false, suspended = false;
     const report = text => { status.textContent = text; };
+    // Original artwork from OPC/0.OPC_standby.html; never substitute text marks.
+    const paymentBrands = [
+      ['visa', 'Visa'], ['mastercard', 'Mastercard'], ['amex', 'American Express'],
+      ['discover', 'Discover'], ['union pay', 'UnionPay'], ['apple pay', 'Apple Pay'], ['google pay', 'Google Pay']
+    ];
+    const standbyAssets = 'assets/advertising/standby/';
+    const clockText = () => {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    };
     function screen(center = '<div class="ads-ready">Ready for<br>Payment</div>', overlay = '') {
-      display.innerHTML = `<div class="ads-device"><div class="ads-device-head"><span>${escape(sn)}</span><span>13:38</span></div><div class="ads-device-center">${center}</div><div class="ads-device-payments"><span class="ads-pay-brand"><img src="assets/payment-brands/visa.svg" alt="Visa"></span><span class="ads-pay-brand"><img src="assets/payment-brands/mastercard.svg" alt="Mastercard"></span><span class="ads-pay-brand">AMEX</span><span class="ads-pay-brand">DISCOVER</span><span class="ads-pay-brand">UnionPay</span><span class="ads-pay-brand">Apple Pay</span><span class="ads-pay-brand">G Pay</span></div><div class="ads-terminal-logo">wizar<span>POS</span></div><div class="ads-device-footer"><span>${escape(merchant)}</span><span>43230039</span></div>${overlay}</div>`;
+      display.innerHTML = `<div class="ads-device">
+        <div class="ads-device-head"><span aria-label="S/N ${escape(sn)}">${escape(sn)}</span><span class="ads-device-time">${clockText()}</span></div>
+        <div class="ads-device-center">${center}</div>
+        <div class="ads-device-footer-stack">
+          <div class="ads-device-payments" aria-label="Accepted cards">${paymentBrands.map(([file, name]) => `<span class="ads-pay-brand"><img src="${standbyAssets}icon_${encodeURIComponent(file)}.svg" alt="${name}"></span>`).join('')}</div>
+          <div class="ads-terminal-logo"><img src="${standbyAssets}wizarpos_white_logo.png" alt="wizarPOS logo"></div>
+          <div class="ads-device-footer"><span class="ads-device-merchant">${escape(merchant)}</span><span class="ads-device-tid">43230039</span></div>
+        </div>${overlay}</div>`;
     }
+    const clockTimer = setInterval(() => {
+      const clock = display.querySelector('.ads-device-time');
+      if (clock) clock.textContent = clockText();
+    }, 1000);
     function halt() {
       generation++; clearTimeout(timer); clearTimeout(idleTimer);
       if (mediaNode?.tagName === 'VIDEO') { mediaNode.pause(); mediaNode.removeAttribute('src'); mediaNode.load(); }
@@ -108,7 +129,7 @@
     const visibility = () => { suspended = document.hidden; if (suspended) { halt(); report('Paused'); } else if (!inPayment) idle(true); };
     document.addEventListener('visibilitychange', visibility);
     idle(true);
-    return { restart, payment, idle, dispose() { disposed = true; halt(); observer.disconnect(); document.removeEventListener('visibilitychange', visibility); } };
+    return { restart, payment, idle, dispose() { disposed = true; halt(); clearInterval(clockTimer); observer.disconnect(); document.removeEventListener('visibilitychange', visibility); } };
   }
   window.PaywizardAdvertisingPreview = { models, mount };
 })();

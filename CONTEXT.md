@@ -85,7 +85,7 @@ The brand or organization associated with advertising content. In the first adve
 _Avoid_: Campaign manager, terminal owner, Portal Access Profile
 
 **Idle-screen Advertising**:
-An image carousel occupying the central content area of the terminal's idle payment screen while its serial number, payment methods, Terminal Logo and merchant footer remain visible.
+An image carousel replacing the central Ready for Payment message of the terminal's idle payment screen while its serial number, time, payment methods, Terminal Logo and merchant footer remain visible.
 _Avoid_: Payment-screen Advertising, Full-screen Advertising, Terminal Logo
 
 **Full-screen Advertising**:
