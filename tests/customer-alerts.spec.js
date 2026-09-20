@@ -954,3 +954,36 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     expect(heights).toEqual([36, 36]);
   });
 }
+
+test('Operations Manager alert center filters: no organization or current rules filters, and rule owner is a text searchbox', async ({ page }) => {
+  await page.goto('/39.customer_alerts.html?role=operations-manager');
+  const surface = page.locator('[data-alert-page]');
+
+  // Verify removed filters
+  await expect(surface.locator('[data-alert-organization-filter]')).toHaveCount(0);
+  await expect(surface.locator('[data-alert-rule-status-filter]')).toHaveCount(0);
+
+  // Verify Rule Owner is an input searchbox
+  const ownerInput = surface.getByRole('searchbox', { name: 'Rule owner', exact: true });
+  await expect(ownerInput).toBeVisible();
+  await expect(ownerInput).toHaveAttribute('placeholder', 'Rule owner');
+
+  // Verify typing in Rule Owner and pressing Enter filters incidents
+  await ownerInput.fill('Midtown');
+  await ownerInput.press('Enter');
+  const count = await surface.locator('[data-alert-incidents] tr').count();
+  expect(count).toBeGreaterThan(0);
+  const owners = await surface.locator('[data-alert-incidents] .alert-owner-cell').allTextContents();
+  expect(owners.every(text => text.includes('Midtown'))).toBe(true);
+
+  // Switch to Rules tab and verify default view excludes Archived rules
+  await surface.getByRole('tab', { name: 'Rules', exact: true }).click();
+  const ruleStatuses = await surface.locator('[data-alert-rules] .alert-status').allTextContents();
+  expect(ruleStatuses.length).toBeGreaterThan(0);
+  expect(ruleStatuses.every(status => status !== 'Archived')).toBe(true);
+
+  // Verify customer role hides Rule ID and Rule Owner
+  await surface.getByLabel('Alerts role', { exact: true }).selectOption('merchant');
+  await expect(ownerInput).toBeHidden();
+  await expect(surface.getByRole('searchbox', { name: 'Rule ID', exact: true })).toBeHidden();
+});

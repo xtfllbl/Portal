@@ -59,7 +59,6 @@ test('migrated rule numbers survive reload, edits, archival and cross-page navig
   await row.getByRole('button', { name: 'Pause', exact: true }).click();
   await row.getByRole('button', { name: 'Delete rule', exact: true }).click();
   await page.locator('[data-alert-delete-confirm]').click();
-  await surface.getByLabel('Rule status', { exact: true }).selectOption('Archived');
   await surface.getByRole('searchbox', { name: 'Rule ID', exact: true }).fill(String(customNumber));
   await surface.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(row.locator('.alert-rule-id-cell')).toHaveText(String(customNumber));

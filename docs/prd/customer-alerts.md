@@ -469,7 +469,7 @@ Demo terminals DEMO-AGT1-001, DEMO-AGT2-001, and DEMO-AGT3-001 exercise direct m
 - Rule ID 使用简短纯数字，例如 `100001`；同一条规则在 Alerts、Rules 和 Customer Alert 邮件中使用相同编号，不随排序、编辑、暂停或归档而变化，也不重复分配给另一条规则。
 - 仅 Operations Manager 在 Alerts 中心、终端 Alerts 页的 Alerts / Rules 四张表看到首列 Rule ID 和对应搜索入口。客户侧角色不显示该列或搜索框，切换角色会清空该筛选。
 - 输入完整或部分数字后点击 Search 或按 Enter 搜索；与其他现有筛选取交集。清空再搜索恢复列表，两个 tab 共用输入值。无匹配时显示现有空态。
-- 保留现有列表范围：终端 Rules 只列直接绑定该终端的未归档规则；门店规则及归档规则可在 Alerts 中心按原有范围和规则状态筛选查询。
+- 保留现有列表范围：终端 Rules 只列直接绑定该终端的未归档规则；Alerts 中心 Rules 列表默认展示未归档规则，归档规则可通过 Rule ID 精确检索。
 - 所有 Customer Alert 通知邮件在版权文字上方以 12px 灰字显示 `Triggered by Rule ID: 100009`。母版使用 `${ruleId}`，标题、告警主内容及通知条件保持原样。
 - 每条告警必须关联规则并显示数字 Rule ID，不允许空白或 `—`。归档／删除规则仍须保留历史关联与编号；不能把旧告警关联到其他归属的同类规则。
 
@@ -478,3 +478,17 @@ Demo terminals DEMO-AGT1-001, DEMO-AGT2-001, and DEMO-AGT3-001 exercise direct m
 当前原型保留内部 `id` / `incident.ruleId` 的历史字符串关联键，另持久化数值 `ruleNumber` 作为界面 Rule ID；存量规则首次读取时补齐，新规则按 `nextRuleNumber` 分配。旧原型告警缺失关联时，按可核实的演示事件身份与归属恢复已有规则；无法直接恢复或旧版已硬删除时，保留原关联键（无键则按该历史事件建立引用），补齐只读归档规则记录。已有同一关联键的告警共用编号，不重新启用监控，不修改告警状态、确认信息或时间线。缺失的历史参数不套用其他规则的配置。原型演示编号从 100001 起，不按客户或终端重新计数。邮件参数 `${ruleId}` 必须取对应规则的数字 `ruleNumber`，不是原型内部字符串键。
 
 正式服务须由后端统一分配并保证编号唯一；本次只修改交互原型、邮件母版及示例，不代表已接入实际邮件发送服务。
+
+
+## 16. 运维管理员工具栏筛选精简与 Rule Owner 搜索（2026-09-20）
+
+- **精简跨租户筛选**：移除 `All organization scopes` 层级级联下拉框。运维管理员默认具备跨全平台所有组织的视野，直接通过 Rule Owner 与 Target 维度检索即可，避免重复的祖先节点过滤层级。
+- **Rule Owner 支持文本搜索**：将 `Rule owner` 控件由枚举下拉框改造为 `<input type="search" placeholder="Rule owner">` 文本输入框。
+  - 匹配逻辑：不区分大小写，对显示的 Rule Owner 文本（包括 Owner Type 与 Owner Name，例如 `Merchant`、`Store`、`Universal`、`Midtown`、`1 of a Kind` 等）进行模糊子串匹配。
+  - 交互行为：支持输入后按 Enter 或点击右侧放大镜统一提交搜索；重置或切换角色时清空。
+- **移除 Current rules 下拉框**：
+  - 告警中心工具栏彻底移除 `Current rules` 下拉选择控件。
+  - Rules 列表默认仅展示生效规则（Active/Paused，即排除已归档规则 `status !== 'Archived'`），与普通客户角色的展示范围保持一致；
+  - 运维人员如需查验历史归档规则，输入具体数字 `Rule ID` 检索即可直接呈现命中规则的历史归档留痕。
+- **网格排版对称化**：运维管理员模式下的工具栏在容器宽度 ≥960px 时由原 5 列更新为 4 列网格（4 列 × 2 行，共 7 项输入/选择控件 + 1 个搜索按钮），界面对称紧凑，无多余留白。
+

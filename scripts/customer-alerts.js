@@ -475,7 +475,7 @@
   const canManageIncident = (incident) => canManageRule(state.rules.find((rule) => rule.id === incident?.ruleId));
   let canManageAlerts = currentRole.isOperations ? currentRole.canManage : query.get("manageAlerts") !== "false";
   let selectedRuleOwner = null;
-  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current", ruleId: "" };
+  let appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", owner: "", ruleId: "" };
   surface.querySelectorAll("[data-alert-terminal-name]").forEach((node) => {
     node.textContent = terminalName;
     node.hidden = !terminalName;
@@ -520,11 +520,13 @@
 
   function operationsFilterMatches(rule) {
     if (!currentRole.isOperations || !rule) return true;
+    if (!appliedCenterFilters.owner) return true;
+    const query = appliedCenterFilters.owner;
     const owner = accountForRule(rule);
-    const organization = appliedCenterFilters.organization ? customerAccounts.find((account) => `${account.type}|${account.id}` === appliedCenterFilters.organization) : null;
-    const organizationMatches = !organization || owner?.lineageIds.includes(organization.id);
-    const ownerMatches = !appliedCenterFilters.owner || `${owner?.type}|${owner?.id}` === appliedCenterFilters.owner;
-    return organizationMatches && ownerMatches;
+    const ownerType = (ownerTypeLabel(owner) || rule.ownerType || "").toLowerCase();
+    const ownerName = (owner?.name || rule.ownerName || rule.owner || "").toLowerCase();
+    const combined = `${ownerType} ${ownerName}`;
+    return combined.includes(query);
   }
 
   function ruleNumberMatches(rule) {
@@ -551,13 +553,13 @@
 
   function visibleRules() {
     const items = roleVisibleRules();
-    const { store: storeFilter, terminal: terminalFilter, condition: conditionFilter, ruleStatus } = appliedCenterFilters;
+    const { store: storeFilter, terminal: terminalFilter, condition: conditionFilter } = appliedCenterFilters;
     return items.filter((item) => {
       const path = findTargetPath(item.targetType, item.targetId);
       const conditionMatches = conditionFilter === "all" || item.condition === conditionFilter;
       const storeMatches = !storeFilter || path?.store?.name.toLowerCase().includes(storeFilter);
       const terminalMatches = !terminalFilter || `${path?.terminal?.name || ""} ${path?.terminal?.id || ""}`.toLowerCase().includes(terminalFilter);
-      const statusMatches = !currentRole.isOperations || ruleStatus === "all" || (ruleStatus === "Archived" ? item.status === "Archived" : item.status !== "Archived");
+      const statusMatches = !currentRole.isOperations || item.status !== "Archived" || Boolean(appliedCenterFilters.ruleId && String(item.ruleNumber || "").includes(appliedCenterFilters.ruleId));
       return conditionMatches && storeMatches && terminalMatches && statusMatches && operationsFilterMatches(item) && ruleNumberMatches(item);
     });
   }
@@ -686,10 +688,9 @@
   }
 
   function resetCenterFilters() {
-    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter], [data-alert-organization-filter], [data-alert-owner-filter], [data-alert-rule-id-filter]").forEach((control) => { control.value = ""; });
+    surface.querySelectorAll("[data-alert-store-filter], [data-alert-terminal-filter], [data-alert-owner-filter], [data-alert-rule-id-filter]").forEach((control) => { control.value = ""; });
     surface.querySelectorAll("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-condition-filter]").forEach((control) => { control.value = "all"; });
-    if (ruleStatusFilter) ruleStatusFilter.value = "current";
-    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", organization: "", owner: "", ruleStatus: "current", ruleId: "" };
+    appliedCenterFilters = { state: "all", acknowledgement: "all", store: "", terminal: "", condition: "all", owner: "", ruleId: "" };
   }
 
   function applyCenterFilters() {
@@ -699,9 +700,7 @@
       store: surface.querySelector("[data-alert-store-filter]")?.value.trim().toLowerCase() || "",
       terminal: surface.querySelector("[data-alert-terminal-filter]")?.value.trim().toLowerCase() || "",
       condition: surface.querySelector("[data-alert-condition-filter]")?.value || "all",
-      organization: organizationFilter?.value || "",
-      owner: ownerFilter?.value || "",
-      ruleStatus: ruleStatusFilter?.value || "current",
+      owner: currentRole.isOperations ? surface.querySelector("[data-alert-owner-filter]")?.value.trim().toLowerCase() || "" : "",
       ruleId: currentRole.isOperations ? surface.querySelector("[data-alert-rule-id-filter]")?.value.trim() || "" : ""
     };
     renderAll();
@@ -712,10 +711,6 @@
   }
 
   function populateOperationsFilters() {
-    if (!organizationFilter || !ownerFilter) return;
-    const options = customerAccounts.map((account) => `<option value="${escapeHtml(`${account.type}|${account.id}`)}">${escapeHtml(accountOptionLabel(account))}</option>`).join("");
-    organizationFilter.innerHTML = `<option value="">All organization scopes</option>${options}`;
-    ownerFilter.innerHTML = `<option value="">All rule owners</option>${options}`;
   }
 
   function renderAccessMode() {
@@ -1162,7 +1157,8 @@
     contextEditingRuleId = editingRuleId;
     if (notificationDraft) contextForm.dataset.notificationDraft = JSON.stringify(notificationDraft);
     else delete contextForm.dataset.notificationDraft;
-    const filteredOwner = ownerFilter?.value ? customerAccounts.find((account) => `${account.type}|${account.id}` === ownerFilter.value) : null;
+    const ownerQuery = ownerFilter?.value?.trim().toLowerCase();
+    const filteredOwner = ownerQuery ? customerAccounts.find((account) => account.name.toLowerCase() === ownerQuery || `${account.type} · ${account.name}`.toLowerCase() === ownerQuery || `${account.type} - ${account.name}`.toLowerCase() === ownerQuery) : null;
     restoreOwnerCascade(accountToRestore || filteredOwner || null);
     contextModal.classList.add("open");
     contextModal.setAttribute("aria-hidden", "false");
@@ -1512,7 +1508,7 @@
     }
   });
   surface.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && event.target.matches("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter], [data-alert-rule-id-filter]")) {
+    if (event.key === "Enter" && event.target.matches("[data-alert-state-filter], [data-alert-ack-filter], [data-alert-store-filter], [data-alert-terminal-filter], [data-alert-condition-filter], [data-alert-rule-id-filter], [data-alert-owner-filter]")) {
       event.preventDefault();
       applyCenterFilters();
     }

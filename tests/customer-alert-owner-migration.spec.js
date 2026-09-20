@@ -47,24 +47,17 @@ for (const migratedBefore of [false, true]) {
       await expect(page.locator(`[data-incident-id="${records[i].id}"] .alert-owner-cell`)).toHaveText(owners[i]);
       expect(await page.locator(`[data-incident-id="${records[i].id}"] .alert-rule-id-cell`).textContent()).toMatch(/^\d+$/);
     }
-    await page.getByRole('combobox', { name: 'Rule owner', exact: true }).selectOption('Service Provider|sp-universal');
+    await page.getByRole('searchbox', { name: 'Rule owner', exact: true }).fill('Universal');
     await page.getByRole('button', { name: 'Search', exact: true }).click();
     await expect(page.locator('[data-incident-id="i-1006"]')).toBeVisible();
     for (const id of ['i-1007', 'i-1005', 'i-agent-seattle']) await expect(page.locator(`[data-incident-id="${id}"]`)).toHaveCount(0);
-    await page.getByRole('combobox', { name: 'Rule owner', exact: true }).selectOption('');
-    await page.getByRole('combobox', { name: 'Organization scope', exact: true }).selectOption('Service Provider|sp-universal');
-    await page.getByRole('button', { name: 'Search', exact: true }).click();
-    for (const id of ['i-1007', 'i-1006']) await expect(page.locator(`[data-incident-id="${id}"]`)).toBeVisible();
-    for (const id of ['i-1005', 'i-agent-seattle']) await expect(page.locator(`[data-incident-id="${id}"]`)).toHaveCount(0);
-    await page.getByRole('combobox', { name: 'Organization scope', exact: true }).selectOption('');
+    await page.getByRole('searchbox', { name: 'Rule owner', exact: true }).fill('');
     const historical = stored.incidents.find(item => item.id === 'i-1006');
     const referenceNumber = String(numbers.get(historical.ruleId));
     await page.getByRole('searchbox', { name: 'Rule ID', exact: true }).fill(referenceNumber);
     await page.getByRole('button', { name: 'Search', exact: true }).click();
     await expect(page.locator('[data-incident-id="i-1006"]')).toBeVisible();
     await page.getByRole('tab', { name: 'Rules', exact: true }).click();
-    await page.getByLabel('Rule status', { exact: true }).selectOption('Archived');
-    await page.getByRole('button', { name: 'Search', exact: true }).click();
     const ruleRow = page.locator('[data-alert-rules] tr').filter({ hasText: referenceNumber });
     await expect(ruleRow).toContainText('Archived');
     await expect(ruleRow.getByRole('button')).toHaveCount(0);
