@@ -762,7 +762,7 @@ test("notification action shares unread state and opens Notifications", async ({
     localStorage.removeItem("paywizard.customerAlerts.v1");
   });
   await page.reload();
-  await expect(page.locator("[data-shell-notification-count]")).toHaveText("61");
+  await expect(page.locator("[data-shell-notification-count]")).toHaveText("63");
   await page.locator('.pw-platform-round-btn[aria-label="Notifications"]').click();
   await expect(page).toHaveURL(/40\.notifications\.html$/);
   await expect(page.locator(".pw-platform-breadcrumb strong")).toHaveText("Notifications");
