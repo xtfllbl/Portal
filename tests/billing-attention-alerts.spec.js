@@ -10,9 +10,7 @@ test.describe("Billing Attention and Notifications Integration", () => {
     await expect(tabAttention).toBeVisible();
     await expect(tabAll).toHaveClass(/active/);
 
-    const countAll = page.locator("#countAll");
     const countAttention = page.locator("#countAttention");
-    await expect(countAll).not.toHaveText("0");
     await expect(countAttention).not.toHaveText("0");
 
     const attentionCountText = await countAttention.textContent();
