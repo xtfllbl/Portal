@@ -13,6 +13,10 @@
 <body>
 <main class="billing-page overview-page">
   <div class="billing-page-header"><h1>Billing Overview</h1><div class="overview-heading-actions"><a class="overview-button overview-create" href="41.billing_setup.html">Create Billing</a><button id="exportOverview" type="button"><span class="material-symbols-rounded" aria-hidden="true">file_export</span>Export</button></div></div>
+  <div class="billing-tabs" role="tablist" aria-label="Billing overview views">
+    <button class="billing-tab active" type="button" role="tab" id="tabAll" aria-selected="true" data-tab="all">All Invoices <span class="tab-badge" id="countAll">0</span></button>
+    <button class="billing-tab" type="button" role="tab" id="tabAttention" aria-selected="false" data-tab="attention">Needs Attention <span class="tab-badge attention" id="countAttention">0</span></button>
+  </div>
   <form id="overviewFilters" class="overview-filters">
     <label><span class="sr-only">Billing Assignment</span><select id="overviewAssignment"><option value="">Billing Assignment</option><option value="merchant">Merchant Billing</option><option value="standalone">Standalone Billing</option></select></label>
     <label><span class="sr-only">Merchant Name</span><input type="search" id="overviewMerchant" placeholder="Merchant Name"></label>
@@ -23,7 +27,7 @@
     <button class="primary" type="submit" aria-label="Search billing overview"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
   </form>
   <div id="overviewError" role="alert" hidden></div>
-  <div class="billing-table-wrap overview-table" tabindex="0" role="region" aria-label="Billing overview table"><table><colgroup><col style="width:165px"><col style="width:120px"><col style="width:145px"><col style="width:165px"><col style="width:90px"><col style="width:100px"><col style="width:125px"><col style="width:125px"><col style="width:125px"><col style="width:125px"><col style="width:100px"><col style="width:130px"><col style="width:145px"></colgroup><thead><tr>
+  <div class="billing-table-wrap overview-table" tabindex="0" role="region" aria-label="Billing overview table"><table><colgroup><col style="width:165px"><col style="width:120px"><col style="width:145px"><col style="width:165px"><col style="width:90px"><col style="width:100px"><col style="width:125px"><col style="width:125px"><col style="width:125px"><col style="width:125px"><col style="width:100px"><col style="width:130px"><col style="width:168px"></colgroup><thead><tr>
     <th>INVOICE NO.</th><th>DATE &amp; TIME</th><th>MERCHANT NAME</th><th>BILLING PERIOD</th><th>CYCLE</th><th>AMOUNT</th><th>PAYMENT STATUS</th><th>PAID INSTALLMENTS</th><th>PERIOD ENDS</th><th>LINK EXPIRES</th><th>LINK STATUS</th><th>BILLING NOTES</th><th class="overview-actions-cell">ACTIONS</th>
   </tr></thead><tbody id="overviewRows"></tbody></table></div>
   <nav class="billing-pagination" aria-label="Billing overview pagination"><div id="pageButtons"></div><select id="pageSize" aria-label="Rows per page"><option>10</option><option selected>20</option><option>50</option></select><span id="pageSummary" aria-live="polite"></span></nav>

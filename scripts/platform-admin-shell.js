@@ -619,6 +619,30 @@
     for (var leadIndex = 1; leadIndex <= 42; leadIndex += 1) ids.push("lead-" + String(leadIndex).padStart(2, "0"));
     for (var onboardingIndex = 1; onboardingIndex <= 10; onboardingIndex += 1) ids.push("onboarding-" + String(onboardingIndex).padStart(2, "0"));
     alertIds.forEach(function (id) { ids.push("alert-" + id); });
+    try {
+      var billingRecords = JSON.parse(localStorage.getItem("paywizard-billing-local-v1") || "null");
+      var today = new Date().toISOString().slice(0, 10);
+      var billingCount = 0;
+      if (Array.isArray(billingRecords) && billingRecords.length) {
+        billingRecords.forEach(function (r) {
+          if (r.status === "Draft" || r.status === "Stopped" || r.collectionStop) return;
+          if (r.status === "Pending" && (r.linkStatus === "Expired" || (r.expiry && r.expiry < today))) {
+            ids.push("billing-expired-" + r.invoice);
+            billingCount++;
+          }
+          if (r.status === "Overdue" && (r.installments && r.installments.some(function (i) { return i.status === "Failed"; }) || r.recurring)) {
+            var failedInst = r.installments ? r.installments.find(function (i) { return i.status === "Failed"; }) : null;
+            ids.push("billing-failed-" + r.invoice + "-" + (failedInst ? failedInst.number : 1));
+            billingCount++;
+          }
+        });
+      }
+      if (billingCount === 0) {
+        ids.push("billing-expired-RENEW-0001", "billing-expired-RENEW-0002", "billing-failed-RENEW-0003-1");
+      }
+    } catch (_) {
+      ids.push("billing-expired-RENEW-0001", "billing-expired-RENEW-0002", "billing-failed-RENEW-0003-1");
+    }
     var readIds = ["lead-01"];
     try {
       var notificationState = JSON.parse(localStorage.getItem("paywizard.notifications.v1") || "null");

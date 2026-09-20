@@ -7,25 +7,104 @@
   const badge = value => '<span class="billing-status ' + esc(value.toLowerCase()) + '">' + esc(value) + '</span>';
   let sendRequestId = null, menuAnchor = null;
   let records = [], filters = {}, page = 1, ready = false, busy = false, selected = null, opener = null;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let activeTab = urlParams.get('tab') === 'attention' ? 'attention' : 'all';
+  let highlightInvoice = urlParams.get('invoice') || null;
+
   const menu = document.createElement('div'); menu.className = 'overview-menu'; menu.id = 'overviewMenu'; menu.hidden = true; menu.setAttribute('role','menu'); document.body.append(menu);
   function message(text) { $('billingMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => $('billingMessage').textContent = '', 6000); }
   function closeMenu(focus = false) { menu.hidden = true; opener?.setAttribute('aria-expanded','false'); if (focus && opener?.isConnected) opener.focus(); }
-  function filtered() {
-    return records.filter(r => r.status !== 'Draft' && (!filters.assignment || r.assignment === filters.assignment) && (!filters.merchant || r.merchantName.toLowerCase().includes(filters.merchant)) && (!filters.status || r.status === filters.status) && (!filters.cycle || (filters.cycle === 'one-time' ? !r.recurring : filters.cycle === 'monthly' ? r.recurring : r.recurring && String(r.cycle) === filters.cycle)) && (!filters.from || r.createdAt.slice(0,10) >= filters.from) && (!filters.to || r.createdAt.slice(0,10) <= filters.to));
+
+  function isAttention(r) {
+    if (r.status === 'Draft' || r.status === 'Stopped' || r.collectionStop) return false;
+    const linkExpiredUnpaid = r.status === 'Pending' && (r.linkStatus === 'Expired' || r.linkExpired);
+    const recurringFailed = r.status === 'Overdue' && (r.installments?.some(i => i.status === 'Failed') || r.recurring);
+    return Boolean(linkExpiredUnpaid || recurringFailed);
   }
+
+  function updateTabCounts() {
+    const allCount = records.filter(r => r.status !== 'Draft').length;
+    const attentionCount = records.filter(isAttention).length;
+    const countAllEl = $('countAll'), countAttentionEl = $('countAttention');
+    if (countAllEl) countAllEl.textContent = allCount;
+    if (countAttentionEl) {
+      countAttentionEl.textContent = attentionCount;
+      countAttentionEl.dataset.empty = String(attentionCount === 0);
+    }
+    const tabAllEl = $('tabAll'), tabAttentionEl = $('tabAttention');
+    if (tabAllEl) {
+      tabAllEl.classList.toggle('active', activeTab === 'all');
+      tabAllEl.setAttribute('aria-selected', String(activeTab === 'all'));
+    }
+    if (tabAttentionEl) {
+      tabAttentionEl.classList.toggle('active', activeTab === 'attention');
+      tabAttentionEl.setAttribute('aria-selected', String(activeTab === 'attention'));
+    }
+  }
+
+  function filtered() {
+    return records.filter(r => {
+      if (r.status === 'Draft') return false;
+      if (activeTab === 'attention' && !isAttention(r)) return false;
+      if (filters.assignment && r.assignment !== filters.assignment) return false;
+      if (filters.merchant && !r.merchantName.toLowerCase().includes(filters.merchant)) return false;
+      if (filters.status && r.status !== filters.status) return false;
+      if (filters.cycle) {
+        if (filters.cycle === 'one-time') { if (r.recurring) return false; }
+        else if (filters.cycle === 'monthly') { if (!r.recurring) return false; }
+        else if (!r.recurring || String(r.cycle) !== filters.cycle) return false;
+      }
+      if (filters.from && r.createdAt.slice(0,10) < filters.from) return false;
+      if (filters.to && r.createdAt.slice(0,10) > filters.to) return false;
+      return true;
+    });
+  }
+
   function values(r) {
     return [r.invoice, r.createdAt?.replace('T',' ').slice(0,19), store.isMerchantRecord(r) ? r.merchantName : '—', r.recurring ? date(r.start) + ' – ' + date(store.endDate(r)) : '—', r.recurring ? r.cycle + ' Months' : 'One-time', money(store.total(r),r.currency), r.status, r.recurring ? store.count(r) + ' of ' + r.cycle : '—', date(store.endDate(r)), date(r.expiry), r.linkStatus, r.notes || '—'];
   }
+
   function render() {
-    closeMenu(); const list = filtered(), size = Number($('pageSize').value), pages = Math.max(1,Math.ceil(list.length / size)); page = Math.min(Math.max(page,1),pages);
-    $('overviewRows').innerHTML = list.slice((page-1)*size,page*size).map(r => '<tr data-id="' + esc(r.id) + '">' + values(r).map((v,i) => '<td' + (i === 11 ? ' class="overview-notes" title="' + esc(v) + '"' : '') + '>' + ([6,10].includes(i) ? badge(v) : esc(v)) + '</td>').join('') + '<td class="overview-actions-cell"><div class="billing-link-actions"><button type="button" data-' + (r.canRenew?'renew':'copy') + '="' + esc(r.id) + '" ' + (!ready ? 'disabled' : '') + '>' + (r.canRenew?'Renew Link':'Copy URL') + '</button><button type="button" class="billing-more" data-more="' + esc(r.id) + '" aria-label="Actions for invoice ' + esc(r.invoice) + '" aria-haspopup="menu" aria-controls="overviewMenu" aria-expanded="false" ' + (!ready ? 'disabled' : '') + '><span class="material-symbols-rounded" aria-hidden="true">more_horiz</span></button></div></td></tr>').join('') || '<tr><td colspan="13" class="empty">' + (ready ? 'No billing records found.' : 'Loading billing records…') + '</td></tr>';
+    closeMenu();
+    updateTabCounts();
+    const list = filtered(), size = Number($('pageSize').value), pages = Math.max(1,Math.ceil(list.length / size));
+    page = Math.min(Math.max(page,1),pages);
+
+    if (highlightInvoice) {
+      const idx = list.findIndex(r => r.invoice === highlightInvoice);
+      if (idx !== -1) {
+        page = Math.floor(idx / size) + 1;
+      }
+    }
+
+    $('overviewRows').innerHTML = list.slice((page-1)*size,page*size).map(r => {
+      const isTarget = highlightInvoice && r.invoice === highlightInvoice;
+      const primaryAction = r.canRenew ? { type: 'renew', label: 'Renew Link' }
+        : r.canRetry ? { type: 'retry', label: 'Retry Payment' }
+        : { type: 'copy', label: 'Copy URL' };
+
+      return '<tr data-id="' + esc(r.id) + '" data-invoice="' + esc(r.invoice) + '"' + (isTarget ? ' class="row-highlight"' : '') + '>'
+        + values(r).map((v,i) => '<td' + (i === 11 ? ' class="overview-notes" title="' + esc(v) + '"' : '') + '>' + ([6,10].includes(i) ? badge(v) : esc(v)) + '</td>').join('')
+        + '<td class="overview-actions-cell"><div class="billing-link-actions"><button type="button" data-' + primaryAction.type + '="' + esc(r.id) + '" ' + (!ready ? 'disabled' : '') + '>' + primaryAction.label + '</button><button type="button" class="billing-more" data-more="' + esc(r.id) + '" aria-label="Actions for invoice ' + esc(r.invoice) + '" aria-haspopup="menu" aria-controls="overviewMenu" aria-expanded="false" ' + (!ready ? 'disabled' : '') + '><span class="material-symbols-rounded" aria-hidden="true">more_horiz</span></button></div></td></tr>';
+    }).join('') || '<tr><td colspan="13" class="empty">' + (ready ? (activeTab === 'attention' ? 'No invoices require attention.' : 'No billing records found.') : 'Loading billing records…') + '</td></tr>';
+
     $('pageButtons').replaceChildren();
     function button(label,target,disabled,current) { const b = document.createElement('button'); b.type='button'; b.textContent=label; b.disabled=disabled; b.setAttribute('aria-label', /^\d+$/.test(label) ? 'Page ' + label : label); if(current)b.setAttribute('aria-current','page'); b.onclick=()=>{page=target;render();}; $('pageButtons').append(b); }
     button('First',1,page===1);button('Prev',page-1,page===1);
     for(let n=Math.max(1,Math.min(page-1,pages-2));n<=Math.min(pages,Math.max(3,page+1));n++)button(String(n),n,false,n===page);
     button('Next',page+1,page===pages);button('Last',pages,page===pages);
     $('pageSummary').textContent=page+' / '+pages+' ('+list.length+')'; $('exportOverview').disabled=!ready||!list.length;
+
+    if (highlightInvoice) {
+      const targetRow = document.querySelector('tr[data-invoice="' + highlightInvoice + '"]');
+      if (targetRow) {
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        highlightInvoice = null;
+      }
+    }
   }
+
   function detailsList(target, rows) { target.innerHTML=rows.map(([label,value])=>'<dt>'+esc(label)+'</dt><dd>'+esc(value)+'</dd>').join(''); }
   function openDialog(id) { closeMenu(); $(id).showModal(); $(id).scrollTop=0; }
   function recipient(r) { const m=window.PaywizardPlatformMerchantStore?.readAll().find(m=>String(m.merchantId)===r.merchantId); return r.deliveries?.at(-1)?.email || m?.email || m?.contactEmail || ''; }
@@ -50,7 +129,7 @@
   function openMenu(r,button) {
     closeMenu();selected=r;opener=button;menu.replaceChildren();
     function item(text,fn,disabled=false,danger=false) { const b=document.createElement('button');b.type='button';b.textContent=text;b.disabled=disabled;b.setAttribute('role','menuitem');if(danger)b.className='danger-text';b.onclick=()=>{closeMenu();fn();};menu.append(b); }
-    if(r.canRenew)item('Copy URL',()=>{opener=button;navigator.clipboard.writeText(store.link(r)).then(()=>message('Payment link copied.')).catch(()=>{$('copyUrlValue').value=store.link(r);openDialog('copyUrlDialog');$('copyUrlValue').select();});});
+    if(r.canRenew || r.canRetry)item('Copy URL',()=>{opener=button;navigator.clipboard.writeText(store.link(r)).then(()=>message('Payment link copied.')).catch(()=>{$('copyUrlValue').value=store.link(r);openDialog('copyUrlDialog');$('copyUrlValue').select();});});
     const preview=document.createElement('a');preview.textContent='Preview payment link';preview.href=store.link(r);preview.target='_blank';preview.rel='noopener';preview.setAttribute('role','menuitem');preview.onclick=()=>closeMenu();menu.append(preview);
     item('Send Link',()=>{sendRequestId=crypto.randomUUID();$('sendLinkInvoice').textContent=r.invoice;$('sendLinkUrl').value=store.link(r);$('linkRecipient').value=recipient(r);$('sendLinkError').textContent='';openDialog('sendLinkDialog');},r.linkStatus!=='Valid');
     item('View emails',()=>window.PaywizardBillingEmailViewer.open(r)); item('View billing details',()=>details(r)); item('View payment records',()=>payments(r));
@@ -61,11 +140,44 @@
   }
   $('overviewRows').onclick=async event=>{
     const b=event.target.closest('button');if(!b||!ready)return;
-    const r=records.find(r=>r.id===(b.dataset.copy||b.dataset.more||b.dataset.renew));if(!r)return;
+    const r=records.find(r=>r.id===(b.dataset.copy||b.dataset.more||b.dataset.renew||b.dataset.retry));if(!r)return;
     if(b.dataset.renew){opener=b;return renewDialog(r);}
+    if(b.dataset.retry){
+      opener=b;
+      b.focus({preventScroll:true});
+      return window.PaywizardBillingRetry.open(r,input=>store.retry(r.id,input),result=>{
+        records=store.read();
+        render();
+        message(result.status==='Overdue'?'A charge failed. The next normal cycle will still attempt collection if one remains.':'Payment recorded.');
+      });
+    }
     if(b.dataset.more){if(!menu.hidden&&selected?.id===r.id)return closeMenu(true);return openMenu(r,b);}
     opener=b;try{await navigator.clipboard.writeText(store.link(r));message('Payment link copied.');}catch(_){$('copyUrlValue').value=store.link(r);openDialog('copyUrlDialog');$('copyUrlValue').select();}
   };
+
+  function updateUrl() {
+    const url = new URL(window.location.href);
+    if (activeTab === 'attention') url.searchParams.set('tab', 'attention');
+    else url.searchParams.delete('tab');
+    url.searchParams.delete('invoice');
+    window.history.replaceState(null, '', url.toString());
+  }
+
+  $('tabAll')?.addEventListener('click', () => {
+    if (activeTab === 'all') return;
+    activeTab = 'all';
+    page = 1;
+    updateUrl();
+    render();
+  });
+
+  $('tabAttention')?.addEventListener('click', () => {
+    if (activeTab === 'attention') return;
+    activeTab = 'attention';
+    page = 1;
+    updateUrl();
+    render();
+  });
   document.addEventListener('click',e=>{if(!e.target.closest('.overview-menu,[data-more]'))closeMenu();});
   document.addEventListener('keydown',e=>{if(menu.hidden)return;if(e.key==='Escape'){e.preventDefault();closeMenu(true);}if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const items=[...menu.querySelectorAll('a,button:not(:disabled)')],i=items.indexOf(document.activeElement);items[e.key==='Home'?0:e.key==='End'?items.length-1:(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length].focus();}});
   window.addEventListener('resize',()=>closeMenu());document.addEventListener('scroll',e=>{if(menu.hidden||e.target===menu||menu.contains(e.target))return;const box=opener?.getBoundingClientRect();if(!box||!menuAnchor||Math.abs(box.left-menuAnchor.left)>1||Math.abs(box.top-menuAnchor.top)>1)closeMenu();},true);

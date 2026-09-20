@@ -82,6 +82,98 @@
     }));
   }
 
+  function readBillingRecords() {
+    try {
+      if (window.PaywizardBillingStore && typeof window.PaywizardBillingStore.read === "function") {
+        const list = window.PaywizardBillingStore.read();
+        if (Array.isArray(list) && list.length) return list;
+      }
+    } catch (_) {}
+    try {
+      const local = JSON.parse(localStorage.getItem("paywizard-billing-local-v1") || "null");
+      if (Array.isArray(local) && local.length) return local;
+    } catch (_) {}
+    try {
+      const shared = JSON.parse(localStorage.getItem("paywizard-billing-setup-v1") || "null");
+      if (Array.isArray(shared) && shared.length) return shared;
+    } catch (_) {}
+    return [];
+  }
+
+  function billingNotifications() {
+    const records = readBillingRecords();
+    const today = new Date().toISOString().slice(0, 10);
+    const alerts = [];
+
+    records.forEach((r) => {
+      if (r.status === "Draft" || r.status === "Stopped" || r.collectionStop) return;
+      const targetName = r.merchantName || "Standalone";
+
+      // 1. 链接过期未支付
+      const isExpired = r.status === "Pending" && (r.linkStatus === "Expired" || (r.expiry && r.expiry < today));
+      if (isExpired) {
+        alerts.push({
+          id: `billing-expired-${r.invoice}`,
+          category: "alerts",
+          source: "Billing Alert",
+          content: `Payment Link Expired: ${targetName} · Invoice ${r.invoice} expired on ${r.expiry || "due date"} without payment`,
+          createdAt: r.expiry ? `${r.expiry} 09:00:00` : `${r.createdAt ? r.createdAt.replace('T', ' ').slice(0, 19) : "2026-09-02 09:00:00"}`,
+          detailUrl: `44.billing_overview.html?tab=attention&invoice=${encodeURIComponent(r.invoice)}`
+        });
+      }
+
+      // 2. 循环扣款失败
+      const isFailed = r.status === "Overdue" && (r.installments?.some((i) => i.status === "Failed") || r.recurring);
+      if (isFailed) {
+        const failedInst = r.installments?.find((i) => i.status === "Failed");
+        const failedNum = failedInst?.number || 1;
+        const failedAmount = failedInst?.amount || r.amount || 0;
+        const failedPayment = (r.payments || []).filter((p) => p.status === "Failed").at(-1);
+        const failTime = failedPayment?.at ? failedPayment.at.replace("T", " ").slice(0, 19)
+          : failedInst?.due ? `${failedInst.due} 09:00:00`
+          : `${today} 09:00:00`;
+
+        alerts.push({
+          id: `billing-failed-${r.invoice}-${failedNum}`,
+          category: "alerts",
+          source: "Billing Alert",
+          content: `Recurring Deduction Failed: ${targetName} · Invoice ${r.invoice} installment #${failedNum} (${r.currency || "USD"} ${failedAmount}) failed`,
+          createdAt: failTime,
+          detailUrl: `44.billing_overview.html?tab=attention&invoice=${encodeURIComponent(r.invoice)}`
+        });
+      }
+    });
+
+    if (alerts.length) return alerts;
+
+    return [
+      {
+        id: "billing-expired-RENEW-0001",
+        category: "alerts",
+        source: "Billing Alert",
+        content: "Payment Link Expired: Maple Street Coffee · Invoice RENEW-0001 expired on 2026-09-02 without payment",
+        createdAt: "2026-09-02 09:00:00",
+        detailUrl: "44.billing_overview.html?tab=attention&invoice=RENEW-0001"
+      },
+      {
+        id: "billing-expired-RENEW-0002",
+        category: "alerts",
+        source: "Billing Alert",
+        content: "Payment Link Expired: Standalone · Invoice RENEW-0002 expired on 2026-09-01 without payment",
+        createdAt: "2026-09-01 09:00:00",
+        detailUrl: "44.billing_overview.html?tab=attention&invoice=RENEW-0002"
+      },
+      {
+        id: "billing-failed-RENEW-0003-1",
+        category: "alerts",
+        source: "Billing Alert",
+        content: "Recurring Deduction Failed: IFS Shop Mall · Invoice RENEW-0003 installment #1 (EUR 29.00) failed",
+        createdAt: "2026-08-31 09:00:00",
+        detailUrl: "44.billing_overview.html?tab=attention&invoice=RENEW-0003"
+      }
+    ];
+  }
+
   function readNotificationState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY));
@@ -111,7 +203,7 @@
   }
 
   function refreshData() {
-    notifications = [...leadNotifications(), ...alertNotifications(), ...onboardingNotifications()]
+    notifications = [...leadNotifications(), ...alertNotifications(), ...billingNotifications(), ...onboardingNotifications()]
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   }
 
