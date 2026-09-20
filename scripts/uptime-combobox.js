@@ -13,7 +13,21 @@
     const selectedLabel = () => options.find(o => o.key === value)?.name || '';
     function close() { if (opened) list.hidePopover(); opened = false; input.value = selectedLabel(); input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); }
     function position() {
-      const rect = input.getBoundingClientRect(), room = innerHeight - rect.bottom - 12, height = Math.min(240, Math.max(room, rect.top - 12));
+      const rect = input.getBoundingClientRect();
+      let top = 0, bottom = innerHeight, left = 0, right = innerWidth;
+      for (let parent = host.parentElement; parent; parent = parent.parentElement) {
+        const style = getComputedStyle(parent), bounds = parent.getBoundingClientRect();
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+          top = Math.max(top, bounds.top + parent.clientTop);
+          bottom = Math.min(bottom, bounds.top + parent.clientTop + parent.clientHeight);
+        }
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+          left = Math.max(left, bounds.left + parent.clientLeft);
+          right = Math.min(right, bounds.left + parent.clientLeft + parent.clientWidth);
+        }
+      }
+      if (!rect.width || !rect.height || rect.bottom <= top || rect.top >= bottom || rect.right <= left || rect.left >= right) { close(); return; }
+      const room = innerHeight - rect.bottom - 12, height = Math.min(240, Math.max(room, rect.top - 12));
       Object.assign(list.style, { width: rect.width + 'px', left: Math.max(8, Math.min(rect.left, innerWidth - rect.width - 8)) + 'px', maxHeight: height + 'px', top: room < 160 && rect.top > room ? 'auto' : rect.bottom + 4 + 'px', bottom: room < 160 && rect.top > room ? innerHeight - rect.top + 4 + 'px' : 'auto' });
     }
     function paint() {
@@ -35,7 +49,8 @@
     toggle.addEventListener('click', () => { if (opened) close(); else { input.focus(); if (!opened) open(); } });
     list.addEventListener('mousedown', e => e.preventDefault());
     list.addEventListener('click', e => { const row = e.target.closest('[data-index]'); if (row) choose(Number(row.dataset.index)); });
-    host.addEventListener('focusout', e => { if (!host.contains(e.relatedTarget)) close(); });
+    const onFocusOut = e => { if (!host.contains(e.relatedTarget)) close(); };
+    host.addEventListener('focusout', onFocusOut);
     input.addEventListener('keydown', e => {
       if (e.key === 'Tab') { close(); return; }
       if (!['ArrowDown', 'ArrowUp', 'Enter', 'Escape', 'Home', 'End'].includes(e.key)) return;
@@ -48,8 +63,15 @@
     });
     // The popover is in the top layer and cannot be clipped by dialog footers.
     const reposition = () => { if (opened) position(); };
+    const onScroll = event => { if (event.target === document || event.target.contains?.(input)) reposition(); };
     const observer = new ResizeObserver(reposition); observer.observe(host);
-    host.closest('.up-dialog-body')?.addEventListener('scroll', reposition, { passive: true });
-    return { close, reposition, destroy() { close(); observer.disconnect(); host.closest('.up-dialog-body')?.removeEventListener('scroll', reposition); } };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    window.addEventListener('resize', reposition);
+    return { close, reposition, destroy() {
+      close(); observer.disconnect();
+      document.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', reposition);
+      host.removeEventListener('focusout', onFocusOut);
+    } };
   }
 })();

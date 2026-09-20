@@ -58,11 +58,14 @@
     combo('organizationPicker', [{ key: '', name: 'All organizations' }, ...accounts.map(a => ({ key: a.key, name: `${a.name} · ${a.type === 'provider' ? 'SP' : a.type === 'agent' ? 'Agent' : 'Merchant'}` }))], draft.organization, value => {
       draft.organization = value;
       if (draft.store && !D.scopeStores(data, value || auth.scope).includes(draft.store)) draft.store = '';
-      filters();
+      storePicker();
     }, 'Organization');
+    storePicker();
+    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With offline time' }, { key: 'unavailable', name: 'With no data' }], draft.status, value => { draft.status = value; }, 'Show');
+  }
+  function storePicker() {
     const scopedStores = data.stores.filter(s => allowed.includes(s.id) && (!draft.organization || s.lineageKeys.includes(draft.organization)));
     combo('storePicker', [{ key: '', name: 'All stores' }, ...scopedStores.map(s => ({ key: s.id, name: s.name }))], draft.store, value => { draft.store = value; }, 'Store');
-    combo('statusPicker', [{ key: 'all', name: 'All terminals' }, { key: 'unreachable', name: 'With offline time' }, { key: 'unavailable', name: 'With no data' }], draft.status, value => { draft.status = value; }, 'Show');
   }
   function summary(t, date, storeIds = selectedStores()) {
     const key = [data.revision, data.observedAt, asOf, t.sn, date, storeIds.join(',')].join('|');
