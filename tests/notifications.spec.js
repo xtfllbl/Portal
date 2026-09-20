@@ -21,15 +21,17 @@ test("filters notifications and persists independent read state", async ({ page 
   await expect(page.getByRole("tab", { name: "Alerts" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Onboarding" })).toBeVisible();
   await expect(page.getByRole("tab", { name: "Leads" })).toBeVisible();
-  await expect(page.getByRole("tab", { name: "Leads" })).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator("[data-notification-count]")).toHaveText("60");
-  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(42);
-  await page.getByRole("tab", { name: "All Notifications" }).click();
-  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(61);
+  await expect(page.getByRole("tab", { name: "All Notifications" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("[data-notification-count]")).toHaveText("63");
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(64);
   await expect(page.locator(".notifications-view").getByText(/Manage your merchant alerts/i)).toHaveCount(0);
 
+  await page.getByRole("tab", { name: "Leads" }).click();
+  await expect(page.getByRole("tab", { name: "Leads" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(42);
+
   await page.getByRole("tab", { name: "Alerts" }).click();
-  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(9);
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(12);
   await expect(page.locator("[data-notification-rows]")).toContainText("Customer Alert");
   await expect(page.locator("[data-notification-rows]")).toContainText("Payment Service Offline");
 
@@ -37,7 +39,7 @@ test("filters notifications and persists independent read state", async ({ page 
   await firstAlert.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Mark Read", exact: true }).click();
   await expect(firstAlert.locator(".status-pill")).toHaveText("Read");
-  await expect(page.locator("[data-notification-count]")).toHaveText("59");
+  await expect(page.locator("[data-notification-count]")).toHaveText("62");
 
   await page.reload();
   await page.getByRole("tab", { name: "Alerts" }).click();
@@ -114,7 +116,7 @@ for (const viewport of [
     expect(metrics.documentOverflow).toBeLessThanOrEqual(1);
     if (viewport.width <= 1024) expect(metrics.tableScrollable).toBeTruthy();
     if (viewport.width <= 760) {
-      const activeTabVisible = await page.getByRole("tab", { name: "Leads" }).evaluate((tab) => {
+      const activeTabVisible = await page.getByRole("tab", { name: "All Notifications" }).evaluate((tab) => {
         const tabList = tab.closest('[role="tablist"]');
         const tabBox = tab.getBoundingClientRect();
         const listBox = tabList.getBoundingClientRect();
@@ -124,3 +126,14 @@ for (const viewport of [
     }
   });
 }
+
+test("activates specified category when navigated with category query parameter", async ({ page }) => {
+  await page.goto("/40.notifications.html?category=alerts");
+  await expect(page.getByRole("tab", { name: "Alerts" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(12);
+
+  await page.goto("/40.notifications.html?category=leads");
+  await expect(page.getByRole("tab", { name: "Leads" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("[data-notification-rows] tr")).toHaveCount(42);
+});
+

@@ -182,9 +182,19 @@
     return { readIds: ["lead-01"] };
   }
 
+  function getInitialCategory() {
+    try {
+      const param = new URLSearchParams(window.location.search).get("category");
+      if (param && ["all", "alerts", "onboarding", "leads"].includes(param)) {
+        return param;
+      }
+    } catch (_) {}
+    return "all";
+  }
+
   let state = readNotificationState();
   let notifications = [];
-  let activeCategory = "leads";
+  let activeCategory = getInitialCategory();
   let selectedIds = new Set();
 
   const rows = document.querySelector("[data-notification-rows]");
@@ -256,14 +266,18 @@
     activeTab?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
-  tabs.forEach((tab) => tab.addEventListener("click", () => {
-    activeCategory = tab.dataset.category;
-    selectedIds.clear();
+  function syncTabsUI() {
     tabs.forEach((item) => {
-      const active = item === tab;
+      const active = item.dataset.category === activeCategory;
       item.classList.toggle("active", active);
       item.setAttribute("aria-selected", String(active));
     });
+  }
+
+  tabs.forEach((tab) => tab.addEventListener("click", () => {
+    activeCategory = tab.dataset.category;
+    selectedIds.clear();
+    syncTabsUI();
     renderRows();
     revealActiveTab();
   }));
@@ -338,6 +352,7 @@
     renderRows();
   });
 
+  syncTabsUI();
   refreshData();
   renderRows();
   requestAnimationFrame(revealActiveTab);
