@@ -93,9 +93,15 @@ Paywizard 支付管理平台服务于不同层级的机构（Service Provider、
 
 ### 6.1 交易列表页入口（`12.transaction_list.html`）
 
-#### 6.1.1 操作入口定位
-- 在主列表（无论是 **Completed** 还是 **Failed** Tab）每一行右侧的 **Actions** 下拉菜单中，固定提供 `Related Transactions` 选项（紧随 Transaction Details 之后，图标使用 `link`）。
-- **无前置门槛**：列表不需要预先异步查询每笔交易有没有关联，所有交易行均默认展示此入口，点击后即时按需查询。
+#### 6.1.1 操作入口定位与状态精简规则
+- **Completed 交易 Actions**：包含 Action 分组（Transaction Details, Related Transactions, Send Receipt）与 Terminal 分组（Terminal Details 及可用后续退款/撤销操作）。
+- **Failed 交易 Actions（严格精简）**：
+  - 依据“界面只留必要内容”和“只显示当前状态允许的操作”规范，失败交易不生成小票、不具备终端重试或后续业务操作；
+  - **失败交易的 Actions 菜单中严格仅保留两项功能**：
+    1. `Transaction Details`（查看交易详情）
+    2. `Related Transactions`（查看关联交易）
+  - **彻底移除无关项**：不显示 `Send Receipt`（即使置灰也不展示）、不显示 `Terminal` 分组头、不显示 `Terminal Details`、不显示 `No follow-up transaction is available for this transaction type.` 提示文案，避免界面冗余干扰。
+- **无前置门槛**：列表不需要预先异步查询每笔交易有没有关联，所有交易行均默认展示 `Related Transactions` 入口，点击后即时按需查询。
 
 #### 6.1.2 居中弹窗（Modal Dialog）体验
 - 点击 `Related Transactions` 后，自动收起 Actions 下拉菜单，并在屏幕中央弹出固定规格的模态对话框（标题：`Related Transactions`）。
@@ -279,7 +285,9 @@ Paywizard 支付管理平台服务于不同层级的机构（Service Provider、
 
 测试与业务验收时，逐项核对以下 20 项验收标准（Acceptance Criteria）：
 
-- [ ] **AC-01 列表入口覆盖**：在 `Completed` 和 `Failed` 两个 Tab 下，任意交易行点击 Actions 均包含 `Related Transactions` 入口。
+- [ ] **AC-01 列表入口覆盖与失败交易精简**：
+  - 在 `Completed` 列表，每行 Actions 菜单完整展示 Transaction Details, Related Transactions, Send Receipt, Terminal Details 及可用后续操作；
+  - 在 `Failed` 列表，每行 Actions 菜单**严格仅保留** `Transaction Details` 与 `Related Transactions` 两个可用功能，不展示 Send Receipt、Terminal 分组及无后续交易提示。
 - [ ] **AC-02 弹窗交互规范**：点击入口平滑弹出居中对话框；支持右上角 `×`、键盘 `Escape`、点击遮罩关闭；关闭后焦点精准恢复到原行的 Actions 按钮。
 - [ ] **AC-03 双向穿透完整性**：对于同一组关联流水，无论从最初消费进入、中间授权进入、还是末端退款进入，查出的关联交易成员总集完全一致。
 - [ ] **AC-04 当前笔精准识别**：当前入口交易在表格中整行浅蓝高亮，Type 旁显示 `Current` 徽标，其 Transaction ID 为普通文字且不可点击。

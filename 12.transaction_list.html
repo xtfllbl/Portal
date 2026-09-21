@@ -866,14 +866,19 @@
           return;
         }
         closeRowActionMenu();
-        const terminalActions=followupActionsFor(row);
-        const terminalHtml=terminalActions.length
-          ?terminalActions.map(action=>{
-            const config=followupConfig[action];
-            return rowActionItem(config.label,config.icon,`data-row-action="followup" data-followup-action="${action}"`);
-          }).join("")
-          :'<div class="row-action-empty">No follow-up transaction is available for this transaction type.</div>';
-        rowActionPop.innerHTML=`<div class="row-action-section">Action</div>${rowActionItem("Transaction Details","receipt_long",'data-row-action="details"')}${rowActionItem("Related Transactions","link",'data-row-action="related"')}${rowActionItem("Send Receipt","send",'data-row-action="receipt"'+(row.receiptAvailable?"":" disabled"))}<div class="row-action-section terminal">Terminal</div>${rowActionItem("Terminal Details","terminal-standalone",'data-row-action="terminal"'+(isTerminalUncontrolled(row)?' disabled title="Terminal control lost"':""))}${terminalHtml}`;
+        const isFailed=(row.status||"").toLowerCase()==="failed"||state.tab==="failed";
+        if(isFailed){
+          rowActionPop.innerHTML=`<div class="row-action-section">Action</div>${rowActionItem("Transaction Details","receipt_long",'data-row-action="details"')}${rowActionItem("Related Transactions","link",'data-row-action="related"')}`;
+        }else{
+          const terminalActions=followupActionsFor(row);
+          const terminalHtml=terminalActions.length
+            ?terminalActions.map(action=>{
+              const config=followupConfig[action];
+              return rowActionItem(config.label,config.icon,`data-row-action="followup" data-followup-action="${action}"`);
+            }).join("")
+            :'<div class="row-action-empty">No follow-up transaction is available for this transaction type.</div>';
+          rowActionPop.innerHTML=`<div class="row-action-section">Action</div>${rowActionItem("Transaction Details","receipt_long",'data-row-action="details"')}${rowActionItem("Related Transactions","link",'data-row-action="related"')}${rowActionItem("Send Receipt","send",'data-row-action="receipt"'+(row.receiptAvailable?"":" disabled"))}<div class="row-action-section terminal">Terminal</div>${rowActionItem("Terminal Details","terminal-standalone",'data-row-action="terminal"'+(isTerminalUncontrolled(row)?' disabled title="Terminal control lost"':""))}${terminalHtml}`;
+        }
         rowActionState.row=row;
         rowActionState.anchor=anchor;
         anchor.setAttribute("aria-expanded","true");
