@@ -84,7 +84,7 @@
     if (!Array.isArray(records) || records.some(r => !r?.id || !Array.isArray(r.installments))) throw new Error('Local billing data could not be read. Existing data has been kept.');
     return records;
   }
-  function writeLocal(records) { records.forEach(r => { if (r.linkToken && !r.linkSnapshot) r.linkSnapshot = localSnapshot(localView(r)); }); localStorage.setItem(localKey, JSON.stringify(records)); }
+  function writeLocal(records) { records.forEach(r => { if (r.linkToken && !r.linkSnapshot) r.linkSnapshot = localSnapshot(localView(r)); }); localStorage.setItem(localKey, JSON.stringify(records)); window.dispatchEvent(new Event('billing-records-written')); }
   function localView(record) { return {...domain.publicView(record), canRetry:domain.summary(record).canRetry, linkToken:record.linkToken, deliveries:record.deliveries, notifications:record.notifications || [], audit:record.audit || [], collectionStop:record.collectionStop, localDemo:true}; }
   function localRead() {
     const records = fullLocal() || [];

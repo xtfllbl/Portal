@@ -16,12 +16,7 @@
   function message(text) { $('billingMessage').textContent = text; clearTimeout(message.timer); message.timer = setTimeout(() => $('billingMessage').textContent = '', 6000); }
   function closeMenu(focus = false) { menu.hidden = true; opener?.setAttribute('aria-expanded','false'); if (focus && opener?.isConnected) opener.focus(); }
 
-  function isAttention(r) {
-    if (r.status === 'Draft' || r.status === 'Stopped' || r.collectionStop) return false;
-    const linkExpiredUnpaid = r.status === 'Pending' && (r.linkStatus === 'Expired' || r.linkExpired);
-    const recurringFailed = r.status === 'Overdue' && (r.installments?.some(i => i.status === 'Failed') || r.recurring);
-    return Boolean(linkExpiredUnpaid || recurringFailed);
-  }
+  const isAttention = window.PaywizardBillingDomain.needsAttention;
 
   function updateTabCounts() {
     const allCount = records.filter(r => r.status !== 'Draft').length;
@@ -32,6 +27,7 @@
       countAttentionEl.textContent = attentionCount;
       countAttentionEl.dataset.empty = String(attentionCount === 0);
     }
+    window.dispatchEvent(new CustomEvent('billing-attention-count', {detail: attentionCount}));
     const tabAllEl = $('tabAll'), tabAttentionEl = $('tabAttention');
     if (tabAllEl) {
       tabAllEl.classList.toggle('active', activeTab === 'all');

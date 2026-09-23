@@ -61,6 +61,12 @@ function summary(bill, now = new Date()) {
     canStop: !['Draft','Paid','Stopped'].includes(status), canRenew: !['Draft','Paid','Stopped'].includes(status) && linkStatus === 'Expired',
     totalAmount: Math.round(Number(bill.amount) * 100) * bill.cycle / 100 };
 }
+function needsAttention(record) {
+  if (record.status === 'Draft' || record.status === 'Stopped' || record.collectionStop) return false;
+  const linkExpiredUnpaid = record.status === 'Pending' && (record.linkStatus === 'Expired' || record.linkExpired);
+  const recurringFailed = record.status === 'Overdue' && (record.installments?.some(i => i.status === 'Failed') || record.recurring);
+  return Boolean(linkExpiredUnpaid || recurringFailed);
+}
 function publicView(bill, now = new Date()) {
   const { requests, linkToken, linkSnapshot, deliveries, notifications, payerContact, collectionRounds, scheduledRuns, lastManualFailureDate, authorization, audit, collectionStop, ...view } = bill;
   // Public links expose payment results, never management audit details or payer contact data.
@@ -201,7 +207,7 @@ function renewLink(bill, input, now = new Date(), actor = 'WizarPOS Provider (de
   return bill;
 }
 
-  const domain = { day, monthlyDate, makeBill, summary, publicView, collect, checkout, retryPayment, stopCollection, renewLink, sendLink, stopped, nextAutomaticAttempt, notificationSnapshot };
+  const domain = { day, monthlyDate, makeBill, summary, needsAttention, publicView, collect, checkout, retryPayment, stopCollection, renewLink, sendLink, stopped, nextAutomaticAttempt, notificationSnapshot };
   if (typeof module !== 'undefined' && module.exports) module.exports = domain;
   else root.PaywizardBillingDomain = domain;
 })(globalThis);

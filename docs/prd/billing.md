@@ -250,6 +250,8 @@ Billing History 一账单一行，包含全部非Draft状态；不是仅成功�
 
 展示全部已签发Merchant和Standalone账单，不包含Draft。列为Invoice、UTC创建时间、商户、Billing Period、Cycle、合同总额、收款状态、已付期数、Period Ends（期间终点）、链接到期日、链接状态、备注、操作。Standalone商户单元格为“—”。一次性期间与分期进度按不适用显示，金额为全部一次性金额。
 
+Maintain → Billing Overview 子菜单显示与本页 Needs Attention 标签相同的账单数字；沿用当前待处理口径，两个位置随本地账单变化同步更新。菜单原有跳转和页面操作不变。
+
 | ID | 按钮/入口 | 执行与结果 |
 | --- | --- | --- |
 | O01 | Create Billing | 跳转41创建页 |

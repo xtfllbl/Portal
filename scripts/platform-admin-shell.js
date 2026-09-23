@@ -83,6 +83,7 @@
 
   var config = pageMap[fileName];
   if (!config || !document.body) return;
+  var shellScriptUrl = document.currentScript.src;
 
   function readProfile() {
     try {
@@ -221,7 +222,9 @@
     var active = config.active === key;
     return '<a class="pw-platform-sub-item pw-sub-item sub-item' + (active ? ' active' : '') + '" href="' + href + '"' +
       (key === "alerts" ? ' data-key="settings-alerts" data-link="39.customer_alerts.html"' : '') +
-      (active ? ' aria-current="page"' : '') + '>' + label + '</a>';
+      (key === "billing-overview" ? ' data-shell-billing-link' : '') +
+      (active ? ' aria-current="page"' : '') + '>' + label +
+      (key === "billing-overview" ? '<span class="pw-platform-billing-count" data-shell-billing-count hidden></span>' : '') + '</a>';
   }
 
   function group(label, icon, name, items) {
@@ -606,6 +609,53 @@
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") setProfileMenu(false);
   });
+
+  function setBillingAttentionCount(count) {
+    var badge = frame.querySelector("[data-shell-billing-count]");
+    var link = frame.querySelector("[data-shell-billing-link]");
+    if (!badge || !link) return;
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+    link.setAttribute("aria-label", count ? "Billing Overview, " + count + " invoices need attention" : "Billing Overview");
+  }
+
+  function refreshBillingAttentionCount() {
+    if (!window.PaywizardBillingDomain) return;
+    try {
+      var raw = localStorage.getItem("paywizard-billing-local-v1");
+      if (raw === null) return;
+      var records = JSON.parse(raw);
+      if (!Array.isArray(records)) return;
+      var domain = window.PaywizardBillingDomain;
+      setBillingAttentionCount(records.map(function (record) { return domain.publicView(record); }).filter(domain.needsAttention).length);
+    } catch (_) {}
+  }
+
+  function loadBillingScript(file) {
+    return new Promise(function (resolve) {
+      var script = document.createElement("script");
+      script.src = new URL(file, shellScriptUrl).href;
+      script.onload = function () { resolve(true); };
+      script.onerror = function () { resolve(false); };
+      document.body.appendChild(script);
+    });
+  }
+
+  async function startBillingAttentionCount() {
+    if (activeProfile !== "wizarpos") return;
+    if (!window.PaywizardBillingDomain && !await loadBillingScript("billing-domain.js")) return;
+    refreshBillingAttentionCount();
+  }
+
+  window.addEventListener("billing-attention-count", function (event) { setBillingAttentionCount(event.detail); });
+  window.addEventListener("billing-records-written", refreshBillingAttentionCount);
+  window.addEventListener("billing-mode", refreshBillingAttentionCount);
+  window.addEventListener("storage", function (event) {
+    if (event.key === "paywizard-billing-local-v1") refreshBillingAttentionCount();
+  });
+  window.addEventListener("focus", refreshBillingAttentionCount);
+  window.setInterval(refreshBillingAttentionCount, 60000);
+  startBillingAttentionCount();
 
   function currentUnreadCount() {
     var alertIds = ["i-mid-01", "i-mid-02", "i-mid-03", "i-lobby-01", "i-break-01", "i-boston-01", "i-lobby-02", "i-mid-04", "i-boston-02"];
