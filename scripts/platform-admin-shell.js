@@ -83,6 +83,10 @@
 
   var config = pageMap[fileName];
   if (!config || !document.body) return;
+  // Agent management has an explicit, page-local demo identity. The shared
+  // profile supplies navigation only; it does not grant operations access.
+  var agentPageContext = fileName === "2.agent_list_iso.html" ? window.PaywizardAgentContext : null;
+  if (agentPageContext && profiles[agentPageContext.shellProfile]) activeProfile = agentPageContext.shellProfile;
   var shellScriptUrl = document.currentScript.src;
 
   function readProfile() {
@@ -582,6 +586,14 @@
   var profileControl = frame.querySelector("[data-pw-profile-control]");
   var profileTrigger = frame.querySelector("[data-pw-profile-trigger]");
   var profileMenu = frame.querySelector("[data-pw-profile-menu]");
+  if (agentPageContext) {
+    profileControl.hidden = true;
+    var agentIdentity = document.createElement("div");
+    agentIdentity.className = "pw-platform-profile-trigger";
+    agentIdentity.setAttribute("aria-label", "Current account: " + agentPageContext.label);
+    agentIdentity.innerHTML = '<span class="pw-platform-profile-label">' + escapeHtml(agentPageContext.label) + '</span><span class="pw-platform-round-btn dark" aria-hidden="true"><span class="material-symbols-rounded">person</span></span>';
+    profileControl.before(agentIdentity);
+  }
   function setProfileMenu(open) {
     profileControl.open = open;
     profileTrigger.setAttribute("aria-expanded", String(open));

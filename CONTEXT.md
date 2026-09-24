@@ -264,6 +264,26 @@ _Avoid_: Attended Terminal, Unattended Terminal
 A sales-demonstration control that applies a Portal Access Profile without asserting that the user has been authenticated or that access is securely enforced.
 _Avoid_: Authentication, Authorization, Login
 
+**Service Provider**:
+A provider account with its own Agent Hierarchy. It is distinct from an Agent and from the platform operations user who may manage multiple Service Providers.
+_Avoid_: Agent, platform operator, Portal Access Profile
+
+**Agent Level**:
+An Agent's depth within its Service Provider's Agent Hierarchy: L1, L2 or L3. It is distinct from the Agent user's authorization or the Agent's enabled status.
+_Avoid_: Security role, Agent Authorization, account status
+
+**Agent Management Context**:
+The Service Provider whose Agents are being viewed and managed. Platform operations may select a Service Provider while retaining their operations identity; a Service Provider user remains within their own provider's scope.
+_Avoid_: Login impersonation, Agent selection, Agent Authorization
+
+**Agent Hierarchy**:
+The parent-child relationships between Agents, with business levels L1 through L3 beneath a Service Provider. The Service Provider, Merchants and Stores are distinct entities and are not Agent levels.
+_Avoid_: Merchant hierarchy, Store hierarchy, terminal inventory
+
+**Agent Password Reset Email**:
+An email resent by a portal operator to the login account associated with an Agent's saved Agent Email, helping the user reset their password and regain access when they cannot log in or find the original email.
+_Avoid_: Agent email address change, operator-assigned password, account activation email
+
 **Agent Analytics**:
 A Platform Back-office Page that summarizes agent performance and the merchant activity attributed to agents.
 _Avoid_: Agent Dashboard, Agent List Analytics
