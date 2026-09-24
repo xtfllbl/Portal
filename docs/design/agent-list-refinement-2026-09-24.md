@@ -49,6 +49,7 @@ Service Provider、Agent Level 与 Agent Management Context 已补入 [领域词
 
 ## 验收结果
 
+- 后续视觉调整已在实际 Chrome 检查：禁用代理商名称显示删除线、树中无 Disabled 标签；启用后删除线移除，再禁用恢复；Service Provider 选择器与标题栏右边缘对齐。
 - `npm run test:e2e -- tests/agent-list.spec.js tests/agents-sidebar-consistency.spec.js --workers=1`：15 项通过。
 - 覆盖 10 家服务商切换、名称/ID 搜索、普通服务商固定范围、未保存时取消/确认切换、新增和编辑归属隔离、邮件异步结果隔离、层级颜色、键盘工具提示、原有代理商流程及共享侧栏一致性。
 - 1280×720、1440×900、1920×1080 均无横向溢出，名称行右侧按钮均为 40×40px；桌面截图在本地 `artifacts/agent-list/desktop-*.png`。
