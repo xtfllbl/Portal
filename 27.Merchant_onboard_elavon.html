@@ -722,6 +722,7 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/merchant-onboarding-uploads.css" />
 </head>
 <body>
   <aside class="sidebar" aria-label="Primary navigation">
@@ -783,11 +784,10 @@
             </div>
           </section>
 
-          <form id="elavon-form">
+          <form id="elavon-form" novalidate>
             <section class="form-section" id="business" data-section="business">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">1</span><h2>Business Information</h2></div>
-                <span class="section-note">Legal entity and tax details</span>
               </header>
               <div class="section-body">
                 <div class="field-grid">
@@ -811,6 +811,18 @@
                     <input id="vat-tax-id" name="vatTaxId" type="text" required />
                   </div>
                   <div class="field">
+                    <label for="company-registration-no">Company Registration No.<span class="required">*</span></label>
+                    <input id="company-registration-no" name="companyRegistrationNo" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="company-registration-address">Company Registration Address<span class="required">*</span></label>
+                    <input id="company-registration-address" name="companyRegistrationAddress" type="text" required />
+                  </div>
+                  <div class="field">
+                    <label for="company-registration-date">Company Registration Date<span class="required">*</span></label>
+                    <input id="company-registration-date" name="companyRegistrationDate" type="text" required />
+                  </div>
+                  <div class="field">
                     <label for="company-email">Company Email Address<span class="required">*</span></label>
                     <input id="company-email" name="companyEmail" type="email" autocomplete="email" required />
                   </div>
@@ -830,6 +842,18 @@
                       <label><input type="radio" name="businessStructure" value="Sole Proprietorship" /> Sole Proprietorship</label>
                     </div>
                   </fieldset>
+                  <div class="field full upload-field">
+                    <label class="upload-title" for="business-registration-certificate">Business Registration / Tax Certificate (within 3 years)<span class="required">*</span></label>
+                    <label class="upload-card" for="business-registration-certificate">
+                      <img src="assets/icons/file-download.svg" alt="" />
+                      <strong>Browse Files</strong>
+                      <span data-file-name data-default-text="Drag and drop files here">Drag and drop files here</span>
+                      <input id="business-registration-certificate" name="businessRegistrationCertificate" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="business-registration-requirements" multiple required />
+                    </label>
+                    <p class="upload-requirements" id="business-registration-requirements">
+                      <span>Provide a business registration or tax certificate issued within the last 3 years.</span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>
@@ -837,7 +861,6 @@
             <section class="form-section" id="beneficial-owners" data-section="beneficial-owners">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">2</span><h2>Beneficial Owner/s</h2></div>
-                <span class="section-note">Ownership and contact details</span>
               </header>
               <div class="section-body">
                 <div class="field owner-count-field">
@@ -860,7 +883,6 @@
             <section class="form-section" id="signatory" data-section="signatory">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">3</span><h2>Signatory</h2></div>
-                <span class="section-note">Authorized signer and KYC</span>
               </header>
               <div class="section-body">
                 <div class="field-grid">
@@ -871,6 +893,18 @@
                   <div class="field">
                     <label for="signatory-last-name">Last Name<span class="required">*</span></label>
                     <input id="signatory-last-name" name="signatoryLastName" type="text" autocomplete="family-name" required />
+                  </div>
+                  <div class="field full">
+                    <label for="signatory-residential-address">Signatory Residential Address<span class="required">*</span></label>
+                    <input id="signatory-residential-address" name="signatoryResidentialAddress" type="text" autocomplete="street-address" required />
+                  </div>
+                  <div class="field">
+                    <label for="signatory-zip-code">Zip Code<span class="required">*</span></label>
+                    <input id="signatory-zip-code" name="signatoryZipCode" type="text" autocomplete="postal-code" required />
+                  </div>
+                  <div class="field">
+                    <label for="signatory-city">City<span class="required">*</span></label>
+                    <input id="signatory-city" name="signatoryCity" type="text" autocomplete="address-level2" required />
                   </div>
                   <div class="field">
                     <label for="signatory-email">Email Address<span class="required">*</span></label>
@@ -918,7 +952,6 @@
             <section class="form-section" id="banking" data-section="banking">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">4</span><h2>Banking Information</h2></div>
-                <span class="section-note">Settlement account</span>
               </header>
               <div class="section-body">
                 <div class="field-grid">
@@ -936,7 +969,7 @@
                       <img src="assets/icons/file-download.svg" alt="" />
                       <strong>Browse Files</strong>
                       <span data-file-name data-default-text="Drag and drop files here">Drag and drop files here</span>
-                      <input id="bank-transfer-receipt" name="bankTransferReceipt" type="file" accept=".pdf,.jpg,.jpeg,.png" required />
+                      <input id="bank-transfer-receipt" name="bankTransferReceipt" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple required />
                     </label>
                     <p class="upload-requirements">
                       <span>* Must be dated within last 3 months (amount can be even 0)</span>
@@ -1056,6 +1089,7 @@
   </aside>
 
   <script src="scripts/merchant-onboarding-store.js"></script>
+  <script src="scripts/merchant-onboarding-uploads.js"></script>
   <script>
     (function () {
       var form = document.getElementById('elavon-form');
@@ -1094,6 +1128,7 @@
             '<div class="field"><label for="additional-email-' + index + '">Owner Email Address<span class="required">*</span></label><input id="additional-email-' + index + '" name="' + prefix + '[email]" type="email" required /></div>' +
             '<div class="field"><span class="field-label">Owner Phone No.<span class="required">*</span></span><div class="split-inputs phone-inputs"><input name="' + prefix + '[phoneCountryCode]" type="tel" placeholder="+XX" aria-label="Additional owner phone country code" required /><input name="' + prefix + '[phone]" type="tel" placeholder="XXXXXX" aria-label="Additional owner phone number" required /></div></div>' +
             '<div class="field"><label for="additional-percent-' + index + '">Ownership Percentage<span class="required">*</span></label><input id="additional-percent-' + index + '" name="' + prefix + '[percentOwnership]" type="number" min="0" max="100" required /></div>' +
+            '<div class="field full"><label for="additional-residential-address-' + index + '">Full Residential Address<span class="required">*</span></label><input id="additional-residential-address-' + index + '" name="' + prefix + '[fullResidentialAddress]" type="text" required /></div>' +
           '</div></article>';
       }
 
@@ -1164,13 +1199,6 @@
         var target = event.target;
         if (target.matches('input[name="connectivity[]"]')) validateConnectivity();
 
-        if (target.matches('.upload-card input[type="file"]')) {
-          var card = target.closest('.upload-card');
-          var fileName = card.querySelector('[data-file-name]');
-          var files = target.files ? Array.prototype.slice.call(target.files) : [];
-          card.classList.toggle('has-file', files.length > 0);
-          fileName.textContent = files.length > 1 ? files.length + ' files selected' : (files[0] ? files[0].name : (fileName.getAttribute('data-default-text') || 'Drag and drop files here'));
-        }
       });
 
       document.querySelector('.success-close').addEventListener('click', function () {
@@ -1187,9 +1215,7 @@
         event.preventDefault();
         validateConnectivity();
         if (!form.checkValidity()) {
-          form.reportValidity();
-          var invalid = form.querySelector(':invalid');
-          if (invalid) invalid.closest('.form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          window.PaywizardOnboardingUploads.focusFirstError(form);
           return;
         }
         showBanner('Application ready', 'The Elavon merchant application has passed the prototype validation check.');

@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var form = document.getElementById("nuvei-form");
+  var form = document.getElementById("nuvei-form") || document.getElementById("elavon-form");
   if (!form) return;
   var LIMIT = 10;
 
@@ -19,7 +19,7 @@
   function errorMessage(container, id) {
     var message = document.createElement("p");
     message.id = id;
-    message.className = "nuvei-field-error";
+    message.className = "onboarding-field-error";
     message.setAttribute("role", "alert");
     message.tabIndex = -1;
     message.hidden = true;
@@ -34,16 +34,18 @@
   form.querySelectorAll('input[type="file"]').forEach(function (input) {
     var card = input.closest(".upload-card");
     var wrapper = document.createElement("div");
-    wrapper.className = "nuvei-upload";
+    wrapper.className = "onboarding-upload";
     card.parentNode.insertBefore(wrapper, card);
     wrapper.appendChild(card);
-    var label = card.querySelector("strong").firstChild.textContent.trim();
+    var uploadField = wrapper.closest(".upload-field");
+    var title = uploadField && uploadField.querySelector(".upload-title");
+    var label = (title || card.querySelector("strong")).firstChild.textContent.trim();
     input.setAttribute("aria-label", label);
     var required = input.required;
     var items = [];
     var notifying = false;
     var hint = card.querySelector("[data-file-name]");
-    var emptyHint = "Browse Files · Drag and drop files here";
+    var emptyHint = hint.getAttribute("data-default-text") || "Browse Files · Drag and drop files here";
     var formats = input.accept.split(",").map(function (value) { return value.trim().toLowerCase(); });
     var limitHint = document.createElement("span");
     limitHint.className = "upload-limit";
@@ -52,7 +54,7 @@
     card.appendChild(limitHint);
     describe(input, limitHint.id);
     var list = document.createElement("ul");
-    list.className = "nuvei-file-list";
+    list.className = "onboarding-file-list";
     list.setAttribute("aria-label", label + " files");
     wrapper.appendChild(list);
     var error = errorMessage(wrapper, input.name + "-error");
@@ -79,7 +81,7 @@
         name.title = item.name;
         var remove = document.createElement("button");
         remove.type = "button";
-        remove.className = "nuvei-file-remove";
+        remove.className = "onboarding-file-remove";
         remove.setAttribute("aria-label", "Remove " + item.name);
         remove.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>';
         remove.addEventListener("click", function () {
@@ -171,7 +173,7 @@
     var input = event.target;
     if (input.type === "file") return;
     var field = input.closest(".field") || input.parentNode;
-    var message = field.querySelector(".nuvei-field-error") || errorMessage(field, (input.id || input.name) + "-error");
+    var message = field.querySelector(".onboarding-field-error") || errorMessage(field, (input.id || input.name) + "-error");
     if (!(input.getAttribute("aria-describedby") || "").includes(message.id)) describe(input, message.id);
     message.textContent = input.validationMessage;
     message.hidden = false;
@@ -182,16 +184,16 @@
     if (event.target.type === "file") return;
     var field = event.target.closest(".field");
     if (!field) return;
-    field.querySelectorAll(".nuvei-field-error").forEach(function (message) { message.hidden = true; });
+    field.querySelectorAll(".onboarding-field-error").forEach(function (message) { message.hidden = true; });
     field.querySelectorAll('[aria-invalid="true"]').forEach(function (input) { input.removeAttribute("aria-invalid"); });
   });
 
-  window.PaywizardNuveiUploads = {
+  window.PaywizardOnboardingUploads = {
     focusFirstError: function () {
       var input = form.querySelector("input:invalid,select:invalid,textarea:invalid");
       if (!input) return;
-      var container = input.closest(".nuvei-upload, .field") || input.parentNode;
-      var message = container.querySelector(".nuvei-field-error:not([hidden])");
+      var container = input.closest(".onboarding-upload, .field") || input.parentNode;
+      var message = container.querySelector(".onboarding-field-error:not([hidden])");
       focusMessage(message || input);
     }
   };

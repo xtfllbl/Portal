@@ -31,7 +31,7 @@
 
 Terminal type 采用 RadioButton 模式，地址采用 Textarea 模式；多文件区域组合文件选择、清单、移除按钮与就地错误提示。参考入口为 PrimeVue v4 [RadioButton](https://v4.primevue.org/radiobutton/)、[Textarea](https://v4.primevue.org/textarea/)、[FileUpload](https://v4.primevue.org/fileupload/)；本轮官方页面读取失败，沿用项目已验证的原生单选、文本域、上传卡片与 Material Symbols Rounded 图标，不宣称已核实 v4 组件 API。
 
-新增上传逻辑只在 Nuvei 表单初始化；共享 Store 通过可选上传控制器读取或恢复完整清单，其他渠道沿用原有行为。错误定位同时覆盖内部页面及公开页面 iframe 的外层滚动容器。此次为可逆的表单调整，无需单独 ADR。
+Nuvei 与 Elavon EU 表单共用 `scripts/merchant-onboarding-uploads.js` 和 `styles/merchant-onboarding-uploads.css`；共享 Store 通过可选上传控制器读取或恢复完整清单。Elavon EU 本轮复用不改变 Nuvei 已确认的交互与数据规则。错误定位同时覆盖内部页面及公开页面 iframe 的外层滚动容器。此次为可逆的表单调整，无需单独 ADR。
 
 ## 验收记录
 

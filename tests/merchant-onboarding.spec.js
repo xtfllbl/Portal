@@ -398,6 +398,12 @@ test("reviews, returns, corrects and resubmits an Elavon application", async ({ 
   await expect(merchantForm.locator('[name="registeredBusinessName"]')).toBeEditable();
   await expect(merchantForm.locator('[name="authorizedContact"]')).toBeDisabled();
   await merchantForm.locator('[name="vatTaxId"]').fill("IE6388047V-CORRECTED");
+  await merchantForm.locator('[name="companyRegistrationNo"]').fill("REG-123456");
+  await merchantForm.locator('[name="companyRegistrationAddress"]').fill("20 Market Street, Dublin, Ireland");
+  await merchantForm.locator('[name="companyRegistrationDate"]').fill("May 2010");
+  await merchantForm.locator('[name="businessRegistrationCertificate"]').setInputFiles({
+    name: "business-registration.pdf", mimeType: "application/pdf", buffer: Buffer.from("test registration certificate")
+  });
   await merchantForm.getByRole("button", { name: "Submit Application" }).click();
   await expect(page.locator(".changes-requested")).toContainText("Application resubmitted");
 

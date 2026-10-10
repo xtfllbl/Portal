@@ -194,7 +194,7 @@ test("requires placement and evidence for both mutually exclusive terminal types
 test("appends files, rejects the eleventh without losing selections, and removes individually", async ({ page }) => {
   await openCleanForm(page);
   const input = page.locator('[name="proofOfInventory"]');
-  const upload = page.locator(".nuvei-upload").filter({ has: input });
+  const upload = page.locator(".onboarding-upload").filter({ has: input });
   await input.setInputFiles([documentFile("invoice.pdf"), documentFile("receipt.pdf")]);
   await input.setInputFiles(Array.from({ length: 8 }, (_, index) => documentFile(`proof-${index}.pdf`)));
   await expect(upload.locator("li")).toHaveCount(10);
@@ -219,7 +219,7 @@ test("appends files, rejects the eleventh without losing selections, and removes
 
 test("supports dropping files and restoring requiredness after removing the last file", async ({ page }) => {
   await openCleanForm(page);
-  const upload = page.locator(".nuvei-upload").filter({ has: page.locator('[name="proofOfPurchase"]') });
+  const upload = page.locator(".onboarding-upload").filter({ has: page.locator('[name="proofOfPurchase"]') });
   await upload.locator(".upload-card").evaluate((card) => {
     const transfer = new DataTransfer();
     transfer.items.add(new File(["invoice"], "purchase.pdf", { type: "application/pdf" }));
@@ -258,9 +258,9 @@ test("persists restored-file additions and deletions and keeps review and view r
   await frame.getByRole("button", { name: "Save Draft" }).click();
   await page.reload();
   frame = page.frameLocator("#source-frame");
-  const upload = () => frame.locator(".nuvei-upload").filter({ has: input() });
+  const upload = () => frame.locator(".onboarding-upload").filter({ has: input() });
   await expect(upload().locator("li")).toHaveCount(2);
-  const requiredUpload = frame.locator(".nuvei-upload").filter({ has: frame.locator('[name="proofOfInventory"]') });
+  const requiredUpload = frame.locator(".onboarding-upload").filter({ has: frame.locator('[name="proofOfInventory"]') });
   await expect(requiredUpload.locator("input")).not.toHaveAttribute("required", "");
   await requiredUpload.getByRole("button", { name: "Remove inventory.pdf" }).click();
   await expect(requiredUpload.locator("input")).toHaveAttribute("required", "");
@@ -271,7 +271,7 @@ test("persists restored-file additions and deletions and keeps review and view r
   await frame.getByRole("button", { name: "Save Draft" }).click();
   for (const mode of ["review", "view"]) {
     await page.goto(`${NUVEI_URL}?mode=${mode}&applicationId=APP-TEST-NUVEI-MULTI`);
-    const readonlyUpload = page.locator("#additional-documents .nuvei-upload");
+    const readonlyUpload = page.locator("#additional-documents .onboarding-upload");
     await expect(readonlyUpload.locator("li")).toHaveCount(2);
     await expect(readonlyUpload.locator("li").first()).toContainText("notes-a.pdf");
     await expect(readonlyUpload.locator("li").last()).toContainText("notes-c.pdf");

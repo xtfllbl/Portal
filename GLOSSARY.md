@@ -292,6 +292,26 @@ _Avoid_: Bank Address, Legal Business Address
 A valid, legible lease identifying the business location and signed by both the property owner or authorized landlord and the merchant or business owner.
 _Avoid_: Business Location Photo, Proof of Purchase
 
+**Elavon Company Registration No.**:
+The company's registration identifier supplied in an Elavon EU merchant application. It is distinct from the company's VAT or tax identification number.
+_Avoid_: VAT ID, TAX Identification Number
+
+**Elavon Company Registration Address**:
+The company's registered address supplied in an Elavon EU merchant application.
+_Avoid_: Signatory Residential Address, Owner Residential Address
+
+**Elavon Signatory Residential Address**:
+The personal residential address of the signatory in an Elavon EU merchant application.
+_Avoid_: Company Registration Address, Company Business Address
+
+**Elavon Additional Owner Residential Address**:
+The complete personal residential address of an additional beneficial owner in an Elavon EU merchant application.
+_Avoid_: Company Registration Address, Signatory Residential Address
+
+**Elavon Business Registration / Tax Certificate**:
+A business registration or tax certificate submitted as evidence of the company's registration or tax status in an Elavon EU merchant application.
+_Avoid_: Owner Passport, Personal Residential Address Proof
+
 **Card Reader**:
 A payment-acceptance device managed separately from attended and unattended terminals in the portal.
 _Avoid_: Attended Terminal, Unattended Terminal
