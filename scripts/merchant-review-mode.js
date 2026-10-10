@@ -23,8 +23,9 @@
   style.textContent = [
     ".application-mode-banner{max-width:1520px;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 auto 14px;padding:13px 16px;border:1px solid #bfd6ee;border-radius:7px;background:#f1f7fd;color:#34495e}",
     ".platform-application-progress{max-width:1520px;margin:0 auto 14px}",
-    ".application-mode-banner strong{display:block;margin-bottom:2px;font-size:12px}.application-mode-banner span{font-size:10px;color:#657789}.application-back-link{flex:none;padding:8px 12px;border:1px solid #b9c7d6;border-radius:6px;background:#fff;color:#334155;font-size:10px;font-weight:700;text-decoration:none}",
+    ".application-mode-banner strong{display:block;margin-bottom:2px;font-size:12px}.application-mode-banner span{font-size:10px;color:#657789}",
     ".application-mode-page .form-section{box-sizing:border-box;overflow:hidden}",
+    ".application-mode-page .form-actions[hidden]{display:none}",
     ".application-mode-page .form-section>.section-header{border-radius:0}",
     ".form-section.review-approved{border-color:#55b981!important;background:#f2fbf6!important;box-shadow:0 0 0 1px rgba(18,130,73,.08)}",
     ".form-section.review-rejected{border-color:#e36a62!important;background:#fff6f5!important;box-shadow:0 0 0 1px rgba(217,45,32,.08)}",
@@ -141,10 +142,22 @@
 
   var heading = document.querySelector(".page-heading h1");
   if (heading) heading.textContent = (isReview ? "Review " : "View ") + channel + " Application";
+  var applicationBack = document.createElement("a");
+  applicationBack.className = "pw-page-back-button";
+  applicationBack.href = "38.Merchant_onboard.html";
+  applicationBack.setAttribute("aria-label", "Back to Onboarding");
+  applicationBack.title = "Back to Onboarding";
+  applicationBack.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>';
+  if (heading) {
+    var titleRow = document.createElement("div");
+    titleRow.className = "pw-page-title-with-back";
+    heading.parentNode.insertBefore(titleRow, heading);
+    titleRow.append(applicationBack, heading);
+  }
   var registrationShell = document.querySelector(".registration-shell");
   var modeBanner = document.createElement("div");
   modeBanner.className = "application-mode-banner";
-  modeBanner.innerHTML = '<div><strong>' + application.merchantName + '</strong><span>Process ' + application.processId + ' · ' + (isReview ? 'Review every application section before the final decision.' : 'Read-only merchant application record.') + '</span></div><a class="application-back-link" href="38.Merchant_onboard.html">Back to Onboarding</a>';
+  modeBanner.innerHTML = '<div><strong>' + application.merchantName + '</strong><span>Process ' + application.processId + ' · ' + (isReview ? 'Review every application section before the final decision.' : 'Read-only merchant application record.') + '</span></div>';
   registrationShell.parentNode.insertBefore(modeBanner, registrationShell);
 
   if (!isReview) {
@@ -178,7 +191,8 @@
       }
     });
     if (successBanner) successBanner.hidden = true;
-    form.querySelector(".form-actions").innerHTML = '<div class="view-final-actions"><a href="38.Merchant_onboard.html">Back to Onboarding</a></div>';
+    form.querySelector(".form-actions").replaceChildren();
+    form.querySelector(".form-actions").hidden = true;
     return;
   }
 
@@ -222,14 +236,7 @@
   function finishReviewActions() {
     var actionGroup = formActions.querySelector(".review-final-actions");
     actionGroup.querySelectorAll("button").forEach(function (button) { button.disabled = true; });
-    if (!actionGroup.querySelector(".review-back")) {
-      var back = document.createElement("a");
-      back.className = "review-back";
-      back.href = "38.Merchant_onboard.html";
-      back.textContent = "Back to Onboarding";
-      actionGroup.appendChild(back);
-      back.focus();
-    }
+    applicationBack.focus();
   }
 
   document.getElementById("review-approve-application").addEventListener("click", function () {
@@ -242,7 +249,7 @@
     application.reviewedAt = review.reviewedAt;
     Store.recordStatus(application, "Approved", "Operations", review.reviewedAt);
     application = Store.upsertApplication(application);
-    showResult("Application approved", application.merchantName + " is ready for the next onboarding step. Use Back to Onboarding to return to the list.");
+    showResult("Application approved", application.merchantName + " is ready for the next onboarding step.");
     finishReviewActions();
   });
 

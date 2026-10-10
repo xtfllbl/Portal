@@ -292,3 +292,18 @@ final result: passed
 - At 1440×1024 and 390×844, assignment names and counts are readable next to the target name. Mobile assigned-cell bounds fit the viewport even while the remaining table columns scroll. Published mobile footer contains only Cancel and Review & Publish, both 40px; unpublished footer retains three 40px actions. Header remains 34px.
 - Evidence: `/private/tmp/ads-store-assignment-desktop.png`, `/private/tmp/ads-store-assignment-mobile.png`, `/private/tmp/ads-published-actions-mobile.png`.
 - 20 domain/directory tests passed, covering draft-save eligibility, partial occupancy, own-campaign targets, empty whole-store claims and release on stop. JavaScript syntax, static build and `git diff --check` passed; browser console had no errors. Publication reviews were cancelled and no campaign or assignment was changed by browser verification.
+
+
+## Page return navigation — 2026-10-10
+
+- Replaced standalone Back to links with shared 40px arrow buttons beside page titles across 20 Portal pages: six merchant pages, three terminal pages, four prepaid pages, version-provider assignment, Pick List, application-parameter editing, store payment-channel settings, Add / Edit Payment Channel, and the two channel application pages in view/review modes. Existing icon-only editor returns already beside titles remain in place.
+- Preserved hrefs, element IDs, contextual URL parameters, history-back handlers, list restoration and unsaved Product Map protection. Application view/review uses one header return; review completion focuses that return instead of creating a duplicate footer link. Terminal headers use the same button geometry on the dark surface.
+- Chrome desktop checks opened every affected route, confirmed 40px square buttons centered with titles, and found no visible Back to text. Verified history-back from parameter editing, Pick List return with terminal context, and payment-channel list return. Checked both dynamic application modes and Add / Edit. A root HTML scan found no remaining visible Back to anchors/buttons.
+- Validation: 64 of 67 relevant regression cases passed. The three failures were reproduced unchanged in an isolated HEAD checkout: creator breadcrumb expects Create Onboarding Application; store-modal test expects obsolete quick-payment help text; card deep-link test expects transaction rows absent from the current demo dataset. They are baseline failures, not return-navigation regressions. After restoring completion focus, the three read-only/review lifecycle cases passed again. Static build, JavaScript syntax and git diff checks passed.
+- Screenshot: `artifacts/payment-channel-edit.png`. Local prototype only; no deployment or commit.
+
+## Page title vertical alignment — 2026-10-10
+
+- Reproduced Add Merchant's right required-fields hint being top-aligned and Merchant Profile using a different baseline. Shared styles now center title-header children and keep the existing 10px content gap outside the wizard title row.
+- Chrome desktop visual checks covered Add Merchant, New Merchant Onboarding, Add Device, Device Settings and Card Activation. Return buttons, title/context labels and right-side hints/actions align vertically; measured center differences for the merchant labels and required-fields hint were below 0.01px. Existing title sizes, button geometry and form position remain intact.
+- Existing merchant form geometry regression passed; static build and git diff checks passed. Screenshot: `artifacts/title-alignment/merchant-admin-navigation--82da7-ne-and-specialized-geometry-chromium/test-finished-1.png`. Local prototype only; no deployment or commit.

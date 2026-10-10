@@ -24,7 +24,7 @@ test("keeps the header compact and aligns the Terminal Type card with the dashbo
   await expect(trigger).toHaveText("");
   await expect(trigger.locator("img")).toHaveAttribute("src", "assets/icons/edit.svg");
   await expect(back).toHaveAttribute("href", "2.resellermerchantterminal.html");
-  await expect(page.locator(".card-banner h1")).toHaveCount(0);
+  await expect(page.locator(".card-banner h1")).toHaveText("Terminal Details");
   await expect(card).not.toContainText("Group List");
   await expect(page.locator(".terminal-details-card .panel-title")).toHaveText("Terminal Details");
   await expect(page.locator(".terminal-device-visual img")).toHaveAttribute("src", "assets/terminal-q3-device.png");

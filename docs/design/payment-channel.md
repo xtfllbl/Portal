@@ -81,7 +81,7 @@ Channel Name、Scenario Type、Channel Type Name、Company Information、Channel
 - 24 项完整展示，无分页或额外批量操作。按用户最新要求，Required parameters 保持为独立下拉并移至能力表上方；Fiserv 条件参数同样位于表格上方。Processor capabilities 为表单最后一个配置区，后面仅保留 Cancel / Submit 操作栏；其余表单布局和字段保持第一轮已确认规格。
 - 参数位置调整后，重新通过桌面尺寸与下拉、能力保存回填、旧 Cross-Channel 冲突定位共 3 项回归；Chrome 实际核对添加页、编辑页及 Fiserv 参数显隐，确认表格之后仅为操作栏，构建与语法检查通过。
 - 组件采用 DataTable + Checkbox + ToggleSwitch 的组合模式，使用原生 HTML table、checkbox 与带 `role="switch"` 的 checkbox 静态实现。按行的前置能力依赖、旧值冲突保留与提交拦截为业务扩展；不引入 UI 框架。对照 [PrimeVue v4 Checkbox](https://v4.primevue.org/checkbox/)、[ToggleSwitch](https://v4.primevue.org/toggleswitch/) 的标签、禁用、Tab 与 Space 交互；v4 文档已通过 HTTP 读取核对（页面标注 v4.5.5）。
-- 表头浅灰、34px、11px；正常行高 40px，冲突行可扩展以展示处理提示；前三个能力列用复选框，Payload 列用开关。禁用未选值，但冲突已选值保留取消入口。提交失败滚动并聚焦页内错误概要；概要链接直接定位首个冲突控件。
+- 按用户最新要求，表头采用与 Payment Channel 列表一致的深色背景（#17181c）与白字，保持 34px、11px；正常行高 40px，冲突行可扩展以展示处理提示；前三个能力列用复选框，Payload 列用开关。禁用未选值，但冲突已选值保留取消入口。提交失败滚动并聚焦页内错误概要；概要链接直接定位首个冲突控件。
 - 本轮验证：支付渠道维护回归共 12 项通过；额外补充的 1280px / 1710px 表头高度、字号和表格宽度断言通过。Chrome 实际检查 Add / Edit 的五列排版、选中与禁用、Nuvei Attd 的 4 项旧冲突、Required parameters 底部弹层搜索与已选态，以及提交错误定位。截图：`artifacts/payment-channel-processor-capabilities.png`。脚本语法、静态构建及 diff 检查通过；仅为原型验证，未接入真实 Payload Data 传输或增改删接口。
 
 ### 第一轮表单外观调整（2026-10-10）
@@ -91,6 +91,14 @@ Channel Name、Scenario Type、Channel Type Name、Company Information、Channel
 - 基本信息顺序为 Channel Name / Scenario Type / Channel Type Name、Company Information / Channel Properties / Payment Package Name。费用及能力保持各自原顺序和显隐规则。底部 Cancel 在左、Submit 在右，两者均为 40px。
 - 文本输入沿用 InputText 的标签及错误模式，下划线视觉复用项目 Add Merchant；选择器继续采用已有 Select / MultiSelect 组合，无新增业务组件。此布局可逆，继续不创建 ADR，也不改动 Payment Channel 术语定义。
 - 本轮验证：`npx playwright test tests/payment-channel-maintain.spec.js --workers=2` 共 8 项通过，`npm run build`、脚本语法及 diff 检查通过。Chrome 实际打开列表、Add、Edit，在 1710px / 1280px 桌面核对黑底白字表头、铺满布局、下划线控件、40px 操作、下拉搜索及已选态、底部浮层和可见错误定位。新增页截图为 `artifacts/payment-channel-add-refined.png`。
+
+### 页面骨架对齐 Add Merchant（2026-10-10）
+
+- 用户确认 Add / Edit 同步对齐 `5.merchant_add_merchant_only_iso.html` 的整体比例：20px / 600 标题，外卡片和内表单面板均为 1px 浅灰边框与 8px 圆角。按随后确认的全项目返回样式，去掉卡片外的 “Back to …” 文字入口，将 40px 方形箭头返回按钮放在 title 前，保留列表恢复行为。
+- 外卡片内边距为 22px 24px 26px，内表单面板为 20px 22px 24px；标题后 10px、字段组及列间距均为 18px。保留既有字段三列／两列、显隐联动及全部 24 行能力表。
+- 操作区放在内表单面板中，随内容滚动，顶部间距 20px；Cancel / Submit 均为 40px 高、最小宽度 120px、600 字重，次操作为白底边框，主操作为黑底。
+- 本次仅复用已确认的 Portal 页面骨架及 Button / InputText / Select / MultiSelect 视觉模式；控件交互、业务规则和保存行为沿用。此布局可逆，无新增领域术语或 ADR。
+- 验证：支付渠道维护 12 项回归通过；调整原有桌面检查，先滚动到正常文档流中的操作区再核对按钮可见性，该项复核通过。Chrome 实际检查 Add / Edit 的双层边框、20px 标题、表单内距、18px 间距、已选能力和底部按钮；Required parameters 搜索与选中状态正常，空表单提交后错误概要在内容滚动区中可见并获得焦点。静态构建及 diff 检查通过。截图：`artifacts/payment-channel-edit.png`、`artifacts/payment-channel-form-footer.png`。本次为本地静态原型验证。
 
 - `47.payment_channel.html`：列表、筛选、分页、详情弹窗与删除确认。
 - `47.payment_channel_form.html`：Add 独立页面；`?id=pc-01` 等稳定 ID 对应 Edit 独立页面。两种模式复用同一表单实现，均非弹窗。

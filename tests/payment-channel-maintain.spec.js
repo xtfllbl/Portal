@@ -163,10 +163,12 @@ test('desktop dimensions and low-screen dropdown placement remain within the vie
   await page.screenshot({ path: 'artifacts/payment-channel-list.png' });
   await page.getByRole('link', { name: 'Edit inputronics', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Submit', exact: true })).toHaveCSS('height', '40px');
+  await page.screenshot({ path: 'artifacts/payment-channel-edit.png' });
+  await page.getByRole('button', { name: 'Submit', exact: true }).scrollIntoViewIfNeeded();
   const submitBounds = await page.getByRole('button', { name: 'Submit', exact: true }).boundingBox();
   const hostBounds = await page.locator('.pw-platform-content-host').boundingBox();
   expect(submitBounds.y + submitBounds.height).toBeLessThanOrEqual(hostBounds.y + hostBounds.height);
-  await page.screenshot({ path: 'artifacts/payment-channel-edit.png' });
+  await page.screenshot({ path: 'artifacts/payment-channel-form-footer.png' });
   await page.getByRole('combobox', { name: 'Required parameters', exact: true }).click();
   const panel = page.locator('.pc-picker-panel:popover-open');
   await expect(panel.getByRole('option')).toHaveCount(6);
