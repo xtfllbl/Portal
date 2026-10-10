@@ -67,7 +67,16 @@ Channel Name、Scenario Type、Channel Type Name、Company Information、Channel
 
 ## 页面与组件实现
 
-### Processor capabilities 表格（2026-10-10）
+### 跨渠道能力独立下拉（2026-10-10，当前规则）
+
+- 用户确认 Add / Edit 同步将 Cross-Channel 从表格移出，改为独立可搜索多选，标签为 `Cross-Channel Capabilities (Terminal → ECOMM)`，在表格上方与 Required parameters 并排。Required parameters 仍仅 Card Payment 显示；跨渠道能力在所有场景显示，可为空。
+- 用户明确取消跨渠道能力的 Terminal / ECOMM 前置检查：全部 24 项均可选择；取消 Terminal 或 ECOMM 不再自动移除跨渠道能力，既有不满足旧依赖的值正常回填、不提示冲突、不阻止提交。
+- 表格保留四列：Transaction Type、Terminal Channel、ECOMM Channel、Send Payload Data。保持 24 行、34px 深色表头、11px 表头字号与 40px 正常行高；Fiserv 参数仍在表格上方，表格后仅为操作栏。
+- Payload 的 Terminal 依赖、默认关闭、取消 Terminal 自动关闭、既有 Payload 冲突保留与提交拦截规则不变。三组能力与 Payload 仍分别保存，`postAbilityList` 映射不变；Cancel 不保存。
+- 独立下拉复用页面已有静态 MultiSelect 模式，支持搜索、点选、键盘、查看已选和逐项取消，采用顶层弹层避免裁切；参考 [PrimeVue v4 MultiSelect](https://v4.primevue.org/multiselect/)。未安装 UI 框架；本次布局与校验调整可逆，无需新增 ADR。
+- 验证：支付渠道维护 13 项回归通过（12 项首轮通过，1 项修正图标文本误计的测试断言后单独复核通过），覆盖独立选择、搜索／键盘／已选移除、取消 Terminal / ECOMM 保留跨渠道值、保存回填、Cancel 和旧配置提交；Payload 旧冲突校验继续通过。1280px / 1710px 的四列表头尺寸与并排布局断言通过。Chrome 实际核对 Add / Edit 的下拉、24 项旧值回填、四列表格与可见错误定位。截图：`artifacts/payment-channel-cross-dropdown-add.png`、`artifacts/payment-channel-cross-dropdown-edit.png`。脚本语法、静态构建、diff 检查通过；仅本地静态原型改动。
+
+### Processor capabilities 表格第一版（2026-10-10，历史记录；跨渠道规则以上文为准）
 
 - 用户要求 Add / Edit 同步将三组能力下拉整合为 `Processor capabilities` 表格，增加按行选择是否传输 Payload Data 的第五列；仅借用参考截图的表格组织方式，继续复用现有 Portal 表单样式。
 - 已明确列顺序：平台支持的交易类型、`Terminal Channel`、`ECOMM Channel`、`Cross-Channel (Terminal → ECOMM)`、Payload Data 相关选择。页面文字均为英语。

@@ -479,7 +479,7 @@ test("backfills prerequisite milestones for legacy reviewed applications", async
   expect(directSubmit[2].occurredAt).toBe("2026-08-13 10:05:00");
 });
 
-test("approves a Nuvei application only after all six sections pass", async ({ page }) => {
+test("approves a Nuvei application only after all seven sections pass", async ({ page }) => {
   await openCleanPage(page);
   await page.getByRole("button", { name: "Review application 00000339" }).click();
   await expect(page.getByRole("heading", { name: "Review Nuvei Application" })).toBeVisible();
@@ -496,7 +496,11 @@ test("approves a Nuvei application only after all six sections pass", async ({ p
   const terminalBadge = terminalNav.locator(".review-nav-status");
   expect(await terminalBadge.evaluate((badge) => getComputedStyle(badge).gridColumnStart)).toBe("3");
   expect(await terminalBadge.evaluate((badge) => getComputedStyle(badge).whiteSpace)).toBe("nowrap");
-  for (const button of await page.getByRole("button", { name: "Pass", exact: true }).all()) await button.click();
+  const passButtons = page.getByRole("button", { name: "Pass", exact: true });
+  await expect(passButtons).toHaveCount(7);
+  for (const button of (await passButtons.all()).slice(0, 6)) await button.click();
+  await expect(page.getByRole("button", { name: "Approve Application" })).toBeDisabled();
+  await passButtons.last().click();
   await expect(page.getByRole("button", { name: "Approve Application" })).toBeEnabled();
   await page.getByRole("button", { name: "Approve Application" }).click();
   await expect(page.getByRole("status")).toContainText("Application approved");

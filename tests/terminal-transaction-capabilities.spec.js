@@ -5,8 +5,8 @@ const ADD = '/5.merchant_add_device_iso.html';
 const EDIT = '/5.merchant_device_settings_iso.html';
 const DETAIL = '/5.merchant_detail_iso.html';
 const LEADS = '/29.INTL_PSP_merchant_lead_list.html';
-const cardless = (page) => page.getByRole('switch', { name: 'Supports Cardless Transactions', exact: true });
-const routing = (page) => page.getByRole('switch', { name: 'Supports Transaction Routing', exact: true });
+const cardless = (page) => page.getByRole('checkbox', { name: 'Supports Cardless Transactions', exact: true });
+const routing = (page) => page.getByRole('checkbox', { name: 'Supports Transaction Routing', exact: true });
 
 test.use({ viewport: { width: 1710, height: 950 } });
 
@@ -238,10 +238,10 @@ test('Assign Terminal has no capability controls and preserves configuration cho
     await row.getByRole('button', { name: 'Assign Terminal', exact: true }).click();
   }
   await openAssign();
-  await expect(page.locator('#assign-terminal-modal [role="switch"]')).toHaveCount(0);
+  await expect(page.locator('#assign-terminal-modal .terminal-capabilities')).toHaveCount(0);
   await page.locator('#assign-terminal-modal').getByRole('button', { name: 'Cancel', exact: true }).click();
   await openAssign();
-  await expect(page.locator('#assign-terminal-modal [role="switch"]')).toHaveCount(0);
+  await expect(page.locator('#assign-terminal-modal .terminal-capabilities')).toHaveCount(0);
   await page.locator('#assign-terminal-sn').fill('CAPABILITY-BIND-001');
   await page.getByRole('button', { name: 'Assign & Deploy', exact: true }).click();
   await expect(row).toHaveAttribute('data-sn', 'CAPABILITY-BIND-001');

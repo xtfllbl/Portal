@@ -198,104 +198,117 @@ function capability(page, transaction, column) {
 }
 const terminal = 'Terminal Channel';
 const ecomm = 'ECOMM Channel';
-const cross = 'Cross-Channel (Terminal → ECOMM)';
+const cross = 'Cross-Channel Capabilities (Terminal → ECOMM)';
 const payload = 'Send Payload Data';
 
-test('capability matrix retains the complete catalog and saves all four columns independently', async ({ page }) => {
+async function expectCrossSelection(page, names) {
+  await page.getByRole('combobox', { name: cross, exact: true }).click();
+  const panel = page.locator('.pc-picker-panel:popover-open');
+  await panel.getByRole('button', { name: `Selected (${names.length})`, exact: true }).click();
+  await expect(panel.getByRole('option')).toHaveCount(names.length);
+  for (const name of names) await expect(panel.getByRole('option', { name, exact: true })).toHaveAttribute('aria-selected', 'true');
+  await panel.getByRole('combobox').press('Escape');
+}
+
+test('four-column matrix and independent Cross dropdown save and refill all capability values', async ({ page }) => {
   await page.goto(form);
   await expect(page.getByRole('table', { name: 'Processor capabilities' }).getByRole('row')).toHaveCount(25);
-  await expect(page.getByRole('columnheader')).toHaveText(['Transaction Type', 'Terminal Channel', 'ECOMM Channel', 'Cross-Channel (Terminal → ECOMM)', 'Send Payload Data']);
+  await expect(page.getByRole('columnheader')).toHaveText(['Transaction Type', 'Terminal Channel', 'ECOMM Channel', 'Send Payload Data']);
   for (const width of [1280, 1710]) {
     await page.setViewportSize({ width, height: 1000 });
     await expect(page.locator('.pc-capability-table thead')).toHaveCSS('height', '34px');
     await expect(page.getByRole('columnheader').first()).toHaveCSS('font-size', '11px');
-    const fits = await page.locator('.pc-capability-scroll').evaluate(element => element.scrollWidth === element.clientWidth);
-    expect(fits).toBe(true);
+    expect(await page.locator('.pc-capability-scroll').evaluate(element => element.scrollWidth === element.clientWidth)).toBe(true);
+    const parameters = await page.locator('[data-field="payParams"]').boundingBox();
+    const crossBounds = await page.locator('[data-field="postAbilityList"]').boundingBox();
+    expect(crossBounds.y).toBe(parameters.y);
+    expect(crossBounds.x).toBeGreaterThan(parameters.x + parameters.width);
   }
-  await expect(capability(page, 'PrintParameter', terminal)).toBeVisible();
-  await expect(capability(page, 'ReadCard', ecomm)).toBeVisible();
-  await expect(capability(page, 'Purchase', cross)).toBeDisabled();
+  // Cross selection requires neither Terminal nor ECOMM support.
+  await choose(page, cross, 'Refund');
+  await expect(capability(page, 'Refund', terminal)).not.toBeChecked();
+  await expect(capability(page, 'Refund', ecomm)).not.toBeChecked();
   await expect(capability(page, 'Purchase', payload)).toBeDisabled();
-  await expect(page.getByRole('switch', { checked: true })).toHaveCount(0);
   await fillQr(page, 'Matrix QR');
+  await expect(page.getByRole('combobox', { name: cross, exact: true })).toBeVisible();
   await capability(page, 'Purchase', terminal).check();
-  await expect(capability(page, 'Purchase', payload)).toBeEnabled();
-  await expect(capability(page, 'Purchase', cross)).toBeDisabled();
   await capability(page, 'Purchase', payload).focus();
   await capability(page, 'Purchase', payload).press('Space');
-  await capability(page, 'Refund', terminal).check();
-  await capability(page, 'Refund', ecomm).check();
-  await capability(page, 'Refund', cross).check();
   await capability(page, 'Capture', ecomm).check();
   await page.getByRole('heading', { name: 'Processor capabilities', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: 'artifacts/payment-channel-processor-capabilities.png' });
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
   await expect(page).toHaveURL(/47\.payment_channel\.html$/);
   const saved = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).find(record => record.name === 'Matrix QR'), storeKey);
-  expect(saved.channelCapability).toMatchObject({ offAbilityList: ['Purchase', 'Refund'], abilityList: ['Refund', 'Capture'], postAbilityList: ['Refund'], payloadDataList: ['Purchase'] });
+  expect(saved.channelCapability).toMatchObject({ offAbilityList: ['Purchase'], abilityList: ['Capture'], postAbilityList: ['Refund'], payloadDataList: ['Purchase'] });
   await page.getByRole('link', { name: 'Edit Matrix QR', exact: true }).click();
   await page.reload();
-  await expect(capability(page, 'Purchase', terminal)).toBeChecked();
-  await expect(capability(page, 'Purchase', ecomm)).not.toBeChecked();
+  await expectCrossSelection(page, ['Refund']);
   await expect(capability(page, 'Purchase', payload)).toBeChecked();
-  await expect(capability(page, 'Refund', cross)).toBeChecked();
   await expect(capability(page, 'Capture', ecomm)).toBeChecked();
-  // Cancel leaves saved Payload data intact.
+  await choose(page, cross, 'Refund');
   await capability(page, 'Purchase', payload).uncheck();
   await page.getByRole('link', { name: 'Cancel', exact: true }).click();
   await page.getByRole('link', { name: 'Edit Matrix QR', exact: true }).click();
+  await expectCrossSelection(page, ['Refund']);
   await expect(capability(page, 'Purchase', payload)).toBeChecked();
 });
 
-test('removing prerequisites clears only their dependent selections and does not restore them', async ({ page }) => {
+test('Cross dropdown supports search, keyboard and selected removal without losing other selections', async ({ page }) => {
   await page.goto(form);
+  await page.getByRole('combobox', { name: cross, exact: true }).click();
+  const panel = page.locator('.pc-picker-panel:popover-open');
+  const search = panel.getByRole('combobox');
+  await expect(panel.getByRole('option')).toHaveCount(24);
+  await panel.getByRole('option', { name: 'Purchase', exact: true }).click();
+  await search.fill('Refund');
+  await search.press('ArrowDown');
+  await search.press('Enter');
+  await search.fill('');
+  await panel.getByRole('button', { name: 'Selected (2)', exact: true }).click();
+  await expect(panel.getByRole('option')).toHaveCount(2);
+  await panel.getByRole('option', { name: 'Purchase', exact: true }).click();
+  await expect(panel.getByRole('option')).toHaveCount(1);
+  await expect(panel.getByRole('option', { name: 'Refund', exact: true })).toHaveAttribute('aria-selected', 'true');
+  const bounds = await panel.boundingBox();
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(1000);
+  await search.press('Escape');
+  await expect(page.getByRole('combobox', { name: cross, exact: true })).toBeFocused();
+  await expectCrossSelection(page, ['Refund']);
+});
+
+test('changing Terminal or ECOMM retains Cross selections while Terminal still controls Payload', async ({ page }) => {
+  await page.goto(form);
+  await choose(page, cross, 'Purchase');
   await capability(page, 'Purchase', terminal).check();
   await capability(page, 'Purchase', ecomm).check();
-  await capability(page, 'Purchase', cross).check();
   await capability(page, 'Purchase', payload).check();
   await capability(page, 'Purchase', ecomm).uncheck();
-  await expect(capability(page, 'Purchase', cross)).not.toBeChecked();
-  await expect(capability(page, 'Purchase', cross)).toBeDisabled();
+  await expectCrossSelection(page, ['Purchase']);
   await expect(capability(page, 'Purchase', payload)).toBeChecked();
-  await capability(page, 'Purchase', ecomm).check();
-  await expect(capability(page, 'Purchase', cross)).not.toBeChecked();
-  await capability(page, 'Purchase', cross).check();
   await capability(page, 'Purchase', terminal).uncheck();
-  await expect(capability(page, 'Purchase', cross)).not.toBeChecked();
+  await expectCrossSelection(page, ['Purchase']);
   await expect(capability(page, 'Purchase', payload)).not.toBeChecked();
   await expect(capability(page, 'Purchase', payload)).toBeDisabled();
-  await expect(capability(page, 'Purchase', ecomm)).toBeChecked();
   await capability(page, 'Purchase', terminal).check();
   await expect(capability(page, 'Purchase', payload)).not.toBeChecked();
 });
 
-test('legacy Cross conflicts stay removable, block submission, and focus the actual conflict on request', async ({ page }) => {
+test('legacy Cross selections no longer produce conflicts or block submission', async ({ page }) => {
   await page.goto(form + '?id=pc-02');
-  await expect(page.locator('.pc-capability-conflicts')).toContainText('4 transaction types');
-  for (const name of ['Reversal', 'AuthVoid', 'TipAdjust', 'PartialReversal']) {
-    await expect(capability(page, name, cross)).toBeChecked();
-    await expect(capability(page, name, cross)).toBeEnabled();
-    await expect(capability(page, name, cross)).toHaveAttribute('aria-invalid', 'true');
-  }
-  await page.getByRole('button', { name: 'Submit', exact: true }).click();
-  await expect(page).toHaveURL(/id=pc-02/);
-  await expect(page.getByRole('alert')).toBeFocused();
-  await expect(page.getByRole('alert')).toContainText('Processor capabilities conflicts');
-  await page.getByRole('alert').getByRole('link').click();
-  await expect(capability(page, 'Reversal', cross)).toBeFocused();
-  const bounds = await capability(page, 'Reversal', cross).boundingBox();
-  expect(bounds.y).toBeGreaterThan(85);
-  expect(bounds.y + bounds.height).toBeLessThan(900);
-  await capability(page, 'Reversal', terminal).check();
-  await capability(page, 'AuthVoid', cross).uncheck();
-  await capability(page, 'TipAdjust', terminal).check();
-  await capability(page, 'PartialReversal', cross).uncheck();
+  const before = await page.evaluate(() => window.PaywizardPaymentChannelData.records.find(record => record.id === 'pc-02').channelCapability);
+  await expectCrossSelection(page, before.postAbilityList);
   await expect(page.locator('.pc-capability-conflicts')).toBeHidden();
+  await expect(page.locator('.pc-capability-table [aria-invalid=true]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
   await expect(page).toHaveURL(/47\.payment_channel\.html$/);
+  const after = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).find(record => record.id === 'pc-02').channelCapability, storeKey);
+  expect(after.postAbilityList).toEqual(before.postAbilityList);
+  expect(after.offAbilityList).toEqual(before.offAbilityList);
+  expect(after.abilityList).toEqual(before.abilityList);
   await page.getByRole('link', { name: 'Edit Nuvei Attd', exact: true }).click();
-  await expect(capability(page, 'Reversal', cross)).toBeChecked();
-  await expect(capability(page, 'AuthVoid', cross)).not.toBeChecked();
+  await expectCrossSelection(page, before.postAbilityList);
 });
 
 test('legacy Payload conflicts are preserved until explicitly resolved and defaults do not change old records', async ({ page }) => {

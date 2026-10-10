@@ -690,6 +690,7 @@
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/nuvei-uploads.css" />
 </head>
 <body>
   <aside class="sidebar" aria-label="Primary navigation">
@@ -751,7 +752,7 @@
             </div>
           </section>
 
-          <form id="nuvei-form">
+          <form id="nuvei-form" novalidate>
             <section class="form-section" id="legal" data-section="legal">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">1</span><h2>Legal Business Information</h2></div>
@@ -897,7 +898,6 @@
             <section class="form-section" id="banking" data-section="banking">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">4</span><h2>Electronic Debit / Credit Authorization (Banking Information)</h2></div>
-                <span class="section-note">Settlement account</span>
               </header>
               <div class="section-body">
                 <div class="field-grid">
@@ -929,6 +929,37 @@
                     <label for="bank-postal">Bank Postal Code<span class="required">*</span></label>
                     <input id="bank-postal" name="bankPostal" type="text" required />
                   </div>
+                  <div class="field full">
+                    <label for="machine-placement-address">Detailed address of where all the vending machines will be placed<span class="required">*</span></label>
+                    <textarea id="machine-placement-address" name="machinePlacementAddress" rows="5" aria-describedby="machine-placement-help" required></textarea>
+                    <span class="field-help" id="machine-placement-help">Please write detailed address of where the vending machine/s will be installed or operated, as well as the number of units that will be placed at each location.</span>
+                  </div>
+                  <div class="field full">
+                    <label class="upload-card">
+                      <img src="assets/icons/file-download.svg" alt="" />
+                      <strong>Proof of Inventory<span class="required">*</span></strong>
+                      <span data-file-name>Browse Files · Drag and drop files here</span>
+                      <input name="proofOfInventory" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="inventory-help" multiple required />
+                    </label>
+                    <span class="field-help" id="inventory-help">This can be an invoice, receipt, purchase agreement, or other document showing the purchase of the vending machines.</span>
+                  </div>
+                  <div class="field full">
+                    <label class="upload-card">
+                      <img src="assets/icons/file-download.svg" alt="" />
+                      <strong>Proof of Purchase<span class="required">*</span></strong>
+                      <span data-file-name>Browse Files · Drag and drop files here</span>
+                      <input name="proofOfPurchase" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple required />
+                    </label>
+                  </div>
+                  <div class="field full">
+                    <label class="upload-card">
+                      <img src="assets/icons/file-download.svg" alt="" />
+                      <strong>Please upload a signed lease agreement for the business location.<span class="required">*</span></strong>
+                      <span data-file-name>Browse Files · Drag and drop files here</span>
+                      <input name="businessLocationLease" type="file" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="business-location-help" multiple required />
+                    </label>
+                    <span class="field-help" id="business-location-help">The lease agreement must: 1. Clearly identify the business location. 2. Be signed by both the property owner (or authorized landlord/location owner) and the merchant/business owner. 3. Be valid and legible.</span>
+                  </div>
                 </div>
               </div>
             </section>
@@ -936,10 +967,16 @@
             <section class="form-section" id="terminal" data-section="terminal">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">5</span><h2>Terminal &amp; Vending Machine Information</h2></div>
-                <span class="section-note">Onboarding and machine operations</span>
               </header>
               <div class="section-body">
                 <div class="field-grid">
+                  <fieldset class="field full group-field">
+                    <legend class="field-label">Terminal type<span class="required">*</span></legend>
+                    <div class="radio-row">
+                      <label><input type="radio" name="terminalType" value="Attended" required /> Attended</label>
+                      <label><input type="radio" name="terminalType" value="Unattended" required /> Unattended</label>
+                    </div>
+                  </fieldset>
                   <div class="field">
                     <label for="terminals-to-onboard">Number of Terminals to be Onboarded<span class="required">*</span></label>
                     <input id="terminals-to-onboard" name="terminalsToOnboard" type="number" min="1" step="1" value="1" required />
@@ -979,7 +1016,7 @@
                         <img src="assets/icons/file-download.svg" alt="" />
                         <strong>On-site Photo (preferred for onboarding) of the Vending Machine<span class="required">*</span></strong>
                         <span data-file-name>Choose or drop a machine photo</span>
-                        <input name="vendingMachinePhoto" type="file" accept=".jpg,.jpeg,.png,.heic" required />
+                        <input name="vendingMachinePhoto" type="file" accept=".jpg,.jpeg,.png,.heic" multiple required />
                       </label>
                     </div>
                     <span class="field-help">If an on-site photo is not available, please share a real time image of the vending machine.</span>
@@ -1005,27 +1042,40 @@
             <section class="form-section" id="documents" data-section="documents">
               <header class="section-header">
                 <div class="section-title"><span class="section-number">6</span><h2>Supporting Documents</h2></div>
-                <span class="section-note">Required verification</span>
               </header>
               <div class="section-body">
                 <div class="upload-grid two">
                   <label class="upload-card">
                     <img src="assets/icons/file-download.svg" alt="" />
-                    <strong>Void Check<span class="required">*</span></strong>
+                    <strong>Void Check / Bank Letter<span class="required">*</span></strong>
                     <span data-file-name>Choose or drop a bank document</span>
-                    <input name="voidCheck" type="file" accept=".pdf,.jpg,.jpeg,.png" required />
+                    <input name="voidCheck" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple required />
                   </label>
                   <label class="upload-card">
                     <img src="assets/icons/file-download.svg" alt="" />
                     <strong>Valid Driver's License<span class="required">*</span></strong>
                     <span data-file-name>Choose or drop an identity document</span>
-                    <input name="driversLicense" type="file" accept=".pdf,.jpg,.jpeg,.png" required />
+                    <input name="driversLicense" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple required />
                   </label>
                 </div>
                 <div class="field add-owner-row">
                   <label for="online-business-validation">Online business validation (Website or social media link confirming your business activity)<span class="required">*</span></label>
                   <textarea id="online-business-validation" name="onlineBusinessValidation" required></textarea>
                 </div>
+              </div>
+            </section>
+
+            <section class="form-section" id="additional-documents" data-section="additional-documents">
+              <header class="section-header">
+                <div class="section-title"><span class="section-number">7</span><h2>Additional Supporting Documents</h2></div>
+              </header>
+              <div class="section-body">
+                <label class="upload-card">
+                  <img src="assets/icons/file-download.svg" alt="" />
+                  <strong>Additional Supporting Documents<span class="optional">optional</span></strong>
+                  <span data-file-name>Browse Files · Drag and drop files here</span>
+                  <input name="additionalSupportingDocuments" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple />
+                </label>
                 <div class="form-actions">
                   <button class="secondary-button" id="save-draft" type="button"><img src="assets/icons/bookmark-add.svg" alt="" />Save Draft</button>
                   <button class="primary-button" type="submit"><img src="assets/icons/send.svg" alt="" />Submit Application</button>
@@ -1044,6 +1094,7 @@
             <li><a href="#banking"><span>4.</span><span>Banking Information</span></a></li>
             <li><a href="#terminal"><span>5.</span><span>Terminal &amp; Vending Machine Information</span></a></li>
             <li><a href="#documents"><span>6.</span><span>Supporting Documents</span></a></li>
+            <li><a href="#additional-documents"><span>7.</span><span>Additional Supporting Documents</span></a></li>
           </ol>
         </nav>
       </div>
@@ -1057,6 +1108,7 @@
   </aside>
 
   <script src="scripts/merchant-onboarding-store.js"></script>
+  <script src="scripts/nuvei-uploads.js"></script>
   <script>
     (function () {
       var form = document.getElementById('nuvei-form');
@@ -1179,14 +1231,6 @@
       form.addEventListener('change', function (event) {
         var target = event.target;
         if (target.matches('input[name="connectivity[]"]')) validateConnectivity();
-
-        if (target.matches('.upload-card input[type="file"]')) {
-          var card = target.closest('.upload-card');
-          var fileName = card.querySelector('[data-file-name]');
-          var file = target.files && target.files[0];
-          card.classList.toggle('has-file', Boolean(file));
-          fileName.textContent = file ? file.name : 'Choose or drop a document';
-        }
       });
 
       document.querySelector('.success-close').addEventListener('click', function () {
@@ -1203,9 +1247,7 @@
         event.preventDefault();
         validateConnectivity();
         if (!form.checkValidity()) {
-          form.reportValidity();
-          var invalid = form.querySelector(':invalid');
-          if (invalid) invalid.closest('.form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          window.PaywizardNuveiUploads.focusFirstError(form);
           return;
         }
         showBanner('Application ready', 'The Nuvei merchant application has passed the prototype validation check.');
@@ -1218,18 +1260,28 @@
       }
 
       var navLinks = Array.prototype.slice.call(document.querySelectorAll('.section-nav a'));
-      var sectionObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          navLinks.forEach(function (link) {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
-          });
+      var navSections = Array.prototype.slice.call(form.querySelectorAll('[data-section]'));
+      function updateSectionNav() {
+        var scroller = document.querySelector('.pw-platform-content-host') || document.scrollingElement;
+        var top = scroller === document.scrollingElement ? 0 : scroller.getBoundingClientRect().top;
+        var current = navSections[0];
+        navSections.forEach(function (section) {
+          if (section.getBoundingClientRect().top <= top + 120) current = section;
         });
-      }, { rootMargin: '-18% 0px -70% 0px', threshold: 0 });
-
-      document.querySelectorAll('[data-section]').forEach(function (section) {
-        sectionObserver.observe(section);
-      });
+        var last = navSections[navSections.length - 1];
+        var lastRect = last.getBoundingClientRect();
+        var bottom = scroller === document.scrollingElement ? window.innerHeight : scroller.getBoundingClientRect().bottom;
+        if (scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop <= 2 || (lastRect.top >= top && lastRect.bottom <= bottom + 2)) current = last;
+        navLinks.forEach(function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current.id);
+        });
+      }
+      var navFrame;
+      document.addEventListener('scroll', function () {
+        if (navFrame) cancelAnimationFrame(navFrame);
+        navFrame = requestAnimationFrame(updateSectionNav);
+      }, true);
+      updateSectionNav();
     })();
   </script>
   <script src="scripts/merchant-onboarding-progress.js"></script>

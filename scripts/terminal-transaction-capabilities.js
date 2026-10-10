@@ -50,21 +50,17 @@
         element.setAttribute('aria-label', 'Terminal transaction capabilities');
         for (const [key, label] of [['cardless', 'Supports Cardless Transactions'], ['routing', 'Supports Transaction Routing']]) {
             const wrapper = document.createElement('label');
-            wrapper.className = 'terminal-capability-switch';
+            wrapper.className = 'terminal-capability-checkbox';
             wrapper.htmlFor = `${prefix}-${key}`;
             const input = document.createElement('input');
             input.type = 'checkbox';
             input.id = wrapper.htmlFor;
             input.name = key === 'cardless' ? 'supportsCardlessTransactions' : 'supportsTransactionRouting';
-            input.setAttribute('role', 'switch');
             input.setAttribute('aria-label', label);
-            const track = document.createElement('span');
-            track.className = 'terminal-capability-track';
-            track.setAttribute('aria-hidden', 'true');
             const text = document.createElement('span');
             text.className = 'terminal-capability-label';
             text.textContent = label.replace(/^Supports /, 'Support ');
-            wrapper.append(input, track, text);
+            wrapper.append(input, text);
             element.append(wrapper);
         }
         const error = document.createElement('div');

@@ -56,7 +56,7 @@ async function fillRequiredForm(page) {
   }
 }
 
-test("matches the six source sections and removes non-source fields", async ({ page }) => {
+test("matches the seven confirmed sections and removes non-source fields", async ({ page }) => {
   await openCleanForm(page);
 
   await expect(page.locator(".form-section h2")).toHaveText([
@@ -65,14 +65,16 @@ test("matches the six source sections and removes non-source fields", async ({ p
     "Owners or Officers",
     "Electronic Debit / Credit Authorization (Banking Information)",
     "Terminal & Vending Machine Information",
-    "Supporting Documents"
+    "Supporting Documents",
+    "Additional Supporting Documents"
   ]);
 
   for (const name of [
     "authorizedContact", "statementEmail", "merchantCustomerServicePhone", "federalRegistryNumber",
     "additionalOwnerCount", "terminalsToOnboard", "snNumber", "dispatchDate", "arrivalDate",
     "connectivity[]", "averageTransactionAmount", "vendingProducts", "vendingMachinePhoto",
-    "businessStructure", "onlineBusinessValidation"
+    "businessStructure", "onlineBusinessValidation", "terminalType", "machinePlacementAddress",
+    "proofOfInventory", "proofOfPurchase", "businessLocationLease", "additionalSupportingDocuments"
   ]) {
     await expect(page.locator(`[name="${name}"]`).first()).toBeAttached();
   }
@@ -154,6 +156,8 @@ test("saves and restores new text, choices, and dynamic-owner fields", async ({ 
   await page.locator("#additional-owner-count").fill("1");
   await page.locator('[name="additionalOwners[0][fullName]"]').fill("Jamie Owner");
   await page.locator('input[name="connectivity[]"][value="Ethernet"]').check();
+  await page.locator('[name="terminalType"][value="Unattended"]').check();
+  await page.locator('[name="machinePlacementAddress"]').fill("100 Main Street, Toronto, ON — 3 machines");
   await page.getByRole("button", { name: "Save Draft" }).click();
   await expect(page.locator("#success-title")).toHaveText("Draft saved");
 
@@ -162,7 +166,163 @@ test("saves and restores new text, choices, and dynamic-owner fields", async ({ 
   await expect(page.locator("#additional-owner-count")).toHaveValue("1");
   await expect(page.locator('[name="additionalOwners[0][fullName]"]')).toHaveValue("Jamie Owner");
   await expect(page.locator('input[name="connectivity[]"][value="Ethernet"]')).toBeChecked();
+  await expect(page.locator('[name="terminalType"][value="Unattended"]')).toBeChecked();
+  await expect(page.locator('[name="machinePlacementAddress"]')).toHaveValue("100 Main Street, Toronto, ON — 3 machines");
   await expect(page.locator('input[name="vendingMachinePhoto"]')).toHaveValue("");
+});
+
+const documentFile = (name) => ({ name, mimeType: "application/pdf", buffer: Buffer.from("test document") });
+
+test("requires placement and evidence for both mutually exclusive terminal types", async ({ page }) => {
+  await openCleanForm(page);
+  await expect(page.locator('[name="terminalType"]:checked')).toHaveCount(0);
+  for (const type of ["Attended", "Unattended"]) {
+    await page.locator(`[name="terminalType"][value="${type}"]`).check();
+    await expect(page.locator('[name="terminalType"]:checked')).toHaveCount(1);
+    for (const name of ["machinePlacementAddress", "proofOfInventory", "proofOfPurchase", "businessLocationLease"]) {
+      const input = page.locator(`#banking [name="${name}"]`);
+      await expect(input).toHaveAttribute("required", "");
+      expect(await input.evaluate((control) => control.closest(".field").getBoundingClientRect().height)).toBeGreaterThan(0);
+      expect(await input.evaluate((control) => control.checkValidity())).toBeFalsy();
+    }
+  }
+  await expect(page.locator('input[type="file"][multiple]')).toHaveCount(7);
+  await expect(page.locator('[name="additionalSupportingDocuments"]')).not.toHaveAttribute("required", "");
+  await expect(page.locator("#documents strong").first()).toHaveText("Void Check / Bank Letter*");
+});
+
+test("appends files, rejects the eleventh without losing selections, and removes individually", async ({ page }) => {
+  await openCleanForm(page);
+  const input = page.locator('[name="proofOfInventory"]');
+  const upload = page.locator(".nuvei-upload").filter({ has: input });
+  await input.setInputFiles([documentFile("invoice.pdf"), documentFile("receipt.pdf")]);
+  await input.setInputFiles(Array.from({ length: 8 }, (_, index) => documentFile(`proof-${index}.pdf`)));
+  await expect(upload.locator("li")).toHaveCount(10);
+  await input.setInputFiles(documentFile("eleventh.pdf"));
+  await expect(upload.locator("li")).toHaveCount(10);
+  await expect(upload.locator('[role="alert"]')).toContainText("up to 10 files");
+  await expect(upload.locator('[role="alert"]')).toBeFocused();
+  expect(await input.evaluate((control) => control.files.length)).toBe(10);
+  const messageBox = await upload.locator('[role="alert"]').boundingBox();
+  expect(messageBox.y).toBeGreaterThan(66);
+  expect(messageBox.y + messageBox.height).toBeLessThan(1000);
+  await page.screenshot({ path: "artifacts/nuvei-upload-limit-2026-10-10.png" });
+  await upload.getByRole("button", { name: "Remove invoice.pdf", exact: true }).click();
+  await expect(upload.locator("li")).toHaveCount(9);
+  await expect(upload.locator('[role="alert"]')).toBeHidden();
+  await input.setInputFiles(documentFile("replacement.pdf"));
+  await expect(upload.locator("li")).toHaveCount(10);
+  await input.setInputFiles(documentFile("unsupported.exe"));
+  await expect(upload.locator('[role="alert"]')).toContainText("not supported");
+  await expect(upload.locator("li")).toHaveCount(10);
+});
+
+test("supports dropping files and restoring requiredness after removing the last file", async ({ page }) => {
+  await openCleanForm(page);
+  const upload = page.locator(".nuvei-upload").filter({ has: page.locator('[name="proofOfPurchase"]') });
+  await upload.locator(".upload-card").evaluate((card) => {
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(["invoice"], "purchase.pdf", { type: "application/pdf" }));
+    card.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: transfer }));
+  });
+  await expect(upload.locator("li")).toHaveText("purchase.pdfclose");
+  expect(await upload.locator("input").evaluate((input) => input.checkValidity())).toBeTruthy();
+  await upload.getByRole("button", { name: "Remove purchase.pdf" }).click();
+  await expect(upload.locator("li")).toHaveCount(0);
+  expect(await upload.locator("input").evaluate((input) => input.checkValidity())).toBeFalsy();
+});
+
+async function openPublicDraft(page) {
+  await openCleanForm(page);
+  await page.evaluate(() => {
+    const Store = window.PaywizardOnboardingStore;
+    const draft = Store.demos()[0];
+    draft.applicationId = "APP-TEST-NUVEI-MULTI";
+    draft.status = "Awaiting Merchant";
+    draft.documents = {};
+    draft.formData = {};
+    draft.review = Store.createReview("Nuvei");
+    Store.upsertApplication(draft);
+  });
+  await page.goto("/38.Merchant_onboard_nuvei_public.html?applicationId=APP-TEST-NUVEI-MULTI");
+  const frame = page.frameLocator("#source-frame");
+  await expect(frame.locator("#nuvei-form")).toBeVisible();
+  return frame;
+}
+
+test("persists restored-file additions and deletions and keeps review and view read-only", async ({ page }) => {
+  let frame = await openPublicDraft(page);
+  const input = () => frame.locator('[name="additionalSupportingDocuments"]');
+  await input().setInputFiles([documentFile("notes-a.pdf"), documentFile("notes-b.pdf")]);
+  await frame.locator('[name="proofOfInventory"]').setInputFiles(documentFile("inventory.pdf"));
+  await frame.getByRole("button", { name: "Save Draft" }).click();
+  await page.reload();
+  frame = page.frameLocator("#source-frame");
+  const upload = () => frame.locator(".nuvei-upload").filter({ has: input() });
+  await expect(upload().locator("li")).toHaveCount(2);
+  const requiredUpload = frame.locator(".nuvei-upload").filter({ has: frame.locator('[name="proofOfInventory"]') });
+  await expect(requiredUpload.locator("input")).not.toHaveAttribute("required", "");
+  await requiredUpload.getByRole("button", { name: "Remove inventory.pdf" }).click();
+  await expect(requiredUpload.locator("input")).toHaveAttribute("required", "");
+  expect(await requiredUpload.locator("input").evaluate((control) => control.checkValidity())).toBeFalsy();
+  await input().setInputFiles(documentFile("notes-c.pdf"));
+  await expect(upload().locator("li")).toHaveCount(3);
+  await upload().getByRole("button", { name: "Remove notes-b.pdf" }).click();
+  await frame.getByRole("button", { name: "Save Draft" }).click();
+  for (const mode of ["review", "view"]) {
+    await page.goto(`${NUVEI_URL}?mode=${mode}&applicationId=APP-TEST-NUVEI-MULTI`);
+    const readonlyUpload = page.locator("#additional-documents .nuvei-upload");
+    await expect(readonlyUpload.locator("li")).toHaveCount(2);
+    await expect(readonlyUpload.locator("li").first()).toContainText("notes-a.pdf");
+    await expect(readonlyUpload.locator("li").last()).toContainText("notes-c.pdf");
+    await expect(readonlyUpload.locator("input")).toBeDisabled();
+    await expect(readonlyUpload.locator("button").first()).toBeHidden();
+  }
+  await page.goto("/38.Merchant_onboard_nuvei_public.html?applicationId=APP-TEST-NUVEI-MULTI");
+  frame = page.frameLocator("#source-frame");
+  await upload().getByRole("button", { name: "Remove notes-a.pdf" }).click();
+  await upload().getByRole("button", { name: "Remove notes-c.pdf" }).click();
+  await frame.getByRole("button", { name: "Save Draft" }).click();
+  await page.reload();
+  await expect(upload().locator("li")).toHaveCount(0);
+});
+
+test("locates public-frame errors and submits with the optional seventh upload empty", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const frame = await openPublicDraft(page);
+  await fillRequiredForm(frame);
+  await frame.locator('[name="machinePlacementAddress"]').fill("");
+  await frame.getByRole("button", { name: "Submit Application" }).click();
+  const error = frame.locator("#machine-placement-address-error");
+  await expect(error).toBeFocused();
+  const bounds = await error.boundingBox();
+  expect(bounds.y).toBeGreaterThan(0);
+  expect(bounds.y + bounds.height).toBeLessThan(1000);
+  await frame.locator('[name="machinePlacementAddress"]').fill("100 Main Street, Toronto, ON — 3 machines");
+  await frame.getByRole("button", { name: "Submit Application" }).click();
+  await expect(frame.locator("#success-title")).toHaveText("Thank you — application received");
+  await expect(frame.locator('[name="proofOfPurchase"]')).toBeDisabled();
+  await expect(frame.getByRole("button", { name: "Remove verification-1.png" })).toBeHidden();
+  const application = await page.evaluate(() => window.PaywizardOnboardingStore.findApplication("APP-TEST-NUVEI-MULTI"));
+  expect(application.status).toBe("Merchant Submit");
+  expect(application.formData.terminalType).toBe("Attended");
+  expect(application.documents.additionalSupportingDocuments).toEqual([]);
+  expect(Object.keys(application.review.sections)).toHaveLength(7);
+});
+
+test("records desktop banking and final-section visual evidence", async ({ page }) => {
+  await page.setViewportSize({ width: 1710, height: 1000 });
+  await openCleanForm(page);
+  await page.locator('.section-nav a[href="#banking"]').click();
+  await page.locator("#banking").evaluate((section) => section.scrollIntoView({ block: "start", behavior: "instant" }));
+  await expect(page.locator('.section-nav a[href="#banking"]')).toHaveClass("active");
+  await page.screenshot({ path: "artifacts/nuvei-banking-2026-10-10.png" });
+  await page.locator('.section-nav a[href="#additional-documents"]').click();
+  await page.locator("#additional-documents").evaluate((section) => section.scrollIntoView({ block: "end", behavior: "instant" }));
+  await expect(page.locator('.section-nav a[href="#additional-documents"]')).toHaveClass("active");
+  await expect(page.locator("#save-draft")).toHaveCSS("min-height", "40px");
+  await expect(page.locator('.form-actions button[type="submit"]')).toHaveCSS("min-height", "40px");
+  await page.screenshot({ path: "artifacts/nuvei-supporting-documents-2026-10-10.png" });
 });
 
 test("has no horizontal overflow on desktop or mobile", async ({ page }) => {

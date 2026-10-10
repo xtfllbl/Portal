@@ -307,3 +307,25 @@ final result: passed
 - Reproduced Add Merchant's right required-fields hint being top-aligned and Merchant Profile using a different baseline. Shared styles now center title-header children and keep the existing 10px content gap outside the wizard title row.
 - Chrome desktop visual checks covered Add Merchant, New Merchant Onboarding, Add Device, Device Settings and Card Activation. Return buttons, title/context labels and right-side hints/actions align vertically; measured center differences for the merchant labels and required-fields hint were below 0.01px. Existing title sizes, button geometry and form position remain intact.
 - Existing merchant form geometry regression passed; static build and git diff checks passed. Screenshot: `artifacts/title-alignment/merchant-admin-navigation--82da7-ne-and-specialized-geometry-chromium/test-finished-1.png`. Local prototype only; no deployment or commit.
+
+## Terminal capability checkboxes — 2026-10-10
+
+final result: passed
+
+- Source visual truth: `/Users/beaver/.codex/generated_images/01a123b6-920d-7772-a0ae-79ae17c03f26/exec-b1cf8da8-aa63-46ea-839f-f664b50fc543.png`, right-hand Checkbox dialog selected by the user. Scope is the two capability controls across the six existing entry pages; scene-menu and page layouts are preserved.
+- Implementation evidence: `artifacts/terminal-capabilities-checkbox-detail.jpg`, `artifacts/terminal-capabilities-checkbox-leads.jpg`, `artifacts/terminal-capabilities-checkbox-onboarding.jpg`. All six actual routes were opened in Chrome; final stable preview uses the unchanged built assets at port 5505. Source and build JS/CSS copies match.
+- Dimensions and state: source comparison board 1487 × 1058 px, right-hand dialog approximately 614 × 848 px; implementation viewport/screenshot 1710 × 896 CSS/output px, detail dialog 460 × 614 CSS px. Compare the scoped capability region relative to dialog width rather than board margins. Preserve the existing 460px dialog and six scene rows; source-board sizing is illustrative, not a request to resize existing UI. Both reference and detail evidence show Vending Machine, both capabilities selected.
+- Full-view and focused comparison: source board and browser screenshot opened together in one comparison input; readable capability regions were checked for checkbox-before-label placement, common left alignment, black checked state, uppercase gray text, compact rows, top separator and absence of an inter-option separator. Separate crops were unnecessary at these image sizes.
+
+| Fidelity surface | Result |
+| --- | --- |
+| Fonts / typography | Existing Poppins and 12px semibold uppercase capability labels retained; no wrapping or clipping in the desktop entries. |
+| Spacing / layout rhythm | Native checkboxes 18 × 18px, label gap 10px, rows 44px. Detail rows stacked with no added gap; full configuration forms and Leads retain their existing two-column grouping. |
+| Colors / tokens | Black checked state, white tick and existing gray label colors retained; disabled routing is pale and cannot be selected. |
+| Image quality / assets | Existing scene icons and other page assets retained; checkbox uses the native form control rather than a raster image. Native corner and tick rendering may vary slightly by browser and is an accepted standard-control difference. |
+| Copy / content | Both SUPPORT labels preserved exactly; no explanatory fields or extra actions added. |
+
+- Primary interactions: live Leads label click checked Cardless and Routing together; clearing Cardless cleared and disabled Routing. Actual Attended dialog showed Cardless unchecked and Routing disabled; Unattended showed both checked. Existing 19 regression cases passed for all defaults, same/cross-class scene changes, keyboard switching, save/cancel, batch assignment, storage failures and configuration identity. Final Vite preview has no new browser console errors.
+- Comparison history: first scoped comparison has no actionable P0/P1/P2 findings; native checkbox glyph/corner rendering is an accepted minor standard-control difference. No further visual iteration needed.
+- Open questions: none. Follow-up polish: none within the requested scope. Desktop only, per repository instruction.
+- Implementation checklist: six entries replaced; switch role/track removed; dependency and persistence unchanged; screenshots reviewed; regression, syntax, build and diff checks passed. Local prototype only, no deployment.

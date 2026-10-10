@@ -1,11 +1,11 @@
-# 终端交易能力开关
+# 终端交易能力配置
 
 日期：2026-10-10。状态：规则已由用户确认，已实施。
 
 ## 术语与范围
 
 - 两项终端能力分别为无卡交易、交易路由。用户确认交易路由就是截图中的“A 借 B 还”，指跨终端处理原交易的后续操作，不指按规则选择支付通道。
-- 英文界面标签为 `SUPPORT CARDLESS TRANSACTIONS`、`SUPPORT TRANSACTION ROUTING`；开关的无障碍名称保留 `Supports Cardless Transactions`、`Supports Transaction Routing`。术语记录于根 `GLOSSARY.md`。
+- 英文界面标签为 `SUPPORT CARDLESS TRANSACTIONS`、`SUPPORT TRANSACTION ROUTING`；checkbox 的无障碍名称保留 `Supports Cardless Transactions`、`Supports Transaction Routing`。术语记录于根 `GLOSSARY.md`。
 - 覆盖独立新增／绑定配置页 `5.merchant_add_device_iso.html`、编辑页 `5.merchant_device_settings_iso.html`、Add Merchant 内的终端配置步骤 `5.merchant_add_iso.html`、Leads `29.INTL_PSP_merchant_lead_list.html` 的 Assign/New Merchant 弹窗，以及 `1.terminalmanage.html` / `1.terminalmanage_nayax.html` 的 Terminal Type 编辑弹窗。
 - 终端列表的 Bind to Store 会进入上述独立配置页，复用相同规则。只录硬件且无场景的 Create Terminal 弹窗保持现状。
 - Card Reader 在现有词汇表中独立于 Attended / Unattended Terminal；Q3MINI-R 模式不显示或保存这两项终端能力，不为其推定场景默认值。
@@ -31,6 +31,7 @@
 ## 实现与保存边界
 
 - 共用 `scripts/terminal-transaction-capabilities.js` 和 `styles/terminal-transaction-capabilities.css`，避免各入口分别维护联动。
+- 当前控件采用下文“Checkbox 统一修订”的样式与语义；以下开关布局描述是此前版本的历史记录。
 - 用户反馈原先两项开关挤在左侧、粗体标签与表单未对齐。本次改为场景／型号行下方的两列设置行，沿用表单 18px 列间距、12px 大写灰色标签与下划线；每列标签在左、开关在右，分别对齐 Terminal Scenario / Device Model。Assign Terminal 在配置摘要下方复用两列设置行，Add Merchant 沿用原容器间距。该次 Assign Terminal 调整已被下文最新范围修订撤销。
 - 本轮只调整标签、布局和样式；默认值、依赖联动及保存回填保持不变。仍采用已有 ToggleSwitch 模式，不增加分组标题、说明或新操作。
 - 控件参考 [PrimeVue v4 ToggleSwitch](https://v4.primevue.org/toggleswitch/)，采用关联 label、原生 checkbox 与 `role="switch"`；Tab 聚焦、Space 切换，禁用路由不可操作。官方 v4 文档已通过 HTTP 读取核对。尺寸与黑色选中外观复用项目已有部署开关规格（38 × 22px），不安装 UI 框架。
@@ -80,3 +81,22 @@
 - 已在 Chrome 实际检查 Leads 初始空场景和选场景后的开关，商户详情 Assign Terminal 已无快捷开关。1710 × 950 截图：`artifacts/leads-terminal-assignment-capabilities.png`、`artifacts/terminal-config-binding-without-capabilities.png`。1280 × 800、14 个 S/N 的 Leads 弹窗位于视口内，横向溢出 0px，标签与开关无重叠。
 - Chrome 实际检查 Attended / Unattended 详情编辑弹窗：默认状态正确，选 Arcade 后两项开启且不立即保存，Cancel 后主卡片保持原场景。两页弹窗均完整位于桌面视口内，Cancel / Save 均为 40px，标签和开关不重叠。截图：`artifacts/terminal-detail-capabilities-attended.png`、`artifacts/terminal-detail-capabilities-unattended.png`。
 - 六个相关页面的内联脚本、三个修改的共享脚本语法、静态构建及 diff 检查通过；仅本地原型改动，未部署。
+
+### Checkbox 统一修订
+
+- 用户选定对比效果图右侧 checkbox 方案，并要求所有现有两项能力控件统一替换。覆盖上述 6 个页面，商户详情 Assign Terminal 仍无此配置入口。
+- 参考 [PrimeVue v4 Checkbox](https://v4.primevue.org/checkbox/) 的布尔选项、关联标签、禁用及 Tab／Space 交互模式。使用原生 `input[type="checkbox"]`，移除 `role="switch"` 和胶囊轨道；保持静态架构及原有共享模块。
+- 18 × 18px 黑色勾选框置于文字前，间距 10px；灰色大写标签、44px 紧凑点击行与纵向对齐统一复用。表单保留两列布局，Terminal Type 弹窗保留纵向布局、能力组顶部细线，两个选项之间无分隔线。
+- 文字点击与键盘切换均操作同一原生控件，禁用路由仍置灰且不可操作。场景默认值、联动、保存／取消、存储错误定位与数据结构保持不变。
+- 验证：现有能力与终端场景专项 19 项通过，共享脚本语法、静态构建和 diff 检查通过。Chrome 实际核对全部 6 个页面，包含详情默认未选／禁用状态及 Leads 点击文字联动。实际截图：`artifacts/terminal-capabilities-checkbox-detail.jpg`、`artifacts/terminal-capabilities-checkbox-leads.jpg`、`artifacts/terminal-capabilities-checkbox-onboarding.jpg`。未部署。
+
+### 完整配置页面纵向布局修订
+
+- 用户确认添加、编辑及一条龙终端配置页面的两项 checkbox 改为纵向排列：无卡交易在上，交易路由在下，放在 Terminal Scenario 行下方，两项左对齐。
+- 沿用弹窗的 44px 紧凑行高，行间不增加间距或分隔线。设备信息字段继续使用两列；不修改其他入口及能力交互、默认值、保存规则。
+- Chrome 实际核对上述三个页面：两项起始位置一致，纵向间隔为一行 44px，行间 gap 为 0；添加页滚动后保存操作栏完整可见。一条龙设备字段和部署区域保持原布局。静态构建及 diff 检查通过，截图为 `artifacts/terminal-capabilities-vertical-add.jpg`。
+
+### Leads 分配弹窗纵向布局修订
+
+- 用户确认 Assign/New Merchant 弹窗也采用纵向 checkbox：场景下方无卡交易在上、交易路由在下，左对齐，44px 紧凑行高，行间 gap 为 0，无中间分隔线。沿用共享布局，不修改分配及能力联动规则。
+- Chrome 实际检查截图对应的单 S/N 分配入口：初始两项禁用，选择无人值守场景后默认勾选，关闭无卡交易后路由禁用，点击文字重新勾选后两项同步开启。两行左边缘一致，Cancel／Save 完整可见；构建和 diff 检查通过。截图：`artifacts/terminal-capabilities-vertical-leads.jpg`。

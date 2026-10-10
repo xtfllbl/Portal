@@ -3,7 +3,7 @@
 
   var STORAGE_KEY = "paywizard-onboarding-applications-v2";
   var SECTION_IDS = {
-    Nuvei: ["legal", "dba", "owners", "banking", "terminal", "documents"],
+    Nuvei: ["legal", "dba", "owners", "banking", "terminal", "documents", "additional-documents"],
     "Elavon EU": ["business", "beneficial-owners", "signatory", "banking", "operation", "contact"]
   };
 
@@ -403,6 +403,10 @@
   function collectDocuments(form, existing) {
     var documents = clone(existing || {});
     form.querySelectorAll('input[type="file"][name]').forEach(function (input) {
+      if (input.onboardingUpload) {
+        documents[input.name] = input.onboardingUpload.collect();
+        return;
+      }
       if (!input.files || !input.files.length) return;
       documents[input.name] = Array.prototype.map.call(input.files, function (file) {
         return { name: file.name, type: file.type || "application/octet-stream", size: file.size || 0 };
@@ -414,6 +418,10 @@
   function applyDocuments(form, documents) {
     form.querySelectorAll('input[type="file"][name]').forEach(function (input) {
       var files = (documents && documents[input.name]) || [];
+      if (input.onboardingUpload) {
+        input.onboardingUpload.restore(files);
+        return;
+      }
       if (!files.length) return;
       input.required = false;
       input.setAttribute("data-existing-document", "true");

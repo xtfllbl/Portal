@@ -73,7 +73,7 @@ The payment channel's supported transaction types and operations through its Ter
 _Avoid_: Supported Card Types, Payment Method
 
 **Cross-Channel Capability (Terminal → ECOMM)**:
-Support for a transaction type through the Terminal-to-ECOMM path of a payment channel. This capability requires support for that transaction type in both the Terminal and ECOMM paths.
+Support for a transaction type through the Terminal-to-ECOMM path of a payment channel. It is declared independently of the channel's Terminal and ECOMM capabilities.
 _Avoid_: Payload Data Transmission, cross-terminal enablement
 
 **Product Map Template**:
@@ -279,6 +279,18 @@ _Avoid_: Staffed Terminal, Standard Terminal
 **Unattended Terminal**:
 A self-service payment terminal that completes payment interactions without an attendant.
 _Avoid_: Nayax Terminal, Vending Terminal
+
+**Nuvei Terminal Type**:
+The attended or unattended payment-interaction category declared for the terminals in one Nuvei merchant application. It is distinct from the merchant's payment-business scope.
+_Avoid_: Merchant Business Model, vending machine ownership
+
+**Nuvei Machine Placement Address**:
+The detailed installation or operating addresses of all vending machines in a Nuvei application, including the number of machines at each location.
+_Avoid_: Bank Address, Legal Business Address
+
+**Nuvei Business Location Lease**:
+A valid, legible lease identifying the business location and signed by both the property owner or authorized landlord and the merchant or business owner.
+_Avoid_: Business Location Photo, Proof of Purchase
 
 **Card Reader**:
 A payment-acceptance device managed separately from attended and unattended terminals in the portal.

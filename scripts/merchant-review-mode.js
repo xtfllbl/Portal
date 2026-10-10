@@ -264,7 +264,7 @@
       if (!result.reason) valid = false;
     });
     if (!allReviewed() || !hasRejected() || !valid) {
-      showResult("Review incomplete", "Review all six sections and add a reason to every section marked Issue.");
+      showResult("Review incomplete", "Review all " + sections.length + " sections and add a reason to every section marked Issue.");
       return;
     }
     review.reviewedAt = Store.timestamp();

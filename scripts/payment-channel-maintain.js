@@ -136,6 +136,7 @@
       { key: 'applicableArea', label: 'Applicable Regions (Select multiple)', required: true, multiple: true, options: data.options.regions },
       { key: 'cardTypeList', label: 'Supported Card Types (Select multiple)', required: true, card: true, multiple: true, options: data.options.cards, capability: true },
       { key: 'payParams', label: 'Required parameters', card: true, multiple: true, options: data.options.parameters },
+      { key: 'postAbilityList', label: 'Cross-Channel Capabilities (Terminal → ECOMM)', multiple: true, options: data.options.abilities, capability: true },
       { key: 'app', label: 'app', required: true, fiserv: true },
       { key: 'tppId', label: 'tppId', required: true, fiserv: true },
       { key: 'serviceId', label: 'serviceId', required: true, fiserv: true }
@@ -175,19 +176,18 @@
       controls[definition.key].setAttribute('aria-describedby', error.id);
       if (definition.required) controls[definition.key].setAttribute('aria-required', 'true');
       field.append(error);
-      const group = definition.fiserv ? 'fiserv' : definition.key === 'payParams' ? 'parameters' : feeKeys.includes(definition.key) ? 'fees' : definition.multiple ? 'capabilities' : 'basic';
+      const group = definition.fiserv ? 'fiserv' : ['payParams', 'postAbilityList'].includes(definition.key) ? 'parameters' : feeKeys.includes(definition.key) ? 'fees' : definition.multiple ? 'capabilities' : 'basic';
       groups[group].append(field);
     });
     const processor = document.createElement('section');
     processor.className = 'pc-processor-field'; processor.id = 'channel-processorCapabilities'; processor.tabIndex = -1;
     processor.setAttribute('aria-labelledby', 'processorTitle');
-    processor.innerHTML = '<h2 id="processorTitle">Processor capabilities</h2><p class="pc-capability-conflicts" role="status" hidden></p><div class="pc-capability-scroll"><table class="pc-capability-table" aria-labelledby="processorTitle"><colgroup><col class="pc-transaction-col"><col><col><col class="pc-cross-col"><col class="pc-payload-col"></colgroup><thead><tr><th scope="col">Transaction Type</th><th scope="col">Terminal Channel</th><th scope="col">ECOMM Channel</th><th scope="col">Cross-Channel<br> (Terminal → ECOMM)</th><th scope="col">Send Payload Data</th></tr></thead><tbody></tbody></table></div><p class="pc-field-error" id="channel-processorCapabilities-error" hidden></p>';
+    processor.innerHTML = '<h2 id="processorTitle">Processor capabilities</h2><p class="pc-capability-conflicts" role="status" hidden></p><div class="pc-capability-scroll"><table class="pc-capability-table" aria-labelledby="processorTitle"><colgroup><col class="pc-transaction-col"><col><col><col class="pc-payload-col"></colgroup><thead><tr><th scope="col">Transaction Type</th><th scope="col">Terminal Channel</th><th scope="col">ECOMM Channel</th><th scope="col">Send Payload Data</th></tr></thead><tbody></tbody></table></div><p class="pc-field-error" id="channel-processorCapabilities-error" hidden></p>';
     groups.processor.append(processor); controls.processorCapabilities = processor;
     processor.setAttribute('aria-describedby', 'channel-processorCapabilities-error');
     const capabilityColumns = [
       { key: 'offAbilityList', label: 'Terminal Channel' },
       { key: 'abilityList', label: 'ECOMM Channel' },
-      { key: 'postAbilityList', label: 'Cross-Channel (Terminal → ECOMM)' },
       { key: 'payloadDataList', label: 'Send Payload Data', switch: true }
     ];
     const capabilityRows = data.options.abilities.map((option, index) => {
@@ -204,10 +204,7 @@
         if (column.switch) input.setAttribute('role', 'switch');
         input.addEventListener('change', () => {
           selectCapability(column.key, option.value, input.checked);
-          if (!input.checked && (column.key === 'offAbilityList' || column.key === 'abilityList')) {
-            selectCapability('postAbilityList', option.value, false);
-            if (column.key === 'offAbilityList') selectCapability('payloadDataList', option.value, false);
-          }
+          if (!input.checked && column.key === 'offAbilityList') selectCapability('payloadDataList', option.value, false);
           clearFieldError('processorCapabilities'); refreshCapabilities();
         });
         cell.append(input); row.append(cell); inputs[column.key] = input;
@@ -224,20 +221,18 @@
       let conflicts = 0;
       capabilityRows.forEach(({ value, row, error, inputs }) => {
         const selected = key => record.channelCapability[key].includes(value);
-        const terminal = selected('offAbilityList'), ecomm = selected('abilityList');
-        const crossConflict = selected('postAbilityList') && !(terminal && ecomm);
+        const terminal = selected('offAbilityList');
         const payloadConflict = selected('payloadDataList') && !terminal;
         capabilityColumns.forEach(({ key }) => {
           const input = inputs[key]; input.checked = selected(key);
-          const needs = key === 'postAbilityList' && !(terminal && ecomm) ? 'Enable Terminal and ECOMM support first.' : key === 'payloadDataList' && !terminal ? 'Enable Terminal support first.' : '';
+          const needs = key === 'payloadDataList' && !terminal ? 'Enable Terminal support first.' : '';
           // Invalid checked legacy values remain removable; only new selection is disabled.
           input.disabled = Boolean(needs) && !input.checked; input.title = needs;
-          const invalid = key === 'postAbilityList' && crossConflict || key === 'payloadDataList' && payloadConflict;
+          const invalid = key === 'payloadDataList' && payloadConflict;
           if (invalid) { input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', error.id); }
           else { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); }
         });
         const messages = [];
-        if (crossConflict) messages.push('Cross-Channel requires Terminal and ECOMM support.');
         if (payloadConflict) messages.push('Payload Data requires Terminal support.');
         error.textContent = messages.join(' '); error.hidden = !messages.length;
         row.classList.toggle('pc-capability-conflict', Boolean(messages.length));
