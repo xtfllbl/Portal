@@ -1453,6 +1453,8 @@
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
   <link rel="stylesheet" href="styles/onboarding-device.css">
     <link rel="stylesheet" href="styles/merchant-creation.css">
+    <link rel="stylesheet" href="styles/terminal-transaction-capabilities.css">
+    <script src="scripts/terminal-transaction-capabilities.js"></script>
 </head>
 <body class="merchant-creation-page" data-pw-breadcrumb="Merchants|Merchant List|New Merchant Onboarding">
     <div class="page-shell">
@@ -3216,11 +3218,15 @@
         });
 
         if (onboardMerchantBtn) {
-            onboardMerchantBtn.addEventListener('click', () => {
+            onboardMerchantBtn.addEventListener('click', (event) => {
                 if (onboardingCompleted) {
                     return;
                 }
                 if (!merchantInfo.validate()) return;
+                if (!window.TerminalTransactionCapabilities.form.save(() => setStep(3))) {
+                    event.stopImmediatePropagation();
+                    return;
+                }
                 onboardingCompleted = true;
                 setStep(finishStep);
             });

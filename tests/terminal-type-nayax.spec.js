@@ -57,7 +57,7 @@ test("keeps the header compact and aligns the Terminal Type card with the dashbo
   expect(Math.abs(alignment.statsBottom - alignment.typeBottom)).toBeLessThanOrEqual(1);
 });
 
-test("opens a fixed dialog with all six choices and saves immediately", async ({ page }) => {
+test("opens a fixed dialog with all six choices and saves settings together", async ({ page }) => {
   await resetTerminalTypes(page);
   const trigger = page.locator("#terminalTypeButton");
   const card = page.locator("#terminalTypeCard");
@@ -84,11 +84,14 @@ test("opens a fixed dialog with all six choices and saves immediately", async ({
   expect(after.height).toBeCloseTo(before.height, 1);
 
   await page.getByRole("menuitem", { name: "Coffee Machine", exact: true }).click();
+  await expect(dialog).toBeVisible();
+  await expect(page.locator("#terminalTypeName")).toHaveText("Vending Machine");
+  await page.locator('#terminalTypeSave').click();
   await expect(dialog).toBeHidden();
   await expect(page.locator("#terminalTypeName")).toHaveText("Coffee Machine");
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
   await expect(trigger).toBeFocused();
-  await expect(page.locator("#prototypeToast")).toContainText("Terminal type changed to Coffee Machine.");
+  await expect(page.locator("#prototypeToast")).toContainText("Terminal settings saved for Coffee Machine.");
   expect(await page.evaluate((key) => JSON.parse(sessionStorage.getItem(key)), STORAGE_KEY)).toEqual({
     WP6267UQ36002376: "unattended_coffee"
   });
@@ -181,6 +184,7 @@ test("attended details carry TCI and share the editable terminal type", async ({
   expect(alignment.every(delta => Math.abs(delta) <= 1)).toBe(true);
   await page.locator("#terminalTypeButton").click();
   await page.getByRole("menuitem", { name: "Terminal + ECR", exact: true }).click();
+  await page.locator('#terminalTypeSave').click();
   await expect(page.locator("#terminalTypeName")).toHaveText("Terminal + ECR");
   await page.reload();
   await expect(page.locator("#terminalTypeName")).toHaveText("Terminal + ECR");

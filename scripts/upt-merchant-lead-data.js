@@ -237,7 +237,10 @@
         sn: serialNumber,
         merchantName: String(assignment.merchantName || ""),
         storeName: String(assignment.storeName || ""),
-        assignedAt: String(assignment.assignedAt || "")
+        assignedAt: String(assignment.assignedAt || ""),
+        scenario: assignment.scenario,
+        cardless: assignment.cardless,
+        routing: assignment.routing
       };
     });
     merged.terminalNumber = merged.serialNumbers.length;
@@ -301,7 +304,7 @@
     return { valid: true, values: validation.values, record: getByProcessId(id), error: "" };
   }
 
-  function assignSerialNumbers(processId, merchantName, storeName, serialNumbers) {
+  function assignSerialNumbers(processId, merchantName, storeName, serialNumbers, capabilities) {
     var id = String(processId || "");
     var current = getByProcessId(id);
     var merchant = String(merchantName || "").trim();
@@ -326,6 +329,11 @@
       return false;
     });
     if (repeated) return { valid: false, error: repeated + " was selected more than once." };
+    var scenarios = ["Vending Machine", "EV Charging", "Arcade Machine", "Coffee Machine", "Standalone Terminal", "Terminal + ECR"];
+    if (!capabilities || scenarios.indexOf(capabilities.scenario) === -1) return { valid: false, error: "Select a terminal scenario for the selected SNs." };
+    if (typeof capabilities.cardless !== "boolean" || typeof capabilities.routing !== "boolean" || (capabilities.routing && !capabilities.cardless)) {
+      return { valid: false, error: "Transaction routing requires cardless transactions. Review the selected capabilities." };
+    }
 
     var overrides = readOverrides();
     var assignments = Object.assign({}, current.snAssignments);
@@ -335,7 +343,10 @@
         sn: serialNumber,
         merchantName: merchant,
         storeName: store,
-        assignedAt: assignedAt
+        assignedAt: assignedAt,
+        scenario: capabilities.scenario,
+        cardless: capabilities.cardless,
+        routing: capabilities.routing
       };
     });
     overrides[id] = Object.assign({}, overrides[id] || {}, {

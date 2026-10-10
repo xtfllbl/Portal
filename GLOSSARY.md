@@ -56,6 +56,14 @@ _Avoid_: Card Scheme, Card Brand
 A platform-level payment offering maintained by Paywizard operations, describing its payment scenario, provider information, applicable regions and supported payment capabilities. It is distinct from a service provider's or store's configuration for using that offering.
 _Avoid_: Payment Method, Store Channel Configuration, MID
 
+**Cardless Transactions**:
+Transaction operations supported by a terminal without presenting a physical payment card. The terminal capability is distinct from transmission of an original transaction's Payload Data.
+_Avoid_: Payload Data Transmission, Send Payload Data
+
+**Transaction Routing**:
+A terminal capability to perform supported follow-up operations on a transaction originating from another terminal, referred to as “A 借 B 还” in business discussions.
+_Avoid_: Payment channel selection, automatic processor selection, Payload Data Transmission
+
 **Payload Data Transmission**:
 Whether a payment channel sends the original transaction's Payload Data for a selected transaction type. This is separate from support for executing that transaction; turning transmission off does not by itself make the transaction unsupported.
 _Avoid_: Card-not-present capability, transaction support
@@ -399,6 +407,14 @@ _Avoid_: Device Connection uptime, Alert Incident list, current connection statu
 **Terminal S/N**:
 The hardware serial number identifying a physical Terminal. WizarPOS terminal serial numbers begin with WP; terminal names, location labels and demonstration identifiers are not serial numbers.
 _Avoid_: Terminal name, Store name, demo identifier, TCI
+
+**Terminal Assignment**:
+The allocation of a physical Terminal, identified by S/N, to a Merchant and Store. It is distinct from connecting that Terminal to a saved terminal configuration.
+_Avoid_: Terminal Configuration Binding, agent inventory allocation
+
+**Terminal Configuration Binding**:
+The association of a saved terminal configuration, identified by TCI, with a physical Terminal S/N. The scenario and transaction capabilities belong to the saved configuration.
+_Avoid_: Terminal Assignment, configuration creation
 
 **Terminal Name**:
 An optional, human-readable business label for a Terminal that describes its location, purpose or operating context. When present, the same Terminal Name is used consistently across portal pages, notifications, emails and demonstrations; when absent, no name is displayed. It is independent of the physical Terminal S/N.

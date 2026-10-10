@@ -1856,6 +1856,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/merchant-admin-unified.css">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+    <link rel="stylesheet" href="styles/terminal-transaction-capabilities.css">
+    <script src="scripts/terminal-transaction-capabilities.js"></script>
 </head>
 <body data-pw-breadcrumb="Merchants|Merchant Overview|Device Settings">
     <div class="page-shell">
@@ -4284,6 +4286,7 @@
                         showTerminalAssignmentError(validationError);
                         return;
                     }
+                    if (!window.TerminalTransactionCapabilities.form.save(closeSaveDeviceConfirmModal)) return;
                     saveDeviceSnAssignment(deviceValues.tci, assignedSn);
                     saveAdminAssignmentHistory(deviceValues.tci, assignedSn);
                     deviceValues.sn = assignedSn;
@@ -4294,6 +4297,7 @@
                     syncProvisionStatus();
                     syncKeyDownloadOption();
                 }
+                if (!assignmentMode && !window.TerminalTransactionCapabilities.form.save(closeSaveDeviceConfirmModal)) return;
                 closeSaveDeviceConfirmModal();
                 if (assignmentMode) {
                     alert(`Terminal ${assignedSn} assigned to ${deviceValues.tci}. Application and parameter download has started.`);

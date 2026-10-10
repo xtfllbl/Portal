@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 async function openDeviceStep(page) {
   await page.goto('/5.merchant_add_iso.html');
+  await page.locator('[data-fill-mock-stage="merchant"]').click();
   await page.locator('.wizard-step[data-step="3"]').click();
   await expect(page.locator('.wizard-panel[data-step="3"]')).toHaveClass(/active/);
 }

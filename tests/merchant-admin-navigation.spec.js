@@ -488,6 +488,10 @@ test('UPT SNs can be assigned in batches and Assigned SN persists', async ({ pag
   await page.locator('#leadAssignSnList input[type="checkbox"]').nth(2).check();
   await expect(page.locator('#leadAssignSnCount')).toHaveText('3 selected · 14 total');
   await page.locator('#saveLeadAssign').click();
+  await expect(page.locator('#leadAssignError')).toHaveText('Select a terminal scenario for the selected SNs.');
+  await page.getByRole('combobox', { name: /Terminal Scenario/ }).fill('Vending');
+  await page.getByRole('option', { name: 'Vending Machine', exact: true }).click();
+  await page.locator('#saveLeadAssign').click();
   await expect(page.locator('#leadAssignModal')).toBeHidden();
   await expect(row.locator('td:nth-child(7)')).toHaveText('3');
 
@@ -502,8 +506,13 @@ test('UPT SNs can be assigned in batches and Assigned SN persists', async ({ pag
 
   await page.locator('#leadAssignMerchant').selectOption({ label: 'Jeeves Vending' });
   await page.locator('#leadAssignStore').selectOption({ label: 'Downtown Store' });
+  await page.getByRole('combobox', { name: /Terminal Scenario/ }).fill('Standalone');
+  await page.getByRole('option', { name: 'Standalone Terminal', exact: true }).click();
   await page.locator('#saveLeadAssign').click();
   await expect(persistedRow.locator('td:nth-child(7)')).toHaveText('14');
+  const assignments = await page.evaluate(() => Object.values(window.PaywizardUptLeadData.getByProcessId('00000438').snAssignments));
+  expect(assignments.filter(a => a.scenario === 'Vending Machine' && a.cardless && a.routing)).toHaveLength(3);
+  expect(assignments.filter(a => a.scenario === 'Standalone Terminal' && !a.cardless && !a.routing)).toHaveLength(11);
 
   await persistedRow.locator('.lead-more-trigger').click();
   await page.locator('[data-lead-menu-action="terminal"]').click();

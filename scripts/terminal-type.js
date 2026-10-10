@@ -20,12 +20,18 @@
     const menu = document.getElementById('terminalTypeOptions');
     const modal = document.getElementById('terminalTypeModal');
     const cancelButton = document.getElementById('terminalTypeCancel');
+    const saveButton = document.getElementById('terminalTypeSave');
     const summary = document.getElementById('terminalTypeSummary');
     const icon = document.getElementById('terminalTypeIcon');
     const attendance = document.getElementById('terminalTypeAttendance');
     const typeName = document.getElementById('terminalTypeName');
     const toast = document.getElementById('prototypeToast');
-    if(!card || !button || !menu || !modal || !cancelButton || !summary || !icon || !attendance || !typeName) return;
+    if(!card || !button || !menu || !modal || !cancelButton || !saveButton || !summary || !icon || !attendance || !typeName) return;
+
+    const capabilities = window.TerminalTransactionCapabilities;
+    const identity = capabilities.resolveIdentity(new URLSearchParams(location.search).get('tci'), terminalContext.sn, terminalContext.tci);
+    const controls = capabilities.mount(modal.querySelector('.feature-modal-body'), 'terminal-detail');
+    const scenarioType = saved => Object.keys(typeMap).find(key => typeMap[key].label === saved?.scenario);
 
     const isValidType = key => Object.prototype.hasOwnProperty.call(typeMap, key);
     const readStore = () => {
@@ -42,9 +48,10 @@
     };
     const initialStore = readStore();
     const queryType = new URLSearchParams(window.location.search).get('terminalType') || '';
-    let currentTypeKey = isValidType(initialStore[terminalContext.sn])
+    let currentTypeKey = scenarioType(capabilities.read(identity, terminalContext.sn)) || (isValidType(initialStore[terminalContext.sn])
         ? initialStore[terminalContext.sn]
-        : isValidType(queryType) ? queryType : DEFAULT_TYPE;
+        : isValidType(queryType) ? queryType : DEFAULT_TYPE);
+    let draftTypeKey = currentTypeKey;
     let toastTimer = 0;
 
     function escapeHtml(value){
@@ -89,11 +96,11 @@
                 <div class="terminal-type-group-label">${escapeHtml(group.label)}</div>
                 ${group.items.map(key => {
                     const mode = typeMap[key];
-                    const current = key === currentTypeKey;
+                    const current = key === draftTypeKey;
                     return `<button class="terminal-type-option${current ? ' current' : ''}" type="button" role="menuitem" data-terminal-type="${key}"${current ? ' disabled aria-current="true"' : ''}>
                         <span class="terminal-type-option-icon ${attendanceClass(mode)}" aria-hidden="true"><img src="${mode.icon}" alt=""></span>
                         <strong>${escapeHtml(mode.label)}</strong>
-                        ${current ? '<span class="terminal-type-current">Current</span>' : ''}
+                        ${current ? `<span class="terminal-type-current">${draftTypeKey === currentTypeKey ? 'Current' : 'Selected'}</span>` : ''}
                     </button>`;
                 }).join('')}
             </div>
@@ -108,6 +115,11 @@
         button.setAttribute('aria-expanded', String(open));
         if(open){
             document.body.classList.add('feature-modal-open');
+            const saved = capabilities.read(identity, terminalContext.sn);
+            currentTypeKey = scenarioType(saved) || currentTypeKey;
+            draftTypeKey = currentTypeKey;
+            controls.load(typeMap[draftTypeKey].label, saved);
+            renderCard();
             renderMenu();
             if(focusEdge){
                 window.requestAnimationFrame(() => {
@@ -122,17 +134,22 @@
             if(focusEdge === 'button') button.focus();
         }
     }
-    function applyType(key){
-        if(!isValidType(key) || key === currentTypeKey) return;
-        currentTypeKey = key;
-        const saved = persistCurrentType();
-        renderCard();
+    function selectType(key){
+        if(!isValidType(key) || key === draftTypeKey) return;
+        draftTypeKey = key;
+        controls.changeScenario(typeMap[key].label);
         renderMenu();
+        controls.element.querySelector('input:not(:disabled)')?.focus({ preventScroll: true });
+    }
+    function saveType(){
+        if(!controls.save(identity, terminalContext.sn)) return;
+        currentTypeKey = draftTypeKey;
+        // The shared record is authoritative; keep the legacy session cache in sync when available.
+        persistCurrentType();
+        renderCard();
         const label = typeMap[currentTypeKey].label;
         setModalOpen(false, 'button');
-        showTerminalTypeToast(saved
-            ? `Terminal type changed to ${label}.`
-            : `Terminal type changed to ${label} until this page is refreshed.`);
+        showTerminalTypeToast(`Terminal settings saved for ${label}.`);
         document.dispatchEvent(new CustomEvent('terminaltype:changed', {
             detail: { sn: terminalContext.sn, type: currentTypeKey, label }
         }));
@@ -150,7 +167,7 @@
     menu.addEventListener('click', event => {
         const option = event.target.closest('[data-terminal-type]');
         if(!option || option.disabled) return;
-        applyType(option.getAttribute('data-terminal-type'));
+        selectType(option.getAttribute('data-terminal-type'));
     });
     menu.addEventListener('keydown', event => {
         const items = menuItems();
@@ -171,6 +188,7 @@
         items[nextIndex].focus();
     });
     cancelButton.addEventListener('click', () => setModalOpen(false, 'button'));
+    saveButton.addEventListener('click', saveType);
     modal.addEventListener('click', event => {
         if(event.target === modal) setModalOpen(false, 'button');
     });
@@ -182,7 +200,7 @@
             return;
         }
         if(event.key !== 'Tab') return;
-        const focusable = [...menuItems(), cancelButton];
+        const focusable = Array.from(modal.querySelectorAll('button:not(:disabled), input:not(:disabled)'));
         if(!focusable.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];

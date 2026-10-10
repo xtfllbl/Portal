@@ -793,6 +793,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/merchant-admin-unified.css">
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/terminal-uptime.css">
+  <link rel="stylesheet" href="styles/terminal-transaction-capabilities.css">
+  <script src="scripts/uptime-combobox.js"></script>
+  <script src="scripts/merchant-creation-selects.js"></script>
+  <script src="scripts/terminal-transaction-capabilities.js"></script>
 </head>
 <body class="pw-admin pw-leads-page">
   <div class="layout pw-app-frame">
@@ -1435,7 +1440,7 @@
           <span class="material-symbols-rounded" aria-hidden="true">close</span>
         </button>
       </header>
-      <form class="lead-assign-form" id="leadAssignForm">
+      <form class="lead-assign-form" id="leadAssignForm" novalidate>
         <section class="lead-assign-step">
           <h3>Step 1: Select Merchant</h3>
           <div class="lead-assign-field">
@@ -1479,7 +1484,21 @@
           </label>
           <div class="lead-assign-sn-list" id="leadAssignSnList" role="group" aria-label="Serial numbers"></div>
           <p class="lead-assign-empty" id="leadAssignSnEmpty" hidden>All SNs for this Lead have already been assigned.</p>
-          <p class="lead-sn-error" id="leadAssignError" role="alert" hidden></p>
+          <div class="lead-terminal-settings">
+            <div class="lead-assign-field field">
+              <label for="leadAssignScenario">Terminal Scenario <span class="required-mark">*</span></label>
+              <select id="leadAssignScenario" required>
+                <option value="">Select Terminal Scenario</option>
+                <option>Vending Machine</option>
+                <option>EV Charging</option>
+                <option>Arcade Machine</option>
+                <option>Coffee Machine</option>
+                <option>Standalone Terminal</option>
+                <option>Terminal + ECR</option>
+              </select>
+            </div>
+          </div>
+          <p class="lead-sn-error" id="leadAssignError" role="alert" tabindex="-1" hidden></p>
         </section>
         <div class="lead-assign-actions">
           <button class="btn" id="cancelLeadAssign" type="button">Cancel</button>
@@ -1674,6 +1693,7 @@
 
 	      function resetLeadAssignForm() {
 	        leadAssignForm.reset();
+	        window.TerminalTransactionCapabilities.leadAssignment.reset();
 	        document.getElementById("leadNewMerchantWrap").hidden = true;
 	        document.getElementById("leadNewStoreWrap").hidden = true;
 	        leadAssignSnList.replaceChildren();
@@ -1742,6 +1762,7 @@
 	      }
 
 	      function closeLeadAssignModal() {
+	        window.TerminalTransactionCapabilities.leadAssignment.close();
 	        leadAssignModal.hidden = true;
 	        activeAssignLeadRow = null;
 	        resetLeadAssignForm();
@@ -2025,11 +2046,14 @@
 	          processId,
 	          newMerchant || merchantSelect.value,
 	          newStore || storeSelect.value,
-	          selected
+	          selected,
+	          window.TerminalTransactionCapabilities.leadAssignment.value()
 	        );
 	        if (!result.valid) {
 	          leadAssignError.textContent = result.error;
 	          leadAssignError.hidden = false;
+	          leadAssignError.scrollIntoView({ block: "center" });
+	          leadAssignError.focus({ preventScroll: true });
 	          return;
 	        }
 	        hydrateLeadRow(activeAssignLeadRow);
