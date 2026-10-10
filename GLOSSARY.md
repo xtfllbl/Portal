@@ -56,6 +56,18 @@ _Avoid_: Card Scheme, Card Brand
 A platform-level payment offering maintained by Paywizard operations, describing its payment scenario, provider information, applicable regions and supported payment capabilities. It is distinct from a service provider's or store's configuration for using that offering.
 _Avoid_: Payment Method, Store Channel Configuration, MID
 
+**Payload Data Transmission**:
+Whether a payment channel sends the original transaction's Payload Data for a selected transaction type. This is separate from support for executing that transaction; turning transmission off does not by itself make the transaction unsupported.
+_Avoid_: Card-not-present capability, transaction support
+
+**Processor Capabilities**:
+The payment channel's supported transaction types and operations through its Terminal, ECOMM and Terminal-to-ECOMM processing paths. These include payment transactions as well as query, print and device operations offered by the platform.
+_Avoid_: Supported Card Types, Payment Method
+
+**Cross-Channel Capability (Terminal → ECOMM)**:
+Support for a transaction type through the Terminal-to-ECOMM path of a payment channel. This capability requires support for that transaction type in both the Terminal and ECOMM paths.
+_Avoid_: Payload Data Transmission, cross-terminal enablement
+
 **Product Map Template**:
 A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.
 _Avoid_: Live link to a terminal Product Map

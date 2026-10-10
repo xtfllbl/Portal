@@ -189,3 +189,139 @@ test('operations access rules apply to both new routes', async ({ page }) => {
   }
   expect(errors).toEqual([]);
 });
+
+function capability(page, transaction, column) {
+  const role = column === 'Send Payload Data' ? 'switch' : 'checkbox';
+  return page.getByRole(role, { name: `${transaction}: ${column}`, exact: true });
+}
+const terminal = 'Terminal Channel';
+const ecomm = 'ECOMM Channel';
+const cross = 'Cross-Channel (Terminal → ECOMM)';
+const payload = 'Send Payload Data';
+
+test('capability matrix retains the complete catalog and saves all four columns independently', async ({ page }) => {
+  await page.goto(form);
+  await expect(page.getByRole('table', { name: 'Processor capabilities' }).getByRole('row')).toHaveCount(25);
+  await expect(page.getByRole('columnheader')).toHaveText(['Transaction Type', 'Terminal Channel', 'ECOMM Channel', 'Cross-Channel (Terminal → ECOMM)', 'Send Payload Data']);
+  for (const width of [1280, 1710]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await expect(page.locator('.pc-capability-table thead')).toHaveCSS('height', '34px');
+    await expect(page.getByRole('columnheader').first()).toHaveCSS('font-size', '11px');
+    const fits = await page.locator('.pc-capability-scroll').evaluate(element => element.scrollWidth === element.clientWidth);
+    expect(fits).toBe(true);
+  }
+  await expect(capability(page, 'PrintParameter', terminal)).toBeVisible();
+  await expect(capability(page, 'ReadCard', ecomm)).toBeVisible();
+  await expect(capability(page, 'Purchase', cross)).toBeDisabled();
+  await expect(capability(page, 'Purchase', payload)).toBeDisabled();
+  await expect(page.getByRole('switch', { checked: true })).toHaveCount(0);
+  await fillQr(page, 'Matrix QR');
+  await capability(page, 'Purchase', terminal).check();
+  await expect(capability(page, 'Purchase', payload)).toBeEnabled();
+  await expect(capability(page, 'Purchase', cross)).toBeDisabled();
+  await capability(page, 'Purchase', payload).focus();
+  await capability(page, 'Purchase', payload).press('Space');
+  await capability(page, 'Refund', terminal).check();
+  await capability(page, 'Refund', ecomm).check();
+  await capability(page, 'Refund', cross).check();
+  await capability(page, 'Capture', ecomm).check();
+  await page.getByRole('heading', { name: 'Processor capabilities', exact: true }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'artifacts/payment-channel-processor-capabilities.png' });
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/47\.payment_channel\.html$/);
+  const saved = await page.evaluate(key => JSON.parse(localStorage.getItem(key)).find(record => record.name === 'Matrix QR'), storeKey);
+  expect(saved.channelCapability).toMatchObject({ offAbilityList: ['Purchase', 'Refund'], abilityList: ['Refund', 'Capture'], postAbilityList: ['Refund'], payloadDataList: ['Purchase'] });
+  await page.getByRole('link', { name: 'Edit Matrix QR', exact: true }).click();
+  await page.reload();
+  await expect(capability(page, 'Purchase', terminal)).toBeChecked();
+  await expect(capability(page, 'Purchase', ecomm)).not.toBeChecked();
+  await expect(capability(page, 'Purchase', payload)).toBeChecked();
+  await expect(capability(page, 'Refund', cross)).toBeChecked();
+  await expect(capability(page, 'Capture', ecomm)).toBeChecked();
+  // Cancel leaves saved Payload data intact.
+  await capability(page, 'Purchase', payload).uncheck();
+  await page.getByRole('link', { name: 'Cancel', exact: true }).click();
+  await page.getByRole('link', { name: 'Edit Matrix QR', exact: true }).click();
+  await expect(capability(page, 'Purchase', payload)).toBeChecked();
+});
+
+test('removing prerequisites clears only their dependent selections and does not restore them', async ({ page }) => {
+  await page.goto(form);
+  await capability(page, 'Purchase', terminal).check();
+  await capability(page, 'Purchase', ecomm).check();
+  await capability(page, 'Purchase', cross).check();
+  await capability(page, 'Purchase', payload).check();
+  await capability(page, 'Purchase', ecomm).uncheck();
+  await expect(capability(page, 'Purchase', cross)).not.toBeChecked();
+  await expect(capability(page, 'Purchase', cross)).toBeDisabled();
+  await expect(capability(page, 'Purchase', payload)).toBeChecked();
+  await capability(page, 'Purchase', ecomm).check();
+  await expect(capability(page, 'Purchase', cross)).not.toBeChecked();
+  await capability(page, 'Purchase', cross).check();
+  await capability(page, 'Purchase', terminal).uncheck();
+  await expect(capability(page, 'Purchase', cross)).not.toBeChecked();
+  await expect(capability(page, 'Purchase', payload)).not.toBeChecked();
+  await expect(capability(page, 'Purchase', payload)).toBeDisabled();
+  await expect(capability(page, 'Purchase', ecomm)).toBeChecked();
+  await capability(page, 'Purchase', terminal).check();
+  await expect(capability(page, 'Purchase', payload)).not.toBeChecked();
+});
+
+test('legacy Cross conflicts stay removable, block submission, and focus the actual conflict on request', async ({ page }) => {
+  await page.goto(form + '?id=pc-02');
+  await expect(page.locator('.pc-capability-conflicts')).toContainText('4 transaction types');
+  for (const name of ['Reversal', 'AuthVoid', 'TipAdjust', 'PartialReversal']) {
+    await expect(capability(page, name, cross)).toBeChecked();
+    await expect(capability(page, name, cross)).toBeEnabled();
+    await expect(capability(page, name, cross)).toHaveAttribute('aria-invalid', 'true');
+  }
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/id=pc-02/);
+  await expect(page.getByRole('alert')).toBeFocused();
+  await expect(page.getByRole('alert')).toContainText('Processor capabilities conflicts');
+  await page.getByRole('alert').getByRole('link').click();
+  await expect(capability(page, 'Reversal', cross)).toBeFocused();
+  const bounds = await capability(page, 'Reversal', cross).boundingBox();
+  expect(bounds.y).toBeGreaterThan(85);
+  expect(bounds.y + bounds.height).toBeLessThan(900);
+  await capability(page, 'Reversal', terminal).check();
+  await capability(page, 'AuthVoid', cross).uncheck();
+  await capability(page, 'TipAdjust', terminal).check();
+  await capability(page, 'PartialReversal', cross).uncheck();
+  await expect(page.locator('.pc-capability-conflicts')).toBeHidden();
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/47\.payment_channel\.html$/);
+  await page.getByRole('link', { name: 'Edit Nuvei Attd', exact: true }).click();
+  await expect(capability(page, 'Reversal', cross)).toBeChecked();
+  await expect(capability(page, 'AuthVoid', cross)).not.toBeChecked();
+});
+
+test('legacy Payload conflicts are preserved until explicitly resolved and defaults do not change old records', async ({ page }) => {
+  await page.goto(form + '?id=pc-01');
+  await expect(page.getByRole('switch', { checked: true })).toHaveCount(0);
+  await page.evaluate(key => {
+    const records = structuredClone(window.PaywizardPaymentChannelData.records);
+    const record = records.find(item => item.id === 'pc-01');
+    record.channelCapability.offAbilityList = record.channelCapability.offAbilityList.filter(value => value !== 'Capture');
+    record.channelCapability.postAbilityList = record.channelCapability.postAbilityList.filter(value => value !== 'Capture');
+    record.channelCapability.payloadDataList = ['Capture'];
+    localStorage.setItem(key, JSON.stringify(records));
+  }, storeKey);
+  await page.reload();
+  await expect(capability(page, 'Capture', payload)).toBeChecked();
+  await expect(capability(page, 'Capture', payload)).toBeEnabled();
+  await expect(capability(page, 'Capture', payload)).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('[data-transaction="Capture"]')).toContainText('Payload Data requires Terminal support.');
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page.getByRole('alert')).toBeFocused();
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key))[0].channelCapability.payloadDataList, storeKey)).toEqual(['Capture']);
+  await capability(page, 'Capture', payload).uncheck();
+  await expect(capability(page, 'Capture', payload)).toBeDisabled();
+  await expect(page.locator('.pc-capability-conflicts')).toBeHidden();
+  await capability(page, 'Purchase', payload).check();
+  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await expect(page).toHaveURL(/47\.payment_channel\.html$/);
+  await page.getByRole('link', { name: 'Edit inputronics', exact: true }).click();
+  await expect(capability(page, 'Capture', payload)).not.toBeChecked();
+  await expect(capability(page, 'Purchase', payload)).toBeChecked();
+});

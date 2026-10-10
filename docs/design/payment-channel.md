@@ -3,7 +3,7 @@
 ## 已确认范围（2026-10-10）
 
 - 新增 Maintain → Payment Channel 平台级支付渠道目录，保留 Settings、服务商和商户原有的渠道配置页面。
-- 列表复刻用户提供的截图列、可见数据与操作。复用共享 Portal 壳层；表头采用 34px 浅灰、11px 字体，操作采用项目 Material Symbols Rounded。
+- 列表复刻用户提供的截图列、可见数据与操作。复用共享 Portal 壳层；表头按最新确认采用 Merchant List 的黑底白字（#17181c），保持 34px 高、11px 字体，Actions 固定列表头同步，操作采用项目 Material Symbols Rounded。
 - Add Payment Channel、Edit Payment Channel 直接使用独立页面，先保留截图字段，后续新增内容另行确认。
 - Detail 保留弹窗，显示当前渠道信息。
 - Cash、Prepaid Card 只允许详情，不允许编辑或删除。其他渠道支持详情、编辑和删除。
@@ -66,6 +66,31 @@ Channel Name、Scenario Type、Channel Type Name、Company Information、Channel
 源码费率使用比例值，显示乘 100、提交除 100；本地原型保存的是页面百分比值，未来真实接口适配时必须转换。源码 Fee cap 的 NaN 判定及新增后沿用旧场景类型字典的问题不作为产品规则复制。
 
 ## 页面与组件实现
+
+### Processor capabilities 表格（2026-10-10）
+
+- 用户要求 Add / Edit 同步将三组能力下拉整合为 `Processor capabilities` 表格，增加按行选择是否传输 Payload Data 的第五列；仅借用参考截图的表格组织方式，继续复用现有 Portal 表单样式。
+- 已明确列顺序：平台支持的交易类型、`Terminal Channel`、`ECOMM Channel`、`Cross-Channel (Terminal → ECOMM)`、Payload Data 相关选择。页面文字均为英语。
+- 用户已确认第五列名为 `Send Payload Data`，仅控制该交易类型是否传输原交易的 Payload Data；关闭不直接禁止交易执行，不称为无卡交易能力。
+- 用户已确认新增依赖：同一行 Terminal 与 ECOMM 都支持时，才允许选择 Cross-Channel。
+- 用户已确认保留当前全部 24 项字典，包括打印、查询及设备指令。
+- 用户已确认编辑时保留并标明旧 Cross-Channel 冲突，允许补勾 Terminal/ECOMM 或取消 Cross-Channel，冲突未解决时禁止提交；主动取消任一前置能力时自动取消同一行 Cross-Channel。
+- 用户已确认 `Send Payload Data` 只有同一行 Terminal 支持时才允许开启。
+- 用户已确认 Payload Data 未配置时默认关闭；主动取消 Terminal 时自动关闭同一行 Payload；旧 Payload 冲突保留并提示，补勾 Terminal 或关闭 Payload 后才允许提交。2026-10-10 完成全部澄清，用户明确授权按完整方案实施。
+- 三组支持值与 Payload 值分别保存，均可为空，能力表在全部场景显示。新增字段使用本地 `channelCapability.payloadDataList` 存储选择传输 Payload Data 的能力标签，不推断或伪造真实接口字段；既有 `offAbilityList`、`abilityList`、`postAbilityList` 映射不变。未保存和 Cancel 均不会修改原记录。
+- 24 项完整展示，无分页或额外批量操作。按用户最新要求，Required parameters 保持为独立下拉并移至能力表上方；Fiserv 条件参数同样位于表格上方。Processor capabilities 为表单最后一个配置区，后面仅保留 Cancel / Submit 操作栏；其余表单布局和字段保持第一轮已确认规格。
+- 参数位置调整后，重新通过桌面尺寸与下拉、能力保存回填、旧 Cross-Channel 冲突定位共 3 项回归；Chrome 实际核对添加页、编辑页及 Fiserv 参数显隐，确认表格之后仅为操作栏，构建与语法检查通过。
+- 组件采用 DataTable + Checkbox + ToggleSwitch 的组合模式，使用原生 HTML table、checkbox 与带 `role="switch"` 的 checkbox 静态实现。按行的前置能力依赖、旧值冲突保留与提交拦截为业务扩展；不引入 UI 框架。对照 [PrimeVue v4 Checkbox](https://v4.primevue.org/checkbox/)、[ToggleSwitch](https://v4.primevue.org/toggleswitch/) 的标签、禁用、Tab 与 Space 交互；v4 文档已通过 HTTP 读取核对（页面标注 v4.5.5）。
+- 表头浅灰、34px、11px；正常行高 40px，冲突行可扩展以展示处理提示；前三个能力列用复选框，Payload 列用开关。禁用未选值，但冲突已选值保留取消入口。提交失败滚动并聚焦页内错误概要；概要链接直接定位首个冲突控件。
+- 本轮验证：支付渠道维护回归共 12 项通过；额外补充的 1280px / 1710px 表头高度、字号和表格宽度断言通过。Chrome 实际检查 Add / Edit 的五列排版、选中与禁用、Nuvei Attd 的 4 项旧冲突、Required parameters 底部弹层搜索与已选态，以及提交错误定位。截图：`artifacts/payment-channel-processor-capabilities.png`。脚本语法、静态构建及 diff 检查通过；仅为原型验证，未接入真实 Payload Data 传输或增改删接口。
+
+### 第一轮表单外观调整（2026-10-10）
+
+- 用户确认 Add / Edit 同步采用 Add Merchant 的下划线输入及下拉触发器样式，标签为紧凑大写，焦点和错误状态明确；保留现有搜索、多选、场景联动和保存行为。
+- 移除 1140px 表单最大宽度，铺满内容卡片。基本信息三列（较窄桌面两列），费用与多选能力两列，Fiserv 条件字段三列；不增加字段、步骤或分组标题。
+- 基本信息顺序为 Channel Name / Scenario Type / Channel Type Name、Company Information / Channel Properties / Payment Package Name。费用及能力保持各自原顺序和显隐规则。底部 Cancel 在左、Submit 在右，两者均为 40px。
+- 文本输入沿用 InputText 的标签及错误模式，下划线视觉复用项目 Add Merchant；选择器继续采用已有 Select / MultiSelect 组合，无新增业务组件。此布局可逆，继续不创建 ADR，也不改动 Payment Channel 术语定义。
+- 本轮验证：`npx playwright test tests/payment-channel-maintain.spec.js --workers=2` 共 8 项通过，`npm run build`、脚本语法及 diff 检查通过。Chrome 实际打开列表、Add、Edit，在 1710px / 1280px 桌面核对黑底白字表头、铺满布局、下划线控件、40px 操作、下拉搜索及已选态、底部浮层和可见错误定位。新增页截图为 `artifacts/payment-channel-add-refined.png`。
 
 - `47.payment_channel.html`：列表、筛选、分页、详情弹窗与删除确认。
 - `47.payment_channel_form.html`：Add 独立页面；`?id=pc-01` 等稳定 ID 对应 Edit 独立页面。两种模式复用同一表单实现，均非弹窗。

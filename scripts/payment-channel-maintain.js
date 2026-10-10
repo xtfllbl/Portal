@@ -116,35 +116,40 @@
     }
     const record = existing ? clone(existing) : { id: '', name: '', corporateName: '', sceneType: 1, channelType: '', channelProperties: '', serviceFeeRate: '', maxHandFee: '', commissionRange: '', commissionPeriod: '', packageName: '', applicableArea: [], channelCapability: { cardTypeList: [], abilityList: [], offAbilityList: [], postAbilityList: [] }, payParams: [], fiserv: { app: '', tppId: '', serviceId: '' }, systemFlag: 0 };
     record.fiserv ||= { app: '', tppId: '', serviceId: '' }; record.payParams ||= [];
+    // Existing records have no Payload configuration. Do not infer it from support.
+    record.channelCapability.payloadDataList ||= [];
     const heading = existing ? 'Edit Payment Channel' : 'Add Payment Channel';
     $('formTitle').textContent = heading; document.title = `${heading} | PAYwizard Portal`;
     const crumb = document.querySelector('.pw-platform-breadcrumb'); if (crumb?.lastElementChild) crumb.lastElementChild.textContent = heading.toUpperCase();
     const grid = $('channelFields'), controls = {}, picks = {};
     const definitions = [
-      { key: 'name', label: 'Channel Name', required: true, max: 20, full: true },
+      { key: 'name', label: 'Channel Name', required: true, max: 20 },
       { key: 'sceneType', label: 'Scenario Type', required: true, options: data.options.scenarios },
       { key: 'channelType', label: 'Channel Type Name', required: true, options: data.options.channelTypes[record.sceneType] },
       { key: 'corporateName', label: 'Company Information', required: true, max: 50 },
       { key: 'channelProperties', label: 'Channel Properties', required: true, max: 20 },
+      { key: 'packageName', label: 'Payment Package Name', required: true, max: 150, card: true },
       { key: 'serviceFeeRate', label: 'Cost Rate (%)', required: true, numeric: true, min: 0, maxNumber: 99.99, step: '0.01' },
       { key: 'maxHandFee', label: 'Fee cap', numeric: true, step: 'any' },
       { key: 'commissionRange', label: 'Service Fee Range', required: true, max: 50 },
       { key: 'commissionPeriod', label: 'Commission Settlement Period', required: true, max: 50 },
-      { key: 'packageName', label: 'Payment Package Name', required: true, max: 150, card: true },
       { key: 'applicableArea', label: 'Applicable Regions (Select multiple)', required: true, multiple: true, options: data.options.regions },
       { key: 'cardTypeList', label: 'Supported Card Types (Select multiple)', required: true, card: true, multiple: true, options: data.options.cards, capability: true },
-      { key: 'abilityList', label: 'ECOMM Processor capabilities', multiple: true, options: data.options.abilities, capability: true },
-      { key: 'offAbilityList', label: 'Terminal Processor capabilities', multiple: true, options: data.options.abilities, capability: true },
-      { key: 'postAbilityList', label: 'Cross-Channel Capabilities (Terminal → ECOMM)', multiple: true, options: data.options.abilities, capability: true },
       { key: 'payParams', label: 'Required parameters', card: true, multiple: true, options: data.options.parameters },
       { key: 'app', label: 'app', required: true, fiserv: true },
       { key: 'tppId', label: 'tppId', required: true, fiserv: true },
       { key: 'serviceId', label: 'serviceId', required: true, fiserv: true }
     ];
+    const groups = {};
+    ['basic', 'fees', 'capabilities', 'parameters', 'fiserv', 'processor'].forEach(name => {
+      const group = document.createElement('div'); group.className = `pc-field-group pc-${name}-fields`;
+      groups[name] = group; grid.append(group);
+    });
+    const feeKeys = ['serviceFeeRate', 'maxHandFee', 'commissionRange', 'commissionPeriod'];
     const get = definition => definition.capability ? record.channelCapability[definition.key] : definition.fiserv ? record.fiserv[definition.key] : record[definition.key];
     const set = (definition, value) => { if (definition.capability) record.channelCapability[definition.key] = value; else if (definition.fiserv) record.fiserv[definition.key] = value; else record[definition.key] = definition.key === 'sceneType' ? Number(value) : value; };
     definitions.forEach(definition => {
-      const field = document.createElement('div'); field.className = `pc-field${definition.full ? ' pc-full-width' : ''}`; field.dataset.field = definition.key;
+      const field = document.createElement('div'); field.className = 'pc-field'; field.dataset.field = definition.key;
       const fieldId = `channel-${definition.key}`;
       const title = document.createElement('label'); title.htmlFor = fieldId; title.textContent = definition.label;
       if (definition.required) { const star = document.createElement('span'); star.className = 'pc-required'; star.textContent = '*'; title.append(star); }
@@ -169,14 +174,88 @@
       }
       controls[definition.key].setAttribute('aria-describedby', error.id);
       if (definition.required) controls[definition.key].setAttribute('aria-required', 'true');
-      field.append(error); grid.append(field);
+      field.append(error);
+      const group = definition.fiserv ? 'fiserv' : definition.key === 'payParams' ? 'parameters' : feeKeys.includes(definition.key) ? 'fees' : definition.multiple ? 'capabilities' : 'basic';
+      groups[group].append(field);
     });
+    const processor = document.createElement('section');
+    processor.className = 'pc-processor-field'; processor.id = 'channel-processorCapabilities'; processor.tabIndex = -1;
+    processor.setAttribute('aria-labelledby', 'processorTitle');
+    processor.innerHTML = '<h2 id="processorTitle">Processor capabilities</h2><p class="pc-capability-conflicts" role="status" hidden></p><div class="pc-capability-scroll"><table class="pc-capability-table" aria-labelledby="processorTitle"><colgroup><col class="pc-transaction-col"><col><col><col class="pc-cross-col"><col class="pc-payload-col"></colgroup><thead><tr><th scope="col">Transaction Type</th><th scope="col">Terminal Channel</th><th scope="col">ECOMM Channel</th><th scope="col">Cross-Channel<br> (Terminal → ECOMM)</th><th scope="col">Send Payload Data</th></tr></thead><tbody></tbody></table></div><p class="pc-field-error" id="channel-processorCapabilities-error" hidden></p>';
+    groups.processor.append(processor); controls.processorCapabilities = processor;
+    processor.setAttribute('aria-describedby', 'channel-processorCapabilities-error');
+    const capabilityColumns = [
+      { key: 'offAbilityList', label: 'Terminal Channel' },
+      { key: 'abilityList', label: 'ECOMM Channel' },
+      { key: 'postAbilityList', label: 'Cross-Channel (Terminal → ECOMM)' },
+      { key: 'payloadDataList', label: 'Send Payload Data', switch: true }
+    ];
+    const capabilityRows = data.options.abilities.map((option, index) => {
+      const row = document.createElement('tr'); row.dataset.transaction = option.value;
+      const name = document.createElement('th'); name.scope = 'row';
+      const text = document.createElement('span'); text.textContent = option.label; name.append(text);
+      const error = document.createElement('p'); error.className = 'pc-capability-error'; error.id = `capability-${index}-error`; error.hidden = true; name.append(error); row.append(name);
+      const inputs = {};
+      capabilityColumns.forEach(column => {
+        const cell = document.createElement('td'), input = document.createElement('input');
+        input.type = 'checkbox'; input.id = `capability-${index}-${column.key}`;
+        input.className = column.switch ? 'pc-payload-switch' : 'pc-capability-check';
+        input.setAttribute('aria-label', `${option.label}: ${column.label}`);
+        if (column.switch) input.setAttribute('role', 'switch');
+        input.addEventListener('change', () => {
+          selectCapability(column.key, option.value, input.checked);
+          if (!input.checked && (column.key === 'offAbilityList' || column.key === 'abilityList')) {
+            selectCapability('postAbilityList', option.value, false);
+            if (column.key === 'offAbilityList') selectCapability('payloadDataList', option.value, false);
+          }
+          clearFieldError('processorCapabilities'); refreshCapabilities();
+        });
+        cell.append(input); row.append(cell); inputs[column.key] = input;
+      });
+      processor.querySelector('tbody').append(row);
+      return { value: option.value, row, error, inputs };
+    });
+    function selectCapability(key, value, selected) {
+      const values = record.channelCapability[key];
+      if (selected && !values.includes(value)) values.push(value);
+      if (!selected) record.channelCapability[key] = values.filter(item => item !== value);
+    }
+    function refreshCapabilities() {
+      let conflicts = 0;
+      capabilityRows.forEach(({ value, row, error, inputs }) => {
+        const selected = key => record.channelCapability[key].includes(value);
+        const terminal = selected('offAbilityList'), ecomm = selected('abilityList');
+        const crossConflict = selected('postAbilityList') && !(terminal && ecomm);
+        const payloadConflict = selected('payloadDataList') && !terminal;
+        capabilityColumns.forEach(({ key }) => {
+          const input = inputs[key]; input.checked = selected(key);
+          const needs = key === 'postAbilityList' && !(terminal && ecomm) ? 'Enable Terminal and ECOMM support first.' : key === 'payloadDataList' && !terminal ? 'Enable Terminal support first.' : '';
+          // Invalid checked legacy values remain removable; only new selection is disabled.
+          input.disabled = Boolean(needs) && !input.checked; input.title = needs;
+          const invalid = key === 'postAbilityList' && crossConflict || key === 'payloadDataList' && payloadConflict;
+          if (invalid) { input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', error.id); }
+          else { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); }
+        });
+        const messages = [];
+        if (crossConflict) messages.push('Cross-Channel requires Terminal and ECOMM support.');
+        if (payloadConflict) messages.push('Payload Data requires Terminal support.');
+        error.textContent = messages.join(' '); error.hidden = !messages.length;
+        row.classList.toggle('pc-capability-conflict', Boolean(messages.length));
+        if (messages.length) conflicts++;
+      });
+      const notice = processor.querySelector('.pc-capability-conflicts');
+      notice.hidden = !conflicts;
+      notice.textContent = `${conflicts} transaction ${conflicts === 1 ? 'type needs' : 'types need'} attention. Enable the required support or clear the conflicting selections before submitting.`;
+      return conflicts;
+    }
+    refreshCapabilities();
     function updateVisibility() {
       definitions.forEach(definition => {
         const visible = (!definition.card || record.sceneType === 1) && (!definition.fiserv || record.channelType === 'Fiserv');
         controls[definition.key].closest('.pc-field').hidden = !visible;
         if (!visible) { picks[definition.key]?.close(); clearFieldError(definition.key); }
       });
+      Object.values(groups).forEach(group => { group.hidden = !Array.from(group.children).some(field => !field.hidden); });
     }
     function clearFieldError(key) {
       controls[key].removeAttribute('aria-invalid'); const error = $(`channel-${key}-error`); error.hidden = true;
@@ -193,11 +272,13 @@
         if (definition.max && String(value).length > definition.max) message = `Use at most ${definition.max} characters for ${definition.label}.`;
         if (message) errors.push({ key: definition.key, message });
       });
+      const conflicts = refreshCapabilities();
+      if (conflicts) errors.push({ key: 'processorCapabilities', message: 'Resolve the highlighted Processor capabilities conflicts. Enable the required support or clear the conflicting selections.' });
       return errors;
     }
     $('channelForm').addEventListener('submit', event => {
       event.preventDefault();
-      definitions.forEach(definition => clearFieldError(definition.key)); $('formError').hidden = true;
+      definitions.forEach(definition => clearFieldError(definition.key)); clearFieldError('processorCapabilities'); $('formError').hidden = true;
       const errors = validation();
       if (errors.length) {
         errors.forEach(error => { controls[error.key].setAttribute('aria-invalid', 'true'); const message = $(`channel-${error.key}-error`); message.textContent = error.message; message.hidden = false; });
@@ -216,7 +297,7 @@
         location.href = '47.payment_channel.html';
       } catch (_) { showError($('formError'), 'The payment channel could not be saved. Browser storage is unavailable or full. Free space or allow storage, then try again. Your entries have been kept.'); button.disabled = false; }
     });
-    $('formError').addEventListener('click', event => { if (event.target.tagName !== 'A') return; event.preventDefault(); const key = event.target.getAttribute('href').replace('#channel-', ''); controls[key]?.scrollIntoView({ block: 'center' }); controls[key]?.focus({ preventScroll: true }); });
+    $('formError').addEventListener('click', event => { if (event.target.tagName !== 'A') return; event.preventDefault(); const key = event.target.getAttribute('href').replace('#channel-', ''); const target = key === 'processorCapabilities' ? processor.querySelector('input[aria-invalid=true]') || processor : controls[key]; target?.scrollIntoView({ block: 'center' }); target?.focus({ preventScroll: true }); });
     updateVisibility();
   }
 })();
