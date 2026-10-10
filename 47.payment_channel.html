@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Channel | PAYwizard Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/platform-admin-shell.css">
+  <link rel="stylesheet" href="styles/payment-channel-maintain.css">
+</head>
+<body>
+<main class="pc-page" id="paymentChannelApp">
+  <header class="pc-heading"><h1>Payment Channel</h1><a class="pc-button pc-add" id="addChannel" href="47.payment_channel_form.html"><span class="material-symbols-rounded" aria-hidden="true">add</span>Add</a></header>
+  <div class="pc-feedback" id="pageFeedback" role="status" tabindex="-1" hidden></div>
+  <div class="pc-error-summary" id="pageError" role="alert" tabindex="-1" hidden></div>
+  <form class="pc-filters" id="channelFilters" role="search">
+    <input type="search" id="channelSearch" placeholder="Channel Name" aria-label="Channel Name" autocomplete="off">
+    <input type="search" id="packageSearch" placeholder="Package Name" aria-label="Package Name" autocomplete="off">
+    <button class="pc-button pc-icon" id="resetFilters" type="button" aria-label="Reset filters" title="Reset"><span class="material-symbols-rounded" aria-hidden="true">restart_alt</span></button>
+    <button class="pc-button pc-primary pc-icon" type="submit" aria-label="Search channels" title="Search"><span class="material-symbols-rounded" aria-hidden="true">search</span></button>
+  </form>
+  <div class="pc-table-scroll">
+    <table class="pc-table" aria-label="Payment channels">
+      <colgroup><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:16%"><col style="width:12%"><col style="width:10%"><col style="width:11%"><col style="width:11%"><col style="width:144px"></colgroup>
+      <thead><tr><th>CHANNEL NAME</th><th>COMPANY INFORMATION</th><th>SCENARIO TYPE</th><th>PACKAGE NAME</th><th>LAST UPDATE</th><th>APPLICABLE REGIONS</th><th>SUPPORTED CARD TYPE</th><th>CHANNEL CAPACITIES</th><th class="pc-actions-col">ACTIONS</th></tr></thead>
+      <tbody id="channelRows"></tbody>
+    </table>
+  </div>
+  <footer class="pc-pagination" aria-label="Channel pagination"><span id="recordCount"></span><nav id="pageButtons" aria-label="Pages"></nav><div id="pageSizePicker" class="pc-size-picker"></div><label class="pc-page-jump"><input id="pageJump" type="number" min="1" aria-label="Go to page"><span id="pageTotal"></span></label></footer>
+</main>
+<dialog class="pc-dialog pc-detail" id="detailDialog" aria-labelledby="detailTitle"><header><h2 id="detailTitle">Detail</h2><button class="pc-button pc-icon" type="button" data-close="detailDialog" aria-label="Close details"><span class="material-symbols-rounded" aria-hidden="true">close</span></button></header><div class="pc-dialog-body"><dl id="detailFields" class="pc-detail-fields"></dl></div><footer><button class="pc-button pc-secondary" type="button" data-close="detailDialog">Cancel</button></footer></dialog>
+<dialog class="pc-dialog pc-confirm" id="deleteDialog" role="alertdialog" aria-labelledby="deleteTitle" aria-describedby="deleteMessage"><header><h2 id="deleteTitle">Delete Payment Channel</h2></header><div class="pc-dialog-body"><p id="deleteMessage"></p><div class="pc-error-summary" id="deleteError" role="alert" tabindex="-1" hidden></div></div><footer><button class="pc-button pc-secondary" type="button" data-close="deleteDialog" autofocus>Cancel</button><button class="pc-button pc-danger" type="button" id="confirmDelete">Delete</button></footer></dialog>
+<script src="scripts/platform-admin-shell.js"></script>
+<script src="scripts/payment-channel-data.js"></script>
+<script src="scripts/payment-channel-picker.js"></script>
+<script src="scripts/payment-channel-maintain.js"></script>
+</body>
+</html>

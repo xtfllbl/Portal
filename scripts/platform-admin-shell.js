@@ -24,6 +24,8 @@
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
   var pageMap = {
+    "47.payment_channel.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel"], []),
+    "47.payment_channel_form.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel", "Add Payment Channel"], []),
     "46.terminal_uptime.html": page("body > main.uptime-page", "device", "uptime-matrix", ["Device Management", "Uptime Matrix"], []),
     "45.advertising.html": page("body > main.ads-page", "advertising", "advertising", ["Advertising"], []),
     "42.billing_payments.html": page("body > main.payments-page", "billing-payments", "billing-payments", ["Billing & Payments"], []),
@@ -163,6 +165,8 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "47.payment_channel.html",
+    "47.payment_channel_form.html",
     "46.terminal_uptime.html",
     "45.advertising.html",
     "44.billing_overview.html",
@@ -313,13 +317,14 @@
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
-      isWizarpos ? group("Matintain", "build", "matintain", sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters")) : "",
+      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters")) : "",
       disabled("Tickets", "support_agent"),
       isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");
   }
 
   var breadcrumbTargets = {
+    "Payment Channel": "47.payment_channel.html",
     "Uptime Matrix": "46.terminal_uptime.html",
     "Advertising": "45.advertising.html",
     "Billing Setup": "41.billing_setup.html",

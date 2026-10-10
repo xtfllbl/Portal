@@ -52,6 +52,10 @@ _Avoid_: Payment Method, Card Type, prepaid, QR
 The payment instrument category used for a transaction, such as Card, Prepaid or QR. It does not identify the Card Scheme.
 _Avoid_: Card Scheme, Card Brand
 
+**Payment Channel**:
+A platform-level payment offering maintained by Paywizard operations, describing its payment scenario, provider information, applicable regions and supported payment capabilities. It is distinct from a service provider's or store's configuration for using that offering.
+_Avoid_: Payment Method, Store Channel Configuration, MID
+
 **Product Map Template**:
 A saved, reusable BIN layout with a name, Machine Model and optional description. A terminal Product Map created from it is an independent copy.
 _Avoid_: Live link to a terminal Product Map
