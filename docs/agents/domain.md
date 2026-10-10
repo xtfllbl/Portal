@@ -4,7 +4,7 @@ Engineering skills should consult this repository's domain documentation before 
 
 ## Sources
 
-- Read the root `CONTEXT.md` when it exists.
+- Read the root `GLOSSARY.md` when it exists.
 - Read relevant decisions under `docs/adr/`.
 - If either location is absent, continue silently.
 - Domain documentation should be created only when useful domain terms or decisions have actually been established.
