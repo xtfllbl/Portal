@@ -47,3 +47,26 @@ test('blocked new tab preserves selection and focuses an actionable error',()=>{
  assert.equal(element('entryError').focused,true);assert.equal(element('entryError').scrolled,true);assert.equal(element('userSearch').value,'Alice');
  assert.equal(JSON.parse(tab.getItem('paywizard.impersonation.selection.v1')).selected,'m-tianfu');assert.equal(local.getItem('paywizard.impersonation.handoff.blocked'),null);
 });
+test('each requested role opens an existing portal page with its exact profile',()=>{
+ const fixture={window:{}};vm.runInNewContext(readFileSync('scripts/entity-hierarchy-data.js','utf8'),fixture);vm.runInNewContext(readFileSync('scripts/impersonation-data.js','utf8'),fixture);
+ const d=fixture.window.PaywizardImpersonationData;
+ for(const [id,profile,href] of [['olivia','full-service','12.transaction_list.html'],['alice','full-service-merchant','12.transaction_list.html'],['lucas','unattended-store','12.transaction_list.html'],['brian','billing-merchant','42.billing_payments.html']]){
+  const user=d.users.find(u=>u.id===id),role=d.roles[user.role];assert.equal(role.profile,profile);
+  const session={id:'target',user,entity:d.entities.find(e=>e.id===user.entityId),profile};
+  const local=storage([['paywizard.portalAccessProfile.v1','wizarpos']]);
+  const tab=storage([[sessionKey,JSON.stringify(session)]]);
+  const ctx={window:{},sessionStorage:tab,localStorage:local,location:{pathname:'/48.impersonate_portal.html',replace(url){ctx.destination=url;}}};
+  vm.runInNewContext(readFileSync('scripts/portal-access-context.js','utf8'),ctx);
+  vm.runInNewContext(readFileSync('scripts/impersonation-portal.js','utf8'),ctx);
+  assert.equal(ctx.destination,href);assert.equal(ctx.window.PaywizardAccessContext.profile(),profile);
+  assert.equal(local.getItem('paywizard.portalAccessProfile.v1'),'wizarpos');
+  tab.removeItem(sessionKey);assert.equal(ctx.window.PaywizardAccessContext.profile(),'wizarpos');
+ }
+});
+test('invalid session falls back to the normal profile and does not open a portal target',()=>{
+ for(const raw of ['{bad',JSON.stringify({id:'x',user:{name:'Alice',role:'Admin'},entity:{},profile:'unknown'}),'null']){
+  const ctx={window:{},sessionStorage:storage([[sessionKey,raw]]),localStorage:storage([['paywizard.portalAccessProfile.v1','attended']]),location:{pathname:'/48.impersonate_portal.html',replace(url){ctx.destination=url;}}};
+  vm.runInNewContext(readFileSync('scripts/portal-access-context.js','utf8'),ctx);vm.runInNewContext(readFileSync('scripts/impersonation-portal.js','utf8'),ctx);
+  assert.equal(ctx.window.PaywizardAccessContext.profile(),'attended');assert.equal(ctx.destination,'48.impersonate.html');
+ }
+});

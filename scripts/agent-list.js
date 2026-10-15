@@ -15,7 +15,8 @@
   ];
   // Page-local prototype contexts, independent of the shared profile simulator. Not authentication.
   const params = new URLSearchParams(location.search);
-  const mode = params.get('scope') === 'provider' ? 'provider' : 'operations';
+  const impersonation = window.PaywizardAccessContext?.session();
+  const mode = impersonation || params.get('scope') === 'provider' ? 'provider' : 'operations';
   const initialProvider = providers.find(provider => provider.id === params.get('provider')) || providers[0];
   let providerId = initialProvider.id, providerPicker = null, switchingProvider = false;
   window.PaywizardAgentContext = Object.freeze({ mode, providerId, label: mode === 'operations' ? 'Platform Operations' : initialProvider.name + ' Provider', shellProfile: mode === 'operations' || providerId === '1002' ? 'wizarpos' : ({ 'Full-Service': 'full-service', 'Attended-Service': 'attended', 'Unattended-Service': 'unattended' })[initialProvider.model] });

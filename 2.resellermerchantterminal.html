@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="scripts/portal-access-context.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partner Hierarchy Dashboard</title>
@@ -3697,7 +3698,7 @@
 
         function currentPortalProfile(){
           try {
-            var stored = localStorage.getItem('paywizard.portalAccessProfile.v1');
+            var stored = (window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1'));
             var profile = ({'full-service-merchant': 'full-service', 'attended-merchant': 'attended', 'unattended-merchant': 'unattended', 'attended-store': 'attended', 'unattended-store': 'unattended'})[stored] || stored;
             return ['wizarpos', 'full-service', 'attended', 'unattended'].indexOf(profile) >= 0 ? profile : 'wizarpos';
           } catch (_) {

@@ -325,7 +325,7 @@ The actual platform operations user who initiates impersonation of a selected cu
 _Avoid_: Target User, Role Simulator
 
 **Impersonation Target User**:
-The directly selected user whose identity, single current role and effective permissions apply during impersonation. The target user's permitted business actions remain available to the Impersonation Operator within that user's access scope.
+The directly selected user whose identity, single current role and effective permissions apply during impersonation. Operations staff identify the intended access through that current role; impersonation does not select or combine roles. The target user's permitted business actions remain available to the Impersonation Operator within that user's access scope.
 _Avoid_: Arbitrary role selection, combined roles, automatic Admin access, Portal Access Profile
 
 **Direct Entity User**:

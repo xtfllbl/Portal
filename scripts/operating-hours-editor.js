@@ -248,7 +248,7 @@
   function save(event) {
     event.preventDefault(); if (!state?.canEdit) return;
     try {
-      const at = Date.now(), freshAuth = S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', new URLSearchParams(location.search));
+      const at = Date.now(), freshAuth = S.viewerAuth(data, (window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1')) || 'wizarpos', new URLSearchParams(location.search));
       const next = D.saveSchedule(data, freshAuth, state.target, state.draft, state.mode, at);
       data = S.persist(localStorage, S.refresh(next, at), data.revision);
       const callback = options.onSave; close();
@@ -263,7 +263,7 @@
     create(); options = config;
     directory = window.PaywizardCustomerAccountDirectory.create(window.PaywizardCustomerAccountData.createHierarchy());
     const at = Date.now(); data = config.data || S.load(localStorage, directory, at);
-    auth = S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', new URLSearchParams(location.search));
+    auth = S.viewerAuth(data, (window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1')) || 'wizarpos', new URLSearchParams(location.search));
     const store = data.stores.find(s => s.id === 's-midtown' && D.scopeStores(data, auth.scope).includes(s.id)) || data.stores.find(s => D.scopeStores(data, auth.scope).includes(s.id));
     if (!store) throw new Error('No operating schedules are available in your current access scope.');
     state = { at, locked: !!config.locked };

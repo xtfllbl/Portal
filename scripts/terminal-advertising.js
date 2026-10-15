@@ -29,7 +29,7 @@
   }
   function updateEligibility() {
     let profile = 'wizarpos';
-    try { profile = localStorage.getItem('paywizard.portalAccessProfile.v1') || profile; } catch (_) { /* The shell also falls back to its default profile. */ }
+    try { profile = (window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1')) || profile; } catch (_) { /* The shell also falls back to its default profile. */ }
     tab.hidden = document.getElementById('terminalTypeAttendance')?.textContent.trim() !== 'Unattended' || !['wizarpos', 'full-service', 'full-service-merchant', 'unattended', 'unattended-merchant', 'unattended-store'].includes(profile);
     if (tab.hidden && tab.getAttribute('aria-selected') === 'true') document.getElementById('primaryTabBasic').click();
     if (tab.hidden && dialog.open) dialog.close();

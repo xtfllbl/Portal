@@ -19,7 +19,7 @@
   }
   function dateLabel(date) { return new Date(date + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }); }
   function profileAuth() {
-    return S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', params);
+    return S.viewerAuth(data, (window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1')) || 'wizarpos', params);
   }
   function terminalUrl(sn) {
     const terminal = data.terminals.find(t => t.sn === sn);

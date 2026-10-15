@@ -20,7 +20,7 @@ if(!requestedKey&&row)history.replaceState(null,'',data.detailHref(recordKey).re
 if(switched){const clean=new URL(location.href);clean.searchParams.delete('switched');history.replaceState(null,'',clean.pathname+clean.search+clean.hash);}
 const terminalQuery=new URLSearchParams();
 for(const key of ['terminalName','sn','tid','merchantName','storeName','storeId'])if(row[key])terminalQuery.set(key,row[key]);
-let profile='wizarpos';try{profile=localStorage.getItem('paywizard.portalAccessProfile.v1')||profile;}catch(_){}
+let profile='wizarpos';try{profile=(window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1'))||profile;}catch(_){}
 const unattended=profile.startsWith('unattended')||(['wizarpos','full-service','full-service-merchant'].includes(profile)&&row.terminalUsage==='self_service');
 const terminalHref=(unattended?'1.terminalmanage_nayax.html':'1.terminalmanage.html')+'?'+terminalQuery;
 const terminalLink=row.terminalControl==='lost'?esc(row.terminalName||'—'):`<a class="terminal-link" href="${esc(terminalHref)}">${esc(row.terminalName||'—')}</a>`;

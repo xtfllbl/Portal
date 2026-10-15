@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="scripts/portal-access-context.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Transaction List</title>
@@ -694,7 +695,7 @@
       Object.values(additionalTerminalsByMid).flat().forEach(terminal=>{terminal.tci=terminalTciBySn[terminal.sn]||"-";});
       const portalProfile=(()=>{
         try{
-          const stored=localStorage.getItem("paywizard.portalAccessProfile.v1");
+          const stored=(window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem("paywizard.portalAccessProfile.v1"));
           const value=({"full-service-merchant":"full-service","attended-merchant":"attended","unattended-merchant":"unattended","attended-store":"attended","unattended-store":"unattended"})[stored]||stored;
           return ["wizarpos","full-service","attended","unattended"].includes(value)?value:"wizarpos";
         }catch(_){return "wizarpos";}

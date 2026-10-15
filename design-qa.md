@@ -1,3 +1,21 @@
+# Impersonation role-only revision — 2026-10-15
+
+User correction: remove account permission disclosures; enter existing Portal role experiences.
+
+- Directory inspected in desktop Chrome at 1710 × 896. User / Email / Role / Action only; zero permission disclosure controls. Direct users and entity navigation remain intact. Measured all four headers at 34 px / 11 px and all row actions at 36 px. No clipping observed.
+- Clicked Olivia Scott → existing Transactions with Full-Service Provider navigation, including Agents and Merchants, without Maintain.
+- Clicked Alice Chen → existing Transactions with Full-Service Merchant navigation, including Merchant and Billing & Payments.
+- Clicked Lucas Wu → existing Transactions with Unattended Store navigation. Existing transaction presentation uses the unattended profile. Reloaded, followed Device Management, and confirmed persistent target identity. End impersonation closed the target tab and returned to the unchanged WizarPOS operations tab.
+- Clicked Brian Lee → existing Billing & Payments with only that sidebar entry. Billing-only mapping takes precedence over Merchant entity type. Existing empty billing selector state remains unchanged; no billing operation was submitted.
+- Opened Agent List while impersonating Olivia: identity remained Full-Service Provider; provider displayed as fixed wizarpos, no operations provider selector and no Maintain menu.
+- Browser console error checks for directory and merchant landing: none recorded.
+- Screenshots: `docs/design/impersonation/revised-directory.png`, `revised-merchant.png`, `revised-billing.png`.
+- Components: existing static compact DataTable-style rows and project Button controls; no new component pattern or framework. Removed the custom permission grid and synthetic Dashboard. Shared profile reader aligns existing page behavior with the tab-local impersonation profile without changing the global Role Simulator preference.
+- Validation: 7 focused Node tests cover handoff, invalid/expired target, blocked popups, direct membership, all four profile/destination mappings, and profile fallback after ending. Static build and diff whitespace check passed.
+- Boundary: fictional user directory and tab-local UI simulation. Existing business-page fixtures are reused; backend authentication, tenant data filtering and audit are not implemented or asserted.
+
+---
+
 # Impersonate compact-table prototype QA — 2026-10-15
 
 final result: passed

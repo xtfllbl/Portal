@@ -1,21 +1,36 @@
 # Impersonation design discovery
 
-Status: design 1 selected on 2026-10-15 with a preference for simplicity. Static interactive prototype implemented and desktop-reviewed.
+Status: design 1 selected on 2026-10-15 with a preference for simplicity. Static interactive prototype implemented and desktop-reviewed. Updated after user review: role-only rows and existing role pages.
 
 ## Selected implementation
 
 - Entry: `48.impersonate.html`, linked from the shared MAINTAIN menu.
-- Destination: `48.impersonate_portal.html`, opened in a new tab. Shared-shell navigation retains the identity banner across existing pages; End impersonation clears the tab-local identity and returns to the originating selection.
+- Destination: existing `12.transaction_list.html` for Full-Service Provider, Full-Service Merchant and Unattended Store; existing `42.billing_payments.html` for Billing-only Merchant. Open in a new tab with the exact existing profile navigation and page behavior. The old `48.impersonate_portal.html` path only consumes the one-time handoff and immediately replaces itself; it renders no Dashboard or module list. End impersonation clears the tab identity and returns to the originating selection.
 - Reuse: `scripts/entity-hierarchy-data.js` now supplies the unchanged Device Management fixture and the impersonation directory. The latter adds a second illustrative provider without changing the former's data.
-- One role per user; direct users only; search by user name, email or role; one inline permission expansion at a time. No role picker, descendants toggle or confirmation step.
+- One role per user; direct users only; search by user name, email or role; plain Role text is sufficient for operations staff. The table contains User, Email, Role and Action only; no permission expansion, Permissions column, role picker, descendants toggle or confirmation step.
 - Browser evidence: [operations page](impersonation/implementation-desktop-final.png), [Portal identity](impersonation/implementation-portal.png). Detailed checks: [design QA](../../design-qa.md).
 - The new directory and session are fictional UI demonstrations. Linked business pages retain their existing fixtures and operation behavior; real authentication, authorization, audit and entity-level business-data filtering are not implemented.
+
+## Existing-role mapping confirmed in the latest review
+
+| Example user | Role shown in directory | Existing profile | Landing page |
+| --- | --- | --- | --- |
+| Olivia Scott | Full-Service Provider | `full-service` | Transactions |
+| Alice Chen | Full-Service Merchant | `full-service-merchant` | Transactions |
+| Lucas Wu | Unattended Store | `unattended-store` | Transactions |
+| Brian Lee / Grace Wu | Billing-only Merchant | `billing-merchant` | Billing & Payments |
+
+Billing-only is determined by the user's role, not merely the Merchant entity type. Agent Admin retains the previous Full-Service Provider mapping; no new Agent profile is invented. Existing Dashboard entries remain unavailable placeholders, as in the current project.
+
+The directory, shared shell and pages use the same tab-local profile during impersonation. Transactions, terminal links, uptime, advertising and operating-hours controls must not read the originating operations profile instead. The shared Role Simulator preference is not overwritten. Provider impersonation also uses provider mode on Agent List, preventing that page's operations context from replacing the impersonated profile.
+
+The original generated concepts and screenshots below document exploration, not the latest permission layout. Latest browser evidence: [simple user rows](impersonation/revised-directory.png), [existing merchant portal](impersonation/revised-merchant.png), [billing-only portal](impersonation/revised-billing.png).
 
 ## Confirmed brief
 
 - Add an Impersonate entry under the operations platform's MAINTAIN menu.
 - Reuse the Device Management Entity Hierarchy pattern, covering the entire system: Service Providers, Agents, Merchants and Stores.
-- Selecting an entity shows its information, users and their permissions on the right.
+- Selecting an entity shows its information and direct users with their single role on the right. The latest review removes separate permission details.
 - Each user has exactly one role at a time. Selecting a user selects that user's existing role and effective permissions; no role picker or permission editor is needed.
 - Show only users directly belonging to the selected entity. Navigate to child entities using the left hierarchy; do not add an include-descendants toggle.
 - Impersonation permits actions within the target user's permissions and ordinary business rules.
@@ -35,7 +50,7 @@ Status: design 1 selected on 2026-10-15 with a preference for simplicity. Static
 
 ## Resolved design tree
 
-1. One user → one current role → show that role and its permission details; select the user to enter.
+1. One user → one current role → show that role as plain text, without expandable details; select the user to enter the existing profile experience.
 2. Selected entity → direct users only → child users appear after selecting the child entity.
 3. Target permissions → ordinary permitted actions → no read-only-only mode or automatic Admin escalation.
 4. New Portal tab → persistent user/role/entity identity banner → explicit End impersonation and return to the originating selection.
@@ -63,10 +78,10 @@ All directions retain the shared shell and entity tree. Each concept includes a 
 ## Component mapping
 
 - Hierarchy: PrimeVue v4 Tree single-selection and filtering patterns; reuse project node icons and ancestor-path behavior.
-- Users: DataTable compact row, expansion or grouping patterns; preserve the project's 34 px header, 11 px header type and 36 px row buttons.
+- Users: DataTable compact plain rows; preserve the project's 34 px header, 11 px header type and 36 px row buttons.
 - Entry actions: project Button patterns, 40 px for standalone actions.
 - Persistent identity banner: Message-like presentation combined with an explicit End impersonation button; it cannot be dismissed independently of ending the session.
-- Permission details: read-only grouped text, not editable checkboxes.
+- Role: plain table text; the latest user correction removes permission disclosure entirely.
 
 References: https://v4.primevue.org/tree/ , https://v4.primevue.org/datatable/ , https://v4.primevue.org/message/ . These are design references, not installed frameworks.
 

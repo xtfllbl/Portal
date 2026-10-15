@@ -28,7 +28,7 @@
   if (fileName !== "48.impersonate.html") {
     try {
       var candidate = JSON.parse(sessionStorage.getItem("paywizard.impersonation.session.v1") || "null");
-      if (candidate && candidate.id && candidate.user && candidate.user.name && candidate.user.role && candidate.entity && Array.isArray(candidate.modules) && profiles[candidate.profile]) impersonationSession = candidate;
+      if (candidate && candidate.id && candidate.user && candidate.user.name && candidate.user.role && candidate.entity && profiles[candidate.profile]) impersonationSession = candidate;
     } catch (_) {}
   }
   if (impersonationSession) activeProfile = impersonationSession.profile;
@@ -36,7 +36,6 @@
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
     "48.impersonate.html": page("body > main.imp-page", "matintain", "maintain-impersonate", ["Maintain", "Impersonate"], []),
-    "48.impersonate_portal.html": page("body > main.imp-portal", "dashboard", "dashboard", ["Dashboard"], []),
     "47.payment_channel.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel"], []),
     "47.payment_channel_form.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel", "Add Payment Channel"], []),
     "46.terminal_uptime.html": page("body > main.uptime-page", "device", "uptime-matrix", ["Device Management", "Uptime Matrix"], []),
@@ -101,12 +100,12 @@
   // Agent management has an explicit, page-local demo identity. The shared
   // profile supplies navigation only; it does not grant operations access.
   var agentPageContext = fileName === "2.agent_list_iso.html" ? window.PaywizardAgentContext : null;
-  if (agentPageContext && profiles[agentPageContext.shellProfile]) activeProfile = agentPageContext.shellProfile;
+  if (!impersonationSession && agentPageContext && profiles[agentPageContext.shellProfile]) activeProfile = agentPageContext.shellProfile;
   var shellScriptUrl = document.currentScript.src;
 
   function readProfile() {
     try {
-      var stored = localStorage.getItem(profileStoreKey);
+      var stored = window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem(profileStoreKey);
       return profiles[stored] ? stored : "wizarpos";
     } catch (_) {
       return "wizarpos";
@@ -123,7 +122,6 @@
   }
 
   function fallbackFor(targetFile, profile) {
-    if (impersonationSession && targetFile === "48.impersonate_portal.html") return "";
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
@@ -180,7 +178,6 @@
   ]);
   var panelPages = new Set([
     "48.impersonate.html",
-    "48.impersonate_portal.html",
     "47.payment_channel.html",
     "47.payment_channel_form.html",
     "46.terminal_uptime.html",
@@ -261,12 +258,6 @@
   }
 
   function buildNavigation() {
-    if (impersonationSession) {
-      var moduleKeys = { transactions: "transactions", devices: "device-overview", stores: "merchant-list", advertising: "advertising", billing: "billing-payments" };
-      return link("Dashboard", "48.impersonate_portal.html", "dashboard", "dashboard") + impersonationSession.modules.map(function (module) {
-        return link(escapeHtml(module.name), escapeHtml(module.href), escapeHtml(module.icon), moduleKeys[module.key]);
-      }).join("");
-    }
     var isWizarpos = activeProfile === "wizarpos";
     var isMerchant = profiles[activeProfile].merchant;
     if (profiles[activeProfile].billingOnly) return link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments");

@@ -39,7 +39,7 @@
   function load() {
     try {
       const now = Date.now(), next = S.load(localStorage, directory, now);
-      data = next; asOf = now; auth = S.viewerAuth(data, localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos', params);
+      data = next; asOf = now; auth = S.viewerAuth(data, (window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1')) || 'wizarpos', params);
       allowed = D.scopeStores(data, auth.scope); terminal = data.terminals.find(t => t.sn === sn); render();
     } catch (e) {
       if (!host.querySelector('.up-error')) host.innerHTML = '<h2>Service Uptime</h2><p class="up-error" role="alert" tabindex="-1"></p>';

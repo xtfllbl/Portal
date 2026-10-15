@@ -186,7 +186,7 @@
   const stop = (id, reason) => changeBill(id, 'stop', {reason});
   const renew = (id, input) => changeBill(id, 'renew', input);
   const retry = (id, input) => {
-    if (!location.pathname.endsWith('/44.billing_overview.html') || (localStorage.getItem('paywizard.portalAccessProfile.v1') || 'wizarpos') !== 'wizarpos') return Promise.reject(new Error('Only platform operations can retry payment.'));
+    if (!location.pathname.endsWith('/44.billing_overview.html') || ((window.PaywizardAccessContext ? window.PaywizardAccessContext.profile() : localStorage.getItem('paywizard.portalAccessProfile.v1')) || 'wizarpos') !== 'wizarpos') return Promise.reject(new Error('Only platform operations can retry payment.'));
     return changeBill(id, 'retry', input);
   };
   function localSnapshot(record) {
