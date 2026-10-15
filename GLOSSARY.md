@@ -320,6 +320,22 @@ _Avoid_: Attended Terminal, Unattended Terminal
 A sales-demonstration control that applies a Portal Access Profile without asserting that the user has been authenticated or that access is securely enforced.
 _Avoid_: Authentication, Authorization, Login
 
+**Impersonation Operator**:
+The actual platform operations user who initiates impersonation of a selected customer's user identity. This person is distinct from the user being impersonated.
+_Avoid_: Target User, Role Simulator
+
+**Impersonation Target User**:
+The directly selected user whose identity, single current role and effective permissions apply during impersonation. The target user's permitted business actions remain available to the Impersonation Operator within that user's access scope.
+_Avoid_: Arbitrary role selection, combined roles, automatic Admin access, Portal Access Profile
+
+**Direct Entity User**:
+A user belonging directly to the selected Service Provider, Agent, Merchant or Store. Users belonging to descendant entities are not direct users of their ancestors.
+_Avoid_: Descendant user, inherited member
+
+**Entity Hierarchy**:
+The organizational relationships across Service Providers, their Agents, Merchants and Stores. Agent levels belong within this hierarchy; users and their permissions are associated with entities rather than additional organizational levels.
+_Avoid_: Agent Hierarchy alone, User hierarchy, Permission hierarchy
+
 **Service Provider**:
 A provider account with its own Agent Hierarchy. It is distinct from an Agent and from the platform operations user who may manage multiple Service Providers.
 _Avoid_: Agent, platform operator, Portal Access Profile

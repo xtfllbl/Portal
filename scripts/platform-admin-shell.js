@@ -23,7 +23,20 @@
   var activeProfile = readProfile();
   var sidebarInitiallyCollapsed = readSidebarCollapsed();
   var fileName = decodeURIComponent((window.location.pathname.split("/").pop() || "").split("?")[0]);
+  // Prototype identity is isolated to the destination tab, not the shared demo profile.
+  var impersonationSession = null;
+  if (fileName !== "48.impersonate.html") {
+    try {
+      var candidate = JSON.parse(sessionStorage.getItem("paywizard.impersonation.session.v1") || "null");
+      if (candidate && candidate.id && candidate.user && candidate.user.name && candidate.user.role && candidate.entity && Array.isArray(candidate.modules) && profiles[candidate.profile]) impersonationSession = candidate;
+    } catch (_) {}
+  }
+  if (impersonationSession) activeProfile = impersonationSession.profile;
+  if (fileName === "48.impersonate.html") activeProfile = "wizarpos";
+  window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
+    "48.impersonate.html": page("body > main.imp-page", "matintain", "maintain-impersonate", ["Maintain", "Impersonate"], []),
+    "48.impersonate_portal.html": page("body > main.imp-portal", "dashboard", "dashboard", ["Dashboard"], []),
     "47.payment_channel.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel"], []),
     "47.payment_channel_form.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel", "Add Payment Channel"], []),
     "46.terminal_uptime.html": page("body > main.uptime-page", "device", "uptime-matrix", ["Device Management", "Uptime Matrix"], []),
@@ -110,6 +123,7 @@
   }
 
   function fallbackFor(targetFile, profile) {
+    if (impersonationSession && targetFile === "48.impersonate_portal.html") return "";
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
@@ -165,6 +179,8 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "48.impersonate.html",
+    "48.impersonate_portal.html",
     "47.payment_channel.html",
     "47.payment_channel_form.html",
     "46.terminal_uptime.html",
@@ -245,6 +261,12 @@
   }
 
   function buildNavigation() {
+    if (impersonationSession) {
+      var moduleKeys = { transactions: "transactions", devices: "device-overview", stores: "merchant-list", advertising: "advertising", billing: "billing-payments" };
+      return link("Dashboard", "48.impersonate_portal.html", "dashboard", "dashboard") + impersonationSession.modules.map(function (module) {
+        return link(escapeHtml(module.name), escapeHtml(module.href), escapeHtml(module.icon), moduleKeys[module.key]);
+      }).join("");
+    }
     var isWizarpos = activeProfile === "wizarpos";
     var isMerchant = profiles[activeProfile].merchant;
     if (profiles[activeProfile].billingOnly) return link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments");
@@ -317,7 +339,7 @@
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
-      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters")) : "",
+      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters") + sub("Impersonate", "48.impersonate.html", "maintain-impersonate")) : "",
       disabled("Tickets", "support_agent"),
       isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");
@@ -451,6 +473,28 @@
   if (/^5\./.test(fileName)) document.body.classList.add("pw-admin", "pw-merchant-flow-page");
   document.body.insertBefore(frame, document.body.firstChild);
 
+  if (impersonationSession) {
+    frame.classList.add("pw-impersonating");
+    var identityBanner = document.createElement("section");
+    identityBanner.className = "pw-impersonation-banner";
+    identityBanner.setAttribute("aria-label", "Impersonation session");
+    identityBanner.innerHTML = '<div><span class="material-symbols-rounded" aria-hidden="true">person</span><strong>Impersonating ' + escapeHtml(impersonationSession.user.name) + ' · ' + escapeHtml(impersonationSession.user.role) + ' · ' + escapeHtml(impersonationSession.entity.name) + '</strong></div><button type="button">End impersonation</button>';
+    frame.querySelector(".pw-platform-workspace").prepend(identityBanner);
+    identityBanner.querySelector("button").addEventListener("click", function () {
+      var end = function () {
+        try { sessionStorage.removeItem("paywizard.impersonation.session.v1"); } catch (_) {}
+        // A new tab falls back to the exact originating entity if its opener was closed.
+        try { if (window.opener && !window.opener.closed && window.opener.location.origin === location.origin) { window.opener.focus(); window.close(); } } catch (_) {}
+        location.replace("48.impersonate.html?entity=" + encodeURIComponent(impersonationSession.entity.id));
+      };
+      if (document.dispatchEvent(new CustomEvent("pw:before-navigate", {cancelable:true, detail:{proceed:end}}))) end();
+    });
+    window.addEventListener("pageshow", function (event) {
+      if (!event.persisted) return;
+      try { if (!sessionStorage.getItem("paywizard.impersonation.session.v1")) location.replace("48.impersonate.html"); } catch (_) {}
+    });
+  }
+
   window.paywizardBrandingReady = new Promise(function (resolve, reject) {
     var brandingScript = document.createElement('script');
     brandingScript.src = new URL('branding-store.js', document.currentScript.src).href;
@@ -486,7 +530,13 @@
 
   requestAnimationFrame(function () {
     restoreSidebarScrollPosition();
-    requestAnimationFrame(restoreSidebarScrollPosition);
+    requestAnimationFrame(function () {
+      restoreSidebarScrollPosition();
+      if (fileName === "48.impersonate.html") {
+        var entry = sidebar.querySelector('[href="48.impersonate.html"]');
+        if (entry) entry.scrollIntoView({block:"nearest"});
+      }
+    });
   });
 
   function setDrawer(open) {
@@ -591,12 +641,13 @@
   var profileControl = frame.querySelector("[data-pw-profile-control]");
   var profileTrigger = frame.querySelector("[data-pw-profile-trigger]");
   var profileMenu = frame.querySelector("[data-pw-profile-menu]");
-  if (agentPageContext) {
+  if (agentPageContext || impersonationSession) {
     profileControl.hidden = true;
     var agentIdentity = document.createElement("div");
     agentIdentity.className = "pw-platform-profile-trigger";
-    agentIdentity.setAttribute("aria-label", "Current account: " + agentPageContext.label);
-    agentIdentity.innerHTML = '<span class="pw-platform-profile-label">' + escapeHtml(agentPageContext.label) + '</span><span class="pw-platform-round-btn dark" aria-hidden="true"><span class="material-symbols-rounded">person</span></span>';
+    var identityLabel = impersonationSession ? impersonationSession.user.name : agentPageContext.label;
+    agentIdentity.setAttribute("aria-label", "Current account: " + identityLabel);
+    agentIdentity.innerHTML = '<span class="pw-platform-profile-label">' + escapeHtml(identityLabel) + '</span><span class="pw-platform-round-btn dark" aria-hidden="true"><span class="material-symbols-rounded">person</span></span>';
     profileControl.before(agentIdentity);
   }
   function setProfileMenu(open) {

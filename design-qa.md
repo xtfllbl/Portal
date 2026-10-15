@@ -1,3 +1,45 @@
+# Impersonate compact-table prototype QA — 2026-10-15
+
+final result: passed
+
+Scope: selected design 1, static desktop interaction prototype. This result does not certify production authentication, backend authorization, audit recording or tenant data isolation.
+
+## Evidence
+
+- Selected reference: `docs/design/impersonation/design-1-compact-table.png` (1672 × 941 review board; upper ~760 px is the operations screen, lower excerpt is the separate Portal destination).
+- Implementation comparison: `docs/design/impersonation/implementation-desktop.png`, captured at 1672 × 760 CSS px; browser DPR 2, screenshot API supplies CSS-sized output.
+- Final default desktop captures: `docs/design/impersonation/implementation-desktop-final.png` (1920 × 853) and `implementation-portal.png` (1920 × 797). Temporary viewport override reset after comparison.
+- Source and rendered screenshots opened together in the same comparison input. Compared the operations screen and destination header as separate states; the review-board gutter is not product UI.
+- Readable full-view captures plus DOM measurements cover tree indentation, selection, table labels, inline permissions, button alignment and the amber identity banner. No separate crop was needed.
+- Preserve actual shared-shell sidebar ordering and sizing rather than generated-image navigation rearrangement. Sidebar scrolls to the selected Maintain entry; source brand remains at the top of the scrollable navigation.
+- Shared Device Management fixture retains its original names, IDs, hierarchy and terminal counts. Impersonate adds a second illustrative provider and nested Agent branch without changing Device Management's fixture.
+
+## Comparison iterations
+
+1. First render exposed the shared canvas rule removing page padding. Classify the two new routes as panel pages; verified 24 px page padding afterward.
+2. Early 760 px capture followed a viewport change with a scrolled content region. Return to the top and recapture. Tighten hero padding, user rows and permission-region spacing to maintain the selected compact design.
+3. Final comparison: left hierarchy, charcoal entity header, selected merchant, four direct users, single role per user, Alice's expanded permission region, row entry actions and persistent Portal identity banner match the accepted structure. No remaining actionable P0/P1/P2 issues in this scope.
+4. Minor expected differences: actual shared navigation order/active styling, extra original hierarchy branches, removal of redundant permission text buttons, and normal vertical scrolling at shorter desktop heights. These preserve project conventions and the user's simplicity preference.
+
+## Verification
+
+- Browser: entity search retains ancestor paths and existing selection; Airport Kiosk shows only Noah Kim; West End Branch shows the direct-user empty state.
+- Browser: Enter selects a focused entity; user search for Finance returns Brian Lee and Grace Wu; permissions expand inline; refresh restores the originating selection/search.
+- Browser: Alice opens a new Portal tab with Merchant Admin role and explicit entity; original operations identity stays WizarPOS Provider.
+- Browser: Transactions navigation retains the amber banner and Alice identity; End impersonation closes the destination and restores the original operations tab without losing the Finance search.
+- Browser: Brian's Finance session shows Transactions and Billing only; refresh preserves the current identity. No errors reported in the new operations and Portal pages.
+- Browser regression: original Device Management renders wizarpos, the existing hierarchy and 456-terminal summary after fixture extraction; no console errors.
+- DOM measurements: table headers 34 px, header type 11 px, entry buttons 36 px; no document-level horizontal overflow at the reviewed desktop width. Tree and table have their own overflow regions.
+- Node tests: 5 passed, covering one-time handoff, unchanged shared profile, expired/mismatched/malformed handoff rejection, refresh preservation, single-role/direct-entity fixture consistency, and blocked-popup error focus/selection retention. Popup failure was checked with a controlled DOM test, not by changing browser popup settings.
+- JavaScript syntax checks, static build and git diff whitespace checks passed.
+- Desktop only, per repository requirements. No deployment.
+
+## Implementation boundaries
+
+The user/role directory is fictional fixture data. The shell uses tab-local identity and role-specific navigation for the demonstration; linked business pages keep their existing sample records and existing action behavior. They do not enforce the target's data scope or operation-level permissions. A one-time local handoff is a prototype transport mechanism, not an authorization credential. No session expiration policy, production access grant or security audit policy is established by this implementation.
+
+---
+
 # Terminal Location interactive map QA — 2026-09-15
 
 final result: passed
