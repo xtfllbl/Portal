@@ -7,6 +7,7 @@
   const labels={provider:'Service Provider',agent:'Agent',merchant:'Merchant',store:'Store'};
   const icons={provider:'corporate_fare',agent:'group',merchant:'storefront',store:'location_on'};
   const stateKey='paywizard.impersonation.selection.v1';
+  const directUsers=entityId=>D.users.filter(user=>user.entityId===entityId);
   let saved={};try{saved=JSON.parse(sessionStorage.getItem(stateKey)||'{}');}catch(_){}
   let selected=new URLSearchParams(location.search).get('entity')||saved.selected||'m-tianfu';
   if(!D.entities.some(e=>e.id===selected))selected='m-tianfu';
@@ -21,9 +22,10 @@
     const visible=[];
     function nodes(parent='',depth=0){return D.entities.filter(e=>e.parentId===parent&&matches.has(e.id)).map(e=>{
       visible.push(e.id);
+      const count=directUsers(e.id).length,countLabel=count+' direct account'+(count===1?'':'s');
       const children=D.entities.some(n=>n.parentId===e.id&&matches.has(n.id));
       const open=Boolean(query)||expanded.has(e.id);
-      return `<li class="imp-tree-item" role="treeitem" data-entity="${e.id}" aria-label="${escape(e.name)}" aria-level="${depth+1}" aria-selected="${e.id===selected}" ${children?`aria-expanded="${open}"`:''} tabindex="${e.id===selected?'0':'-1'}"><div class="imp-node" style="padding-left:${depth*18+3}px">${children?`<button class="imp-toggle" tabindex="-1" data-toggle="${e.id}" aria-label="${open?'Collapse':'Expand'} ${escape(e.name)}">${icon(open?'expand_more':'chevron_right')}</button>`:'<span class="imp-leaf-spacer"></span>'}<span class="material-symbols-rounded ${e.type}" aria-hidden="true">${icons[e.type]}</span><span class="imp-node-name" title="${escape(e.name)}">${escape(e.name)}</span></div>${children&&open?'<ul role="group">'+nodes(e.id,depth+1)+'</ul>':''}</li>`;
+      return `<li class="imp-tree-item" role="treeitem" data-entity="${e.id}" aria-label="${escape(e.name)}, ${countLabel}" aria-level="${depth+1}" aria-selected="${e.id===selected}" ${children?`aria-expanded="${open}"`:''} tabindex="${e.id===selected?'0':'-1'}"><div class="imp-node" style="padding-left:${depth*18+3}px">${children?`<button class="imp-toggle" tabindex="-1" data-toggle="${e.id}" aria-label="${open?'Collapse':'Expand'} ${escape(e.name)}">${icon(open?'expand_more':'chevron_right')}</button>`:'<span class="imp-leaf-spacer"></span>'}<span class="material-symbols-rounded ${e.type}" aria-hidden="true">${icons[e.type]}</span><span class="imp-node-name" title="${escape(e.name)}">${escape(e.name)}</span><span class="imp-node-count" title="${countLabel}" aria-hidden="true">${count}</span></div>${children&&open?'<ul role="group">'+nodes(e.id,depth+1)+'</ul>':''}</li>`;
     }).join('');}
     $('entityTree').innerHTML=nodes();$('treeEmpty').hidden=visible.length>0;
     const focusNode=$('entityTree').querySelector(`[data-entity="${focusId||selected}"]`)||$('entityTree').querySelector('[role=treeitem]');
@@ -31,9 +33,9 @@
   }
   function users(){
     const query=$('userSearch').value.trim().toLowerCase();
-    const direct=D.users.filter(u=>u.entityId===selected);
+    const direct=directUsers(selected);
     const filtered=direct.filter(u=>`${u.name} ${u.email} ${u.role}`.toLowerCase().includes(query));
-    $('userRows').innerHTML=filtered.map(u=>`<tr><td class="imp-user-name">${escape(u.name)}</td><td>${escape(u.email)}</td><td>${escape(u.role)}</td><td><button class="imp-button" data-enter="${u.id}" aria-label="Impersonate ${escape(u.name)} (opens in new tab)">${icon('open_in_new')}Impersonate</button></td></tr>`).join('');
+    $('userRows').innerHTML=filtered.map(u=>`<tr><td class="imp-user-name">${escape(u.name)}</td><td>${escape(u.email)}</td><td>${escape(u.role)}</td><td><a class="imp-button" href="48.impersonate_portal.html" target="_blank" rel="opener" data-enter="${u.id}" aria-label="Impersonate ${escape(u.name)} (opens in new tab)">${icon('open_in_new')}Impersonate</a></td></tr>`).join('');
     $('usersEmpty').hidden=filtered.length>0;
     $('usersEmpty').textContent=direct.length?'No users match your search.':'No users belong directly to this entity.';
   }
@@ -54,15 +56,19 @@
     else if(event.key==='Enter'||event.key===' '){select(id);}else return;
     event.preventDefault();if(target){items.forEach(n=>n.tabIndex=-1);target.tabIndex=0;target.focus();}
   });
-  $('userRows').addEventListener('click',event=>{
+  function prepareEntry(event){
+    if(event.type==='auxclick'&&event.button!==1)return;
     const button=event.target.closest('[data-enter]');if(!button)return;
-    const user=D.users.find(u=>u.id===button.dataset.enter&&u.entityId===selected);if(!user){error('This user is no longer available. Select the entity again and retry.');return;}
+    const user=D.users.find(u=>u.id===button.dataset.enter&&u.entityId===selected);if(!user){event.preventDefault();error('This user is no longer available. Select the entity again and retry.');return;}
     const target=D.entities.find(e=>e.id===selected),role=D.roles[user.role];
     const token=crypto.randomUUID(),key='paywizard.impersonation.handoff.'+token;
     const session={id:token,user:{id:user.id,name:user.name,email:user.email,role:user.role},entity:{...target,path:D.lineage(selected).map(e=>e.name).join(' / ')},profile:role.profile,createdAt:Date.now(),returnUrl:'48.impersonate.html?entity='+encodeURIComponent(selected)};
     save();$('entryError').hidden=true;
-    try{localStorage.setItem(key,JSON.stringify(session));const popup=window.open('48.impersonate_portal.html?session='+encodeURIComponent(token),'impersonate-'+token);if(!popup){localStorage.removeItem(key);error('The browser blocked the new tab. Allow pop-ups for this site, then click Impersonate again.');}}
-    catch(_){try{localStorage.removeItem(key);}catch(_){}error('Unable to open the session. Allow site storage in your browser, then try again.');}
-  });
+    // Keep native link navigation in the user's click: no programmatic popup.
+    // rel=opener is intentional for this same-origin flow's End impersonation action.
+    try{localStorage.setItem(key,JSON.stringify(session));button.href='48.impersonate_portal.html?session='+encodeURIComponent(token);}
+    catch(_){event.preventDefault();try{localStorage.removeItem(key);}catch(_){}error('Unable to open the session. Allow site storage in your browser, then try again.');}
+  }
+  ['click','auxclick','contextmenu'].forEach(type=>$('userRows').addEventListener(type,prepareEntry));
   tree();entity();
 })();

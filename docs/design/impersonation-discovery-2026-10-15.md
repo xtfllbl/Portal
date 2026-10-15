@@ -11,6 +11,18 @@ Status: design 1 selected on 2026-10-15 with a preference for simplicity. Static
 - Browser evidence: [operations page](impersonation/implementation-desktop-final.png), [Portal identity](impersonation/implementation-portal.png). Detailed checks: [design QA](../../design-qa.md).
 - The new directory and session are fictional UI demonstrations. Linked business pages retain their existing fixtures and operation behavior; real authentication, authorization, audit and entity-level business-data filtering are not implemented.
 
+## Entity account counts
+
+Each hierarchy node shows its direct user account count at the right edge, reusing Device Management's muted 11 px, semibold, tabular-number count styling and darker selected state. The count is based on the same direct membership as the right-hand user list, before user-search filtering. It excludes descendant accounts, remains visible when a branch is collapsed, and shows 0 for entities without direct accounts. Tree search changes node visibility only, not the counts. Example: Tianfu Merchant = 4, each of its two Stores = 1; the parent remains 4 rather than 6. No additional columns or controls are introduced.
+
+## Production new-tab correction
+
+The first production browser smoke reproduced a failed `window.open()` result and the directory's popup-blocked error. Localhost had succeeded, so local-only verification was insufficient. The hosting response contained no popup-restricting CSP. The exact browser setting or extension responsible was not established.
+
+The entry is now a native anchor styled with the existing 36 px action button. The synchronous activation handler prepares the one-time handoff URL and lets the browser perform ordinary `target="_blank"` navigation. There is no programmatic `window.open()` or null-return popup inference. `rel="opener"` intentionally retains the same-origin End impersonation return behavior. Storage failures cancel navigation and retain the visible, focused error. Keyboard activation, middle-click and context-menu preparation use the same handler.
+
+Production verification on the same browser and origin, with no browser setting changes: Alice Chen opened existing Transactions with the Full-Service Merchant banner, no directory error; End impersonation closed the target tab. Release `dpl_DprnuC3kTNjDwtu1YkVieykoEndH` is READY/production. Eight focused Node tests pass, including the blocked-programmatic-popup seam and storage failure cancellation.
+
 ## Existing-role mapping confirmed in the latest review
 
 | Example user | Role shown in directory | Existing profile | Landing page |

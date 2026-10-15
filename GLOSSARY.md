@@ -332,6 +332,10 @@ _Avoid_: Arbitrary role selection, combined roles, automatic Admin access, Porta
 A user belonging directly to the selected Service Provider, Agent, Merchant or Store. Users belonging to descendant entities are not direct users of their ancestors.
 _Avoid_: Descendant user, inherited member
 
+**Direct User Account Count**:
+The number of user accounts belonging directly to an entity, excluding accounts belonging to descendant entities. Search filters do not change this count.
+_Avoid_: Descendant account total, terminal count, matching search results
+
 **Entity Hierarchy**:
 The organizational relationships across Service Providers, their Agents, Merchants and Stores. Agent levels belong within this hierarchy; users and their permissions are associated with entities rather than additional organizational levels.
 _Avoid_: Agent Hierarchy alone, User hierarchy, Permission hierarchy

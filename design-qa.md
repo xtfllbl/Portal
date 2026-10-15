@@ -1,3 +1,23 @@
+# Impersonation direct account counts — 2026-10-15
+
+- Reused Device Management node-count styling: right aligned, 11 px / 600, muted gray, tabular figures, darker on selection; name flexes/truncates without displacing the count.
+- Every node displays direct user account count, including 0. The count and user table share the direct-membership selector; descendant accounts are excluded.
+- Desktop Chrome verified Tianfu Merchant = 4 with four direct users, both child Stores = 1, and West End Branch = 0 with its empty list. Searching Alice shows one row while the tree count stays 4. Collapsed JMSC POS still displays 1. No extra control or column was introduced.
+- Static build and whitespace check passed; no new test file added for this display-only change.
+
+---
+
+# Impersonation production new-tab fix — 2026-10-15
+
+- Reproduced the reported production error by clicking Impersonate Alice Chen: `window.open()` returned no window; the UI reported a blocked popup and no target tab opened.
+- Replaced programmatic popup creation with native new-tab link activation. Styling and role mappings are unchanged.
+- Local click for Noah Kim opened Unattended Store Transactions.
+- Deployed to bortol.vercel.app (`dpl_DprnuC3kTNjDwtu1YkVieykoEndH`, READY/production). Same browser, unchanged settings: Alice Chen opened Transactions with Full-Service Merchant identity; entry error remained hidden. End impersonation closed the target tab and returned to the directory.
+- Eight focused unit tests passed, including native navigation when programmatic popups are unavailable, canceled navigation on storage failure, one-time handoff and role mappings. Build passed. Four live artifacts matched local dist byte-for-byte.
+- The exact site-level browser/extension blocker was not identified; the production before/after result establishes that native navigation resolves the observed failure.
+
+---
+
 # Impersonation role-only revision — 2026-10-15
 
 User correction: remove account permission disclosures; enter existing Portal role experiences.

@@ -35,17 +35,33 @@ test('all fixture users have exactly one known role and an existing direct entit
  assert.equal(d.entities.filter(e=>!e.parentId).length,2);
  for(const e of ctx.window.PaywizardEntityHierarchy){const actual=d.entities.find(n=>n.id===e.id);assert.equal(actual.name,e.name);assert.equal(actual.parentId,e.parentId);}
 });
-test('blocked new tab preserves selection and focuses an actionable error',()=>{
+function entryHarness(local=storage()){
  const elements=new Map();
  function element(id){if(!elements.has(id))elements.set(id,{value:'',hidden:true,innerHTML:'',textContent:'',listeners:{},addEventListener(type,fn){this.listeners[type]=fn;},querySelector(){return null;},querySelectorAll(){return [];},focus(){this.focused=true;},scrollIntoView(){this.scrolled=true;}});return elements.get(id);}
- const local=storage(),tab=storage();
- const ctx={window:{open:()=>null},document:{getElementById:element},URLSearchParams,location:{search:''},crypto:{randomUUID:()=> 'blocked'},Date,localStorage:local,sessionStorage:tab};
- vm.runInNewContext(readFileSync('scripts/entity-hierarchy-data.js','utf8'),ctx);vm.runInNewContext(readFileSync('scripts/impersonation-data.js','utf8'),ctx);vm.runInNewContext(readFileSync('scripts/impersonation.js','utf8'),ctx);
- element('userSearch').value='Alice';
- element('userRows').listeners.click({target:{closest(selector){return selector==='[data-enter]'?{dataset:{enter:'alice'}}:null;}}});
- assert.equal(element('entryError').hidden,false);assert.match(element('entryError').textContent,/Allow pop-ups/);
- assert.equal(element('entryError').focused,true);assert.equal(element('entryError').scrolled,true);assert.equal(element('userSearch').value,'Alice');
- assert.equal(JSON.parse(tab.getItem('paywizard.impersonation.selection.v1')).selected,'m-tianfu');assert.equal(local.getItem('paywizard.impersonation.handoff.blocked'),null);
+ const tab=storage();let popupCalls=0;
+ const ctx={window:{open:()=>{popupCalls++;return null;}},document:{getElementById:element},URLSearchParams,location:{search:''},crypto:{randomUUID:()=> 'native'},Date,localStorage:local,sessionStorage:tab};
+ for(const f of ['entity-hierarchy-data.js','impersonation-data.js','impersonation.js'])vm.runInNewContext(readFileSync('scripts/'+f,'utf8'),ctx);
+ const link={dataset:{enter:'alice'},href:'48.impersonate_portal.html'};
+ const event={target:{closest(selector){return selector==='[data-enter]'?link:null;}},preventDefault(){this.prevented=true;}};
+ return {element,local,tab,link,event,popupCalls:()=>popupCalls};
+}
+test('native new-tab navigation preserves handoff when programmatic popups are blocked',()=>{
+ const h=entryHarness();h.element('userSearch').value='Alice';
+ h.element('userRows').listeners.click(h.event);
+ assert.equal(h.popupCalls(),0,'must not rely on window.open');
+ assert.equal(h.event.prevented,undefined,'leave native link activation intact');
+ assert.match(h.link.href,/session=native/);
+ assert.match(h.element('userRows').innerHTML,/<a [^>]*target="_blank"/);
+ assert.equal(JSON.parse(h.local.getItem('paywizard.impersonation.handoff.native')).user.name,'Alice Chen');
+ assert.equal(h.element('entryError').hidden,true);
+ assert.equal(JSON.parse(h.tab.getItem('paywizard.impersonation.selection.v1')).selected,'m-tianfu');
+});
+test('storage failure cancels navigation and keeps an actionable error in view',()=>{
+ const local=storage();local.setItem=()=>{throw new Error('storage disabled');};
+ const h=entryHarness(local);h.element('userSearch').value='Alice';h.element('userRows').listeners.click(h.event);
+ assert.equal(h.event.prevented,true);assert.equal(h.popupCalls(),0);
+ assert.equal(h.element('entryError').hidden,false);assert.match(h.element('entryError').textContent,/Allow site storage/);
+ assert.equal(h.element('entryError').focused,true);assert.equal(h.element('entryError').scrolled,true);assert.equal(h.element('userSearch').value,'Alice');
 });
 test('each requested role opens an existing portal page with its exact profile',()=>{
  const fixture={window:{}};vm.runInNewContext(readFileSync('scripts/entity-hierarchy-data.js','utf8'),fixture);vm.runInNewContext(readFileSync('scripts/impersonation-data.js','utf8'),fixture);
