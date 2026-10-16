@@ -35,6 +35,9 @@
   if (fileName === "48.impersonate.html") activeProfile = "wizarpos";
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
+    "49.parameter_pool.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool"], []),
+    "49.parameter_pool_form.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Parameter"], []),
+    "49.parameter_pool_usage.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Usage Records"], []),
     "48.impersonate.html": page("body > main.imp-page", "matintain", "maintain-impersonate", ["Maintain", "Impersonate"], []),
     "47.payment_channel.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel"], []),
     "47.payment_channel_form.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel", "Add Payment Channel"], []),
@@ -177,6 +180,9 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "49.parameter_pool.html",
+    "49.parameter_pool_form.html",
+    "49.parameter_pool_usage.html",
     "48.impersonate.html",
     "47.payment_channel.html",
     "47.payment_channel_form.html",
@@ -330,13 +336,14 @@
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
-      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters") + sub("Impersonate", "48.impersonate.html", "maintain-impersonate")) : "",
+      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters") + sub("Impersonate", "48.impersonate.html", "maintain-impersonate")) : "",
       disabled("Tickets", "support_agent"),
       isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");
   }
 
   var breadcrumbTargets = {
+    "Parameter Pool": "49.parameter_pool.html",
     "Payment Channel": "47.payment_channel.html",
     "Uptime Matrix": "46.terminal_uptime.html",
     "Advertising": "45.advertising.html",

@@ -1944,6 +1944,8 @@
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
     <link rel="stylesheet" href="styles/terminal-transaction-capabilities.css">
     <script src="scripts/terminal-transaction-capabilities.js"></script>
+<link rel="stylesheet" href="styles/payment-channel-maintain.css">
+<link rel="stylesheet" href="styles/parameter-pool.css">
 </head>
 <body data-pw-breadcrumb="Merchants|Merchant Overview|Add Device">
     <div class="page-shell">
@@ -4386,7 +4388,7 @@
         }
 
         function getSelectedOptionText(selectEl) {
-            if (!selectEl || selectEl.disabled) return '-';
+            if (!selectEl || (selectEl.disabled && selectEl.dataset.parameterPoolLocked !== 'true')) return '-';
             const option = selectEl.options[selectEl.selectedIndex];
             return option ? option.textContent.trim() : '-';
         }
@@ -4645,6 +4647,7 @@
                     if (firstError) firstError.focus();
                     return;
                 }
+                if (window.PaywizardParameterPoolDevice && !window.PaywizardParameterPoolDevice.validate()) return;
                 openSaveDeviceConfirmModal();
             });
         }
@@ -4662,8 +4665,16 @@
         }
 
         if (confirmSaveDeviceBtn) {
-            confirmSaveDeviceBtn.addEventListener('click', () => {
-                if (!window.TerminalTransactionCapabilities.form.save(closeSaveDeviceConfirmModal)) return;
+            confirmSaveDeviceBtn.addEventListener('click', async () => {
+                confirmSaveDeviceBtn.disabled = true;
+                let saved;
+                try {
+                    const saveExisting = () => window.TerminalTransactionCapabilities.form.save(closeSaveDeviceConfirmModal);
+                    saved = window.PaywizardParameterPoolDevice
+                        ? await window.PaywizardParameterPoolDevice.save(saveExisting, closeSaveDeviceConfirmModal)
+                        : saveExisting();
+                } finally { confirmSaveDeviceBtn.disabled = false; }
+                if (!saved) return;
                 closeSaveDeviceConfirmModal();
                 alert('Device saved');
             });
@@ -4681,5 +4692,9 @@
         });
     </script>
   <script src="scripts/platform-admin-shell.js"></script>
+  <script src="scripts/payment-channel-data.js"></script>
+  <script src="scripts/payment-channel-picker.js?v=parameter-pool-2"></script>
+  <script src="scripts/parameter-pool-store.js"></script>
+  <script src="scripts/parameter-pool-device.js"></script>
 </body>
 </html>

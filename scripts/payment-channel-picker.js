@@ -41,22 +41,24 @@
     const isSelected = option => multiple ? value.includes(String(option.value)) : value === String(option.value);
     function captionText() {
       const chosen = options.filter(isSelected);
-      caption.textContent = chosen.length ? (chosen.length <= 2 ? chosen.map(option => option.label).join(', ') : `${chosen.length} items selected`) : config.placeholder || 'Select';
+      caption.textContent = config.caption || (chosen.length ? (chosen.length <= 2 ? chosen.map(option => option.label).join(', ') : `${chosen.length} items selected`) : config.placeholder || 'Select');
       caption.classList.toggle('pc-placeholder', !chosen.length);
       trigger.title = chosen.map(option => option.label).join(', ');
       selected.textContent = `Selected (${chosen.length})`;
     }
     function paint() {
       const term = search.value.trim().toLocaleLowerCase();
-      matches = options.filter(option => (!selectedOnly || isSelected(option)) && option.label.toLocaleLowerCase().includes(term));
+      matches = options.filter(option => (!selectedOnly || isSelected(option)) && [option.label, option.description || '', option.searchText || ''].join(' ').toLocaleLowerCase().includes(term));
       if (active >= matches.length) active = matches.length - 1;
       list.replaceChildren();
       matches.forEach((option, index) => {
         const row = document.createElement('div'); row.className = 'pc-picker-option'; row.id = `${id}-option-${index}`;
         row.dataset.index = index; row.setAttribute('role', 'option'); row.setAttribute('aria-selected', String(isSelected(option)));
         row.classList.toggle('pc-active', index === active);
+        if (option.disabled) row.setAttribute('aria-disabled', 'true');
         if (multiple) { const check = document.createElement('span'); check.className = 'pc-check'; check.setAttribute('aria-hidden', 'true'); const icon = document.createElement('span'); icon.className = 'material-symbols-rounded'; icon.textContent = isSelected(option) ? 'check' : ''; check.append(icon); row.append(check); }
-        const name = document.createElement('span'); name.textContent = option.label; row.append(name);
+        const name = document.createElement('span'); name.textContent = option.label;
+        if (option.description) { const copy = document.createElement('span'); copy.className = 'pp-option-copy'; const detail = document.createElement('span'); detail.className = 'pp-option-detail'; detail.textContent = option.description; copy.append(name, detail); row.append(copy); } else row.append(name);
         if (selectedOnly) { const remove = document.createElement('span'); remove.className = 'pc-remove-selected material-symbols-rounded'; remove.textContent = 'close'; remove.setAttribute('aria-hidden', 'true'); row.append(remove); }
         list.append(row);
       });
@@ -86,7 +88,7 @@
     }
     function commit() { captionText(); config.onChange(multiple ? [...value] : value); }
     function choose(index) {
-      const option = matches[index]; if (!option) return;
+      const option = matches[index]; if (!option || option.disabled) return;
       const key = String(option.value);
       if (multiple) { value = value.includes(key) ? value.filter(item => item !== key) : [...value, key]; commit(); paint(); search.focus(); }
       else { value = key; commit(); close(true); }
@@ -114,7 +116,7 @@
     });
     list.addEventListener('mousedown', event => event.preventDefault());
     list.addEventListener('click', event => { const row = event.target.closest('[data-index]'); if (row) choose(Number(row.dataset.index)); });
-    all.addEventListener('click', () => { value = [...new Set([...value, ...matches.map(option => String(option.value))])]; commit(); paint(); });
+    all.addEventListener('click', () => { value = [...new Set([...value, ...matches.filter(option => !option.disabled).map(option => String(option.value))])]; commit(); paint(); });
     selected.addEventListener('click', () => { selectedOnly = !selectedOnly; active = -1; paint(); place(); });
     clear.addEventListener('click', () => { value = []; commit(); paint(); });
     panel.addEventListener('toggle', () => { const expanded = panel.matches(':popover-open'); trigger.setAttribute('aria-expanded', String(expanded)); search.setAttribute('aria-expanded', String(expanded)); if (!expanded) search.removeAttribute('aria-activedescendant'); });
