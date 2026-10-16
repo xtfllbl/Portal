@@ -110,3 +110,47 @@ test('concurrent browser saves serialize and only one merchant can acquire the r
   assert.equal(JSON.parse(stored).resources[0].currentUsageId, 'winner');
   assert.ok(!JSON.parse(stored).usages.some(row => row.id === 'loser'));
 });
+
+test('submission preserves active usage; terminal effect freezes the old usage without releasing the resource', () => {
+  const state = pool.seed(schema);
+  const usage = pool.allocate(state, 'pool-1', owner, 'switch-usage', now);
+  const original = structuredClone(usage.parameters);
+  const transaction = { id: 'old-sale', usageId: usage.id, merchantId: owner.merchantId, storeId: owner.storeId, tci: owner.tci, mid: original.mid, tid: original.tid };
+  state.transactions.push(transaction);
+  const values = { ...pool.defaults(schema), mid: 'OWNMID', tid: 'OWNTID' };
+  pool.submitSwitch(state, owner, values, schema, 'request-1', now);
+  assert.equal(usage.status, 'in_use'); assert.equal(usage.endedAt, null);
+  assert.equal(pool.canFollowUp(state, transaction), true);
+  assert.equal(pool.terminalFor(state, owner).parameterSource, 'pool');
+  assert.throws(() => pool.submitSwitch(state, owner, values, schema, 'duplicate', now), /already awaiting/);
+  pool.receiveSwitchResult(state, 'request-1', 'applied', '2026-10-16T10:00:00Z');
+  assert.equal(usage.status, 'awaiting_settlement'); assert.equal(usage.frozen, true);
+  assert.equal(usage.endedAt, '2026-10-16T10:00:00Z'); assert.deepEqual(usage.parameters, original);
+  assert.equal(pool.canFollowUp(state, transaction), false);
+  assert.equal(pool.terminalFor(state, owner).parameters.mid, 'OWNMID');
+  assert.equal(state.resources[0].status, 'awaiting_settlement');
+  assert.throws(() => pool.allocate(state, 'pool-1', { ...owner, tci: 'TCI-SECOND', merchantId: 'second' }, 'next', now), /no longer available/);
+  pool.settle(state, usage.id, 'Finance', now);
+  const next = { ...owner, tci: 'TCI-SECOND', merchantId: 'second' };
+  pool.allocate(state, 'pool-1', next, 'next', now);
+  pool.receiveSwitchResult(state, 'request-1', 'applied', now);
+  assert.equal(state.resources[0].currentUsageId, 'next');
+  assert.equal(pool.transactionsFor(state, 'next').length, 0);
+  assert.deepEqual(pool.transactionsFor(state, usage.id), [transaction]);
+});
+test('failed deployment retains usage and original parameters; another merchant cannot switch this terminal', () => {
+  const state = pool.seed(schema);
+  pool.allocate(state, 'pool-1', owner, 'switch-usage', now);
+  const original = structuredClone(pool.terminalFor(state, owner));
+  const values = { ...pool.defaults(schema), mid: 'OWNMID', tid: 'OWNTID' };
+  assert.throws(() => pool.submitSwitch(state, { ...owner, merchantId: 'wrong' }, values, schema, 'wrong', now), /no longer using/);
+  assert.throws(() => pool.submitSwitch(state, owner, pool.defaults(schema), schema, 'invalid', now), /Merchant ID is required/);
+  pool.submitSwitch(state, owner, values, schema, 'failed-request', now);
+  pool.receiveSwitchResult(state, 'failed-request', 'failed', now);
+  assert.deepEqual(pool.terminalFor(state, owner), original);
+  assert.equal(state.usages[0].status, 'in_use'); assert.equal(state.usages[0].endedAt, null);
+  pool.submitSwitch(state, owner, values, schema, 'retry', now);
+  state.resources[0].currentUsageId = 'another-usage';
+  assert.throws(() => pool.receiveSwitchResult(state, 'retry', 'applied', now), /does not match/);
+  assert.equal(state.usages[0].status, 'in_use');
+});

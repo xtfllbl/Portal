@@ -4913,6 +4913,12 @@
         const openDeviceSettingsPage = (row) => {
             if (!row) return;
             const params = new URLSearchParams({
+                merchantId: merchantState.id,
+                merchantName: merchantState.dba,
+                detailPage: "5.merchant_detail_no_store_iso.html",
+                tci: row.dataset.tci || '',
+                version: row.dataset.version || '',
+                scenario: row.dataset.scenario || '',
                 storeId: row.dataset.storeId || '',
                 storeName: row.dataset.storeName || '',
                 sn: row.dataset.sn || '',
@@ -4997,6 +5003,7 @@
                 const params = new URLSearchParams({
                     storeId: activeStoreId,
                     storeName,
+                    detailPage: "5.merchant_detail_no_store_iso.html",
                     merchantId: merchantState.id,
                     merchantName: merchantState.dba
                 });
@@ -5716,8 +5723,33 @@
             if (editRow) openStoreModal('edit', editRow);
             else if (detailParams.get('openAddStore') === '1') openStoreModal('add');
         }
+
+        function appendPoolDeviceRow(device) {
+            if (!deviceGrid || getDeviceRows().some(row => row.dataset.tci === device.tci)) return;
+            const row = document.createElement('div'); row.className = 'grid-row device-grid-row';
+            for (const key of ['storeId','storeName','tci','sn','label','model','processor','version','scenario','paywizard','addedAt']) row.dataset[key] = device[key] || '';
+            row.dataset.manufacturer = 'WizarPOS';
+            for (const [role, value] of [['store-name',device.storeName],['device-sn',device.sn || '-'],['device-model',device.model || '-']]) {
+                const cell = document.createElement('div'); cell.dataset.role = role; cell.textContent = value; row.appendChild(cell);
+            }
+            row.appendChild(createDeviceTerminalCell(device.label));
+            row.appendChild(Object.assign(document.createElement('div'), { textContent: device.addedAt }));
+            const status = document.createElement('div'); status.dataset.role = 'device-status';
+            const badge = document.createElement('span'); badge.className = 'status-badge pending'; badge.textContent = 'Unknown'; status.appendChild(badge); row.appendChild(status);
+            row.appendChild(buildDeviceActionsCell()); deviceGrid.appendChild(row);
+        }
+
+        window.PaywizardMerchantDevices = {
+            merchantId: merchantState.id,
+            storeIds: () => getStoreRows().map(row => row.dataset.storeId),
+            append: appendPoolDeviceRow,
+            refresh() { updateCounts(); refreshDeviceGrid(); }
+        };
     </script>
   <script src="scripts/platform-admin-shell.js"></script>
+  <script src="processor-parameter-data.js"></script>
+  <script src="scripts/parameter-pool-store.js?v=parameter-switch-1"></script>
+  <script src="scripts/parameter-pool-merchant.js"></script>
 
 <script src="scripts/customer-account-data.js"></script>
 <script src="scripts/customer-account-directory.js"></script>

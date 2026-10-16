@@ -5285,7 +5285,7 @@
         };
 
         const createDeviceOnlineStatusCell = (status = 'Offline') => {
-            const normalizedStatus = String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
+            const normalizedStatus = status === 'Unknown' ? 'Unknown' : String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
             const cell = document.createElement('div');
             const badge = document.createElement('span');
             badge.className = 'device-online-status terminal-service-status payment ' + normalizedStatus.toLowerCase();
@@ -5301,7 +5301,7 @@
 
         const setDeviceOnlineStatus = (row, status = 'Offline') => {
             if (!row) return;
-            const normalizedStatus = String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
+            const normalizedStatus = status === 'Unknown' ? 'Unknown' : String(status).toLowerCase() === 'online' ? 'Online' : 'Offline';
             row.dataset.onlineStatus = normalizedStatus;
             const badge = row.querySelector('[data-role="device-online-status"]');
             if (!badge) return;
@@ -6460,6 +6460,9 @@
         const openDeviceSettingsPage = (row) => {
             if (!row) return;
             const params = new URLSearchParams({
+                merchantId: merchantState.id,
+                merchantName: merchantState.dba,
+                detailPage: "5.merchant_detail_iso.html",
                 storeId: row.dataset.storeId || '',
                 storeName: row.dataset.storeName || '',
                 tci: row.dataset.tci || '',
@@ -6599,6 +6602,7 @@
                 const params = new URLSearchParams({
                     storeId: activeStoreId,
                     storeName,
+                    detailPage: "5.merchant_detail_iso.html",
                     merchantId: merchantState.id,
                     merchantName: merchantState.dba
                 });
@@ -7283,6 +7287,13 @@
         });
         updateCounts();
         setActiveStore(null);
+
+        window.PaywizardMerchantDevices = {
+            merchantId: merchantState.id,
+            storeIds: () => getStoreRows().map(row => row.dataset.storeId),
+            append: appendSeedDeviceRow,
+            refresh() { seedKnownDeviceSnAssignments(); applyStoredDeviceSnAssignments(); updateCounts(); refreshDeviceGrid(); }
+        };
     </script>
     <script>
         (function () {
@@ -7294,6 +7305,9 @@
         })();
     </script>
   <script src="scripts/platform-admin-shell.js"></script>
+  <script src="processor-parameter-data.js"></script>
+  <script src="scripts/parameter-pool-store.js?v=parameter-switch-1"></script>
+  <script src="scripts/parameter-pool-merchant.js"></script>
 
 <script src="scripts/customer-account-data.js"></script>
 <script src="scripts/customer-account-directory.js"></script>

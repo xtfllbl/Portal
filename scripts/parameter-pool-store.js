@@ -49,7 +49,7 @@
       rrn: `${ui + 1}${String(index + 1).padStart(11, '0')}`, authCode: index === 4 ? '' : String(810001 + index), responseCode: index === 4 ? '05' : '00',
       originalTransactionId: index === 5 ? `TX-${ui + 1}-00001` : index === 8 ? `TX-${ui + 1}-00002` : '', mid: usage.parameters.mid, tid: usage.parameters.tid
     })));
-    return { version: 1, resources, usages, transactions };
+    return { version: 1, resources, usages, transactions, terminalConfigurations: [], switchRequests: [] };
   }
   function read() {
     const raw = localStorage.getItem(KEY);
@@ -57,19 +57,19 @@
     let state;
     try { state = JSON.parse(raw); } catch (_) { fail('Parameter Pool data could not be read. Your stored data has not been changed.'); }
     if (state.version !== 1 || !['resources', 'usages', 'transactions'].every(key => Array.isArray(state[key]))) fail('Parameter Pool data is not supported. Your stored data has not been changed.');
+    state.terminalConfigurations ||= []; state.switchRequests ||= [];
+    for (const usage of state.usages.filter(row => row.status === 'in_use')) {
+      if (!terminalFor(state, usage)) state.terminalConfigurations.push({ ...copy(usage), processor: 'NUVEI UPT', parameterSource: 'pool', usageId: usage.id, addedAt: usage.startedAt });
+    }
     // Discard legacy parameter versions while preserving the storage format and usage history.
     for (const row of [...state.resources, ...state.usages]) delete row.version;
     return state;
   }
   function requireResource(state, id) { return state.resources.find(row => row.id === id) || fail('This parameter set no longer exists. Refresh the page.'); }
-  function saveResource(state, draft, id, schema) {
-    const old = id ? requireResource(state, id) : null;
-    if (old && old.status !== 'available') fail('Only available parameter sets can be edited.');
-    if (!draft.name.trim()) fail('Enter a parameter set name.');
-    if (!draft.channelId) fail('Select an existing Nuvei channel.');
+  function validateParameters(values, schema) {
     const parameters = {};
     for (const [key, label, , , required, min, max, rule, options] of schema.flatMap(group => group[1])) {
-      const value = String(draft.parameters[key] ?? '').trim();
+      const value = String(values[key] ?? '').trim();
       if (required && !value) fail(`${label} is required.`);
       if (value && ((max && value.length > Number(max)) || (min && value.length < Number(min)))) fail(`${label} has an invalid length.`);
       if (value && rule === 'N' && !/^\d+$/.test(value)) fail(`${label} must contain digits only.`);
@@ -77,6 +77,14 @@
       if (value && Array.isArray(options) && !options.some(option => String(option[0]) === value)) fail(`Select a valid ${label}.`);
       parameters[key] = value;
     }
+    return parameters;
+  }
+  function saveResource(state, draft, id, schema) {
+    const old = id ? requireResource(state, id) : null;
+    if (old && old.status !== 'available') fail('Only available parameter sets can be edited.');
+    if (!draft.name.trim()) fail('Enter a parameter set name.');
+    if (!draft.channelId) fail('Select an existing Nuvei channel.');
+    const parameters = validateParameters(draft.parameters, schema);
     if (state.resources.some(row => row.id !== id && row.channelId === draft.channelId && row.parameters.mid === parameters.mid && row.parameters.tid === parameters.tid)) fail('This channel, MID and TID already exist in the pool. Edit the existing parameter set.');
     const resource = { id: id || draft.id, name: draft.name.trim(), channelId: draft.channelId, channelName: draft.channelName, processor: 'NUVEI UPT', parameters, status: 'available', currentUsageId: null };
     if (!resource.id) fail('Parameter set ID is required.');
@@ -91,11 +99,55 @@
       if (existing.resourceId === resourceId && existing.merchantId === owner.merchantId && existing.storeId === owner.storeId && existing.status === 'in_use') return existing;
       fail('This TCI already has a parameter set assigned.');
     }
+    if ((state.terminalConfigurations || []).some(row => row.tci === owner.tci)) fail('This TCI already has a terminal configuration. Edit its existing parameters.');
     if (resource.status !== 'available') fail('This parameter set is no longer available. Select another parameter set.');
     if (!usageId || state.usages.some(row => row.id === usageId)) fail('A unique usage ID is required.');
     const usage = { ...copy(owner), id: usageId, resourceId, resourceName: resource.name, channelId: resource.channelId, channelName: resource.channelName, parameters: copy(resource.parameters), status: 'in_use', startedAt: time, endedAt: null, settledAt: null, settledBy: null };
     state.usages.unshift(usage); resource.status = 'in_use'; resource.currentUsageId = usageId;
+    state.terminalConfigurations ||= [];
+    state.terminalConfigurations.push({ ...copy(owner), processor: 'NUVEI UPT', parameterSource: 'pool', resourceId, usageId, parameters: copy(resource.parameters), addedAt: time });
     return usage;
+  }
+  function terminalFor(state, owner) {
+    return (state.terminalConfigurations || []).find(row => row.tci === owner.tci && row.merchantId === owner.merchantId && row.storeId === owner.storeId);
+  }
+  function submitSwitch(state, owner, values, schema, requestId, time) {
+    const terminal = terminalFor(state, owner);
+    if (!terminal || terminal.parameterSource !== 'pool') fail('This terminal is no longer using a pool parameter set. Reload its settings.');
+    const usage = state.usages.find(row => row.id === terminal.usageId);
+    const resource = requireResource(state, terminal.resourceId);
+    if (!usage || usage.status !== 'in_use' || resource.currentUsageId !== usage.id || resource.status !== 'in_use') fail('The current usage has changed. Reload the terminal settings.');
+    const parameters = validateParameters(values, schema);
+    state.switchRequests ||= [];
+    const pending = state.switchRequests.find(row => row.usageId === usage.id && row.status === 'submitted');
+    if (pending) fail('A switch is already awaiting terminal confirmation.');
+    if (!requestId || state.switchRequests.some(row => row.id === requestId)) fail('A unique deployment request is required.');
+    const request = { id: requestId, merchantId: owner.merchantId, storeId: owner.storeId, tci: owner.tci, usageId: usage.id, resourceId: resource.id, parameters, status: 'submitted', submittedAt: time };
+    state.switchRequests.push(request);
+    return request;
+  }
+  function receiveSwitchResult(state, requestId, result, time) {
+    const request = (state.switchRequests || []).find(row => row.id === requestId) || fail('This deployment request no longer exists.');
+    if (request.status === 'applied') return request;
+    if (request.status !== 'submitted') fail('This deployment request is no longer awaiting confirmation.');
+    if (result !== 'applied' && result !== 'failed') fail('A terminal result is required.');
+    const terminal = terminalFor(state, request);
+    const usage = state.usages.find(row => row.id === request.usageId);
+    const resource = requireResource(state, request.resourceId);
+    if (!terminal || terminal.parameterSource !== 'pool' || terminal.usageId !== request.usageId || !usage || usage.status !== 'in_use' || resource.currentUsageId !== usage.id || resource.status !== 'in_use') fail('This result does not match the terminal’s current usage.');
+    request.status = result; request.resultAt = time;
+    if (result === 'failed') return request;
+    usage.status = 'awaiting_settlement'; usage.endedAt = time; usage.frozen = true;
+    resource.status = 'awaiting_settlement';
+    terminal.parameterSource = 'merchant'; terminal.parameters = copy(request.parameters);
+    if (request.appVersion !== undefined) terminal.appVersion = request.appVersion;
+    terminal.lastPoolUsageId = usage.id; terminal.usageId = null; terminal.resourceId = null; terminal.parametersAppliedAt = time;
+    return request;
+  }
+  function canFollowUp(state, transaction) {
+    if (!transaction.usageId) return true;
+    const usage = state.usages.find(row => row.id === transaction.usageId);
+    return !!usage && usage.merchantId === transaction.merchantId && usage.storeId === transaction.storeId && usage.tci === transaction.tci && usage.status === 'in_use' && !usage.frozen;
   }
   function settle(state, usageId, actor, time) {
     const usage = state.usages.find(row => row.id === usageId) || fail('This usage record no longer exists.');
@@ -144,5 +196,5 @@
     if (navigator.locks) return navigator.locks.request(KEY, run);
     fail('Open this prototype on localhost in a browser that supports Web Locks to save changes.');
   }
-  return { KEY, labels, transactionColumns, defaults, channels, seed, read, saveResource, allocate, settle, transactionsFor, statistics, exportCSV, mutate };
+  return { KEY, labels, transactionColumns, defaults, channels, seed, read, validateParameters, saveResource, allocate, terminalFor, submitSwitch, receiveSwitchResult, canFollowUp, settle, transactionsFor, statistics, exportCSV, mutate };
 });

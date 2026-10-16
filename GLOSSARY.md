@@ -60,6 +60,18 @@ _Avoid_: Payment Method, Store Channel Configuration, MID
 A named collection of payment parameters belonging to one Payment Channel. Parameter Sets are distinguished by their Payment Channel without a separate parameter-version concept.
 _Avoid_: Versioned Parameter Set
 
+**Parameter Pool**:
+An operations-managed collection of payment Parameter Sets provided to Merchants for temporary use while their own payment-channel parameters are being prepared.
+_Avoid_: Payment Channel, payment parameter template library
+
+**Parameter Usage Record**:
+The record of one Merchant's use of a pooled Parameter Set for a particular Store and terminal configuration. It is distinct from every earlier or later use of the same Parameter Set.
+_Avoid_: Current parameter owner, all transactions sharing a MID or TID
+
+**Merchant Parameter Switch**:
+The transition of an existing terminal configuration from a pooled Parameter Set to the Merchant's own payment-channel parameters. It is complete when the terminal confirms the new parameters are effective, distinct from a deployment request or settlement of the previous usage.
+_Avoid_: New merchant onboarding, new terminal assignment, parameter submission alone
+
 **Cardless Transactions**:
 Transaction operations supported by a terminal without presenting a physical payment card. The terminal capability is distinct from transmission of an original transaction's Payload Data.
 _Avoid_: Payload Data Transmission, Send Payload Data

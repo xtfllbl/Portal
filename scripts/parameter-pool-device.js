@@ -6,6 +6,8 @@
   const host = $('processorParams');
   if (!host || !processor) return;
   const context = new URLSearchParams(location.search);
+  const detailPage = context.get('detailPage') === '5.merchant_detail_no_store_iso.html' ? '5.merchant_detail_no_store_iso.html' : '5.merchant_detail_iso.html';
+  document.querySelectorAll('a[href="5.merchant_detail_iso.html"]').forEach(link => { link.href = detailPage + (detailPage.includes('no_store') ? `?merchantId=${encodeURIComponent(context.get('merchantId') || '')}` : ''); });
   let source = 'manual', resourceId = '', selectedResource = null, snapshot = null, saved = false;
   const section = document.createElement('div'); section.className = 'pp-device-source'; section.hidden = true;
   section.innerHTML = '<div class="form-grid two pp-source-fields"><div class="field"><label for="parameterSourceInput">Parameter Source</label><div id="parameterSourcePicker"></div></div><div class="field" id="poolResourceField" hidden><label for="poolResourceInput">Parameter Set <span class="required-mark">*</span></label><div id="poolResourcePicker"></div></div></div><p class="pp-note" id="poolResourceNote" hidden></p><div class="pc-error-summary" id="devicePoolError" role="alert" tabindex="-1" hidden></div><div class="pc-feedback" id="devicePoolSaved" role="status" hidden></div>';
@@ -59,7 +61,7 @@
   } });
   sourcePicker.trigger.classList.add('input-field');
   resourcePicker.trigger.classList.add('input-field');
-  function owner() { return { merchantId: context.get('merchantId') || '', merchantName: context.get('merchantName') || '', storeId: context.get('storeId') || '', storeName: context.get('storeName') || '', tci: $('device-tci').value, sn: $('device-tpn')?.value.trim() || '', terminalName: $('device-label')?.value.trim() || '' }; }
+  function owner() { return { merchantId: context.get('merchantId') || '', merchantName: context.get('merchantName') || '', storeId: context.get('storeId') || '', storeName: context.get('storeName') || '', tci: $('device-tci').value, sn: $('device-tpn')?.value.trim() || '', terminalName: $('device-label')?.value.trim() || '', model: $('device-model')?.value || '', scenario: $('device-terminal-scenario')?.value || '', appVersion: $('processor-version')?.value || '', paywizard: $('device-paywizard')?.value || '', injectKeySelected: !!$('processor-key-download')?.checked }; }
   function check(state) {
     if (!resourceId || !selectedResource) throw new Error('Select one available parameter set from Parameter Pool.');
     const who = owner();

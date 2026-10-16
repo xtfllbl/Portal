@@ -120,6 +120,11 @@
       history.replaceState(null, '', `?resource=${encodeURIComponent(resourceId)}&usage=${encodeURIComponent(usage.id)}`);
       const rows = pool.transactionsFor(latest, selectedId), summary = pool.statistics(rows); displayedRevision = revision(latest, selectedId);
       $('usageMeta').innerHTML = meta([['Merchant', usage.merchantName], ['Store', usage.storeName], ['TCI', usage.tci], ['Record Status', tag(usage.status), true], ['Started At (UTC)', date(usage.startedAt)], ['Ended At (UTC)', date(usage.endedAt)], ['MID', usage.parameters.mid], ['TID', usage.parameters.tid], ['Channel', usage.channelName], ...(usage.status === 'settled' ? [['Confirmed At (UTC)', date(usage.settledAt)], ['Confirmed By', usage.settledBy]] : [])]);
+      let frozenNotice = $('usageFrozenNotice');
+      if (!frozenNotice) { frozenNotice = document.createElement('p'); frozenNotice.id = 'usageFrozenNotice'; frozenNotice.className = 'pp-note'; $('usageMeta').after(frozenNotice); }
+      frozenNotice.hidden = usage.status === 'in_use';
+      frozenNotice.textContent = 'This usage has ended. Its transactions are read-only; merchant follow-up operations are unavailable.';
+
       $('usageSummary').innerHTML = summary.length ? summary.map(row => `<tr><td>${esc(row.currency)}</td><td>${esc(row.type)}</td><td>${esc(row.status)}</td><td>${row.count}</td><td>${money(row.amountMinor)}</td></tr>`).join('') : '<tr><td colspan="5" class="pp-empty">No transactions in this usage record.</td></tr>';
       const pages = Math.max(1, Math.ceil(rows.length / 10)); page = Math.min(page, pages - 1);
       const columns = pool.transactionColumns.filter(([key]) => visibleColumns.includes(key));

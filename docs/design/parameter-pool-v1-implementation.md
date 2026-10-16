@@ -49,7 +49,7 @@
 
 共享选择器增加可选的描述、搜索文本、禁选状态和固定标题；资源为单选，交易列设置使用原有多选能力。弹层使用已有 native popover，不被页面滚动容器裁切；参数分组继续采用 Tabs 模式。确认框使用原有 Dialog 样式。
 
-## 演示与边界
+## 首轮演示与边界（切换扩展前）
 
 - 采用浏览器 `localStorage`，key 为 `paywizard.parameter-pool.v1`。首次展示 10 条合成资源：8 条可用、1 条使用中、1 条待出账，并带历史使用记录。示例 MID/TID 均带 DEMO／D 前缀；未填入实际渠道参数。
 - 在 localhost 或 HTTPS 预览，可保存并跨页面查看；没有服务端或真实 Nuvei 连接。现有 Portal Access Profile 的 WizarPOS Provider 可见资源管理及终端资源选择。这是原型身份展示，不是生产权限控制。
@@ -89,3 +89,28 @@
 - `node --test tests/unit/parameter-pool.test.cjs`：8 项通过；`npm run build`：通过。本次仅调整既有分段选择、区块布局和下拉触发器外观，沿用此前确认的组件模式与交互。
 
 补充截图位于 [`parameter-pool-2026-10-16-followup`](../validation/parameter-pool-2026-10-16-followup/)。
+
+
+## 商户自有参数切换扩展（2026-10-16）
+
+用户补充确认后，新增原 Edit Params 内的切换入口和本地状态流转；以下替代首轮“未接入正式参数切换／未回写设备列表”的原型范围描述。生产集成边界不变。
+
+入口：Merchant → Store → Devices → Settings → Edit Params → Processor Parameters → Switch to Merchant Parameters。新表单以原 NUVEI UPT 的 57 字段默认值初始化，填写商户 MID／TID 等参数，沿用 Redeploy Parameters／Confirm & Deploy。取消编辑恢复资源只读参数，取消确认保留新输入。
+
+使用中的资源参数保持只读；下发时必须包含 Payment Parameters，但不检测、不拦截在线／交易忙闲状态，由运维人工判断时机。等待回执期间旧使用继续有效，资源仍不可重用。生效后在同一 TCI 下显示 Merchant Parameters，旧使用记录变为 Awaiting Settlement；财务 Confirm Settlement 后资源才恢复 Available。
+
+本次增加 terminalConfigurations 和 switchRequests 的本地演示数据，资源分配后回写商户 Devices 列表，按商户／门店／TCI 定位，切换和出账后终端仍保留。旧格式中使用中的记录可恢复为资源配置，缺失的真实硬件信息不由系统伪造。Payment App Version 仍是原有独立字段。页面不显示在线检查开关或模拟结果控制器。
+
+组件复用原表单 InputText／Select／Tabs、原按钮和确认 Dialog；来源状态与切换按钮组成一个局部区块，按钮 40px，无新增页面或流程分支。
+
+原型提交后以独立的 1.2 秒模拟成功回执演示完成；刷新待确认页会继续模拟回执。真正的终端生效确认、超时与失败回执接入、交易入口退款／撤销等权限禁止，需要服务端与终端研发实现。`canFollowUp` 是使用归属及冻结规则的可测试模型，未接入现有独立模拟交易页面的操作按钮。使用记录页面提供只读提示和原有统计／导出。未新增对账、手续费、付款或自动支付渠道验证。
+
+测试及截图见 [本轮验证](../validation/parameter-switch-2026-10-16/README.md)。
+
+### 切换前确认修订
+
+来源行三个文本统一放大至 16px；删除其下静态说明和 View usage record 链接。点击切换先询问是否已取得正式参数，确认后才初始化默认值并开放编辑；弹窗说明新参数提交并生效后进入 Awaiting Settlement，出账后才可复用。取消和 Esc 保持原参数。沿用既定状态边界和人工判断时机，无新增在线检测。见 [本轮界面验证](../validation/parameter-switch-readiness-2026-10-16/README.md)。
+
+### 来源标识显示修订（最新）
+
+前一版的 16px 来源大字已由紧凑的预配置标识替代：浅灰描边横条内显示配置图标、Preconfigured Parameters 与参数集名称。进入商户参数编辑后整条隐藏，Cancel Switch 移到标题右侧；取消恢复原标识和只读参数，切换生效后也不再显示。待确认进度及字段校验错误独立保留，不随来源信息隐藏。见 [显示状态验收](../validation/parameter-source-style-2026-10-16/README.md)。

@@ -1858,6 +1858,7 @@
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
     <link rel="stylesheet" href="styles/terminal-transaction-capabilities.css">
     <script src="scripts/terminal-transaction-capabilities.js"></script>
+    <link rel="stylesheet" href="styles/parameter-pool.css?v=parameter-switch-3">
 </head>
 <body data-pw-breadcrumb="Merchants|Merchant Overview|Device Settings">
     <div class="page-shell">
@@ -4259,7 +4260,9 @@
 
         if (redeployBtn) {
             redeployBtn.addEventListener('click', () => {
+                if (window.PaywizardParameterSwitch?.validate() === false) return;
                 openSaveDeviceConfirmModal();
+                window.PaywizardParameterSwitch?.prepareConfirmation();
             });
         }
 
@@ -4276,7 +4279,11 @@
         }
 
         if (confirmSaveDeviceBtn) {
-            confirmSaveDeviceBtn.addEventListener('click', () => {
+            confirmSaveDeviceBtn.addEventListener('click', async () => {
+                if (window.PaywizardParameterSwitch?.handlesSubmission()) {
+                    await window.PaywizardParameterSwitch.submit(closeSaveDeviceConfirmModal);
+                    return;
+                }
                 const assignmentMode = isPendingTerminalAssignment();
                 const assignedSn = getEnteredTerminalSn();
                 if (assignmentMode) {
@@ -4318,6 +4325,8 @@
         });
     </script>
   <script src="scripts/platform-admin-shell.js"></script>
+  <script src="scripts/parameter-pool-store.js?v=parameter-switch-1"></script>
+  <script src="scripts/parameter-pool-settings.js?v=parameter-switch-3"></script>
 
 </body>
 </html>
