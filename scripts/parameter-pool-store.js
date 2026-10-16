@@ -6,7 +6,6 @@
 })(typeof window === 'undefined' ? globalThis : window, function () {
   'use strict';
   const KEY = 'paywizard.parameter-pool.v1';
-  const VERSION = '1.0.41_20260622';
   const labels = { available: 'Available', in_use: 'In Use', awaiting_settlement: 'Awaiting Settlement', settled: 'Settled' };
   const transactionColumns = [
     ['id', 'Transaction ID'], ['time', 'Date & Time (Processor)'], ['terminalTime', 'Date & Time (Terminal)'], ['timezone', 'Timezone'],
@@ -27,13 +26,13 @@
   }
   function seed(schema, channelId = 'pc-44') {
     const resources = Array.from({ length: 10 }, (_, index) => ({
-      id: `pool-${index + 1}`, name: `Nuvei UPT ${String(index + 1).padStart(2, '0')}`, channelId, channelName: 'Nuvei', processor: 'NUVEI UPT', version: VERSION,
+      id: `pool-${index + 1}`, name: `Nuvei UPT ${String(index + 1).padStart(2, '0')}`, channelId, channelName: 'Nuvei', processor: 'NUVEI UPT',
       status: index === 1 ? 'in_use' : index === 2 ? 'awaiting_settlement' : 'available',
       currentUsageId: index === 1 ? 'usage-current-02' : index === 2 ? 'usage-current-03' : null,
       parameters: { ...defaults(schema), mid: `DEMO${String(index + 1).padStart(8, '0')}`, tid: `D${String(index + 1).padStart(7, '0')}`, merchantName: 'WizarPOS' }
     }));
     function usage(id, resource, merchantId, merchantName, storeName, start, end, status) {
-      return { id, resourceId: resource.id, resourceName: resource.name, channelId, channelName: 'Nuvei', version: VERSION, parameters: copy(resource.parameters), merchantId, merchantName, storeId: `store-${merchantId}`, storeName, tci: `TCI-${merchantId}`, startedAt: start, endedAt: end, status, settledAt: status === 'settled' ? new Date(Date.parse(end) + 86400000).toISOString() : null, settledBy: status === 'settled' ? 'WizarPOS Provider' : null };
+      return { id, resourceId: resource.id, resourceName: resource.name, channelId, channelName: 'Nuvei', parameters: copy(resource.parameters), merchantId, merchantName, storeId: `store-${merchantId}`, storeName, tci: `TCI-${merchantId}`, startedAt: start, endedAt: end, status, settledAt: status === 'settled' ? new Date(Date.parse(end) + 86400000).toISOString() : null, settledBy: status === 'settled' ? 'WizarPOS Provider' : null };
     }
     const usages = [
       usage('usage-current-02', resources[1], 'm-cafe', 'Maple Coffee', 'Union Station', '2026-10-01T08:00:00Z', null, 'in_use'),
@@ -58,14 +57,16 @@
     let state;
     try { state = JSON.parse(raw); } catch (_) { fail('Parameter Pool data could not be read. Your stored data has not been changed.'); }
     if (state.version !== 1 || !['resources', 'usages', 'transactions'].every(key => Array.isArray(state[key]))) fail('Parameter Pool data is not supported. Your stored data has not been changed.');
+    // Discard legacy parameter versions while preserving the storage format and usage history.
+    for (const row of [...state.resources, ...state.usages]) delete row.version;
     return state;
   }
-  function requireResource(state, id) { return state.resources.find(row => row.id === id) || fail('This resource no longer exists. Refresh the page.'); }
+  function requireResource(state, id) { return state.resources.find(row => row.id === id) || fail('This parameter set no longer exists. Refresh the page.'); }
   function saveResource(state, draft, id, schema) {
     const old = id ? requireResource(state, id) : null;
-    if (old && old.status !== 'available') fail('Only available resources can be edited.');
-    if (!draft.name.trim()) fail('Enter a resource name.');
-    if (!draft.channelId || draft.version !== VERSION) fail('Select an existing Nuvei channel and template version.');
+    if (old && old.status !== 'available') fail('Only available parameter sets can be edited.');
+    if (!draft.name.trim()) fail('Enter a parameter set name.');
+    if (!draft.channelId) fail('Select an existing Nuvei channel.');
     const parameters = {};
     for (const [key, label, , , required, min, max, rule, options] of schema.flatMap(group => group[1])) {
       const value = String(draft.parameters[key] ?? '').trim();
@@ -76,23 +77,23 @@
       if (value && Array.isArray(options) && !options.some(option => String(option[0]) === value)) fail(`Select a valid ${label}.`);
       parameters[key] = value;
     }
-    if (state.resources.some(row => row.id !== id && row.channelId === draft.channelId && row.parameters.mid === parameters.mid && row.parameters.tid === parameters.tid)) fail('This channel, MID and TID already exist in the pool. Edit the existing resource.');
-    const resource = { id: id || draft.id, name: draft.name.trim(), channelId: draft.channelId, channelName: draft.channelName, processor: 'NUVEI UPT', version: VERSION, parameters, status: 'available', currentUsageId: null };
-    if (!resource.id) fail('Resource ID is required.');
-    if (old) Object.assign(old, resource); else state.resources.push(resource);
+    if (state.resources.some(row => row.id !== id && row.channelId === draft.channelId && row.parameters.mid === parameters.mid && row.parameters.tid === parameters.tid)) fail('This channel, MID and TID already exist in the pool. Edit the existing parameter set.');
+    const resource = { id: id || draft.id, name: draft.name.trim(), channelId: draft.channelId, channelName: draft.channelName, processor: 'NUVEI UPT', parameters, status: 'available', currentUsageId: null };
+    if (!resource.id) fail('Parameter set ID is required.');
+    if (old) { delete old.version; Object.assign(old, resource); } else state.resources.push(resource);
     return resource;
   }
   function allocate(state, resourceId, owner, usageId, time) {
     const resource = requireResource(state, resourceId);
-    if (!owner.merchantId || !owner.storeId || !owner.tci) fail('Open Add Device from a merchant store before selecting a pool resource.');
+    if (!owner.merchantId || !owner.storeId || !owner.tci) fail('Open Add Device from a merchant store before selecting a pool parameter set.');
     const existing = state.usages.find(row => row.tci === owner.tci && row.status !== 'settled');
     if (existing) {
       if (existing.resourceId === resourceId && existing.merchantId === owner.merchantId && existing.storeId === owner.storeId && existing.status === 'in_use') return existing;
-      fail('This TCI already has a resource assigned.');
+      fail('This TCI already has a parameter set assigned.');
     }
-    if (resource.status !== 'available') fail('This resource is no longer available. Select another resource.');
+    if (resource.status !== 'available') fail('This parameter set is no longer available. Select another parameter set.');
     if (!usageId || state.usages.some(row => row.id === usageId)) fail('A unique usage ID is required.');
-    const usage = { ...copy(owner), id: usageId, resourceId, resourceName: resource.name, channelId: resource.channelId, channelName: resource.channelName, version: resource.version, parameters: copy(resource.parameters), status: 'in_use', startedAt: time, endedAt: null, settledAt: null, settledBy: null };
+    const usage = { ...copy(owner), id: usageId, resourceId, resourceName: resource.name, channelId: resource.channelId, channelName: resource.channelName, parameters: copy(resource.parameters), status: 'in_use', startedAt: time, endedAt: null, settledAt: null, settledBy: null };
     state.usages.unshift(usage); resource.status = 'in_use'; resource.currentUsageId = usageId;
     return usage;
   }
@@ -124,7 +125,7 @@
     const usage = state.usages.find(row => row.id === usageId) || fail('Select a usage record.');
     const rows = transactionsFor(state, usageId);
     const data = [
-      ['Exported At (UTC)', generatedAt], ['Usage ID', usage.id], ['Resource', usage.resourceName], ['Merchant ID', usage.merchantId], ['Merchant', usage.merchantName], ['Store ID', usage.storeId], ['Store', usage.storeName], ['TCI', usage.tci], ['Started At (UTC)', usage.startedAt], ['Ended At (UTC)', usage.endedAt], ['Usage Status', labels[usage.status]], ['Confirmed At (UTC)', usage.settledAt], ['Confirmed By', usage.settledBy], [],
+      ['Exported At (UTC)', generatedAt], ['Usage ID', usage.id], ['Parameter Set', usage.resourceName], ['Merchant ID', usage.merchantId], ['Merchant', usage.merchantName], ['Store ID', usage.storeId], ['Store', usage.storeName], ['TCI', usage.tci], ['Started At (UTC)', usage.startedAt], ['Ended At (UTC)', usage.endedAt], ['Usage Status', labels[usage.status]], ['Confirmed At (UTC)', usage.settledAt], ['Confirmed By', usage.settledBy], [],
       ['Currency', 'Type', 'Status', 'Count', 'Transaction Amount'],
       ...statistics(rows).map(row => [row.currency, row.type, row.status, row.count, (row.amountMinor / 100).toFixed(2)]), [],
       ['Usage ID', 'Merchant ID', ...transactionColumns.map(([, title]) => title)],
@@ -143,5 +144,5 @@
     if (navigator.locks) return navigator.locks.request(KEY, run);
     fail('Open this prototype on localhost in a browser that supports Web Locks to save changes.');
   }
-  return { KEY, VERSION, labels, transactionColumns, defaults, channels, seed, read, saveResource, allocate, settle, transactionsFor, statistics, exportCSV, mutate };
+  return { KEY, labels, transactionColumns, defaults, channels, seed, read, saveResource, allocate, settle, transactionsFor, statistics, exportCSV, mutate };
 });

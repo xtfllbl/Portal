@@ -16,8 +16,33 @@ test('reuses all 57 NUVEI UPT fields and saves without a channel verification st
   pool.saveResource(state, draft, null, schema);
   assert.equal(state.resources.length, 11);
   assert.equal(state.resources.at(-1).status, 'available');
+  assert.ok(!Object.hasOwn(state.resources.at(-1), 'version'));
   assert.throws(() => pool.saveResource(state, { ...draft, id: 'duplicate' }, null, schema), /already exist/);
   assert.throws(() => pool.saveResource(state, draft, 'pool-2', schema), /Only available/);
+});
+test('legacy parameter versions are discarded without losing parameters, usage history or storage format', async () => {
+  const legacy = pool.seed(schema);
+  for (const row of [...legacy.resources, ...legacy.usages]) row.version = '1.0.41_20260622';
+  let stored = JSON.stringify(legacy);
+  const sandbox = vm.createContext({
+    PROCESSOR_PARAMETER_SCHEMA: { 'NUVEI UPT': schema },
+    navigator: { locks: { request: async (key, action) => action() } },
+    window: { PaywizardPortalAccess: { profile: 'wizarpos' } },
+    localStorage: { getItem: () => stored, setItem: (key, value) => { stored = value; } }
+  });
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../../scripts/parameter-pool-store.js'), 'utf8'), sandbox);
+  const api = sandbox.window.PaywizardParameterPool;
+  const current = JSON.parse(JSON.stringify(api.read()));
+  assert.equal(current.version, 1);
+  assert.ok([...current.resources, ...current.usages].every(row => !Object.hasOwn(row, 'version')));
+  assert.deepEqual(current.transactions, legacy.transactions);
+  assert.deepEqual(current.usages.map(row => row.parameters), legacy.usages.map(row => row.parameters));
+  assert.equal(current.resources[1].currentUsageId, legacy.resources[1].currentUsageId);
+  await api.mutate(state => api.saveResource(state, { ...state.resources[3], name: 'Renamed Set' }, 'pool-4', schema));
+  const persisted = JSON.parse(stored);
+  assert.equal(persisted.resources[3].name, 'Renamed Set');
+  assert.ok([...persisted.resources, ...persisted.usages].every(row => !Object.hasOwn(row, 'version')));
+  assert.deepEqual(persisted.transactions, legacy.transactions);
 });
 test('exclusive allocation creates an immutable usage parameter snapshot and is idempotent', () => {
   const state = pool.seed(schema);

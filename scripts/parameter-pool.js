@@ -19,33 +19,32 @@
     if (app.dataset.poolPage === 'usage') usagePage();
   } catch (cause) { error(cause.message); }
   function list() {
-    let status = '';
-    mount('poolStatus', 'Resource status', [{ value: '', label: 'All Statuses' }, ...['available', 'in_use', 'awaiting_settlement'].map(value => ({ value, label: pool.labels[value] }))], '', value => { status = value; paint(); });
+    let status = '', appliedStatus = '', appliedTerm = '';
+    mount('poolStatus', 'Parameter set status', [{ value: '', label: 'All Statuses' }, ...['available', 'in_use', 'awaiting_settlement'].map(value => ({ value, label: pool.labels[value] }))], '', value => { status = value; });
     const channelNames = () => Object.fromEntries(pool.channels().map(channel => [channel.id, channel.name]));
     function paint() {
-      const state = pool.read(), term = $('poolSearch').value.trim().toLowerCase(), names = channelNames();
-      const rows = state.resources.map(resource => ({ resource, owner: state.usages.find(row => row.id === resource.currentUsageId) })).filter(({ resource: r, owner: u }) => (!status || r.status === status) && [r.name, names[r.channelId] || r.channelName, r.parameters.mid, r.parameters.tid, u?.merchantName, u?.storeName, u?.tci].join(' ').toLowerCase().includes(term));
-      $('poolRows').innerHTML = rows.length ? rows.map(({ resource: r, owner: u }) => `<tr><td>${esc(r.name)}</td><td>${esc(names[r.channelId] || r.channelName)}</td><td>${esc(r.parameters.mid)}</td><td>${esc(r.parameters.tid)}</td><td>${tag(r.status)}</td><td>${esc(u?.merchantName || '—')}</td><td>${esc(u?.storeName || '—')}</td><td>${esc(u?.tci || '—')}</td><td><div class="pp-actions">${r.status === 'available' ? `<a href="49.parameter_pool_form.html?id=${encodeURIComponent(r.id)}" title="Edit ${esc(r.name)}" aria-label="Edit ${esc(r.name)}"><span class="material-symbols-rounded" aria-hidden="true">edit</span></a>` : ''}<a href="49.parameter_pool_usage.html?resource=${encodeURIComponent(r.id)}" title="Usage Records" aria-label="Usage records for ${esc(r.name)}"><span class="material-symbols-rounded" aria-hidden="true">history</span></a></div></td></tr>`).join('') : '<tr><td colspan="9" class="pp-empty">No resources match your search.</td></tr>';
-      $('poolCount').textContent = `${rows.length} of ${state.resources.length} resources`;
+      const state = pool.read(), term = appliedTerm, names = channelNames();
+      const rows = state.resources.map(resource => ({ resource, owner: state.usages.find(row => row.id === resource.currentUsageId) })).filter(({ resource: r, owner: u }) => (!appliedStatus || r.status === appliedStatus) && [r.name, names[r.channelId] || r.channelName, r.parameters.mid, r.parameters.tid, u?.merchantName, u?.storeName, u?.tci].join(' ').toLowerCase().includes(term));
+      $('poolRows').innerHTML = rows.length ? rows.map(({ resource: r, owner: u }) => `<tr><td>${esc(r.name)}</td><td>${esc(names[r.channelId] || r.channelName)}</td><td>${esc(r.parameters.mid)}</td><td>${esc(r.parameters.tid)}</td><td>${tag(r.status)}</td><td>${esc(u?.merchantName || '—')}</td><td>${esc(u?.storeName || '—')}</td><td>${esc(u?.tci || '—')}</td><td><div class="pp-actions">${r.status === 'available' ? `<a href="49.parameter_pool_form.html?id=${encodeURIComponent(r.id)}" title="Edit ${esc(r.name)}" aria-label="Edit ${esc(r.name)}"><span class="material-symbols-rounded" aria-hidden="true">edit</span></a>` : ''}<a href="49.parameter_pool_usage.html?resource=${encodeURIComponent(r.id)}" title="Usage Records" aria-label="Usage records for ${esc(r.name)}"><span class="material-symbols-rounded" aria-hidden="true">history</span></a></div></td></tr>`).join('') : '<tr><td colspan="9" class="pp-empty">No parameter sets match your search.</td></tr>';
+      $('poolCount').textContent = `${rows.length} of ${state.resources.length} parameter sets`;
     }
-    $('poolSearch').addEventListener('input', () => { try { paint(); } catch (cause) { error(cause.message); } });
+    $('poolFilters').addEventListener('submit', event => { event.preventDefault(); appliedTerm = $('poolSearch').value.trim().toLowerCase(); appliedStatus = status; try { paint(); } catch (cause) { error(cause.message); } });
     window.addEventListener('storage', event => { if ([pool.KEY, 'paywizard.maintain.payment-channels.v1'].includes(event.key)) { try { paint(); } catch (cause) { error(cause.message); } } });
-    if (params.get('saved') === '1') { feedback('Parameter saved.'); history.replaceState(null, '', location.pathname); }
+    if (params.get('saved') === '1') { feedback('Parameter set saved.'); history.replaceState(null, '', location.pathname); }
     paint();
   }
   function form() {
     const schema = PROCESSOR_PARAMETER_SCHEMA['NUVEI UPT'];
     const id = params.get('id'), state = pool.read();
     const resource = id ? state.resources.find(row => row.id === id) : null;
-    if (id && !resource) { $('poolForm').hidden = true; throw new Error('This resource no longer exists. Return to Parameter Pool.'); }
-    if (resource && resource.status !== 'available') { $('poolForm').hidden = true; throw new Error('Only available resources can be edited. Return to Parameter Pool to view its usage records.'); }
-    if (id) { $('poolTitle').textContent = 'Edit Parameter'; document.title = 'Edit Parameter | PAYwizard Portal'; }
+    if (id && !resource) { $('poolForm').hidden = true; throw new Error('This parameter set no longer exists. Return to Parameter Pool.'); }
+    if (resource && resource.status !== 'available') { $('poolForm').hidden = true; throw new Error('Only available parameter sets can be edited. Return to Parameter Pool to view its usage records.'); }
+    if (id) { $('poolTitle').textContent = 'Edit Parameter Set'; document.title = 'Edit Parameter Set | PAYwizard Portal'; }
     const availableChannels = pool.channels();
-    let channelId = resource?.channelId || '', version = resource?.version || '';
+    let channelId = resource?.channelId || '';
     $('resourceName').value = resource?.name || '';
     const values = resource?.parameters || pool.defaults(schema);
-    const channelPicker = mount('poolChannel', 'Payment Channel', availableChannels.map(row => ({ value: row.id, label: row.name })), channelId, value => { channelId = value; version = ''; versionPicker.setOptions([{ value: pool.VERSION, label: `NUVEI UPT · ${pool.VERSION}` }]); versionPicker.setValue(''); }, 'poolChannelInput');
-    const versionPicker = mount('poolVersion', 'Template Version', channelId ? [{ value: pool.VERSION, label: `NUVEI UPT · ${pool.VERSION}` }] : [], version, value => { version = value; }, 'poolVersionInput');
+    mount('poolChannel', 'Payment Channel', availableChannels.map(row => ({ value: row.id, label: row.name })), channelId, value => { channelId = value; }, 'poolChannelInput');
     function activate(index, focus = false) {
       document.querySelectorAll('[data-parameter-tab]').forEach(tab => { const active = Number(tab.dataset.parameterTab) === index; tab.setAttribute('aria-selected', String(active)); tab.tabIndex = active ? 0 : -1; if (active && focus) tab.focus(); });
       document.querySelectorAll('[data-parameter-panel]').forEach(panel => { panel.hidden = Number(panel.dataset.parameterPanel) !== index; });
@@ -83,8 +82,8 @@
       event.preventDefault(); $('poolError').hidden = true;
       const invalid = [...$('poolForm').querySelectorAll('input')].find(input => !input.checkValidity());
       if (invalid) { const group = invalid.closest('[data-group]'); if (group) activate(Number(group.dataset.group)); error(`${invalid.labels?.[0]?.textContent.replace('*', '').trim() || 'Field'}: ${invalid.validity.valueMissing ? 'This field is required.' : 'Check the field format and length.'}`); invalid.setAttribute('aria-invalid', 'true'); invalid.addEventListener('input', () => invalid.removeAttribute('aria-invalid'), { once: true }); return; }
-      if (!channelId || !version) { error('Select a payment channel and template version.'); return; }
-      const draft = { id: `pool-${crypto.randomUUID()}`, name: $('resourceName').value, channelId, version, parameters: Object.fromEntries([...$('parameterFields').querySelectorAll('[data-parameter-key]')].map(input => [input.dataset.parameterKey, input.value])) };
+      if (!channelId) { error('Select a payment channel.'); return; }
+      const draft = { id: `pool-${crypto.randomUUID()}`, name: $('resourceName').value, channelId, parameters: Object.fromEntries([...$('parameterFields').querySelectorAll('[data-parameter-key]')].map(input => [input.dataset.parameterKey, input.value])) };
       $('saveParameter').disabled = true;
       try {
         await pool.mutate(latest => {
@@ -102,7 +101,7 @@
     const revision = (state, usageId) => JSON.stringify({ usage: state.usages.find(row => row.id === usageId), rows: pool.transactionsFor(state, usageId) });
     const resourceId = params.get('resource'), state = pool.read();
     const resource = state.resources.find(row => row.id === resourceId);
-    if (!resource) throw new Error('This resource no longer exists. Return to Parameter Pool.');
+    if (!resource) throw new Error('This parameter set no longer exists. Return to Parameter Pool.');
     $('poolTitle').textContent = `Usage Records · ${resource.name}`;
     const records = latest => latest.usages.filter(row => row.resourceId === resourceId).sort((a, b) => b.startedAt.localeCompare(a.startedAt));
     const options = latest => records(latest).map(row => ({ value: row.id, label: `${row.merchantName} · ${date(row.startedAt).slice(0, 10)} · ${pool.labels[row.status]}`, description: `${row.storeName} · ${row.tci}`, searchText: `${row.id} ${row.merchantId} ${row.storeId}` }));
@@ -120,7 +119,7 @@
       if (!usage) return;
       history.replaceState(null, '', `?resource=${encodeURIComponent(resourceId)}&usage=${encodeURIComponent(usage.id)}`);
       const rows = pool.transactionsFor(latest, selectedId), summary = pool.statistics(rows); displayedRevision = revision(latest, selectedId);
-      $('usageMeta').innerHTML = meta([['Merchant', usage.merchantName], ['Store', usage.storeName], ['TCI', usage.tci], ['Record Status', tag(usage.status), true], ['Started At (UTC)', date(usage.startedAt)], ['Ended At (UTC)', date(usage.endedAt)], ['MID', usage.parameters.mid], ['TID', usage.parameters.tid], ['Channel', usage.channelName], ['Template Version', usage.version], ...(usage.status === 'settled' ? [['Confirmed At (UTC)', date(usage.settledAt)], ['Confirmed By', usage.settledBy]] : [])]);
+      $('usageMeta').innerHTML = meta([['Merchant', usage.merchantName], ['Store', usage.storeName], ['TCI', usage.tci], ['Record Status', tag(usage.status), true], ['Started At (UTC)', date(usage.startedAt)], ['Ended At (UTC)', date(usage.endedAt)], ['MID', usage.parameters.mid], ['TID', usage.parameters.tid], ['Channel', usage.channelName], ...(usage.status === 'settled' ? [['Confirmed At (UTC)', date(usage.settledAt)], ['Confirmed By', usage.settledBy]] : [])]);
       $('usageCounts').innerHTML = [['All Transactions', rows.length], ['Completed', rows.filter(row => row.status === 'Completed').length], ['Failed', rows.filter(row => row.status === 'Failed').length], ['Currencies', new Set(rows.map(row => row.currency)).size]].map(([label, value]) => `<dl class="pp-stat"><dt>${esc(label)}</dt><dd>${value}</dd></dl>`).join('');
       $('usageSummary').innerHTML = summary.length ? summary.map(row => `<tr><td>${esc(row.currency)}</td><td>${esc(row.type)}</td><td>${esc(row.status)}</td><td>${row.count}</td><td>${money(row.amountMinor)}</td></tr>`).join('') : '<tr><td colspan="5" class="pp-empty">No transactions in this usage record.</td></tr>';
       const pages = Math.max(1, Math.ceil(rows.length / 10)); page = Math.min(page, pages - 1);
@@ -142,7 +141,7 @@
         if (revision(latest, selectedId) !== displayedRevision) { paint(); throw new Error('This record has changed. Review and export the latest transactions before confirming.'); }
         if (!usage || usage.status !== 'awaiting_settlement') { guardedPaint(); throw new Error('This usage is no longer awaiting settlement.'); }
         pendingUsageId = usage.id; pendingRevision = displayedRevision; $('settlementError').hidden = true;
-        $('settlementMeta').innerHTML = meta([['Resource', usage.resourceName], ['Merchant', usage.merchantName], ['Store', usage.storeName], ['TCI', usage.tci]]); dialog.showModal();
+        $('settlementMeta').innerHTML = meta([['Parameter Set', usage.resourceName], ['Merchant', usage.merchantName], ['Store', usage.storeName], ['TCI', usage.tci]]); dialog.showModal();
       } catch (cause) { error(cause.message); }
     };
     $('closeSettlement').onclick = $('cancelSettlement').onclick = () => dialog.close();
@@ -150,7 +149,7 @@
       $('submitSettlement').disabled = true;
       try {
         await pool.mutate(latest => { if (revision(latest, pendingUsageId) !== pendingRevision) throw new Error('This record has changed. Close this dialog, refresh and review the latest transactions before confirming.'); return pool.settle(latest, pendingUsageId, window.PaywizardPortalAccess.label, new Date().toISOString()); });
-        dialog.close(); paint(); feedback('Settlement confirmed. This resource is available for the next merchant.');
+        dialog.close(); paint(); feedback('Settlement confirmed. This parameter set is available for the next merchant.');
       } catch (cause) { error(cause.message, 'settlementError'); } finally { $('submitSettlement').disabled = false; }
     };
     window.addEventListener('storage', event => { if (event.key === pool.KEY) guardedPaint(); });

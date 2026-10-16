@@ -56,6 +56,10 @@ _Avoid_: Card Scheme, Card Brand
 A platform-level payment offering maintained by Paywizard operations, describing its payment scenario, provider information, applicable regions and supported payment capabilities. It is distinct from a service provider's or store's configuration for using that offering.
 _Avoid_: Payment Method, Store Channel Configuration, MID
 
+**Parameter Set**:
+A named collection of payment parameters belonging to one Payment Channel. Parameter Sets are distinguished by their Payment Channel without a separate parameter-version concept.
+_Avoid_: Versioned Parameter Set
+
 **Cardless Transactions**:
 Transaction operations supported by a terminal without presenting a physical payment card. The terminal capability is distinct from transmission of an original transaction's Payload Data.
 _Avoid_: Payload Data Transmission, Send Payload Data

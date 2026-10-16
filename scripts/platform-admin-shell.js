@@ -36,7 +36,7 @@
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
     "49.parameter_pool.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool"], []),
-    "49.parameter_pool_form.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Parameter"], []),
+    "49.parameter_pool_form.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Parameter Set"], []),
     "49.parameter_pool_usage.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Usage Records"], []),
     "48.impersonate.html": page("body > main.imp-page", "matintain", "maintain-impersonate", ["Maintain", "Impersonate"], []),
     "47.payment_channel.html": page("body > main.pc-page", "matintain", "maintain-payment-channel", ["Maintain", "Payment Channel"], []),
