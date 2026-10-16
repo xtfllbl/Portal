@@ -8,7 +8,7 @@
   const context = new URLSearchParams(location.search);
   let source = 'manual', resourceId = '', selectedResource = null, snapshot = null, saved = false;
   const section = document.createElement('div'); section.className = 'pp-device-source'; section.hidden = true;
-  section.innerHTML = '<div class="pp-source-fields"><div><label for="parameterSourceInput">Parameter Source</label><div id="parameterSourcePicker"></div></div><div id="poolResourceField" hidden><label for="poolResourceInput">Parameter Pool *</label><div id="poolResourcePicker"></div></div></div><p class="pp-note" id="poolResourceNote" hidden></p><div class="pc-error-summary" id="devicePoolError" role="alert" tabindex="-1" hidden></div><div class="pc-feedback" id="devicePoolSaved" role="status" hidden></div>';
+  section.innerHTML = '<div class="form-grid two pp-source-fields"><div class="field"><label for="parameterSourceInput">Parameter Source</label><div id="parameterSourcePicker"></div></div><div class="field" id="poolResourceField" hidden><label for="poolResourceInput">Parameter Set <span class="required-mark">*</span></label><div id="poolResourcePicker"></div></div></div><p class="pp-note" id="poolResourceNote" hidden></p><div class="pc-error-summary" id="devicePoolError" role="alert" tabindex="-1" hidden></div><div class="pc-feedback" id="devicePoolSaved" role="status" hidden></div>';
   host.querySelector('.processor-params-head').after(section);
   const fields = () => [...document.querySelectorAll('#processorParamSets .param-set[data-processor="NUVEI UPT"] .parameter-value')];
   const set = () => document.querySelector('#processorParamSets .param-set[data-processor="NUVEI UPT"]');
@@ -47,7 +47,7 @@
     } else restore();
     $('poolResourceField').hidden = source !== 'pool';
   } });
-  const resourcePicker = window.PaywizardPaymentChannelPicker.mount($('poolResourcePicker'), { id: 'poolResourceInput', label: 'Parameter Pool', options: [], value: '', onChange(value) {
+  const resourcePicker = window.PaywizardPaymentChannelPicker.mount($('poolResourcePicker'), { id: 'poolResourceInput', label: 'Parameter Set', options: [], value: '', onChange(value) {
     try {
       const resource = pool.read().resources.find(row => row.id === value);
       if (!resource || resource.status !== 'available') throw new Error('This parameter set is no longer available. Select another parameter set.');
@@ -57,6 +57,8 @@
       $('poolResourceNote').textContent = `${resource.channelName} · NUVEI UPT · Parameters are read-only.`; $('poolResourceNote').hidden = false; $('devicePoolError').hidden = true;
     } catch (cause) { resourceId = ''; selectedResource = null; resourcePicker.setValue(''); fill({}); error(cause.message); }
   } });
+  sourcePicker.trigger.classList.add('input-field');
+  resourcePicker.trigger.classList.add('input-field');
   function owner() { return { merchantId: context.get('merchantId') || '', merchantName: context.get('merchantName') || '', storeId: context.get('storeId') || '', storeName: context.get('storeName') || '', tci: $('device-tci').value, sn: $('device-tpn')?.value.trim() || '', terminalName: $('device-label')?.value.trim() || '' }; }
   function check(state) {
     if (!resourceId || !selectedResource) throw new Error('Select one available parameter set from Parameter Pool.');

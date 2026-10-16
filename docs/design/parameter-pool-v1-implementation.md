@@ -15,6 +15,13 @@
 
 ## 当前实现
 
+### 补充评审修订
+
+- Enable／Disable 分段开关的选中态一并改为黑色，覆盖所有参数页签。
+- 两个表单区块增加明确的区块标题，说明基本信息与渠道参数的层级。标题为 Basic Information / Processor Parameters，使用二级标题，Tab 归属下方参数区。
+- Usage Records 移除 All Transactions、Completed、Failed、Currencies 四张计数卡；保留归属信息、Transaction Summary 表、交易明细、导出与出账操作。
+- Add Device 的 Parameter Source 与参数集选择字段采用本页既有标签、下划线输入外观和两列等宽网格；保留搜索、键盘选择、占用说明与禁选行为。参数集选择字段使用已定义的 Parameter Set 名称。
+
 | 入口 | 文件 | 已实现 |
 | --- | --- | --- |
 | Maintain → Parameter Pool | `49.parameter_pool.html` | 搜索、状态筛选、资源名称／渠道／MID／TID／状态／当前商户／门店／TCI，录入、编辑和使用记录入口 |
@@ -71,3 +78,14 @@
 - 本次复用项目 Payment Channel 的搜索表单、选择器及 Tabs 模式，分别对应 PrimeVue v4 InputText／Select／Button／Tabs 参考；两卡片是局部布局组合。官方 v4 页面本轮访问失败，采用项目已验证模式，未引入框架或宣称组件库实现验收。
 
 截图：[`01-parameter-pool.png`](../validation/parameter-pool-2026-10-16-review/01-parameter-pool.png)、[`02-edit-parameter-set.png`](../validation/parameter-pool-2026-10-16-review/02-edit-parameter-set.png)、[`03-device-app-version.png`](../validation/parameter-pool-2026-10-16-review/03-device-app-version.png)。
+
+### 补充修订验证
+
+- 桌面 Chrome 逐个切换全部 8 个参数页签，检查 15 组 Enable／Disable 选中态均为黑底白字，实际切换 AVS Postal Code 后状态正确；57 个参数字段保留。
+- 表单使用页级标题和两个带名称的 section／h2，Basic Information 在上，Processor Parameters 与其下 Tab 在下，共用原有 Cancel／Save。
+- Usage Records 的四张计数卡和对应渲染／专用样式已移除；实际页面仍显示 4 行交易汇总及 26 笔交易的分页明细。
+- Add Device 两个选择器复用本页 `.field` 和 `.form-grid.two`，继承标签样式；触发器保留搜索选择实现并适配本页 `.input-field` 外观。实测与原 Processor 选择器同为 39px 高、13px 字体、透明背景、单条 1px 底线、无圆角、8px 2px 10px 内边距；两列等宽、间距 18px。
+- 搜索占用参数集可见商户／门店／TCI 且禁止选中；使用方向键／Enter 选择可用参数集后参数只读、应用版本仍可选；切回 Manual Entry 恢复原手填值。未保存或分配测试终端。
+- `node --test tests/unit/parameter-pool.test.cjs`：8 项通过；`npm run build`：通过。本次仅调整既有分段选择、区块布局和下拉触发器外观，沿用此前确认的组件模式与交互。
+
+补充截图位于 [`parameter-pool-2026-10-16-followup`](../validation/parameter-pool-2026-10-16-followup/)。

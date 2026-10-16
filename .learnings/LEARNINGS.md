@@ -1,5 +1,33 @@
 # Learnings
 
+## [LRN-20261016-PPS] correction
+
+**Logged**: 2026-10-16
+**Priority**: medium
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+参数集 UI 统一需要覆盖分段开关、区块标题和终端页周边字段，不能只检查 Tab 与卡片间距。
+
+### Details
+上轮将 Tab 改黑并分成两张卡片，遗漏了所有 Enable／Disable 选中态仍为绿色；无区块标题使上下关系不明确。终端页的参数来源／参数集选择沿用维护页圆角框，与周边下划线字段不一致。
+
+### Suggested Action
+本轮按用户明确要求修正，并在实际参数页签、Usage Records 和 Add Device 中检查选中态、层级标题及相邻控件外观；保留搜索与占用限制。
+
+### Metadata
+- Source: user_feedback
+- Related Files: styles/parameter-pool.css, scripts/parameter-pool-device.js, 49.parameter_pool_form.html
+- Pattern-Key: ui.incomplete-page-parity
+
+
+### Resolution
+- **Resolved**: 2026-10-16
+- **Notes**: 已完成黑色分段开关、区块标题、冗余计数卡移除和终端选择器样式对齐，并逐个页签及实际终端页验证。
+
+---
+
 Corrections, insights, and knowledge gaps captured during development.
 
 **Categories**: correction | insight | knowledge_gap | best_practice
