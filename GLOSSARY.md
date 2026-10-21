@@ -369,7 +369,7 @@ A provider account with its own Agent Hierarchy. It is distinct from an Agent an
 _Avoid_: Agent, platform operator, Portal Access Profile
 
 **Developer Account**:
-A developer's platform-integration identity, identified by a Client ID and associated with one Service Provider. It is distinct from a portal user's login identity.
+A developer's platform-integration identity, identified by a Client ID and capable of association with multiple Service Providers. It is distinct from a portal user's login identity.
 _Avoid_: Portal User, Agent, Service Provider
 
 **Client ID**:
@@ -387,6 +387,30 @@ _Avoid_: Merchant binding, Platform binding, enabled status
 **Developer Binding**:
 The association of a Developer Account with a Merchant, Agent or Service Provider. One Developer Account may have multiple bindings, and one entity may be associated with multiple Developer Accounts.
 _Avoid_: Exclusive assignment, Service Provider ownership, Token
+
+**Developer Merchant Scope**:
+The Merchants a Developer Account is authorized to access within each associated Service Provider. Association with a Service Provider does not by itself mean that all its Merchants are included.
+_Avoid_: All-provider merchant access, Service Provider ownership
+
+**All-Merchants Access**:
+A Developer Account's Merchant scope covering all existing and future newly created Merchants within an associated Service Provider. It is an alternative to Selected-Merchants Access, not a separate preference for future Merchants alone.
+_Avoid_: Existing Merchants only, independent future-Merchant switch, Token email
+
+**Selected-Merchants Access**:
+A Developer Account's Merchant scope limited to Merchants explicitly selected or retained as a fixed list within an associated Service Provider. Future newly created Merchants are not automatically included.
+_Avoid_: All-Merchants Access with exclusions, automatic new-Merchant binding
+
+**Transaction Callback**:
+A Webhook notification of a transaction result for a Merchant within a Developer Account's authorized Merchant scope. Notify URL is its destination address.
+_Avoid_: Token email, settlement callback
+
+**Automatic Settlement Callback**:
+A Webhook notification of a terminal's automatic settlement information within a Developer Account's authorized Merchant scope. Settle URL is its destination address.
+_Avoid_: Merchant payout, transaction callback, Token email
+
+**New-Merchant Token Email**:
+An email delivering a newly created Merchant's Terminal or ECOMM Token to a Developer Account. The two Token types have separate account-wide sending preferences, distinct from the Developer Account's Merchant scope.
+_Avoid_: Client Secret email, Webhook, merchant access authorization
 
 **Merchant Token**:
 A Merchant's integration credential for either Terminal or ECOMM access, shared by the Developer Accounts bound to that Merchant. The two access types have separate Tokens.

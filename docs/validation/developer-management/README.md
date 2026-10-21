@@ -1,47 +1,54 @@
 # 开发者账号管理验收记录
 
-日期：2026-10-21。
+日期：2026-10-21。本轮多服务商及独立表单改造已取代旧版弹窗、单服务商与创建全量商户绑定的验收基线。
 
-## 范围与结果
+## 本轮结果
 
-MAINTAIN → Developer Manage 已接入共享 Portal 框架。四个页面入口为：
-
-- `50.developer_manage.html`：账号列表、筛选分页、新增编辑、密钥显隐、重发和重置。
-- `50.developer_binding.html`：`kind=merchant` 为商户绑定，`kind=plat` 为服务商／代理商绑定。
-- `50.developer_allowlist.html`：IP 列表、新增删除，与账号编辑共用同一份白名单。
-- `50.developer_token.html`：商户 Terminal／ECOMM Token 与平台 Token 的显隐、重置和发送。
-
-新增三个身份字段锁定、自动绑定、所属服务商候选范围、非独占绑定、共享 Token 和邮件模拟均按[复刻说明](../../design/developer-management-replica.md)实现。白名单两入口按用户确认统一 IPv4、重复项及最后一条地址保护规则。编辑仅提交可编辑信息，不能以旧表单快照恢复已经重置的 Client Secret。
+- 新增 `50.developer_form.html`，新增和编辑统一为独立页面，使用支付渠道页面的内容卡、返回箭头和下划线控件。Webhook 改为一项一行，关闭后输入保持显示且禁用；IP 采用可移除标签，Token 邮件使用复选框。
+- 页面底部使用 Add 按钮打开服务商选择表，支持搜索、分页、多选与取消隔离；各服务商配置全部现有与未来商户或指定商户，指定商户通过 Bind Merchant 管理。
+- Bind Merchant / Bind Plat 页面和候选弹窗支持多服务商范围、真实所属名称、可搜索筛选与选择保留。商户候选已移除 MID、BINDING 列，平台候选保持原列。
+- Webhook、IP 白名单和两种 Token 邮件分别分组；配置、模式切换与移除规则见[设计文档](../../design/developer-management-replica.md)。
+- 旧账号迁移保持原有授权清单，不扩大商户范围，不改共享凭证或补发邮件。
+- 服务商添加列表同步现有 Service Provider 页的 8 条记录，并保留原有 2 家演示服务商；两页共用目录。弹窗移除 Selected、Clear selection 与已选标签；底部 SP 行操作改为垃圾桶。
+- Bind Merchant 标题与开发者名称按基线对齐，去掉编辑齿轮，按钮恢复 Bind Merchant 文案、绿色描边和文件加号图标。
+- 成功及一般信息改为右上角 Toast，3 秒消失，支持悬停暂停和手动关闭；字段错误继续保留在原位置。
+- 商户选择弹窗也已去掉 Selected、Clear selection 与标签区。已绑定及全部模式授权商户勾选并禁用，不能在弹窗取消；全选仅影响本次新增候选，提交不包含已有绑定。
 
 ## 自动验证
 
-- `tests/developer-management.spec.js`：10 项通过，最终候选分页补齐后重新执行通过。
-- `tests/payment-channel-maintain.spec.js`：13 项回归通过，覆盖共享选择器原有单多选、搜索、键盘、低窗口定位、失败保留等行为。
-- `npm run build`：通过，四个页面及其资源已进入 `dist/`。
-- 新增脚本的 `node --check`、`git diff --check`：通过。
+`tests/developer-management.spec.js` 共 20 项通过；覆盖独立页面和未保存保护、多服务商不同范围、模式切换保留、移除确认及撤权、跨服务商选择与禁选、新商户仅向获得授权的开发者模拟邮件且不重复、旧账号迁移、Webhook 校验与启停行高稳定、IP 标签录入去重和逐项删除、白名单双入口、共享 Token、保存失败保留及较矮视口错误定位。新增核对两页 8 条目录的 ID／名称／商户数量一致、新服务商可保存并查看平台 Token、旧绑定不受影响、精简工具区、标题对齐与按钮样式，以及 Toast 定位、自动消失、悬停暂停和手动关闭。50 条容量场景在实际 10 条目录上注入 40 条测试数据，验证三页切换、跨搜索保留、已添加及未启用项禁选；未向产品页面添加虚构服务商。
 
-功能测试还覆盖账号重复、创建自动绑定、创建后只读身份、两类 Token、取消重置、跨开发者共享重置、白名单双入口同步、取消未保存修改、候选跨搜索及跨页保留、全选跳过当前绑定、空结果、写入失败保留输入、错误聚焦、失效 URL 和非运维展示身份的导航限制。
+`npm run build`、相关脚本 `node --check`、`git diff --check` 通过。新增表单及资源已进入 `dist/`。
 
-标准复跑命令如下；项目测试配置会自行启动 8765 端口的服务器，执行前需先停止同端口的开发预览。本轮使用临时测试配置复用已有预览服务器，不修改仓库测试服务器设置。
+标准命令：
 
 ```sh
-npx playwright test tests/developer-management.spec.js tests/payment-channel-maintain.spec.js
+npx playwright test tests/developer-management.spec.js --workers=1
 npm run build
 ```
 
-## 桌面页面检查
+本轮默认测试端口 8765 被其他本地服务占用，采用 `/tmp/paywizard-developer-playwright.config.cjs` 指向独立 8767 端口；不停止其他服务，不改仓库测试配置。可视预览使用 8766 端口。
 
-在 Chrome 实际打开账号列表、新增弹窗、商户绑定、平台绑定、商户 Token、平台 Token 和白名单页面。检查了 34px／11px 表头、36px 行操作、40px 表单按钮、菜单定位、服务商搜索键盘选择、已选与禁选状态、共享 Token 提示和错误位置。
+## 实际桌面检查
 
-实际页面检查发现并修正了弹窗表格未继承黑色背景的问题，以及密钥文本的逐行滚动条。自动测试另外以 1366×720 桌面视口检查底部选择器和错误提示位于可视范围、固定操作区仍可操作。未进行手机浏览器检查。
+Chrome 实际打开新增页面，检查基本信息、两个 Webhook 同行配置及禁用联动、IP 标签和邮件复选框、Add 服务商列表与两种商户模式；保存后进入 Bind Merchant，检查实际所属服务商、全部模式操作限制和候选弹窗。商户候选只有标识、服务商、商户名三项业务列，不再显示 MID 或其他开发者绑定详情；禁选原因保留悬停说明。
 
-截图：
+本轮追加 Chrome 实查：Add Service Providers 展示 10 条目录、已移除已选工具区；添加 Techsupport 到未保存表单后显示垃圾桶行操作。另打开 Atlas Integration 的 Bind Merchant，确认名称与标题基线对齐、编辑齿轮消失、绿色文件加号 Bind Merchant 按钮。Toast 截图已检查，计时及悬停行为由浏览器自动化验证。
 
-- [列表与更多菜单](list-menu.png)
-- [新增开发者](add-developer.png)
-- [商户绑定与已选状态](bind-merchant.png)
-- [删除最后一条 IP 的错误定位](allowlist-error.png)
+后续商户弹窗精简：20 项回归再次通过，覆盖已有及全部授权商户勾选禁用、全选和取消全选不改锁定项、跨页与搜索保留新选、提交只新增且保留原绑定。Chrome 实际打开该弹窗，验证无已选工具区、灰色锁定勾选，以及取消全选只取消可选行。
+
+自动测试以 1366×720 检查服务商列表弹窗边界、字段错误聚焦、40px 下划线输入，并核对 34px / 11px 表头、36px 行操作。未进行手机浏览器检查。
+
+当前截图：
+
+- [新增开发者独立页](add-developer-page.png)
+- [服务商添加列表](add-service-providers.png)
+- [多服务商绑定、禁选与跨筛选保留已选](bind-merchant-multi-provider.png)
+- [精简商户弹窗与已有绑定锁定勾选](bind-merchant-selection.png)
+- [右上角成功提示](success-toast.png)
+
+旧版 `add-developer.png`、`bind-merchant.png`、`list-menu.png`、`allowlist-error.png` 是先前复刻证据，保留作历史记录，不代表本轮表单与授权模式。
 
 ## 验证边界
 
-状态仅保存在本地浏览器，示例账号使用虚构邮箱与演示凭证。发送操作写入本地模拟记录并明确反馈未发送真实邮件；未调用运维生产接口。新商户创建链路不在本次范围，两个 Auto Send 选项仅保存其已确认的邮件偏好。展示身份限制不代表服务端鉴权已验收。未执行生产发布。
+使用虚构账号、演示凭证和浏览器本地存储。服务商页的 8 条商户总数为目录元数据，未同步其商户明细，已授权数量只计算本地实际记录。新商户记录观察、自动绑定及邮件均为本地模拟；未核验生产商户创建事件、真实邮件或回调投递、生产鉴权和外部 TMS 授权，也未修改后端或执行生产发布。

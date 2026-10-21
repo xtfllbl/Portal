@@ -36,6 +36,7 @@
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
     "50.developer_manage.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage"], []),
+    "50.developer_form.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("client") ? "Edit Developer" : "Add Developer"], []),
     "50.developer_binding.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("kind") === "plat" ? "Bind Plat" : "Bind Merchant"], []),
     "50.developer_allowlist.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", "Allowlist"], []),
     "50.developer_token.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("kind") === "plat" ? "Platform Token" : "Merchant Token"], []),
@@ -233,6 +234,7 @@
   ]);
   var panelPages = new Set([
     "50.developer_manage.html",
+    "50.developer_form.html",
     "50.developer_binding.html",
     "50.developer_allowlist.html",
     "50.developer_token.html",
