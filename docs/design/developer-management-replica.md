@@ -47,10 +47,12 @@
 - 使用共享 Portal 顶栏、侧栏和 MAINTAIN 导航；Developer Manage 仅在当前 MAINTAIN 适用的运维展示身份下开放。
 - 以 Payment Channel 的内容卡、搜索栏与分页为基线；黑色表头高 34px、字号 11px，行操作高 36px，表单按钮高 40px；图标统一 Material Symbols Rounded。
 - 新增/编辑采用弹窗，固定头尾、内容内部滚动。绑定、白名单和 Token 保留独立子页，标题前使用统一返回按钮，返回时保留上级筛选和分页。
-- 选择器支持点选、输入搜索、键盘、独立滚动和视口边缘定位；多选保留跨搜索选择，并可集中查看和逐项取消。
+- 选择器支持点选、输入搜索、键盘、独立滚动和视口边缘定位；绑定候选支持分页和每页数量切换，多选保留跨搜索、跨页选择，并可集中查看和逐项取消。
 - 校验错误在实际滚动容器内定位并聚焦，保留输入；保存期间避免重复提交。取消未保存修改时沿用项目保护交互。
 - 组件参考 PrimeVue v4 的 DataTable、Paginator、Dialog、ConfirmDialog、Select、MultiSelect、Menu 和 Message 模式；使用既有静态组件实现，不引入框架。
 - 使用虚构演示数据和演示凭证，不从截图或源码配置提取真实密钥。
+
+本次已核查 [Select](https://v4.primevue.org/select/)、[Dialog](https://v4.primevue.org/dialog/)、[ConfirmDialog](https://v4.primevue.org/confirmdialog/)、[Paginator](https://v4.primevue.org/paginator/) 官方说明。DataTable、MultiSelect、Menu 的官方页面本次未能读取，沿用项目已有静态实现及其键盘交互，并完成相关回归；不宣称已核验研发组件的全部 API。
 
 ## 验收
 
