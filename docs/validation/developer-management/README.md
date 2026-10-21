@@ -4,7 +4,7 @@
 
 ## 本轮结果
 
-- 新增 `50.developer_form.html`，新增和编辑统一为独立页面，使用支付渠道页面的内容卡、返回箭头和下划线控件。Webhook 改为一项一行，关闭后输入保持显示且禁用；IP 采用可移除标签，Token 邮件使用复选框。
+- 新增 `50.developer_form.html`，新增和编辑统一为独立页面，使用支付渠道页面的内容卡、返回箭头和下划线控件。按用户选定的第一版，两个 Webhook 与 IP 验证统一使用左侧复选框、右侧下划线输入；取消勾选后保留内容并禁用，隐藏必填标记。IP 使用圆角可移除标签，Token 邮件使用复选框。
 - 页面底部使用 Add 按钮打开服务商选择表，支持搜索、分页、多选与取消隔离；各服务商配置全部现有与未来商户或指定商户，指定商户通过 Bind Merchant 管理。
 - Bind Merchant / Bind Plat 页面和候选弹窗支持多服务商范围、真实所属名称、可搜索筛选与选择保留。商户候选已移除 MID、BINDING 列，平台候选保持原列。
 - Webhook、IP 白名单和两种 Token 邮件分别分组；配置、模式切换与移除规则见[设计文档](../../design/developer-management-replica.md)。
@@ -37,6 +37,8 @@ Chrome 实际打开新增页面，检查基本信息、两个 Webhook 同行配�
 
 后续商户弹窗精简：20 项回归再次通过，覆盖已有及全部授权商户勾选禁用、全选和取消全选不改锁定项、跨页与搜索保留新选、提交只新增且保留原绑定。Chrome 实际打开该弹窗，验证无已选工具区、灰色锁定勾选，以及取消全选只取消可选行。
 
+第一版控件落地：20 项回归通过；列宽微调后相关两项再次通过。Chrome 实际填写交易 URL、保留停用结算 URL、输入两个 IP，检查复选框布局与动态必填标记；并排核对选定设计与实现，控制台无 error。视觉验收见[design-qa.md](../../../design-qa.md)。
+
 自动测试以 1366×720 检查服务商列表弹窗边界、字段错误聚焦、40px 下划线输入，并核对 34px / 11px 表头、36px 行操作。未进行手机浏览器检查。
 
 当前截图：
@@ -46,6 +48,7 @@ Chrome 实际打开新增页面，检查基本信息、两个 Webhook 同行配�
 - [多服务商绑定、禁选与跨筛选保留已选](bind-merchant-multi-provider.png)
 - [精简商户弹窗与已有绑定锁定勾选](bind-merchant-selection.png)
 - [右上角成功提示](success-toast.png)
+- [选定第一版的三个复选框设置](checkbox-settings.png)
 
 旧版 `add-developer.png`、`bind-merchant.png`、`list-menu.png`、`allowlist-error.png` 是先前复刻证据，保留作历史记录，不代表本轮表单与授权模式。
 

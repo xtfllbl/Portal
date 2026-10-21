@@ -57,7 +57,7 @@ test('create and edit use pages, validate URLs and IPs, support multi-provider s
   await addProviders(page, ['Northstar Payments','wizarpos']);
   await page.getByRole('checkbox', { name: 'All merchants for wizarpos', exact: true }).uncheck();
   await page.locator('#dmField-ips').fill('192.0.2.10,192.0.2.10');
-  await page.getByRole('switch', { name: 'Transaction results', exact: true }).check();
+  await page.getByRole('checkbox', { name: 'Transaction results', exact: true }).check();
   await page.locator('#dmField-notifyUrl').fill('not-a-url');
   await page.getByRole('button', { name: 'Create Developer', exact: true }).click();
   await expect(page.locator('#dmFieldError-name')).toContainText('already exists');
@@ -185,7 +185,7 @@ test('allowlist validates both entry points, protects final IP and retains saved
   await page.getByRole('button', { name: 'Edit Atlas Integration', exact: true }).click();
   await expect(page.locator('#dmIpChips')).toContainText('192.0.2.10');
   await expect(page.locator('#dmIpChips')).toContainText('198.51.100.25');
-  await page.getByRole('switch', { name: 'Verify request IP', exact: true }).uncheck();
+  await page.getByRole('checkbox', { name: 'Verify request IP', exact: true }).uncheck();
   await expect(page.locator('#dmFieldWrap-ips')).toBeVisible();
   await expect(page.locator('#dmField-ips')).toBeDisabled();
   await page.getByRole('button', { name: 'Save Changes', exact: true }).click();
@@ -367,9 +367,9 @@ test('legacy accounts migrate without expanding access, sending emails or changi
 
 test('failed page save retains fields and callback state; disabled webhooks retain URLs without validation', async ({ page }) => {
   await page.goto(`/50.developer_form.html?client=${firstId}`);
-  await page.getByRole('switch',{name:'Transaction results',exact:true}).check();
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).check();
   await page.locator('#dmField-notifyUrl').fill('https://example.com/notify');
-  await page.getByRole('switch',{name:'Transaction results',exact:true}).uncheck();
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).uncheck();
   await page.locator('#dmField-company').fill('Retained company');
   await page.evaluate(key => {const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===key)throw new DOMException('Quota exceeded','QuotaExceededError');return original.call(this,k,v);};},key);
   await page.getByRole('button',{name:'Save Changes',exact:true}).click();
@@ -380,20 +380,40 @@ test('failed page save retains fields and callback state; disabled webhooks reta
   expect((await read(page)).accounts[0].company).not.toBe('Retained company');
 });
 
-test('callback rows remain stable when disabled, IP chips validate and remove individually, and mail uses checkboxes', async ({ page }) => {
+test('checkbox settings keep stable rows and disabled values; IP chips validate and remove individually', async ({ page }) => {
   await page.goto(`/50.developer_form.html?client=${firstId}`);
   const row = page.locator('.dm-settings-row').first();
   const before = await row.boundingBox();
   await expect(page.locator('#dmField-notifyUrl')).toBeVisible(); await expect(page.locator('#dmField-notifyUrl')).toBeDisabled();
-  await page.getByRole('switch',{name:'Transaction results',exact:true}).check();
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).check();
   await page.locator('#dmField-notifyUrl').fill('https://example.com/transaction');
-  await page.getByRole('switch',{name:'Transaction results',exact:true}).uncheck();
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).uncheck();
   await expect(page.locator('#dmField-notifyUrl')).toBeDisabled();
   await expect(page.locator('#dmField-notifyUrl')).toHaveValue('https://example.com/transaction');
   const after = await row.boundingBox(); expect(after.height).toBe(before.height);
   await page.getByRole('textbox',{name:'Add IP address',exact:true}).fill('198.51.100.20');
   await page.getByRole('textbox',{name:'Add IP address',exact:true}).press('Enter');
   await expect(page.locator('#dmIpChips .dm-ip-chip')).toHaveCount(2);
+  for (const name of ['Transaction results', 'Automatic settlements', 'Verify request IP']) {
+    await expect(page.getByRole('checkbox',{name,exact:true})).toBeVisible();
+    await expect(page.getByRole('switch',{name,exact:true})).toHaveCount(0);
+  }
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).check();
+  await page.locator('#dmField-notifyUrl').fill('https://example.com/webhooks/transactions');
+  await page.getByRole('checkbox',{name:'Automatic settlements',exact:true}).check();
+  await page.locator('#dmField-settleUrl').fill('https://example.com/webhooks/settlements');
+  await page.getByRole('checkbox',{name:'Automatic settlements',exact:true}).uncheck();
+  await expect(page.locator('#dmFieldWrap-settleUrl .pc-required')).toBeHidden();
+  await expect(page.locator('#dmField-settleUrl')).toBeDisabled();
+  await page.locator('[aria-labelledby="dmWebhookTitle"]').evaluate(e=>e.scrollIntoView({block:'start'}));
+  const webhooks=await page.locator('[aria-labelledby="dmWebhookTitle"]').boundingBox();
+  const allowlist=await page.locator('[aria-labelledby="dmIpTitle"]').boundingBox();
+  await page.screenshot({path:'docs/validation/developer-management/checkbox-settings-page.png'});
+  await page.screenshot({path:'docs/validation/developer-management/checkbox-settings.png',clip:{x:webhooks.x,y:webhooks.y,width:webhooks.width,height:allowlist.y+allowlist.height-webhooks.y}});
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).uncheck();
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).check();
+  await page.locator('#dmField-notifyUrl').fill('https://example.com/transaction');
+  await page.getByRole('checkbox',{name:'Transaction results',exact:true}).uncheck();
   await page.getByRole('textbox',{name:'Add IP address',exact:true}).fill('192.0.2.10');
   await page.getByRole('textbox',{name:'Add IP address',exact:true}).press('Enter');
   await expect(page.locator('#dmFieldError-ips')).toContainText('duplicate');
@@ -461,7 +481,7 @@ test('service provider catalog matches the management page and new provider plat
   await dialog(page).getByRole('button',{name:'Add Selected',exact:true}).click();
   await expect(page.locator('#dmProviderRows button .material-symbols-rounded')).toHaveText('delete');
   await page.locator('#dmField-name').fill('Catalog Integration');await page.locator('#dmField-email').fill('catalog.integration@example.com');
-  await page.getByRole('switch',{name:'Verify request IP',exact:true}).uncheck();
+  await page.getByRole('checkbox',{name:'Verify request IP',exact:true}).uncheck();
   await page.getByRole('button',{name:'Create Developer',exact:true}).click();await expect(page).toHaveURL(/50.developer_manage.html$/);
   const after=await read(page), created=after.accounts.find(a=>a.name==='Catalog Integration');
   expect(after.bindings.filter(b=>b.clientId!==created.id)).toEqual(before.bindings);

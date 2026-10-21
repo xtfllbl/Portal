@@ -16,7 +16,7 @@
 - Bind Merchant 的商户选择弹窗移除 MID、BINDING 两列。独立绑定主列表原本没有这两列，无需为此改动其业务字段。
 - Webhook、IP 白名单与 Token 邮件的授权、回调及发送规则保持已确认含义；本轮重新选择控件组织方式。
 
-- 回调改为一项一行：左侧为紧邻业务名称的开关，右侧为同一行的下划线 URL 输入。
+- 视觉评审已选择第一版 Compact Aligned Rows，取代开关样式：回调与 IP 验证使用复选框，紧邻左侧业务名称，右侧统一对齐下划线输入。左列占 25% 且至少 220px、列间距 28px、内容最大宽度 1240px，沿用 Portal 紧凑字号，IP 地址使用圆角标签。
 - 回调或 IP 验证关闭时，输入仍显示并禁用，保留内容，隐藏对应必填标记，维持行高与后续内容位置。
 - IP 改为可逐项移除的标签输入：Enter、逗号、粘贴多个地址或移出输入时提交标签，逐项校验 IPv4 与重复项；无效输入保留并就地提示，保存时仍统一校验。
 - Terminal、ECOMM Token 邮件偏好并排使用复选框。
@@ -32,14 +32,14 @@
 页面顺序：
 
 1. Basic Information：Developer Name、Email、Company Name、Phone Number、Address。
-2. Webhooks：Transaction results、Automatic settlements，各自独立开关与 Callback URL。
+2. Webhooks：Transaction results、Automatic settlements，各自独立复选框与 Callback URL。
 3. IP Allowlist：Verify request IP 与 IP Addresses 为同组配置。
 4. New Merchant Token Emails：Terminal token 与 ECOMM token 独立复选框。
 5. Service Providers：置于底部的服务商绑定列表。
 
 Developer Name、Email、至少一个服务商必填；名称与 Email 创建时分别查重，编辑时只读。其余原有基础资料字段不增加业务限制。服务商可在编辑时添加或移除。
 
-两个 Webhook 开关默认关闭、Token 邮件复选框默认未选；Verify request IP 沿用默认开启。各项配置均在保存后生效。保存成功返回开发者列表并保留列表筛选、分页及滚动上下文；指定商户通过原有 Bind Merchant 入口继续配置。未保存修改离页时保留项目的放弃修改确认；保存失败保留全部输入并滚动、聚焦可见错误。
+两个 Webhook 复选框默认未选、Token 邮件复选框默认未选；Verify request IP 沿用默认勾选。各项配置均在保存后生效。保存成功返回开发者列表并保留列表筛选、分页及滚动上下文；指定商户通过原有 Bind Merchant 入口继续配置。未保存修改离页时保留项目的放弃修改确认；保存失败保留全部输入并滚动、聚焦可见错误。
 
 ## 服务商与商户授权
 

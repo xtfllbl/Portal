@@ -409,3 +409,50 @@ final result: passed
 - Comparison history: first scoped comparison has no actionable P0/P1/P2 findings; native checkbox glyph/corner rendering is an accepted minor standard-control difference. No further visual iteration needed.
 - Open questions: none. Follow-up polish: none within the requested scope. Desktop only, per repository instruction.
 - Implementation checklist: six entries replaced; switch role/track removed; dependency and persistence unchanged; screenshots reviewed; regression, syntax, build and diff checks passed. Local prototype only, no deployment.
+
+---
+
+# 开发者三组控件：第一版视觉验收
+
+## 比较目标
+
+- 用户明确选择最近一组设计图中的第一张 Compact Aligned Rows。
+- 来源：`docs/validation/developer-management/checkbox-settings-selected-design.png`，1820 × 864 像素。
+- 实现：`docs/validation/developer-management/checkbox-settings.png`，872 × 384 像素裁剪；完整页面见 `checkbox-settings-page.png`。浏览器桌面视口 1280 × 720，deviceScaleFactor 1。
+- 状态：交易回调开启并填入 URL，自动结算回调关闭且保留 URL，IP 验证开启并保留两个 IP 标签。
+- 并排比较：`docs/validation/developer-management/checkbox-settings-comparison.html`。比较时两图等宽显示，设计稿顶部的方案名称不属于产品内容；Portal 保留 13px 正文字号，不按设计图放大字号。
+
+## 首轮发现
+
+- [P2] 固定 280px 左列在较窄桌面上占比过大，输入起点约占内容宽度 35%，超过设计图的约 28%。修复为左列占 25%、至少 220px，并保留 28px 列间距；需要更新截图再次比较。
+- 设计稿停用 URL 仍误带必填星号。按已确认业务规则，实际页面停用时隐藏星号，保留输入内容与禁用状态。
+
+## 五项视觉核对
+
+- 字体：沿用 Portal 的 Poppins、13px 正文与 15px 小节标题，字重层级保留。
+- 布局：三组采用左复选框、右输入，右侧标签与下划线一致对齐；比例列宽修复后输入起点约占内容宽度 28%，与设计稿一致。
+- 颜色：沿用深灰勾选、白底、浅灰分隔线；停用字段淡灰。
+- 图像：目标只包含标准表单控件，没有需要生成的图像资产；使用原生复选框与已有 Material Symbols 删除图标。
+- 文案：保留 Webhooks、Transaction results、Automatic settlements、IP Allowlist、Verify request IP 及原字段标签；不将评审用方案名称写入产品页面。
+
+## 交互与验证
+
+- Chrome 已核对原生复选框、启停后值保留、IP 多值输入与标签状态。
+- 20 项 Playwright 回归通过，含保存、编辑、校验、无效 IP、跨页选择与旧数据迁移。
+- 比例列宽修复后，以相同 1280 × 720 视口重新捕获相同状态，并排页面在 Chrome 中检查通过；较矮桌面与本次复选框交互两项回归通过。
+- Chrome 开发者页控制台 error 记录为空。
+
+## 复查结果
+
+- 首轮 P2 证据保留为 `docs/validation/developer-management/checkbox-settings-before-qa.png`；修复后的 `checkbox-settings.png` 已覆盖更新。
+- 全图比较在 `checkbox-settings-comparison.html` 中等宽并排显示；三组控件的布局、字段关联、选中与禁用状态符合选定方向。相关局部即全部三个设置组，872 × 384 裁剪足以清晰核对字号、勾选形态、IP 标签与输入下划线，无需另加局部裁剪。
+- 保留 Portal 紧凑字号、18px 原生复选框与动态必填星号是既定项目规格及业务规则；评审图的方案名称不进入正式界面。
+- 无待修复的 P0/P1/P2；无需要扩大本次范围的 P3 项。
+
+## 完成清单
+
+- 已替换三个 switch 语义为 checkbox，支持名称点击与键盘交互。
+- 已保留未勾选时的值、禁用联动、行高与保存校验。
+- 已更新设计记录、自动回归与实际页面证据。
+
+final result: passed
