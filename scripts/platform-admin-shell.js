@@ -35,6 +35,11 @@
   if (impersonationSession) activeProfile = impersonationSession.profile;
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
+    "51.test_card_list.html": page("body > main.tc-page", "test-card", "test-card-list", ["Test Cards", "Test Card List"], []),
+    "51.test_card_activation.html": page("body > main.tc-page", "test-card", "test-card-activation", ["Test Cards", "Activation"], []),
+    "51.test_card_detail.html": page("body > main.tc-page", "test-card", "test-card-list", ["Test Cards", "Test Card List", "Card Details"], []),
+    "51.test_card_adjustment.html": page("body > main.tc-page", "test-card", "test-card-adjustment", ["Test Cards", "Balance Adjustment"], []),
+    "51.test_card_transactions.html": page("body > main.tc-page", "test-card", "test-card-transactions", ["Test Cards", "Transactions"], []),
     "50.developer_manage.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage"], []),
     "50.developer_form.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("client") ? "Edit Developer" : "Add Developer"], []),
     "50.developer_binding.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("kind") === "plat" ? "Bind Plat" : "Bind Merchant"], []),
@@ -111,7 +116,7 @@
   var agentPageContext = fileName === "2.agent_list_iso.html" ? window.PaywizardAgentContext : null;
   if (!impersonationSession && agentPageContext && profiles[agentPageContext.shellProfile]) activeProfile = agentPageContext.shellProfile;
   var shellScriptUrl = document.currentScript.src;
-  var operationsOnly = config.module === "matintain" || fileName === "24.maintain_terminal_log.html";
+  var operationsOnly = config.module === "matintain" || config.module === "test-card" || fileName === "24.maintain_terminal_log.html";
   if (!impersonationSession && operationsOnly) {
     activeProfile = "maintain";
     try { localStorage.setItem(profileStoreKey, activeProfile); } catch (_) {}
@@ -139,6 +144,7 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
+    if (target.module === "test-card") return profile === "maintain" ? "" : "12.transaction_list.html";
     if (profile === "maintain") {
       if (target.module === "prepaid") return target.active === "prepaid-card-list" ? "" : "12.transaction_list.html";
       if (target.module === "matintain" || ["transactions", "remote", "notifications"].includes(target.module)) return "";
@@ -233,6 +239,11 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "51.test_card_list.html",
+    "51.test_card_activation.html",
+    "51.test_card_detail.html",
+    "51.test_card_adjustment.html",
+    "51.test_card_transactions.html",
     "50.developer_manage.html",
     "50.developer_form.html",
     "50.developer_binding.html",
@@ -425,6 +436,12 @@
         sub("Impersonate", "48.impersonate.html", "maintain-impersonate")
       ].join("")),
       group("Prepaid Cards", "redeem", "prepaid", sub("Card List", "14.prepaid_card_list.html", "prepaid-card-list")),
+      group("Test Cards", "contactless", "test-card", [
+        sub("Test Card List", "51.test_card_list.html", "test-card-list"),
+        sub("Activation", "51.test_card_activation.html", "test-card-activation"),
+        sub("Balance Adjustment", "51.test_card_adjustment.html", "test-card-adjustment"),
+        sub("Transactions", "51.test_card_transactions.html", "test-card-transactions")
+      ].join("")),
       group("System", "settings", "system", [
         unavailableSub("Role Permission"), unavailableSub("Email Configuration"),
         sub("Terminal Logs", "24.maintain_terminal_log.html", "terminal"),
@@ -437,6 +454,7 @@
   }
 
   var breadcrumbTargets = {
+    "Test Cards": "51.test_card_list.html",
     "Service Provider": "21.service_provider.html",
     "Processor Template": "3.Processor_template_new.html",
     "Terminal Logs": "24.maintain_terminal_log.html",
@@ -482,14 +500,20 @@
 
   function buildBreadcrumb() {
     var crumbs = config.breadcrumb;
+    var targets = config.module === "test-card" ? Object.assign({}, breadcrumbTargets, {
+      "Test Card List": "51.test_card_list.html",
+      "Transactions": "51.test_card_transactions.html",
+      "Activation": "51.test_card_activation.html",
+      "Balance Adjustment": "51.test_card_adjustment.html"
+    }) : breadcrumbTargets;
     if (profiles[activeProfile].merchant && config.module === "merchants") {
       crumbs = ["Merchant"].concat(config.breadcrumb.slice(3));
     }
     return crumbs.map(function (label, index) {
       var isCurrent = index === crumbs.length - 1;
-      var item = isCurrent || !breadcrumbTargets[label]
+      var item = isCurrent || !targets[label]
         ? '<strong>' + escapeHtml(label) + '</strong>'
-        : '<a href="' + breadcrumbTargets[label] + '">' + escapeHtml(label) + '</a>';
+        : '<a href="' + targets[label] + '">' + escapeHtml(label) + '</a>';
       return (index ? '<span class="material-symbols-rounded" aria-hidden="true">chevron_right</span>' : '') + item;
     }).join("");
   }

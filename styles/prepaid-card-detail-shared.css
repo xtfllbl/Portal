@@ -1,0 +1,368 @@
+/* Shared Card Details surface and form, taken from styles/prepaid-cards.css.
+   Scoped to the original card and Test Cards; production data and logic stay separate. */
+
+.prepaid-card-detail {
+
+  --page-bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --border: #e5e7eb;
+  --text: #111111;
+  --muted: #667085;
+  --active: #0f0f10;
+  --hover: #f3f4f6;
+  --accent: #6d28d9;
+  --accent-soft: #f3e8ff;
+  --blue: #2563eb;
+  --blue-soft: #eff6ff;
+  --green: #16a34a;
+  --green-soft: #dcfce7;
+  --orange: #d97706;
+  --orange-soft: #fef3c7;
+  --red: #dc2626;
+  --red-soft: #fee2e2;
+  --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --soft-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --control-radius: 8px;
+  --focus-ring: 0 0 0 3px rgba(15, 15, 16, .14);
+
+  font-family: "Poppins", "Segoe UI", Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.prepaid-card-detail .content-inner { display: grid; gap: 16px; padding-right: 0; }
+
+.prepaid-card-detail .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+.prepaid-card-detail .page-title { margin: 0; font-size: 25px; line-height: 1.2; font-weight: 600; color: #44464d; }
+
+.prepaid-card-detail .page-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+.prepaid-card-detail {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--soft-shadow);
+}
+
+.prepaid-card-detail .tabbed-card-header { padding: 20px 24px 14px; align-items: center; }
+
+.prepaid-card-detail > .tab-panel { padding: 16px 24px 24px; }
+
+.prepaid-card-detail .section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.prepaid-card-detail .section { min-width: 0; padding: 18px; }
+
+.prepaid-card-detail > .tab-panel > .content-inner > .section {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.prepaid-card-detail > .tab-panel > .content-inner > .section {
+  padding: 18px 0;
+}
+
+.prepaid-card-detail > .tab-panel > .content-inner > .section:first-child { padding-top: 0; }
+
+.prepaid-card-detail > .tab-panel > .content-inner > .section:last-child { padding-bottom: 0; }
+
+.prepaid-card-detail > .tab-panel > .content-inner > .section:not(:first-child) {
+  border-top: 1px solid var(--border);
+}
+
+.prepaid-card-detail .section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.prepaid-card-detail .section-title { margin: 0; font-size: 18px; font-weight: 700; color: var(--active); }
+
+.prepaid-card-detail .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+.prepaid-card-detail .summary {
+  min-height: 94px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--control-radius);
+  background: #fff;
+}
+
+.prepaid-card-detail .summary span { display: block; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+
+.prepaid-card-detail .summary strong { display: block; margin-top: 9px; font-size: 24px; line-height: 1.1; color: var(--active); }
+
+.prepaid-card-detail .detail-summary .summary {
+  min-height: 82px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.prepaid-card-detail .detail-summary .summary span {
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.prepaid-card-detail .detail-summary .summary strong {
+  margin-top: 8px;
+  font-size: 19px;
+}
+
+.prepaid-card-detail .detail-summary .summary .mono {
+  font-size: 17px;
+  word-break: break-word;
+}
+
+.prepaid-card-detail .detail-summary .summary-status-value {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  color: #166534;
+  font-size: 18px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.prepaid-card-detail .detail-summary .summary-status-value.status-neutral { color: #334155; }
+
+.prepaid-card-detail .detail-summary .summary-status-value.status-red { color: #991b1b; }
+
+.prepaid-card-detail .card-context-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 24px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.prepaid-card-detail .card-context-summary .summary {
+  min-height: 66px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.prepaid-card-detail .card-context-summary .summary + .summary { border-left: 1px solid var(--border); }
+
+.prepaid-card-detail .card-context-summary .summary strong { margin-top: 5px; font-size: 16px; }
+
+.prepaid-card-detail .card-context-summary .summary .mono { font-size: 15px; }
+
+.prepaid-card-detail .card-context-summary .summary-status-value { font-size: 15px; }
+
+.prepaid-card-detail .field { display: grid; gap: 7px; min-width: 0; }
+
+.prepaid-card-detail .field label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.prepaid-card-detail .input,
+.prepaid-card-detail .select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d8dee8;
+  border-radius: var(--control-radius);
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.prepaid-card-detail .input:focus,
+.prepaid-card-detail .select:focus {
+  border-color: var(--active);
+  box-shadow: var(--focus-ring);
+}
+
+.prepaid-card-detail .input[readonly],
+.prepaid-card-detail .input:disabled,
+.prepaid-card-detail .select:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.prepaid-card-detail .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 16px; }
+
+.prepaid-card-detail .form-grid .span-2 { grid-column: span 2; }
+
+.prepaid-card-detail .lifecycle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  align-items: start;
+}
+
+.prepaid-card-detail .lifecycle-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.prepaid-card-detail .lifecycle-actions .field-hint { margin-right: auto; }
+
+.prepaid-card-detail .field-hint {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.prepaid-card-detail .quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prepaid-card-detail .btn {
+  min-height: 38px;
+  padding: 8px 13px;
+  border-radius: var(--control-radius);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #1f2937;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.prepaid-card-detail .btn:hover { background: #f8f8f9; text-decoration: none; }
+
+.prepaid-card-detail .btn:active { background: #f1f1f2; }
+
+.prepaid-card-detail .btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.prepaid-card-detail .btn.primary { background: var(--active); border-color: var(--active); color: #fff; box-shadow: none; }
+
+.prepaid-card-detail .btn.primary:hover { background: #232326; }
+
+.prepaid-card-detail .btn.primary:active { background: #050507; }
+
+.prepaid-card-detail .btn.small { min-height: 34px; padding: 0 11px; font-size: 12px; }
+
+.prepaid-card-detail .btn:disabled { opacity: .48; cursor: not-allowed; box-shadow: none; }
+
+.prepaid-card-detail .tabs {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 24px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.prepaid-card-detail .tab {
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 12px 2px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #707684;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.prepaid-card-detail .tab:hover { background: transparent; color: #18181b; }
+
+.prepaid-card-detail .tab:active { background: transparent; }
+
+.prepaid-card-detail .tab:focus-visible { outline: none; box-shadow: inset 0 -2px 0 #18181b, 0 0 0 2px rgba(24, 24, 27, .16); }
+
+.prepaid-card-detail .tab.active { border-bottom-color: #18181b; background: transparent; color: #18181b; }
+
+.prepaid-card-detail .tab.active:hover { background: transparent; color: #18181b; }
+
+.prepaid-card-detail .tab:disabled { opacity: .48; cursor: not-allowed; }
+
+.prepaid-card-detail .tab-panel { display: none; }
+
+.prepaid-card-detail .tab-panel.active { display: block; }
+
+.prepaid-card-detail .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* Match the source page's shared-shell font inheritance; its native Select is
+   represented by the existing searchable picker with the same field geometry. */
+.prepaid-card-detail :is(.tab, .btn, .input, .select) { font: inherit; }
+.pc-page .prepaid-card-detail .input { height: auto; }
+.prepaid-card-detail .pc-picker-trigger {
+  min-height: 44px;
+  height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d8dee8;
+  border-radius: var(--control-radius);
+  background: #fff;
+  color: var(--text);
+  outline: none;
+}
+.prepaid-card-detail .pc-picker-trigger:focus-visible,
+.prepaid-card-detail .pc-picker-trigger[aria-expanded="true"] {
+  border-color: var(--active);
+  box-shadow: var(--focus-ring);
+}
+.prepaid-card-detail .pc-picker-trigger[aria-invalid="true"] { border-color: var(--red); }
+
+.prepaid-card-detail > .tab-panel > .content-inner { gap: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+
+/* Preserve the reference page's existing narrow-window layout. */
+@media (max-width: 980px) {
+  .prepaid-card-detail .form-grid,
+  .prepaid-card-detail .lifecycle-grid { grid-template-columns: 1fr; }
+  .prepaid-card-detail .form-grid .span-2 { grid-column: auto; }
+}
+@media (max-width: 720px) {
+  .prepaid-card-detail .tabbed-card-header { padding: 18px 16px 12px; }
+  .prepaid-card-detail > .tabs { padding-inline: 16px; }
+  .prepaid-card-detail > .tab-panel { padding: 14px 16px 20px; }
+  .prepaid-card-detail .card-context-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 16px 14px; }
+  .prepaid-card-detail .card-context-summary .summary + .summary { border-left: 0; }
+  .prepaid-card-detail .card-context-summary .summary:nth-child(even) { border-left: 1px solid var(--border); }
+  .prepaid-card-detail .card-context-summary .summary:nth-child(n + 3) { border-top: 1px solid var(--border); }
+  .prepaid-card-detail .lifecycle-actions { align-items: flex-start; justify-content: flex-start; }
+  .prepaid-card-detail .page-actions { width: 100%; justify-content: flex-start; }
+  .prepaid-card-detail .btn { width: 100%; }
+}
+@media (max-width: 480px) {
+  .prepaid-card-detail .card-context-summary { grid-template-columns: 1fr; }
+  .prepaid-card-detail .card-context-summary .summary:nth-child(even) { border-left: 0; }
+  .prepaid-card-detail .card-context-summary .summary + .summary { border-top: 1px solid var(--border); }
+}

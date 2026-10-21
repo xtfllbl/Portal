@@ -448,6 +448,30 @@ _Avoid_: Merchant Dashboard, Merchant List Analytics
 A back-office module whose Portal experience includes Card List, Activation, Balance Adjustment, and Loss & Replacement. Paywizard Maintain includes only Card List and its Card Details flow; the other three capabilities belong to Portal. Card Details is not a separate navigation destination.
 _Avoid_: single prepaid card page
 
+**Test Card**:
+An M1 card assigned to one authorized unattended-machine Manufacturer for terminal debugging and factory shipment testing. It is distinct from a production Prepaid Card used by a Service Provider's Merchants and Stores.
+_Avoid_: Production Prepaid Card, bank test card, Cardholder account
+
+**Test Cards Module**:
+The Paywizard Maintain module named Test Cards for manufacturer testing, containing Test Card List, Activation, Balance Adjustment and a separate, query-only Transactions destination. Card Details belongs to Test Card List; test transactions are queried in the list without a Transaction Details destination.
+_Avoid_: TEST CARD, Test Card as the module name, Production Prepaid Cards Module, manufacturer self-service portal
+
+**Test Card Manufacturer**:
+A top-level Partner marked UPT that forms the manufacturer boundary for Test Cards. Its descendant entities are not separate authorized manufacturers, and PSP Partners and their descendants are outside this scope.
+_Avoid_: Service Provider, PSP Partner, inherited UPT label alone
+
+**Test Card Balance**:
+The testing credit available on a Test Card, increased or deducted by authorized operations staff and affected by supported test transactions. It does not represent a manufacturer's payment, receivable or settlement entitlement.
+_Avoid_: Manufacturer funds, production stored value, settlement balance
+
+**Test Card Transaction**:
+A record of a terminal payment operation performed within the manufacturer Test Card service. It belongs to the test business and is queried separately from production Transaction Records and excluded from production operating statistics.
+_Avoid_: Production Transaction Record, manual balance adjustment, simulated display-only transaction
+
+**Manufacturer Test Terminal**:
+A terminal that has entered a Manufacturer's inventory and has never been bound to a Store, with its testing attribution following its most recent Manufacturer. Its current possession by a trading or intermediary entity does not end the testing stage; later Store unbinding does not restore testing eligibility.
+_Avoid_: Direct manufacturer inventory only, all terminals currently shown in a Partner tree
+
 **Customer Alert**:
 An alert owned by a Customer Account and configured either by an authorized customer-side user or by a Paywizard operator through Delegated Rule Creation for resources within that owner's permitted scope.
 _Avoid_: Customer SLA Alert
@@ -547,6 +571,10 @@ _Avoid_: Terminal Assignment, configuration creation
 **Terminal Name**:
 An optional, human-readable business label for a Terminal that describes its location, purpose or operating context. When present, the same Terminal Name is used consistently across portal pages, notifications, emails and demonstrations; when absent, no name is displayed. It is independent of the physical Terminal S/N.
 _Avoid_: Terminal S/N, Terminal plus S/N, placeholder for a missing name
+
+**Terminal Log**:
+A log record uploaded by a Terminal, identified by its Terminal S/N and recording a timestamp, exception level and title. Its source is Terminal Upload.
+_Avoid_: Portal operation audit log, Alert Incident, Transaction Record
 
 **Terminal Uptime Summary**:
 An embedded view, titled Service Uptime, of a single Unattended Terminal's recent seven days of Payment Service history, connected to the longer historical view.

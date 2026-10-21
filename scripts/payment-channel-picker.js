@@ -95,7 +95,7 @@
     }
     trigger.addEventListener('click', () => panel.matches(':popover-open') ? close() : open());
     trigger.addEventListener('keydown', event => { if (['ArrowDown', 'ArrowUp'].includes(event.key)) { event.preventDefault(); open(); active = event.key === 'ArrowDown' ? 0 : matches.length - 1; paint(); } });
-    search.addEventListener('input', () => { active = 0; paint(); });
+    search.addEventListener('input', () => { active = 0; paint(); place(); });
     search.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true); return; }
       if (event.key === 'Tab') return;
