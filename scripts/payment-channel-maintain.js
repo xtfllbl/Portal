@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   // The shared shell may already be redirecting a non-operations profile.
-  if (!window.PaywizardPortalAccess || window.PaywizardPortalAccess.profile !== 'wizarpos') return;
+  if (!window.PaywizardPortalAccess || window.PaywizardPortalAccess.profile !== 'maintain') return;
   const data = window.PaywizardPaymentChannelData;
   const picker = window.PaywizardPaymentChannelPicker;
   const storeKey = 'paywizard.maintain.payment-channels.v1';
@@ -119,7 +119,7 @@
     // Existing records have no Payload configuration. Do not infer it from support.
     record.channelCapability.payloadDataList ||= [];
     const heading = existing ? 'Edit Payment Channel' : 'Add Payment Channel';
-    $('formTitle').textContent = heading; document.title = `${heading} | PAYwizard Portal`;
+    $('formTitle').textContent = heading; document.title = `${heading} | PAYwizard Maintain`;
     const crumb = document.querySelector('.pw-platform-breadcrumb'); if (crumb?.lastElementChild) crumb.lastElementChild.textContent = heading.toUpperCase();
     const grid = $('channelFields'), controls = {}, picks = {};
     const definitions = [

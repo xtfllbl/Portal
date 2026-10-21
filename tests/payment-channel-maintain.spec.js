@@ -25,7 +25,7 @@ async function fillQr(page, name) {
 
 test('list preserves screenshot records and protects system channels, including direct URLs', async ({ page }) => {
   await page.goto(list);
-  await expect(page.getByRole('button', { name: 'Maintain', exact: true })).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('button', { name: 'Payment', exact: true })).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(21);
   await expect(page.locator('#recordCount')).toHaveText('46 channels');
   const cash = page.locator('tbody tr').filter({ has: page.getByRole('cell', { name: 'Cash', exact: true }).first() });
@@ -186,8 +186,8 @@ test('operations access rules apply to both new routes', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('paywizard.portalAccessProfile.v1', 'full-service'));
   for (const route of [list, form + '?id=pc-01']) {
     await page.goto(route);
-    await expect(page).toHaveURL(/12\.transaction_list\.html/);
-    await expect(page.locator('[data-pw-menu-toggle="matintain"]')).toHaveCount(0);
+    await expect(page.locator('.pw-platform-profile-label')).toHaveText('WizarPOS Maintain');
+    await expect(page.locator('[data-pw-menu-toggle="payment"]')).toHaveAttribute('aria-expanded', 'true');
   }
   expect(errors).toEqual([]);
 });

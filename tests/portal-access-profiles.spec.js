@@ -17,7 +17,7 @@ test("the user control switches and persists the active portal access profile", 
   await expect(page.locator("[data-pw-profile]")).toHaveText([
     "WizarPOS Providercheck", "Full-Service Providercheck", "Full-Service Merchantcheck", "Billing-only Merchantcheck",
     "Unattended Providercheck", "Unattended Merchantcheck", "Unattended Storecheck",
-    "Attended Providercheck", "Attended Merchantcheck", "Attended Storecheck"
+    "Attended Providercheck", "Attended Merchantcheck", "Attended Storecheck", "WizarPOS Maintaincheck"
   ]);
   await page.locator('[data-pw-profile="attended"]').click();
 
@@ -112,7 +112,8 @@ test("profile guards redirect restricted back-office pages to an allowed destina
   await expect(page).toHaveURL(/1\.terminalmanage\.html$/);
 
   await page.goto("/32.sla_alert_rules.html");
-  await expect(page).toHaveURL(/12\.transaction_list\.html$/);
+  await expect(page.locator(".pw-platform-profile-label")).toHaveText("WizarPOS Maintain");
+  await setProfile(page, "attended");
 
   await page.goto("/39.customer_alerts.html");
   await expect(page).toHaveURL(/12\.transaction_list\.html$/);
@@ -124,7 +125,8 @@ test("profile guards redirect restricted back-office pages to an allowed destina
   await expect(page).toHaveURL(/1\.terminalmanage_nayax\.html$/);
 
   await page.goto("/32.sla_alert_rules.html");
-  await expect(page).toHaveURL(/12\.transaction_list\.html$/);
+  await expect(page.locator(".pw-platform-profile-label")).toHaveText("WizarPOS Maintain");
+  await setProfile(page, "unattended");
 
   await page.goto("/39.customer_alerts.html");
   await expect(page).toHaveURL(/39\.customer_alerts\.html$/);
@@ -243,11 +245,11 @@ test("billing and merchant direct links obey role visibility", async ({ page }) 
     await expect(page).toHaveURL(/12\.transaction_list\.html$/);
     await expect(page.locator('[data-pw-nav-label="Billing & Payments"]')).toHaveCount(0);
     await page.goto("/41.billing_setup.html");
-    await expect(page).toHaveURL(profile === "wizarpos" ? /41\.billing_setup\.html$/ : /12\.transaction_list\.html$/);
+    await expect(page).toHaveURL(/41\.billing_setup\.html$/);
+    await expect(page.locator(".pw-platform-profile-label")).toHaveText("WizarPOS Maintain");
   }
   for (const profile of ["attended-merchant", "unattended-merchant"]) {
-    await setProfile(page, profile, "/41.billing_setup.html");
-    await expect(page).toHaveURL(/12\.transaction_list\.html$/);
+    await setProfile(page, profile);
     await page.goto("/5.merchant_manage_iso.html");
     await expect(page).toHaveURL(/5\.merchant_detail_iso\.html$/);
     for (const route of ["2.agent_list_iso.html", "35.product_management.html", "14.prepaid_card_list.html"]) {
@@ -258,7 +260,7 @@ test("billing and merchant direct links obey role visibility", async ({ page }) 
     await expect(page).toHaveURL(profile === "attended-merchant" ? /1\.terminalmanage\.html$/ : /1\.terminalmanage_nayax\.html$/);
   }
   await setProfile(page, "billing-merchant");
-  for (const route of ["41.billing_setup.html", "5.merchant_detail_iso.html", "40.notifications.html", "1.terminalmanage.html"]) {
+  for (const route of ["5.merchant_detail_iso.html", "40.notifications.html", "1.terminalmanage.html"]) {
     await page.goto("/" + route);
     await expect(page).toHaveURL(/42\.billing_payments\.html$/);
   }

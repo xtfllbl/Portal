@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  if (window.PaywizardPortalAccess?.profile !== 'wizarpos') return;
+  if (window.PaywizardPortalAccess?.profile !== 'maintain') return;
   const store = window.PaywizardDeveloperStore;
   const picker = window.PaywizardPaymentChannelPicker;
   const root = document.querySelector('[data-developer-view]');
@@ -38,7 +38,7 @@
     return `<div class="dm-secret"><code>${esc(show ? value : value.slice(0, 4) + '*'.repeat(Math.max(4, value.length - 8)) + value.slice(-4))}</code><button class="dm-eye" type="button" data-reveal="${esc(key)}" aria-label="${show ? 'Hide' : 'Show'} ${esc(label)}" aria-pressed="${show}">${icon(show ? 'visibility' : 'visibility_off')}</button></div>`;
   }
   function heading(title, back = '', object = '', add = '') {
-    document.title = title + ' | PAYwizard Portal';
+    document.title = title + ' | PAYwizard Maintain';
     $('dmHeading').innerHTML = `<div class="dm-title-group">${back ? link('Back to ' + (mode === 'token' ? 'bindings' : 'Developer Manage'), 'arrow_back', back, 'dm-back') : ''}<h1 tabindex="-1">${esc(title)}</h1>${object ? `<span class="dm-object-name">${esc(object)}</span>` : ''}</div>${add}`;
   }
   function table(headers, rows, cls, widths = []) {

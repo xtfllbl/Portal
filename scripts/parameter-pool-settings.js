@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  if (window.PaywizardPortalAccess?.profile !== 'wizarpos') return;
+  if (window.PaywizardPortalAccess?.profile !== 'maintain') return;
   const pool = window.PaywizardParameterPool, $ = id => document.getElementById(id);
   const context = new URLSearchParams(location.search);
   const owner = { merchantId: context.get('merchantId') || '', storeId: context.get('storeId') || '', tci: context.get('tci') || '' };

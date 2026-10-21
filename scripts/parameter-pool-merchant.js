@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const view = window.PaywizardMerchantDevices, pool = window.PaywizardParameterPool;
-  if (!view || !pool || window.PaywizardPortalAccess?.profile !== 'wizarpos') return;
+  if (!view || !pool || window.PaywizardPortalAccess?.profile !== 'maintain') return;
   try {
     const stores = new Set(view.storeIds());
     for (const device of pool.read().terminalConfigurations) {

@@ -244,6 +244,14 @@ _Avoid_: Owner Business Model, Merchant Permissions, Portal Access Profile
 A named presentation of portal visibility and interaction rules used to demonstrate a provider, merchant, or store experience. Provider profiles are WizarPOS Provider, Full-Service Provider, Attended Provider, and Unattended Provider; merchant profiles are Full-Service Merchant, Attended Merchant, Unattended Merchant, and Billing-only Merchant; store profiles are Attended Store and Unattended Store.
 _Avoid_: Login Role, Security Role, Permission Set
 
+**Paywizard Maintain**:
+Paywizard's operations platform, separate from Paywizard Portal and its provider, merchant and store experiences.
+_Avoid_: WizarPOS Provider, Portal Maintain submenu
+
+**WizarPOS Maintain**:
+The demonstration identity representing Paywizard Maintain's operations experience, distinct from the WizarPOS Provider service-provider experience.
+_Avoid_: WizarPOS Provider, production Security Role
+
 **Full-Service Merchant**:
 The Portal Access Profile for a merchant operating both attended and unattended payment businesses, with both terminal entry points and the corresponding merchant capabilities.
 _Avoid_: Full-Service Provider, WizarPOS Provider
@@ -333,7 +341,7 @@ A payment-acceptance device managed separately from attended and unattended term
 _Avoid_: Attended Terminal, Unattended Terminal
 
 **Role Simulator**:
-A sales-demonstration control that applies a Portal Access Profile without asserting that the user has been authenticated or that access is securely enforced.
+A sales-demonstration control that selects a Portal Access Profile or the WizarPOS Maintain operations experience without asserting that the user has been authenticated or that access is securely enforced.
 _Avoid_: Authentication, Authorization, Login
 
 **Impersonation Operator**:
@@ -413,7 +421,7 @@ A Platform Back-office Page that summarizes merchant-network performance and com
 _Avoid_: Merchant Dashboard, Merchant List Analytics
 
 **Prepaid Cards Module**:
-A back-office module comprising Card List, Activation, Balance Adjustment, and Loss & Replacement. Card Details belongs to the Card List flow rather than being a separate navigation destination.
+A back-office module whose Portal experience includes Card List, Activation, Balance Adjustment, and Loss & Replacement. Paywizard Maintain includes only Card List and its Card Details flow; the other three capabilities belong to Portal. Card Details is not a separate navigation destination.
 _Avoid_: single prepaid card page
 
 **Customer Alert**:

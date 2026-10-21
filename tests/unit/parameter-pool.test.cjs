@@ -27,7 +27,7 @@ test('legacy parameter versions are discarded without losing parameters, usage h
   const sandbox = vm.createContext({
     PROCESSOR_PARAMETER_SCHEMA: { 'NUVEI UPT': schema },
     navigator: { locks: { request: async (key, action) => action() } },
-    window: { PaywizardPortalAccess: { profile: 'wizarpos' } },
+    window: { PaywizardPortalAccess: { profile: 'maintain' } },
     localStorage: { getItem: () => stored, setItem: (key, value) => { stored = value; } }
   });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../../scripts/parameter-pool-store.js'), 'utf8'), sandbox);
@@ -93,13 +93,13 @@ test('statistics separate currencies/types/final states; CSV escapes spreadsheet
   assert.ok(pool.exportCSV(state, 'usage-current-03').includes('"\'=HYPERLINK(""bad"")"'));
 });
 test('browser mutation reads latest state under one lock; failed storage never reports success', async () => {
-  const sandbox = vm.createContext({ console, PROCESSOR_PARAMETER_SCHEMA: { 'NUVEI UPT': schema }, navigator: { locks: { request: async (key, action) => action() } }, window: { PaywizardPortalAccess: { profile: 'wizarpos' } }, localStorage: { getItem: () => null, setItem: () => { throw new Error('Quota'); } } });
+  const sandbox = vm.createContext({ console, PROCESSOR_PARAMETER_SCHEMA: { 'NUVEI UPT': schema }, navigator: { locks: { request: async (key, action) => action() } }, window: { PaywizardPortalAccess: { profile: 'maintain' } }, localStorage: { getItem: () => null, setItem: () => { throw new Error('Quota'); } } });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../../scripts/parameter-pool-store.js'), 'utf8'), sandbox);
   await assert.rejects(sandbox.window.PaywizardParameterPool.mutate(state => { state.resources[0].name = 'Edited'; }), /could not be saved/);
 });
 test('concurrent browser saves serialize and only one merchant can acquire the resource', async () => {
   let stored = null, queue = Promise.resolve();
-  const sandbox = vm.createContext({ PROCESSOR_PARAMETER_SCHEMA: { 'NUVEI UPT': schema }, navigator: { locks: { request: (key, action) => { const work = queue.then(action); queue = work.catch(() => {}); return work; } } }, window: { PaywizardPortalAccess: { profile: 'wizarpos' } }, localStorage: { getItem: () => stored, setItem: (key, value) => { stored = value; } } });
+  const sandbox = vm.createContext({ PROCESSOR_PARAMETER_SCHEMA: { 'NUVEI UPT': schema }, navigator: { locks: { request: (key, action) => { const work = queue.then(action); queue = work.catch(() => {}); return work; } } }, window: { PaywizardPortalAccess: { profile: 'maintain' } }, localStorage: { getItem: () => stored, setItem: (key, value) => { stored = value; } } });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../../scripts/parameter-pool-store.js'), 'utf8'), sandbox);
   const api = sandbox.window.PaywizardParameterPool;
   const results = await Promise.allSettled([

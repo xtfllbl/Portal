@@ -25,6 +25,7 @@
   var headerUrl;
   var refreshVersion = 0;
   function refreshHeader() {
+    if (document.querySelector('.pw-platform-frame[data-platform="maintain"]')) return Promise.resolve();
     var version = ++refreshVersion;
     return transaction('readonly').then(function (logos) {
       if (version !== refreshVersion) return;

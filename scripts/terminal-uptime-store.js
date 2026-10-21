@@ -146,7 +146,7 @@
     return data;
   }
   function viewerAuth(data, profile, params) {
-    const scope = profile.includes('store') ? 'store:s-midtown' : profile.includes('merchant') ? 'merchant:merchant-kind-world' : profile === 'wizarpos' ? 'all' : 'provider:sp-universal';
+    const scope = profile.includes('store') ? 'store:s-midtown' : profile.includes('merchant') ? 'merchant:merchant-kind-world' : ['maintain', 'wizarpos'].includes(profile) ? 'all' : 'provider:sp-universal';
     const base = D.scopeStores(data, scope), requested = params.get('scope'), subset = requested && D.scopeStores(data, requested);
     return { scope: subset?.length && subset.every(id => base.includes(id)) ? requested : scope, manage: params.get('access') !== 'view' };
   }

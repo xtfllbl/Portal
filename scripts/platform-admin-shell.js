@@ -10,6 +10,7 @@
   var sidebarCollapsedStoreKey = "paywizard.platformSidebarCollapsed.v1";
   var profiles = {
     wizarpos: { label: "WizarPOS Provider" },
+    maintain: { label: "WizarPOS Maintain", operations: true },
     "full-service": { label: "Full-Service Provider" },
     attended: { label: "Attended Provider" },
     unattended: { label: "Unattended Provider" },
@@ -28,11 +29,10 @@
   if (fileName !== "48.impersonate.html") {
     try {
       var candidate = JSON.parse(sessionStorage.getItem("paywizard.impersonation.session.v1") || "null");
-      if (candidate && candidate.id && candidate.user && candidate.user.name && candidate.user.role && candidate.entity && profiles[candidate.profile]) impersonationSession = candidate;
+      if (candidate && !profiles[candidate.profile]?.operations && candidate.id && candidate.user && candidate.user.name && candidate.user.role && candidate.entity && profiles[candidate.profile]) impersonationSession = candidate;
     } catch (_) {}
   }
   if (impersonationSession) activeProfile = impersonationSession.profile;
-  if (fileName === "48.impersonate.html") activeProfile = "wizarpos";
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
     "50.developer_manage.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage"], []),
@@ -85,6 +85,7 @@
     "23.payment_channel_setting.html": page(".page-shell > main.content-panel", "settings", "payment-channels", ["Settings", "Payment Channels"], ["body > .page-shell"]),
     "23.payment_channel_setting_v2.html": page("body > main.payment-channel-v2", "merchants", "merchant-list", ["Merchants", "Merchant List", "Merchant Overview", "Payment Channels"], []),
     "23.sp_merchant_list.html": page(".page-shell > main.content-panel", "matintain", "service-providers", ["Matintain", "Service Providers", "Merchant List"], ["body > .page-shell"]),
+    "24.terminal_log_detail.html": page("body > main.main-content", "matintain", "terminal", ["System", "Terminal Logs", "Log Detail"], []),
     "24.maintain_terminal_log.html": page(".app > section.main > main.panel", "device", "terminal", ["Device Management", "Terminal Logs"], ["body > .app"]),
     "26.partner_information.html": page(".app > main.main > .content-area", "partners", "partners", ["Partners", "Partner List"], ["body > .app"]),
     "27.Merchant_onboard_elavon.html": page(".app-main > main.content", "merchants", "onboarding", ["Merchants", "Onboarding", "Elavon Merchant Registration"], ["body > .sidebar", "body > .app-main"]),
@@ -109,6 +110,11 @@
   var agentPageContext = fileName === "2.agent_list_iso.html" ? window.PaywizardAgentContext : null;
   if (!impersonationSession && agentPageContext && profiles[agentPageContext.shellProfile]) activeProfile = agentPageContext.shellProfile;
   var shellScriptUrl = document.currentScript.src;
+  var operationsOnly = config.module === "matintain" || fileName === "24.maintain_terminal_log.html";
+  if (!impersonationSession && operationsOnly) {
+    activeProfile = "maintain";
+    try { localStorage.setItem(profileStoreKey, activeProfile); } catch (_) {}
+  }
 
   function readProfile() {
     try {
@@ -132,9 +138,19 @@
     var target = pageMap[targetFile];
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
+    if (profile === "maintain") {
+      if (target.module === "prepaid") return target.active === "prepaid-card-list" ? "" : "12.transaction_list.html";
+      if (target.module === "matintain" || ["transactions", "remote", "notifications"].includes(target.module)) return "";
+      if (target.module === "merchants" && ["merchant-list", "leads", "onboarding"].includes(target.active)) return "";
+      // Terminal pages remain reachable from merchant configuration workflows.
+      if (target.module === "device" && target.active !== "device-overview") return "";
+      if (target.active === "alerts") return "";
+      return "12.transaction_list.html";
+    }
+    if (targetFile === "24.maintain_terminal_log.html") return "12.transaction_list.html";
     if (target.active === "uptime-matrix") return ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
     if (target.active === "advertising") return ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant", "unattended-store"].includes(profile) ? "" : "12.transaction_list.html";
-    if (target.module === "matintain" && profile !== "wizarpos") return "12.transaction_list.html";
+    if (target.module === "matintain") return "12.transaction_list.html";
     if (target.active === "billing-payments" && !profiles[profile].merchant) return "12.transaction_list.html";
     if (profiles[profile].merchant) {
       var merchantPages = ["5.merchant_detail_iso.html", "5.merchant_detail_no_store_iso.html", "5.merchant_add_device_iso.html", "5.merchant_device_settings_iso.html", "23.payment_channel_setting_v2.html"];
@@ -178,6 +194,38 @@
     }
   };
 
+  if (activeProfile === "maintain") {
+    var maintainEntries = {
+      transactions: ["payment", "Payment", "Transactions"],
+      "billing-overview": ["payment", "Payment", "Billing Overview"],
+      "maintain-payment-channel": ["payment", "Payment", "Payment Channel"],
+      "maintain-parameter-pool": ["payment", "Payment", "Parameter Pool"],
+      leads: ["operations", "Operations", "Leads"],
+      "service-providers": ["operations", "Operations", "Service Provider", "Service Providers"],
+      "maintain-developers": ["operations", "Operations", "Developer Manage"],
+      onboarding: ["operations", "Operations", "Onboarding"],
+      "merchant-list": ["operations", "Operations", "Merchant List"],
+      "application-parameters": ["operations", "Operations", "Processor Template", "Application Parameters"],
+      remote: ["operations", "Operations", "Remote Diagnostic"],
+      "sla-alerts": ["operations", "Operations", "SLA Alerts"],
+      alerts: ["operations", "Operations", "Customer Alerts", "Alerts"],
+      "maintain-impersonate": ["operations", "Operations", "Impersonate"],
+      "billing-setup": ["system", "System", "Billing Setup"],
+      terminal: ["system", "System", "Terminal Logs"]
+    };
+    var entry = maintainEntries[config.active];
+    if (entry) {
+      var crumbIndex = config.breadcrumb.indexOf(entry[3] || entry[2]);
+      config = Object.assign({}, config, {
+        module: entry[0],
+        breadcrumb: [entry[1], entry[2]].concat(crumbIndex < 0 ? [] : config.breadcrumb.slice(crumbIndex + 1))
+      });
+    } else if (config.module === "device") {
+      config = Object.assign({}, config, { module: "operations", breadcrumb: ["Operations", "Merchant List"].concat(config.breadcrumb) });
+    }
+    document.title = document.title.replace(/PAYwizard Portal/ig, "PAYwizard Maintain");
+  }
+
   var selfGutteredPages = new Set([
     "1.terminalmanage.html",
     "1.terminalmanage_CardReader.html",
@@ -214,6 +262,7 @@
     "23.payment_channel_setting_v2.html",
     "23.sp_merchant_list.html",
     "24.maintain_terminal_log.html",
+    "24.terminal_log_detail.html",
     "28.UPT_merchant_lead_detail.html",
     "29.INTL_PSP_merchant_lead_list.html",
     "35.product_management.html",
@@ -272,6 +321,7 @@
   }
 
   function buildNavigation() {
+    if (activeProfile === "maintain") return buildMaintainNavigation();
     var isWizarpos = activeProfile === "wizarpos";
     var isMerchant = profiles[activeProfile].merchant;
     if (profiles[activeProfile].billingOnly) return link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments");
@@ -344,13 +394,52 @@
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
-      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Developer Manage", "50.developer_manage.html", "maintain-developers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters") + sub("Impersonate", "48.impersonate.html", "maintain-impersonate")) : "",
       disabled("Tickets", "support_agent"),
       isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");
   }
 
+  function buildMaintainNavigation() {
+    return [
+      group("Payment", "account_balance_wallet", "payment", [
+        sub("Transactions", "12.transaction_list.html", "transactions"),
+        unavailableSub("Settlement Info"),
+        sub("Billing Overview", "44.billing_overview.html", "billing-overview"),
+        sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel"),
+        unavailableSub("Service Fee Log"), unavailableSub("Service Fee Report"), unavailableSub("Cached Transaction"),
+        sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool")
+      ].join("")),
+      group("Operations", "tune", "operations", [
+        sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads"),
+        sub("Service Provider", "21.service_provider.html", "service-providers"),
+        sub("Developer Manage", "50.developer_manage.html", "maintain-developers"),
+        sub("Onboarding", "38.Merchant_onboard.html", "onboarding"),
+        unavailableSub("Device Manage"),
+        sub("Merchant List", "5.merchant_manage_iso.html", "merchant-list"),
+        sub("Processor Template", "3.Processor_template_new.html", "application-parameters"),
+        sub("Remote Diagnostic", "13.remote_control.html", "remote"),
+        sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts"),
+        sub("Customer Alerts", "39.customer_alerts.html?role=operations-manager", "alerts"),
+        sub("Impersonate", "48.impersonate.html", "maintain-impersonate")
+      ].join("")),
+      group("Prepaid Cards", "redeem", "prepaid", sub("Card List", "14.prepaid_card_list.html", "prepaid-card-list")),
+      group("System", "settings", "system", [
+        unavailableSub("Role Permission"), unavailableSub("Email Configuration"),
+        sub("Terminal Logs", "24.maintain_terminal_log.html", "terminal"),
+        unavailableSub("Err Txn Logs"), unavailableSub("Account Management"), unavailableSub("Log Management"),
+        unavailableSub("Password Rule Config"), unavailableSub("Reginal"), unavailableSub("Currency Settings"),
+        sub("Billing Setup", "41.billing_setup.html", "billing-setup"),
+        unavailableSub("Var Push Log"), unavailableSub("Appeals")
+      ].join(""))
+    ].join("");
+  }
+
   var breadcrumbTargets = {
+    "Service Provider": "21.service_provider.html",
+    "Processor Template": "3.Processor_template_new.html",
+    "Terminal Logs": "24.maintain_terminal_log.html",
+    "Developer Manage": "50.developer_manage.html",
+    "Customer Alerts": "39.customer_alerts.html?role=operations-manager",
     "Parameter Pool": "49.parameter_pool.html",
     "Payment Channel": "47.payment_channel.html",
     "Uptime Matrix": "46.terminal_uptime.html",
@@ -407,23 +496,29 @@
     var groups = [
       { name: "WizarPOS", kind: "platform", keys: ["wizarpos", "full-service", "full-service-merchant", "billing-merchant"] },
       { name: "Unattended", kind: "unattended", keys: ["unattended", "unattended-merchant", "unattended-store"] },
-      { name: "Attended", kind: "attended", keys: ["attended", "attended-merchant", "attended-store"] }
+      { name: "Attended", kind: "attended", keys: ["attended", "attended-merchant", "attended-store"] },
+      { name: "Maintain", kind: "maintain", keys: ["maintain"] }
     ];
     var icons = {
+      maintain: '<path d="M14.5 6.5a5 5 0 0 0-6-3L12 7l-4 4-3.5-3.5a5 5 0 0 0 6 6L18 21l3-3-7.5-7.5a5 5 0 0 0 1-4Z"/>',
       platform: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
       attended: '<rect x="7" y="3.5" width="10" height="17" rx="2"/><rect x="9.5" y="6" width="5" height="3.4" rx=".7"/><circle cx="12" cy="16.3" r="1"/>',
       unattended: '<rect x="5" y="3" width="14" height="18" rx="2"/><rect x="8" y="6" width="5" height="8" rx="1"/><path d="M16 7v3M8 18h8"/>',
       full: '<rect x="2" y="5" width="8" height="15" rx="1.5"/><path d="M5 8h2M5 16h2"/><rect x="13" y="3" width="9" height="18" rx="1.5"/><path d="M16 6h3v7h-3zM16 17h3"/>',
       billing: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h3"/>'
     };
-    return '<div class="pw-platform-profile-grid">' + groups.map(function (group) {
+    function column(group) {
       return '<div class="pw-platform-profile-column" role="group" aria-label="' + group.name + '">' + group.keys.map(function (key) {
         var kind = key === "billing-merchant" ? "billing" : ["full-service", "full-service-merchant"].includes(key) ? "full" : group.kind;
         return '<button class="pw-platform-profile-option' + (key === activeProfile ? ' active' : '') + '" type="button" role="menuitemradio" aria-checked="' + String(key === activeProfile) + '" data-pw-profile="' + key + '">' +
           '<span class="pw-profile-icon ' + kind + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + icons[kind] + '</svg></span>' +
           '<span class="pw-profile-option-label">' + escapeHtml(profiles[key].label) + '</span><span class="material-symbols-rounded pw-profile-check" aria-hidden="true">check</span></button>';
       }).join("") + '</div>';
-    }).join("") + '</div>';
+    }
+    return '<div class="pw-profile-platform" role="group" aria-label="PORTAL"><div class="pw-platform-profile-heading">PORTAL</div><div class="pw-platform-profile-grid">' +
+      groups.filter(function (group) { return group.kind !== "maintain"; }).map(column).join("") + '</div></div>' +
+      '<div class="pw-profile-platform" role="group" aria-label="MAINTAIN"><div class="pw-platform-profile-heading">MAINTAIN</div><div class="pw-platform-profile-grid">' +
+      column(groups.find(function (group) { return group.kind === "maintain"; })) + '</div></div>';
   }
 
   var source = document.querySelector(config.source);
@@ -446,9 +541,10 @@
 
   var frame = document.createElement("div");
   frame.className = "pw-platform-frame pw-app-frame app-frame";
+  frame.dataset.platform = activeProfile === 'maintain' ? 'maintain' : 'portal';
   frame.classList.toggle("pw-sidebar-collapsed", sidebarInitiallyCollapsed);
   frame.innerHTML = '<aside class="pw-platform-sidebar pw-sidebar sidebar" id="pw-platform-primary-navigation" aria-label="Primary navigation">' +
-    '<div class="pw-platform-brand pw-brand"><span class="brand-mark"><img src="assets/paywizard-logo-sidebar.png" alt="PAYwizard"></span></div>' +
+    '<div class="pw-platform-brand pw-brand">' + (activeProfile === 'maintain' ? '<span class="brand-mark pw-maintain-brand" aria-label="PAYwizard Maintain"><img src="assets/paywizard-logo-email.png" alt="PAYwizard"><span class="pw-brand-platform">MAINTAIN</span></span>' : '<span class="brand-mark"><img src="assets/paywizard-logo-sidebar.png" alt="PAYwizard"></span>') + '</div>' +
     '<nav class="pw-platform-nav pw-nav" aria-label="Main navigation">' + buildNavigation() + '</nav></aside>' +
     '<button class="pw-platform-sidebar-toggle" type="button" aria-controls="pw-platform-primary-navigation" aria-expanded="' + String(!sidebarInitiallyCollapsed) + '" aria-label="' + (sidebarInitiallyCollapsed ? 'Expand navigation' : 'Collapse navigation') + '">' +
     '<span class="material-symbols-rounded pw-platform-sidebar-toggle-icon" aria-hidden="true">' + (sidebarInitiallyCollapsed ? 'chevron_right' : 'chevron_left') + '</span></button>' +
@@ -458,15 +554,25 @@
     '<div class="pw-platform-top-actions pw-top-actions top-actions">' +
     '<a class="pw-platform-round-btn" href="40.notifications.html" aria-label="Notifications"' + (config.active === "notifications" ? ' aria-current="page"' : '') + '>' +
     '<span class="material-symbols-rounded" aria-hidden="true">notifications_none</span><span class="pw-platform-notice-count notice-count pw-notice-count alerts-notice-count" data-shell-notification-count data-notification-count></span></a>' +
-    '<details class="pw-platform-profile-control" data-pw-profile-control><summary class="pw-platform-profile-trigger" aria-label="Change portal access profile" aria-haspopup="menu" aria-expanded="false" data-pw-profile-trigger>' +
+    '<details class="pw-platform-profile-control" data-pw-profile-control><summary class="pw-platform-profile-trigger" aria-label="Change platform or access profile" aria-haspopup="menu" aria-expanded="false" data-pw-profile-trigger>' +
     '<span class="pw-platform-profile-label">' + escapeHtml(profiles[activeProfile].label) + '</span><span class="pw-platform-round-btn dark" aria-hidden="true"><span class="material-symbols-rounded">person</span></span></summary>' +
-    '<div class="pw-platform-profile-menu" role="menu" aria-label="View portal as" data-pw-profile-menu><div class="pw-platform-profile-heading">View portal as</div>' + buildProfileOptions() + '</div></details>' +
+    '<div class="pw-platform-profile-menu" role="menu" aria-label="View as" data-pw-profile-menu>' + buildProfileOptions() + '</div></details>' +
     '</div></header><div class="pw-platform-content-host"></div></div>';
 
   var host = frame.querySelector(".pw-platform-content-host");
   host.classList.add("pw-layout-" + layoutMode);
   source.classList.add("pw-platform-content", "pw-flow-content");
   host.appendChild(source);
+
+  if (activeProfile === "maintain" && config.active === "prepaid-card-list") {
+    source.querySelectorAll('a[href]').forEach(function (anchor) {
+      var destination = new URL(anchor.getAttribute("href"), location.href);
+      if (["15.prepaid_card_activation.html", "16.prepaid_credit_adjustment.html", "17.prepaid_loss_replacement.html"].includes(destination.pathname.split("/").pop())) anchor.remove();
+    });
+    source.querySelectorAll('details.action-menu').forEach(function (menu) {
+      if (!menu.querySelector('a, button')) menu.remove();
+    });
+  }
 
   config.remove.forEach(function (selector) {
     document.querySelectorAll(selector).forEach(function (element) {
@@ -672,10 +778,29 @@
     var proceed = function () {
       try { localStorage.setItem(profileStoreKey, nextProfile); } catch (_) {}
       var fallback = fallbackFor(fileName, nextProfile);
-      window.location.assign(fallback || window.location.href);
+      if (fallback && ((activeProfile === "maintain") !== (nextProfile === "maintain"))) {
+        fallback = profiles[nextProfile].billingOnly ? "42.billing_payments.html" : "12.transaction_list.html";
+      }
+      var destination = new URL(fallback || window.location.href, location.href);
+      if (!fallback && fileName === "39.customer_alerts.html") {
+        if (nextProfile === "maintain") destination.searchParams.set("role", "operations-manager");
+        else destination.searchParams.delete("role");
+      }
+      window.location.assign(destination.href);
     };
     var request = new CustomEvent("pw:before-navigate", { cancelable: true, detail: { proceed: proceed } });
     if (document.dispatchEvent(request)) proceed();
+  });
+  profileMenu.addEventListener("keydown", function (event) {
+    var options = Array.from(profileMenu.querySelectorAll("[data-pw-profile]"));
+    var index = options.indexOf(document.activeElement);
+    var next;
+    if (["ArrowDown", "ArrowRight"].includes(event.key)) next = (index + 1) % options.length;
+    if (["ArrowUp", "ArrowLeft"].includes(event.key)) next = (index - 1 + options.length) % options.length;
+    if (event.key === "Home") next = 0;
+    if (event.key === "End") next = options.length - 1;
+    if (next !== undefined) { event.preventDefault(); options[next].focus(); }
+    if (event.key === "Escape") { event.preventDefault(); setProfileMenu(false); profileTrigger.focus(); }
   });
   document.addEventListener("click", function (event) {
     if (!event.target.closest(".pw-platform-profile-control")) setProfileMenu(false);
@@ -716,7 +841,7 @@
   }
 
   async function startBillingAttentionCount() {
-    if (activeProfile !== "wizarpos") return;
+    if (activeProfile !== "maintain") return;
     if (!window.PaywizardBillingDomain && !await loadBillingScript("billing-domain.js")) return;
     refreshBillingAttentionCount();
   }

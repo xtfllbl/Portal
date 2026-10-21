@@ -1,6 +1,6 @@
 # 开发者账号管理复刻说明
 
-将运维平台 Developer Manage 的完整可见流程复刻到当前 Portal 的 MAINTAIN 菜单，使用当前 Portal 样式与静态 HTML/CSS/JavaScript 架构。账号、绑定与凭证变更在浏览器本地演示；邮件发送仅提供模拟结果，不请求运维生产接口。
+将运维平台 Developer Manage 的完整可见流程复刻到原型的 WizarPOS Maintain → Operations 菜单，使用当前 Portal 样式与静态 HTML/CSS/JavaScript 架构。账号、绑定与凭证变更在浏览器本地演示；邮件发送仅提供模拟结果，不请求运维生产接口。
 
 ## 已确认范围
 
@@ -44,7 +44,7 @@
 
 ## 页面与交互
 
-- 使用共享 Portal 顶栏、侧栏和 MAINTAIN 导航；Developer Manage 仅在当前 MAINTAIN 适用的运维展示身份下开放。
+- 使用共享壳的 Maintain 顶栏、侧栏和 Operations 导航；Developer Manage 仅在 WizarPOS Maintain 运维展示身份下开放，旧页面地址自动进入该平台。2026-10-21 平台拆分见 [确认方案](maintain-platform-discovery-2026-10-21.md)。
 - 以 Payment Channel 的内容卡、搜索栏与分页为基线；黑色表头高 34px、字号 11px，行操作高 36px，表单按钮高 40px；图标统一 Material Symbols Rounded。
 - 新增/编辑采用弹窗，固定头尾、内容内部滚动。绑定、白名单和 Token 保留独立子页，标题前使用统一返回按钮，返回时保留上级筛选和分页。
 - 选择器支持点选、输入搜索、键盘、独立滚动和视口边缘定位；绑定候选支持分页和每页数量切换，多选保留跨搜索、跨页选择，并可集中查看和逐项取消。

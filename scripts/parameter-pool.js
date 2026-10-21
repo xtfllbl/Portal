@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const app = document.querySelector('[data-pool-page]');
-  if (!app || window.PaywizardPortalAccess?.profile !== 'wizarpos') return;
+  if (!app || window.PaywizardPortalAccess?.profile !== 'maintain') return;
   const pool = window.PaywizardParameterPool;
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -39,7 +39,7 @@
     const resource = id ? state.resources.find(row => row.id === id) : null;
     if (id && !resource) { $('poolForm').hidden = true; throw new Error('This parameter set no longer exists. Return to Parameter Pool.'); }
     if (resource && resource.status !== 'available') { $('poolForm').hidden = true; throw new Error('Only available parameter sets can be edited. Return to Parameter Pool to view its usage records.'); }
-    if (id) { $('poolTitle').textContent = 'Edit Parameter Set'; document.title = 'Edit Parameter Set | PAYwizard Portal'; }
+    if (id) { $('poolTitle').textContent = 'Edit Parameter Set'; document.title = 'Edit Parameter Set | PAYwizard Maintain'; }
     const availableChannels = pool.channels();
     let channelId = resource?.channelId || '';
     $('resourceName').value = resource?.name || '';

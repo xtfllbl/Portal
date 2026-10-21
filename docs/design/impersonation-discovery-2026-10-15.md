@@ -2,6 +2,10 @@
 
 Status: design 1 selected on 2026-10-15 with a preference for simplicity. Static interactive prototype implemented and desktop-reviewed. Updated after user review: role-only rows and existing role pages.
 
+## 2026-10-21 platform separation
+
+Impersonate now belongs to WizarPOS Maintain → Operations. Existing addresses automatically use Maintain identity and branding. The target Portal tab, single-user role, tab-local identity and End impersonation behavior remain as documented below. This supersedes the historical shared MAINTAIN submenu and WizarPOS Provider entry assumptions. See [platform separation](maintain-platform-discovery-2026-10-21.md).
+
 ## Selected implementation
 
 - Entry: `48.impersonate.html`, linked from the shared MAINTAIN menu.

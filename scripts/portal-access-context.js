@@ -1,11 +1,11 @@
 (function (root) {
   'use strict';
-  const profiles = ['wizarpos','full-service','attended','unattended','full-service-merchant','attended-merchant','unattended-merchant','attended-store','unattended-store','billing-merchant'];
+  const profiles = ['maintain','wizarpos','full-service','attended','unattended','full-service-merchant','attended-merchant','unattended-merchant','attended-store','unattended-store','billing-merchant'];
   function session() {
     if (location.pathname.endsWith('/48.impersonate.html')) return null;
     try {
       const value = JSON.parse(sessionStorage.getItem('paywizard.impersonation.session.v1') || 'null');
-      return value && value.id && value.user && value.user.name && value.user.role && value.entity && profiles.includes(value.profile) ? value : null;
+      return value && value.id && value.user && value.user.name && value.user.role && value.entity && value.profile !== 'maintain' && profiles.includes(value.profile) ? value : null;
     } catch (_) { return null; }
   }
   function profile() {

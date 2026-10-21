@@ -18,7 +18,7 @@ async function accept(page, name = 'Confirm') {
 
 test('Maintain entry, compact layout, exact email search, pagination and keyboard menu', async ({ page }) => {
   await page.goto(list);
-  await expect(page.getByRole('button', { name: 'Maintain', exact: true })).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('button', { name: 'Operations', exact: true })).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('link', { name: 'Developer Manage', exact: true })).toBeVisible();
   await expect(page.getByRole('table', { name: 'Developer accounts' }).locator('tbody tr')).toHaveCount(20);
   expect(await page.locator('thead th').first().evaluate(e => ({height:e.getBoundingClientRect().height,font:getComputedStyle(e).fontSize}))).toEqual({height:34,font:'11px'});
@@ -201,7 +201,7 @@ test('write failure retains input, surfaces focused error; malformed and non-ope
   await page.goto('/50.developer_token.html?client=missing&entity=missing');
   await expect(page.locator('#dmError')).toContainText('unavailable');
   await page.evaluate(() => localStorage.setItem('paywizard.portalAccessProfile.v1', 'full-service'));
-  await page.goto(list); await expect(page).toHaveURL(/12\.transaction_list\.html/);
+  await page.goto(list); await expect(page.locator('.pw-platform-profile-label')).toHaveText('WizarPOS Maintain');
 });
 
 test('saving a previously opened edit cannot restore an old secret; platform token follows the shared reset flow', async ({ page }) => {

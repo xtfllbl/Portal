@@ -2,7 +2,7 @@
 
 ## 已确认范围（2026-10-10）
 
-- 新增 Maintain → Payment Channel 平台级支付渠道目录，保留 Settings、服务商和商户原有的渠道配置页面。
+- 新增 WizarPOS Maintain → Payment → Payment Channel 平台级支付渠道目录，保留 Settings、服务商和商户原有的渠道配置页面。
 - 列表复刻用户提供的截图列、可见数据与操作。复用共享 Portal 壳层；表头按最新确认采用 Merchant List 的黑底白字（#17181c），保持 34px 高、11px 字体，Actions 固定列表头同步，操作采用项目 Material Symbols Rounded。
 - Add Payment Channel、Edit Payment Channel 直接使用独立页面，先保留截图字段，后续新增内容另行确认。
 - Detail 保留弹窗，显示当前渠道信息。
@@ -16,7 +16,7 @@ Channel Name、Scenario Type、Channel Type Name、Company Information、Channel
 
 ## 已查明的实现事实
 
-- `scripts/platform-admin-shell.js` 统一生成导航、顶栏及角色可见范围；运维模块键为 `matintain`，仅 wizarpos 视角可见。本次将该菜单显示文字的 Matintain 拼写修正为 Maintain，保留内部模块键。
+- `scripts/platform-admin-shell.js` 统一生成导航、顶栏及角色可见范围；2026-10-21 已拆为独立 `maintain` 展示身份和 Payment / Operations / Prepaid Cards / System 导航，Provider 不再显示 Maintain；旧运维页在页面注册中保留历史模块键 `matintain`，渲染时映射到正式分组。详见 [平台拆分确认方案](maintain-platform-discovery-2026-10-21.md)。
 - 22 为服务商渠道配置，23 与 23 v2 为门店渠道配置，均非本次平台级目录。
 - 原型旧代码没有截图字段所需的完整选项字典。用户于 2026-10-10 提供真实前端目录后，已结合源码及已打开的 UAT 页面只读补齐。
 - 页面编号暂无强制规则；新增页面可使用 47。

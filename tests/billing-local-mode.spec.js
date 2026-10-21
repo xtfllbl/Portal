@@ -5,9 +5,9 @@ for(const width of [1440,390])test('local only, expired examples and stable rene
  const requests=[];page.on('request',r=>{if(r.url().includes('/api/billing/'))requests.push(r.url());});
  await page.goto('/44.billing_overview.html');
  await expect(page.locator('.billing-runtime')).toHaveCount(0);
- await expect(page.locator('[data-pw-menu="matintain"] a')).toHaveText(['Billing Setup','Billing Overview','SLA Alerts','Service Providers','Application Parameters']);
- await expect(page.locator('[data-pw-menu-toggle="matintain"]')).toHaveAttribute('aria-expanded','true');
- await expect(page.locator('[data-pw-menu="settings"]')).not.toContainText('Billing');
+ await expect(page.locator('.pw-platform-profile-label')).toHaveText('WizarPOS Maintain');
+ await expect(page.locator('[data-pw-menu-toggle="payment"]')).toHaveAttribute('aria-expanded','true');
+ await expect(page.locator('[data-pw-menu="operations"]')).not.toContainText('Billing');
 
  await expect(page.locator('#overviewRows tr').first()).toContainText('RENEW-0001');
  const row=page.locator('#overviewRows tr').filter({has:page.getByRole('cell',{name:'RENEW-0001',exact:true})});
@@ -47,12 +47,12 @@ for(const width of [1440,390])test('local only, expired examples and stable rene
  await page.screenshot({path:'artifacts/billing-local-'+width+'.png',fullPage:false});
 });
 
-test('Matintain is operations-only including direct routes',async({page})=>{
+test('old operations routes automatically select Maintain',async({page})=>{
  for(const profile of ['full-service','attended','unattended','attended-merchant','unattended-merchant','attended-store','unattended-store','billing-merchant']){
   await page.goto('/12.transaction_list.html');
   await page.evaluate(p=>localStorage.setItem('paywizard.portalAccessProfile.v1',p),profile);
   for(const route of ['41.billing_setup.html','44.billing_overview.html','32.sla_alert_rules.html','21.service_provider.html','22.sp_payment_channel_setting.html','23.sp_merchant_list.html','3.Processor_template_new.html','3.version_provider_assign.html','6.edit_application_parameters.html']){
-   await page.goto('/'+route);await expect(page).toHaveURL(profile==='billing-merchant'?/42\.billing_payments/:/12\.transaction_list/);
+   await page.goto('/'+route);await expect(page.locator('.pw-platform-profile-label')).toHaveText('WizarPOS Maintain');
    await expect(page.locator('[data-pw-menu-toggle="matintain"]')).toHaveCount(0);
   }
  }

@@ -186,7 +186,7 @@
     return '\ufeff' + data.map(row => row.map(csvCell).join(',')).join('\r\n');
   }
   async function mutate(change) {
-    if (window.PaywizardPortalAccess?.profile !== 'wizarpos') fail('Parameter Pool is available to WizarPOS Provider only.');
+    if (window.PaywizardPortalAccess?.profile !== 'maintain') fail('Parameter Pool is available to WizarPOS Maintain only.');
     const run = async () => {
       const state = read();
       const result = await change(state);

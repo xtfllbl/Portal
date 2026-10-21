@@ -24,7 +24,7 @@
 
 | 入口 | 文件 | 已实现 |
 | --- | --- | --- |
-| Maintain → Parameter Pool | `49.parameter_pool.html` | 搜索、状态筛选、资源名称／渠道／MID／TID／状态／当前商户／门店／TCI，录入、编辑和使用记录入口 |
+| WizarPOS Maintain → Payment → Parameter Pool | `49.parameter_pool.html` | 搜索、状态筛选、资源名称／渠道／MID／TID／状态／当前商户／门店／TCI，录入、编辑和使用记录入口 |
 | Add / Edit Parameter Set | `49.parameter_pool_form.html` | 参数集名称、现有 Nuvei 渠道；复用原模板全部 8 组、57 个字段，保存即录入 |
 | Usage Records | `49.parameter_pool_usage.html` | 按次选择使用记录，固定归属与使用期间，完整交易汇总、列选择、分页、全量 CSV 导出和确认线下出账 |
 | 商户 → 门店 → Add Device → Processor Parameters | `5.merchant_add_device_iso.html` | NUVEI UPT 增加 Parameter Source；单选一个资源；原 57 个参数只读填充；保存占用资源并建立使用记录 |
@@ -52,7 +52,7 @@
 ## 首轮演示与边界（切换扩展前）
 
 - 采用浏览器 `localStorage`，key 为 `paywizard.parameter-pool.v1`。首次展示 10 条合成资源：8 条可用、1 条使用中、1 条待出账，并带历史使用记录。示例 MID/TID 均带 DEMO／D 前缀；未填入实际渠道参数。
-- 在 localhost 或 HTTPS 预览，可保存并跨页面查看；没有服务端或真实 Nuvei 连接。现有 Portal Access Profile 的 WizarPOS Provider 可见资源管理及终端资源选择。这是原型身份展示，不是生产权限控制。
+- 在 localhost 或 HTTPS 预览，可保存并跨页面查看；没有服务端或真实 Nuvei 连接。2026-10-21 已迁移到独立 WizarPOS Maintain 展示身份，可见资源管理及商户终端资源选择；WizarPOS Provider 不再提供运维参数池控件。见 [平台拆分确认方案](maintain-platform-discovery-2026-10-21.md)。这是原型身份展示，不是生产权限控制。
 - 本次没有接入正式参数切换、交易冻结、门店自动添加渠道、Onboarding、财务对账和真实资金操作。待出账交互通过已有演示记录评审；没有增加“结束使用”或切换按钮。
 - 新增终端保留原型原有保存方式；本次持久化的是资源占用与使用记录，未新增真实设备注册／推送接口，也未重写商户设备列表的数据源。
 - 第一版方案里的服务端归属校验、终端收款／异步结果上送和正式参数切换，均不属于本次四项 UI 接入的已验证能力。

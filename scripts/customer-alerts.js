@@ -468,7 +468,8 @@
   const terminalPath = findTargetPath("Terminal", terminalId);
   const terminalOwners = terminalPath ? [["Service Provider", terminalPath.provider], ...agentChain(terminalPath.provider.id, terminalPath.agent?.id).map(agent => ["Agent", agent]), ["Merchant", terminalPath.merchant], ["Store", terminalPath.store]].filter(([, entity]) => entity).map(([type, entity]) => accountFor(type, entity.id)) : [];
   const resolveRole = (key) => pageType === "terminal" && key !== "operations-manager" ? { ...ownerContext(terminalOwners.find((account) => account.type === "Merchant")) } : roleContexts[key];
-  let currentRoleKey = pageType === "terminal" ? (query.get("role") === "operations-manager" ? "operations-manager" : "merchant") : roleContexts[query.get("role")] ? query.get("role") : "service-provider";
+  const maintainContext = (window.PaywizardPortalAccess?.profile || window.PaywizardAccessContext?.profile()) === 'maintain';
+  let currentRoleKey = maintainContext ? 'operations-manager' : pageType === "terminal" ? (query.get("role") === "operations-manager" ? "operations-manager" : "merchant") : roleContexts[query.get("role")] ? query.get("role") : "service-provider";
   let currentRole = resolveRole(currentRoleKey);
   const ownsRule = (rule) => accountForRule(rule || {})?.id === currentRole.ownerId;
   const canManageRule = (rule) => canManageAlerts && (pageType !== "terminal" || currentRole.isOperations || ownsRule(rule));

@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  if (window.PaywizardPortalAccess?.profile !== 'wizarpos') return;
+  if (window.PaywizardPortalAccess?.profile !== 'maintain') return;
   const pool = window.PaywizardParameterPool, $ = id => document.getElementById(id);
   const processor = $('device-processor'), provision = $('device-provision-toggle');
   const host = $('processorParams');
