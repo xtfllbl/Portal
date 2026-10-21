@@ -360,6 +360,34 @@ _Avoid_: Agent Hierarchy alone, User hierarchy, Permission hierarchy
 A provider account with its own Agent Hierarchy. It is distinct from an Agent and from the platform operations user who may manage multiple Service Providers.
 _Avoid_: Agent, platform operator, Portal Access Profile
 
+**Developer Account**:
+A developer's platform-integration identity, identified by a Client ID and associated with one Service Provider. It is distinct from a portal user's login identity.
+_Avoid_: Portal User, Agent, Service Provider
+
+**Client ID**:
+The identifier of a Developer Account. It is distinct from a Merchant's Paywizard ID and from the Developer Account's Client Secret.
+_Avoid_: Merchant ID, Paywizard ID, Client Secret
+
+**Client Secret**:
+The integration credential paired with a Developer Account's Client ID. It is distinct from the Tokens associated with bound Merchants, Agents or Service Providers.
+_Avoid_: Portal Password, Merchant Token, Platform Token
+
+**Developer Allowlist**:
+The IP addresses recorded for a Developer Account's access checks. The recorded addresses and whether allowlist verification is enabled are separate concepts.
+_Avoid_: Merchant binding, Platform binding, enabled status
+
+**Developer Binding**:
+The association of a Developer Account with a Merchant, Agent or Service Provider. One Developer Account may have multiple bindings, and one entity may be associated with multiple Developer Accounts.
+_Avoid_: Exclusive assignment, Service Provider ownership, Token
+
+**Merchant Token**:
+A Merchant's integration credential for either Terminal or ECOMM access, shared by the Developer Accounts bound to that Merchant. The two access types have separate Tokens.
+_Avoid_: Client Secret, Developer-specific Token, Platform Token
+
+**Platform Token**:
+The integration credential for an Agent or Service Provider, shared by the Developer Accounts bound to that entity.
+_Avoid_: Client Secret, Developer-specific Token, Merchant Token
+
 **Agent Level**:
 An Agent's depth within its Service Provider's Agent Hierarchy: L1, L2 or L3. It is distinct from the Agent user's authorization or the Agent's enabled status.
 _Avoid_: Security role, Agent Authorization, account status

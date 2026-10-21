@@ -35,6 +35,10 @@
   if (fileName === "48.impersonate.html") activeProfile = "wizarpos";
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
+    "50.developer_manage.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage"], []),
+    "50.developer_binding.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("kind") === "plat" ? "Bind Plat" : "Bind Merchant"], []),
+    "50.developer_allowlist.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", "Allowlist"], []),
+    "50.developer_token.html": page("body > main.dm-page", "matintain", "maintain-developers", ["Maintain", "Developer Manage", new URLSearchParams(location.search).get("kind") === "plat" ? "Platform Token" : "Merchant Token"], []),
     "49.parameter_pool.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool"], []),
     "49.parameter_pool_form.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Parameter Set"], []),
     "49.parameter_pool_usage.html": page("body > main.pc-page", "matintain", "maintain-parameter-pool", ["Maintain", "Parameter Pool", "Usage Records"], []),
@@ -180,6 +184,10 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "50.developer_manage.html",
+    "50.developer_binding.html",
+    "50.developer_allowlist.html",
+    "50.developer_token.html",
     "49.parameter_pool.html",
     "49.parameter_pool_form.html",
     "49.parameter_pool_usage.html",
@@ -336,7 +344,7 @@
       !isMerchant && terminalProfile(activeProfile) !== "attended" ? group("Prepaid Cards", "redeem", "prepaid", prepaidItems) : "",
       group("User Management", "manage_accounts", "users", userItems),
       group("Settings", "settings", "settings", settingsItems),
-      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters") + sub("Impersonate", "48.impersonate.html", "maintain-impersonate")) : "",
+      isWizarpos ? group("Maintain", "build", "matintain", sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel") + sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool") + sub("Billing Setup", "41.billing_setup.html", "billing-setup") + sub("Billing Overview", "44.billing_overview.html", "billing-overview") + sub("SLA Alerts", "32.sla_alert_rules.html", "sla-alerts") + sub("Service Providers", "21.service_provider.html", "service-providers") + sub("Developer Manage", "50.developer_manage.html", "maintain-developers") + sub("Application Parameters", "3.Processor_template_new.html", "application-parameters") + sub("Impersonate", "48.impersonate.html", "maintain-impersonate")) : "",
       disabled("Tickets", "support_agent"),
       isMerchant ? group("Developer Center", "code_blocks", "developer", unavailableSub("Document Center")) : disabled("Developer Center", "code_blocks")
     ].join("");

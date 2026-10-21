@@ -35,7 +35,7 @@
     if (multiple) list.setAttribute('aria-multiselectable', 'true');
     trigger.setAttribute('aria-controls', list.id); search.setAttribute('aria-controls', list.id);
     if (multiple) tools.append(all, selected, clear);
-    panel.append(search); if (multiple) panel.append(tools); panel.append(list); document.body.append(panel);
+    panel.append(search); if (multiple) panel.append(tools); panel.append(list); (config.appendTo || document.body).append(panel);
 
     function button(label) { const el = document.createElement('button'); el.type = 'button'; el.textContent = label; return el; }
     const isSelected = option => multiple ? value.includes(String(option.value)) : value === String(option.value);
