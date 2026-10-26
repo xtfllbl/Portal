@@ -787,6 +787,8 @@
         min-width: 0;
       }
     }
+      .action-btn .material-symbols-rounded { font-size: 18px; }
+    .action-btn:disabled { opacity: .4; cursor: not-allowed; }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -847,7 +849,7 @@
         <div class="panel-header pw-page-header">
           <h1 class="page-title" id="page-title">Leads</h1>
           <div class="header-actions pw-header-actions">
-            <button class="btn primary" type="button">
+            <button class="btn primary" type="button" id="addLead">
               <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 11v6M9 14h6"></path></svg>
               Add
             </button>
@@ -1657,7 +1659,11 @@
 	        var processId = cells[0] ? cells[0].textContent.trim() : "";
 	        var detail = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(processId);
 	        if (!detail) return;
-	        if (cells[5]) cells[5].textContent = String(detail.terminalNumber);
+	        var values = [detail.processId, detail.spName, detail.partnerName, detail.country, detail.merchantName, detail.terminalNumber, detail.assignedSnCount || 0, detail.contactName, detail.email, detail.lastUpdate, detail.pastDays, "UPT", detail.status];
+            values.forEach(function (value, index) { if (cells[index]) cells[index].textContent = value == null ? "" : String(value); });
+            row.dataset.partner = detail.partnerName || "";
+            row.dataset.secondary = detail.country || "";
+            row.dataset.status = detail.status || "";
 	        if (assignedCell) assignedCell.textContent = String(detail.assignedSnCount || 0);
 	        row.dataset.sn = detail.serialNumbers.join(" ");
 	      }
@@ -1819,7 +1825,16 @@
 	              button.setAttribute("data-tooltip", "View detail");
 	              button.setAttribute("href", "28.UPT_merchant_lead_detail.html?leadProcessId=" + encodeURIComponent(lead.processId));
 	            }
-	            if (label === "Edit") button.setAttribute("data-tooltip", "Edit lead");
+	            if (label === "Edit") {
+              var editable = window.PaywizardUptLeadData.canEdit(detailRecord);
+              button.disabled = !editable;
+              button.setAttribute("data-tooltip", editable ? "Edit lead" : "This Lead is no longer available for editing");
+              button.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">edit</span>';
+              button.addEventListener("click", function () {
+                rememberLeadList();
+                location.href = "29.UPT_merchant_lead_edit.html?leadProcessId=" + encodeURIComponent(lead.processId);
+              });
+            }
 	            if (label === "More") {
 	              button.classList.add("lead-more-trigger");
 	              button.setAttribute("data-tooltip", "More actions");
@@ -1854,6 +1869,7 @@
 
 	      function renderSecondaryOptions() {
 	        var options = secondaryOptions[activeTab] || secondaryOptions.upt;
+            if (activeTab === "upt") options = ["Country Name"].concat(Array.from(new Set(window.PaywizardUptLeadData.getRecords().map(function (record) { return record.country; }).filter(Boolean))));
 	        secondaryFilter.innerHTML = "";
 	        options.forEach(function (label, index) {
 	          var option = document.createElement("option");
@@ -1882,6 +1898,9 @@
 	          table.hidden = table.getAttribute("data-table-view") !== activeTab;
 	        });
 	        renderSecondaryOptions();
+            var statuses = activeTab === "upt" ? ["-", "Not Contacted", "Pitch Scheduled", "Negotiation", "Successful Pitch", "Unsuccessful Pitch", "Ineligible"] : ["Pending Activation", "Activated", "Rejected"];
+            statusFilter.replaceChildren(new Option("Status", ""));
+            statuses.forEach(function (status) { statusFilter.add(new Option(status, status)); });
 	        clearFilters();
 	        if (tableWrap) tableWrap.scrollLeft = 0;
 	        applyFilters();
@@ -2067,8 +2086,32 @@
 	        else closeLeadMoreMenu();
 	      });
 
-	      configureLeadActions();
-	      setActiveTab(window.location.hash === "#intl" ? "intl" : "upt");
+          function rememberLeadList() {
+            try { sessionStorage.setItem("paywizard-lead-list-return", JSON.stringify({ tab: activeTab, partner: partnerFilter.value, secondary: secondaryFilter.value, sn: snFilter.value, status: statusFilter.value, scroll: document.querySelector('.pw-content-panel').scrollTop })); } catch (_) {}
+          }
+          document.getElementById("addLead").addEventListener("click", function () {
+            rememberLeadList(); location.href = "29.UPT_merchant_lead_edit.html";
+          });
+          var body = document.getElementById("uptLeadRows");
+          var rowTemplate = body.querySelector("tr").cloneNode(true);
+          var added = window.PaywizardUptLeadData.getRecords().filter(function (record) { return record.createdLead; });
+          added.slice().reverse().forEach(function (record) {
+            var row = rowTemplate.cloneNode(true); row.querySelector("td").textContent = record.processId; body.prepend(row);
+          });
+          totals.upt = "1 / " + Math.ceil((441 + added.length) / 20) + " (" + (441 + added.length) + ")";
+          configureLeadActions();
+          var query = new URLSearchParams(location.search);
+          var returnState = null;
+          try { returnState = JSON.parse(sessionStorage.getItem("paywizard-lead-list-return") || "null"); sessionStorage.removeItem("paywizard-lead-list-return"); } catch (_) {}
+          setActiveTab(query.has("saved") ? "upt" : returnState ? returnState.tab : window.location.hash === "#intl" ? "intl" : "upt");
+          if (returnState && !query.has("created") && (!query.has("saved") || returnState.tab === "upt")) {
+            partnerFilter.value = returnState.partner; secondaryFilter.value = returnState.secondary; snFilter.value = returnState.sn; statusFilter.value = returnState.status; applyFilters();
+            document.querySelector('.pw-content-panel').scrollTop = returnState.scroll || 0;
+          }
+          if (query.has("saved")) {
+            showLeadToast("Lead " + query.get("saved") + " saved successfully.", "success");
+            history.replaceState(null, "", location.pathname);
+          }
 	    })();
 	  </script>
   <script src="scripts/action-tooltips.js"></script>

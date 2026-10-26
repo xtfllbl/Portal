@@ -27,8 +27,9 @@
         }
       }
       if (!rect.width || !rect.height || rect.bottom <= top || rect.top >= bottom || rect.right <= left || rect.left >= right) { close(); return; }
-      const room = innerHeight - rect.bottom - 12, height = Math.min(240, Math.max(room, rect.top - 12));
-      Object.assign(list.style, { width: rect.width + 'px', left: Math.max(8, Math.min(rect.left, innerWidth - rect.width - 8)) + 'px', maxHeight: height + 'px', top: room < 160 && rect.top > room ? 'auto' : rect.bottom + 4 + 'px', bottom: room < 160 && rect.top > room ? innerHeight - rect.top + 4 + 'px' : 'auto' });
+      const room = innerHeight - rect.bottom - 12, openAbove = room < 160 && rect.top > room;
+      const height = Math.min(240, Math.max(0, openAbove ? rect.top - 12 : room));
+      Object.assign(list.style, { width: rect.width + 'px', left: Math.max(8, Math.min(rect.left, innerWidth - rect.width - 8)) + 'px', maxHeight: height + 'px', top: openAbove ? 'auto' : rect.bottom + 4 + 'px', bottom: openAbove ? innerHeight - rect.top + 4 + 'px' : 'auto' });
     }
     function paint() {
       list.replaceChildren();

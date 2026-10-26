@@ -218,9 +218,10 @@
 
   function getByProcessId(processId) {
     var id = String(processId || "");
-    var seed = byProcessId[id];
-    if (!seed) return null;
+    if (!/^\d{8}$/.test(id)) return null;
     var override = readOverrides()[id] || {};
+    var seed = byProcessId[id] || (override.createdLead === true ? override : null);
+    if (!seed) return null;
     var merged = Object.assign({}, clone(seed), clone(override));
     merged.serialNumbers = mergeSerialNumbers(
       seed.serialNumbers,
@@ -250,7 +251,9 @@
   }
 
   function getRecords() {
-    return records.map(function (record) { return getByProcessId(record.processId); });
+    var overrides = readOverrides();
+    var added = Object.keys(overrides).filter(function (id) { return !byProcessId[id] && overrides[id] && overrides[id].createdLead === true; }).sort().reverse();
+    return added.concat(records.map(function (record) { return record.processId; })).map(getByProcessId).filter(Boolean);
   }
 
   function parseSerialNumbers(rawValue) {
@@ -280,7 +283,7 @@
     });
     var duplicate = values.find(function (value) { return used[value]; });
     if (duplicate) return { valid: false, values: values, error: duplicate + " is already assigned to Lead " + used[duplicate] + "." };
-    if (!byProcessId[String(processId || "")]) return { valid: false, values: values, error: "Lead not found." };
+    if (!getByProcessId(processId)) return { valid: false, values: values, error: "Lead not found." };
     return { valid: true, values: values, error: "" };
   }
 
@@ -361,8 +364,76 @@
     return { valid: true, values: selected, record: getByProcessId(id), error: "" };
   }
 
+  function canEdit(record) {
+    if (!record || record.fastFlag === 1 || String(record.status) === "6" || record.applyStatus != null) return false;
+    try {
+      var applications = JSON.parse(global.localStorage.getItem("paywizard-onboarding-applications-v2") || "[]");
+      return !Array.isArray(applications) || !applications.some(function (item) {
+        return String(item.sourceLeadProcessId || item.leadProcessId || "") === record.processId;
+      });
+    } catch (error) { return false; }
+  }
+
+  var partnerNames = Array.from(new Set(records.map(function (record) { return record.partnerName; })));
+  function getSnOptions(partnerName) {
+    var index = partnerNames.indexOf(partnerName);
+    if (index < 0) return [];
+    var all = getRecords();
+    var values = Array.from({ length: 5 }, function (_, i) { return "WP66" + String(index * 100 + i + 1).padStart(12, "0"); });
+    all.filter(function (lead) { return lead.partnerName === partnerName; }).forEach(function (lead) { values = values.concat(lead.serialNumbers); });
+    return Array.from(new Set(values)).map(function (sn) {
+      var owner = all.find(function (lead) { return lead.serialNumbers.indexOf(sn) >= 0; });
+      return { sn: sn, owner: owner ? owner.processId + " · " + owner.merchantName : "", available: !owner };
+    });
+  }
+
+  // One atomic write keeps form fields, SNs and existing assignments together.
+  function saveLead(processId, values) {
+    var current = processId ? getByProcessId(processId) : null;
+    if (processId && !canEdit(current)) return { valid: false, error: "This Lead is no longer available for editing. Return to Leads to review its status." };
+    var fields = ["leadOwner", "status", "leadResource", "country", "region", "merchantName", "contactName", "merchantVertical", "attendant", "email", "phone", "dispatchTime", "arrivalTime", "vendingMachineType", "otherServiceType", "outreachContact", "notes"];
+    var patch = {};
+    fields.forEach(function (field) { patch[field] = String(values[field] || "").trim(); });
+    if (!patch.country || !patch.merchantName || !patch.contactName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email)) {
+      return { valid: false, error: "Enter a country or region, merchant name, contact name and valid email." };
+    }
+    patch.decisionMaker = clone(values.decisionMaker || { name: "", email: "", phone: "" });
+    patch.secondDecisionMaker = clone(values.secondDecisionMaker || { name: "", email: "", phone: "" });
+    patch.sameAsMerchant = Boolean(values.sameAsMerchant);
+    patch.sameAsFirst = Boolean(values.sameAsFirst);
+    patch.processing = clone(values.processing || {});
+    patch.attachments = clone(values.attachments || []);
+    if (patch.attachments.length > 5) return { valid: false, error: "Keep no more than 5 attachments." };
+    patch.partnerName = current ? current.partnerName : String(values.partnerName || "");
+    patch.serialNumbers = current ? current.serialNumbers : Array.from(new Set(values.serialNumbers || []));
+    if (!current && patch.serialNumbers.length) {
+      var available = getSnOptions(patch.partnerName).filter(function (option) { return option.available; }).map(function (option) { return option.sn; });
+      if (patch.serialNumbers.some(function (sn) { return available.indexOf(sn) < 0; })) return { valid: false, error: "One or more SNs are no longer available for this Partner. Review your selected SNs." };
+    }
+    patch.currency = currencyByCountry[patch.country] || "";
+    var now = new Date();
+    patch.lastUpdate = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0") + " " + now.toTimeString().slice(0,8);
+    patch.pastDays = 0;
+    patch.updatedAt = now.toISOString();
+    try {
+      var overrides = JSON.parse(global.localStorage.getItem(STORAGE_KEY) || "{}");
+      if (!overrides || typeof overrides !== "object" || Array.isArray(overrides)) throw new Error("Invalid stored data");
+      var id = processId || String(Math.max.apply(null, getRecords().map(function (lead) { return Number(lead.processId) || 0; }).concat([440])) + 1).padStart(8, "0");
+      if (!current) Object.assign(patch, { processId: id, spName: "wizarpos", pageStyle: "UPT", createdLead: true, snAssignments: {} });
+      overrides[id] = Object.assign({}, overrides[id] || {}, patch);
+      global.localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+      return { valid: true, record: getByProcessId(id) };
+    } catch (error) {
+      return { valid: false, error: "Unable to save this Lead in your browser. Check available browser storage and try again. Your entries have been kept." };
+    }
+  }
+
   global.PaywizardUptLeadData = {
     STORAGE_KEY: STORAGE_KEY,
+    saveLead: saveLead,
+    canEdit: canEdit,
+    partnerNames: partnerNames,
+    getSnOptions: getSnOptions,
     records: records,
     getRecords: getRecords,
     getByProcessId: getByProcessId,

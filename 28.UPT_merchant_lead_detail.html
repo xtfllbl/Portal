@@ -90,6 +90,7 @@
                 <div class="lead-detail-label">Vending machine dispatch time</div><div class="lead-detail-value" data-field="dispatchTime"></div>
                 <div class="lead-detail-label">Vending machine arrival time</div><div class="lead-detail-value" data-field="arrivalTime"></div>
                 <div class="lead-detail-label">Type of vending machine</div><div class="lead-detail-value" data-field="vendingMachineType"></div>
+                <div class="lead-detail-label" data-other-service hidden>Other Service Type</div><div class="lead-detail-value" data-field="otherServiceType" data-other-service hidden></div>
                 <div class="lead-detail-label">Contact Information for Merchant Outreach</div><div class="lead-detail-value" data-field="outreachContact"></div>
                 <div class="lead-detail-label">wizarPOS 16-digit Serial #</div>
                 <div class="lead-detail-value">
@@ -187,6 +188,8 @@
         var value = getValue(record, element.dataset.field);
         element.textContent = value === undefined || value === null || value === "" ? "-" : String(value);
       });
+
+      document.querySelectorAll("[data-other-service]").forEach(function (element) { element.hidden = record.vendingMachineType !== "Other" || !record.otherServiceType; });
 
       var attachmentList = document.getElementById("leadAttachments");
       record.attachments.forEach(function (attachment) {

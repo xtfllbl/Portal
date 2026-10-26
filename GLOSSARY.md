@@ -683,3 +683,15 @@ _Avoid_: Contract completion, combined payment
 **Installment Catch-up Collection**:
 Collection of due, unpaid Contract Installments from the oldest to the current installment, as separate payments that stop at the first failure. It can occur automatically on a normal installment collection date or through a platform-operations-confirmed Billing Payment Retry; it does not collect future installments early or extend the contract.
 _Avoid_: Combined arrears charge, contract renewal, daily automatic retry
+
+**Merchant Lead**:
+A prospective merchant's contact, business and follow-up information collected before a merchant application is created. A Lead can include terminal S/Ns without assigning those terminals to a Merchant or Store.
+_Avoid_: Merchant account, approved merchant, Terminal Assignment
+
+**Lead Resource**:
+The acquisition channel through which a Merchant Lead was obtained, such as Direct Traffic, Email Marketing or Referral Partners. It is separate from the Partner identified as the Lead Source.
+_Avoid_: Lead Source, Partner
+
+**Lead Source**:
+The Partner associated with a Merchant Lead. It is distinct from the marketing or referral channel recorded as the Lead Resource.
+_Avoid_: Lead Resource, marketing channel
