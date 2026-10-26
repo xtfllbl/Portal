@@ -184,7 +184,7 @@ test('desktop layout keeps footer visible and selector popup within the viewport
 });
 
 test('five Lead stages stay consistent across UPT, PSP, editor, filters and details', async ({page}) => {
-  const stages = ['Awaiting Customer Response', 'Onboarding in Progress', 'Onboarding Complete', 'Store Created', 'Deployment Complete'];
+  const stages = ['Awaiting Customer Response', 'Onboarding in Progress', 'Onboarding Complete', 'Merchant Created', 'Deployment Complete'];
   await page.goto(editor);
   await expect(page.locator('#status')).toHaveValue(stages[0]);
   expect(await page.locator('#status option:not([disabled])').allTextContents()).toEqual(stages);
@@ -233,7 +233,8 @@ test('old local statuses migrate without losing SN data or unlocking protected L
     '00000439': {status:'Negotiation'},
     '00000438': {status:'6'},
     '00000437': {status:'Deployment Complete'},
-    '00000436': {status:'Activation Complete'}
+    '00000436': {status:'Activation Complete'},
+    '00000434': {status:'Store Created',notes:'Retain merchant creation stage',createTime:'2026-05-21T13:34:43Z'}
   };
   await page.evaluate(value => localStorage.setItem('paywizard-upt-lead-overrides-v1', JSON.stringify(value)), saved);
   await page.reload();
@@ -245,7 +246,11 @@ test('old local statuses migrate without losing SN data or unlocking protected L
   expect(result.saved['00000439'].status).toBe('Onboarding in Progress');
   expect(result.saved['00000437'].status).toBe('Deployment Complete');
   expect(result.saved['00000436'].status).toBe('Deployment Complete');
+  expect(result.saved['00000434']).toEqual({...saved['00000434'],status:'Merchant Created'});
   expect(result.protectedEditable).toBe(false);
+  await page.goto(editor+'?leadProcessId=00000434');
+  await expect(page.locator('#status')).toHaveValue('Merchant Created');
+  expect(await page.locator('#status option').allTextContents()).not.toContain('Store Created');
   await page.goto(editor+'?leadProcessId=00000440');
   await expect(page.locator('#status')).toHaveValue('Awaiting Customer Response');
   expect(await page.locator('#status option').allTextContents()).not.toContain('Successful Pitch');

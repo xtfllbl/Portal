@@ -20,10 +20,12 @@
 | 客户未回复 | Awaiting Customer Response |
 | 进件沟通中 | Onboarding in Progress |
 | 进件完成 | Onboarding Complete |
-| 创建店铺 | Store Created |
+| 创建商户 | Merchant Created |
 | 部署完成 | Deployment Complete |
 
 最后一项以用户最新确认的 Deployment Complete 为准，替代原需求文档中的 Activation Complete。新增默认客户未回复，不提供空状态；筛选的空值仅表示全部状态。状态选择沿用项目已有可搜索、可点选及支持键盘的 Select 模式；列表状态列适配完整英文名称。
+
+2026-10-26 后续确认：第四项统一改为 Merchant Created（创建商户），替代 Store Created（创建店铺）。UPT、PSP 列表、筛选、表单和详情同步；已存储的旧名称迁移到新名称，保留其他 Lead 数据和既有操作限制。本次为状态命名调整，不新增自动创建商户或自动推进状态的流程。
 
 用户已确认：演示数据改用新状态；存储中的 Negotiation、Pitch Scheduled 转为 Onboarding in Progress，无法可靠对应的旧值（包括 Successful Pitch、Unsuccessful Pitch、Ineligible、Pending Activation、Activated、Rejected、空值及 `-`）回到 Awaiting Customer Response。有效的新状态原样保留，Activation Complete 仅作同义名称迁移为 Deployment Complete。迁移仅更新状态字段，保留商户资料、附件、SN、分配关系及原有编辑限制。旧状态 `6` 的禁止编辑语义单独保留，避免改名后意外开放编辑。PSP 演示样例按新流程重新配置，详情状态按来源记录对应。
 

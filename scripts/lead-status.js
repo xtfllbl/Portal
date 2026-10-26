@@ -5,12 +5,13 @@
     'Awaiting Customer Response',
     'Onboarding in Progress',
     'Onboarding Complete',
-    'Store Created',
+    'Merchant Created',
     'Deployment Complete'
   ]);
 
   function normalize(value) {
     if (values.includes(value)) return value;
+    if (value === 'Store Created') return values[3];
     if (value === 'Negotiation' || value === 'Pitch Scheduled') return values[1];
     // The final stage was renamed by the product owner.
     if (value === 'Activation Complete') return values[4];

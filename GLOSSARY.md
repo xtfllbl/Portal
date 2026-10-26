@@ -689,7 +689,7 @@ A prospective merchant's contact, business and follow-up record, retained throug
 _Avoid_: Merchant account, approved merchant, Terminal Assignment
 
 **Lead Status**:
-A Merchant Lead's main business stage: Awaiting Customer Response（客户未回复）, Onboarding in Progress（进件沟通中）, Onboarding Complete（进件完成）, Store Created（创建店铺）or Deployment Complete（部署完成）. Application review results are separate from these five stages.
+A Merchant Lead's main business stage: Awaiting Customer Response（客户未回复）, Onboarding in Progress（进件沟通中）, Onboarding Complete（进件完成）, Merchant Created（创建商户）or Deployment Complete（部署完成）. Application review results are separate from these five stages.
 _Avoid_: Sales pitch status, application review status
 
 **Lead Creation Time**:
