@@ -11,6 +11,24 @@
 
 ## 表单规则
 
+### Lead 状态更新（2026-10-26）
+
+根据《Paywizard 商户进件流程简化产品需求文档》第 3 节，及用户随后确认的名称调整，UPT、PSP 列表、筛选、新增、编辑和详情只使用以下五个主状态：
+
+| 中文 | 页面英文 |
+| --- | --- |
+| 客户未回复 | Awaiting Customer Response |
+| 进件沟通中 | Onboarding in Progress |
+| 进件完成 | Onboarding Complete |
+| 创建店铺 | Store Created |
+| 部署完成 | Deployment Complete |
+
+最后一项以用户最新确认的 Deployment Complete 为准，替代原需求文档中的 Activation Complete。新增默认客户未回复，不提供空状态；筛选的空值仅表示全部状态。状态选择沿用项目已有可搜索、可点选及支持键盘的 Select 模式；列表状态列适配完整英文名称。
+
+用户已确认：演示数据改用新状态；存储中的 Negotiation、Pitch Scheduled 转为 Onboarding in Progress，无法可靠对应的旧值（包括 Successful Pitch、Unsuccessful Pitch、Ineligible、Pending Activation、Activated、Rejected、空值及 `-`）回到 Awaiting Customer Response。有效的新状态原样保留，Activation Complete 仅作同义名称迁移为 Deployment Complete。迁移仅更新状态字段，保留商户资料、附件、SN、分配关系及原有编辑限制。旧状态 `6` 的禁止编辑语义单独保留，避免改名后意外开放编辑。PSP 演示样例按新流程重新配置，详情状态按来源记录对应。
+
+本次只修改 Lead 主状态及相关显示、选择和保存，不实现整份需求中的邮件、国家路由、审批事件自动推进、店铺关联或部署流程。进件申请自己的审核状态维持原定义。
+
 | 区域 | 内容与规则 |
 | --- | --- |
 | Lead Information | Page Style 固定 UPT；Lead Owner；Status；Lead Resource；Lead Source (Partner)。编辑时 Partner 只读。 |
@@ -43,6 +61,8 @@
 
 ## 验证
 
+- 本次五状态修改：新增、编辑、详情、搜索筛选、返回上下文、旧值迁移和受限记录保护检查通过；关联回归共 46 项通过，静态构建通过。另有 4 项既有 Merchant List 侧栏测试仍要求 Split Rules 入口，与当前侧栏定义不一致；相关页面、共享侧栏和该测试均未在本次修改。
+- 在实际桌面 Chrome 打开 Leads 列表与编辑页，检查五个选项、已选标记、完整状态文字、横向滚动后的固定 Actions 列及底部保存操作。列表使用已有 `uptime-combobox.js` 的搜索、点选、键盘和顶层弹出交互；PrimeVue v4 Select 官方文档本次访问超时，未据此宣称核验 v4 的全部细节。
 - `tests/leads-editor.spec.js` 覆盖新增、编辑、刷新持久化、列表/详情同步、校验焦点、键盘选择、旧值与终端分配保留、取消保护、筛选恢复、PSP 边界、附件上限、存储失败、SN 并发占用复查、非法/不可编辑记录和桌面布局。
 - 与既有 Merchant Admin Leads 回归合计 23 项通过；另有 2 项 Leads 场景/能力专项通过，涵盖 Add SN、分批分配、Onboard 和详情。
 - 1600×1000、1280×800 的实际 Chromium 页面截图在 `artifacts/leads-editor/`。检查固定操作栏、40px 按钮、表单滚动、下拉边界；无横向溢出。验收范围仅桌面浏览器。

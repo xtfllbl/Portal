@@ -398,11 +398,11 @@
     }
 
     .upt-table {
-      min-width: 1660px;
+      min-width: 1795px;
     }
 
     .intl-table {
-      min-width: 1600px;
+      min-width: 1735px;
     }
 
     .upt-table thead th:nth-child(1) { width: 90px; }
@@ -417,7 +417,7 @@
     .upt-table thead th:nth-child(10) { width: 115px; }
     .upt-table thead th:nth-child(11) { width: 75px; }
     .upt-table thead th:nth-child(12) { width: 80px; }
-    .upt-table thead th:nth-child(13) { width: 95px; }
+    .upt-table thead th:nth-child(13) { width: 230px; }
     .upt-table thead th:nth-child(14) { width: 132px; }
 
     .intl-table thead th:nth-child(1) { width: 85px; }
@@ -433,7 +433,7 @@
     .intl-table thead th:nth-child(11) { width: 95px; }
     .intl-table thead th:nth-child(12) { width: 70px; }
     .intl-table thead th:nth-child(13) { width: 85px; }
-    .intl-table thead th:nth-child(14) { width: 90px; }
+    .intl-table thead th:nth-child(14) { width: 230px; }
     .intl-table thead th:nth-child(15) { width: 132px; }
 
     thead th {
@@ -475,6 +475,7 @@
     }
 
     .status {
+      white-space: nowrap;
       color: #3f3f46;
     }
 
@@ -789,6 +790,16 @@
     }
       .action-btn .material-symbols-rounded { font-size: 18px; }
     .action-btn:disabled { opacity: .4; cursor: not-allowed; }
+    #statusFilter[hidden] { display: none; }
+    #statusPicker { position: relative; width: 260px; }
+    #statusPicker input { width: 100%; padding-right: 32px; }
+    #statusPicker .up-combo-toggle { position: absolute; right: 1px; top: 1px; width: 30px; height: 37px; background: transparent; color: var(--muted); cursor: pointer; }
+    #statusPicker input:focus-visible { outline: 2px solid var(--line-strong); outline-offset: 2px; }
+    .lead-status-options { position: fixed; inset: auto; margin: 0; padding: 4px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid #d7dde6; border-radius: 6px; background: #fff; color: #29292e; box-shadow: 0 6px 20px #20202520; font: 400 12px/20px 'Poppins', 'Segoe UI', sans-serif; }
+    .lead-status-options [role="option"] { padding: 8px 10px; border-radius: 4px; cursor: pointer; }
+    .lead-status-options .active, .lead-status-options [role="option"]:hover { background: #f1f2f4; }
+    .lead-status-options [aria-selected="true"] { font-weight: 600; }
+    .lead-status-options .up-option-empty { padding: 12px; color: #737b8a; }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -884,12 +895,8 @@
             <input class="filter-field" id="snFilter" type="text" placeholder="SN" aria-label="SN">
             <select class="filter-field" id="statusFilter" aria-label="Status">
               <option value="">Status</option>
-              <option>-</option>
-              <option>Negotiation</option>
-              <option>Pending Activation</option>
-              <option>Activated</option>
-              <option>Rejected</option>
             </select>
+            <div id="statusPicker"></div>
             <button class="btn" id="filterButton" type="button">
               <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"></path></svg>
               Filter
@@ -918,7 +925,7 @@
               </tr>
             </thead>
             <tbody id="uptLeadRows">
-              <tr data-partner="广州新勇隆智能设备有限公司" data-secondary="United States of America" data-sn="" data-status="-">
+              <tr data-partner="广州新勇隆智能设备有限公司" data-secondary="United States of America" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000440</td>
                 <td>wizarpos</td>
                 <td>广州新勇隆智能设备有限公司</td>
@@ -930,7 +937,7 @@
                 <td>2026-05-29<br>14:25:04</td>
                 <td>1</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -940,7 +947,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="上海比至" data-secondary="United States of America" data-sn="" data-status="-">
+              <tr data-partner="上海比至" data-secondary="United States of America" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000439</td>
                 <td>wizarpos</td>
                 <td>上海比至</td>
@@ -952,7 +959,7 @@
                 <td>2026-05-28<br>18:04:26</td>
                 <td>1</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -962,7 +969,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="IMT" data-secondary="Mongolia" data-sn="" data-status="-">
+              <tr data-partner="IMT" data-secondary="Mongolia" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000438</td>
                 <td>wizarpos</td>
                 <td>IMT</td>
@@ -974,7 +981,7 @@
                 <td>2026-05-28<br>15:34:29</td>
                 <td>2</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -984,7 +991,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="苏州咔咔电子有限公司" data-secondary="Mexico" data-sn="" data-status="Negotiation">
+              <tr data-partner="苏州咔咔电子有限公司" data-secondary="Mexico" data-sn="" data-status="Onboarding in Progress">
                 <td class="mono">00000437</td>
                 <td>wizarpos</td>
                 <td>苏州咔咔电子有限公司</td>
@@ -996,7 +1003,7 @@
                 <td>2026-05-27<br>16:40:12</td>
                 <td>2</td>
                 <td class="style">UPT</td>
-                <td class="status">Negotiation</td>
+                <td class="status">Onboarding in Progress</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1006,7 +1013,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="星云开物" data-secondary="Russian Federation" data-sn="" data-status="-">
+              <tr data-partner="星云开物" data-secondary="Russian Federation" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000436</td>
                 <td>wizarpos</td>
                 <td>星云开物</td>
@@ -1018,7 +1025,7 @@
                 <td>2026-05-26<br>19:10:01</td>
                 <td>3</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1028,7 +1035,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="爆米发" data-secondary="Indonesia" data-sn="" data-status="-">
+              <tr data-partner="爆米发" data-secondary="Indonesia" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000434</td>
                 <td>wizarpos</td>
                 <td>爆米发</td>
@@ -1040,7 +1047,7 @@
                 <td>2026-05-23<br>21:34:43</td>
                 <td>6</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1050,7 +1057,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="IMT" data-secondary="Russian Federation" data-sn="" data-status="-">
+              <tr data-partner="IMT" data-secondary="Russian Federation" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000433</td>
                 <td>wizarpos</td>
                 <td>IMT</td>
@@ -1062,7 +1069,7 @@
                 <td>2026-05-23<br>09:21:24</td>
                 <td>7</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1072,7 +1079,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="广州鼎乐" data-secondary="Russian Federation" data-sn="" data-status="Negotiation">
+              <tr data-partner="广州鼎乐" data-secondary="Russian Federation" data-sn="" data-status="Onboarding in Progress">
                 <td class="mono">00000432</td>
                 <td>wizarpos</td>
                 <td>广州鼎乐</td>
@@ -1084,7 +1091,7 @@
                 <td>2026-05-21<br>19:44:05</td>
                 <td>8</td>
                 <td class="style">UPT</td>
-                <td class="status">Negotiation</td>
+                <td class="status">Onboarding in Progress</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1094,7 +1101,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="上海比至" data-secondary="United States of America" data-sn="" data-status="-">
+              <tr data-partner="上海比至" data-secondary="United States of America" data-sn="" data-status="Awaiting Customer Response">
                 <td class="mono">00000431</td>
                 <td>wizarpos</td>
                 <td>上海比至</td>
@@ -1106,7 +1113,7 @@
                 <td>2026-05-21<br>11:52:47</td>
                 <td>9</td>
                 <td class="style">UPT</td>
-                <td class="status">-</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1116,7 +1123,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="河北盛马" data-secondary="Singapore" data-sn="" data-status="Negotiation">
+              <tr data-partner="河北盛马" data-secondary="Singapore" data-sn="" data-status="Onboarding in Progress">
                 <td class="mono">00000430</td>
                 <td>wizarpos</td>
                 <td>河北盛马</td>
@@ -1128,7 +1135,7 @@
                 <td>2026-05-20<br>16:54:08</td>
                 <td>9</td>
                 <td class="style">UPT</td>
-                <td class="status">Negotiation</td>
+                <td class="status">Onboarding in Progress</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="#" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1162,7 +1169,7 @@
               </tr>
             </thead>
             <tbody id="intlLeadRows">
-              <tr data-partner="AtlasPay Europe Ltd." data-channel="Fiserv" data-sn="WP43807Q333883896" data-status="Negotiation">
+              <tr data-partner="AtlasPay Europe Ltd." data-channel="Fiserv" data-sn="WP43807Q333883896" data-status="Onboarding in Progress">
                 <td class="mono">00000452</td>
                 <td>wizarpos</td>
                 <td>AtlasPay Europe Ltd.</td>
@@ -1176,7 +1183,7 @@
                 <td>2026-05-29<br>14:16:40</td>
                 <td>0</td>
                 <td class="style">PSP</td>
-                <td class="status">Negotiation</td>
+                <td class="status">Onboarding in Progress</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail">
@@ -1194,7 +1201,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="Pacific Gateway Payments Inc." data-channel="Nuvei" data-sn="WP6001MM33000109" data-status="Pending Activation">
+              <tr data-partner="Pacific Gateway Payments Inc." data-channel="Nuvei" data-sn="WP6001MM33000109" data-status="Onboarding Complete">
                 <td class="mono">00000451</td>
                 <td>wizarpos</td>
                 <td>Pacific Gateway Payments Inc.</td>
@@ -1208,7 +1215,7 @@
                 <td>2026-05-29<br>09:44:18</td>
                 <td>0</td>
                 <td class="style">PSP</td>
-                <td class="status">Pending Activation</td>
+                <td class="status">Onboarding Complete</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1218,7 +1225,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="AtlasPay Europe Ltd." data-channel="Elavon EU" data-sn="WP5280VQ33200002" data-status="Activated">
+              <tr data-partner="AtlasPay Europe Ltd." data-channel="Elavon EU" data-sn="WP5280VQ33200002" data-status="Deployment Complete">
                 <td class="mono">00000450</td>
                 <td>wizarpos</td>
                 <td>AtlasPay UK Channel</td>
@@ -1232,7 +1239,7 @@
                 <td>2026-05-28<br>17:22:08</td>
                 <td>1</td>
                 <td class="style">PSP</td>
-                <td class="status">Activated</td>
+                <td class="status">Deployment Complete</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1242,7 +1249,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="Northstar PSP Services" data-channel="TSYS" data-sn="WP02502110005" data-status="Pending Activation">
+              <tr data-partner="Northstar PSP Services" data-channel="TSYS" data-sn="WP02502110005" data-status="Store Created">
                 <td class="mono">00000449</td>
                 <td>wizarpos</td>
                 <td>Northstar PSP Services</td>
@@ -1256,7 +1263,7 @@
                 <td>2026-05-27<br>13:08:55</td>
                 <td>2</td>
                 <td class="style">PSP</td>
-                <td class="status">Pending Activation</td>
+                <td class="status">Store Created</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1266,7 +1273,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="OceanPay Global Ltd." data-channel="Fiserv" data-sn="WP43807Q33203580" data-status="Rejected">
+              <tr data-partner="OceanPay Global Ltd." data-channel="Fiserv" data-sn="WP43807Q33203580" data-status="Awaiting Customer Response">
                 <td class="mono">00000448</td>
                 <td>wizarpos</td>
                 <td>OceanPay Global Ltd.</td>
@@ -1280,7 +1287,7 @@
                 <td>2026-05-26<br>16:41:21</td>
                 <td>3</td>
                 <td class="style">PSP</td>
-                <td class="status">Rejected</td>
+                <td class="status">Awaiting Customer Response</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1290,7 +1297,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="Metro PSP Network" data-channel="Nuvei" data-sn="WP43807Q33256790" data-status="Negotiation">
+              <tr data-partner="Metro PSP Network" data-channel="Nuvei" data-sn="WP43807Q33256790" data-status="Onboarding in Progress">
                 <td class="mono">00000447</td>
                 <td>wizarpos</td>
                 <td>Metro PSP Network</td>
@@ -1304,7 +1311,7 @@
                 <td>2026-05-24<br>11:32:17</td>
                 <td>5</td>
                 <td class="style">PSP</td>
-                <td class="status">Negotiation</td>
+                <td class="status">Onboarding in Progress</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1314,7 +1321,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="Harbor PSP Group" data-channel="Elavon EU" data-sn="WP43807Q33203576" data-status="Pending Activation">
+              <tr data-partner="Harbor PSP Group" data-channel="Elavon EU" data-sn="WP43807Q33203576" data-status="Store Created">
                 <td class="mono">00000446</td>
                 <td>wizarpos</td>
                 <td>Harbor PSP Group</td>
@@ -1328,7 +1335,7 @@
                 <td>2026-05-21<br>18:05:44</td>
                 <td>8</td>
                 <td class="style">PSP</td>
-                <td class="status">Pending Activation</td>
+                <td class="status">Store Created</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1338,7 +1345,7 @@
                   </div>
                 </td>
               </tr>
-              <tr data-partner="Union PSP Operations" data-channel="TSYS" data-sn="WP43807Q33256889" data-status="Activated">
+              <tr data-partner="Union PSP Operations" data-channel="TSYS" data-sn="WP43807Q33256889" data-status="Deployment Complete">
                 <td class="mono">00000445</td>
                 <td>wizarpos</td>
                 <td>Union PSP Operations</td>
@@ -1352,7 +1359,7 @@
                 <td>2026-05-19<br>15:18:30</td>
                 <td>10</td>
                 <td class="style">PSP</td>
-                <td class="status">Activated</td>
+                <td class="status">Deployment Complete</td>
                 <td>
                   <div class="actions">
                     <a class="action-btn view" href="28.INTL_PSP_merchant_lead_detail.html" title="View detail" aria-label="View detail"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"></path><path d="M15 3v3h3"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></a>
@@ -1535,6 +1542,8 @@
 
   <div class="lead-toast" id="leadToast" role="status" aria-live="polite" hidden></div>
 
+  <script src="scripts/uptime-combobox.js"></script>
+  <script src="scripts/lead-status.js"></script>
   <script src="scripts/upt-merchant-lead-data.js"></script>
   <script>
 	    (function () {
@@ -1545,6 +1554,24 @@
 	      var secondaryFilter = document.getElementById("secondaryFilter");
 	      var snFilter = document.getElementById("snFilter");
 	      var statusFilter = document.getElementById("statusFilter");
+          var statusPicker;
+          var statuses = window.PaywizardLeadStatus.values;
+          statuses.forEach(function (status) { statusFilter.add(new Option(status, status)); });
+          function refreshStatusPicker() {
+            if (statusPicker) statusPicker.destroy();
+            var host = document.getElementById("statusPicker");
+            statusPicker = window.PaywizardUptimeCombobox.mount(host, {
+              label: "Status", options: [{key: "", name: "All Statuses"}].concat(statuses.map(function (status) { return {key: status, name: status}; })),
+              value: statusFilter.value,
+              onChange: function (value) { statusFilter.value = value; applyFilters(); }
+            });
+            host.querySelector("input").classList.add("filter-field");
+            host.querySelector("input").placeholder = "Status";
+            if (!statusFilter.value) host.querySelector("input").value = "";
+            host.querySelector('[role="listbox"]').classList.add("lead-status-options");
+          }
+          statusFilter.hidden = true;
+          statusFilter.addEventListener("change", refreshStatusPicker);
 	      var filterButton = document.getElementById("filterButton");
 	      var pageTotal = document.getElementById("pageTotal");
 	      var tableWrap = document.querySelector(".table-wrap");
@@ -1853,7 +1880,10 @@
 	          var actions = row.querySelector(".actions");
 	          if (!actions) return;
 	          Array.prototype.slice.call(actions.children).forEach(function (button, index) {
-	            if (index === 0) button.setAttribute("data-tooltip", "View detail");
+	            if (index === 0) {
+                  button.setAttribute("data-tooltip", "View detail");
+                  button.href = "28.INTL_PSP_merchant_lead_detail.html?leadProcessId=" + encodeURIComponent(row.cells[0].textContent.trim());
+                }
 	            else button.remove();
 	          });
 	        });
@@ -1885,6 +1915,7 @@
 	        secondaryFilter.value = "";
 	        snFilter.value = "";
 	        statusFilter.value = "";
+            refreshStatusPicker();
 	      }
 
 	      function setActiveTab(tab) {
@@ -1898,9 +1929,7 @@
 	          table.hidden = table.getAttribute("data-table-view") !== activeTab;
 	        });
 	        renderSecondaryOptions();
-            var statuses = activeTab === "upt" ? ["-", "Not Contacted", "Pitch Scheduled", "Negotiation", "Successful Pitch", "Unsuccessful Pitch", "Ineligible"] : ["Pending Activation", "Activated", "Rejected"];
-            statusFilter.replaceChildren(new Option("Status", ""));
-            statuses.forEach(function (status) { statusFilter.add(new Option(status, status)); });
+
 	        clearFilters();
 	        if (tableWrap) tableWrap.scrollLeft = 0;
 	        applyFilters();
@@ -2105,7 +2134,7 @@
           try { returnState = JSON.parse(sessionStorage.getItem("paywizard-lead-list-return") || "null"); sessionStorage.removeItem("paywizard-lead-list-return"); } catch (_) {}
           setActiveTab(query.has("saved") ? "upt" : returnState ? returnState.tab : window.location.hash === "#intl" ? "intl" : "upt");
           if (returnState && !query.has("created") && (!query.has("saved") || returnState.tab === "upt")) {
-            partnerFilter.value = returnState.partner; secondaryFilter.value = returnState.secondary; snFilter.value = returnState.sn; statusFilter.value = returnState.status; applyFilters();
+            partnerFilter.value = returnState.partner; secondaryFilter.value = returnState.secondary; snFilter.value = returnState.sn; statusFilter.value = returnState.status ? window.PaywizardLeadStatus.normalize(returnState.status) : ""; refreshStatusPicker(); applyFilters();
             document.querySelector('.pw-content-panel').scrollTop = returnState.scroll || 0;
           }
           if (query.has("saved")) {

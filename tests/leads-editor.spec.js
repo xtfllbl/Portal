@@ -79,10 +79,11 @@ test('Edit preserves legacy values, readonly fields and terminal assignments whi
   await expect(page.locator('#attendant')).toHaveValue('Mixed');
   await expect(page.locator('#vendingMachineType')).toHaveValue(before.vendingMachineType);
   await page.locator('#merchantName').fill('Updated Arena');
-  await choose(page,'status','Successful Pitch');
+  await choose(page,'status','Onboarding Complete');
   await save(page);
   await expect(row).toContainText('Updated Arena');
-  await page.locator('#statusFilter').selectOption('Successful Pitch');
+  await page.locator('#statusPicker input').fill('Onboarding Complete');
+  await page.locator('#statusPicker input').press('Enter');
   await page.locator('#filterButton').click();
   await expect(row).toBeVisible();
   const after=await page.evaluate(()=>window.PaywizardUptLeadData.getByProcessId('00000438'));
@@ -179,4 +180,74 @@ test('desktop layout keeps footer visible and selector popup within the viewport
     await page.screenshot({path:`artifacts/leads-editor/bottom-${width}.png`});
     await page.locator('.lead-editor-scroll').evaluate(el=>el.scrollTop=0);
   }
+});
+
+test('five Lead stages stay consistent across UPT, PSP, editor, filters and details', async ({page}) => {
+  const stages = ['Awaiting Customer Response', 'Onboarding in Progress', 'Onboarding Complete', 'Store Created', 'Deployment Complete'];
+  await page.goto(editor);
+  await expect(page.locator('#status')).toHaveValue(stages[0]);
+  expect(await page.locator('#status option:not([disabled])').allTextContents()).toEqual(stages);
+  await choose(page, 'status', stages[4]);
+  await required(page, 'Deployment Stage Merchant');
+  await save(page);
+  const row = page.locator('#uptLeadRows tr').first();
+  await expect(row).toContainText(stages[4]);
+  const input = page.locator('#statusPicker input');
+  await input.fill('Deployment');
+  await input.press('Enter');
+  await expect(page.locator('#uptLeadRows tr:visible')).toHaveCount(1);
+  await input.click();
+  await page.keyboard.press('Escape');
+  await expect(input).toHaveValue(stages[4]);
+  await row.getByLabel('Edit', {exact:true}).click();
+  await expect(page.locator('#status')).toHaveValue(stages[4]);
+  await page.locator('#cancelLead').click();
+  await expect(page.locator('#statusPicker input')).toHaveValue(stages[4]);
+  await page.locator('#uptLeadRows tr:visible').getByLabel('View detail', {exact:true}).click();
+  await expect(page.locator('[data-field="status"]')).toHaveText(stages[4]);
+  await page.goto(list);
+  await page.getByRole('tab', {name:'PSP', exact:true}).click();
+  expect(await page.locator('#statusFilter option').allTextContents()).toEqual(['Status', ...stages]);
+  const samples = await page.locator('#intlLeadRows tr').evaluateAll(rows => rows.map(row => ({
+    status: row.dataset.status, text: row.querySelector('.status').textContent,
+    href: row.querySelector('a.view').getAttribute('href')
+  })));
+  expect(new Set(samples.map(row => row.status))).toEqual(new Set(stages));
+  for (const sample of samples) {
+    expect(sample.text).toBe(sample.status);
+    await page.goto('/' + sample.href);
+    await expect(page.locator('#leadStatus')).toHaveText(sample.status);
+  }
+});
+
+test('old local statuses migrate without losing SN data or unlocking protected Leads', async ({page}) => {
+  await page.goto(list);
+  const assignments = { WP99999999999901: {sn:'WP99999999999901', merchantName:'Kept Merchant', storeName:'Kept Store', assignedAt:'2026-10-25'} };
+  const saved = {
+    '00000440': {status:'Successful Pitch', merchantName:'Kept Name', serialNumbers:['WP99999999999901'], snAssignments:assignments, notes:'Kept notes'},
+    '00000439': {status:'Negotiation'},
+    '00000438': {status:'6'},
+    '00000437': {status:'Deployment Complete'},
+    '00000436': {status:'Activation Complete'}
+  };
+  await page.evaluate(value => localStorage.setItem('paywizard-upt-lead-overrides-v1', JSON.stringify(value)), saved);
+  await page.reload();
+  const result = await page.evaluate(() => ({
+    saved: JSON.parse(localStorage.getItem('paywizard-upt-lead-overrides-v1')),
+    protectedEditable: window.PaywizardUptLeadData.canEdit(window.PaywizardUptLeadData.getByProcessId('00000438'))
+  }));
+  expect(result.saved['00000440']).toEqual({...saved['00000440'], status:'Awaiting Customer Response'});
+  expect(result.saved['00000439'].status).toBe('Onboarding in Progress');
+  expect(result.saved['00000437'].status).toBe('Deployment Complete');
+  expect(result.saved['00000436'].status).toBe('Deployment Complete');
+  expect(result.protectedEditable).toBe(false);
+  await page.goto(editor+'?leadProcessId=00000440');
+  await expect(page.locator('#status')).toHaveValue('Awaiting Customer Response');
+  expect(await page.locator('#status option').allTextContents()).not.toContain('Successful Pitch');
+  await page.locator('#leadOwner').fill('Updated Owner');
+  await save(page);
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('paywizard-upt-lead-overrides-v1'))['00000440']);
+  expect(after.snAssignments).toEqual(assignments);
+  expect(after.serialNumbers).toEqual(saved['00000440'].serialNumbers);
+  expect(after.merchantName).toBe('Kept Name');
 });

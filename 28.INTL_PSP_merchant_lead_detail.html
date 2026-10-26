@@ -583,7 +583,7 @@
           </div>
           <div class="detail-row">
             <div class="detail-label">Status</div>
-            <div class="detail-value">Negotiation</div>
+            <div class="detail-value" id="leadStatus">Onboarding in Progress</div>
           </div>
           <div class="detail-row">
             <div class="detail-label">Lead Resource</div>
@@ -758,6 +758,13 @@
       </section>
     </main>
   </div>
+  <script src="scripts/lead-status.js"></script>
+  <script>
+    (function () {
+      var id = new URLSearchParams(location.search).get("leadProcessId") || "00000452";
+      document.getElementById("leadStatus").textContent = window.PaywizardLeadStatus.pspSamples[id] || window.PaywizardLeadStatus.values[0];
+    })();
+  </script>
   <script src="scripts/platform-admin-shell.js"></script>
 </body>
 </html>

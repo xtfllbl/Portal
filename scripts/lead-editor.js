@@ -7,7 +7,7 @@
   const record = id ? data.getByProcessId(id) : null;
   const form = $('leadEditorForm');
   const pickers = {};
-  const base = record || { status: 'Not Contacted', attendant: 'Unattended', serialNumbers: [], attachments: [], decisionMaker: {}, secondDecisionMaker: {}, processing: {} };
+  const base = record || { status: window.PaywizardLeadStatus.values[0], attendant: 'Unattended', serialNumbers: [], attachments: [], decisionMaker: {}, secondDecisionMaker: {}, processing: {} };
   let selectedSn = [...base.serialNumbers], attachments = structuredClone(base.attachments), initial = '', leaving = false, dialogAction = null;
   const listUrl = '29.INTL_PSP_merchant_lead_list.html';
   const blocked = Boolean(id && !data.canEdit(record));
@@ -33,7 +33,9 @@
     if (pickers[field]) pickers[field].refresh();
   }
   options('pageStyle', ['UPT'], 'UPT'); $('pageStyle').disabled = true;
-  options('status', ['Not Contacted','Pitch Scheduled','Negotiation','Successful Pitch','Unsuccessful Pitch','Ineligible'], base.status);
+  options('status', window.PaywizardLeadStatus.values, base.status);
+  // A Lead always has one of the five stages; the first stage is the default.
+  $('status').options[0].disabled = true;
   options('leadResource', ['Direct Traffic','Social Media','Email Marketing','Referral Partners','Trade Shows'], base.leadResource);
   options('partnerName', data.partnerNames, base.partnerName); $('partnerName').disabled = Boolean(id);
   options('country', window.PaywizardPaymentChannelData.options.regions.map(item => item.label), base.country);

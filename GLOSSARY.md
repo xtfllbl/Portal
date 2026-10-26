@@ -685,8 +685,16 @@ Collection of due, unpaid Contract Installments from the oldest to the current i
 _Avoid_: Combined arrears charge, contract renewal, daily automatic retry
 
 **Merchant Lead**:
-A prospective merchant's contact, business and follow-up information collected before a merchant application is created. A Lead can include terminal S/Ns without assigning those terminals to a Merchant or Store.
+A prospective merchant's contact, business and follow-up record, retained through onboarding, Store creation and deployment. A Lead can include terminal S/Ns without assigning those terminals to a Merchant or Store.
 _Avoid_: Merchant account, approved merchant, Terminal Assignment
+
+**Lead Status**:
+A Merchant Lead's main business stage: Awaiting Customer Response（客户未回复）, Onboarding in Progress（进件沟通中）, Onboarding Complete（进件完成）, Store Created（创建店铺）or Deployment Complete（部署完成）. Application review results are separate from these five stages.
+_Avoid_: Sales pitch status, application review status
+
+**Deployment Complete**:
+The Lead stage indicating that a Terminal is bound to the Lead's associated Store and parameters have been pushed to that Terminal. It does not require an online check, parameter acknowledgement or first payment.
+_Avoid_: Activation Complete, Activated, first successful transaction
 
 **Lead Resource**:
 The acquisition channel through which a Merchant Lead was obtained, such as Direct Traffic, Email Marketing or Referral Partners. It is separate from the Partner identified as the Lead Source.

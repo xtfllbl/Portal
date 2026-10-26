@@ -1,6 +1,7 @@
 (function (global) {
   "use strict";
 
+  var leadStatus = global.PaywizardLeadStatus;
   var STORAGE_KEY = "paywizard-upt-lead-overrides-v1";
 
   var records = [
@@ -8,7 +9,7 @@
       processId: "00000440", spName: "wizarpos", partnerName: "广州新勇隆智能设备有限公司",
       country: "United States of America", region: "California", merchantName: "Brittney Rodriguez",
       terminalNumber: 0, contactName: "Brittney Rodriguez", email: "therosebar@outlook.com",
-      phone: "+1 415 555 0148", lastUpdate: "2026-05-29 14:25:04", pastDays: 1, status: "-",
+      phone: "+1 415 555 0148", lastUpdate: "2026-05-29 14:25:04", pastDays: 1, status: "Awaiting Customer Response",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Specialty Retail",
       attendant: "Unattended", dispatchTime: "2026-06-03", arrivalTime: "Pending",
       vendingMachineType: "Compact retail vending kiosk", outreachContact: "Email preferred",
@@ -23,7 +24,7 @@
       processId: "00000439", spName: "wizarpos", partnerName: "上海比至",
       country: "United States of America", region: "Nevada", merchantName: "Jeeves Vending",
       terminalNumber: 12, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
-      phone: "+1 702 555 0184", lastUpdate: "2026-05-28 18:04:26", pastDays: 1, status: "-",
+      phone: "+1 702 555 0184", lastUpdate: "2026-05-28 18:04:26", pastDays: 1, status: "Awaiting Customer Response",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Vending",
       attendant: "Unattended", dispatchTime: "2026-05-30", arrivalTime: "2026-06-04",
       vendingMachineType: "Snack and beverage vending machine", outreachContact: "Gary Stryder",
@@ -38,7 +39,7 @@
       processId: "00000438", spName: "wizarpos", partnerName: "IMT",
       country: "Mongolia", region: "Ulaanbaatar", merchantName: "Steppe Arena LLC",
       terminalNumber: 14, contactName: "Khaliun Maitsetseg", email: "khaliun.m@steppeholding.mn",
-      phone: "+976 7011 4388", lastUpdate: "2026-05-28 15:34:29", pastDays: 2, status: "-",
+      phone: "+976 7011 4388", lastUpdate: "2026-05-28 15:34:29", pastDays: 2, status: "Awaiting Customer Response",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Entertainment Venue",
       attendant: "Mixed", dispatchTime: "2026-06-01", arrivalTime: "2026-06-08",
       vendingMachineType: "Arena food and merchandise kiosks", outreachContact: "Khaliun Maitsetseg",
@@ -53,7 +54,7 @@
       processId: "00000437", spName: "wizarpos", partnerName: "苏州咔咔电子有限公司",
       country: "Mexico", region: "Jalisco", merchantName: "Pasiflor",
       terminalNumber: 1, contactName: "Angela Alanis", email: "alanis.komi@gmail.com",
-      phone: "+52 33 5550 0437", lastUpdate: "2026-05-27 16:40:12", pastDays: 2, status: "Negotiation",
+      phone: "+52 33 5550 0437", lastUpdate: "2026-05-27 16:40:12", pastDays: 2, status: "Onboarding in Progress",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Food Service",
       attendant: "Unattended", dispatchTime: "2026-06-02", arrivalTime: "2026-06-09",
       vendingMachineType: "Fresh flower and gift vending machine", outreachContact: "Angela Alanis",
@@ -68,7 +69,7 @@
       processId: "00000436", spName: "wizarpos", partnerName: "星云开物",
       country: "Russian Federation", region: "Moscow", merchantName: "OOO ДУН ТУ",
       terminalNumber: 16, contactName: "Анна", email: "sales1@ogawa-market.ru",
-      phone: "+7 495 555 0436", lastUpdate: "2026-05-26 19:10:01", pastDays: 3, status: "-",
+      phone: "+7 495 555 0436", lastUpdate: "2026-05-26 19:10:01", pastDays: 3, status: "Awaiting Customer Response",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Wellness Retail",
       attendant: "Unattended", dispatchTime: "2026-05-31", arrivalTime: "2026-06-07",
       vendingMachineType: "Massage product retail kiosk", outreachContact: "Анна",
@@ -83,7 +84,7 @@
       processId: "00000434", spName: "wizarpos", partnerName: "爆米发",
       country: "Indonesia", region: "East Java", merchantName: "PNDW Station",
       terminalNumber: 18, contactName: "Wahyu Yudhistira Tafrikun", email: "cvlabmanusiawangi@gmail.com",
-      phone: "+62 31 555 0434", lastUpdate: "2026-05-23 21:34:43", pastDays: 6, status: "-",
+      phone: "+62 31 555 0434", lastUpdate: "2026-05-23 21:34:43", pastDays: 6, status: "Awaiting Customer Response",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Food and Beverage",
       attendant: "Unattended", dispatchTime: "2026-05-29", arrivalTime: "2026-06-05",
       vendingMachineType: "Popcorn vending machine", outreachContact: "Wahyu Yudhistira Tafrikun",
@@ -98,7 +99,7 @@
       processId: "00000433", spName: "wizarpos", partnerName: "IMT",
       country: "Russian Federation", region: "Saint Petersburg", merchantName: "Mamian Diana",
       terminalNumber: 2, contactName: "Mamian Diana", email: "MD-1212@yandex.ru",
-      phone: "+7 812 555 0433", lastUpdate: "2026-05-23 09:21:24", pastDays: 7, status: "-",
+      phone: "+7 812 555 0433", lastUpdate: "2026-05-23 09:21:24", pastDays: 7, status: "Awaiting Customer Response",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Beauty Services",
       attendant: "Attended", dispatchTime: "2026-05-28", arrivalTime: "2026-06-03",
       vendingMachineType: "Beauty product dispensing kiosk", outreachContact: "Mamian Diana",
@@ -113,7 +114,7 @@
       processId: "00000432", spName: "wizarpos", partnerName: "广州鼎乐",
       country: "Russian Federation", region: "Krasnodar Krai", merchantName: "Cotton candy",
       terminalNumber: 1, contactName: "Aleksandr Durmanenko", email: "Rufu012@Gmail.com",
-      phone: "+7 861 555 0432", lastUpdate: "2026-05-21 19:44:05", pastDays: 8, status: "Negotiation",
+      phone: "+7 861 555 0432", lastUpdate: "2026-05-21 19:44:05", pastDays: 8, status: "Onboarding in Progress",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Amusement",
       attendant: "Unattended", dispatchTime: "2026-05-27", arrivalTime: "2026-06-02",
       vendingMachineType: "Cotton candy vending machine", outreachContact: "Aleksandr Durmanenko",
@@ -128,7 +129,7 @@
       processId: "00000431", spName: "wizarpos", partnerName: "上海比至",
       country: "United States of America", region: "Texas", merchantName: "Jeeves Vending",
       terminalNumber: 20, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
-      phone: "+1 214 555 0431", lastUpdate: "2026-05-21 11:52:47", pastDays: 9, status: "-",
+      phone: "+1 214 555 0431", lastUpdate: "2026-05-21 11:52:47", pastDays: 9, status: "Awaiting Customer Response",
       leadOwner: "Olivia Chen", leadResource: "Referral Partners", merchantVertical: "Vending",
       attendant: "Unattended", dispatchTime: "2026-05-26", arrivalTime: "2026-06-01",
       vendingMachineType: "Snack, beverage and coffee vending machines", outreachContact: "Gary Stryder",
@@ -143,7 +144,7 @@
       processId: "00000430", spName: "wizarpos", partnerName: "河北盛马",
       country: "Singapore", region: "Central Region", merchantName: "LUMINA VOYAGE TECH PTE. LTD",
       terminalNumber: 24, contactName: "Guoqi Yu", email: "yugq2022@gmail.com",
-      phone: "+65 6555 0430", lastUpdate: "2026-05-20 16:54:08", pastDays: 9, status: "Negotiation",
+      phone: "+65 6555 0430", lastUpdate: "2026-05-20 16:54:08", pastDays: 9, status: "Onboarding in Progress",
       leadOwner: "Oliver Smith", leadResource: "Referral Partners", merchantVertical: "Travel Retail",
       attendant: "Attended", dispatchTime: "2026-05-25", arrivalTime: "2026-05-31",
       vendingMachineType: "Travel accessory retail kiosk", outreachContact: "Guoqi Yu",
@@ -223,6 +224,8 @@
     var seed = byProcessId[id] || (override.createdLead === true ? override : null);
     if (!seed) return null;
     var merged = Object.assign({}, clone(seed), clone(override));
+    merged.legacyEditingBlocked = Boolean(merged.legacyEditingBlocked || String(merged.status) === "6");
+    merged.status = leadStatus.normalize(merged.status);
     merged.serialNumbers = mergeSerialNumbers(
       seed.serialNumbers,
       Array.isArray(override.serialNumbers) ? override.serialNumbers : []
@@ -365,7 +368,7 @@
   }
 
   function canEdit(record) {
-    if (!record || record.fastFlag === 1 || String(record.status) === "6" || record.applyStatus != null) return false;
+    if (!record || record.legacyEditingBlocked || record.fastFlag === 1 || String(record.status) === "6" || record.applyStatus != null) return false;
     try {
       var applications = JSON.parse(global.localStorage.getItem("paywizard-onboarding-applications-v2") || "[]");
       return !Array.isArray(applications) || !applications.some(function (item) {
@@ -397,6 +400,9 @@
     if (!patch.country || !patch.merchantName || !patch.contactName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email)) {
       return { valid: false, error: "Enter a country or region, merchant name, contact name and valid email." };
     }
+    if (leadStatus.values.indexOf(patch.status) < 0) {
+      return { valid: false, error: "Choose one of the five Lead statuses and try again." };
+    }
     patch.decisionMaker = clone(values.decisionMaker || { name: "", email: "", phone: "" });
     patch.secondDecisionMaker = clone(values.secondDecisionMaker || { name: "", email: "", phone: "" });
     patch.sameAsMerchant = Boolean(values.sameAsMerchant);
@@ -427,6 +433,26 @@
       return { valid: false, error: "Unable to save this Lead in your browser. Check available browser storage and try again. Your entries have been kept." };
     }
   }
+
+  // Migrate only status fields; preserve all merchant, SN and assignment data.
+  (function migrateStoredStatuses() {
+    var overrides = readOverrides();
+    var changed = false;
+    Object.keys(overrides).forEach(function (id) {
+      var record = overrides[id];
+      if (!record || typeof record !== "object" || Array.isArray(record)) return;
+      if (!Object.prototype.hasOwnProperty.call(record, "status")) return;
+      var next = leadStatus.normalize(record.status);
+      if (next === record.status) return;
+      if (String(record.status) === "6") record.legacyEditingBlocked = true;
+      record.status = next;
+      changed = true;
+    });
+    if (changed) {
+      // Reads still normalize values if browser storage is unavailable.
+      try { global.localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides)); } catch (_) {}
+    }
+  })();
 
   global.PaywizardUptLeadData = {
     STORAGE_KEY: STORAGE_KEY,
