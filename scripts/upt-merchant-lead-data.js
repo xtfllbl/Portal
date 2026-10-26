@@ -7,6 +7,7 @@
   var records = [
     {
       processId: "00000440", spName: "wizarpos", partnerName: "广州新勇隆智能设备有限公司",
+      createTime: "2026-05-27T06:25:04Z",
       country: "United States of America", region: "California", merchantName: "Brittney Rodriguez",
       terminalNumber: 0, contactName: "Brittney Rodriguez", email: "therosebar@outlook.com",
       phone: "+1 415 555 0148", lastUpdate: "2026-05-29 14:25:04", pastDays: 1, status: "Awaiting Customer Response",
@@ -22,6 +23,7 @@
     },
     {
       processId: "00000439", spName: "wizarpos", partnerName: "上海比至",
+      createTime: "2026-05-26T10:04:26Z",
       country: "United States of America", region: "Nevada", merchantName: "Jeeves Vending",
       terminalNumber: 12, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
       phone: "+1 702 555 0184", lastUpdate: "2026-05-28 18:04:26", pastDays: 1, status: "Awaiting Customer Response",
@@ -37,6 +39,7 @@
     },
     {
       processId: "00000438", spName: "wizarpos", partnerName: "IMT",
+      createTime: "2026-05-25T07:34:29Z",
       country: "Mongolia", region: "Ulaanbaatar", merchantName: "Steppe Arena LLC",
       terminalNumber: 14, contactName: "Khaliun Maitsetseg", email: "khaliun.m@steppeholding.mn",
       phone: "+976 7011 4388", lastUpdate: "2026-05-28 15:34:29", pastDays: 2, status: "Awaiting Customer Response",
@@ -52,6 +55,7 @@
     },
     {
       processId: "00000437", spName: "wizarpos", partnerName: "苏州咔咔电子有限公司",
+      createTime: "2026-05-24T08:40:12Z",
       country: "Mexico", region: "Jalisco", merchantName: "Pasiflor",
       terminalNumber: 1, contactName: "Angela Alanis", email: "alanis.komi@gmail.com",
       phone: "+52 33 5550 0437", lastUpdate: "2026-05-27 16:40:12", pastDays: 2, status: "Onboarding in Progress",
@@ -67,6 +71,7 @@
     },
     {
       processId: "00000436", spName: "wizarpos", partnerName: "星云开物",
+      createTime: "2026-05-23T11:10:01Z",
       country: "Russian Federation", region: "Moscow", merchantName: "OOO ДУН ТУ",
       terminalNumber: 16, contactName: "Анна", email: "sales1@ogawa-market.ru",
       phone: "+7 495 555 0436", lastUpdate: "2026-05-26 19:10:01", pastDays: 3, status: "Awaiting Customer Response",
@@ -82,6 +87,7 @@
     },
     {
       processId: "00000434", spName: "wizarpos", partnerName: "爆米发",
+      createTime: "2026-05-21T13:34:43Z",
       country: "Indonesia", region: "East Java", merchantName: "PNDW Station",
       terminalNumber: 18, contactName: "Wahyu Yudhistira Tafrikun", email: "cvlabmanusiawangi@gmail.com",
       phone: "+62 31 555 0434", lastUpdate: "2026-05-23 21:34:43", pastDays: 6, status: "Awaiting Customer Response",
@@ -97,6 +103,7 @@
     },
     {
       processId: "00000433", spName: "wizarpos", partnerName: "IMT",
+      createTime: "2026-05-20T01:21:24Z",
       country: "Russian Federation", region: "Saint Petersburg", merchantName: "Mamian Diana",
       terminalNumber: 2, contactName: "Mamian Diana", email: "MD-1212@yandex.ru",
       phone: "+7 812 555 0433", lastUpdate: "2026-05-23 09:21:24", pastDays: 7, status: "Awaiting Customer Response",
@@ -112,6 +119,7 @@
     },
     {
       processId: "00000432", spName: "wizarpos", partnerName: "广州鼎乐",
+      createTime: "2026-05-19T11:44:05Z",
       country: "Russian Federation", region: "Krasnodar Krai", merchantName: "Cotton candy",
       terminalNumber: 1, contactName: "Aleksandr Durmanenko", email: "Rufu012@Gmail.com",
       phone: "+7 861 555 0432", lastUpdate: "2026-05-21 19:44:05", pastDays: 8, status: "Onboarding in Progress",
@@ -127,6 +135,7 @@
     },
     {
       processId: "00000431", spName: "wizarpos", partnerName: "上海比至",
+      createTime: "2026-05-18T03:52:47Z",
       country: "United States of America", region: "Texas", merchantName: "Jeeves Vending",
       terminalNumber: 20, contactName: "Gary Stryder", email: "Gary@jeevesvending.com",
       phone: "+1 214 555 0431", lastUpdate: "2026-05-21 11:52:47", pastDays: 9, status: "Awaiting Customer Response",
@@ -142,6 +151,7 @@
     },
     {
       processId: "00000430", spName: "wizarpos", partnerName: "河北盛马",
+      createTime: "2026-05-17T08:54:08Z",
       country: "Singapore", region: "Central Region", merchantName: "LUMINA VOYAGE TECH PTE. LTD",
       terminalNumber: 24, contactName: "Guoqi Yu", email: "yugq2022@gmail.com",
       phone: "+65 6555 0430", lastUpdate: "2026-05-20 16:54:08", pastDays: 9, status: "Onboarding in Progress",
@@ -425,7 +435,7 @@
       var overrides = JSON.parse(global.localStorage.getItem(STORAGE_KEY) || "{}");
       if (!overrides || typeof overrides !== "object" || Array.isArray(overrides)) throw new Error("Invalid stored data");
       var id = processId || String(Math.max.apply(null, getRecords().map(function (lead) { return Number(lead.processId) || 0; }).concat([440])) + 1).padStart(8, "0");
-      if (!current) Object.assign(patch, { processId: id, spName: "wizarpos", pageStyle: "UPT", createdLead: true, snAssignments: {} });
+      if (!current) Object.assign(patch, { processId: id, spName: "wizarpos", pageStyle: "UPT", createdLead: true, createTime: now.toISOString(), snAssignments: {} });
       overrides[id] = Object.assign({}, overrides[id] || {}, patch);
       global.localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
       return { valid: true, record: getByProcessId(id) };

@@ -14,8 +14,9 @@
     secondary.after(countryHost);
     const fields = { merchant: byId('leadMerchantFilter'), contact: byId('leadContactFilter'), email: byId('leadEmailFilter'), process: byId('leadProcessFilter') };
     const storageKey = 'paywizard-upt-lead-columns-v1';
-    const keys = ['processId', 'spName', 'partnerName', 'country', 'merchantName', 'terminalNumber', 'assignedSn', 'contactName', 'email', 'lastUpdate', 'pastDays', 'pageStyle', 'status'];
-    const widths = [90, 85, 135, 135, 145, 125, 105, 150, 190, 115, 75, 80, 230, 132];
+    const keys = ['processId', 'spName', 'partnerName', 'country', 'merchantName', 'terminalNumber', 'assignedSn', 'contactName', 'email', 'createTime', 'lastUpdate', 'pastDays', 'pageStyle', 'status'];
+    const widths = [90, 85, 135, 135, 145, 125, 105, 150, 190, 115, 115, 75, 80, 230, 132];
+    const actionsWidth = widths[widths.length - 1];
     const headers = Array.from(table.tHead.rows[0].cells);
     const definitions = headers.slice(0, -1).map((cell, i) => ({ key: keys[i], label: cell.textContent.trim(), width: widths[i] }));
     const defaultColumns = () => definitions.map(def => ({ key: def.key, visible: true }));
@@ -37,7 +38,13 @@
           seen.add(item.key);
           result.push({ key: item.key, visible: item.visible !== false });
         });
-        definitions.forEach(def => { if (!seen.has(def.key)) result.push({ key: def.key, visible: true }); });
+        definitions.forEach(def => {
+          if (seen.has(def.key)) return;
+          const column = { key: def.key, visible: true };
+          const lastUpdateIndex = result.findIndex(item => item.key === 'lastUpdate');
+          if (def.key === 'createTime' && lastUpdateIndex >= 0) result.splice(lastUpdateIndex, 0, column);
+          else result.push(column);
+        });
         if (!result.some(item => item.visible)) result[0].visible = true;
         return result;
       } catch (_) { return defaultColumns(); }
@@ -53,7 +60,7 @@
           row.append(cell);
         });
       });
-      const width = columns.reduce((sum, item) => sum + (item.visible ? definitions.find(def => def.key === item.key).width : 0), widths[13]);
+      const width = columns.reduce((sum, item) => sum + (item.visible ? definitions.find(def => def.key === item.key).width : 0), actionsWidth);
       table.style.minWidth = width + 'px';
       // Match the rounded left edge to the first visible header after hiding columns.
       headers.forEach(header => { header.style.borderTopLeftRadius = '0'; });

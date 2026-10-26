@@ -277,7 +277,7 @@ test('UPT headers have complete non-overlapping column widths', async ({ page })
       clientWidth: cell.clientWidth,
       scrollWidth: cell.scrollWidth
     })));
-    expect(headers).toHaveLength(14);
+    expect(headers).toHaveLength(15);
     for (const header of headers) expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth + 1);
     expect(headers[5].text).toBe('Terminal Number');
     expect(headers[5].clientWidth).toBeGreaterThanOrEqual(124);

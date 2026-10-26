@@ -24,8 +24,8 @@
 - 仅 Actions 固定在最右侧且不可隐藏，不列入可调整项。
 - 其余现有业务列均可显隐和排序，至少保留一列业务列。
 - Select All 显示全部业务列，保留当前顺序。
-- Reset 恢复 UPT 目前的完整列及默认顺序，不清除筛选，不增加字段。
-- 默认业务列及顺序：Process ID、SP Name、Partner Name、Country Name、Merchant Name、Terminal Number、Assigned SN、Contact Name、Merchant Email、Last Update、Past Days、Page Style、Status；最后为固定的 Actions。
+- Reset 恢复 UPT 的完整列及默认顺序，不清除筛选；完整列包含本轮新增的 Create Time。
+- 默认业务列及顺序：Process ID、SP Name、Partner Name、Country Name、Merchant Name、Terminal Number、Assigned SN、Contact Name、Merchant Email、Create Time、Last Update、Past Days、Page Style、Status；最后为固定的 Actions。
 
 ## 核查依据
 
@@ -56,3 +56,23 @@
 - 设计扫描的 frame clipping、dark glow 和 marquee 三类误报按此页面豁免并记录理由：新浮层位于浏览器顶层；dark glow 来自未在本页使用的共享 `.up-dialog` 样式；marquee 实为加载期间的共享进度条。共享边框/阴影和其他未使用样式的提示保留，不扩大本次页面修改范围。
 
 以上均为界面行为决策，目前没有需要新增领域术语或 ADR 的事项。
+
+## Create Time 补充（2026-10-26）
+
+用户指出 UPT 列表缺少生产的 Create Time，明确要求新增此列。本要求补充此前“不增加字段”的范围，不恢复生产截图中的旧 Lead 状态。
+
+已核查本地真实前端：`merchantLeadsIndex.vue` 的 `createTime` 列位于 Merchant Email 后、Last Update 前；经 `getLocal` 将接口 UTC 时间转换为浏览器本地时间，格式 `YYYY-MM-DD HH:mm:ss`，缺值显示 `-`。
+
+补列前，原型的十条演示样本及标准新建流程均未保存独立创建时间；`lastUpdate` 和 `updatedAt` 会在后续操作中被覆盖，无法可靠恢复旧记录的真实创建时刻。
+
+用户已确认并完成实现：
+
+- 仅 UPT 补列；默认放在 Merchant Email 后、Last Update 前，日期与时间分两行显示到秒，维持 34px / 11px 紧凑表头。
+- Create Time 加入 Columns，默认显示，支持显隐、排序和浏览器记忆。旧个人配置的顺序、显隐完整保留，新列插在其 Last Update 前；Reset 恢复包含新列的完整默认顺序。
+- 新建成功时独立写入 UTC 创建时刻，后续 Edit、Add SN、Assign 保留该值；显示时转换到浏览器本地时区。编辑输入不能覆盖创建时间。
+- 十条演示样本补固定的示例创建时间，这些时间不代表生产记录。浏览器既有旧记录缺少创建时间时显示 `-`，编辑也不伪造或回填创建时刻；不使用 Last Update / updatedAt 代替。
+- 根 GLOSSARY 新增 Lead Creation Time，区分 Lead 首次创建、最后更新、进件开始及 Merchant / Store 创建；没有需要新增 ADR 的取舍。
+
+本轮验证：新增 3 项端到端验证覆盖创建时间持久化与不可变、上海时区转换、旧记录缺值及编辑、旧列配置迁移、显隐/排序记忆和恢复默认；与 Leads Editor、列表控件及 Merchant Admin 关联回归共 43 项通过。沿用此前已明确的 4 项既有侧栏失败排除，不修改其断言。补充验证了横向滚动后新列不被固定 Actions 遮挡。
+
+Chrome 实际页面核查通过，保留当前浏览器已有个人列配置；1600×1000 与 1280×800 默认列截图为 `artifacts/leads-editor/create-time-{width}.png`。静态构建、脚本语法及差异空白检查通过；设计扫描仅余既有共享样式的建议提示，本轮未新增豁免。

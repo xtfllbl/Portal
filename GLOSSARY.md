@@ -692,6 +692,10 @@ _Avoid_: Merchant account, approved merchant, Terminal Assignment
 A Merchant Lead's main business stage: Awaiting Customer Response（客户未回复）, Onboarding in Progress（进件沟通中）, Onboarding Complete（进件完成）, Store Created（创建店铺）or Deployment Complete（部署完成）. Application review results are separate from these five stages.
 _Avoid_: Sales pitch status, application review status
 
+**Lead Creation Time**:
+The time a Merchant Lead was first created. It remains unchanged throughout later follow-up and is distinct from the Lead's last update, onboarding start and Merchant or Store creation.
+_Avoid_: Last Update, onboarding start time, Merchant creation time
+
 **Deployment Complete**:
 The Lead stage indicating that a Terminal is bound to the Lead's associated Store and parameters have been pushed to that Terminal. It does not require an online check, parameter acknowledgement or first payment.
 _Avoid_: Activation Complete, Activated, first successful transaction

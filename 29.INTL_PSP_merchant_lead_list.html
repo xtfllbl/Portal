@@ -415,10 +415,11 @@
     .upt-table thead th:nth-child(8) { width: 150px; }
     .upt-table thead th:nth-child(9) { width: 190px; }
     .upt-table thead th:nth-child(10) { width: 115px; }
-    .upt-table thead th:nth-child(11) { width: 75px; }
-    .upt-table thead th:nth-child(12) { width: 80px; }
-    .upt-table thead th:nth-child(13) { width: 230px; }
-    .upt-table thead th:nth-child(14) { width: 132px; }
+    .upt-table thead th:nth-child(11) { width: 115px; }
+    .upt-table thead th:nth-child(12) { width: 75px; }
+    .upt-table thead th:nth-child(13) { width: 80px; }
+    .upt-table thead th:nth-child(14) { width: 230px; }
+    .upt-table thead th:nth-child(15) { width: 132px; }
 
     .intl-table thead th:nth-child(1) { width: 85px; }
     .intl-table thead th:nth-child(2) { width: 70px; }
@@ -923,6 +924,7 @@
                 <th>Assigned SN</th>
                 <th>Contact Name</th>
                 <th>Merchant Email</th>
+                <th>Create Time</th>
                 <th>Last Update</th>
                 <th>Past Days</th>
                 <th>Page Style</th>
@@ -1724,12 +1726,17 @@
 
 	      function hydrateLeadRow(row) {
 	        var assignedCell = ensureAssignedSnCell(row);
+            if (!row.querySelector('.lead-create-time')) {
+              var createTimeCell = document.createElement('td');
+              createTimeCell.className = 'lead-create-time';
+              row.insertBefore(createTimeCell, leadCells(row)[9]);
+            }
 	        var cells = leadCells(row);
 	        var processId = cells[0] ? cells[0].textContent.trim() : "";
 	        var detail = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(processId);
 	        if (!detail) return;
             row.dataset.processId = detail.processId;
-	        var values = [detail.processId, detail.spName, detail.partnerName, detail.country, detail.merchantName, detail.terminalNumber, detail.assignedSnCount || 0, detail.contactName, detail.email, detail.lastUpdate, detail.pastDays, "UPT", detail.status];
+	        var values = [detail.processId, detail.spName, detail.partnerName, detail.country, detail.merchantName, detail.terminalNumber, detail.assignedSnCount || 0, detail.contactName, detail.email, formatLeadCreationTime(detail.createTime), detail.lastUpdate, detail.pastDays, "UPT", detail.status];
             values.forEach(function (value, index) { if (cells[index]) cells[index].textContent = value == null ? "" : String(value); });
             row.dataset.partner = detail.partnerName || "";
             row.dataset.secondary = detail.country || "";
@@ -1737,6 +1744,16 @@
 	        if (assignedCell) assignedCell.textContent = String(detail.assignedSnCount || 0);
 	        row.dataset.sn = detail.serialNumbers.join(" ");
 	      }
+
+          function formatLeadCreationTime(value) {
+            if (!value) return '-';
+            // Unzoned API timestamps represent UTC, as in the production getLocal helper.
+            var source = typeof value === 'string' ? value.trim().replace(' ', 'T') : value;
+            if (typeof source === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(source)) source += 'Z';
+            var date = new Date(source);
+            if (isNaN(date.getTime())) return '-';
+            return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0') + '\n' + date.toTimeString().slice(0, 8);
+          }
 
 	      function closeLeadMoreMenu() {
 	        leadMoreMenu.hidden = true;
