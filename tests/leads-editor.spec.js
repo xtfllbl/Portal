@@ -82,9 +82,10 @@ test('Edit preserves legacy values, readonly fields and terminal assignments whi
   await choose(page,'status','Onboarding Complete');
   await save(page);
   await expect(row).toContainText('Updated Arena');
+  await page.locator('#filterButton').click();
   await page.locator('#statusPicker input').fill('Onboarding Complete');
   await page.locator('#statusPicker input').press('Enter');
-  await page.locator('#filterButton').click();
+  await page.locator('#leadFilterPanel').getByRole('button', {name:'Search',exact:true}).click();
   await expect(row).toBeVisible();
   const after=await page.evaluate(()=>window.PaywizardUptLeadData.getByProcessId('00000438'));
   expect(after.snAssignments).toEqual(before.snAssignments);
@@ -107,7 +108,7 @@ test('legacy pending date and long decision-maker name survive unrelated edits',
 });
 
 test('cancel protects unsaved values and returning restores filters; PSP retains only View',async({page})=>{
-  await page.goto(list);await page.locator('#partnerFilter').fill('IMT');await page.locator('#filterButton').click();
+  await page.goto(list);await page.locator('#partnerFilter').fill('IMT');await page.locator('#partnerFilter').press('Enter');
   await page.locator('#uptLeadRows tr:visible').first().getByLabel('Edit',{exact:true}).click();
   await page.locator('#merchantName').fill('Unsaved');await page.locator('#cancelLead').click();
   await expect(page.locator('#confirmTitle')).toHaveText('Discard changes?');
@@ -192,6 +193,7 @@ test('five Lead stages stay consistent across UPT, PSP, editor, filters and deta
   await save(page);
   const row = page.locator('#uptLeadRows tr').first();
   await expect(row).toContainText(stages[4]);
+  await page.locator('#filterButton').click();
   const input = page.locator('#statusPicker input');
   await input.fill('Deployment');
   await input.press('Enter');
@@ -199,10 +201,13 @@ test('five Lead stages stay consistent across UPT, PSP, editor, filters and deta
   await input.click();
   await page.keyboard.press('Escape');
   await expect(input).toHaveValue(stages[4]);
+  await page.locator('#leadFilterPanel').getByRole('button', {name:'Search',exact:true}).click();
   await row.getByLabel('Edit', {exact:true}).click();
   await expect(page.locator('#status')).toHaveValue(stages[4]);
   await page.locator('#cancelLead').click();
+  await page.locator('#filterButton').click();
   await expect(page.locator('#statusPicker input')).toHaveValue(stages[4]);
+  await page.keyboard.press('Escape');
   await page.locator('#uptLeadRows tr:visible').getByLabel('View detail', {exact:true}).click();
   await expect(page.locator('[data-field="status"]')).toHaveText(stages[4]);
   await page.goto(list);

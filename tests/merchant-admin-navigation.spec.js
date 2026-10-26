@@ -671,7 +671,7 @@ test('Leads and Merchant List typography matches the Onboarding visual tokens', 
   expect(merchants).toEqual(onboarding);
 
   await page.goto(paths.leads);
-  await expect(page.locator('.filter-field').first()).toHaveCSS('height', '39px');
+  await expect(page.locator('.filter-field').first()).toHaveCSS('height', '40px');
   await expect(page.locator('.lead-table .mono').first()).toHaveCSS('font-family', /Poppins/);
   await expect(page.locator('.lead-table .mono').first()).toHaveCSS('font-size', '11px');
   await page.goto(paths.merchants);

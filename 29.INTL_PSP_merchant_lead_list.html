@@ -808,6 +808,7 @@
   <link rel="stylesheet" href="styles/platform-admin-shell.css">
   <link rel="stylesheet" href="styles/terminal-uptime.css">
   <link rel="stylesheet" href="styles/terminal-transaction-capabilities.css">
+  <link rel="stylesheet" href="styles/lead-list-controls.css">
   <script src="scripts/uptime-combobox.js"></script>
   <script src="scripts/merchant-creation-selects.js"></script>
   <script src="scripts/terminal-transaction-capabilities.js"></script>
@@ -893,13 +894,18 @@
               <option>Singapore</option>
             </select>
             <input class="filter-field" id="snFilter" type="text" placeholder="SN" aria-label="SN">
+            <span id="leadStatusSlot">
             <select class="filter-field" id="statusFilter" aria-label="Status">
               <option value="">Status</option>
             </select>
             <div id="statusPicker"></div>
+            </span>
             <button class="btn" id="filterButton" type="button">
               <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"></path></svg>
               Filter
+            </button>
+            <button class="btn" id="leadColumnsButton" type="button" aria-controls="leadColumnsPanel" aria-expanded="false" aria-haspopup="dialog" hidden>
+              <span class="material-symbols-rounded" aria-hidden="true">tune</span> Columns
             </button>
           </div>
         </div>
@@ -1373,6 +1379,7 @@
           </table>
         </div>
 
+        <p class="lead-list-empty" id="leadListEmpty" role="status" hidden>No leads match your filters. Adjust the filters or select Reset to show all leads.</p>
         <div class="footer-bar">
           <div class="pagination" aria-label="Pagination">
             <div class="page-controls">
@@ -1542,12 +1549,43 @@
 
   <div class="lead-toast" id="leadToast" role="status" aria-live="polite" hidden></div>
 
+  <form id="leadFilterPanel" class="lead-list-popover" popover="manual" role="dialog" aria-label="Filter leads">
+    <div class="lead-filter-grid">
+      <input class="filter-field" id="leadMerchantFilter" aria-label="Merchant Name" placeholder="Merchant Name" autocomplete="off">
+      <input class="filter-field" id="leadContactFilter" aria-label="Name" placeholder="Name" autocomplete="off">
+      <input class="filter-field" id="leadEmailFilter" aria-label="Merchant Email" placeholder="Merchant Email" autocomplete="off">
+      <input class="filter-field" id="leadProcessFilter" aria-label="Process ID" placeholder="Process ID" autocomplete="off">
+      <div id="leadAdvancedStatus"></div>
+    </div>
+    <div class="lead-filter-actions">
+      <button class="btn" id="leadResetFilters" type="button"><span class="material-symbols-rounded" aria-hidden="true">restart_alt</span> Reset</button>
+      <button class="btn primary" type="submit"><span class="material-symbols-rounded" aria-hidden="true">search</span> Search</button>
+    </div>
+  </form>
+
+  <section id="leadColumnsPanel" class="lead-list-popover" popover="manual" role="dialog" aria-labelledby="leadColumnsTitle">
+    <div class="lead-columns-heading">
+      <h2 id="leadColumnsTitle">Show/Hide Columns</h2>
+      <div>
+        <button class="lead-column-action" id="leadSelectAllColumns" type="button">Select All</button>
+        <button class="lead-column-action" id="leadResetColumns" type="button">Reset</button>
+      </div>
+    </div>
+    <p class="lead-list-alert" id="leadColumnsError" role="alert" tabindex="-1" hidden></p>
+    <p class="lead-column-hint" id="leadColumnsHint" role="status" hidden>Keep at least one column visible.</p>
+    <div class="lead-columns-grid" id="leadColumnsList"></div>
+    <span class="lead-sr-only" id="leadColumnInstructions">Drag to reorder, or focus a move button and press Alt plus Arrow Up or Arrow Down.</span>
+    <span class="lead-sr-only" id="leadColumnAnnouncement" role="status"></span>
+  </section>
+
   <script src="scripts/uptime-combobox.js"></script>
   <script src="scripts/lead-status.js"></script>
   <script src="scripts/upt-merchant-lead-data.js"></script>
+  <script src="scripts/lead-list-controls.js"></script>
   <script>
 	    (function () {
 	      var activeTab = "upt";
+          var uptControls;
 	      var tabButtons = Array.prototype.slice.call(document.querySelectorAll("[data-lead-tab]"));
 	      var tableViews = Array.prototype.slice.call(document.querySelectorAll("[data-table-view]"));
 	      var partnerFilter = document.getElementById("partnerFilter");
@@ -1563,7 +1601,7 @@
             statusPicker = window.PaywizardUptimeCombobox.mount(host, {
               label: "Status", options: [{key: "", name: "All Statuses"}].concat(statuses.map(function (status) { return {key: status, name: status}; })),
               value: statusFilter.value,
-              onChange: function (value) { statusFilter.value = value; applyFilters(); }
+              onChange: function (value) { statusFilter.value = value; if (activeTab !== "upt") applyFilters(); }
             });
             host.querySelector("input").classList.add("filter-field");
             host.querySelector("input").placeholder = "Status";
@@ -1634,8 +1672,12 @@
 	        }
 	      }
 
+          // Keep business-field reads stable after the user reorders table cells.
+          function leadCells(row) {
+            return row ? Array.from(row.cells).sort(function (a, b) { return Number(a.dataset.leadColumnIndex) - Number(b.dataset.leadColumnIndex); }) : [];
+          }
 	      function leadDataFromRow(row) {
-	        var cells = row ? row.querySelectorAll("td") : [];
+	        var cells = leadCells(row);
 	        var processId = cells[0] ? cells[0].textContent.trim() : "";
 	        var detail = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(processId);
 	        if (detail) return {
@@ -1671,7 +1713,7 @@
 	      function ensureAssignedSnCell(row) {
 	        var existing = row && row.querySelector(".assigned-sn-count");
 	        if (existing) return existing;
-	        var cells = row ? row.querySelectorAll("td") : [];
+	        var cells = leadCells(row);
 	        if (!cells[6]) return null;
 	        var cell = document.createElement("td");
 	        cell.className = "assigned-sn-count";
@@ -1682,10 +1724,11 @@
 
 	      function hydrateLeadRow(row) {
 	        var assignedCell = ensureAssignedSnCell(row);
-	        var cells = row ? row.querySelectorAll("td") : [];
+	        var cells = leadCells(row);
 	        var processId = cells[0] ? cells[0].textContent.trim() : "";
 	        var detail = window.PaywizardUptLeadData && window.PaywizardUptLeadData.getByProcessId(processId);
 	        if (!detail) return;
+            row.dataset.processId = detail.processId;
 	        var values = [detail.processId, detail.spName, detail.partnerName, detail.country, detail.merchantName, detail.terminalNumber, detail.assignedSnCount || 0, detail.contactName, detail.email, detail.lastUpdate, detail.pastDays, "UPT", detail.status];
             values.forEach(function (value, index) { if (cells[index]) cells[index].textContent = value == null ? "" : String(value); });
             row.dataset.partner = detail.partnerName || "";
@@ -1894,7 +1937,7 @@
 	      }
 
 	      function hasFilters() {
-	        return Boolean(partnerFilter.value.trim() || secondaryFilter.value || snFilter.value.trim() || statusFilter.value);
+	        return Boolean(partnerFilter.value.trim() || secondaryFilter.value || snFilter.value.trim() || statusFilter.value || (activeTab === "upt" && uptControls && uptControls.hasFilters()));
 	      }
 
 	      function renderSecondaryOptions() {
@@ -1916,6 +1959,7 @@
 	        snFilter.value = "";
 	        statusFilter.value = "";
             refreshStatusPicker();
+            if (uptControls) uptControls.clearFilters();
 	      }
 
 	      function setActiveTab(tab) {
@@ -1931,6 +1975,7 @@
 	        renderSecondaryOptions();
 
 	        clearFilters();
+            if (uptControls) uptControls.setActive(activeTab === "upt");
 	        if (tableWrap) tableWrap.scrollLeft = 0;
 	        applyFilters();
 	      }
@@ -1940,6 +1985,7 @@
 	        var secondaryText = normalize(secondaryFilter.value);
 	        var snText = normalize(snFilter.value);
 	        var statusText = normalize(statusFilter.value);
+            var advanced = activeTab === "upt" && uptControls ? uptControls.filters() : {};
 	        var rows = getActiveRows();
 	        var visible = 0;
 
@@ -1947,13 +1993,22 @@
 	          var secondaryValue = row.dataset.secondary || row.dataset.channel || "";
 	          var matches = (!partnerText || normalize(row.dataset.partner).indexOf(partnerText) >= 0)
 	            && (!secondaryText || normalize(secondaryValue) === secondaryText)
-	            && (!snText || normalize(row.dataset.sn).indexOf(snText) >= 0)
+	            && (!snText || (activeTab === "upt" ? normalize(row.dataset.sn).split(/\s+/).includes(snText) : normalize(row.dataset.sn).indexOf(snText) >= 0))
 	            && (!statusText || normalize(row.dataset.status) === statusText);
+              if (matches && activeTab === "upt") {
+                var lead = leadDataFromRow(row);
+                matches = (!advanced.merchant || normalize(lead.merchantName).includes(normalize(advanced.merchant)))
+                  && (!advanced.contact || normalize(lead.contactName).includes(normalize(advanced.contact)))
+                  && (!advanced.email || normalize(lead.merchantEmail).includes(normalize(advanced.email)))
+                  && (!advanced.process || lead.processId === advanced.process.trim());
+              }
 	          row.hidden = !matches;
 	          if (matches) visible++;
 	        });
 
 	        pageTotal.textContent = hasFilters() ? "1 / 1 (" + visible + ")" : totals[activeTab];
+            filterButton.classList.toggle("has-filters", activeTab === "upt" && hasFilters());
+            document.getElementById("leadListEmpty").hidden = activeTab !== "upt" || visible !== 0;
 	      }
 
 	      function isAttendentShare() {
@@ -1997,12 +2052,15 @@
 	        });
 	      });
 
-	      filterButton.addEventListener("click", applyFilters);
+	      filterButton.addEventListener("click", function () {
+            if (activeTab === "upt") uptControls.toggleFilters();
+            else applyFilters();
+          });
 	      [partnerFilter, secondaryFilter, snFilter, statusFilter].forEach(function (field) {
 	        field.addEventListener("keydown", function (event) {
 	          if (event.key === "Enter") applyFilters();
 	        });
-	        field.addEventListener("change", applyFilters);
+	        field.addEventListener("change", function () { if (activeTab !== "upt") applyFilters(); });
 	      });
 
 	      openShareLanding.addEventListener("click", openShareModal);
@@ -2050,7 +2108,7 @@
 	      leadAddSnForm.addEventListener("submit", function (event) {
 	        event.preventDefault();
 	        if (!activeSnLeadRow || !window.PaywizardUptLeadData) return;
-	        var processId = activeSnLeadRow.querySelector("td").textContent.trim();
+	        var processId = leadDataFromRow(activeSnLeadRow).processId;
 	        var result = window.PaywizardUptLeadData.addSerialNumbers(processId, leadAddSnInput.value);
 	        if (!result.valid) {
 	          leadAddSnError.textContent = result.error;
@@ -2083,7 +2141,7 @@
 	      leadAssignForm.addEventListener("submit", function (event) {
 	        event.preventDefault();
 	        if (!activeAssignLeadRow || !window.PaywizardUptLeadData) return;
-	        var processId = activeAssignLeadRow.querySelector("td").textContent.trim();
+	        var processId = leadDataFromRow(activeAssignLeadRow).processId;
 	        var merchantSelect = document.getElementById("leadAssignMerchant");
 	        var storeSelect = document.getElementById("leadAssignStore");
 	        var newMerchant = document.getElementById("leadNewMerchant").value.trim();
@@ -2116,7 +2174,7 @@
 	      });
 
           function rememberLeadList() {
-            try { sessionStorage.setItem("paywizard-lead-list-return", JSON.stringify({ tab: activeTab, partner: partnerFilter.value, secondary: secondaryFilter.value, sn: snFilter.value, status: statusFilter.value, scroll: document.querySelector('.pw-content-panel').scrollTop })); } catch (_) {}
+            try { sessionStorage.setItem("paywizard-lead-list-return", JSON.stringify({ tab: activeTab, partner: partnerFilter.value, secondary: secondaryFilter.value, sn: snFilter.value, status: statusFilter.value, advanced: activeTab === "upt" && uptControls ? uptControls.filters() : null, scroll: document.querySelector('.pw-content-panel').scrollTop })); } catch (_) {}
           }
           document.getElementById("addLead").addEventListener("click", function () {
             rememberLeadList(); location.href = "29.UPT_merchant_lead_edit.html";
@@ -2129,12 +2187,20 @@
           });
           totals.upt = "1 / " + Math.ceil((441 + added.length) / 20) + " (" + (441 + added.length) + ")";
           configureLeadActions();
+          uptControls = window.PaywizardLeadListControls.mount({
+            table: document.querySelector('[data-table-view="upt"]'),
+            onApply: applyFilters,
+            onReset: function () { clearFilters(); applyFilters(); },
+            closeStatus: function () { if (statusPicker) statusPicker.close(); }
+          });
           var query = new URLSearchParams(location.search);
           var returnState = null;
           try { returnState = JSON.parse(sessionStorage.getItem("paywizard-lead-list-return") || "null"); sessionStorage.removeItem("paywizard-lead-list-return"); } catch (_) {}
           setActiveTab(query.has("saved") ? "upt" : returnState ? returnState.tab : window.location.hash === "#intl" ? "intl" : "upt");
           if (returnState && !query.has("created") && (!query.has("saved") || returnState.tab === "upt")) {
-            partnerFilter.value = returnState.partner; secondaryFilter.value = returnState.secondary; snFilter.value = returnState.sn; statusFilter.value = returnState.status ? window.PaywizardLeadStatus.normalize(returnState.status) : ""; refreshStatusPicker(); applyFilters();
+            partnerFilter.value = returnState.partner; secondaryFilter.value = returnState.secondary; snFilter.value = returnState.sn; statusFilter.value = returnState.status ? window.PaywizardLeadStatus.normalize(returnState.status) : ""; refreshStatusPicker();
+            if (activeTab === "upt") uptControls.restoreFilters(returnState.advanced);
+            applyFilters();
             document.querySelector('.pw-content-panel').scrollTop = returnState.scroll || 0;
           }
           if (query.has("saved")) {
