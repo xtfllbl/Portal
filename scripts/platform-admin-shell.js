@@ -147,9 +147,17 @@
     return profiles[profile].terminal || profile;
   }
 
+  function providerBillingId(profile) {
+    if (impersonationSession) {
+      var entity = impersonationSession.entity;
+      return entity.id !== "sp-wizardpos" && (entity.type === "provider" || entity.kind === "super_iso") ? entity.id : null;
+    }
+    return {"full-service":"1047", attended:"1053", unattended:"1049"}[profile] || null;
+  }
+
   function fallbackFor(targetFile, profile) {
     var target = pageMap[targetFile];
-    if (target && target.module === "provider-billing" && (profiles[profile].merchant || profiles[profile].store || profile === "maintain" || (impersonationSession && !["provider", "super_iso"].includes(impersonationSession.entity.type || impersonationSession.entity.kind)))) return "12.transaction_list.html";
+    if (target && target.module === "provider-billing" && !providerBillingId(profile)) return "12.transaction_list.html";
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
     if (target.module === "test-card") return profile === "maintain" ? "" : "12.transaction_list.html";
@@ -212,8 +220,8 @@
   if (activeProfile === "maintain") {
     var maintainEntries = {
       transactions: ["payment", "Payment", "Transactions"],
-      "billing-overview": ["payment", "Payment", "Billing Overview"],
-      "provider-billing": ["payment", "Payment", "Service Provider Billing"],
+      "billing-overview": ["billing", "Billing", "Billing Overview"],
+      "provider-billing": ["billing", "Billing", "Service Provider Billing"],
       "service-fee-log": ["payment", "Payment", "Service Fee Log"],
       "maintain-payment-channel": ["payment", "Payment", "Payment Channel"],
       "maintain-parameter-pool": ["payment", "Payment", "Parameter Pool"],
@@ -227,7 +235,7 @@
       "sla-alerts": ["operations", "Operations", "SLA Alerts"],
       alerts: ["operations", "Operations", "Customer Alerts", "Alerts"],
       "maintain-impersonate": ["operations", "Operations", "Impersonate"],
-      "billing-setup": ["system", "System", "Billing Setup"],
+      "billing-setup": ["billing", "Billing", "Billing Setup"],
       terminal: ["system", "System", "Terminal Logs"]
     };
     var entry = maintainEntries[config.active];
@@ -320,7 +328,8 @@
     var active = config.active === key;
     return '<a class="pw-platform-menu-item pw-menu-item menu-item' + (active ? ' active' : '') + '" href="' + href + '" data-pw-nav-label="' + escapeHtml(label) + '"' +
       (active ? ' aria-current="page"' : '') + '><span class="pw-platform-menu-main"><span class="material-symbols-rounded" aria-hidden="true">' +
-      icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span></a>';
+      icon + '</span><span class="pw-platform-menu-label">' + label + '</span></span>' +
+      (key === "provider-billing" ? '<span class="pw-platform-billing-count" data-shell-provider-billing-count hidden></span>' : '') + '</a>';
   }
 
   function disabled(label, icon) {
@@ -415,7 +424,7 @@
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
       !isMerchant ? group("Agents", "group", "agents", agentItems) : "",
       isMerchant ? link("Merchant", "5.merchant_detail_iso.html", "store", "merchant-list") : group("Merchants", "store", "merchants", merchantItems),
-      isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : (!impersonationSession || ["provider", "super_iso"].includes(impersonationSession.entity.type || impersonationSession.entity.kind)) ? link("Billing & Payments", "52.provider_billing.html", "receipt_long", "provider-billing") : "",
+      isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : providerBillingId(activeProfile) ? link("Billing & Payments", "52.provider_billing.html", "receipt_long", "provider-billing") : "",
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
       ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
@@ -434,11 +443,14 @@
       group("Payment", "account_balance_wallet", "payment", [
         sub("Transactions", "12.transaction_list.html", "transactions"),
         unavailableSub("Settlement Info"),
-        sub("Billing Overview", "44.billing_overview.html", "billing-overview"),
-        sub("Service Provider Billing", "52.service_provider_billing.html", "provider-billing"),
         sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel"),
         sub("Service Fee Log", "52.service_fee_log.html", "service-fee-log"), unavailableSub("Service Fee Report"), unavailableSub("Cached Transaction"),
         sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool")
+      ].join("")),
+      group("Billing", "receipt_long", "billing", [
+        sub("Billing Overview", "44.billing_overview.html", "billing-overview"),
+        sub("Service Provider Billing", "52.service_provider_billing.html", "provider-billing"),
+        sub("Billing Setup", "41.billing_setup.html", "billing-setup")
       ].join("")),
       group("Operations", "tune", "operations", [
         sub("Leads", "29.INTL_PSP_merchant_lead_list.html", "leads"),
@@ -465,13 +477,13 @@
         sub("Terminal Logs", "24.maintain_terminal_log.html", "terminal"),
         unavailableSub("Err Txn Logs"), unavailableSub("Account Management"), unavailableSub("Log Management"),
         unavailableSub("Password Rule Config"), unavailableSub("Reginal"), unavailableSub("Currency Settings"),
-        sub("Billing Setup", "41.billing_setup.html", "billing-setup"),
         unavailableSub("Var Push Log"), unavailableSub("Appeals")
       ].join(""))
     ].join("");
   }
 
   var breadcrumbTargets = {
+    "Billing": "44.billing_overview.html",
     "Service Provider Billing": "52.service_provider_billing.html",
     "Service Fee Log": "52.service_fee_log.html",
     "Test Cards": "51.test_card_list.html",
@@ -901,6 +913,27 @@
   window.addEventListener("focus", refreshBillingAttentionCount);
   window.setInterval(refreshBillingAttentionCount, 60000);
   startBillingAttentionCount();
+
+  function refreshProviderBillingCount() {
+    var badge = frame.querySelector('[data-shell-provider-billing-count]');
+    if (!badge || !window.PaywizardProviderBilling) return;
+    try {
+      var count = window.PaywizardProviderBilling.unpaidCount(providerBillingId(activeProfile));
+      badge.textContent = String(count);
+      badge.hidden = count === 0;
+      badge.closest('a').setAttribute('aria-label', count ? 'Billing & Payments, ' + count + ' unpaid bills' : 'Billing & Payments');
+    } catch (_) { badge.hidden = true; }
+  }
+  async function startProviderBillingCount() {
+    if (!providerBillingId(activeProfile)) return;
+    if (!window.PaywizardProviderBilling && !await loadBillingScript('provider-billing-store.js')) return;
+    refreshProviderBillingCount();
+  }
+  window.addEventListener('provider-billing-change', refreshProviderBillingCount);
+  window.addEventListener('storage', function (event) { if (event.key === 'paywizard.provider-billing.v1' || event.key === null) refreshProviderBillingCount(); });
+  window.addEventListener('focus', refreshProviderBillingCount);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startProviderBillingCount, {once:true});
+  else startProviderBillingCount();
 
   function currentUnreadCount() {
     var alertIds = ["i-mid-01", "i-mid-02", "i-mid-03", "i-lobby-01", "i-break-01", "i-boston-01", "i-lobby-02", "i-mid-04", "i-boston-02"];

@@ -317,7 +317,7 @@ The Portal Access Profile for a store whose payment terminals operate without an
 _Avoid_: Unattended Merchant, Unattended Provider
 
 **WizarPOS Provider**:
-The Portal Access Profile representing a WizarPOS-exclusive service provider across attended terminals, unattended terminals, and card readers.
+The Portal Access Profile representing WizarPOS's own service provider across attended terminals, unattended terminals, and card readers. Its Portal does not include Billing & Payments.
 _Avoid_: Administrator, Superuser
 
 **Full-Service Provider**:

@@ -1,6 +1,8 @@
 (function (root) {
   'use strict';
   const KEY = 'paywizard.provider-billing.v1';
+  const BACKUP_KEY = KEY + '.backup-before-2026-four-quarters';
+  const DEFAULT_FEES = Object.freeze({activation:200,monthly:799});
   const clone = value => JSON.parse(JSON.stringify(value));
   const cents = value => Math.round(Number(value) * 100);
   const today = () => new Date().toISOString().slice(0, 10);
@@ -55,46 +57,57 @@
   }
   function createBill(provider, events, quarter) {
     const lines = calculate(provider, events, quarter);
-    return {id:`PB-${quarter.replace('-','')}-${provider.id}`, providerId:provider.id, providerName:provider.name, quarter, currency:provider.currency, lines, original:clone(lines), status:'Draft', revision:1, publishedAt:null, expiry:null, note:'', audit:[], payments:[], lock:null, token:`provider.${quarter}.${provider.id}.review`, createdAt:'2026-10-01T00:00:00Z'};
+    return {id:`PB-${quarter.replace('-','')}-${provider.id}`, providerId:provider.id, providerName:provider.name, quarter, currency:provider.currency, lines, original:clone(lines), status:'Draft', revision:1, publishedAt:null, expiry:null, note:'', audit:[], payments:[], lock:null, token:`provider.${quarter}.${provider.id}.review`, createdAt:stamp()};
   }
   function seed() {
     const catalogue = root.PaywizardServiceProviderCatalog?.records || [
       {id:'1050',name:'Civitronic'},{id:'1047',name:'Cantaloupe Inc'},{id:'1053',name:'Techsupport'},{id:'1049',name:'Systema Procesa Pago Corp'},{id:'1048',name:'chongqing'}
     ];
     const ids = ['1050','1047','1053','1049','1048'];
-    const providers = ids.map((id,index) => ({id,name:catalogue.find(item=>item.id===id)?.name || id,currency:index===1?'CAD':index===2?'EUR':'USD',commencement:'2026-04',rates:[{effective:'2026-04',activation:(50-index*5)*100,monthly:(10+index*2)*100}],revision:1}));
+    const providers = ids.map((id,index) => ({id,name:catalogue.find(item=>item.id===id)?.name || id,currency:index===1?'CAD':index===2?'EUR':'USD',commencement:'2026-01',rates:[{effective:'2026-01',...DEFAULT_FEES}],revision:1}));
     // The hierarchy-backed provider identities are also supported for impersonated sessions.
-    providers.push({id:'sp-wizardpos',name:'wizarpos',currency:'USD',commencement:'2026-07',rates:[{effective:'2026-07',activation:5000,monthly:1000}],revision:1});
-    providers.push({id:'provider-northstar',name:'Northstar Payments',currency:'USD',commencement:'2026-07',rates:[{effective:'2026-07',activation:4500,monthly:1200}],revision:1});
+    providers.push({id:'sp-wizardpos',name:'wizarpos',currency:'USD',commencement:'2026-01',rates:[{effective:'2026-01',...DEFAULT_FEES}],revision:1});
+    providers.push({id:'provider-northstar',name:'Northstar Payments',currency:'USD',commencement:'2026-01',rates:[{effective:'2026-01',...DEFAULT_FEES}],revision:1});
     const periods = [];
     const names = ['Lobby Coffee','East Entrance','Office Pantry','Reception Counter','Garden Kiosk','Station Snacks','Cafeteria Drinks','Airport Lounge'];
     const locations = [['Harbor Retail','Harbor Point','Apex Resellers'],['Maple Markets','Central Station','Maple East'],['Northside Foods','Office Park','Direct']];
     providers.forEach((provider,pIndex)=> {
-      const count = provider.id==='1049'?0:pIndex===0?18:12;
+      const count = pIndex===0?18:12;
       for(let i=0;i<count;i++) {
-        const location=locations[i%3], start=['2026-03-12','2026-06-18','2026-07-02','2026-07-31','2026-08-16','2026-09-04'][i%6];
-        periods.push({id:`svc-${provider.id}-${i}`,providerId:provider.id,sn:`WP${String(2600000000+pIndex*100+i)}`,terminal:names[i%names.length],merchant:location[0],store:location[1],agent:location[2],start:start+'T09:20:00Z',end:i===7?'2026-08-20T14:15:00Z':null,activation:true,reason:i===8?'Merchant transfer · new service activation':'First parameter push accepted'});
+        const location=locations[i%3];let start=['2025-12-12','2026-01-18','2026-03-02','2026-06-30','2026-07-16','2026-08-04','2026-10-02','2026-11-12'][i%8];
+        if(provider.id==='1049'&&start<'2026-04')start='2026-04-12';
+        periods.push({id:`svc-${provider.id}-${i}`,providerId:provider.id,sn:`WP${String(2600000000+pIndex*100+i)}`,terminal:names[i%names.length],merchant:location[0],store:location[1],agent:location[2],start:start+'T09:20:00Z',end:i===3?'2026-08-20T14:15:00Z':null,activation:true,reason:i===8?'Merchant transfer · new service activation':'First parameter push accepted'});
       }
       if(count) {
-        const prior=periods.find(p=>p.id===`svc-${provider.id}-7`);
+        const prior=periods.find(p=>p.id===`svc-${provider.id}-3`);
         periods.push({...prior,id:`svc-${provider.id}-rebind`,start:'2026-09-09T10:30:00Z',end:null,activation:false,reason:'Same merchant re-enabled · activation fee not charged'});
       }
     });
-    const events = providers.flatMap(provider=>feeEvents(periods,provider,'2026-10'));
-    const bills = providers.map(provider=>createBill(provider,events,'2026-Q3'));
+    // All four 2026 quarters are explicit demo fixtures, including Q4's future quarter-end state.
+    // Normal generate() still requires a completed quarter.
+    const events = providers.flatMap(provider=>feeEvents(periods,provider,'2026-12')).sort((a,b)=>b.at.localeCompare(a.at));
+    const bills = ['2026-Q4','2026-Q3','2026-Q2','2026-Q1'].flatMap(quarter=>providers.map(provider=>createBill(provider,events,quarter)));
     for(const bill of bills) {
-      if(['1047','1053','1049','sp-wizardpos','provider-northstar'].includes(bill.providerId)) {
-        bill.status=total(bill)?'Unpaid':'No payment required'; bill.publishedAt='2026-10-02T09:00:00Z';bill.expiry=bill.providerId==='1053'?'2026-10-15':'2026-11-15';
-        bill.audit.push({at:bill.publishedAt,actor:'Operations',action:'Published',reason:'Quarterly review completed',before:total(bill),after:total(bill)});
-      }
+      const q=Number(bill.quarter.slice(-1));
+      bill.createdAt=new Date(Date.UTC(2026,q*3,1)).toISOString();
+      bill.publishedAt=new Date(Date.UTC(2026,q*3,2,9)).toISOString();
+      bill.status=!total(bill)?'No payment required':q<=2?'Paid':'Unpaid';
+      bill.expiry=total(bill)?new Date(Date.UTC(2026,q*3,32)).toISOString().slice(0,10):null;
+      if(q===3)bill.expiry=bill.providerId==='1053'?'2026-10-15':new Date(Date.now()+30*864e5).toISOString().slice(0,10);
+      bill.audit.push({at:bill.publishedAt,actor:'Operations',action:'Published',reason:'Quarterly review completed',before:total(bill),after:total(bill)});
+      if(bill.status==='Paid')bill.payments=[{id:'PAY-'+bill.id,at:new Date(Date.UTC(2026,q*3,9,11,42)).toISOString(),amount:total(bill),currency:bill.currency,status:'Succeeded',last4:'4242',brand:'Visa',revision:1}];
     }
-    // A published invoice and a paid prior quarter keep both Portal states discoverable.
-    const civ=providers[0], prior=createBill(civ,events,'2026-Q2');
-    prior.status='Paid';prior.publishedAt='2026-07-02T09:00:00Z';prior.expiry='2026-08-01';prior.payments=[{id:'PAY-PB-2026Q2-1050',at:'2026-07-09T11:42:00Z',amount:total(prior),currency:prior.currency,status:'Succeeded',last4:'4242',brand:'Visa',revision:1}];bills.push(prior);
-    const own=createBill(civ,events,'2026-Q1');own.status='No payment required';own.publishedAt='2026-04-03T09:00:00Z';own.lines=own.original=[];bills.push(own);
-    return {schema:1,providers,periods,events,bills};
+    return {schema:2,providers,periods,events,bills};
   }
-  function load() { const value=root.localStorage?.getItem(KEY); if(value){const state=JSON.parse(value);ensure(state.schema===1,'Billing data could not be read. Contact operations before retrying.');return state;} const state=seed();root.localStorage?.setItem(KEY,JSON.stringify(state));return state; }
+  function load() {
+    const value=root.localStorage?.getItem(KEY);
+    if(value){const state=JSON.parse(value);if(state.schema===2)return state;
+      ensure(state.schema===1,'Billing data could not be read. Contact operations before retrying.');
+      // User approved rebuilding these demo records. Preserve the exact previous payload first.
+      if(root.localStorage.getItem(BACKUP_KEY)===null)root.localStorage.setItem(BACKUP_KEY,value);
+    }
+    const state=seed();root.localStorage?.setItem(KEY,JSON.stringify(state));return state;
+  }
   function persist(state) { root.localStorage.setItem(KEY,JSON.stringify(state));root.dispatchEvent(new Event('provider-billing-change')); }
   function requireOperations() {ensure(root.PaywizardAccessContext?.profile()==='maintain','Only operations can change this bill.');}
   function find(state,id) { const bill=state.bills.find(item=>item.id===id);ensure(bill,'This bill is not available. Return to Billing and refresh.');return bill; }
@@ -124,12 +137,13 @@
     state.providers.push({id:input.id,name:record.name,currency:input.currency,commencement:input.commencement,rates:[{effective:input.commencement,activation:input.activation,monthly:input.monthly}],revision:1});persist(state);
   }
   function generate(providerId,quarter) {requireOperations();const state=load();const provider=state.providers.find(item=>item.id===providerId);ensure(provider,'Select a service provider.');ensure(/^\d{4}-Q[1-4]$/.test(quarter)&&quarter<quarterOf(today()),'Select a completed quarter.');ensure(!state.bills.some(b=>b.providerId===providerId&&b.quarter===quarter),'A bill already exists for this provider and quarter. Open that bill to review it.');ensure(quarter>=quarterOf(provider.commencement),'This quarter is before the billing commencement month.');const bill=createBill(provider,state.events,quarter);state.bills.unshift(bill);persist(state);return bill;}
-  function portalProvider() {const session=root.PaywizardAccessContext?.session();if(session)return session.entity.type==='provider'||session.entity.kind==='super_iso'?session.entity.id:null;return ({wizarpos:'1050','full-service':'1047',attended:'1053',unattended:'1049'})[root.PaywizardAccessContext?.profile()]||null;}
+  function portalProvider() {const session=root.PaywizardAccessContext?.session();if(session)return session.entity.id!=='sp-wizardpos'&&(session.entity.type==='provider'||session.entity.kind==='super_iso')?session.entity.id:null;return ({'full-service':'1047',attended:'1053',unattended:'1049'})[root.PaywizardAccessContext?.profile()]||null;}
+  function unpaidCount(providerId=portalProvider()){return providerId?load().bills.filter(b=>b.providerId===providerId&&b.publishedAt&&b.status==='Unpaid'&&total(b)>0).length:0;}
   function publicView(bill) { return clone({id:bill.id,providerId:bill.providerId,providerName:bill.providerName,quarter:bill.quarter,currency:bill.currency,lines:bill.lines.map(({eventIds,...line})=>line),status:bill.status,revision:bill.revision,expiry:bill.expiry,note:bill.note,token:bill.token,publishedAt:bill.publishedAt,amount:total(bill)/100,recurring:false,cycle:1,paidInstallments:bill.status==='Paid'?1:0,payments:bill.payments,processing:!!bill.lock}); }
   function publicBill(token) { const state=load(),bill=state.bills.find(item=>item.token===token&&item.publishedAt);ensure(bill,'This payment link is not available. Contact the sender.');return publicView(bill); }
   function beginPayment(token,revision,requestId) {const state=load(),bill=state.bills.find(item=>item.token===token&&item.publishedAt);ensure(bill,'This bill is not available.');editable(bill,revision);ensure(bill.status==='Unpaid'&&total(bill)>0,'This bill does not require payment.');ensure(bill.expiry>=today(),'This payment link has expired. Ask operations to extend it.');bill.lock={requestId,revision,at:stamp(),amount:total(bill)};persist(state);return clone(bill.lock);}
   function finishPayment(token,requestId,details) {const state=load(),bill=state.bills.find(item=>item.token===token);ensure(bill?.lock?.requestId===requestId,'Payment status is being confirmed. Refresh before trying again.');ensure(bill.revision===bill.lock.revision,'Payment status could not be confirmed. Contact operations.');bill.payments.push({id:'PAY-'+requestId,amount:bill.lock.amount,currency:bill.currency,at:stamp(),status:'Succeeded',brand:details.brand,last4:details.last4,revision:bill.revision});bill.status='Paid';bill.lock=null;bill.revision++;persist(state);return publicView(bill);}
-  const api={KEY,load,total,cents,today,nextMonth,monthName,quarterMonths,quarterOf,rateAt,feeEvents,calculate,seed,createBill,validateLines,amend,renew,saveRate,setup,generate,portalProvider,publicView,publicBill,beginPayment,finishPayment};
+  const api={KEY,BACKUP_KEY,DEFAULT_FEES,load,total,cents,today,nextMonth,monthName,quarterMonths,quarterOf,rateAt,feeEvents,calculate,seed,createBill,validateLines,amend,renew,saveRate,setup,generate,portalProvider,unpaidCount,publicView,publicBill,beginPayment,finishPayment};
   root.PaywizardProviderBilling=api;
   if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

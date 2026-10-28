@@ -9,3 +9,5 @@ FIRST VIEWPORT: one aligned heading/action row, understated horizontal tabs, a s
 Signature interaction: a quantity or amount adjustment immediately updates the final total and the difference from the original calculation; saving preserves audit history and the provider sees only the final bill. Unpaid revisions force checkout reconfirmation.
 
 Desktop evidence: 1440×1000 and 1280×800. Initial incumbent evidence: /tmp/provider-billing-incumbent.png. Scope excludes production APIs, genuine payments and deployment.
+
+2026-10-28 confirmed refinement: Maintain uses a dedicated Billing group for Overview / Service Provider Billing / Setup. Default fees are 2.00 activation and 7.99 monthly in each provider's existing currency. WizarPOS's own profile/entity has no Billing & Payments route. Other provider demos cover all four 2026 quarters. Reuse the existing red numeric menu badge for published positive unpaid bills, including expired links; update on payment and hide at zero. Preserve the incumbent layout. The user explicitly approved backing up and rebuilding prior demo records, and chose a future Q4 quarter-end fixture without changing normal generation rules.
