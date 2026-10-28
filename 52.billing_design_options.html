@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>服务商账单 · 方案比较</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}body{margin:0;color:#35373d;background:#f4f5f7;font:14px Poppins,Arial,sans-serif}header{padding:16px 24px 12px;background:white;border-bottom:1px solid #dedfe3}h1{font-size:18px;margin:0 0 12px}nav{display:flex;gap:8px;align-items:center}nav a{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;color:inherit;text-decoration:none;border:1px solid #d8dce2;border-radius:7px;font-size:13px}nav a[aria-current]{background:#27272a;border-color:#27272a;color:white}.open{margin-left:auto}p{font-size:12px;margin:12px 0 0;color:#626978}iframe{display:block;width:100%;height:calc(100vh - 145px);min-height:650px;border:0}a:focus-visible{outline:2px solid #647899;outline-offset:3px}</style></head>
+<body><header><h1>服务商账单 · 三版布局比较</h1><nav aria-label="设计方案"><a href="?layout=a" data-layout="a">A · 服务商工作台（推荐）</a><a href="?layout=b" data-layout="b">B · 服务商账单目录树</a><a href="?layout=c" data-layout="c">C · 服务商账务总览</a><a class="open" id="openOption" target="_blank" rel="noopener">单独打开此方案 ↗</a></nav><p id="description"></p></header><iframe id="preview" title="服务商账单设计预览"></iframe>
+<script>
+const layout=['a','b','c'].includes(new URLSearchParams(location.search).get('layout'))?new URLSearchParams(location.search).get('layout'):'a';
+document.querySelector('[data-layout="'+layout+'"]').setAttribute('aria-current','page');
+const url='52.service_provider_billing_options.html?layout='+layout;document.getElementById('preview').src=url;document.getElementById('openOption').href=url;
+document.getElementById('description').textContent={a:'左侧搜索并切换服务商，右侧核对季度账单。适合连续处理多家服务商；选择方案后再替换正式列表。',b:'服务商 → 年份 → 季度，点击季度直接查看账单。适合定位具体期间；这是账单目录，不是组织层级。',c:'先扫描各服务商未付金额与账单数量，再进入一家查看四季度。表格最宽，切换服务商多一步。'}[layout];
+</script></body></html>

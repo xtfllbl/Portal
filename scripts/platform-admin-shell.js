@@ -35,9 +35,9 @@
   if (impersonationSession) activeProfile = impersonationSession.profile;
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
+    "52.service_provider_billing_options.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing"], []),
     "52.service_provider_billing.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing"], []),
     "52.service_provider_bill.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing", "Bill Details"], []),
-    "52.service_fee_log.html": page("body > main.pb-page", "matintain", "service-fee-log", ["Maintain", "Service Fee Log"], []),
     "52.service_fee_settings.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing", "Fee Settings"], []),
     "52.provider_billing.html": page("body > main.pb-page", "provider-billing", "provider-billing", ["Billing & Payments"], []),
     "52.provider_bill.html": page("body > main.pb-page", "provider-billing", "provider-billing", ["Billing & Payments", "Bill Details"], []),
@@ -222,7 +222,6 @@
       transactions: ["payment", "Payment", "Transactions"],
       "billing-overview": ["billing", "Billing", "Billing Overview"],
       "provider-billing": ["billing", "Billing", "Service Provider Billing"],
-      "service-fee-log": ["payment", "Payment", "Service Fee Log"],
       "maintain-payment-channel": ["payment", "Payment", "Payment Channel"],
       "maintain-parameter-pool": ["payment", "Payment", "Parameter Pool"],
       leads: ["operations", "Operations", "Leads"],
@@ -259,7 +258,7 @@
   var panelPages = new Set([
     "52.service_provider_billing.html",
     "52.service_provider_bill.html",
-    "52.service_fee_log.html",
+    "52.service_provider_billing_options.html",
     "52.service_fee_settings.html",
     "52.provider_billing.html",
     "52.provider_bill.html",
@@ -444,7 +443,7 @@
         sub("Transactions", "12.transaction_list.html", "transactions"),
         unavailableSub("Settlement Info"),
         sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel"),
-        sub("Service Fee Log", "52.service_fee_log.html", "service-fee-log"), unavailableSub("Service Fee Report"), unavailableSub("Cached Transaction"),
+        unavailableSub("Service Fee Report"), unavailableSub("Cached Transaction"),
         sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool")
       ].join("")),
       group("Billing", "receipt_long", "billing", [
@@ -485,7 +484,6 @@
   var breadcrumbTargets = {
     "Billing": "44.billing_overview.html",
     "Service Provider Billing": "52.service_provider_billing.html",
-    "Service Fee Log": "52.service_fee_log.html",
     "Test Cards": "51.test_card_list.html",
     "Service Provider": "21.service_provider.html",
     "Processor Template": "3.Processor_template_new.html",

@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 运维 | `52.service_provider_billing.html` | Maintain → Billing → Service Provider Billing；按服务商、季度、状态查询，生成季度草稿 |
 | 运维 | `52.service_provider_bill.html?id=PB-2026Q3-1050` | 核对、调整和发布；Charges / System calculation / Source events / Activity |
-| 运维 | `52.service_fee_log.html` | 查看收费事件、设备与归属、触发原因及对应账单 |
+| 运维 | `52.service_fee_log.html` | 已废弃，旧地址转向服务商账单列表；核对依据保留在账单 Source events |
 | 运维 | `52.service_fee_settings.html` | 为服务商配置计费启用月份、币种与费用，维护未来生效的价格 |
 | 服务商 | `52.provider_billing.html` | Portal → Billing & Payments；仅当前服务商已发布的账单 |
 | 服务商 | `52.provider_bill.html?id=PB-2026Q3-1047` | 最终收费明细、备注、支付入口与支付记录 |
@@ -16,7 +16,7 @@
 
 已有商户收款入口继续使用原页面。Maintain 的 Billing Overview 增加服务商账单入口。服务商账单不向商户和门店角色开放。Portal 的季度筛选仅列出当前服务商已发布账单的季度，不显示其他服务商或未发布草稿独有的季度；Maintain 保留全部账单的季度选项。
 
-2026-10-28 后续确认：Maintain 新增独立 **Billing** 菜单，按 Billing Overview、Service Provider Billing、Billing Setup 排列；原 Payment / System 中对应入口移入该分组，面包屑和展开状态同步。Service Fee Log 继续保留在 Payment，费用设置从服务商账单进入。
+2026-10-28 后续确认：Maintain 新增独立 **Billing** 菜单，按 Billing Overview、Service Provider Billing、Billing Setup 排列；原 Payment / System 中对应入口移入该分组，面包屑和展开状态同步。用户随后明确废弃 Service Fee Log 页面，菜单与账单顶部入口均移除；费用设置仍从服务商账单进入。服务商维度的新布局正在比较，见 [三版方案](provider-layout-options.md)，尚未替换正式列表。
 
 默认激活费 **2.00 / 台 / 次符合条件的启用**，月服务费 **7.99 / 台 / 月**，仍保留各服务商的币种。当前演示费率、收费事件、原始试算和最终账单统一重建为该标准；正常业务中的未来调价与已付锁定规则不变。
 

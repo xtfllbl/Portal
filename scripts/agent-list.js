@@ -343,25 +343,11 @@
     const row = event.target.closest('[data-id]');
     if (row) selectAgent(row.dataset.id);
   });
-  $('agentTree').addEventListener('keydown', event => {
-    const row = event.target.closest('[data-id]');
-    if (!row) return;
-    const rows = Array.from($('agentTree').children), index = rows.indexOf(row), id = row.dataset.id;
-    let target;
-    if (event.key === 'ArrowDown') target = rows[Math.min(index + 1, rows.length - 1)];
-    else if (event.key === 'ArrowUp') target = rows[Math.max(index - 1, 0)];
-    else if (event.key === 'Home') target = rows[0];
-    else if (event.key === 'End') target = rows[rows.length - 1];
-    else if (event.key === 'ArrowRight') {
-      if (row.getAttribute('aria-expanded') === 'false') { collapsed.delete(id); renderTree(id); }
-      else if (row.hasAttribute('aria-expanded')) target = rows[index + 1];
-    } else if (event.key === 'ArrowLeft') {
-      if (row.getAttribute('aria-expanded') === 'true' && !$('searchName').value.trim()) { collapsed.add(id); renderTree(id); }
-      else target = rows.find(item => item.dataset.id === find(id).parentId);
-    } else if (event.key === 'Enter' || event.key === ' ') selectAgent(id);
-    else return;
-    event.preventDefault();
-    if (target) { rows.forEach(item => { item.tabIndex = -1; }); target.tabIndex = 0; target.focus(); }
+  window.PaywizardHierarchyTree.bind($('agentTree'), {
+    select: selectAgent,
+    parent: id => find(id).parentId,
+    searching: () => !!$('searchName').value.trim(),
+    expand: (id, expanded) => { expanded ? collapsed.delete(id) : collapsed.add(id); renderTree(id); }
   });
   $('agentDetail').addEventListener('click', async event => {
     const action = event.target.closest('[data-action]')?.dataset.action;

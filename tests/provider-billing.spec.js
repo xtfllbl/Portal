@@ -2,9 +2,9 @@ const {test,expect}=require('@playwright/test');
 const profile=async(page,value='maintain')=>{await page.addInitScript(p=>localStorage.setItem('paywizard.portalAccessProfile.v1',p),value);};
 const billPath='52.service_provider_bill.html?id=PB-2026Q3-1050';
 async function draftFixture(page){await page.evaluate(()=>{const api=PaywizardProviderBilling,state=api.load(),bill=state.bills.find(b=>b.id==='PB-2026Q3-1050');bill.status='Draft';bill.publishedAt=null;bill.expiry=null;localStorage.setItem(api.KEY,JSON.stringify(state));});await page.reload();}
-test('operations lists bills and uses keyboard-searchable provider filters',async({page})=>{
+test('operations lists bills and uses the searchable provider tree',async({page})=>{
  await profile(page);await page.goto('/52.service_provider_billing.html');await expect(page.getByRole('heading',{name:'Service Provider Billing',exact:true})).toBeVisible();
- await page.getByRole('combobox',{name:'Service provider',exact:true}).click();await page.getByRole('combobox',{name:'Search Service provider',exact:true}).fill('Civitronic');await page.keyboard.press('Enter');
+ await page.getByRole('searchbox',{name:'Search service providers',exact:true}).fill('Civitronic');await page.getByRole('searchbox',{name:'Search service providers',exact:true}).press('ArrowDown');await page.keyboard.press('Enter');
  await expect(page.locator('.pb-table tbody tr')).toHaveCount(4);
  await page.getByRole('tab',{name:/Drafts/}).click();await expect(page.getByText('No bills found')).toBeVisible();
  await page.getByRole('tab',{name:/Drafts/}).press('ArrowRight');await expect(page.getByRole('tab',{name:/Unpaid/})).toHaveAttribute('aria-selected','true');await expect(page.locator('.pb-table tbody tr')).toHaveCount(2);
@@ -37,8 +37,8 @@ test('published bill can be edited but a stale payment confirmation is rejected'
 test('fee settings support future prices without rewriting existing bills',async({page})=>{
  await profile(page);await page.goto('/52.service_fee_settings.html');await page.locator('[data-rate="1050"]').click();await page.getByLabel('Activation fee',{exact:true}).fill('65');await page.getByLabel('Monthly service fee',{exact:true}).fill('15');await page.getByRole('button',{name:'Save Fees',exact:true}).click();await expect(page.locator('#pbFeedback')).toContainText('saved');await expect(page.locator('.pb-settings-table tbody tr').first()).toContainText('USD 2.00');
 });
-test('event filters and event detail retain terminal name and serial separation',async({page})=>{
- await profile(page);await page.goto('/52.service_fee_log.html');await page.getByRole('combobox',{name:'Event type',exact:true}).click();await page.getByRole('option',{name:'Unbound',exact:true}).click();await page.locator('button[data-event]').first().click();await expect(page.getByRole('dialog')).toContainText('Unbound');await expect(page.getByRole('dialog')).toContainText('No charge');await expect(page.getByRole('dialog')).toContainText('Terminal name');await expect(page.getByRole('dialog')).toContainText('S/N');
+test('bill source events retain terminal name and serial separation',async({page})=>{
+ await profile(page);await page.goto('/52.service_provider_bill.html?id=PB-2026Q3-1050');await page.getByRole('tab',{name:'Source events',exact:true}).click();await page.locator('button[data-event]').first().click();await expect(page.getByRole('dialog')).toContainText('Terminal name');await expect(page.getByRole('dialog')).toContainText('S/N');
 });
 test('zero bill stays visible without a payment action',async({page})=>{
  await profile(page,'unattended');await page.goto('/52.provider_billing.html');await expect(page.locator('.pb-table')).toContainText('No payment required');await page.getByRole('link',{name:'PB-2026Q1-1049',exact:true}).click();await expect(page.getByRole('link',{name:'Pay now'})).toHaveCount(0);await expect(page.getByText('No payment is required for this bill.')).toBeVisible();
@@ -65,4 +65,43 @@ test('future commencement fees reopen and cannot move before billing starts',asy
  await page.locator(`[data-rate="${providerId}"]`).click();await expect(page.getByRole('dialog')).toBeVisible();await expect(page.getByLabel('Activation fee',{exact:true})).toHaveValue('75.00');await expect(page.getByLabel('Effective from · UTC')).toHaveValue(future);
  await page.getByLabel('Effective from · UTC').fill(await page.evaluate(()=>PaywizardProviderBilling.nextMonth(PaywizardProviderBilling.today())));await page.getByRole('button',{name:'Save Fees',exact:true}).click();await expect(page.locator('#pbDialogError')).toBeFocused();await expect(page.locator('#pbDialogError')).toContainText('on or after billing starts');
  await page.getByLabel('Effective from · UTC').fill(future);await page.getByLabel('Monthly service fee',{exact:true}).fill('18.00');await page.getByRole('button',{name:'Save Fees',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();await page.locator(`[data-rate="${providerId}"]`).click();await expect(page.getByLabel('Monthly service fee',{exact:true})).toHaveValue('18.00');
+});
+
+test('provider workspace keeps scope through review, filters, reset and fee settings',async({page})=>{
+ await profile(page);await page.goto('/52.service_provider_billing.html?provider=1047');
+ await expect(page.getByRole('treeitem',{name:'Cantaloupe Inc',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('.pb-table thead')).not.toContainText('SERVICE PROVIDER');
+ await page.getByRole('tab',{name:/Unpaid/}).click();
+ await page.getByRole('link',{name:'PB-2026Q3-1047',exact:true}).click();
+ await page.getByRole('link',{name:'Back to billing'}).click();
+ await expect(page.getByRole('treeitem',{name:'Cantaloupe Inc',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.getByRole('tab',{name:/Unpaid/})).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('.pb-table tbody tr')).toHaveCount(2);
+ await page.getByRole('button',{name:'Reset filters'}).click();
+ await expect(page.getByRole('treeitem',{name:'Cantaloupe Inc',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.getByRole('button',{name:'Generate Bill',exact:true}).click();
+ await expect(page.locator('#pbDialog')).toHaveAttribute('data-provider','1047');
+ await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ await page.getByRole('link',{name:'Fee Settings',exact:true}).click();
+ await expect(page.locator('.pb-table tbody tr')).toHaveCount(1);
+ await expect(page.locator('.pb-table')).toContainText('Cantaloupe Inc');
+ await page.getByRole('link',{name:'Back to billing'}).click();
+ await expect(page.getByRole('treeitem',{name:'Cantaloupe Inc',exact:true})).toHaveAttribute('aria-selected','true');
+});
+test('provider tree contains unconfigured providers, retains selection on search and supports all-bill pagination',async({page})=>{
+ await profile(page);await page.goto('/52.service_provider_billing.html');
+ await expect(page.getByRole('treeitem')).toHaveCount(10);
+ await expect(page.locator('.pb-pagination')).toContainText('of 28');
+ await page.getByRole('button',{name:'Next page'}).click();await expect(page.locator('.pb-pagination')).toContainText('Page 2 of 3');
+ await page.locator('.pb-invoice a').first().click();await page.getByRole('link',{name:'Back to billing'}).click();
+ await expect(page.locator('.pb-pagination')).toContainText('Page 2 of 3');
+ const node=page.locator('#pbProviderTree [data-id="1052"]');await node.click();
+ await expect(page.getByText('Fees not configured',{exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Generate Bill',exact:true})).toHaveCount(0);
+ await page.getByRole('searchbox',{name:'Search service providers',exact:true}).fill('no such provider');
+ await expect(page.getByText('No service providers found.')).toBeVisible();await expect(page.getByText('Fees not configured',{exact:true})).toBeVisible();
+ await page.getByRole('searchbox',{name:'Search service providers',exact:true}).fill('');
+ await expect(node).toHaveAttribute('aria-selected','true');
+ await page.getByRole('link',{name:'Set Up Fees',exact:true}).click();await page.getByRole('button',{name:'Set Up Fees',exact:true}).click();
+ await expect(page.locator('#pbDialog')).toHaveAttribute('data-provider','1052');
 });
