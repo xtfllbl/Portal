@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  if (location.hash.startsWith('#provider.')) { window.PaywizardProviderCheckout.start(); return; }
   const $=id=>document.getElementById(id), form=window.PaywizardBillingCardForm;
   let token=location.hash.slice(1);
   const newRequestId=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');

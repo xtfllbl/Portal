@@ -243,7 +243,7 @@ test("billing and merchant direct links obey role visibility", async ({ page }) 
   for (const profile of ["wizarpos", "full-service", "attended", "unattended"]) {
     await setProfile(page, profile, "/42.billing_payments.html");
     await expect(page).toHaveURL(/12\.transaction_list\.html$/);
-    await expect(page.locator('[data-pw-nav-label="Billing & Payments"]')).toHaveCount(0);
+    await expect(page.locator('[data-pw-nav-label="Billing & Payments"]')).toHaveAttribute('href', '52.provider_billing.html');
     await page.goto("/41.billing_setup.html");
     await expect(page).toHaveURL(/41\.billing_setup\.html$/);
     await expect(page.locator(".pw-platform-profile-label")).toHaveText("WizarPOS Maintain");

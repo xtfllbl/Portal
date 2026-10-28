@@ -35,6 +35,12 @@
   if (impersonationSession) activeProfile = impersonationSession.profile;
   window.PaywizardImpersonationSession = impersonationSession;
   var pageMap = {
+    "52.service_provider_billing.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing"], []),
+    "52.service_provider_bill.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing", "Bill Details"], []),
+    "52.service_fee_log.html": page("body > main.pb-page", "matintain", "service-fee-log", ["Maintain", "Service Fee Log"], []),
+    "52.service_fee_settings.html": page("body > main.pb-page", "matintain", "provider-billing", ["Maintain", "Service Provider Billing", "Fee Settings"], []),
+    "52.provider_billing.html": page("body > main.pb-page", "provider-billing", "provider-billing", ["Billing & Payments"], []),
+    "52.provider_bill.html": page("body > main.pb-page", "provider-billing", "provider-billing", ["Billing & Payments", "Bill Details"], []),
     "51.test_card_list.html": page("body > main.tc-page", "test-card", "test-card-list", ["Test Cards", "Test Card List"], []),
     "51.test_card_activation.html": page("body > main.tc-page", "test-card", "test-card-activation", ["Test Cards", "Activation"], []),
     "51.test_card_detail.html": page("body > main.tc-page", "test-card", "test-card-list", ["Test Cards", "Test Card List", "Card Details"], []),
@@ -143,6 +149,7 @@
 
   function fallbackFor(targetFile, profile) {
     var target = pageMap[targetFile];
+    if (target && target.module === "provider-billing" && (profiles[profile].merchant || profiles[profile].store || profile === "maintain" || (impersonationSession && !["provider", "super_iso"].includes(impersonationSession.entity.type || impersonationSession.entity.kind)))) return "12.transaction_list.html";
     if (profiles[profile].billingOnly) return targetFile === "42.billing_payments.html" ? "" : "42.billing_payments.html";
     if (!target) return "12.transaction_list.html";
     if (target.module === "test-card") return profile === "maintain" ? "" : "12.transaction_list.html";
@@ -206,6 +213,8 @@
     var maintainEntries = {
       transactions: ["payment", "Payment", "Transactions"],
       "billing-overview": ["payment", "Payment", "Billing Overview"],
+      "provider-billing": ["payment", "Payment", "Service Provider Billing"],
+      "service-fee-log": ["payment", "Payment", "Service Fee Log"],
       "maintain-payment-channel": ["payment", "Payment", "Payment Channel"],
       "maintain-parameter-pool": ["payment", "Payment", "Parameter Pool"],
       leads: ["operations", "Operations", "Leads"],
@@ -240,6 +249,12 @@
     "1.terminalmanage_nayax.html"
   ]);
   var panelPages = new Set([
+    "52.service_provider_billing.html",
+    "52.service_provider_bill.html",
+    "52.service_fee_log.html",
+    "52.service_fee_settings.html",
+    "52.provider_billing.html",
+    "52.provider_bill.html",
     "51.test_card_list.html",
     "51.test_card_activation.html",
     "51.test_card_detail.html",
@@ -400,7 +415,7 @@
       link("Transactions", "12.transaction_list.html", "credit_card", "transactions"),
       !isMerchant ? group("Agents", "group", "agents", agentItems) : "",
       isMerchant ? link("Merchant", "5.merchant_detail_iso.html", "store", "merchant-list") : group("Merchants", "store", "merchants", merchantItems),
-      isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : "",
+      isMerchant ? link("Billing & Payments", "42.billing_payments.html", "receipt_long", "billing-payments") : (!impersonationSession || ["provider", "super_iso"].includes(impersonationSession.entity.type || impersonationSession.entity.kind)) ? link("Billing & Payments", "52.provider_billing.html", "receipt_long", "provider-billing") : "",
       isWizarpos ? group("Partners", "lightbulb", "partners", sub("Partner List", "26.partner_information.html", "partners")) : "",
       device,
       ["wizarpos", "full-service", "full-service-merchant", "unattended", "unattended-merchant"].includes(activeProfile) ? link("Advertising", "45.advertising.html", "campaign", "advertising") : "",
@@ -420,8 +435,9 @@
         sub("Transactions", "12.transaction_list.html", "transactions"),
         unavailableSub("Settlement Info"),
         sub("Billing Overview", "44.billing_overview.html", "billing-overview"),
+        sub("Service Provider Billing", "52.service_provider_billing.html", "provider-billing"),
         sub("Payment Channel", "47.payment_channel.html", "maintain-payment-channel"),
-        unavailableSub("Service Fee Log"), unavailableSub("Service Fee Report"), unavailableSub("Cached Transaction"),
+        sub("Service Fee Log", "52.service_fee_log.html", "service-fee-log"), unavailableSub("Service Fee Report"), unavailableSub("Cached Transaction"),
         sub("Parameter Pool", "49.parameter_pool.html", "maintain-parameter-pool")
       ].join("")),
       group("Operations", "tune", "operations", [
@@ -456,6 +472,8 @@
   }
 
   var breadcrumbTargets = {
+    "Service Provider Billing": "52.service_provider_billing.html",
+    "Service Fee Log": "52.service_fee_log.html",
     "Test Cards": "51.test_card_list.html",
     "Service Provider": "21.service_provider.html",
     "Processor Template": "3.Processor_template_new.html",

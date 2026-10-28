@@ -157,7 +157,7 @@ A simulated billing experience in which operations and external payers refer to 
 _Avoid_: Local Billing Demo, real payment processing
 
 **Billing Record**:
-A payment obligation collected as a one-time payment or a Fixed-term Billing Contract. It is either a Merchant Billing Record or a Standalone Billing Record.
+A payment obligation collected as a one-time payment or a Fixed-term Billing Contract. Its business forms include Merchant Billing Records, Standalone Billing Records and Service Provider Quarterly Bills.
 _Avoid_: Payment Link, Payment Attempt
 
 **Merchant Billing Record**:
@@ -165,8 +165,44 @@ A payment obligation assigned to a merchant, visible in the portal to that merch
 _Avoid_: Payment Link, Customer Alert
 
 **Standalone Billing Record**:
-A Billing Record created and managed by operations without assignment to a merchant or inclusion in a merchant's billing view, payable by an external customer through a Billing Payment Link. It supports both one-time payment and a Fixed-term Billing Contract.
+A Billing Record created and managed by operations without assignment to a Merchant or Service Provider, payable by an external customer through a Billing Payment Link and excluded from their account billing views. It supports both one-time payment and a Fixed-term Billing Contract.
 _Avoid_: Unassigned merchant, temporary merchant, reusable checkout link
+
+**Service Provider Fee Schedule**:
+The activation fee and monthly service fee amounts agreed for a particular Service Provider's terminals in that provider's single billing currency. Different Service Providers may have different fee amounts; applicable months and quarters are interpreted in UTC.
+_Avoid_: Merchant Billing Record, Fixed-term Billing Contract, payment schedule
+
+**Service Provider Quarterly Bill**:
+A quarterly statement of a Service Provider's terminal activation fees and monthly service fees, covering its direct and indirect Merchant and Store hierarchy. Operations reviews it before publication and may revise it while unpaid; positive amounts are payable through Portal Billing, while zero-amount bills are retained without a payment link.
+_Avoid_: Fixed-term Billing Contract, monthly payment receipt, merchant payable
+
+**Operations Bill Adjustment**:
+An operations user's explicit revision of an unpaid Service Provider Quarterly Bill, before or after publication, including billed activation quantities, activation charges and monthly service-fee line items. It changes that bill's final charge without changing terminal history or the provider's future Fee Schedule; original calculations and internal change records are visible only to operations.
+_Avoid_: Automatic fee recalculation, physical terminal transfer, payment attempt
+
+**Terminal Billing Activation**:
+A qualifying service activation for a physical Terminal identified by S/N, triggered by successful submission of its parameter push without requiring a device acknowledgement. Initial activation and reactivation after a change of Merchant or Service Provider qualify; ordinary parameter updates, Store transfers within the same Merchant and unbinding followed by re-enablement for the same Merchant do not create another billing activation.
+_Avoid_: First online heartbeat, first payment, configuration creation, every parameter push
+
+**Terminal Activation Fee**:
+A fee charged once for each qualifying Terminal Billing Activation under the responsible Service Provider's Fee Schedule. A new service activation following a change of Merchant or Service Provider can generate another activation fee for the same physical Terminal.
+_Avoid_: Lifetime fee per S/N, fee for every parameter update, Terminal Monthly Service Fee
+
+**Terminal Fee Event**:
+A qualifying occurrence that establishes a calculated activation fee or monthly service fee for a Service Provider's Terminal. Later unbinding, re-enablement or transfer does not automatically cancel it; an explicit Operations Bill Adjustment may change the final amount billed.
+_Avoid_: Current terminal count alone, payment attempt, parameter push retry
+
+**Terminal Monthly Service Fee**:
+A recurring monthly fee for each qualifying terminal under its Service Provider's Fee Schedule, beginning on the first day of the month after initial enablement or re-enablement following unbinding; the enablement month is free. Unbinding ends that service period, with a chargeable unbinding month billed in full and no further monthly fees for that ended period.
+_Avoid_: Fixed-term contract installment, activation fee, quarterly per-terminal rate
+
+**Terminal Service Period**:
+A period of a Terminal's enabled service for a Merchant and Store within a Service Provider, starting with a successfully submitted parameter push following binding and ending at unbinding. A new period after re-enablement receives the same first-month service-fee exemption, independently of whether a new Terminal Activation Fee is due.
+_Avoid_: Billing quarter, Fixed-term Billing Contract, another activation fee for every rebind
+
+**Service Provider Billing Commencement Month**:
+The month from which a Service Provider's monthly service fees are assessed, selected individually for that provider after reviewing historical data for existing terminals. Earlier service fees are not collected, while historical activation fees are subject to catch-up collection; the month is distinct from a Terminal's activation month and from the software feature's release date.
+_Avoid_: Universal launch date, new activation for every existing terminal, automatic historical fee waiver
 
 **Billing Payment Link**:
 A shareable entry to the payment page for a specific Billing Record, provided by an operations user so the payer can pay without signing in to the portal.
