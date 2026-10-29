@@ -39,7 +39,13 @@
       sections.push('<p style="font-size:36px;text-align:center;font-weight:700;margin:0 0 8px">'+esc(format(s.payment.amount))+'</p>');
       paragraph('Paid on '+s.payment.at.replace('T',' ').replace(/\.\d{3}Z$/,' UTC'));
       table(common.concat(row('Amount Paid',format(s.payment.amount)),row('Payment ID',s.payment.id),row('Payment Method',s.paymentMethod ? s.paymentMethod.brand+' •••• '+s.paymentMethod.last4 : 'Card')));
-      if(s.recurring)paragraph('Billing Cycle: Month '+s.payment.installment+' of '+s.installmentCount+'. '+s.paidInstallmentCount+' installments paid.');
+      if(s.recurring) {
+        if(s.receiptVersion === 2) {
+          const date = value => new Date(value+'T00:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+          paragraph('Billing Period: '+(s.billingPeriod ? date(s.billingPeriod.start)+' – '+date(s.billingPeriod.end) : '—'));
+          paragraph('Installment: '+s.payment.installment+' of '+s.installmentCount);
+        } else paragraph('Billing Cycle: Month '+s.payment.installment+' of '+s.installmentCount+'. '+s.paidInstallmentCount+' installments paid.');
+      }
       if(stopped)paragraph('Collection has stopped. This payment was already processing and has now completed. No new payments will be collected.');
       else if(s.recurring && s.paidInstallmentCount===s.installmentCount)paragraph('All '+s.installmentCount+' installments have been paid. No further payments will be collected for this bill.');
       else if(s.recurring && due.length)paragraph('There are remaining due installments. Each will be collected separately, starting with the oldest unpaid installment.');

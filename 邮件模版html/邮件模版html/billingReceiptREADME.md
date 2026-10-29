@@ -10,7 +10,7 @@
 - 独立支付省略整个商户信息行，不留空标签，无登录按钮。
 - 显示本次成功实付金额，不把合同总金额当成本次支付额。付款时间必须包含明确时区。
 - Fixed-term monthly 显示本次期数及总期数；仍有逾期款时提示逐期收取，否则显示后端提供的下一扣款金额和日期。全部期数已付清时提示结束，不再显示下一扣款。
-- 不沿用旧邮件的 Monthly Subscription 或不明确的服务覆盖日期范围，不自行推算下一付款日期。
+- 新收据显示本期Billing Period及Installment，账期按原合同计划确定，含起止两日；提前付款或补扣不改变归属。不沿用Monthly Subscription，不根据实际付款时间推算账期或下一付款日期。
 - eSIM 的 Included data 仅在有值时显示；空备注整块省略。费用描述应来自账单业务描述，不能固定成终端 SaaS。
 
 ## 渲染
@@ -36,3 +36,11 @@ python3 renderBillingReceipt.py billingReceiptStandaloneMonthlySample.json /tmp/
 ## 2026-09-09 演示开发更新
 
 `render_message(data)`现返回subject/html/text；原`render(data)`继续返回HTML。命令行同步输出HTML、纯文本和主题。收据增加Payment ID、collectionStopped及无后续计划分支。44的View emails使用浏览器端事件渲染器查看每笔成功快照，详见[billingFailureREADME.md](billingFailureREADME.md)。没有真实发送。
+
+## 2026-10-29 单期账期
+
+新成功事件保存 `receiptVersion: 2` 和 `billingPeriod: {start: "2026-09-07", end: "2026-10-06"}`（UTC日历日期、含首尾）。运行时和Python参考渲染器均展示 `Billing Period: Sep 7, 2026 – Oct 6, 2026` 与 `Installment: 2 of 6`，实际付款时间独立展示。缺少可信账期时新版显示“—”，不根据付款时间猜测。一次性付款隐藏账期和期号。
+
+旧事件及旧输入不含版本字段时，保留原有 `Billing Cycle: Month X of N` 文案，不改写、不重发。样例文件是可重新生成的虚构演示素材，已更新为新版；更新样例不代表修改用户历史收据。逾期样例特意使用早于实付日期的原账期。
+
+后台历史账单按原始开始日、总期数、期号及原计划日核对后补充账期；原计划信息缺失或冲突时显示“—”。新收据保存日期快照，后续邮件查看或投递重试不重新推算。

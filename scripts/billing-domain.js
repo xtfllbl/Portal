@@ -12,6 +12,17 @@ function monthlyDate(start, offset) {
   date.setUTCDate(Math.min(d, new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate()));
   return day(date);
 }
+// Inclusive dates for one original contract installment, never the payment date.
+function installmentPeriod(bill, number) {
+  const term = Number(bill.cycle);
+  if (!bill.recurring || !validDate(bill.start) || !Number.isInteger(term) || term < 1 || term > 36 || !Number.isInteger(number) || number < 1 || number > term) return null;
+  const installment = bill.installments?.find(i => i.number === number);
+  const start = monthlyDate(bill.start, number - 1);
+  if (!installment || installment.due !== start) return null;
+  const end = new Date(monthlyDate(bill.start, number) + 'T00:00:00Z');
+  end.setUTCDate(end.getUTCDate() - 1);
+  return {start, end:day(end)};
+}
 function makeBill(input, now = new Date(), legacy = false) {
   const assignment = input.assignment ?? 'merchant';
   if (!['merchant', 'standalone'].includes(assignment)) throw new Error('Invalid billing assignment.');
@@ -133,7 +144,7 @@ function collect(bill, { now = new Date(), source = 'scheduled', failAt = 0 } = 
     }
     installment.paidAt = payment.at;
     bill.status = bill.installments.every(i => i.status === 'Paid') ? 'Paid' : bill.installments.some(i => i.status === 'Failed') ? 'Overdue' : 'Active';
-    queueNotification(bill, 'receipt', payment.id, email, now, {payment: {...payment}});
+    queueNotification(bill, 'receipt', payment.id, email, now, {payment: {...payment}, receiptVersion:2, billingPeriod:installmentPeriod(bill, installment.number)});
   }
   round.completedAt = now.toISOString();
   if (scheduleDate) bill.scheduledRuns[scheduleDate] = {roundId:round.id, at:now.toISOString(), status:round.status};
@@ -207,7 +218,7 @@ function renewLink(bill, input, now = new Date(), actor = 'WizarPOS Provider (de
   return bill;
 }
 
-  const domain = { day, monthlyDate, makeBill, summary, needsAttention, publicView, collect, checkout, retryPayment, stopCollection, renewLink, sendLink, stopped, nextAutomaticAttempt, notificationSnapshot };
+  const domain = { day, monthlyDate, installmentPeriod, makeBill, summary, needsAttention, publicView, collect, checkout, retryPayment, stopCollection, renewLink, sendLink, stopped, nextAutomaticAttempt, notificationSnapshot };
   if (typeof module !== 'undefined' && module.exports) module.exports = domain;
   else root.PaywizardBillingDomain = domain;
 })(globalThis);

@@ -709,8 +709,16 @@ An authorized user's decision to end handling of an Alert Incident without claim
 _Avoid_: Resolution, Recovery
 
 **Contract Installment**:
-A single monthly amount due under a Fixed-term Billing Contract, with its own service-anchored due date and payment outcome. Overdue installments remain separate obligations and are never combined into one charge.
+A single monthly amount due under a Fixed-term Billing Contract, with its own fixed ordinal, Billing Period, service-anchored due date and payment outcome. Early payment or overdue collection does not change its ordinal or Billing Period; overdue installments remain separate obligations and are never combined into one charge.
 _Avoid_: Combined arrears charge, entire contract payment
+
+**Contract Period**:
+The overall period of a Fixed-term Billing Contract, anchored to its original Billing Start Date and agreed number of monthly installments.
+_Avoid_: Billing Period, payment date, final installment due date
+
+**Billing Period**:
+The inclusive date range covered by one Contract Installment under the original contract schedule, from its scheduled start through the day before the next installment starts, or before the Contract Period endpoint for the final installment. It is independent of when payment is attempted or succeeds.
+_Avoid_: Contract Period, actual payment date, collection attempt date
 
 **Installment Payment Attempt**:
 One attempted collection of one Contract Installment. Failed attempts do not count as paid installments; each successful attempt settles only its own installment.

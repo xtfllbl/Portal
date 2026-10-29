@@ -1,5 +1,6 @@
 """Render a successful-payment receipt. Usage: python3 renderBillingReceipt.py input.json output.html"""
 import json, sys
+from datetime import date
 from pathlib import Path
 from html import escape
 from string import Template
@@ -32,7 +33,16 @@ def render(data):
         number, term = data['installmentNumber'], data['installmentCount']
         if not 1 <= number <= term or not 1 <= data['paidInstallmentCount'] <= term:
             raise ValueError('Invalid installment counts')
-        values['paymentRows'] += detail('Billing Cycle: Month '+str(number)+' of '+str(term), '#2563eb')
+        if data.get('receiptVersion') == 2:
+            period = data.get('billingPeriod')
+            def period_date(value):
+                parsed = date.fromisoformat(value)
+                months = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+                return f'{months[parsed.month-1]} {parsed.day}, {parsed.year}'
+            values['paymentRows'] += detail('Billing Period: '+(period_date(period['start'])+' – '+period_date(period['end']) if period else '—'))
+            values['paymentRows'] += detail('Installment: '+str(number)+' of '+str(term), '#2563eb')
+        else:
+            values['paymentRows'] += detail('Billing Cycle: Month '+str(number)+' of '+str(term), '#2563eb')
         if data.get('collectionStopped'):
             body = 'Collection has stopped. This payment was already processing and has now completed. No new payments will be collected.'
         elif data['paidInstallmentCount']==term:
